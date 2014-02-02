@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class WorkflowDefinition<S extends WorkflowState> {
@@ -9,7 +9,7 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   
   private String type;
   private final S initialState;
-  private final Map<S,S> allowedTransitions = new HashMap<>();
+  private final Map<S,S> allowedTransitions = new LinkedHashMap<>();
   
   protected WorkflowDefinition(String type, S initialState) {
     this.type = type;

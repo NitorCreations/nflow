@@ -6,7 +6,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +28,7 @@ public class RepositoryService {
   private static final Logger logger = getLogger(RepositoryService.class);
   
   private final RepositoryDao repositoryDao;
-  private Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new HashMap<>();
+  private Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
   
   @Inject
   public RepositoryService(RepositoryDao repositoryDao) throws Exception {
