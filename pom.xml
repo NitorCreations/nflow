@@ -38,6 +38,7 @@
     <jodatime.version>2.3</jodatime.version>
     <jetty.version>9.1.1.v20140108</jetty.version>
     <slf4j.version>1.7.5</slf4j.version>
+    <logback-classic.version>1.0.13</logback-classic.version>
     <core-utils.version>1.2</core-utils.version>
     <commons.lang3.version>3.2.1</commons.lang3.version>
     <apache.cxf.version>3.0.0-milestone1</apache.cxf.version>
@@ -245,8 +246,18 @@
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
+        <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback-classic.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

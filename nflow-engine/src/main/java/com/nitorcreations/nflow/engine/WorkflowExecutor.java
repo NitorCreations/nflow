@@ -5,9 +5,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.lang.reflect.Method;
 
-import org.apache.log4j.MDC;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import org.springframework.util.ReflectionUtils;
 
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
@@ -43,7 +43,7 @@ public class WorkflowExecutor implements Runnable {
   }
 
   private void runImpl() {
-    MDC.put("workflowInstanceId", instanceId);
+    MDC.put("workflowInstanceId", String.valueOf(instanceId));
     logger.debug("Starting.");
         
     WorkflowInstance instance = repository.getWorkflowInstance(instanceId);

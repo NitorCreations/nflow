@@ -1,0 +1,53 @@
+<configuration scan="true" scanPeriod="10 seconds">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>DENY</onMatch>
+      <onMismatch>NEUTRAL</onMismatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>DENY</onMatch>
+      <onMismatch>NEUTRAL</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>%d{dd.MM.yyyy HH:mm:ss,SSS} %-5p [%t] %-30.30c - [user:%X{username}] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>WARN</level>
+    </filter>
+    <encoder>
+      <pattern>%d{dd.MM.yyyy HH:mm:ss,SSS} %-5p [%t] %-30.30c - [user:%X{username}] %msg%n</pattern>
+    </encoder>
+    <target>System.err</target>
+  </appender>
+
+	<appender name="STDOUT-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="STDOUT" />
+		<includeCallerData>true</includeCallerData>
+		<queueSize>2000</queueSize>
+		<!-- do not lose warn, info or trace events if queue gets full -->
+		<discardingThreshold>0</discardingThreshold>
+	</appender>
+
+	<appender name="STDERR-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="STDERR" />
+		<includeCallerData>true</includeCallerData>
+		<queueSize>2000</queueSize>
+	</appender>
+
+	<logger name="com.nitorcreations" level="info"/>
+	<!-- to enable logging of executed sql statements (which does not include parameter values), uncomment this: -->
+	<!-- 
+	  <logger name="org.springframework.jdbc.core.JdbcTemplate" level="debug"/>
+  	-->
+  	
+  <root level="warn">
+    <appender-ref ref="STDOUT-ASYNC" />
+    <appender-ref ref="STDERR-ASYNC" />
+  </root>
+</configuration>
