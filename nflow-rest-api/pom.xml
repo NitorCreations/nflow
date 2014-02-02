@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>nflow-rest-api</artifactId>
+  <packaging>jar</packaging>
+  <name>nflow-rest-api</name>
+  <url>http://maven.apache.org</url>
+  <parent>
+    <artifactId>nflow-root</artifactId>
+    <groupId>com.nitorcreations</groupId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
+  <dependencies>
+    <dependency>
+      <groupId>com.nitorcreations</groupId>
+      <artifactId>nflow-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wordnik</groupId>
+      <artifactId>swagger-jaxrs_2.10</artifactId>
+    </dependency> 
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.el</groupId>
+      <artifactId>javax.el-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.el</artifactId>
+    </dependency>  
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+</project>
