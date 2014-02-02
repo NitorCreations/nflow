@@ -28,6 +28,8 @@ public class WorkflowExecutor implements Runnable {
   private final Integer instanceId; 
   private final RepositoryService repository;
   
+  private static final String MDC_KEY = "workflowInstanceId";
+  
   public WorkflowExecutor(Integer instanceId, RepositoryService repository) {
     this.instanceId = instanceId;
     this.repository = repository;
@@ -36,14 +38,16 @@ public class WorkflowExecutor implements Runnable {
   @Override
   public void run() {
     try {
+      MDC.put(MDC_KEY, String.valueOf(instanceId));
       runImpl();
     } catch(Exception ex) {
       logger.error("Totally unexpected failure (e.g. deadlock) occurred.", ex);
+    } finally {
+      MDC.remove(MDC_KEY);
     }
   }
 
   private void runImpl() {
-    MDC.put("workflowInstanceId", String.valueOf(instanceId));
     logger.debug("Starting.");
         
     WorkflowInstance instance = repository.getWorkflowInstance(instanceId);
@@ -69,8 +73,7 @@ public class WorkflowExecutor implements Runnable {
       subsequentStateExecutions++;
       StateExecutionImpl execution = new StateExecutionImpl(instance);
       try {
-        Method stateHandler = ReflectionUtils.findMethod(definition.getClass(), instance.state, StateExecution.class);
-        ReflectionUtils.invokeMethod(stateHandler, definition, execution);
+        processState(instance, definition, execution);
       } catch (Exception ex) {
         logger.error("Handler threw exception, trying again later", ex);
         execution.setNextActivation(now().plusMillis(settings.getErrorBumpedTransitionDelay()));
@@ -89,6 +92,13 @@ public class WorkflowExecutor implements Runnable {
       }
     }
     logger.debug("Finished.");
+  }
+
+  private void processState(WorkflowInstance instance,
+      WorkflowDefinition<? extends WorkflowState> definition,
+      StateExecutionImpl execution) {
+    Method stateHandler = ReflectionUtils.findMethod(definition.getClass(), instance.state, StateExecution.class);
+    ReflectionUtils.invokeMethod(stateHandler, definition, execution);
   }
 
 }

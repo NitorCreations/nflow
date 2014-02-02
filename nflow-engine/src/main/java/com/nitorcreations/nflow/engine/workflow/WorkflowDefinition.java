@@ -3,6 +3,8 @@ package com.nitorcreations.nflow.engine.workflow;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.util.ReflectionUtils;
+
 public abstract class WorkflowDefinition<S extends WorkflowState> {
 
   private static final WorkflowSettings defaultSettings = new WorkflowSettings();
@@ -37,12 +39,9 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   }
   
   private void requireStateMethodExists(S state) {
-    try {
-      this.getClass().getMethod(state.name(), StateExecution.class);
-    } catch (NoSuchMethodException | SecurityException e) {
+    if(ReflectionUtils.findMethod(this.getClass(), state.name(), StateExecution.class) == null) {
       String msg = String.format("Class %s is missing state handling method %s(StateExecution execution)", this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }
-    
   }
 }
