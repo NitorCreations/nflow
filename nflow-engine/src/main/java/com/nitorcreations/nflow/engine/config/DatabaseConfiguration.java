@@ -15,7 +15,7 @@ public class DatabaseConfiguration {
   public DataSource datasource() {
     SingleConnectionDataSource ds = new SingleConnectionDataSource();
     ds.setDriverClassName("org.h2.Driver");
-    ds.setUrl(getProperty("db.url", "jdbc:h2:mem:test"));
+    ds.setUrl(getProperty("db.url", "jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
     ds.setUsername("sa");
     ds.setPassword("");
     return ds;
