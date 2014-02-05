@@ -28,8 +28,8 @@ public class WordGeneratorWorkflow extends
     }
   };
 
-  public WordGeneratorWorkflow() {
-    super("wordGenerator", randState());
+  protected WordGeneratorWorkflow(String flowName) {
+    super(flowName, randState());
     for (State originState : State.values()) {
       for (State targetState : State.values()) {
         if (originState == State.end) {
@@ -40,7 +40,10 @@ public class WordGeneratorWorkflow extends
     }
   }
 
-  static private State randState() {
+  public WordGeneratorWorkflow() {
+    this("wordGenerator");
+  }
+  protected static State randState() {
     Random random = new Random();
     double sum = 0;
     for (State v : State.values()) {
@@ -62,7 +65,7 @@ public class WordGeneratorWorkflow extends
     log.info("Finished");
   }
 
-  private void update(StateExecution execution, String state) {
+  protected void update(StateExecution execution, String state) {
     State newState = randState();
     log.info("{}->{}", state, newState.name());
     execution.setNextState(newState);
