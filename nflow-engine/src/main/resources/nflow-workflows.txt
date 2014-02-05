@@ -1,1 +1,2 @@
 com.nitorcreations.nflow.demo.DemoWorkflow
+com.nitorcreations.nflow.demo.WordGeneratorWorkflow
