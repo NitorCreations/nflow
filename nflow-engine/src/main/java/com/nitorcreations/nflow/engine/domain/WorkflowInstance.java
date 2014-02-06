@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.domain;
 
+import java.util.Map;
+
 import org.joda.time.DateTime;
 
 public class WorkflowInstance {
@@ -12,7 +14,7 @@ public class WorkflowInstance {
   public final DateTime nextActivation;
   public final boolean currentlyProcessing;
   public final String requestData;     
-  public final String stateVariables;  // TODO: change to map
+  public final Map<String, String> stateVariables;
   public final DateTime created;
   public final DateTime modified;
   public final String owner;
@@ -47,7 +49,7 @@ public class WorkflowInstance {
     DateTime nextActivation;
     boolean currentlyProcessing;
     String requestData;
-    String stateVariables;
+    Map<String, String> stateVariables;
     DateTime created;
     DateTime modified;
     String owner;
@@ -64,7 +66,7 @@ public class WorkflowInstance {
       this.nextActivation = copy.nextActivation;
       this.currentlyProcessing = copy.currentlyProcessing;
       this.requestData = copy.requestData;
-      this.stateVariables =copy.stateVariables;
+      this.stateVariables = copy.stateVariables;
       this.created = copy.created;
       this.modified = copy.modified;
       this.owner = copy.owner;
@@ -110,7 +112,7 @@ public class WorkflowInstance {
       return this;
     }
 
-    public Builder setStateVariables(String stateVariables) {
+    public Builder setStateVariables(Map<String, String> stateVariables) {
       this.stateVariables = stateVariables;
       return this;
     }

@@ -62,12 +62,14 @@ public class WordGeneratorWorkflow extends
 
   public void end(StateExecution execution) {
     execution.setNextState(State.end);
-    log.info("Finished");
+    log.info("Finished word: {}", execution.getVariable("word", "").toUpperCase());
   }
 
   protected void update(StateExecution execution, String state) {
     State newState = randState();
     log.info("{}->{}", state, newState.name());
+    String word = execution.getVariable("word", "");
+    execution.setVariable("word", word + state);
     execution.setNextState(newState);
     execution.setNextActivation(DateTime.now());
   }

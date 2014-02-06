@@ -40,14 +40,20 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public String getVariable(String name) {
-    // TODO
-    return null;
+    return getVariable(name, null);
+  }
+
+  @Override
+  public String getVariable(String name, String defaultValue) {
+    if (instance.stateVariables.containsKey(name)) {
+      return instance.stateVariables.get(name);
+    }
+    return defaultValue;
   }
 
   @Override
   public void setVariable(String name, String value) {
-    // TODO 
-    ;
+    instance.stateVariables.put(name, value);
   }
 
   @Override

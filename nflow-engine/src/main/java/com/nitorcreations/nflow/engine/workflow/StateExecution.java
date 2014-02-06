@@ -7,6 +7,7 @@ public interface StateExecution {
   public String getRequestData();
   
   public String getVariable(String name);
+  public String getVariable(String name, String defaultValue);
   public void setVariable(String name, String value);
   
   public void setNextActivation(DateTime time);

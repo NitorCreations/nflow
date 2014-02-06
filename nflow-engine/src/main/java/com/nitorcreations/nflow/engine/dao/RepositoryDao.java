@@ -146,7 +146,7 @@ public class RepositoryDao {
         }
         ps.setString(p++, instance.state);
         ps.setString(p++, instance.stateText);
-        ps.setString(p++, instance.stateVariables);
+        ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
         ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
         ps.setBoolean(p++, instance.currentlyProcessing);
         if (!isInsert) {
@@ -177,7 +177,7 @@ public class RepositoryDao {
         .setBusinessKey(rs.getString("business_key"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
-        .setStateVariables(rs.getString("state_variables"))
+        .setStateVariables(new JSONMapper().jsonToMap(rs.getString("state_variables")))
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
         .setCurrentlyProcessing(rs.getBoolean("currently_processing"))
         .setRequestData(rs.getString("request_data"))
@@ -186,6 +186,7 @@ public class RepositoryDao {
         .setOwner(rs.getString("owner"))
         .build();
     }
+
   }
 
   static Long getLong(ResultSet rs, String columnName) throws SQLException {
