@@ -15,6 +15,7 @@ public class WorkflowInstance {
   public final boolean processing;
   public final String requestData;     
   public final Map<String, String> stateVariables;
+  public final int retries;
   public final DateTime created;
   public final DateTime modified;
   public final String owner;
@@ -30,15 +31,12 @@ public class WorkflowInstance {
     this.processing = builder.processing;
     this.requestData = builder.requestData;
     this.stateVariables = builder.stateVariables;
+    this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
     this.owner = builder.owner;
   }
   
-  public String getRequestData() {
-    return requestData;
-  }
-
   public static class Builder {   
     
     Integer id;
@@ -50,6 +48,7 @@ public class WorkflowInstance {
     boolean processing;
     String requestData;
     Map<String, String> stateVariables;
+    int retries;
     DateTime created;
     DateTime modified;
     String owner;
@@ -67,6 +66,7 @@ public class WorkflowInstance {
       this.processing = copy.processing;
       this.requestData = copy.requestData;
       this.stateVariables = copy.stateVariables;
+      this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;
       this.owner = copy.owner;
@@ -114,6 +114,11 @@ public class WorkflowInstance {
 
     public Builder setStateVariables(Map<String, String> stateVariables) {
       this.stateVariables = stateVariables;
+      return this;
+    }
+    
+    public Builder setRetries(int retries) {
+      this.retries = retries;
       return this;
     }
 

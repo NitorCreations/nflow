@@ -123,7 +123,7 @@ public class RepositoryDao {
     private final static String updateSql =
         "update nflow_workflow " 
         + "set state = ?, state_text = ?, state_variables = ?, next_activation = ?, " 
-        + "is_processing = ? where id = ?";
+        + "is_processing = ?, retries = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
       this.isInsert = isInsert;
@@ -150,6 +150,7 @@ public class RepositoryDao {
         ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
         ps.setBoolean(p++, instance.processing);
         if (!isInsert) {
+          ps.setInt(p++, instance.retries);
           ps.setInt(p++, instance.id);
         }
         return ps;
@@ -181,6 +182,7 @@ public class RepositoryDao {
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
         .setProcessing(rs.getBoolean("is_processing"))
         .setRequestData(rs.getString("request_data"))
+        .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))
         .setOwner(rs.getString("owner"))

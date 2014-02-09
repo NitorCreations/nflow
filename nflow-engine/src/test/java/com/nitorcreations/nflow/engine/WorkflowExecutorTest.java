@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -37,7 +38,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   }
 
   @Test
-  public void runWorkflowThroughOneState() {
+  public void runWorkflowThroughOneSuccessfulState() {
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
@@ -52,11 +53,36 @@ public class WorkflowExecutorTest extends BaseNflowTest {
             WorkflowInstance i = (WorkflowInstance) argument;
             assertThat(i.state,
                 equalTo(ExecuteTestWorkflow.State.process.toString()));
+            assertThat(i.retries, is(0));
+            assertThat(i.processing, is(false));
             return true;
           }
         }), eq(true));
   }
-
+  
+  @Test
+  public void runWorkflowThroughOneFailedState() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("start").build();
+    when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    executor.run();
+    verify(repository).updateWorkflowInstance(
+        Mockito.argThat(new ArgumentMatcher<WorkflowInstance>() {
+          @Override
+          public boolean matches(Object argument) {
+            WorkflowInstance i = (WorkflowInstance) argument;
+            assertThat(i.state,
+                equalTo(FailingTestWorkflow.State.start.toString()));
+            assertThat(i.retries, is(1));
+            assertThat(i.processing, is(false));
+            return true;
+          }
+        }), eq(true));
+  }  
+  
   @Test
   public void beforeAndAfterListenersAreExecutedForSuccessfulProcessing() {
     WorkflowExecutorListener listener1 = Mockito

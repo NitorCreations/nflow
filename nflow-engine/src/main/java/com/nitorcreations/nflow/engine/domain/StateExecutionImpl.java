@@ -11,6 +11,7 @@ public class StateExecutionImpl implements StateExecution {
   private DateTime nextActivation;
   private WorkflowState nextState;
   private String nextStateReason;
+  private boolean failure = false;
   private boolean saveTrace = true;
   
   public StateExecutionImpl(WorkflowInstance instance) {
@@ -35,7 +36,12 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public String getRequestData() {
-    return instance.getRequestData();
+    return instance.requestData;
+  }
+  
+  @Override
+  public int getRetries() {
+    return instance.retries;
   }
 
   @Override
@@ -59,7 +65,6 @@ public class StateExecutionImpl implements StateExecution {
   @Override
   public void setNextActivation(DateTime activation) {
     this.nextActivation = activation;
-    
   }
 
   @Override
@@ -75,6 +80,16 @@ public class StateExecutionImpl implements StateExecution {
   @Override
   public void setSaveTrace(boolean saveTrace) {
     this.saveTrace = saveTrace;
+  }
+
+  @Override
+  public boolean isFailure() {
+    return failure;
+  }
+
+  @Override
+  public void setFailure(boolean failure) {
+    this.failure = failure;
   } 
   
 }

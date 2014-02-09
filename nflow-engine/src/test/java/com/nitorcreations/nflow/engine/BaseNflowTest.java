@@ -19,7 +19,8 @@ public abstract class BaseNflowTest {
       .setStateText(null)
       .setNextActivation(new DateTime())
       .setProcessing(FALSE)
-      .setOwner("flowInstance1");    
+      .setRetries(0)
+      .setOwner("flowInstance1");
   }
   
 }

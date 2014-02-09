@@ -88,6 +88,7 @@ public class WorkflowExecutor implements Runnable {
         logger.error("Handler threw exception, trying again later", ex);
         execution.setNextActivation(now().plusMillis(
             settings.getErrorBumpedTransitionDelay()));
+        execution.setFailure(true);
         processAfterFailureListeners(listenerContext, ex);
       } finally {
         if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS
@@ -97,13 +98,20 @@ public class WorkflowExecutor implements Runnable {
           execution.setNextActivation(execution.getNextActivation().plusMillis(
               settings.getShortTransitionDelay()));
         }
-        instance = new WorkflowInstance.Builder(instance)
+        WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
             .setNextActivation(execution.getNextActivation())
-            .setState(execution.getNextState())
-            .setStateText(execution.getNextStateReason())
             .setProcessing(
                 !now().isBefore(execution.getNextActivation())
-                    && execution.getNextActivation() != null).build();
+                    && execution.getNextActivation() != null);
+        if (execution.isFailure()) {
+          builder.setRetries(execution.getRetries() + 1);
+        } else {
+          builder
+              .setState(execution.getNextState())
+              .setStateText(execution.getNextStateReason())
+              .setRetries(0);
+        }
+        instance = builder.build();
         repository.updateWorkflowInstance(instance, execution.isSaveTrace());
       }
     }
