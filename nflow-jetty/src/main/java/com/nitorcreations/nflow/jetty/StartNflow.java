@@ -72,7 +72,7 @@ public class StartNflow
     return this;
   }
   
-  private void setupSpringAndCxf(final ServletContextHandler context, String env) {
+  protected void setupSpringAndCxf(final ServletContextHandler context, String env) {
     ServletHolder servlet = context.addServlet(CXFServlet.class, "/*");    
     servlet.setDisplayName("cxf-services");
     servlet.setInitOrder(1);
