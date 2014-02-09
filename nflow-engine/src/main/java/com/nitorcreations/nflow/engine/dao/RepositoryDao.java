@@ -72,7 +72,7 @@ public class RepositoryDao {
 
     String sql =
       "select id from nflow_workflow " +
-      "where currently_processing is false " +
+      "where is_processing is false " +
       "and next_activation < current_timestamp " + ownerCondition +
       "order by next_activation asc " +
       "limit " + batchSize;
@@ -90,8 +90,8 @@ public class RepositoryDao {
     }
     int[] updateStatuses = jdbc.batchUpdate(
       "update nflow_workflow " +
-      "set currently_processing = true " +
-      "where id = ? and currently_processing = false",
+      "set is_processing = true " +
+      "where id = ? and is_processing = false",
       batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
@@ -118,12 +118,12 @@ public class RepositoryDao {
     
     private final static String insertSql =
         "insert into nflow_workflow(type, business_key, owner, request_data, state, state_text, state_variables, " 
-        + "next_activation, currently_processing) values (?,?,?,?,?,?,?,?,?)";
+        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?,?)";
 
     private final static String updateSql =
         "update nflow_workflow " 
         + "set state = ?, state_text = ?, state_variables = ?, next_activation = ?, " 
-        + "currently_processing = ? where id = ?";
+        + "is_processing = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
       this.isInsert = isInsert;
@@ -148,7 +148,7 @@ public class RepositoryDao {
         ps.setString(p++, instance.stateText);
         ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
         ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-        ps.setBoolean(p++, instance.currentlyProcessing);
+        ps.setBoolean(p++, instance.processing);
         if (!isInsert) {
           ps.setInt(p++, instance.id);
         }
@@ -179,7 +179,7 @@ public class RepositoryDao {
         .setStateText(rs.getString("state_text"))
         .setStateVariables(new JSONMapper().jsonToMap(rs.getString("state_variables")))
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
-        .setCurrentlyProcessing(rs.getBoolean("currently_processing"))
+        .setProcessing(rs.getBoolean("is_processing"))
         .setRequestData(rs.getString("request_data"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))

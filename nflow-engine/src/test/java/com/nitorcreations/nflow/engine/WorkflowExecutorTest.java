@@ -41,7 +41,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
-        .setType("test").setId(Integer.valueOf(1)).setCurrentlyProcessing(true)
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
         .setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
@@ -68,7 +68,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
-        .setType("test").setId(Integer.valueOf(1)).setCurrentlyProcessing(true)
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
         .setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
@@ -93,7 +93,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("failing"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("failing").setId(Integer.valueOf(1))
-        .setCurrentlyProcessing(true).setState("start").build();
+        .setProcessing(true).setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
     verify(listener1).beforeProcessing(any(ListenerContext.class));

@@ -18,7 +18,7 @@ public abstract class BaseNflowTest {
       .setState("CreateLoan")
       .setStateText(null)
       .setNextActivation(new DateTime())
-      .setCurrentlyProcessing(FALSE)
+      .setProcessing(FALSE)
       .setOwner("flowInstance1");    
   }
   

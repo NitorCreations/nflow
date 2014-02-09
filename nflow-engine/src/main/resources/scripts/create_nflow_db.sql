@@ -7,7 +7,7 @@ create table nflow_workflow (
   state_text varchar(128),
   state_variables varchar(1024),
   next_activation timestamp,
-  currently_processing boolean not null default false,
+  is_processing boolean not null default false,
   created timestamp not null default current_timestamp,
   modified timestamp not null default current_timestamp,
   owner varchar(64)

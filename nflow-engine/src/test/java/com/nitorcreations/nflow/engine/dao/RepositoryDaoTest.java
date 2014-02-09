@@ -39,7 +39,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
     assertThat(i1.state, equalTo(i2.state));
     assertThat(i1.stateText, equalTo(i2.stateText));
     assertThat(i1.nextActivation, equalTo(i2.nextActivation));
-    assertThat(i1.currentlyProcessing, equalTo(i2.currentlyProcessing));
+    assertThat(i1.processing, equalTo(i2.processing));
     assertThat(i1.requestData, equalTo(i2.requestData));
   }
   
@@ -51,7 +51,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
       .setState("updateState")
       .setStateText("update text")
       .setNextActivation(DateTime.now())
-      .setCurrentlyProcessing(!i1.currentlyProcessing)
+      .setProcessing(!i1.processing)
       .build();
     dao.updateWorkflowInstance(i2);
     JdbcTemplate template = new JdbcTemplate(ds);
@@ -61,7 +61,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), equalTo(i2.state));
         assertThat(rs.getString("state_text"), equalTo(i2.stateText));
         assertThat(rs.getTimestamp("next_activation").getTime(), equalTo(i2.nextActivation.toDate().getTime()));
-        assertThat(rs.getBoolean("currently_processing"), equalTo(i2.currentlyProcessing));
+        assertThat(rs.getBoolean("is_processing"), equalTo(i2.processing));
       }
     });
   }

@@ -75,7 +75,7 @@ public class WorkflowExecutor implements Runnable {
 
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
-    while (instance.currentlyProcessing) {
+    while (instance.processing) {
       subsequentStateExecutions++;
       StateExecutionImpl execution = new StateExecutionImpl(instance);
       ListenerContext listenerContext = new ListenerContext(definition,
@@ -101,7 +101,7 @@ public class WorkflowExecutor implements Runnable {
             .setNextActivation(execution.getNextActivation())
             .setState(execution.getNextState())
             .setStateText(execution.getNextStateReason())
-            .setCurrentlyProcessing(
+            .setProcessing(
                 !now().isBefore(execution.getNextActivation())
                     && execution.getNextActivation() != null).build();
         repository.updateWorkflowInstance(instance, execution.isSaveTrace());

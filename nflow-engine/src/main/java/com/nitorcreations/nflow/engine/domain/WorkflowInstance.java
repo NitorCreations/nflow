@@ -12,7 +12,7 @@ public class WorkflowInstance {
   public final String state;
   public final String stateText;
   public final DateTime nextActivation;
-  public final boolean currentlyProcessing;
+  public final boolean processing;
   public final String requestData;     
   public final Map<String, String> stateVariables;
   public final DateTime created;
@@ -27,7 +27,7 @@ public class WorkflowInstance {
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
-    this.currentlyProcessing = builder.currentlyProcessing;
+    this.processing = builder.processing;
     this.requestData = builder.requestData;
     this.stateVariables = builder.stateVariables;
     this.created = builder.created;
@@ -47,7 +47,7 @@ public class WorkflowInstance {
     String state;
     String stateText;
     DateTime nextActivation;
-    boolean currentlyProcessing;
+    boolean processing;
     String requestData;
     Map<String, String> stateVariables;
     DateTime created;
@@ -64,7 +64,7 @@ public class WorkflowInstance {
       this.state = copy.state;
       this.stateText = copy.stateText;
       this.nextActivation = copy.nextActivation;
-      this.currentlyProcessing = copy.currentlyProcessing;
+      this.processing = copy.processing;
       this.requestData = copy.requestData;
       this.stateVariables = copy.stateVariables;
       this.created = copy.created;
@@ -102,8 +102,8 @@ public class WorkflowInstance {
       return this;
     }
 
-    public Builder setCurrentlyProcessing(boolean currentlyProcessing) {
-      this.currentlyProcessing = currentlyProcessing;
+    public Builder setProcessing(boolean processing) {
+      this.processing = processing;
       return this;
     }
 
