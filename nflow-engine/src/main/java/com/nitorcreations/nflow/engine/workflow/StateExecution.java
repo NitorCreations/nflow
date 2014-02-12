@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 
 public interface StateExecution {
     
+  public String getBusinessKey();
   public String getRequestData();
   public int getRetries();
   public boolean isFailure();

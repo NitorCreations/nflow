@@ -35,6 +35,11 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
+  public String getBusinessKey() {
+    return instance.businessKey;
+  }
+
+  @Override
   public String getRequestData() {
     return instance.requestData;
   }
