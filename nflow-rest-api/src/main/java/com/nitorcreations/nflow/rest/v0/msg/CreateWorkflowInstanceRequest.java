@@ -5,6 +5,8 @@ import javax.validation.constraints.Size;
 
 import org.joda.time.DateTime;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class CreateWorkflowInstanceRequest {
 
   @NotNull
@@ -15,8 +17,7 @@ public class CreateWorkflowInstanceRequest {
   @Size(max=64)
   public String businessKey;
 
-  @Size(max=1024)
-  public String requestData;
+  public JsonNode requestData;
   
   public DateTime activationTime;
     

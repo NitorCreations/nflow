@@ -6,6 +6,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
@@ -32,7 +33,7 @@ public class WorkflowInstanceResource
   
 	 @PUT
 	 @ApiOperation("Submit new workflow instance")
-  public CreateWorkflowInstanceResponse createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) {
+  public CreateWorkflowInstanceResponse createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
 	   WorkflowInstance instance = converter.convertAndValidate(req);        
 	   int id = repositoryService.insertWorkflowInstance(instance);
 	   return converter.convert(id, instance);
