@@ -16,6 +16,7 @@ public interface StateExecution {
   public void setNextActivation(DateTime time);
   public void setNextState(WorkflowState state);
   public void setNextStateReason(String stateText);
+  public void setNextState(WorkflowState state, String stateText, DateTime time);
   public void setFailure(boolean failure);
   public void setSaveTrace(boolean saveTrace);
   

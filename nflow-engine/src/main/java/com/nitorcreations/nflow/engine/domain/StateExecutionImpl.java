@@ -83,6 +83,13 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
+  public void setNextState(WorkflowState state, String reason, DateTime activation) {
+    this.nextState = state;
+    this.nextStateReason = reason;
+    this.nextActivation = activation;
+  }
+  
+  @Override
   public void setSaveTrace(boolean saveTrace) {
     this.saveTrace = saveTrace;
   }

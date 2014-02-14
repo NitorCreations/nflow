@@ -2,7 +2,7 @@ package com.nitorcreations.nflow.engine.workflow;
 
 public class WorkflowSettings {
   
-  public int getErrorBumpedTransitionDelay() {
+  public int getErrorTransitionDelay() {
     return 2 * 3600 * 1000;
   }
 
@@ -12,6 +12,10 @@ public class WorkflowSettings {
   
   public int getImmediateTransitionDelay() {
     return 0;
+  }
+  
+  public int getMaxRetries() {
+    return 3;
   }
   
 }

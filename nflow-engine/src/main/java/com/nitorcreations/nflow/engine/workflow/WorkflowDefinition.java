@@ -1,8 +1,11 @@
 package com.nitorcreations.nflow.engine.workflow;
 
+import static org.joda.time.DateTime.now;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.springframework.util.ReflectionUtils;
 
 public abstract class WorkflowDefinition<S extends WorkflowState> {
@@ -44,4 +47,18 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
       throw new IllegalArgumentException(msg);
     }
   }
+  
+  protected DateTime errorDelay() {
+    return now().plusMillis(getSettings().getErrorTransitionDelay());
+  }
+  
+  protected void handleRetry(S retryState, S failureState, String msg, StateExecution execution) {
+    if (execution.getRetries() > getSettings().getMaxRetries()) {
+      execution.setNextState(failureState, msg, now());
+    } else {
+      execution.setFailure(true);
+      execution.setNextState(retryState, msg, errorDelay());
+    }
+  }
+  
 }

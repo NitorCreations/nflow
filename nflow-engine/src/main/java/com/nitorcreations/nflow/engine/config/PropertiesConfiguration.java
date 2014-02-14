@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource({"classpath:nflow-engine.properties","classpath:${env}.properties"})
+@PropertySource("classpath:nflow-engine.properties")
 public class PropertiesConfiguration {
 
 }

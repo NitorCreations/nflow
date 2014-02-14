@@ -87,7 +87,7 @@ public class WorkflowExecutor implements Runnable {
       } catch (Exception ex) {
         logger.error("Handler threw exception, trying again later", ex);
         execution.setNextActivation(now().plusMillis(
-            settings.getErrorBumpedTransitionDelay()));
+            settings.getErrorTransitionDelay()));
         execution.setFailure(true);
         processAfterFailureListeners(listenerContext, ex);
       } finally {

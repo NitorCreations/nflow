@@ -164,7 +164,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     public void start(StateExecution execution) {
       execution.setNextState(State.process);
       execution.setNextActivation(now().plusMillis(
-          getSettings().getErrorBumpedTransitionDelay()));
+          getSettings().getErrorTransitionDelay()));
     }
 
     public void process(StateExecution execution) {
