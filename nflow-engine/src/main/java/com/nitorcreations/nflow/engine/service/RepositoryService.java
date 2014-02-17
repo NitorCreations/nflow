@@ -6,6 +6,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.dao.RepositoryDao;
+import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
@@ -29,17 +31,17 @@ import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 public class RepositoryService {
 
   private static final Logger logger = getLogger(RepositoryService.class);
-  
+
   private final RepositoryDao repositoryDao;
   private final ApplicationContext appCtx;
-  private Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
-  
+  private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
+
   @Inject
   public RepositoryService(RepositoryDao repositoryDao, ApplicationContext appCtx) throws Exception {
     this.repositoryDao = repositoryDao;
     this.appCtx = appCtx;
   }
-  
+
   public WorkflowInstance getWorkflowInstance(int id) {
     return repositoryDao.getWorkflowInstance(id);
   }
@@ -51,16 +53,16 @@ public class RepositoryService {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
     DateTime now = now();
-    instance = new WorkflowInstance.Builder(instance)   
+    instance = new WorkflowInstance.Builder(instance)
       .setState(def.getInitialState().toString())
       .setCreated(now)
       .setModified(now)
       .build();
     return repositoryDao.insertWorkflowInstance(instance);
   }
-  
+
   @Transactional
-  public void updateWorkflowInstance(WorkflowInstance instance, boolean saveAction) {    
+  public void updateWorkflowInstance(WorkflowInstance instance, boolean saveAction) {
     WorkflowInstance saved = new WorkflowInstance.Builder(instance)
       .setModified(now())
       .build();
@@ -78,15 +80,19 @@ public class RepositoryService {
     }
     return new ArrayList<>();
   }
-  
+
+  public Collection<WorkflowInstance> listWorkflowInstances(QueryWorkflowInstances query) {
+    return repositoryDao.queryWorkflowInstances(query);
+  }
+
   public WorkflowDefinition<?> getWorkflowDefinition(String type) {
     return workflowDefitions.get(type);
   }
-  
+
   public List<WorkflowDefinition<? extends WorkflowState>> getWorkflowDefinitions() {
     return new ArrayList<>(workflowDefitions.values());
   }
-  
+
   @SuppressWarnings("unchecked")
   @PostConstruct
   public void initWorkflowDefinitions() throws Exception {

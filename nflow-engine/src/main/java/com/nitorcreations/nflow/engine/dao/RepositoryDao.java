@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.dao;
 
 import static java.lang.System.currentTimeMillis;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,22 +20,27 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 
 @Component
 public class RepositoryDao {
 
-  private JdbcTemplate jdbc;
+  private final JdbcTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedJdbc;
   String nflowName;
-  
+
   @Inject
   public RepositoryDao(DataSource dataSource, Environment env) {
     this.jdbc = new JdbcTemplate(dataSource);
+    this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
     this.nflowName = env.getProperty("nflow.instance.name");
     if (StringUtils.isEmpty(nflowName)) {
       this.nflowName = null;
@@ -103,26 +109,54 @@ public class RepositoryDao {
 
     return instanceIds;
   }
-  
+
+  public List<WorkflowInstance> queryWorkflowInstances(
+          QueryWorkflowInstances query) {
+    String sql = "select * from nflow_workflow";
+    List<String> conditions = new ArrayList<>();
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    if (!isEmpty(query.types)) {
+      conditions.add("type in (:types)");
+      params.addValue("types", query.types);
+    }
+    if (!isEmpty(query.states)) {
+      conditions.add("state in (:states)");
+      params.addValue("states", query.states);
+    }
+    if (!isEmpty(conditions)) {
+      sql += " where ";
+      boolean first = true;
+      for (String cond : conditions) {
+        if (first) {
+          first = false;
+        } else {
+          sql += " and ";
+        }
+        sql += cond;
+      }
+    }
+    return namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
+  }
+
   public void insertWorkflowInstanceAction(WorkflowInstance action) {
     jdbc.update(
         "insert into nflow_workflow_action(workflow_id, state_next, state_next_text, next_activation)"
         + " values (?,?,?,?)", action.id, action.state, action.stateText, toTimestamp(action.nextActivation));
-  }  
+  }
 
   static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
 
-    private WorkflowInstance instance;
-    private boolean isInsert;
-    private String owner;
-    
+    private final WorkflowInstance instance;
+    private final boolean isInsert;
+    private final String owner;
+
     private final static String insertSql =
-        "insert into nflow_workflow(type, business_key, owner, request_data, state, state_text, state_variables, " 
+        "insert into nflow_workflow(type, business_key, owner, request_data, state, state_text, state_variables, "
         + "next_activation, is_processing) values (?,?,?,?,?,?,?,?,?)";
 
     private final static String updateSql =
-        "update nflow_workflow " 
-        + "set state = ?, state_text = ?, state_variables = ?, next_activation = ?, " 
+        "update nflow_workflow "
+        + "set state = ?, state_text = ?, state_variables = ?, next_activation = ?, "
         + "is_processing = ?, retries = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
@@ -133,27 +167,27 @@ public class RepositoryDao {
 
     @Override
     public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-        PreparedStatement ps;
-        int p = 1;
-        if (isInsert) {
-          ps = connection.prepareStatement(insertSql, new String[] {"id"});
-          ps.setString(p++, instance.type);
-          ps.setString(p++, instance.businessKey);;
-          ps.setString(p++, owner);
-          ps.setString(p++, instance.requestData);
-        } else {
-          ps = connection.prepareStatement(updateSql);
-        }
-        ps.setString(p++, instance.state);
-        ps.setString(p++, instance.stateText);
-        ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
-        ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-        ps.setBoolean(p++, instance.processing);
-        if (!isInsert) {
-          ps.setInt(p++, instance.retries);
-          ps.setInt(p++, instance.id);
-        }
-        return ps;
+      PreparedStatement ps;
+      int p = 1;
+      if (isInsert) {
+        ps = connection.prepareStatement(insertSql, new String[] {"id"});
+        ps.setString(p++, instance.type);
+        ps.setString(p++, instance.businessKey);;
+        ps.setString(p++, owner);
+        ps.setString(p++, instance.requestData);
+      } else {
+        ps = connection.prepareStatement(updateSql);
+      }
+      ps.setString(p++, instance.state);
+      ps.setString(p++, instance.stateText);
+      ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
+      ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+      ps.setBoolean(p++, instance.processing);
+      if (!isInsert) {
+        ps.setInt(p++, instance.retries);
+        ps.setInt(p++, instance.id);
+      }
+      return ps;
     }
   }
 
