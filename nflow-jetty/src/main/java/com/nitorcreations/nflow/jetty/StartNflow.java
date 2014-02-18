@@ -31,7 +31,7 @@ import com.nitorcreations.core.utils.KillProcess;
 import com.nitorcreations.nflow.jetty.config.ApplicationContext;
 
 
-public class StartNflow 
+public class StartNflow
 {
   private static final Logger LOG = LoggerFactory.getLogger(StartNflow.class);
 
@@ -63,7 +63,7 @@ public class StartNflow
   }
 
   private void setupNflowEngine(ServletContextHandler context) {
-    context.addEventListener(new EngineContextListener());    
+    context.addEventListener(new EngineContextListener());
   }
 
   public StartNflow startTcpServerForH2() throws SQLException {
@@ -71,15 +71,17 @@ public class StartNflow
     h2Server.start();
     return this;
   }
-  
+
   protected void setupSpringAndCxf(final ServletContextHandler context, String env) {
-    ServletHolder servlet = context.addServlet(CXFServlet.class, "/*");    
+    ServletHolder servlet = context.addServlet(CXFServlet.class, "/*");
     servlet.setDisplayName("cxf-services");
     servlet.setInitOrder(1);
-    context.addEventListener(new ContextLoaderListener());   
+    servlet.setInitParameter("redirects-list", "/favicon.ico");
+    servlet.setInitParameter("redirect-servlet-name", "default");
+    context.addEventListener(new ContextLoaderListener());
     context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName() );
     context.setInitParameter("contextConfigLocation", ApplicationContext.class.getName());
-    context.setInitParameter("spring.profiles.active", env);    
+    context.setInitParameter("spring.profiles.active", env);
   }
 
   private Server setupServer() {
@@ -102,7 +104,8 @@ public class StartNflow
     context.setDisplayName("nflow-static");
     context.setStopTimeout(SECONDS.toMillis(10));
 //    context.addFilter(new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain")), "/*", EnumSet.allOf(DispatcherType.class));
-    context.addServlet(DefaultServlet.class, "/ui/*");
+    ServletHolder holder = new ServletHolder("default", DefaultServlet.class);
+    context.addServlet(holder, "/ui/*");
     return context;
   }
 
