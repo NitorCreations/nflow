@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.rest.v0.converter;
 
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,10 +14,17 @@ public class CreateWorkflowConverter {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  public WorkflowInstance convertAndValidate(
-      CreateWorkflowInstanceRequest req) throws JsonProcessingException {
-    return new WorkflowInstance.Builder().setType(req.type).setBusinessKey(req.businessKey).setNextActivation(req.activationTime)
-        .setRequestData(objectMapper.writeValueAsString(req.requestData)).build();
+  public WorkflowInstance convertAndValidate(CreateWorkflowInstanceRequest req) throws JsonProcessingException {
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setType(req.type).setBusinessKey(req.businessKey);
+    if (req.activationTime == null) {
+      builder.setNextActivation(DateTime.now());
+    } else {
+      builder.setNextActivation(req.activationTime);
+    }
+    if (req.requestData != null) {
+      builder.setRequestData(objectMapper.writeValueAsString(req.requestData));
+    }
+    return builder.build();
   }
 
   public CreateWorkflowInstanceResponse convert(

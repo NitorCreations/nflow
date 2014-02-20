@@ -28,7 +28,7 @@ import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
-@Path("/workflow-instance")
+@Path("/v0/workflow-instance")
 @Produces("application/json")
 @Api(value = "/workflow-instance", description = "Manage workflow instances")
 public class WorkflowInstanceResource {
@@ -45,9 +45,8 @@ public class WorkflowInstanceResource {
   }
 
   @PUT
-  @ApiOperation("Submit new workflow instance")
-  public CreateWorkflowInstanceResponse createWorkflowInstance(
-      @Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
+  @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
+  public CreateWorkflowInstanceResponse createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
     int id = repositoryService.insertWorkflowInstance(instance);
     return createWorkflowConverter.convert(id, instance);
@@ -55,7 +54,7 @@ public class WorkflowInstanceResource {
 
   @PUT
   @Path("/{id}")
-  @ApiOperation("Update workflow instance state")
+  @ApiOperation(value = "Update workflow instance state")
   public void updateWorkflowInstance(@PathParam("id") int id, UpdateWorkflowInstanceRequest req) throws JsonProcessingException {
     // TODO: requires more work, e.g. concurrent check with engine, validation
     WorkflowInstance instance = repositoryService.getWorkflowInstance(id);
@@ -70,7 +69,7 @@ public class WorkflowInstanceResource {
   }
 
   @GET
-  @ApiOperation("List workflow instances")
+  @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("type") String[] types, @QueryParam("state") String[] states) throws JsonProcessingException {
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(types).addStates(states).build();
