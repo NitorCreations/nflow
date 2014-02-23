@@ -29,7 +29,7 @@ public class WordGeneratorWorkflow extends
   };
 
   protected WordGeneratorWorkflow(String flowName) {
-    super(flowName, randState());
+    super(flowName, randState(), null);
     for (State originState : State.values()) {
       for (State targetState : State.values()) {
         if (originState == State.end) {

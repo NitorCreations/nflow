@@ -4,6 +4,8 @@ import static com.fasterxml.jackson.core.Version.unknownVersion;
 
 import java.io.IOException;
 
+import javax.ws.rs.ext.Provider;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormatter;
@@ -24,6 +26,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @Component
 @Primary
+@Provider
 public class JacksonObjectMapper extends ObjectMapper {
   private static final long serialVersionUID = 1L;
 

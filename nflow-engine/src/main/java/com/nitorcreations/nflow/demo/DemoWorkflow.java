@@ -14,28 +14,28 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
   private static final Logger logger = getLogger(DemoWorkflow.class);
 
   public static enum State implements WorkflowState {
-    start, process, done
+    start, process, done, error
   }
-  
+
   public DemoWorkflow() {
-    super("demo", State.start);
+    super("demo", State.start, State.error);
     permit(State.start, State.process);
     permit(State.process, State.done);
   }
-  
+
   public void start(StateExecution execution) {
     execution.setNextState(State.process);
-    execution.setNextActivation(DateTime.now());    
+    execution.setNextActivation(DateTime.now());
   }
-  
-  public void process(StateExecution execution) {  
+
+  public void process(StateExecution execution) {
     execution.setNextState(State.done);
     execution.setNextActivation(DateTime.now());
   }
-  
+
   public void done(StateExecution execution) {
     execution.setNextState(State.done);
     logger.info("Finished.");
   }
-  
+
 }

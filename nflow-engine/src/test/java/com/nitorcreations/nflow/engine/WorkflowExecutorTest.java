@@ -59,7 +59,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           }
         }), eq(true));
   }
-  
+
   @Test
   public void runWorkflowThroughOneFailedState() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
@@ -81,8 +81,31 @@ public class WorkflowExecutorTest extends BaseNflowTest {
             return true;
           }
         }), eq(true));
-  }  
-  
+  }
+
+  @Test
+  public void runWorkflowToFailureState() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("start").setRetries(wf.getSettings().getMaxRetries()).build();
+    when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    executor.run();
+    verify(repository).updateWorkflowInstance(
+        Mockito.argThat(new ArgumentMatcher<WorkflowInstance>() {
+          @Override
+          public boolean matches(Object argument) {
+            WorkflowInstance i = (WorkflowInstance) argument;
+            assertThat(i.state,
+                equalTo(FailingTestWorkflow.State.failure.toString()));
+            assertThat(i.retries, is(0));
+            assertThat(i.processing, is(false));
+            return true;
+          }
+        }), eq(true));
+  }
+
   @Test
   public void beforeAndAfterListenersAreExecutedForSuccessfulProcessing() {
     WorkflowExecutorListener listener1 = Mockito
@@ -152,13 +175,13 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       WorkflowDefinition<ExecuteTestWorkflow.State> {
 
     protected ExecuteTestWorkflow() {
-      super("test", State.start);
-      permit(State.start, State.process);
-      permit(State.process, State.done);
+      super("test", State.start, State.error);
+      permit(State.start, State.process, State.error);
+      permit(State.process, State.done, State.error);
     }
 
     public static enum State implements WorkflowState {
-      start, process, done
+      start, process, done, error
     }
 
     public void start(StateExecution execution) {
@@ -175,18 +198,21 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     public void done(StateExecution execution) {
     }
 
+    public void error(StateExecution execution) {
+    }
+
   }
 
   public static class FailingTestWorkflow extends
       WorkflowDefinition<FailingTestWorkflow.State> {
 
     protected FailingTestWorkflow() {
-      super("failing", State.start);
-      permit(State.start, State.process);
+      super("failing", State.start, State.error);
+      permit(State.start, State.process, State.failure);
     }
 
     public static enum State implements WorkflowState {
-      start, process
+      start, process, failure, error
     }
 
     public void start(StateExecution execution) {
@@ -195,6 +221,12 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
     public void process(StateExecution execution) {
       throw new RuntimeException("test-fail2");
+    }
+
+    public void failure(StateExecution execution) {
+    }
+
+    public void error(StateExecution execution) {
     }
 
   }

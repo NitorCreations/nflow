@@ -21,7 +21,7 @@ public class WorkflowDefinitionTest {
     new TestDefinition("x", TestState.start).permit(TestState.start,
         TestState.done);
   }
-  
+
   @Test(expected = IllegalArgumentException.class)
   public void failsWhenPermittingNonExistingOriginState() {
     new TestDefinition("x", TestState.start).permit(TestState.notfound,
@@ -41,7 +41,7 @@ public class WorkflowDefinitionTest {
     }
 
     public TestDefinition(String type, TestState initialState) {
-      super(type, initialState);
+      super(type, initialState, null);
     }
 
     public void permitStateTransfer(TestState originState, TestState targetState) {

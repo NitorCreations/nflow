@@ -9,29 +9,39 @@ public class StateExecutionImpl implements StateExecution {
 
   private final WorkflowInstance instance;
   private DateTime nextActivation;
-  private WorkflowState nextState;
+  private String nextState;
   private String nextStateReason;
   private boolean failure = false;
   private boolean saveTrace = true;
-  
+
   public StateExecutionImpl(WorkflowInstance instance) {
     this.instance = instance;
   }
-  
+
   public DateTime getNextActivation() {
     return this.nextActivation;
   }
-  
+
   public String getNextState() {
-    return this.nextState != null ? this.nextState.toString() : null;
+    return this.nextState;
   }
-  
+
+  public void setNextState(String state, String reason, DateTime activation) {
+    this.nextState = state;
+    this.nextStateReason = reason;
+    this.nextActivation = activation;
+  }
+
   public String getNextStateReason() {
     return this.nextStateReason;
   }
-  
+
   public boolean isSaveTrace() {
     return this.saveTrace;
+  }
+
+  public String getCurrentStateName() {
+    return instance.state;
   }
 
   @Override
@@ -43,7 +53,7 @@ public class StateExecutionImpl implements StateExecution {
   public String getRequestData() {
     return instance.requestData;
   }
-  
+
   @Override
   public int getRetries() {
     return instance.retries;
@@ -74,7 +84,7 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public void setNextState(WorkflowState state) {
-    this.nextState = state;
+    this.nextState = state != null ? state.name() : null;
   }
 
   @Override
@@ -84,11 +94,9 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public void setNextState(WorkflowState state, String reason, DateTime activation) {
-    this.nextState = state;
-    this.nextStateReason = reason;
-    this.nextActivation = activation;
+    setNextState(state != null ? state.name() : null, reason, activation);
   }
-  
+
   @Override
   public void setSaveTrace(boolean saveTrace) {
     this.saveTrace = saveTrace;
@@ -102,6 +110,6 @@ public class StateExecutionImpl implements StateExecution {
   @Override
   public void setFailure(boolean failure) {
     this.failure = failure;
-  } 
-  
+  }
+
 }

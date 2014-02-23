@@ -58,14 +58,11 @@ public class WorkflowExecutor implements Runnable {
     WorkflowInstance instance = repository.getWorkflowInstance(instanceId);
     Duration executionLag = new Duration(instance.nextActivation, null);
     if (executionLag.isLongerThan(Duration.standardMinutes(1))) {
-      logger.warn("Execution lagging " + executionLag.getStandardSeconds()
-          + " seconds.");
+      logger.warn("Execution lagging " + executionLag.getStandardSeconds() + " seconds.");
     }
-    WorkflowDefinition<? extends WorkflowState> definition = repository
-        .getWorkflowDefinition(instance.type);
+    WorkflowDefinition<? extends WorkflowState> definition = repository.getWorkflowDefinition(instance.type);
     if (definition == null) {
-      logger
-          .warn("Workflow type %s not configured to this nflow instance - unscheduling workflow instance");
+      logger.warn("Workflow type %s not configured to this nflow instance - unscheduling workflow instance", instance.type);
       instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
           .setStateText("Unsupported workflow type").build();
       repository.updateWorkflowInstance(instance, true);
@@ -76,46 +73,46 @@ public class WorkflowExecutor implements Runnable {
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.processing) {
-      subsequentStateExecutions++;
       StateExecutionImpl execution = new StateExecutionImpl(instance);
-      ListenerContext listenerContext = new ListenerContext(definition,
-          instance, execution);
+      ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
       try {
         processBeforeListeners(listenerContext);
         processState(instance, definition, execution);
         processAfterListeners(listenerContext);
       } catch (Exception ex) {
         logger.error("Handler threw exception, trying again later", ex);
-        execution.setNextActivation(now().plusMillis(
-            settings.getErrorTransitionDelay()));
         execution.setFailure(true);
+        definition.handleRetry(execution);
         processAfterFailureListeners(listenerContext, ex);
       } finally {
-        if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS
-            && execution.getNextActivation() != null) {
-          logger.warn("Executed " + MAX_SUBSEQUENT_STATE_EXECUTIONS
-              + " times without delay, forcing short transition delay");
-          execution.setNextActivation(execution.getNextActivation().plusMillis(
-              settings.getShortTransitionDelay()));
-        }
+        subsequentStateExecutions = busyLoopPrevention(settings, subsequentStateExecutions, execution);
         WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
             .setNextActivation(execution.getNextActivation())
-            .setProcessing(
-                !now().isBefore(execution.getNextActivation())
-                    && execution.getNextActivation() != null);
+            .setProcessing(isNextActivationImmediately(execution));
         if (execution.isFailure()) {
           builder.setRetries(execution.getRetries() + 1);
         } else {
-          builder
-              .setState(execution.getNextState())
-              .setStateText(execution.getNextStateReason())
-              .setRetries(0);
+          builder.setState(execution.getNextState()).setStateText(execution.getNextStateReason()).setRetries(0);
         }
         instance = builder.build();
         repository.updateWorkflowInstance(instance, execution.isSaveTrace());
       }
     }
     logger.debug("Finished.");
+  }
+
+  private boolean isNextActivationImmediately(StateExecutionImpl execution) {
+    return !now().isBefore(execution.getNextActivation()) && execution.getNextActivation() != null;
+  }
+
+  private int busyLoopPrevention(WorkflowSettings settings,
+      int subsequentStateExecutions, StateExecutionImpl execution) {
+    if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && execution.getNextActivation() != null) {
+      logger.warn("Executed " + MAX_SUBSEQUENT_STATE_EXECUTIONS
+          + " times without delay, forcing short transition delay");
+      execution.setNextActivation(execution.getNextActivation().plusMillis(settings.getShortTransitionDelay()));
+    }
+    return subsequentStateExecutions;
   }
 
   private void processState(WorkflowInstance instance,
