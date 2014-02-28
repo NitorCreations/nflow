@@ -75,6 +75,8 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
         execution.setNextStateReason("Max retry count exceeded, no error state defined");
         execution.setNextActivation(null);
       }
+    } else {
+      execution.setNextActivation(getSettings().getErrorTransitionActivation());
     }
   }
 
