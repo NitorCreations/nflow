@@ -6,10 +6,9 @@ import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
 
 @Component
-public class ListWorkflowConverter {
+public class ListWorkflowInstanceConverter {
 
-  public ListWorkflowInstanceResponse convert(
-      WorkflowInstance instance) {
+  public ListWorkflowInstanceResponse convert(WorkflowInstance instance) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
     resp.type = instance.type;

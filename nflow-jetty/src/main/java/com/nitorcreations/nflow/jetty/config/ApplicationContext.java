@@ -24,6 +24,7 @@ import org.springframework.core.env.Environment;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
+import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v0.WorkflowInstanceResource;
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider;
@@ -37,14 +38,15 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 public class ApplicationContext {
 
   @Bean
-  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, JacksonObjectMapper mapper) {
-    JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint( jaxRsApiApplication(), JAXRSServerFactoryBean.class );
-    factory.setServiceBeans( Arrays.< Object >asList( 
-        workflowInstanceResource,
-        apiListingResourceJson()) );
-    factory.setAddress( '/' + factory.getAddress() );
-    factory.setProviders( Arrays.< Object >asList( 
-        jsonProvider(mapper), 
+  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, JacksonObjectMapper mapper) {
+    JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
+    factory.setServiceBeans(Arrays.< Object >asList(
+        workflowInstanceResource, 
+        workflowDefinitionResource, 
+        apiListingResourceJson()));
+    factory.setAddress('/' + factory.getAddress());
+    factory.setProviders( Arrays.< Object >asList(
+        jsonProvider(mapper),
         validationExceptionMapper(),
         resourceListingProvider(),
         apiDeclarationProvider()) );
@@ -53,12 +55,12 @@ public class ApplicationContext {
     factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSValidationOutInterceptor()));
     return factory.create();
   }
-  
+
   @Bean
   public JacksonJsonProvider jsonProvider(JacksonObjectMapper mapper) {
     return new JacksonJsonProvider(mapper);
   }
-  
+
   @Bean
   public JacksonObjectMapper jsonObjectMapper(Environment env) {
     return new JacksonObjectMapper(false);
@@ -68,48 +70,48 @@ public class ApplicationContext {
   public CustomValidationExceptionMapper validationExceptionMapper() {
     return new CustomValidationExceptionMapper();
   }
-  
+
   @Bean(destroyMethod = "shutdown")
   public SpringBus cxf() {
     return new SpringBus();
   }
-  
-  @Bean 
+
+  @Bean
   public JaxRsApiApplication jaxRsApiApplication() {
       return new JaxRsApiApplication();
   }
-  
-  @Bean 
+
+  @Bean
   public BeanConfig swaggerConfig(Environment env) {
     final BeanConfig config = new BeanConfig();
     config.setVersion("1.0.0");
     config.setScan(true);
     config.setResourcePackage(WorkflowInstanceResource.class.getPackage().getName());
-    config.setBasePath( 
+    config.setBasePath(
         String.format("http://%s:%s",
             env.getProperty("server", "localhost"),
             env.getProperty("port", "7500")
     ));
     return config;
   }
-  
+
   @Bean
   public ApiDeclarationProvider apiDeclarationProvider() {
    return new ApiDeclarationProvider();
-  }  
-  
+  }
+
   @Bean
   public ApiListingResourceJSON apiListingResourceJson() {
    return new ApiListingResourceJSON();
   }
-  
+
   @Bean
   public ResourceListingProvider resourceListingProvider() {
    return new ResourceListingProvider();
-  }  
-  
+  }
+
   @ApplicationPath("/")
   public static class JaxRsApiApplication extends Application {
   }
-  
+
 }

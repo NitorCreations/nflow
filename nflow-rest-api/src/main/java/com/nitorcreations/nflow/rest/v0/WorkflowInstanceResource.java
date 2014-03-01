@@ -15,12 +15,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
-import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowConverter;
+import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
@@ -31,14 +33,15 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @Path("/v0/workflow-instance")
 @Produces("application/json")
 @Api(value = "/workflow-instance", description = "Manage workflow instances")
+@Component
 public class WorkflowInstanceResource {
-  private RepositoryService repositoryService;
-  private CreateWorkflowConverter createWorkflowConverter;
-  private ListWorkflowConverter listWorkflowConverter;
+  private final RepositoryService repositoryService;
+  private final CreateWorkflowConverter createWorkflowConverter;
+  private final ListWorkflowInstanceConverter listWorkflowConverter;
 
   @Inject
-  public void setRepositoryService(
-      RepositoryService repositoryService, CreateWorkflowConverter createWorkflowConverter, ListWorkflowConverter listWorkflowConverter) {
+  public WorkflowInstanceResource(
+      RepositoryService repositoryService, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
     this.repositoryService = repositoryService;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;

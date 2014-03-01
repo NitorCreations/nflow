@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,6 +35,14 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
 
   public S getErrorState() {
     return errorState;
+  }
+
+  public Map<String, String> getAllowedTransitions() {
+    return new HashMap<>(allowedTransitions);
+  }
+
+  public Map<String, String> getFailureTransitions() {
+    return new HashMap<>(failureTransitions);
   }
 
   protected WorkflowDefinition<S> permit(S originState, S targetState) {
