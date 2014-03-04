@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 
@@ -24,6 +25,7 @@ public class WorkflowDispatcher implements Runnable {
   private final RepositoryService repository;
   private final WorkflowExecutorFactory executorFactory;
   private final long sleepTime;
+  private final ReentrantLock shutdownLock = new ReentrantLock(true);
 
   @Inject
   public WorkflowDispatcher(ThreadPoolTaskExecutor pool, RepositoryService repository, WorkflowExecutorFactory executorFactory,
@@ -34,10 +36,11 @@ public class WorkflowDispatcher implements Runnable {
     this.sleepTime = env.getProperty("dispatcher.sleep.ms", Long.class, 5000l);
   }
 
+  @Override
   public void run() {
     logger.info("Starting.");
     try {
-      while (!shutdownFlag) {
+      while (!shutdownInProgress()) {
         try {
           int nextBatchSize = Math.max(0, 2 * pool.getMaxPoolSize() - pool.getActiveCount());
           logger.debug("Polling next " + nextBatchSize + " workflow instances");
@@ -55,11 +58,18 @@ public class WorkflowDispatcher implements Runnable {
         } catch (Exception ex) {
           logger.error("Exception in executing dispatcher - retrying after sleep period.", ex);
           sleep();
+        } finally {
+          shutdownLock.unlock();
         }
       }
     } finally {
       logger.info("Shutdown finished.");
     }
+  }
+
+  private boolean shutdownInProgress() {
+    shutdownLock.lock();
+    return shutdownFlag;
   }
 
   private void sleep() {
@@ -71,12 +81,15 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   public void shutdown() {
+    shutdownLock.lock();
     this.shutdownFlag = true;
     logger.info("Shutdown starting.");
     try {
       pool.shutdown();
     } catch (Exception ex) {
       logger.error("Error in shutting down thread pool", ex);
+    } finally {
+      shutdownLock.unlock();
     }
   }
 
