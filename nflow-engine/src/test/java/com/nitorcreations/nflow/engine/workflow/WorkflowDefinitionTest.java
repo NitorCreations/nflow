@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.workflow;
 
+import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.normal;
+
 import org.junit.Test;
 
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition.TestState;
@@ -37,7 +39,12 @@ public class WorkflowDefinitionTest {
   public static class TestDefinition extends
       WorkflowDefinition<TestDefinition.TestState> {
     public static enum TestState implements WorkflowState {
-      start, done, notfound
+      start, done, notfound;
+
+      @Override
+      public WorkflowStateType getType() {
+        return normal;
+      }
     }
 
     public TestDefinition(String type, TestState initialState) {

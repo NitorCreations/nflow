@@ -24,6 +24,7 @@ import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
 
 public class WorkflowExecutorTest extends BaseNflowTest {
 
@@ -181,7 +182,12 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public static enum State implements WorkflowState {
-      start, process, done, error
+      start, process, done, error;
+
+      @Override
+      public WorkflowStateType getType() {
+        return WorkflowStateType.normal;
+      }
     }
 
     public void start(StateExecution execution) {
@@ -212,7 +218,12 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public static enum State implements WorkflowState {
-      start, process, failure, error
+      start, process, failure, error;
+
+      @Override
+      public WorkflowStateType getType() {
+        return WorkflowStateType.normal;
+      }
     }
 
     public void start(StateExecution execution) {

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
 
 public class WordGeneratorWorkflow extends
     WorkflowDefinition<WordGeneratorWorkflow.State> {
@@ -25,6 +26,11 @@ public class WordGeneratorWorkflow extends
 
     private State(double fraction) {
       this.fraction = fraction;
+    }
+
+    @Override
+    public WorkflowStateType getType() {
+      return WorkflowStateType.normal;
     }
   };
 

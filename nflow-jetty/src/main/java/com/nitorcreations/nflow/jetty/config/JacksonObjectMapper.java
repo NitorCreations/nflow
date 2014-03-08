@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.jetty.config;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.core.Version.unknownVersion;
 
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class JacksonObjectMapper extends ObjectMapper {
   }
 
   public JacksonObjectMapper(boolean failOnUnknownProperties) {
+    setSerializationInclusion(NON_EMPTY);
     SimpleModule module = new SimpleModule("JodaModule", unknownVersion());
     module.addSerializer(LocalDate.class, new LocalDateSerializer());
     module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
