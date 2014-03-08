@@ -89,8 +89,8 @@ public class ApplicationContext {
     config.setResourcePackage(WorkflowInstanceResource.class.getPackage().getName());
     config.setBasePath(
         String.format("http://%s:%s",
-            env.getProperty("server", "localhost"),
-            env.getProperty("port", "7500")
+            env.getProperty("swagger.server", "localhost"),
+            env.getProperty("swagger.port", "7500")
     ));
     return config;
   }
