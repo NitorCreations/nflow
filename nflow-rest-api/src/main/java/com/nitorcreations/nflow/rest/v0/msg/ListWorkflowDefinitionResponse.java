@@ -27,6 +27,9 @@ public class ListWorkflowDefinitionResponse {
   @ApiModelProperty(value = "Workflow definition states and transitions", required=true)
   public State[] states;
 
+  @ApiModelProperty(value = "Workflow settings", required=true)
+  public Settings settings;
+
   public static class State {
 
     public State(String id, String type) {
@@ -40,11 +43,34 @@ public class ListWorkflowDefinitionResponse {
     @ApiModelProperty(value = "State type", required=true)
     public String type;
 
-    @ApiModelProperty(value = "Alternative transitions from this state", required=true)
+    @ApiModelProperty(value = "Alternative transitions from this state", required=false)
     public Set<String> transitions = new HashSet<>();
 
     @ApiModelProperty(value = "Failure state for the this state", required=false)
     public String onFailure;
+  }
+
+  public static class Settings {
+
+    @ApiModelProperty(value = "Global transition delays for the workflow", required=true)
+    public TransitionDelays transitionDelaysInMilliseconds;
+
+    @ApiModelProperty(value = "Maximum retries for a state before moving to failure", required=true)
+    public int maxRetries;
+
+  }
+
+  public static class TransitionDelays {
+
+    @ApiModelProperty(value = "Delay in immediate transition", required=true)
+    public long immediate;
+
+    @ApiModelProperty(value = "Short delay between transitions", required=true)
+    public long waitShort;
+
+    @ApiModelProperty(value = "Maximum retries for a state before moving to failure", required=true)
+    public long waitError;
+
   }
 
 }

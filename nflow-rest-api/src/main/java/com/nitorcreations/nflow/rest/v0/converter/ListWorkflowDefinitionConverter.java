@@ -7,9 +7,12 @@ import java.util.Map.Entry;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.Settings;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.State;
+import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.TransitionDelays;
 
 @Component
 public class ListWorkflowDefinitionConverter {
@@ -33,6 +36,17 @@ public class ListWorkflowDefinitionConverter {
       state.onFailure = entry.getValue();
     }
     resp.states = states.values().toArray(new State[0]);
+
+    WorkflowSettings workflowSettings = definition.getSettings();
+    TransitionDelays transitionDelays = new TransitionDelays();
+    transitionDelays.immediate = workflowSettings.getImmediateTransitionDelay();
+    transitionDelays.waitShort = workflowSettings.getShortTransitionDelay();
+    transitionDelays.waitError = workflowSettings.getErrorTransitionDelay();
+    Settings settings = new Settings();
+    settings.transitionDelaysInMilliseconds = transitionDelays;
+    settings.maxRetries = workflowSettings.getMaxRetries();
+    resp.settings = settings;
+
     return resp;
   }
 
