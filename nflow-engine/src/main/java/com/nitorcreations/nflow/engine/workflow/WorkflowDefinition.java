@@ -14,21 +14,25 @@ import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 
 public abstract class WorkflowDefinition<S extends WorkflowState> {
 
-  private static final WorkflowSettings defaultSettings = new WorkflowSettings();
-
   private final String type;
   private String name;
   private String description;
   private final S initialState;
   private final S errorState;
+  private final WorkflowSettings settings;
   protected final Map<String, String> allowedTransitions = new LinkedHashMap<>();
   protected final Map<String, String> failureTransitions = new LinkedHashMap<>();
 
   protected WorkflowDefinition(String type, S initialState, S errorState) {
+    this(type, initialState, errorState, new WorkflowSettings(null));
+  }
+
+  protected WorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
     requireStateMethodExists(initialState);
     this.type = type;
     this.initialState = initialState;
     this.errorState = errorState;
+    this.settings = settings;
   }
 
   public String getName() {
@@ -99,7 +103,7 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   }
 
   public WorkflowSettings getSettings() {
-    return defaultSettings;
+    return settings;
   }
 
   private void requireStateMethodExists(S state) {
