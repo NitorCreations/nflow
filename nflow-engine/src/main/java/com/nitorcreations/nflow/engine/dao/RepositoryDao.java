@@ -123,6 +123,10 @@ public class RepositoryDao {
       conditions.add("state in (:states)");
       params.addValue("states", query.states);
     }
+    if (query.businessKey != null) {
+      conditions.add("business_key = :business_key");
+      params.addValue("business_key", query.businessKey);
+    }
     if (!isEmpty(conditions)) {
       sql += " where ";
       boolean first = true;

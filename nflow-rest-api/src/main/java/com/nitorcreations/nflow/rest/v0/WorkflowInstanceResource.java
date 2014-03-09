@@ -74,8 +74,8 @@ public class WorkflowInstanceResource {
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
-      @QueryParam("type") String[] types, @QueryParam("state") String[] states) throws JsonProcessingException {
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(types).addStates(states).build();
+      @QueryParam("type") String[] types, @QueryParam("state") String[] states, @QueryParam("businessKey") String businessKey) throws JsonProcessingException {
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(types).addStates(states).setBusinessKey(businessKey).build();
     Collection<WorkflowInstance> instances = repositoryService.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
