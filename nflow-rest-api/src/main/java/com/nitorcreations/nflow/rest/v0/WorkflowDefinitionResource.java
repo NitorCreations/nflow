@@ -1,13 +1,17 @@
 package com.nitorcreations.nflow.rest.v0;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.springframework.stereotype.Component;
 
@@ -37,10 +41,14 @@ public class WorkflowDefinitionResource {
 
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowDefinitionResponse> listWorkflowInstances() throws JsonProcessingException {
+  public Collection<ListWorkflowDefinitionResponse> listWorkflowInstances(@QueryParam("type") String[] types) throws JsonProcessingException {
     List<WorkflowDefinition<? extends WorkflowState>> definitions = repositoryService.getWorkflowDefinitions();
+    Set<String> reqTypes = new HashSet<>(Arrays.asList(types));
     Collection<ListWorkflowDefinitionResponse> response = new ArrayList<>();
     for (WorkflowDefinition<? extends WorkflowState> definition : definitions) {
+      if (!reqTypes.isEmpty() && !reqTypes.contains(definition.getType())) {
+        continue;
+      }
       response.add(converter.convert(definition));
     }
     return response;
