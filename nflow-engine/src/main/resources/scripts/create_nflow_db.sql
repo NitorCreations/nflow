@@ -5,7 +5,6 @@ create table nflow_workflow (
   request_data varchar(1024), 
   state varchar(32) not null,
   state_text varchar(128),
-  state_variables varchar(1024),
   next_activation timestamp,
   is_processing boolean not null default false,
   retries int not null default 0,
@@ -20,6 +19,13 @@ create table nflow_workflow_action (
   created timestamp not null default current_timestamp,
   state_next varchar(32) not null,
   state_next_text varchar(128),
-  state_variables varchar(1024),
   next_activation timestamp
+);
+
+create table nflow_workflow_state (
+  workflow_id int not null,
+  action_id int not null,
+  state_key varchar(64) not null,
+  state_value varchar(1024) not null,
+  primary key (workflow_id, action_id, state_key)
 );

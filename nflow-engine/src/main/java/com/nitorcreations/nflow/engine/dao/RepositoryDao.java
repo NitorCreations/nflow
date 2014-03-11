@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.dao;
 
 import static java.lang.System.currentTimeMillis;
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -19,9 +24,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -42,7 +49,7 @@ public class RepositoryDao {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
     this.nflowName = env.getProperty("nflow.instance.name");
-    if (StringUtils.isEmpty(nflowName)) {
+    if (isEmpty(nflowName)) {
       this.nflowName = null;
     }
   }
@@ -58,7 +65,30 @@ public class RepositoryDao {
   private int insertWorkflowInstanceImpl(WorkflowInstance instance) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, nflowName), keyHolder);
-    return keyHolder.getKey().intValue();
+    int id = keyHolder.getKey().intValue();
+    insertVariables(id, 0, instance.stateVariables);
+    return id;
+  }
+
+  private void insertVariables(final int id, int actionId, Map<String, String> stateVariables) {
+    if (stateVariables == null) {
+      return;
+    }
+    final Iterator<Entry<String, String>> variables = stateVariables.entrySet().iterator();
+    jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)", new AbstractInterruptibleBatchPreparedStatementSetter() {
+      @Override
+      protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
+        if (!variables.hasNext()) {
+          return false;
+        }
+        Entry<String, String> var = variables.next();
+        ps.setInt(1, id);
+        ps.setInt(2, 0);
+        ps.setString(3, var.getKey());
+        ps.setString(3, var.getValue());
+        return true;
+      }
+    });
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
@@ -67,7 +97,19 @@ public class RepositoryDao {
 
   public WorkflowInstance getWorkflowInstance(int id) {
     String sql = "select * from nflow_workflow where id = ?";
-    return jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
+    WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
+    fillState(instance);
+    return instance;
+  }
+
+  private void fillState(final WorkflowInstance instance) {
+    jdbc.query("select state_key, state_value, action_id from nflow_workflow_state where workflow_id = ? order by action_id asc",
+      new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        instance.stateVariables.put(rs.getString(1), rs.getString(2));
+      }
+    }, instance.id);
   }
 
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
@@ -139,28 +181,45 @@ public class RepositoryDao {
         sql += cond;
       }
     }
-    return namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
+
+    List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
+    for (WorkflowInstance instance : ret) {
+      fillState(instance);
+    }
+    return ret;
   }
 
-  public void insertWorkflowInstanceAction(WorkflowInstance action) {
-    jdbc.update(
-        "insert into nflow_workflow_action(workflow_id, state_next, state_next_text, next_activation)"
-        + " values (?,?,?,?)", action.id, action.state, action.stateText, toTimestamp(action.nextActivation));
+  public void insertWorkflowInstanceAction(final WorkflowInstance action) {
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+    jdbc.update(new PreparedStatementCreator() {
+      @Override
+      public PreparedStatement createPreparedStatement(Connection con)
+          throws SQLException {
+        PreparedStatement p = con.prepareStatement("insert into nflow_workflow_action(workflow_id, state_next, state_next_text, next_activation) values (?,?,?,?)");
+        p.setInt(1, action.id);
+        p.setString(2, action.state);
+        p.setString(3, action.stateText);
+        p.setTimestamp(4, toTimestamp(action.nextActivation));
+        return p;
+      }
+    }, keyHolder);
+    int actionId = keyHolder.getKey().intValue();
+    insertVariables(action.id, actionId, action.stateVariables);
   }
 
-  static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
+  static class  WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
 
     private final WorkflowInstance instance;
     private final boolean isInsert;
     private final String owner;
 
     private final static String insertSql =
-        "insert into nflow_workflow(type, business_key, owner, request_data, state, state_text, state_variables, "
-        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?,?)";
+        "insert into nflow_workflow(type, business_key, owner, request_data, state, state_text, "
+        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?)";
 
     private final static String updateSql =
         "update nflow_workflow "
-        + "set state = ?, state_text = ?, state_variables = ?, next_activation = ?, "
+        + "set state = ?, state_text = ?, next_activation = ?, "
         + "is_processing = ?, retries = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
@@ -184,7 +243,7 @@ public class RepositoryDao {
       }
       ps.setString(p++, instance.state);
       ps.setString(p++, instance.stateText);
-      ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
+//      ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
       ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
       ps.setBoolean(p++, instance.processing);
       if (!isInsert) {
@@ -216,7 +275,7 @@ public class RepositoryDao {
         .setBusinessKey(rs.getString("business_key"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
-        .setStateVariables(new JSONMapper().jsonToMap(rs.getString("state_variables")))
+        .setStateVariables(new HashMap<String, String>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
         .setProcessing(rs.getBoolean("is_processing"))
         .setRequestData(rs.getString("request_data"))
