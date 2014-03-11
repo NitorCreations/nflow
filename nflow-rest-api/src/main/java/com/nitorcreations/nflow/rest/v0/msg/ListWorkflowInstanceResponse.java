@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.rest.v0.msg;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 
 import com.wordnik.swagger.annotations.ApiModel;
@@ -25,5 +27,16 @@ public class ListWorkflowInstanceResponse {
 
   @ApiModelProperty(value = "Next activation time for workflow instance processing", required=false)
   public DateTime nextActivation;
+
+  @ApiModelProperty(value = "Next activation time for workflow instance processing", required=false)
+  public List<Action> actions;
+
+  public static class Action {
+    public Integer id;
+    public String nextState;
+    public String nextStateText;
+    public DateTime nextActivation;
+    public DateTime created;
+  }
 
 }

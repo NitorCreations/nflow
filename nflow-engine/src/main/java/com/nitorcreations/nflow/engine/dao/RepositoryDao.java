@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 
 @Component
 public class RepositoryDao {
@@ -128,29 +130,21 @@ public class RepositoryDao {
     if (isEmpty(nflowName)) {
       ownerCondition = "and owner is null ";
     }
-
     String sql =
-      "select id from nflow_workflow " +
-      "where is_processing is false " +
-      "and next_activation < current_timestamp " + ownerCondition +
-      "order by next_activation asc " +
-      "limit " + batchSize;
-
+      "select id from nflow_workflow where is_processing is false and next_activation < current_timestamp "
+        + ownerCondition + "order by next_activation asc limit " + batchSize;
     List<Integer> instanceIds = jdbc.query(sql, new RowMapper<Integer>() {
       @Override
       public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
         return rs.getInt("id");
       }
     });
-
     List<Object[]> batchArgs = new ArrayList<>();
     for (Integer instanceId : instanceIds) {
       batchArgs.add(new Object[] { instanceId });
     }
     int[] updateStatuses = jdbc.batchUpdate(
-      "update nflow_workflow " +
-      "set is_processing = true " +
-      "where id = ? and is_processing = false",
+      "update nflow_workflow set is_processing = true where id = ? and is_processing = false",
       batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
@@ -163,9 +157,9 @@ public class RepositoryDao {
     return instanceIds;
   }
 
-  public List<WorkflowInstance> queryWorkflowInstances(
-          QueryWorkflowInstances query) {
+  public List<WorkflowInstance> queryWorkflowInstances(QueryWorkflowInstances query) {
     String sql = "select * from nflow_workflow";
+
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     if (!isEmpty(query.types)) {
@@ -181,23 +175,23 @@ public class RepositoryDao {
       params.addValue("business_key", query.businessKey);
     }
     if (!isEmpty(conditions)) {
-      sql += " where ";
-      boolean first = true;
-      for (String cond : conditions) {
-        if (first) {
-          first = false;
-        } else {
-          sql += " and ";
-        }
-        sql += cond;
-      }
+      sql += " where " + StringUtils.join(conditions, " and ");
     }
-
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     for (WorkflowInstance instance : ret) {
       fillState(instance);
     }
+    if (query.includeActions) {
+      for (WorkflowInstance instance : ret) {
+        fillActions(instance);
+      }
+    }
     return ret;
+  }
+
+  private void fillActions(WorkflowInstance instance) {
+    instance.actions.addAll(jdbc.query("select * from nflow_workflow_action where workflow_id = ? order by id asc",
+        new WorkflowInstanceActionRowMapper(), instance.id));
   }
 
   public void insertWorkflowInstanceAction(final WorkflowInstance action) {
@@ -218,7 +212,7 @@ public class RepositoryDao {
     insertVariables(action.id, actionId, action.stateVariables, action.originalStateVariables);
   }
 
-  static class  WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
+  static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
 
     private final WorkflowInstance instance;
     private final boolean isInsert;
@@ -265,18 +259,6 @@ public class RepositoryDao {
     }
   }
 
-  static Timestamp toTimestampOrNow(DateTime time) {
-    return time == null ? new Timestamp(currentTimeMillis()) : new Timestamp(time.getMillis());
-  }
-
-  static Timestamp toTimestamp(DateTime time) {
-    return time == null ? null : new Timestamp(time.getMillis());
-  }
-
-  static DateTime toDateTime(Timestamp time) {
-    return time == null ? null : new DateTime(time.getTime());
-  }
-
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -287,6 +269,7 @@ public class RepositoryDao {
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
         .setStateVariables(new HashMap<String, String>())
+        .setActions(new ArrayList<WorkflowInstanceAction>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
         .setProcessing(rs.getBoolean("is_processing"))
         .setRequestData(rs.getString("request_data"))
@@ -299,9 +282,29 @@ public class RepositoryDao {
 
   }
 
+  static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction> {
+    @Override
+    public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
+      return new WorkflowInstanceAction(rs.getInt("id"), rs.getString("state_next"), rs.getString("state_next_text"),
+          toDateTime(rs.getTimestamp("next_activation")), toDateTime(rs.getTimestamp("created")));
+    }
+  }
+
   static Long getLong(ResultSet rs, String columnName) throws SQLException {
     long tmp = rs.getLong(columnName);
     return rs.wasNull() ? null : Long.valueOf(tmp);
+  }
+
+  static Timestamp toTimestampOrNow(DateTime time) {
+    return time == null ? new Timestamp(currentTimeMillis()) : new Timestamp(time.getMillis());
+  }
+
+  static Timestamp toTimestamp(DateTime time) {
+    return time == null ? null : new Timestamp(time.getMillis());
+  }
+
+  static DateTime toDateTime(Timestamp time) {
+    return time == null ? null : new DateTime(time.getTime());
   }
 
 }

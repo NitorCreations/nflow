@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.engine.domain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
@@ -17,6 +19,7 @@ public class WorkflowInstance {
   public final String requestData;
   public final Map<String, String> stateVariables;
   public final Map<String, String> originalStateVariables = new HashMap<>();
+  public final List<WorkflowInstanceAction> actions;
   public final int retries;
   public final DateTime created;
   public final DateTime modified;
@@ -33,6 +36,7 @@ public class WorkflowInstance {
     this.processing = builder.processing;
     this.requestData = builder.requestData;
     this.stateVariables = builder.stateVariables;
+    this.actions = builder.actions;
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
@@ -50,6 +54,7 @@ public class WorkflowInstance {
     boolean processing;
     String requestData;
     Map<String, String> stateVariables;
+    List<WorkflowInstanceAction> actions;
     int retries;
     DateTime created;
     DateTime modified;
@@ -116,6 +121,11 @@ public class WorkflowInstance {
 
     public Builder setStateVariables(Map<String, String> stateVariables) {
       this.stateVariables = stateVariables;
+      return this;
+    }
+
+    public Builder setActions(ArrayList<WorkflowInstanceAction> actions) {
+      this.actions = actions;
       return this;
     }
 
