@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.domain;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.joda.time.DateTime;
@@ -13,7 +14,7 @@ public class WorkflowInstance {
   public final String stateText;
   public final DateTime nextActivation;
   public final boolean processing;
-  public final String requestData;     
+  public final String requestData;
   public final Map<String, String> stateVariables;
   public final Map<String, String> originalStateVariables = new HashMap<>();
   public final int retries;
@@ -37,9 +38,9 @@ public class WorkflowInstance {
     this.modified = builder.modified;
     this.owner = builder.owner;
   }
-  
-  public static class Builder {   
-    
+
+  public static class Builder {
+
     Integer id;
     String type;
     String businessKey;
@@ -53,10 +54,10 @@ public class WorkflowInstance {
     DateTime created;
     DateTime modified;
     String owner;
-    
+
     public Builder() {
     }
-    
+
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
       this.type = copy.type;
@@ -72,7 +73,7 @@ public class WorkflowInstance {
       this.modified = copy.modified;
       this.owner = copy.owner;
     }
-    
+
     public Builder setId(Integer id) {
       this.id = id;
       return this;
@@ -86,8 +87,8 @@ public class WorkflowInstance {
     public Builder setBusinessKey(String businessKey) {
       this.businessKey = businessKey;
       return this;
-    }    
-    
+    }
+
     public Builder setState(String state) {
       this.state = state;
       return this;
@@ -117,7 +118,7 @@ public class WorkflowInstance {
       this.stateVariables = stateVariables;
       return this;
     }
-    
+
     public Builder setRetries(int retries) {
       this.retries = retries;
       return this;
@@ -137,11 +138,11 @@ public class WorkflowInstance {
       this.owner = owner;
       return this;
     }
-    
+
     public WorkflowInstance build() {
       return new WorkflowInstance(this);
     }
-        
+
   }
-  
+
 }
