@@ -94,7 +94,7 @@ public class RepositoryDao {
         ps.setInt(1, id);
         ps.setInt(2, actionId);
         ps.setString(3, var.getKey());
-        ps.setString(3, var.getValue());
+        ps.setString(4, var.getValue());
         return true;
       }
     });
