@@ -53,12 +53,14 @@ public class RepositoryService {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
     DateTime now = now();
-    instance = new WorkflowInstance.Builder(instance)
-      .setState(def.getInitialState().toString())
-      .setCreated(now)
-      .setModified(now)
-      .build();
-    return repositoryDao.insertWorkflowInstance(instance);
+    instance = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString())
+      .setCreated(now).setModified(now).build();
+    int id = repositoryDao.insertWorkflowInstance(instance);
+    if (id != -1) {
+      instance = new WorkflowInstance.Builder(instance).setId(id).build();
+      repositoryDao.insertWorkflowInstanceAction(instance);
+    }
+    return id;
   }
 
   @Transactional
