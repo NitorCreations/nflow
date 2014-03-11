@@ -110,7 +110,10 @@ public class RepositoryDao {
   }
 
   private void fillState(final WorkflowInstance instance) {
-    jdbc.query("select state_key, state_value, action_id from nflow_workflow_state where workflow_id = ? order by action_id asc",
+    jdbc.query(
+      "select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
+        + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
+        + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
       new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
