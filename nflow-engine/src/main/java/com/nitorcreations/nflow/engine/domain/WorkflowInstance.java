@@ -15,6 +15,7 @@ public class WorkflowInstance {
   public final boolean processing;
   public final String requestData;     
   public final Map<String, String> stateVariables;
+  public final Map<String, String> originalStateVariables = new HashMap<>();
   public final int retries;
   public final DateTime created;
   public final DateTime modified;

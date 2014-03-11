@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedS
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
@@ -66,11 +66,11 @@ public class RepositoryDao {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, nflowName), keyHolder);
     int id = keyHolder.getKey().intValue();
-    insertVariables(id, 0, instance.stateVariables);
+    insertVariables(id, 0, instance.stateVariables, Collections.<String, String>emptyMap());
     return id;
   }
 
-  private void insertVariables(final int id, int actionId, Map<String, String> stateVariables) {
+  private void insertVariables(final int id, final int actionId, Map<String, String> stateVariables, final Map<String, String> originalStateVariables) {
     if (stateVariables == null) {
       return;
     }
@@ -78,12 +78,19 @@ public class RepositoryDao {
     jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)", new AbstractInterruptibleBatchPreparedStatementSetter() {
       @Override
       protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
-        if (!variables.hasNext()) {
-          return false;
+        Entry<String, String> var;
+        while (true) {
+          if (!variables.hasNext()) {
+            return false;
+          }
+          var = variables.next();
+          String oldVal = originalStateVariables.get(var.getKey());
+          if (oldVal == null || !oldVal.equals(var.getValue())) {
+            break;
+          }
         }
-        Entry<String, String> var = variables.next();
         ps.setInt(1, id);
-        ps.setInt(2, 0);
+        ps.setInt(2, actionId);
         ps.setString(3, var.getKey());
         ps.setString(3, var.getValue());
         return true;
@@ -110,11 +117,12 @@ public class RepositoryDao {
         instance.stateVariables.put(rs.getString(1), rs.getString(2));
       }
     }, instance.id);
+    instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     String ownerCondition = "and owner = '" + nflowName + "' ";
-    if (StringUtils.isEmpty(nflowName)) {
+    if (isEmpty(nflowName)) {
       ownerCondition = "and owner is null ";
     }
 
@@ -204,7 +212,7 @@ public class RepositoryDao {
       }
     }, keyHolder);
     int actionId = keyHolder.getKey().intValue();
-    insertVariables(action.id, actionId, action.stateVariables);
+    insertVariables(action.id, actionId, action.stateVariables, action.originalStateVariables);
   }
 
   static class  WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
