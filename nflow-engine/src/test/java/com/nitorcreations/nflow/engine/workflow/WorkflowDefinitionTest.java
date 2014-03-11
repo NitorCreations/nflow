@@ -45,6 +45,16 @@ public class WorkflowDefinitionTest {
       public WorkflowStateType getType() {
         return normal;
       }
+
+      @Override
+      public String getName() { 
+          return name();
+      }
+
+      @Override
+      public String getDescription() { 
+          return name();
+      }
     }
 
     public TestDefinition(String type, TestState initialState) {

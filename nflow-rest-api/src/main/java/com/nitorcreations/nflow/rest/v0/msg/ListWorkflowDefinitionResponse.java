@@ -32,9 +32,11 @@ public class ListWorkflowDefinitionResponse {
 
   public static class State {
 
-    public State(String id, String type) {
+      public State(String id, String type, String name, String description) {
       this.id = id;
       this.type = type;
+      this.name = name;
+      this.description = description;
     }
 
     @ApiModelProperty(value = "State identifier", required=true)
@@ -42,6 +44,12 @@ public class ListWorkflowDefinitionResponse {
 
     @ApiModelProperty(value = "State type", required=true)
     public String type;
+
+    @ApiModelProperty(value = "State name", required=true)
+    public String name;
+
+    @ApiModelProperty(value = "State description", required=true)
+    public String description;
 
     @ApiModelProperty(value = "Alternative transitions from this state", required=false)
     public Set<String> transitions = new HashSet<>();

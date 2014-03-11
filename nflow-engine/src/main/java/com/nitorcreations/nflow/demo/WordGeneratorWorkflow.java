@@ -32,6 +32,16 @@ public class WordGeneratorWorkflow extends
     public WorkflowStateType getType() {
       return WorkflowStateType.normal;
     }
+
+    @Override
+    public String getName() {
+	return name();
+    }
+
+    @Override
+    public String getDescription() {
+	return name();
+    }
   };
 
   protected WordGeneratorWorkflow(String flowName) {

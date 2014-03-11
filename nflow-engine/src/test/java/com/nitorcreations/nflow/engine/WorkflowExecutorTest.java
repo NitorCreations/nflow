@@ -188,6 +188,16 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       public WorkflowStateType getType() {
         return WorkflowStateType.normal;
       }
+
+      @Override
+      public String getName() {
+          return name();
+      }
+
+      @Override
+      public String getDescription() {
+          return name();
+      }
     }
 
     public void start(StateExecution execution) {
@@ -223,6 +233,16 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       @Override
       public WorkflowStateType getType() {
         return WorkflowStateType.normal;
+      }
+
+      @Override
+      public String getName() {
+          return name();
+      }
+
+      @Override
+      public String getDescription() {
+          return name();
       }
     }
 
