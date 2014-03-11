@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import com.nitorcreations.core.utils.KillProcess;
 import com.nitorcreations.nflow.jetty.config.ApplicationContext;
+import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 
 
 public class StartNflow
@@ -79,7 +79,7 @@ public class StartNflow
     servlet.setInitParameter("redirects-list", "/favicon.ico");
     servlet.setInitParameter("redirect-servlet-name", "default");
     context.addEventListener(new ContextLoaderListener());
-    context.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName() );
+    context.setInitParameter("contextClass", NflowAnnotationConfigWebApplicationContext.class.getName() );
     context.setInitParameter("contextConfigLocation", ApplicationContext.class.getName());
     context.setInitParameter("spring.profiles.active", env);
   }
