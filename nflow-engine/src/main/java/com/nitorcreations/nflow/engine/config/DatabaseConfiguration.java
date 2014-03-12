@@ -7,20 +7,20 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.jolbox.bonecp.BoneCPDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 public class DatabaseConfiguration {
 
   @Bean
-  public DataSource datasource() {
-    BoneCPDataSource ds = new BoneCPDataSource();
-    ds.setDriverClass("org.h2.Driver");
-    ds.setJdbcUrl(getProperty("db.url", "jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
-    ds.setUsername("sa");
-    ds.setPassword("");
-    ds.setPartitionCount(4);
-    ds.setMaxConnectionsPerPartition(25);
+  public DataSource datasource() throws ClassNotFoundException {
+    HikariDataSource ds = new HikariDataSource();
+    Class.forName("org.h2.Driver");
+    ds.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
+    ds.addDataSourceProperty("url", getProperty("db.url", "jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
+    ds.addDataSourceProperty("user", "sa");
+    ds.addDataSourceProperty("password", "");
+    ds.setMaximumPoolSize(100);
     return ds;
   }
 

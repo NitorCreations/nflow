@@ -46,7 +46,7 @@
     <validation.api.version>1.1.0.Final</validation.api.version>
     <el.version>3.0.0</el.version>
     <swagger.version>1.3.2</swagger.version>
-    <bonecp.version>0.8.0.RELEASE</bonecp.version>
+    <hikaricp.version>1.3.3</hikaricp.version>
     <hibernate.validator.version>5.1.0.Final</hibernate.validator.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -301,9 +301,9 @@
         <version>1.3.175</version>
       </dependency>
 		<dependency>
-			<groupId>com.jolbox</groupId>
-			<artifactId>bonecp</artifactId>
-			<version>${bonecp.version}</version>
+	        <groupId>com.zaxxer</groupId>
+	        <artifactId>HikariCP</artifactId>
+			<version>${hikaricp.version}</version>
 		</dependency>
     </dependencies>
   </dependencyManagement>
