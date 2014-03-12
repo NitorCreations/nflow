@@ -22,7 +22,7 @@ public class ListWorkflowDefinitionConverter {
     resp.type = definition.getType();
     resp.name = definition.getName();
     resp.description = definition.getDescription();
-    resp.onError = definition.getErrorState().name();
+    resp.onError = nameOrNull(definition.getErrorState());
     Map<String, State> states = new HashMap<>();
     for (WorkflowState state : definition.getStates()) {
       states.put(state.name(), new State(state.name(), state.getType().name(),
@@ -51,4 +51,10 @@ public class ListWorkflowDefinitionConverter {
     return resp;
   }
 
+  private String nameOrNull(WorkflowState state) {
+    if(state != null) {
+      return state.name();
+    }
+    return null;
+  }
 }
