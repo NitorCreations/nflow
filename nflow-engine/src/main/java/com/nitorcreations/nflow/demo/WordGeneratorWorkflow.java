@@ -21,34 +21,45 @@ public class WordGeneratorWorkflow extends
         0.02015), h(0.06094), i(0.0666), j(0.00153), k(0.00772), l(0.04025), m(
         0.02406), n(0.06749), o(0.07507), p(0.01929), q(0.00095), r(0.05987), s(
         0.06327), t(0.09056), u(0.02758), v(0.00978), w(0.02360), x(0.00150), y(
-        0.01974), z(0.00074), end(0.13012);
-    final double fraction;
+        0.01974), z(0.00074), end(0.13012), error(WorkflowStateType.end);
+
+    private final double fraction;
+    private final WorkflowStateType type;
+
+    private State(WorkflowStateType type) {
+      this(0, type);
+    }
 
     private State(double fraction) {
+      this(fraction, WorkflowStateType.normal);
+    }
+
+    private State(double fraction, WorkflowStateType type) {
       this.fraction = fraction;
+      this.type = type;
     }
 
     @Override
     public WorkflowStateType getType() {
-      return WorkflowStateType.normal;
+      return type;
     }
 
     @Override
     public String getName() {
-	return name();
+      return name();
     }
 
     @Override
     public String getDescription() {
-	return name();
+      return name();
     }
   };
 
   protected WordGeneratorWorkflow(String flowName) {
-    super(flowName, randState(), null);
+    super(flowName, randState(), State.error);
     for (State originState : State.values()) {
       for (State targetState : State.values()) {
-        if (originState == State.end) {
+        if (originState == State.end || originState == State.error || targetState == State.error) {
           continue;
         }
         permit(originState, targetState);
@@ -74,6 +85,11 @@ public class WordGeneratorWorkflow extends
       }
     }
     return State.values()[State.values().length - 1];
+  }
+
+  public void error(StateExecution execution) {
+    execution.setNextState(State.error);
+    log.error("Finished with error");
   }
 
   public void end(StateExecution execution) {

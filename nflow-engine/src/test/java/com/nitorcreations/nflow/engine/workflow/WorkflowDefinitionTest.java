@@ -47,18 +47,18 @@ public class WorkflowDefinitionTest {
       }
 
       @Override
-      public String getName() { 
+      public String getName() {
           return name();
       }
 
       @Override
-      public String getDescription() { 
+      public String getDescription() {
           return name();
       }
     }
 
     public TestDefinition(String type, TestState initialState) {
-      super(type, initialState, null);
+      super(type, initialState, TestState.notfound);
     }
 
     public void permitStateTransfer(TestState originState, TestState targetState) {

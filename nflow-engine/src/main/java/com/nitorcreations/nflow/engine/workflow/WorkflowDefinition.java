@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
@@ -27,6 +28,8 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   }
 
   protected WorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
+    Assert.notNull(initialState, "initialState must not be null");
+    Assert.notNull(errorState, "errorState must not be null");
     requireStateMethodExists(initialState);
     this.type = type;
     this.initialState = initialState;
