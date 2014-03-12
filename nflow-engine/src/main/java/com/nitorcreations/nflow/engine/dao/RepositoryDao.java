@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -268,7 +268,7 @@ public class RepositoryDao {
         .setBusinessKey(rs.getString("business_key"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
-        .setStateVariables(new HashMap<String, String>())
+        .setStateVariables(new LinkedHashMap<String, String>())
         .setActions(new ArrayList<WorkflowInstanceAction>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
         .setProcessing(rs.getBoolean("is_processing"))

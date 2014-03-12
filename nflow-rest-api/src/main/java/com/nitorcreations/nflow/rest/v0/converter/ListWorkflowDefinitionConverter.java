@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.rest.v0.converter;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -23,7 +23,7 @@ public class ListWorkflowDefinitionConverter {
     resp.name = definition.getName();
     resp.description = definition.getDescription();
     resp.onError = nameOrNull(definition.getErrorState());
-    Map<String, State> states = new HashMap<>();
+    Map<String, State> states = new LinkedHashMap<>();
     for (WorkflowState state : definition.getStates()) {
       states.put(state.name(), new State(state.name(), state.getType().name(),
           state.getName(), state.getDescription()));

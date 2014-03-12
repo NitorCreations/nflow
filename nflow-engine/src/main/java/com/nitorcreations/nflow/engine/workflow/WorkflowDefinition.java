@@ -2,9 +2,8 @@ package com.nitorcreations.nflow.engine.workflow;
 
 import static java.util.Arrays.asList;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,15 +75,15 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
     if (enumConstants == null) {
         throw new IllegalStateException("Specified type is not an enum.");
     }
-    return new HashSet<S>(asList(enumConstants));
+    return new LinkedHashSet<S>(asList(enumConstants));
   }
 
   public Map<String, String> getAllowedTransitions() {
-    return new HashMap<>(allowedTransitions);
+    return new LinkedHashMap<>(allowedTransitions);
   }
 
   public Map<String, String> getFailureTransitions() {
-    return new HashMap<>(failureTransitions);
+    return new LinkedHashMap<>(failureTransitions);
   }
 
   protected WorkflowDefinition<S> permit(S originState, S targetState) {
