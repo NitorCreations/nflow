@@ -2,8 +2,10 @@ package com.nitorcreations.nflow.engine.workflow;
 
 import static java.util.Arrays.asList;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +22,7 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   private final S initialState;
   private final S errorState;
   private final WorkflowSettings settings;
-  protected final Map<String, String> allowedTransitions = new LinkedHashMap<>();
+  protected final Map<String, List<String>> allowedTransitions = new LinkedHashMap<>();
   protected final Map<String, String> failureTransitions = new LinkedHashMap<>();
 
   protected WorkflowDefinition(String type, S initialState, S errorState) {
@@ -81,7 +83,7 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
     return new LinkedHashSet<S>(asList(enumConstants));
   }
 
-  public Map<String, String> getAllowedTransitions() {
+  public Map<String, List<String>> getAllowedTransitions() {
     return new LinkedHashMap<>(allowedTransitions);
   }
 
@@ -96,7 +98,10 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   protected WorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
     requireStateMethodExists(originState);
     requireStateMethodExists(targetState);
-    allowedTransitions.put(originState.name(), targetState.name());
+    if(!allowedTransitions.containsKey(originState.name())) {
+      allowedTransitions.put(originState.name(), new ArrayList<String>());
+    }
+    allowedTransitions.get(originState.name()).add(targetState.name());
     if (failureState != null) {
       requireStateMethodExists(failureState);
       failureTransitions.put(originState.name(), failureState.name());
