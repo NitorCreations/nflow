@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
@@ -14,14 +15,13 @@ public class DatabaseConfiguration {
 
   @Bean
   public DataSource datasource() throws ClassNotFoundException {
-    HikariDataSource ds = new HikariDataSource();
-    Class.forName("org.h2.Driver");
-    ds.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
-    ds.addDataSourceProperty("url", getProperty("db.url", "jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
-    ds.addDataSourceProperty("user", "sa");
-    ds.addDataSourceProperty("password", "");
-    ds.setMaximumPoolSize(100);
-    return ds;
+    HikariConfig config = new HikariConfig();
+    config.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
+    config.addDataSourceProperty("url", getProperty("db.url", "jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
+    config.addDataSourceProperty("user", "sa");
+    config.addDataSourceProperty("password", "");
+    config.setMaximumPoolSize(100);
+    return new HikariDataSource(config);
   }
 
   @Bean
