@@ -64,6 +64,7 @@ public class WorkflowInstanceResource {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (!isEmpty(req.state)) {
       builder.setState(req.state);
+      builder.setRetries(0);
     }
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
