@@ -1,21 +1,80 @@
 package com.nitorcreations.nflow.engine.domain;
 
+import static org.joda.time.DateTime.now;
+
 import org.joda.time.DateTime;
 
 public class WorkflowInstanceAction {
 
-  public final Integer id;
+  public final Integer workflowId;
   public final String state;
   public final String stateText;
-  public final DateTime nextActivation;
-  public final DateTime created;
+  public final int retryNo;
+  public final DateTime executionStart;
+  public final DateTime executionEnd;
 
-  public WorkflowInstanceAction(Integer id, String state, String stateText, DateTime nextActivation, DateTime created) {
-    this.id = id;
-    this.state = state;
-    this.stateText = stateText;
-    this.nextActivation = nextActivation;
-    this.created = created;
+  public WorkflowInstanceAction(Builder builder) {
+    this.workflowId = builder.workflowId;
+    this.state = builder.state;
+    this.stateText = builder.stateText;
+    this.retryNo = builder.retryNo;
+    this.executionStart = builder.executionStart;
+    this.executionEnd = builder.executionEnd;
+  }
+
+  public static class Builder {
+
+    private Integer workflowId;
+    private String state;
+    private String stateText;
+    private int retryNo;
+    private DateTime executionStart;
+    private DateTime executionEnd;
+
+    public Builder() {
+    }
+
+    public Builder(WorkflowInstance instance) {
+      this.workflowId = instance.id;
+      this.state = instance.state;
+      this.retryNo = instance.retries;
+      this.executionStart = now();
+    }
+
+    public Builder setWorkflowId(Integer workflowId) {
+      this.workflowId = workflowId;
+      return this;
+    }
+
+    public Builder setState(String state) {
+      this.state = state;
+      return this;
+    }
+
+    public Builder setStateText(String stateText) {
+      this.stateText = stateText;
+      return this;
+    }
+
+    public Builder setRetryNo(int retryNo) {
+      this.retryNo = retryNo;
+      return this;
+    }
+
+    public Builder setExecutionStart(DateTime executionStart) {
+      this.executionStart = executionStart;
+      return this;
+    }
+
+    public Builder setExecutionEnd(DateTime executionEnd) {
+      this.executionEnd = executionEnd;
+      return this;
+    }
+
+    public WorkflowInstanceAction build() {
+      return new WorkflowInstanceAction(this);
+    }
+
   }
 
 }

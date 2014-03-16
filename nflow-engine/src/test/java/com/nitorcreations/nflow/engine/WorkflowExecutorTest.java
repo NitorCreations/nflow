@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
@@ -47,18 +48,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(repository).updateWorkflowInstance(
-        Mockito.argThat(new ArgumentMatcher<WorkflowInstance>() {
-          @Override
-          public boolean matches(Object argument) {
-            WorkflowInstance i = (WorkflowInstance) argument;
-            assertThat(i.state,
-                equalTo(ExecuteTestWorkflow.State.process.toString()));
-            assertThat(i.retries, is(0));
-            assertThat(i.processing, is(false));
-            return true;
-          }
-        }), eq(true));
+    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.process, 0, false)),
+        Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
   }
 
   @Test
@@ -70,18 +61,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(repository).updateWorkflowInstance(
-        Mockito.argThat(new ArgumentMatcher<WorkflowInstance>() {
-          @Override
-          public boolean matches(Object argument) {
-            WorkflowInstance i = (WorkflowInstance) argument;
-            assertThat(i.state,
-                equalTo(FailingTestWorkflow.State.start.toString()));
-            assertThat(i.retries, is(1));
-            assertThat(i.processing, is(false));
-            return true;
-          }
-        }), eq(true));
+    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.start, 1, false)),
+        Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
   }
 
   @Test
@@ -93,18 +74,34 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").setRetries(wf.getSettings().getMaxRetries()).build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(repository).updateWorkflowInstance(
-        Mockito.argThat(new ArgumentMatcher<WorkflowInstance>() {
-          @Override
-          public boolean matches(Object argument) {
-            WorkflowInstance i = (WorkflowInstance) argument;
-            assertThat(i.state,
-                equalTo(FailingTestWorkflow.State.failure.toString()));
-            assertThat(i.retries, is(0));
-            assertThat(i.processing, is(false));
-            return true;
-          }
-        }), eq(true));
+    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
+        Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
+  }
+
+  private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
+      final int retries, final boolean isProcessing) {
+    return new ArgumentMatcher<WorkflowInstance>() {
+      @Override
+      public boolean matches(Object argument) {
+        WorkflowInstance i = (WorkflowInstance) argument;
+        assertThat(i.state, equalTo(state.name()));
+        assertThat(i.retries, is(retries));
+        assertThat(i.processing, is(isProcessing));
+        return true;
+      }
+    };
+  }
+
+  private ArgumentMatcher<WorkflowInstanceAction> matchesWorkflowInstanceAction(final WorkflowState state, final int retryNo) {
+    return new ArgumentMatcher<WorkflowInstanceAction>() {
+      @Override
+      public boolean matches(Object argument) {
+        WorkflowInstanceAction i = (WorkflowInstanceAction) argument;
+        assertThat(i.state, equalTo(state.name()));
+        assertThat(i.retryNo, is(retryNo));
+        return true;
+      }
+    };
   }
 
   @Test

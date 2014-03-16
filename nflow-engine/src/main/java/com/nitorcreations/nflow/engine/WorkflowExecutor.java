@@ -15,6 +15,7 @@ import org.springframework.util.ReflectionUtils;
 import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
@@ -54,7 +55,6 @@ public class WorkflowExecutor implements Runnable {
 
   private void runImpl() {
     logger.debug("Starting.");
-
     WorkflowInstance instance = repository.getWorkflowInstance(instanceId);
     Duration executionLag = new Duration(instance.nextActivation, null);
     if (executionLag.isLongerThan(Duration.standardMinutes(1))) {
@@ -62,19 +62,15 @@ public class WorkflowExecutor implements Runnable {
     }
     WorkflowDefinition<? extends WorkflowState> definition = repository.getWorkflowDefinition(instance.type);
     if (definition == null) {
-      logger.warn("Workflow type %s not configured to this nflow instance - unscheduling workflow instance", instance.type);
-      instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
-          .setStateText("Unsupported workflow type").build();
-      repository.updateWorkflowInstance(instance, true);
-      logger.debug("Exiting.");
+      unscheduleUnknownWorkflowInstance(instance);
       return;
     }
-
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.processing) {
       StateExecutionImpl execution = new StateExecutionImpl(instance);
       ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
+      WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       try {
         processBeforeListeners(listenerContext);
         processState(instance, definition, execution);
@@ -86,23 +82,18 @@ public class WorkflowExecutor implements Runnable {
         processAfterFailureListeners(listenerContext, ex);
       } finally {
         subsequentStateExecutions = busyLoopPrevention(settings, subsequentStateExecutions, execution);
-        WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
-            .setNextActivation(execution.getNextActivation())
-            .setProcessing(isNextActivationImmediately(execution));
-        if (execution.isFailure()) {
-          builder.setRetries(execution.getRetries() + 1);
-        } else {
-          builder.setState(execution.getNextState()).setStateText(execution.getNextStateReason()).setRetries(0);
-        }
-        instance = builder.build();
-        repository.updateWorkflowInstance(instance, execution.isSaveTrace());
+        instance = saveWorkflowInstanceState(execution, instance, actionBuilder);
       }
     }
     logger.debug("Finished.");
   }
 
-  private boolean isNextActivationImmediately(StateExecutionImpl execution) {
-    return !now().isBefore(execution.getNextActivation()) && execution.getNextActivation() != null;
+  private void unscheduleUnknownWorkflowInstance(WorkflowInstance instance) {
+    logger.warn("Workflow type %s not configured to this nflow instance - unscheduling workflow instance", instance.type);
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
+        .setStateText("Unsupported workflow type").build();
+    repository.updateWorkflowInstance(instance, null);
+    logger.debug("Exiting.");
   }
 
   private int busyLoopPrevention(WorkflowSettings settings,
@@ -113,6 +104,23 @@ public class WorkflowExecutor implements Runnable {
       execution.setNextActivation(execution.getNextActivation().plusMillis(settings.getShortTransitionDelay()));
     }
     return subsequentStateExecutions;
+  }
+
+  private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance, WorkflowInstanceAction.Builder actionBuilder) {
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
+      .setNextActivation(execution.getNextActivation())
+      .setProcessing(isNextActivationImmediately(execution));
+    if (execution.isFailure()) {
+      builder.setRetries(execution.getRetries() + 1);
+    } else {
+      builder.setState(execution.getNextState()).setStateText(execution.getNextStateReason()).setRetries(0);
+    }
+    actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
+    return repository.updateWorkflowInstance(builder.build(), actionBuilder.build());
+  }
+
+  private boolean isNextActivationImmediately(StateExecutionImpl execution) {
+    return !now().isBefore(execution.getNextActivation()) && execution.getNextActivation() != null;
   }
 
   private void processState(WorkflowInstance instance,

@@ -32,11 +32,11 @@ public class ListWorkflowInstanceResponse {
   public List<Action> actions;
 
   public static class Action {
-    public Integer id;
-    public String nextState;
-    public String nextStateText;
-    public DateTime nextActivation;
-    public DateTime created;
+    public String state;
+    public String stateText;
+    public int retryNo;
+    public DateTime executionStart;
+    public DateTime executionEnd;
   }
 
 }

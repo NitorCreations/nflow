@@ -68,7 +68,7 @@ public class WorkflowInstanceResource {
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
     }
-    repositoryService.updateWorkflowInstance(builder.build(), true);
+    repositoryService.updateWorkflowInstance(builder.build(), null);
   }
 
   @GET

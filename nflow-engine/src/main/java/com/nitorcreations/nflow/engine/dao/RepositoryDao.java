@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -194,22 +194,25 @@ public class RepositoryDao {
         new WorkflowInstanceActionRowMapper(), instance.id));
   }
 
-  public void insertWorkflowInstanceAction(final WorkflowInstance action) {
+  public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
       public PreparedStatement createPreparedStatement(Connection con)
           throws SQLException {
-        PreparedStatement p = con.prepareStatement("insert into nflow_workflow_action(workflow_id, state_next, state_next_text, next_activation) values (?,?,?,?)");
-        p.setInt(1, action.id);
+        PreparedStatement p = con.prepareStatement(
+            "insert into nflow_workflow_action(workflow_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?)");
+        p.setInt(1, action.workflowId);
         p.setString(2, action.state);
         p.setString(3, action.stateText);
-        p.setTimestamp(4, toTimestamp(action.nextActivation));
+        p.setInt(4, action.retryNo);
+        p.setTimestamp(5, toTimestamp(action.executionStart));
+        p.setTimestamp(6, toTimestamp(action.executionEnd));
         return p;
       }
     }, keyHolder);
     int actionId = keyHolder.getKey().intValue();
-    insertVariables(action.id, actionId, action.stateVariables, action.originalStateVariables);
+    insertVariables(action.workflowId, actionId, instance.stateVariables, instance.originalStateVariables);
   }
 
   static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
@@ -285,8 +288,14 @@ public class RepositoryDao {
   static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction> {
     @Override
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return new WorkflowInstanceAction(rs.getInt("id"), rs.getString("state_next"), rs.getString("state_next_text"),
-          toDateTime(rs.getTimestamp("next_activation")), toDateTime(rs.getTimestamp("created")));
+      return new WorkflowInstanceAction.Builder()
+        .setWorkflowId(rs.getInt("workflow_id"))
+        .setState(rs.getString("state"))
+        .setStateText(rs.getString("state_text"))
+        .setRetryNo(rs.getInt("retry_no"))
+        .setExecutionStart(toDateTime(rs.getTimestamp("execution_start")))
+        .setExecutionEnd(toDateTime(rs.getTimestamp("execution_end")))
+        .build();
     }
   }
 

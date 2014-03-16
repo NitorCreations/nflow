@@ -31,11 +31,11 @@ public class ListWorkflowInstanceConverter {
     resp.actions = new ArrayList<>();
     for (WorkflowInstanceAction action : instance.actions) {
       Action tmp = new Action();
-      tmp.id = action.id;
-      tmp.nextState = action.state;
-      tmp.nextStateText = action.stateText;
-      tmp.nextActivation = action.nextActivation;
-      tmp.created = action.created;
+      tmp.state = action.state;
+      tmp.stateText = action.stateText;
+      tmp.retryNo = action.retryNo;
+      tmp.executionStart = action.executionStart;
+      tmp.executionEnd = action.executionEnd;
       resp.actions.add(tmp);
     }
   }

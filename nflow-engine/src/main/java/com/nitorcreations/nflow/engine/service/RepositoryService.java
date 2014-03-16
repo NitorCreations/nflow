@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nitorcreations.nflow.engine.dao.RepositoryDao;
 import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 
@@ -55,23 +56,19 @@ public class RepositoryService {
     DateTime now = now();
     instance = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString())
       .setCreated(now).setModified(now).build();
-    int id = repositoryDao.insertWorkflowInstance(instance);
-    if (id != -1) {
-      instance = new WorkflowInstance.Builder(instance).setId(id).build();
-      repositoryDao.insertWorkflowInstanceAction(instance);
-    }
-    return id;
+    return repositoryDao.insertWorkflowInstance(instance);
   }
 
   @Transactional
-  public void updateWorkflowInstance(WorkflowInstance instance, boolean saveAction) {
+  public WorkflowInstance updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     WorkflowInstance saved = new WorkflowInstance.Builder(instance)
       .setModified(now())
       .build();
-    repositoryDao.updateWorkflowInstance(instance);
-    if (saveAction) {
-      repositoryDao.insertWorkflowInstanceAction(saved);
+    repositoryDao.updateWorkflowInstance(saved);
+    if (action != null) {
+      repositoryDao.insertWorkflowInstanceAction(saved, action);
     }
+    return saved;
   }
 
   @Transactional
