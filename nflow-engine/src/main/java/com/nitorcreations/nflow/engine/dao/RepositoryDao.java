@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.dao;
 
 import static java.lang.System.currentTimeMillis;
+import static org.joda.time.DateTime.now;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -228,7 +229,7 @@ public class RepositoryDao {
     private final static String updateSql =
         "update nflow_workflow "
         + "set state = ?, state_text = ?, next_activation = ?, "
-        + "is_processing = ?, retries = ? where id = ?";
+        + "is_processing = ?, retries = ?, modified = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
       this.isInsert = isInsert;
@@ -256,6 +257,7 @@ public class RepositoryDao {
       ps.setBoolean(p++, instance.processing);
       if (!isInsert) {
         ps.setInt(p++, instance.retries);
+        ps.setTimestamp(p++, toTimestamp(now()));
         ps.setInt(p++, instance.id);
       }
       return ps;

@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.v0;
 
 import static org.apache.cxf.common.util.StringUtils.isEmpty;
+import static org.joda.time.DateTime.now;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
@@ -69,7 +71,8 @@ public class WorkflowInstanceResource {
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
     }
-    repositoryService.updateWorkflowInstance(builder.build(), null);
+    repositoryService.updateWorkflowInstance(builder.build(), new WorkflowInstanceAction.Builder(instance).setExecutionStart(instance.modified)
+        .setExecutionEnd(now()).build());
   }
 
   @GET
