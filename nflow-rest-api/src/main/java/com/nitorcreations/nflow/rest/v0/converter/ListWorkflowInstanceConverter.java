@@ -34,8 +34,8 @@ public class ListWorkflowInstanceConverter {
       tmp.state = action.state;
       tmp.stateText = action.stateText;
       tmp.retryNo = action.retryNo;
-      tmp.executionStart = action.executionStart;
-      tmp.executionEnd = action.executionEnd;
+      tmp.executionStart = action.executionStart.getMillis();
+      tmp.executionEnd = action.executionEnd.getMillis();
       resp.actions.add(tmp);
     }
   }

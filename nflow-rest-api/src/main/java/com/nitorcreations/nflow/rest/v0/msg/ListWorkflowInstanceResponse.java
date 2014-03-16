@@ -35,8 +35,8 @@ public class ListWorkflowInstanceResponse {
     public String state;
     public String stateText;
     public int retryNo;
-    public DateTime executionStart;
-    public DateTime executionEnd;
+    public long executionStart;
+    public long executionEnd;
   }
 
 }
