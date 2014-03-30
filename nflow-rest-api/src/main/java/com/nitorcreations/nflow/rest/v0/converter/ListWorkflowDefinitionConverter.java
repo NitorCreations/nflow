@@ -39,7 +39,7 @@ public class ListWorkflowDefinitionConverter {
       State state = states.get(entry.getKey());
       state.onFailure = entry.getValue();
     }
-    resp.states = states.values().toArray(new State[0]);
+    resp.states = states.values().toArray(new State[states.values().size()]);
 
     WorkflowSettings workflowSettings = definition.getSettings();
     TransitionDelays transitionDelays = new TransitionDelays();

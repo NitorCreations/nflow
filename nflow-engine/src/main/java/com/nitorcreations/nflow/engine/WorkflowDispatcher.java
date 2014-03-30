@@ -81,10 +81,10 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   public void shutdown() {
-    shutdownLock.lock();
-    this.shutdownFlag = true;
-    logger.info("Shutdown starting.");
     try {
+      shutdownLock.lock();
+      this.shutdownFlag = true;
+      logger.info("Shutdown starting.");
       pool.shutdown();
     } catch (Exception ex) {
       logger.error("Error in shutting down thread pool", ex);

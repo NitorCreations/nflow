@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.demo;
 
+import java.util.Locale;
 import java.util.Random;
 
 import org.joda.time.DateTime;
@@ -94,7 +95,7 @@ public class WordGeneratorWorkflow extends
 
   public void end(StateExecution execution) {
     execution.setNextState(State.end);
-    log.info("Finished word: {}", execution.getVariable("word", "").toUpperCase());
+    log.info("Finished word: {}", execution.getVariable("word", "").toUpperCase(Locale.GERMAN));
   }
 
   protected void update(StateExecution execution, String state) {

@@ -6,7 +6,10 @@ import java.util.Set;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 @ApiModel(value = "Basic information of workflow definition")
+@SuppressWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class ListWorkflowDefinitionResponse {
 
   @ApiModelProperty(value = "Type of the workflow definition", required=true)

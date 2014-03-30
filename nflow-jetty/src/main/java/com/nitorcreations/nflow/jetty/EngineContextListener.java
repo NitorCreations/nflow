@@ -18,10 +18,10 @@ import com.nitorcreations.nflow.engine.WorkflowDispatcher;
 public class EngineContextListener implements ServletContextListener {
 
   private static final Logger LOG = getLogger(EngineContextListener.class);
-  
+
   private ScheduledExecutorService executor;
   private WorkflowDispatcher dispatcher;
-  
+
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     WebApplicationContext springContext = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
@@ -32,7 +32,7 @@ public class EngineContextListener implements ServletContextListener {
     } else {
       executor.execute(dispatcher);
       LOG.info("nFlow engine scheduled.");
-    }    
+    }
   }
 
   @Override

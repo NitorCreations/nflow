@@ -9,9 +9,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 @ApiModel(value =
   "Request for submit new workflow instance. Note that if externalId is given, " +
   "type and externalId pair must be unique hence enabling retry-safety.")
+@SuppressWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class CreateWorkflowInstanceRequest {
 
   @NotNull

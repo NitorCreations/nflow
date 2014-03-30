@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -100,22 +101,22 @@ public class RepositoryService {
   @SuppressWarnings("unchecked")
   @PostConstruct
   public void initWorkflowDefinitions() throws Exception {
-    BufferedReader br = new BufferedReader(
-        new InputStreamReader(
-            this.getClass().getClassLoader().getResourceAsStream("nflow-workflows.txt")));
-    String row;
-    while ((row = br.readLine()) != null) {
-      logger.info("Preparing workflow " + row);
-      WorkflowDefinition<? extends WorkflowState> wd;
-      Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
-      try {
-        wd = appCtx.getBean(clazz);
-        logger.info("Found " + row + " Spring bean");
-      } catch(NoSuchBeanDefinitionException nex) {
-        logger.info("Not found " + row + " Spring bean, instantiating as a class");
-        wd = (WorkflowDefinition<? extends WorkflowState>) Class.forName(row).newInstance();
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(
+          getClass().getClassLoader().getResourceAsStream("nflow-workflows.txt"), UTF_8))) {
+      String row;
+      while ((row = br.readLine()) != null) {
+        logger.info("Preparing workflow " + row);
+        WorkflowDefinition<? extends WorkflowState> wd;
+        Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
+        try {
+          wd = appCtx.getBean(clazz);
+          logger.info("Found " + row + " Spring bean");
+        } catch(NoSuchBeanDefinitionException nex) {
+          logger.info("Not found " + row + " Spring bean, instantiating as a class");
+          wd = (WorkflowDefinition<? extends WorkflowState>) Class.forName(row).newInstance();
+        }
+        workflowDefitions.put(wd.getType(), wd);
       }
-      workflowDefitions.put(wd.getType(), wd);
     }
   }
 

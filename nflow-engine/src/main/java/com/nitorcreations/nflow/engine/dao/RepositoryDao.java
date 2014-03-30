@@ -40,6 +40,8 @@ import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 @Component
 public class RepositoryDao {
 
@@ -73,6 +75,7 @@ public class RepositoryDao {
     return id;
   }
 
+  @SuppressWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   private void insertVariables(final int id, final int actionId, Map<String, String> stateVariables, final Map<String, String> originalStateVariables) {
     if (stateVariables == null) {
       return;
@@ -112,6 +115,7 @@ public class RepositoryDao {
     return instance;
   }
 
+  @SuppressWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   private void fillState(final WorkflowInstance instance) {
     jdbc.query(
       "select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
@@ -126,6 +130,7 @@ public class RepositoryDao {
     instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
+  @SuppressWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     String ownerCondition = "and owner = '" + nflowName + "' ";
     if (isEmpty(nflowName)) {
@@ -199,10 +204,12 @@ public class RepositoryDao {
         new WorkflowInstanceActionRowMapper(), instance.id));
   }
 
+  @SuppressWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
+      @SuppressWarnings(value="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification="findbugs does not trust jdbctemplate")
       public PreparedStatement createPreparedStatement(Connection con)
           throws SQLException {
         PreparedStatement p = con.prepareStatement(
@@ -241,6 +248,7 @@ public class RepositoryDao {
     }
 
     @Override
+    @SuppressWarnings(value="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification="findbugs does not trust jdbctemplate")
     public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
       PreparedStatement ps;
       int p = 1;
