@@ -11,8 +11,8 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.validation.JAXRSValidationInInterceptor;
-import org.apache.cxf.jaxrs.validation.JAXRSValidationOutInterceptor;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -41,8 +41,8 @@ public class ApplicationContext {
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, JacksonObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
-        workflowInstanceResource, 
-        workflowDefinitionResource, 
+        workflowInstanceResource,
+        workflowDefinitionResource,
         apiListingResourceJson()));
     factory.setAddress('/' + factory.getAddress());
     factory.setProviders( Arrays.< Object >asList(
@@ -51,8 +51,8 @@ public class ApplicationContext {
         resourceListingProvider(),
         apiDeclarationProvider()) );
     factory.setFeatures(Arrays.asList(new LoggingFeature()));
-    factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSValidationInInterceptor()));
-    factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSValidationOutInterceptor()));
+    factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationInInterceptor()));
+    factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationOutInterceptor()));
     return factory.create();
   }
 
