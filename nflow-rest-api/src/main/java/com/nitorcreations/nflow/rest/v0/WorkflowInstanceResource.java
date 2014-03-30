@@ -90,9 +90,9 @@ public class WorkflowInstanceResource {
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("type") String[] types, @QueryParam("state") String[] states, @QueryParam("businessKey") String businessKey,
-      @QueryParam("include") String include) throws JsonProcessingException {
+      @QueryParam("externalId") String externalId, @QueryParam("include") String include) throws JsonProcessingException {
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(types).addStates(states).setBusinessKey(businessKey)
-        .setIncludeActions("actions".equals(include)).build();
+        .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
     Collection<WorkflowInstance> instances = repositoryService.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {

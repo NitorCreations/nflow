@@ -175,6 +175,10 @@ public class RepositoryDao {
       conditions.add("business_key = :business_key");
       params.addValue("business_key", query.businessKey);
     }
+    if (query.externalId != null) {
+      conditions.add("external_id = :external_id");
+      params.addValue("external_id", query.externalId);
+    }
     if (!isEmpty(conditions)) {
       sql += " where " + StringUtils.join(conditions, " and ");
     }
