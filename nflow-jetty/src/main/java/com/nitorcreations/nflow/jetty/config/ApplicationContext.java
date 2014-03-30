@@ -63,7 +63,7 @@ public class ApplicationContext {
 
   @Bean
   public JacksonObjectMapper jsonObjectMapper(Environment env) {
-    return new JacksonObjectMapper(false);
+    return new JacksonObjectMapper();
   }
 
   @Bean

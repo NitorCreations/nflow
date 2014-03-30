@@ -52,6 +52,7 @@
     <maven-findbugs.version>2.5.3</maven-findbugs.version>
     <maven-install.version>2.5.1</maven-install.version>
     <maven-jar.version>2.4</maven-jar.version>
+    <maven-jxr.version>2.3</maven-jxr.version>
     <maven-pmd.version>3.1</maven-pmd.version>
     <maven-project-info.version>2.7</maven-project-info.version>
     <maven-release.version>2.5</maven-release.version>
@@ -343,6 +344,11 @@
   </dependencyManagement>
   <reporting>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${maven-jxr.version}</version>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>

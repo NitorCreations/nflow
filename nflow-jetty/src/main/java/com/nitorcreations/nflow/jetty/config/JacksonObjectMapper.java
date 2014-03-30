@@ -35,10 +35,6 @@ public class JacksonObjectMapper extends ObjectMapper {
   static final DateTimeFormatter dateTimeFormat = ISODateTimeFormat.dateTimeNoMillis().withZoneUTC();
 
   public JacksonObjectMapper() {
-    this(true);
-  }
-
-  public JacksonObjectMapper(boolean failOnUnknownProperties) {
     setSerializationInclusion(NON_EMPTY);
     SimpleModule module = new SimpleModule("JodaModule", unknownVersion());
     module.addSerializer(LocalDate.class, new LocalDateSerializer());
