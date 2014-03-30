@@ -223,12 +223,11 @@ public class RepositoryDao {
     private final String owner;
 
     private final static String insertSql =
-        "insert into nflow_workflow(type, business_key, owner, request_data, state, state_text, "
-        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?)";
+        "insert into nflow_workflow(type, business_key, external_id, owner, request_data, state, state_text, "
+        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?,?)";
 
     private final static String updateSql =
-        "update nflow_workflow "
-        + "set state = ?, state_text = ?, next_activation = ?, "
+        "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
         + "is_processing = ?, retries = ?, modified = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
@@ -244,7 +243,8 @@ public class RepositoryDao {
       if (isInsert) {
         ps = connection.prepareStatement(insertSql, new String[] {"id"});
         ps.setString(p++, instance.type);
-        ps.setString(p++, instance.businessKey);;
+        ps.setString(p++, instance.businessKey);
+        ps.setString(p++, instance.externalId);
         ps.setString(p++, owner);
         ps.setString(p++, instance.requestData);
       } else {
@@ -252,7 +252,6 @@ public class RepositoryDao {
       }
       ps.setString(p++, instance.state);
       ps.setString(p++, instance.stateText);
-//      ps.setString(p++, new JSONMapper().mapToJson(instance.stateVariables));
       ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
       ps.setBoolean(p++, instance.processing);
       if (!isInsert) {
@@ -271,6 +270,7 @@ public class RepositoryDao {
         .setId(rs.getInt("id"))
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))
+        .setExternalId(rs.getString("external_id"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
         .setStateVariables(new LinkedHashMap<String, String>())

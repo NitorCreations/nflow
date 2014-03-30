@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -54,9 +56,12 @@ public class RepositoryService {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
     DateTime now = now();
-    instance = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString())
-      .setCreated(now).setModified(now).build();
-    return repositoryDao.insertWorkflowInstance(instance);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString())
+      .setCreated(now).setModified(now);
+    if (isEmpty(instance.externalId)) {
+      builder.setExternalId(UUID.randomUUID().toString());
+    }
+    return repositoryDao.insertWorkflowInstance(builder.build());
   }
 
   @Transactional

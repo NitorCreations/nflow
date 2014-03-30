@@ -2,6 +2,7 @@ create table nflow_workflow (
   id int not null auto_increment primary key,
   type varchar(64) not null,
   business_key varchar(64),
+  external_id varchar(64),
   request_data varchar(1024), 
   state varchar(64) not null,
   state_text varchar(128),
@@ -12,6 +13,8 @@ create table nflow_workflow (
   modified timestamp not null default current_timestamp,
   owner varchar(64)
 );
+
+create unique index nflow_workflow_uniq ON nflow_workflow (type, external_id);
 
 create table nflow_workflow_action (
   id int not null auto_increment primary key,

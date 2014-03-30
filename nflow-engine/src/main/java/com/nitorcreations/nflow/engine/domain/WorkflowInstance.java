@@ -12,6 +12,7 @@ public class WorkflowInstance {
   public final Integer id;
   public final String type;
   public final String businessKey;
+  public final String externalId;
   public final String state;
   public final String stateText;
   public final DateTime nextActivation;
@@ -30,6 +31,7 @@ public class WorkflowInstance {
     this.id = builder.id;
     this.type = builder.type;
     this.businessKey = builder.businessKey;
+    this.externalId = builder.externalId;
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
@@ -48,6 +50,7 @@ public class WorkflowInstance {
     Integer id;
     String type;
     String businessKey;
+    String externalId;
     String state;
     String stateText;
     DateTime nextActivation;
@@ -67,6 +70,7 @@ public class WorkflowInstance {
       this.id = copy.id;
       this.type = copy.type;
       this.businessKey = copy.businessKey;
+      this.externalId = copy.externalId;
       this.state = copy.state;
       this.stateText = copy.stateText;
       this.nextActivation = copy.nextActivation;
@@ -91,6 +95,11 @@ public class WorkflowInstance {
 
     public Builder setBusinessKey(String businessKey) {
       this.businessKey = businessKey;
+      return this;
+    }
+
+    public Builder setExternalId(String externalId) {
+      this.externalId = externalId;
       return this;
     }
 

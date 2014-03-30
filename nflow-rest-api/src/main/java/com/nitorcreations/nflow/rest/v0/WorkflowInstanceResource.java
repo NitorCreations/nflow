@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -15,6 +16,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
 
@@ -51,10 +54,18 @@ public class WorkflowInstanceResource {
 
   @PUT
   @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
-  public CreateWorkflowInstanceResponse createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
+  public CreateWorkflowInstanceResponse createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req,
+      @Context final HttpServletResponse response) throws JsonProcessingException {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
     int id = repositoryService.insertWorkflowInstance(instance);
-    return createWorkflowConverter.convert(id, instance);
+    if (id == -1) {
+      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(req.type).setExternalId(req.externalId).build();
+      instance = repositoryService.listWorkflowInstances(query).iterator().next();
+    } else {
+      instance = repositoryService.getWorkflowInstance(id);
+    }
+    response.setStatus(Response.Status.CREATED.getStatusCode());
+    return createWorkflowConverter.convert(instance);
   }
 
   @PUT

@@ -15,7 +15,8 @@ public class CreateWorkflowConverter {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   public WorkflowInstance convertAndValidate(CreateWorkflowInstanceRequest req) throws JsonProcessingException {
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setType(req.type).setBusinessKey(req.businessKey);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setType(req.type)
+        .setBusinessKey(req.businessKey).setExternalId(req.externalId);
     if (req.activationTime == null) {
       builder.setNextActivation(DateTime.now());
     } else {
@@ -27,12 +28,12 @@ public class CreateWorkflowConverter {
     return builder.build();
   }
 
-  public CreateWorkflowInstanceResponse convert(
-      int id, WorkflowInstance instance) {
+  public CreateWorkflowInstanceResponse convert(WorkflowInstance instance) {
     CreateWorkflowInstanceResponse resp = new CreateWorkflowInstanceResponse();
-    resp.id = id;
+    resp.id = instance.id;
     resp.type = instance.type;
     resp.businessKey = instance.businessKey;
+    resp.externalId = instance.externalId;
     return resp;
   }
 
