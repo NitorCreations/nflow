@@ -21,7 +21,7 @@ public class DatabaseInitializer {
       return;
     }
     String dbType = env.getRequiredProperty("db.type");
-    if ("h2".equals(dbType) || "mysql".equals(dbType)) {
+    if ("h2".equals(dbType) || "mysql".equals(dbType) || "postgresql".equals(dbType)) {
       populator.addScript(new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql"));
     } else {
       throw new IllegalArgumentException("Unsupported database type (db.type): " + dbType);

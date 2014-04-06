@@ -19,7 +19,7 @@ public class DatabaseConfiguration {
     config.addDataSourceProperty("url", env.getRequiredProperty("db.url"));
     config.addDataSourceProperty("user", env.getRequiredProperty("db.user"));
     config.addDataSourceProperty("password", env.getRequiredProperty("db.password"));
-    config.setMaximumPoolSize(100);
+    config.setMaximumPoolSize(env.getRequiredProperty("db.max.pool.size", Integer.class));
     return new HikariDataSource(config);
   }
 

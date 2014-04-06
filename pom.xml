@@ -58,6 +58,7 @@
     <maven-surefire.version>2.17</maven-surefire.version>
     <mockito.version>1.9.5</mockito.version>
     <mysql.version>5.1.30</mysql.version>
+    <postgresql.version>9.3-1101-jdbc41</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <slf4j.version>1.7.6</slf4j.version>
@@ -272,6 +273,11 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>${mysql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
       </dependency>
       <!-- misc -->
       <dependency>
