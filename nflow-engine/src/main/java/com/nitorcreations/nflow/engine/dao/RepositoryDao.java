@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -213,7 +214,8 @@ public class RepositoryDao {
       public PreparedStatement createPreparedStatement(Connection con)
           throws SQLException {
         PreparedStatement p = con.prepareStatement(
-            "insert into nflow_workflow_action(workflow_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?)");
+            "insert into nflow_workflow_action(workflow_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?)",
+            new String[] { "id" });
         p.setInt(1, action.workflowId);
         p.setString(2, action.state);
         p.setString(3, action.stateText);
@@ -264,7 +266,11 @@ public class RepositoryDao {
       }
       ps.setString(p++, instance.state);
       ps.setString(p++, instance.stateText);
-      ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+      if (instance.nextActivation == null) {
+        ps.setNull(p++, Types.TIMESTAMP);
+      } else {
+        ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+      }
       ps.setBoolean(p++, instance.processing);
       if (!isInsert) {
         ps.setInt(p++, instance.retries);

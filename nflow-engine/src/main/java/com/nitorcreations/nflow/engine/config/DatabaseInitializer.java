@@ -1,21 +1,38 @@
 package com.nitorcreations.nflow.engine.config;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 public class DatabaseInitializer {
 
-  public DatabaseInitializer(DataSource ds) {
+  private static final Logger logger = getLogger(DatabaseInitializer.class);
+
+  public DatabaseInitializer(DataSource ds, Environment env) {
     ResourceDatabasePopulator populator = populator();
-    populator.addScript(new ClassPathResource("scripts/create_nflow_db.sql"));
-    execute(populator, ds);
+    if (!env.getRequiredProperty("db.create.on.startup", Boolean.class)) {
+      return;
+    }
+    String dbType = env.getRequiredProperty("db.type");
+    if ("h2".equals(dbType) || "mysql".equals(dbType)) {
+      populator.addScript(new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql"));
+    } else {
+      throw new IllegalArgumentException("Unsupported database type (db.type): " + dbType);
+    }
+    try {
+      execute(populator, ds);
+    } catch(Exception ex) {
+      logger.warn("Failed to create the database - maybe it exists already", ex);
+    }
   }
-  
+
   private ResourceDatabasePopulator populator() {
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setIgnoreFailedDrops(true);

@@ -31,14 +31,14 @@ public abstract class BaseDaoTest extends BaseNflowTest {
   @Before
   public void initDb() throws IOException {
     ResourceDatabasePopulator populator = populator();
-    populator.addScript(getSqlResource("create_nflow_db.sql"));
+    populator.addScript(getSqlResource("h2.create.ddl.sql"));
     execute(populator, ds);
   }
 
   @After
   public void dropDb() throws IOException {
     ResourceDatabasePopulator populator = populator();
-    populator.addScript(getSqlResource("drop_nflow_db.sql"));
+    populator.addScript(getSqlResource("h2.drop.ddl.sql"));
     execute(populator, ds);
   }
 
@@ -50,7 +50,7 @@ public abstract class BaseDaoTest extends BaseNflowTest {
   }
 
   private static Resource getSqlResource(String fileName) throws IOException {
-    String sql = new String(readAllBytes(Paths.get("src", "main", "resources", "scripts", fileName)), UTF_8);
+    String sql = new String(readAllBytes(Paths.get("src", "main", "resources", "scripts", "db", fileName)), UTF_8);
     sql = sql.replaceAll(" unsigned ", " ")
         .replaceAll(" enum *\\([^)]*\\)", " varchar(30)")
         .replaceAll("on update current_timestamp", "");

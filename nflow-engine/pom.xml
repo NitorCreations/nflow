@@ -66,6 +66,10 @@
       <artifactId>h2</artifactId>
     </dependency>
     <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+    <dependency>
       <groupId>net.sourceforge.findbugs</groupId>
       <artifactId>annotations</artifactId>
       <scope>provided</scope>

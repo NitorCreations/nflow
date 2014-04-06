@@ -1,11 +1,10 @@
 package com.nitorcreations.nflow.engine.config;
 
-import static java.lang.System.getProperty;
-
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -14,19 +13,19 @@ import com.zaxxer.hikari.HikariDataSource;
 public class DatabaseConfiguration {
 
   @Bean
-  public DataSource datasource() throws ClassNotFoundException {
+  public DataSource datasource(Environment env) throws ClassNotFoundException {
     HikariConfig config = new HikariConfig();
-    config.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
-    config.addDataSourceProperty("url", getProperty("db.url", "jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
-    config.addDataSourceProperty("user", "sa");
-    config.addDataSourceProperty("password", "");
+    config.setDataSourceClassName(env.getRequiredProperty("db.driver"));
+    config.addDataSourceProperty("url", env.getRequiredProperty("db.url"));
+    config.addDataSourceProperty("user", env.getRequiredProperty("db.user"));
+    config.addDataSourceProperty("password", env.getRequiredProperty("db.password"));
     config.setMaximumPoolSize(100);
     return new HikariDataSource(config);
   }
 
   @Bean
-  public DatabaseInitializer dbInitializer(DataSource ds) {
-    return new DatabaseInitializer(ds);
+  public DatabaseInitializer dbInitializer(DataSource ds, Environment env) {
+    return new DatabaseInitializer(ds, env);
   }
 
 }

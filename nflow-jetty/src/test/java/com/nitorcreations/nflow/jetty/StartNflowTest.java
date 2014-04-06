@@ -11,7 +11,7 @@ public class StartNflowTest {
 
   @Test
   public void startNflowJetty() throws Exception {
-    Server jetty = new StartNflow().startJetty(7501, "dev");
+    Server jetty = new StartNflow().startJetty(7501, "junit");
     for (int i = 0; i < 5000; i+=50) {
       if (jetty.isStarted())
         break;
@@ -25,7 +25,7 @@ public class StartNflowTest {
         return;
       sleep(50);
     }
-    fail("Jetty did not stop gracefully in 10 seconds");    
+    fail("Jetty did not stop gracefully in 10 seconds");
   }
 
 }
