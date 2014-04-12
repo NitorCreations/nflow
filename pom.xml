@@ -148,6 +148,13 @@
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencyManagement>
@@ -368,16 +375,6 @@
           <effort>Max</effort>
           <threshold>Low</threshold>
           <!-- <excludeFilterFile>PATH_TO_PMD_XML/findbugs-exclude.xml</excludeFilterFile> -->
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>${maven-cobertura.version}</version>
-        <configuration>
-          <formats>
-            <format>xml</format>
-          </formats>
         </configuration>
       </plugin>
       <plugin>
