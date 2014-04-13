@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.tests.config;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+
 import java.util.Arrays;
 
 import javax.inject.Inject;
@@ -12,7 +14,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.jetty.config.JacksonObjectMapper;
@@ -30,7 +31,7 @@ public class RestClientConfiguration {
     bean.getFeatures().add(new LoggingFeature());
     bean.setProviders(Arrays.asList(jsonProvider));
     bean.setBus(cxf());
-    return bean.createWebClient().type(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON_VALUE);
+    return bean.createWebClient().type(APPLICATION_JSON).accept(APPLICATION_JSON);
   }
 
   @Bean(destroyMethod = "shutdown")

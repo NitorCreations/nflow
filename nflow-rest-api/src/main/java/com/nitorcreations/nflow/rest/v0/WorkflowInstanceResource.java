@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.rest.v0;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.cxf.common.util.StringUtils.isEmpty;
 import static org.joda.time.DateTime.now;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -36,10 +38,12 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 @Path("/v0/workflow-instance")
-@Produces("application/json")
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 @Api(value = "/workflow-instance", description = "Manage workflow instances")
 @Component
 public class WorkflowInstanceResource {
+
   private final RepositoryService repositoryService;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
