@@ -21,25 +21,24 @@ public class RepositoryServiceTest extends BaseNflowTest {
 
   @Mock
   private RepositoryDao repositoryDao;
-  
+
   @Mock
   private ApplicationContext appCtx;
 
   private RepositoryService service;
-  
+
   @SuppressWarnings("unchecked")
   @Before
   public void setup() throws Exception {
     Mockito.when(appCtx.getBean(Mockito.any(Class.class))).thenThrow(NoSuchBeanDefinitionException.class);
     service = new RepositoryService(repositoryDao, appCtx);
   }
-  
+
   @Test
   public void demoWorkflowLoadedSuccessfully() throws Exception {
     service.initWorkflowDefinitions();
     List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
-    assertThat(definitions.size(), is(1));
-    assertThat(definitions.get(0).getType(), is("demo"));
+    assertThat(definitions.size(), is(0));
   }
-  
+
 }

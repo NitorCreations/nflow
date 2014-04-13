@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.demo;
+package com.nitorcreations.nflow.tests.demo;
 
 import java.util.Locale;
 import java.util.Random;

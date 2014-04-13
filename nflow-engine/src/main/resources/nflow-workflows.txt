@@ -1,3 +1,0 @@
-com.nitorcreations.nflow.demo.DemoWorkflow
-com.nitorcreations.nflow.demo.WordGeneratorWorkflow
-com.nitorcreations.nflow.demo.WordGeneratorErrorsWorkflow

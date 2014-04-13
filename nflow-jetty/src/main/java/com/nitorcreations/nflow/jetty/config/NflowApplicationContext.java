@@ -35,7 +35,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @PropertySource("classpath:nflow-jetty.properties")
 @ComponentScan("com.nitorcreations.nflow.jetty")
 @Import(RestConfiguration.class)
-public class ApplicationContext {
+public class NflowApplicationContext {
 
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, JacksonObjectMapper mapper) {
@@ -51,6 +51,7 @@ public class ApplicationContext {
         resourceListingProvider(),
         apiDeclarationProvider()) );
     factory.setFeatures(Arrays.asList(new LoggingFeature()));
+    factory.setBus(cxf());
     factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationInInterceptor()));
     factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationOutInterceptor()));
     return factory.create();

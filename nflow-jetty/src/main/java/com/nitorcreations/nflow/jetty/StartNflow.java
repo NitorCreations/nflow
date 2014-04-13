@@ -27,7 +27,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
 
 import com.nitorcreations.core.utils.KillProcess;
-import com.nitorcreations.nflow.jetty.config.ApplicationContext;
+import com.nitorcreations.nflow.jetty.config.NflowApplicationContext;
 import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 
 
@@ -80,7 +80,7 @@ public class StartNflow
     servlet.setInitParameter("redirect-servlet-name", "default");
     context.addEventListener(new ContextLoaderListener());
     context.setInitParameter("contextClass", NflowAnnotationConfigWebApplicationContext.class.getName() );
-    context.setInitParameter("contextConfigLocation", ApplicationContext.class.getName());
+    context.setInitParameter("contextConfigLocation", NflowApplicationContext.class.getName());
     context.setInitParameter("spring.profiles.active", env);
   }
 

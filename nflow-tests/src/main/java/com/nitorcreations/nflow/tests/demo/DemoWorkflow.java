@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.demo;
+package com.nitorcreations.nflow.tests.demo;
 
 import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.manual;
@@ -33,12 +33,12 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
 
     @Override
     public String getName() {
-	return name();
+      return name();
     }
 
     @Override
     public String getDescription() {
-	return name();
+      return name();
     }
   }
 
