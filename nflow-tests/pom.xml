@@ -7,9 +7,7 @@
     <artifactId>nflow-root</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
-  <groupId>com.nitorcreations</groupId>
   <artifactId>nflow-tests</artifactId>
-  <version>0.1-SNAPSHOT</version>
   <name>nflow-tests</name>
   <url>http://maven.apache.org</url>
   <dependencies>
