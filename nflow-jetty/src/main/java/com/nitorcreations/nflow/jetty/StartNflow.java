@@ -8,10 +8,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
 
+import java.lang.management.ManagementFactory;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
+import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -81,12 +83,21 @@ public class StartNflow
     context.addEventListener(new ContextLoaderListener());
     context.setInitParameter("contextClass", NflowAnnotationConfigWebApplicationContext.class.getName() );
     context.setInitParameter("contextConfigLocation", NflowApplicationContext.class.getName());
-    context.setInitParameter("spring.profiles.active", env);
+    String envs = env;
+    if (enableJmx()) {
+      envs += ",jmx";
+    }
+    setProperty("spring.profiles.active", envs);
   }
 
   private Server setupServer() {
     Server server = new Server(new QueuedThreadPool(100));
     server.setStopAtShutdown(true);
+    if (enableJmx()) {
+      MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
+      server.addEventListener(mbContainer);
+      server.addBean(mbContainer);
+    }
     return server;
   }
 
@@ -127,6 +138,10 @@ public class StartNflow
     requestLog.setLogLatency(true);
     requestLogHandler.setRequestLog(requestLog);
     return requestLogHandler;
+  }
+
+  protected boolean enableJmx() {
+    return Boolean.getBoolean("nflow.jmx");
   }
 
 }
