@@ -24,6 +24,7 @@
     <module>nflow-rest-api</module>
     <module>nflow-engine</module>
     <module>nflow-jetty</module>
+    <module>nflow-tests</module>
   </modules>
   <properties>
     <apache.cxf.version>3.0.0-milestone2</apache.cxf.version>
@@ -387,6 +388,7 @@
           <!-- <rulesets> <ruleset>PATH_TO_PMD_XML/pmd.xml</ruleset> </rulesets> -->
           <excludes>
             <exclude>**/test/*.java</exclude>
+            <exclude>**/com/nitorcreations/tests/**/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>
