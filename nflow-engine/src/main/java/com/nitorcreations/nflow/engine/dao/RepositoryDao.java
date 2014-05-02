@@ -77,12 +77,14 @@ public class RepositoryDao {
   }
 
   @SuppressWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
-  private void insertVariables(final int id, final int actionId, Map<String, String> stateVariables, final Map<String, String> originalStateVariables) {
+  private void insertVariables(final int id, final int actionId, Map<String, String> stateVariables,
+      final Map<String, String> originalStateVariables) {
     if (stateVariables == null) {
       return;
     }
     final Iterator<Entry<String, String>> variables = stateVariables.entrySet().iterator();
-    jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)", new AbstractInterruptibleBatchPreparedStatementSetter() {
+    jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)",
+        new AbstractInterruptibleBatchPreparedStatementSetter() {
       @Override
       protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
         Entry<String, String> var;
@@ -160,7 +162,6 @@ public class RepositoryDao {
             "Multiple pollers using same name? (" + nflowName +")");
       }
     }
-
     return instanceIds;
   }
 

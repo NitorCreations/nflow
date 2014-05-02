@@ -2,6 +2,8 @@ package com.nitorcreations.nflow.engine;
 
 import static java.lang.Boolean.FALSE;
 
+import java.util.LinkedHashMap;
+
 import org.joda.time.DateTime;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -20,7 +22,8 @@ public abstract class BaseNflowTest {
       .setNextActivation(new DateTime())
       .setProcessing(FALSE)
       .setRetries(0)
-      .setOwner("flowInstance1");
+      .setOwner("flowInstance1")
+      .setStateVariables(new LinkedHashMap<String,String>());
   }
-  
+
 }

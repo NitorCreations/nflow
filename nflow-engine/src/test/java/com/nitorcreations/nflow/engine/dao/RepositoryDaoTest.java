@@ -2,12 +2,16 @@ package com.nitorcreations.nflow.engine.dao;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -17,32 +21,43 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
+import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 
 public class RepositoryDaoTest extends BaseDaoTest {
 
   @Inject
   RepositoryDao dao;
-  
+
   @Inject
   DataSource ds;
-  
+
   @Test
   public void roundTripTest() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    i1.stateVariables.put("a", "1");
     int id = dao.insertWorkflowInstance(i1);
     WorkflowInstance i2 = dao.getWorkflowInstance(id);
     assertThat(i2.id, notNullValue());
     assertThat(i2.created, notNullValue());
     assertThat(i2.modified, notNullValue());
-    assertThat(i1.type, equalTo(i2.type));
-    assertThat(i1.state, equalTo(i2.state));
-    assertThat(i1.stateText, equalTo(i2.stateText));
-    assertThat(i1.nextActivation, equalTo(i2.nextActivation));
-    assertThat(i1.processing, equalTo(i2.processing));
-    assertThat(i1.requestData, equalTo(i2.requestData));
+    checkSameWorkflowInfo(i1, i2);
   }
-  
+
+  @Test
+  public void queryWorkflowInstanceWithAllConditions() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    i1.stateVariables.put("b", "2");
+    int id = dao.insertWorkflowInstance(i1);
+    assertThat(id, not(equalTo(-1)));
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(i1.type).addStates(i1.state).setBusinessKey(i1.businessKey)
+        .setExternalId(i1.externalId).setIncludeActions(true).build();
+    List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
+    assertThat(l.size(), is(1));
+    checkSameWorkflowInfo(i1, l.get(0));
+  }
+
   @Test
   public void updateWorkflowInstance() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
@@ -65,18 +80,31 @@ public class RepositoryDaoTest extends BaseDaoTest {
       }
     });
   }
-  
+
+  @Test
+  public void insertWorkflowInstanceActionWorks() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    i1.stateVariables.put("a", "1");
+    int id = dao.insertWorkflowInstance(i1);
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(DateTime.now()).
+        setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text").
+        setWorkflowId(id).build();
+    i1.stateVariables.put("b", "2");
+    dao.insertWorkflowInstanceAction(i1, a1);
+    checkSameWorkflowInfo(i1, dao.getWorkflowInstance(id));
+  }
+
   @Test
   public void pollNextWorkflowInstances() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setOwner("junit").build();
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> firstBatch = dao.pollNextWorkflowInstanceIds(100);
-    List<Integer> secondBatch = dao.pollNextWorkflowInstanceIds(100);    
+    List<Integer> secondBatch = dao.pollNextWorkflowInstanceIds(100);
     assertThat(firstBatch.size(), equalTo(1));
     assertThat(firstBatch.get(0), equalTo(id));
     assertThat(secondBatch.size(), equalTo(0));
   }
- 
+
   @Test
   public void pollNextWorkflowInstancesWithRaceCondition() throws InterruptedException {
     for (int i=0; i<10000; i++) {
@@ -91,12 +119,26 @@ public class RepositoryDaoTest extends BaseDaoTest {
     threads[1].join();
     assertTrue(pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition);
   }
-  
+
+  private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
+    assertThat(i1.type, equalTo(i2.type));
+    assertThat(i1.state, equalTo(i2.state));
+    assertThat(i1.stateText, equalTo(i2.stateText));
+    assertThat(i1.nextActivation, equalTo(i2.nextActivation));
+    assertThat(i1.processing, equalTo(i2.processing));
+    assertThat(i1.requestData, equalTo(i2.requestData));
+    assertThat(i1.stateVariables.size(), equalTo(i2.stateVariables.size()));
+    Map<String, String> tmpVars = new HashMap<>(i1.stateVariables);
+    for (Map.Entry<String,String> entry : tmpVars.entrySet()) {
+      assertTrue(i2.stateVariables.containsKey(entry.getKey()));
+      assertThat(i2.stateVariables.get(entry.getKey()), equalTo(entry.getValue()));
+    }
+  }
+
   static class Poller implements Runnable {
-    
     RepositoryDao dao;
     boolean detectedRaceCondition = false;
-    
+
     public Poller(RepositoryDao dao) {
       this.dao = dao;
     }
@@ -110,8 +152,6 @@ public class RepositoryDaoTest extends BaseDaoTest {
         detectedRaceCondition = ex.getMessage().startsWith("Race condition");
       }
     }
-        
   }
-  
-  
+
 }

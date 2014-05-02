@@ -33,5 +33,5 @@ create table if not exists nflow_workflow_state (
   state_key varchar(64) not null,
   state_value varchar(1024) not null,
   primary key (workflow_id, action_id, state_key),
-  foreign key (workflow_id, action_id) references nflow_workflow_action(workflow_id, id) on delete cascade
+  foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );
