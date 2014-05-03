@@ -16,11 +16,13 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,12 +40,15 @@ public class RepositoryService {
 
   private final RepositoryDao repositoryDao;
   private final ApplicationContext appCtx;
+  private final ClassPathResource workflowDefitionListing;
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
 
   @Inject
-  public RepositoryService(RepositoryDao repositoryDao, ApplicationContext appCtx) throws Exception {
+  public RepositoryService(RepositoryDao repositoryDao, ApplicationContext appCtx,
+      @Named("workflow-definition-listing") ClassPathResource workflowDefitionListing) throws Exception {
     this.repositoryDao = repositoryDao;
     this.appCtx = appCtx;
+    this.workflowDefitionListing = workflowDefitionListing;
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
@@ -101,8 +106,7 @@ public class RepositoryService {
   @SuppressWarnings("unchecked")
   @PostConstruct
   public void initWorkflowDefinitions() throws Exception {
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(
-          getClass().getClassLoader().getResourceAsStream("nflow-workflows.txt"), UTF_8))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(workflowDefitionListing.getInputStream(), UTF_8))) {
       String row;
       while ((row = br.readLine()) != null) {
         logger.info("Preparing workflow " + row);
