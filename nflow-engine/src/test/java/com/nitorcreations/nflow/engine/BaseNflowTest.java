@@ -15,7 +15,7 @@ public abstract class BaseNflowTest {
 
   protected WorkflowInstance.Builder constructWorkflowInstanceBuilder() {
     return new WorkflowInstance.Builder()
-      .setType("WithdrawLoan")
+      .setType("dummy")
       .setRequestData("{ \"parameter\": \"abc\" }")
       .setState("CreateLoan")
       .setStateText(null)
