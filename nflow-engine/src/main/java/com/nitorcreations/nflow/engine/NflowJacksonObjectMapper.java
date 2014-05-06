@@ -1,11 +1,9 @@
-package com.nitorcreations.nflow.jetty.config;
+package com.nitorcreations.nflow.engine;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.core.Version.unknownVersion;
 
 import java.io.IOException;
-
-import javax.ws.rs.ext.Provider;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -27,14 +25,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @Component
 @Primary
-@Provider
-public class JacksonObjectMapper extends ObjectMapper {
+public class NflowJacksonObjectMapper extends ObjectMapper {
   private static final long serialVersionUID = 1L;
 
   static final DateTimeFormatter localDateFormat = ISODateTimeFormat.date();
   static final DateTimeFormatter dateTimeFormat = ISODateTimeFormat.dateTimeNoMillis().withZoneUTC();
 
-  public JacksonObjectMapper() {
+  public NflowJacksonObjectMapper() {
     setSerializationInclusion(NON_EMPTY);
     SimpleModule module = new SimpleModule("JodaModule", unknownVersion());
     module.addSerializer(LocalDate.class, new LocalDateSerializer());

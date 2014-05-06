@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.jetty.config.JacksonObjectMapper;
+import com.nitorcreations.nflow.engine.NflowJacksonObjectMapper;
 
 @Configuration
 public class RestClientConfiguration {
@@ -40,13 +40,13 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(JacksonObjectMapper mapper) {
+  public JacksonJsonProvider jsonProvider(NflowJacksonObjectMapper mapper) {
     return new JacksonJsonProvider(mapper);
   }
 
   @Bean
-  public JacksonObjectMapper jsonObjectMapper(Environment env) {
-    return new JacksonObjectMapper();
+  public NflowJacksonObjectMapper jsonObjectMapper(Environment env) {
+    return new NflowJacksonObjectMapper();
   }
 
   @Bean(name="workflow-instance")

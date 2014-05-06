@@ -22,6 +22,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.nitorcreations.nflow.engine.NflowJacksonObjectMapper;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
@@ -38,7 +39,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 public class NflowJettyConfiguration {
 
   @Bean
-  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, JacksonObjectMapper mapper) {
+  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, NflowJacksonObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
@@ -58,13 +59,13 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(JacksonObjectMapper mapper) {
+  public JacksonJsonProvider jsonProvider(NflowJacksonObjectMapper mapper) {
     return new JacksonJsonProvider(mapper);
   }
 
   @Bean
-  public JacksonObjectMapper jsonObjectMapper(Environment env) {
-    return new JacksonObjectMapper();
+  public NflowJacksonObjectMapper jsonObjectMapper(Environment env) {
+    return new NflowJacksonObjectMapper();
   }
 
   @Bean

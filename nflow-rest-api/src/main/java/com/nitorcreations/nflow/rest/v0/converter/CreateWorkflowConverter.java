@@ -1,10 +1,13 @@
 package com.nitorcreations.nflow.rest.v0.converter;
 
+import javax.inject.Inject;
+
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nitorcreations.nflow.engine.NflowJacksonObjectMapper;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
@@ -12,7 +15,12 @@ import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 @Component
 public class CreateWorkflowConverter {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper;
+
+  @Inject
+  public CreateWorkflowConverter(NflowJacksonObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   public WorkflowInstance convertAndValidate(CreateWorkflowInstanceRequest req) throws JsonProcessingException {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setType(req.type)
