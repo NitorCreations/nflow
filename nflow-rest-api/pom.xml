@@ -62,6 +62,11 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
-    </dependency>    
+    </dependency>
+    <dependency>
+      <groupId>com.nitorcreations</groupId>
+      <artifactId>matchers</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
