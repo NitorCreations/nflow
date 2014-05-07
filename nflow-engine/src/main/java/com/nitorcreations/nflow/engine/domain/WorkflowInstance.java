@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.domain;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +132,7 @@ public class WorkflowInstance {
       return this;
     }
 
-    public Builder setActions(ArrayList<WorkflowInstanceAction> actions) {
+    public Builder setActions(List<WorkflowInstanceAction> actions) {
       this.actions = actions;
       return this;
     }

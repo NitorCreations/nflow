@@ -40,6 +40,16 @@ public class ListWorkflowInstanceResponse {
     public int retryNo;
     public long executionStart;
     public long executionEnd;
+
+    public Action() {}
+
+    public Action(String state, String stateText, int retryNo, long executionStart, long executionEnd) {
+      this.state = state;
+      this.stateText = stateText;
+      this.retryNo = retryNo;
+      this.executionStart = executionStart;
+      this.executionEnd = executionEnd;
+    }
   }
 
 }

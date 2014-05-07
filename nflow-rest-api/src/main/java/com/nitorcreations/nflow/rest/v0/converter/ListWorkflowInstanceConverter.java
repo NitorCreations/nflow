@@ -22,23 +22,13 @@ public class ListWorkflowInstanceConverter {
     resp.stateText = instance.stateText;
     resp.nextActivation = instance.nextActivation;
     if (query.includeActions) {
-      addActions(resp, instance);
+      resp.actions = new ArrayList<>();
+      for (WorkflowInstanceAction action : instance.actions) {
+        resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
+            action.executionStart.getMillis(), action.executionEnd.getMillis()));
+      }
     }
     return resp;
   }
-
-  private void addActions(ListWorkflowInstanceResponse resp, WorkflowInstance instance) {
-    resp.actions = new ArrayList<>();
-    for (WorkflowInstanceAction action : instance.actions) {
-      Action tmp = new Action();
-      tmp.state = action.state;
-      tmp.stateText = action.stateText;
-      tmp.retryNo = action.retryNo;
-      tmp.executionStart = action.executionStart.getMillis();
-      tmp.executionEnd = action.executionEnd.getMillis();
-      resp.actions.add(tmp);
-    }
-  }
-
 
 }
