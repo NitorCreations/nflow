@@ -2,14 +2,56 @@ package com.nitorcreations.nflow.engine.workflow;
 
 import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.normal;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Set;
+
+import org.joda.time.DateTime;
 import org.junit.Test;
 
+import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition.TestState;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition2.TestState2;
 
 public class WorkflowDefinitionTest {
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void getStatesWorks() {
+    TestDefinition def = new TestDefinition("x", TestState.start);
+    assertThat((Set<WorkflowState>)def.getStates(),
+        containsInAnyOrder((WorkflowState)TestState.start, (WorkflowState)TestState.done,
+            (WorkflowState)TestState.notfound, (WorkflowState)TestState.error));
+  }
+
+  @Test
+  public void handleRetryMaxRetriesExceededHaveFailureState() {
+    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.start);
+    verify(execution).setNextState(eq(TestState.error.name()), any(String.class), any(DateTime.class));
+  }
+
+  @Test
+  public void handleRetryMaxRetriesExceededNotHaveFailureState() {
+    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.notfound);
+    verify(execution).setNextState(eq(TestState.notfound), any(String.class), isNull(DateTime.class));
+  }
+
+  private StateExecutionImpl handleRetryMaxRetriesExceeded(TestState currentState) {
+    TestDefinition def = new TestDefinition("x", TestState.start);
+    StateExecutionImpl execution = mock(StateExecutionImpl.class);
+    when(execution.getRetries()).thenReturn(def.getSettings().getMaxRetries());
+    when(execution.getCurrentStateName()).thenReturn(currentState.name());
+    def.handleRetry(execution);
+    return execution;
+  }
 
   @Test
   public void succeedsWhenInitialStateMethodExist() {
@@ -50,7 +92,7 @@ public class WorkflowDefinitionTest {
   public static class TestDefinition extends
       WorkflowDefinition<TestDefinition.TestState> {
     public static enum TestState implements WorkflowState {
-      start, done, notfound;
+      start, done, notfound, error;
 
       @Override
       public WorkflowStateType getType() {
@@ -70,17 +112,12 @@ public class WorkflowDefinitionTest {
 
     public TestDefinition(String type, TestState initialState) {
       super(type, initialState, TestState.notfound);
+      permit(TestState.start, TestState.done, TestState.error);
     }
 
-    public void permitStateTransfer(TestState originState, TestState targetState) {
-      permit(originState, targetState);
-    }
-
-    public void start(StateExecution execution) {
-    }
-
-    public void done(StateExecution execution) {
-    }
+    public void start(StateExecution execution) { }
+    public void done(StateExecution execution) { }
+    public void error(StateExecution execution) { }
 
   }
 
