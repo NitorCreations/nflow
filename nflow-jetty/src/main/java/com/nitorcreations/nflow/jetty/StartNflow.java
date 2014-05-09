@@ -8,8 +8,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
@@ -129,11 +132,13 @@ public class StartNflow
 
   private RequestLogHandler createAccessLogHandler() {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
-    NCSARequestLog requestLog = new NCSARequestLog("yyyy_mm_dd.request.log");
+    new File("log").mkdir();
+    NCSARequestLog requestLog = new NCSARequestLog(Paths.get("log", "yyyy_mm_dd.request.log").toString());
     requestLog.setRetainDays(90);
     requestLog.setAppend(true);
+    requestLog.setLogDateFormat("yyyy-MM-dd:HH:mm:ss Z");
     requestLog.setExtended(true);
-    requestLog.setLogTimeZone("Europe/Helsinki");
+    requestLog.setLogTimeZone(TimeZone.getDefault().getID());
     requestLog.setPreferProxiedForAddress(true);
     requestLog.setLogLatency(true);
     requestLogHandler.setRequestLog(requestLog);
