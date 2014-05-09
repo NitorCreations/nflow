@@ -28,6 +28,8 @@
   </modules>
   <properties>
     <apache.cxf.version>3.0.0-milestone2</apache.cxf.version>
+    <commons.lang.version>2.6</commons.lang.version>
+    <commons.logging.version>1.1.3</commons.logging.version>
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <core-utils.version>1.2</core-utils.version>
     <el.version>3.0.0</el.version>
@@ -37,7 +39,9 @@
     <hibernate.validator.version>5.1.1.Final</hibernate.validator.version>
     <hikaricp.version>1.3.8</hikaricp.version>
     <jackson.version>2.3.3</jackson.version>
+    <javassist.version>3.18.1-GA</javassist.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+    <javax.ws.rs.version>2.0</javax.ws.rs.version>
     <jodatime.version>2.3</jodatime.version>
     <jetty.version>9.1.5.v20140505</jetty.version>
     <junit.version>4.11</junit.version>
@@ -235,6 +239,11 @@
       </dependency>
       <!-- apache cxf -->
       <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>${javax.ws.rs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         <version>${apache.cxf.version}</version>
@@ -306,6 +315,19 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>${commons.lang3.version}</version>
+      </dependency>
+      <!-- specify commons-lang as runtime since we do not want any new code to depend on it -->
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${commons.lang.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons.logging.version}</version>
+        <scope>runtime</scope>
       </dependency>      
       <dependency>
         <groupId>joda-time</groupId>
@@ -344,14 +366,27 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>com.wordnik</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>${swagger.version}</version>
+      </dependency>
+      <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
         <version>${javax.servlet-api.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>net.sourceforge.findbugs</groupId>
         <artifactId>annotations</artifactId>
         <version>${findbugs-annotations.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>${javassist.version}</version>
+        <scope>runtime</scope>
       </dependency>
       <!-- testing -->    
       <dependency>

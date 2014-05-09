@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.dao;
 import static java.lang.System.currentTimeMillis;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.StringUtils.collectionToDelimitedString;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.sql.Connection;
@@ -22,7 +23,6 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
@@ -187,7 +187,7 @@ public class RepositoryDao {
       params.addValue("external_id", query.externalId);
     }
     if (!isEmpty(conditions)) {
-      sql += " where " + StringUtils.join(conditions, " and ");
+      sql += " where " + collectionToDelimitedString(conditions, " and ");
     }
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     for (WorkflowInstance instance : ret) {

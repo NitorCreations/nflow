@@ -1,8 +1,8 @@
 package com.nitorcreations.nflow.rest.v0;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.apache.cxf.common.util.StringUtils.isEmpty;
 import static org.joda.time.DateTime.now;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,9 +1,9 @@
 package com.nitorcreations.nflow.engine.service;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
