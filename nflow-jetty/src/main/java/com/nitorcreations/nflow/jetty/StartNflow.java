@@ -35,6 +35,7 @@ import com.nitorcreations.core.utils.KillProcess;
 import com.nitorcreations.nflow.jetty.config.NflowJettyConfiguration;
 import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class StartNflow
 {
@@ -130,6 +131,7 @@ public class StartNflow
     handlers.addHandler(createAccessLogHandler());
   }
 
+  @SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   private RequestLogHandler createAccessLogHandler() {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
     new File("log").mkdir();
