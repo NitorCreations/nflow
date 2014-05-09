@@ -184,7 +184,7 @@
         <artifactId>matchers</artifactId>
         <version>${nitor-matchers.version}</version>
       </dependency>
-      <!-- spring -->      
+      <!-- spring -->
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
@@ -214,7 +214,7 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
         <version>${spring.version}</version>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
@@ -268,7 +268,7 @@
         <artifactId>jackson-databind</artifactId>
         <version>${jackson.version}</version>
       </dependency>
-      <!-- validation -->  
+      <!-- validation -->
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
@@ -283,7 +283,7 @@
         <groupId>org.glassfish</groupId>
         <artifactId>javax.el</artifactId>
         <version>${el.version}</version>
-      </dependency>  
+      </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
@@ -328,7 +328,7 @@
         <artifactId>commons-logging</artifactId>
         <version>${commons.logging.version}</version>
         <scope>runtime</scope>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
@@ -388,7 +388,7 @@
         <version>${javassist.version}</version>
         <scope>runtime</scope>
       </dependency>
-      <!-- testing -->    
+      <!-- testing -->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
