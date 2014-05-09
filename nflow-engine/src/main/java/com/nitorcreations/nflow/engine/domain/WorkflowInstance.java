@@ -26,7 +26,6 @@ public class WorkflowInstance {
   public final String owner;
 
   private WorkflowInstance(Builder builder) {
-    super();
     this.id = builder.id;
     this.type = builder.type;
     this.businessKey = builder.businessKey;

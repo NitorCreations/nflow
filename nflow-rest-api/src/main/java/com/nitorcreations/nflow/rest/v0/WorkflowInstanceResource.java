@@ -4,12 +4,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,7 +18,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
@@ -58,18 +57,17 @@ public class WorkflowInstanceResource {
 
   @PUT
   @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
-  public CreateWorkflowInstanceResponse createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req,
-      @Context final HttpServletResponse response) throws JsonProcessingException {
+  public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
     int id = repositoryService.insertWorkflowInstance(instance);
     if (id == -1) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(req.type).setExternalId(req.externalId).build();
       instance = repositoryService.listWorkflowInstances(query).iterator().next();
+      id = instance.id;
     } else {
       instance = repositoryService.getWorkflowInstance(id);
     }
-    response.setStatus(Response.Status.CREATED.getStatusCode());
-    return createWorkflowConverter.convert(instance);
+    return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
 
   @PUT

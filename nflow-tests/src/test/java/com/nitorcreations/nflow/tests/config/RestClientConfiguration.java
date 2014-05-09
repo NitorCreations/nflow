@@ -4,7 +4,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.Arrays;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.cxf.bus.spring.SpringBus;
@@ -21,11 +20,8 @@ import com.nitorcreations.nflow.engine.NflowJacksonObjectMapper;
 @Configuration
 public class RestClientConfiguration {
 
-  @Inject
-  Environment env;
-
   @Bean(name="base-webclient")
-  public WebClient baseWebClient(JacksonJsonProvider jsonProvider) {
+  public WebClient baseWebClient(JacksonJsonProvider jsonProvider, Environment env) {
     JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
     bean.setAddress(env.getRequiredProperty("nflow.url"));
     bean.getFeatures().add(new LoggingFeature());
@@ -45,7 +41,7 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  public NflowJacksonObjectMapper jsonObjectMapper(Environment env) {
+  public NflowJacksonObjectMapper jsonObjectMapper() {
     return new NflowJacksonObjectMapper();
   }
 
