@@ -4,8 +4,6 @@ import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -28,17 +26,17 @@ public class WorkflowExecutor implements Runnable {
 
   private final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
 
-  private final Integer instanceId;
+  private final int instanceId;
   private final RepositoryService repository;
 
   private static final String MDC_KEY = "workflowInstanceId";
-  private final List<WorkflowExecutorListener> executorListeners;
+  private final WorkflowExecutorListener[] executorListeners;
 
-  public WorkflowExecutor(Integer instanceId, RepositoryService repository,
+  public WorkflowExecutor(int instanceId, RepositoryService repository,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.repository = repository;
-    this.executorListeners = Arrays.asList(executorListeners);
+    this.executorListeners = executorListeners;
   }
 
   @Override
@@ -46,7 +44,7 @@ public class WorkflowExecutor implements Runnable {
     try {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
       runImpl();
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       logger.error("Totally unexpected failure (e.g. deadlock) occurred.", ex);
     } finally {
       MDC.remove(MDC_KEY);

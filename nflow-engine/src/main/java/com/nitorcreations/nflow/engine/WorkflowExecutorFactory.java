@@ -16,9 +16,7 @@ public class WorkflowExecutorFactory {
     this.repository = repository;
   }
 
-  public WorkflowExecutor createExecutor(
-      Integer instanceId) {
+  public WorkflowExecutor createExecutor(int instanceId) {
     return new WorkflowExecutor(instanceId, repository);
   }
-
 }

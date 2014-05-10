@@ -20,9 +20,9 @@ import javax.inject.Named;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,15 +39,15 @@ public class RepositoryService {
   private static final Logger logger = getLogger(RepositoryService.class);
 
   private final RepositoryDao repositoryDao;
-  private final ApplicationContext appCtx;
-  private final ClassPathResource workflowDefitionListing;
+  private final BeanFactory beanFactory;
+  private final AbstractResource workflowDefitionListing;
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
 
   @Inject
-  public RepositoryService(RepositoryDao repositoryDao, ApplicationContext appCtx,
-      @Named("workflow-definition-listing") ClassPathResource workflowDefitionListing) throws Exception {
+  public RepositoryService(RepositoryDao repositoryDao, BeanFactory beanFactory,
+      @Named("workflow-definition-listing") AbstractResource workflowDefitionListing) throws Exception {
     this.repositoryDao = repositoryDao;
-    this.appCtx = appCtx;
+    this.beanFactory = beanFactory;
     this.workflowDefitionListing = workflowDefitionListing;
   }
 
@@ -103,7 +103,6 @@ public class RepositoryService {
     return new ArrayList<>(workflowDefitions.values());
   }
 
-  @SuppressWarnings("unchecked")
   @PostConstruct
   public void initWorkflowDefinitions() throws Exception {
     try (BufferedReader br = new BufferedReader(new InputStreamReader(workflowDefitionListing.getInputStream(), UTF_8))) {
@@ -111,13 +110,14 @@ public class RepositoryService {
       while ((row = br.readLine()) != null) {
         logger.info("Preparing workflow " + row);
         WorkflowDefinition<? extends WorkflowState> wd;
+        @SuppressWarnings("unchecked")
         Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
         try {
-          wd = appCtx.getBean(clazz);
+          wd = beanFactory.getBean(clazz);
           logger.info("Found " + row + " Spring bean");
         } catch(NoSuchBeanDefinitionException nex) {
           logger.info("Not found " + row + " Spring bean, instantiating as a class");
-          wd = (WorkflowDefinition<? extends WorkflowState>) Class.forName(row).newInstance();
+          wd = clazz.newInstance();
         }
         workflowDefitions.put(wd.getType(), wd);
       }
