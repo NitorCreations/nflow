@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine;
+package com.nitorcreations.nflow.rest.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.core.Version.unknownVersion;

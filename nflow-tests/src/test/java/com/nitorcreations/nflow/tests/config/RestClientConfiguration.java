@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.NflowJacksonObjectMapper;
+import com.nitorcreations.nflow.rest.config.NflowJacksonObjectMapper;
 
 @Configuration
 public class RestClientConfiguration {

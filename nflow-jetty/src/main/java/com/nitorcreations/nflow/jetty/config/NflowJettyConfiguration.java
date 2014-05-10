@@ -22,8 +22,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.NflowJacksonObjectMapper;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.rest.config.NflowJacksonObjectMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v0.WorkflowInstanceResource;
