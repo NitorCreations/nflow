@@ -21,11 +21,11 @@ public class DatabaseInitializer {
       return;
     }
     String dbType = env.getRequiredProperty("db.type");
-    if ("h2".equals(dbType) || "mysql".equals(dbType) || "postgresql".equals(dbType)) {
-      populator.addScript(new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql"));
-    } else {
+    ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
+    if (!script.exists()) {
       throw new IllegalArgumentException("Unsupported database type (db.type): " + dbType);
     }
+    populator.addScript(script);
     try {
       execute(populator, ds);
     } catch(Exception ex) {
