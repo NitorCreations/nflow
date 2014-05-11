@@ -17,7 +17,7 @@ public class EngineConfiguration {
   @Inject
   Environment env;
 
-  @Bean
+  @Bean(name="nflow-executor")
   public ThreadPoolTaskExecutor dispatcherPoolExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     Integer threadCount = env.getRequiredProperty("executor.thread.count", Integer.class);

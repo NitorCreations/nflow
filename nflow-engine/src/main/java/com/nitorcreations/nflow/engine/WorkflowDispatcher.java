@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
@@ -28,8 +29,8 @@ public class WorkflowDispatcher implements Runnable {
   private final ReentrantLock shutdownLock = new ReentrantLock(true);
 
   @Inject
-  public WorkflowDispatcher(ThreadPoolTaskExecutor pool, RepositoryService repository, WorkflowExecutorFactory executorFactory,
-      Environment env) {
+  public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, RepositoryService repository,
+      WorkflowExecutorFactory executorFactory, Environment env) {
     this.pool = pool;
     this.repository = repository;
     this.executorFactory = executorFactory;
