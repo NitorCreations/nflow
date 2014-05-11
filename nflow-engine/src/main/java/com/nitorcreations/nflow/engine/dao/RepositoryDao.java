@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
@@ -51,7 +52,7 @@ public class RepositoryDao {
   String nflowName;
 
   @Inject
-  public RepositoryDao(DataSource dataSource, Environment env) {
+  public RepositoryDao(@Named("nflow-datasource") DataSource dataSource, Environment env) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
     this.nflowName = env.getProperty("nflow.instance.name");

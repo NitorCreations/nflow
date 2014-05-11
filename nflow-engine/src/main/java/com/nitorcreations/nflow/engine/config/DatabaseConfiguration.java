@@ -12,7 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 public class DatabaseConfiguration {
 
-  @Bean
+  @Bean(name="nflow-datasource")
   public DataSource datasource(Environment env) throws ClassNotFoundException {
     HikariConfig config = new HikariConfig();
     config.setDataSourceClassName(env.getRequiredProperty("db.driver"));
@@ -24,8 +24,8 @@ public class DatabaseConfiguration {
   }
 
   @Bean
-  public DatabaseInitializer dbInitializer(DataSource ds, Environment env) {
-    return new DatabaseInitializer(ds, env);
+  public DatabaseInitializer dbInitializer(Environment env) throws ClassNotFoundException {
+    return new DatabaseInitializer(datasource(env), env);
   }
 
 }
