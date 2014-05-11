@@ -16,6 +16,8 @@ create table if not exists nflow_workflow (
 
 create unique index if not exists nflow_workflow_uniq on nflow_workflow (type, external_id);
 
+create index if not exists nflow_workflow_next_activation on nflow_workflow(next_activation);
+
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
   workflow_id int not null,

@@ -12,7 +12,8 @@ create table if not exists nflow_workflow (
   next_activation timestamp null,
   created timestamp null,
   owner varchar(64),
-  constraint nflow_workflow_uniq unique (type, external_id)
+  constraint nflow_workflow_uniq unique (type, external_id),
+  index nflow_workflow(next_activation)
 );
 
 drop trigger if exists nflow_workflow_create;

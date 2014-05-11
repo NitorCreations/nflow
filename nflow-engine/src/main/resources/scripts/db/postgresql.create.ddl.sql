@@ -15,6 +15,8 @@ create table if not exists nflow_workflow (
   constraint nflow_workflow_uniq unique (type, external_id)
 );
 
+create index on nflow_workflow(next_activation) where next_activation is not null;
+
 create table if not exists nflow_workflow_action (
   id serial primary key,
   workflow_id int not null,
