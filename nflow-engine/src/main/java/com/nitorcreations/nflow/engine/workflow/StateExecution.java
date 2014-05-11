@@ -4,20 +4,20 @@ import org.joda.time.DateTime;
 
 public interface StateExecution {
 
-  public String getBusinessKey();
-  public String getRequestData();
-  public int getRetries();
-  public boolean isFailure();
+  String getBusinessKey();
+  String getRequestData();
+  int getRetries();
+  boolean isFailure();
 
-  public String getVariable(String name);
-  public String getVariable(String name, String defaultValue);
-  public void setVariable(String name, String value);
+  String getVariable(String name);
+  String getVariable(String name, String defaultValue);
+  void setVariable(String name, String value);
 
-  public void setNextActivation(DateTime time);
-  public void setNextState(WorkflowState state);
-  public void setNextStateReason(String stateText);
-  public void setNextState(WorkflowState state, String stateText, DateTime time);
-  public void setFailure(boolean failure);
-  public void setSaveTrace(boolean saveTrace);
+  void setNextActivation(DateTime time);
+  void setNextState(WorkflowState state);
+  void setNextStateReason(String stateText);
+  void setNextState(WorkflowState state, String stateText, DateTime time);
+  void setFailure(boolean failure);
+  void setSaveTrace(boolean saveTrace);
 
 }
