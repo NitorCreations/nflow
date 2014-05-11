@@ -56,6 +56,14 @@ public class RepositoryServiceTest extends BaseNflowTest {
     service.initWorkflowDefinitions();
   }
 
+  @Test(expected = RuntimeException.class)
+  public void initDuplicateWorkflows() throws Exception {
+    String dummyTestClassname = DummyTestWorkflow.class.getName();
+    ByteArrayInputStream bis = new ByteArrayInputStream((dummyTestClassname + "\n" + dummyTestClassname).getBytes(UTF_8));
+    when(workflowDefinitionListing.getInputStream()).thenReturn(bis);
+    service.initWorkflowDefinitions();
+  }
+
   @Test
   public void demoWorkflowLoadedSuccessfully() throws Exception {
     List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();

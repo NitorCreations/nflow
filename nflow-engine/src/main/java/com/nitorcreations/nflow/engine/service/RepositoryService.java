@@ -3,15 +3,19 @@ package com.nitorcreations.nflow.engine.service;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.util.StringUtils.collectionToDelimitedString;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -105,6 +109,7 @@ public class RepositoryService {
 
   @PostConstruct
   public void initWorkflowDefinitions() throws Exception {
+    Map<String, Set<String>> duplicateTypeDefs = new HashMap<>();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(workflowDefitionListing.getInputStream(), UTF_8))) {
       String row;
       while ((row = br.readLine()) != null) {
@@ -119,8 +124,24 @@ public class RepositoryService {
           logger.info("Not found " + row + " Spring bean, instantiating as a class");
           wd = clazz.newInstance();
         }
+        if (workflowDefitions.containsKey(wd.getType())) {
+          Set<String> conflictingClasses = duplicateTypeDefs.get(wd.getType());
+          if (duplicateTypeDefs.get(wd.getType()) == null) {
+            conflictingClasses = new HashSet<>();
+            duplicateTypeDefs.put(wd.getType(), conflictingClasses);
+          }
+          conflictingClasses.add(workflowDefitions.get(wd.getType()).getClass().getName());
+          conflictingClasses.add(row);
+        }
         workflowDefitions.put(wd.getType(), wd);
       }
+    }
+    if (duplicateTypeDefs.size() > 0) {
+      StringBuilder conflictInfo = new StringBuilder();
+      for (Map.Entry<String, Set<String>> def : duplicateTypeDefs.entrySet()) {
+        conflictInfo.append("[" + def.getKey() + ":" + collectionToDelimitedString(def.getValue(), ",") + "]");
+      }
+      throw new RuntimeException("Same workflow type defined by multiple workflows. " + conflictInfo);
     }
   }
 
