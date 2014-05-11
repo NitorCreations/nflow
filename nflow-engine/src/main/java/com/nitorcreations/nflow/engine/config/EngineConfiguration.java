@@ -20,7 +20,7 @@ public class EngineConfiguration {
   @Bean(name="nflow-executor")
   public ThreadPoolTaskExecutor dispatcherPoolExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    Integer threadCount = env.getRequiredProperty("executor.thread.count", Integer.class);
+    Integer threadCount = env.getProperty("executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
     executor.setMaxPoolSize(threadCount);
     executor.setKeepAliveSeconds(0);
