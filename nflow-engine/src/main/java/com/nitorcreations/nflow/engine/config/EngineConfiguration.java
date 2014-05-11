@@ -25,6 +25,7 @@ public class EngineConfiguration {
     executor.setMaxPoolSize(threadCount);
     executor.setKeepAliveSeconds(0);
     executor.setAwaitTerminationSeconds(60);
+    executor.setWaitForTasksToCompleteOnShutdown(true);
     executor.setThreadFactory(new CustomizableThreadFactory("nflow-executor-"));
     return executor;
   }

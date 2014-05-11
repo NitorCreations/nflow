@@ -13,9 +13,18 @@ public class WorkflowSettings {
 
   private final Environment env;
 
+  private final int errorTransitionDelay;
+  private final int shortTransitionDelay;
+  private final int immediateTransitionDelay;
+  private final int maxRetries;
+
   @Inject
   public WorkflowSettings(Environment env) {
     this.env = env;
+    errorTransitionDelay = getIntegerProperty("transition.delay.waiterror.ms", 7200000);
+    shortTransitionDelay = getIntegerProperty("transition.delay.waitshort.ms", 30000);
+    immediateTransitionDelay = getIntegerProperty("transition.delay.immediate.ms", 0);
+    maxRetries = getIntegerProperty("max.state.retries", 3);
   }
 
   public DateTime getErrorTransitionActivation() {
@@ -23,7 +32,7 @@ public class WorkflowSettings {
   }
 
   public int getErrorTransitionDelay() {
-    return getIntegerProperty("transition.delay.waiterror.ms", 7200000);
+    return errorTransitionDelay;
   }
 
   public DateTime getShortTransitionActivation() {
@@ -31,15 +40,15 @@ public class WorkflowSettings {
   }
 
   public int getShortTransitionDelay() {
-    return getIntegerProperty("transition.delay.waitshort.ms", 30000);
+    return shortTransitionDelay;
   }
 
   public int getImmediateTransitionDelay() {
-    return getIntegerProperty("transition.delay.immediate.ms", 0);
+    return immediateTransitionDelay;
   }
 
   public int getMaxRetries() {
-    return getIntegerProperty("max.state.retries", 3);
+    return maxRetries;
   }
 
   private int getIntegerProperty(String key, int defaultValue) {
