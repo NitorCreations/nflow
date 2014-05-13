@@ -102,6 +102,17 @@ public class WorkflowDefinitionTest {
   }
 
   @Test
+  public void failsWhenFailureStateMethodDoesNotExist() {
+    TestDefinition workflow = new TestDefinition("x", TestState.start);
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Class " + workflow.getClass().getName() +
+        " is missing state handling method notfound(StateExecution execution)");
+
+    workflow.permit(TestState.start, TestState.done, TestState.notfound);
+  }
+
+  @Test
   public void allowedTranstionsCanContainMultipleTargetStates(){
     WorkflowDefinition<?> def = new TestDefinition2("y", TestState2.start);
     assertEquals(asList(TestState2.done.name(),

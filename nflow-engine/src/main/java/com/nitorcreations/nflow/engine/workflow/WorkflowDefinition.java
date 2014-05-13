@@ -98,15 +98,19 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
   protected WorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
     requireStateMethodExists(originState);
     requireStateMethodExists(targetState);
-    if(!allowedTransitions.containsKey(originState.name())) {
-      allowedTransitions.put(originState.name(), new ArrayList<String>());
-    }
-    allowedTransitions.get(originState.name()).add(targetState.name());
+    allowedTransitionsFor(originState).add(targetState.name());
     if (failureState != null) {
       requireStateMethodExists(failureState);
       failureTransitions.put(originState.name(), failureState.name());
     }
     return this;
+  }
+
+  private List<String> allowedTransitionsFor(S state) {
+    if (!allowedTransitions.containsKey(state.name())) {
+      allowedTransitions.put(state.name(), new ArrayList<String>());
+    }
+    return allowedTransitions.get(state.name());
   }
 
   public WorkflowSettings getSettings() {
