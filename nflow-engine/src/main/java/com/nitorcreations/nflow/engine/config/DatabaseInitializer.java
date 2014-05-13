@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ public class DatabaseInitializer {
 
   private static final Logger logger = getLogger(DatabaseInitializer.class);
 
-  public DatabaseInitializer(@Named("nflow-datasource") DataSource ds, Environment env) {
+  public DatabaseInitializer(DataSource ds, Environment env) {
     ResourceDatabasePopulator populator = populator();
     if (!env.getRequiredProperty("db.create.on.startup", Boolean.class)) {
       return;
