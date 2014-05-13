@@ -12,20 +12,17 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 public class DatabaseInitializer {
-
   private static final Logger logger = getLogger(DatabaseInitializer.class);
 
   public DatabaseInitializer(DataSource ds, Environment env) {
-    ResourceDatabasePopulator populator = populator();
     if (!env.getRequiredProperty("db.create.on.startup", Boolean.class)) {
       return;
     }
-    String dbType = env.getRequiredProperty("db.type");
-    ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
-    if (!script.exists()) {
-      throw new IllegalArgumentException("Unsupported database type (db.type): " + dbType);
-    }
-    populator.addScript(script);
+
+    populate(createPopulator(resolveScript(env)), ds);
+  }
+
+  private void populate(ResourceDatabasePopulator populator, DataSource ds) {
     try {
       execute(populator, ds);
     } catch(Exception ex) {
@@ -33,11 +30,20 @@ public class DatabaseInitializer {
     }
   }
 
-  private ResourceDatabasePopulator populator() {
+  private ResourceDatabasePopulator createPopulator(ClassPathResource script) {
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
+    populator.addScript(script);
     return populator;
   }
 
+  private ClassPathResource resolveScript(Environment env) {
+    String dbType = env.getRequiredProperty("db.type");
+    ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
+    if (!script.exists()) {
+      throw new IllegalArgumentException("Unsupported database type (db.type): " + dbType);
+    }
+    return script;
+  }
 }
