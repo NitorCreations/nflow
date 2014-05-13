@@ -64,6 +64,9 @@ public class WorkflowDispatcher implements Runnable {
         }
       }
     } finally {
+      if (shutdownLock.isHeldByCurrentThread()) {
+        shutdownLock.unlock();
+      }
       logger.info("Shutdown finished.");
     }
   }
@@ -93,5 +96,4 @@ public class WorkflowDispatcher implements Runnable {
       shutdownLock.unlock();
     }
   }
-
 }

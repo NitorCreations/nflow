@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,11 +46,6 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, env);
   }
 
-  @After
-  public void cleanup() {
-    dispatcher.shutdown();
-  }
-
   @Test
   public void processNextWorkflowInstances() {
     when(repository.pollNextWorkflowInstanceIds(anyInt())).thenReturn(asList(1)).thenReturn(new ArrayList<Integer>())
@@ -68,7 +62,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
   }
 
   @Test
-  public void shutdownWorks() {
+  public void shutdownWorks() throws InterruptedException {
     final Thread shutdownThread = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -92,6 +86,8 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     InOrder inOrder = inOrder(pool);
     inOrder.verify(pool, times(100)).execute(Mockito.any(Runnable.class));
     inOrder.verify(pool).shutdown();
+
+    shutdownThread.join();
   }
 
 }
