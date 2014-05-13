@@ -15,13 +15,33 @@ import static org.mockito.Mockito.when;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition.TestState;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition2.TestState2;
 
 public class WorkflowDefinitionTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void initialStateIsRequired() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("initialState must not be null");
+    new WorkflowDefinition<TestDefinition.TestState>("withoutInitialState", null, TestState.error) {
+    };
+  }
+
+  @Test
+  public void errorStateIsRequired() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("errorState must not be null");
+    new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState", TestState.start, null) {
+    };
+  }
 
   @SuppressWarnings("unchecked")
   @Test
