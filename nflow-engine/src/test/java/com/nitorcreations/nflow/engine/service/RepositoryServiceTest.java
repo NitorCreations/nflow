@@ -18,9 +18,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 import com.nitorcreations.nflow.engine.BaseNflowTest;
@@ -38,30 +35,25 @@ public class RepositoryServiceTest extends BaseNflowTest {
   private RepositoryDao repositoryDao;
 
   @Mock
-  private ApplicationContext appCtx;
-
-  @Mock
-  private ClassPathResource workflowDefinitionListing;
+  private ClassPathResource nonSpringWorkflowListing;
 
   private RepositoryService service;
 
-  @SuppressWarnings("unchecked")
   @Before
   public void setup() throws Exception {
-    when(appCtx.getBean(Mockito.any(Class.class))).thenThrow(NoSuchBeanDefinitionException.class);
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream(dummyTestClassname.getBytes(UTF_8));
-    when(workflowDefinitionListing.getInputStream()).thenReturn(bis);
-    service = new RepositoryService(repositoryDao, appCtx, workflowDefinitionListing);
-    service.initWorkflowDefinitions();
+    when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
+    service = new RepositoryService(repositoryDao, nonSpringWorkflowListing);
+    service.initNonSpringWorkflowDefinitions();
   }
 
   @Test(expected = RuntimeException.class)
   public void initDuplicateWorkflows() throws Exception {
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream((dummyTestClassname + "\n" + dummyTestClassname).getBytes(UTF_8));
-    when(workflowDefinitionListing.getInputStream()).thenReturn(bis);
-    service.initWorkflowDefinitions();
+    when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
+    service.initNonSpringWorkflowDefinitions();
   }
 
   @Test

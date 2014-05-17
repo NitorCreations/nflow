@@ -20,8 +20,7 @@ import javax.inject.Named;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,16 +38,21 @@ public class RepositoryService {
   private static final Logger logger = getLogger(RepositoryService.class);
 
   private final RepositoryDao repositoryDao;
-  private final BeanFactory beanFactory;
-  private final AbstractResource workflowDefitionListing;
+  private final AbstractResource nonSpringWorkflowsListing;
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
 
   @Inject
-  public RepositoryService(RepositoryDao repositoryDao, BeanFactory beanFactory,
-      @Named("workflow-definition-listing") AbstractResource workflowDefitionListing) throws Exception {
+  public RepositoryService(RepositoryDao repositoryDao,
+      @Named("non-spring-workflows-listing") AbstractResource nonSpringWorkflowsListing) throws Exception {
     this.repositoryDao = repositoryDao;
-    this.beanFactory = beanFactory;
-    this.workflowDefitionListing = workflowDefitionListing;
+    this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
+  }
+
+  @Autowired(required=false)
+  public void setWorkflowDefinitions(Collection<WorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
+    for (WorkflowDefinition<? extends WorkflowState> wd : workflowDefinitions) {
+      addWorkflowDefinition(wd);
+    }
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
@@ -103,30 +107,30 @@ public class RepositoryService {
     return new ArrayList<>(workflowDefitions.values());
   }
 
-  @SuppressWarnings("resource")
   @PostConstruct
-  public void initWorkflowDefinitions() throws Exception {
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(workflowDefitionListing.getInputStream(), UTF_8))) {
+  public void initNonSpringWorkflowDefinitions() throws Exception {
+    if (nonSpringWorkflowsListing == null) {
+      logger.info("No non-Spring workflow definitions");
+      return;
+    }
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(nonSpringWorkflowsListing.getInputStream(), UTF_8))) {
       String row;
       while ((row = br.readLine()) != null) {
         logger.info("Preparing workflow " + row);
-        WorkflowDefinition<? extends WorkflowState> wd;
         @SuppressWarnings("unchecked")
         Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
-        try {
-          wd = beanFactory.getBean(clazz);
-          logger.info("Found " + row + " Spring bean");
-        } catch(NoSuchBeanDefinitionException nex) {
-          logger.info("Not found " + row + " Spring bean, instantiating as a class");
-          wd = clazz.newInstance();
-        }
-        WorkflowDefinition<? extends WorkflowState> conflict = workflowDefitions.put(wd.getType(), wd);
-        if (conflict != null) {
-          throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName() +
-              " define same workflow type: " + wd.getType());
-        }
+        addWorkflowDefinition(clazz.newInstance());
       }
     }
+  }
+
+  private void addWorkflowDefinition(WorkflowDefinition<? extends WorkflowState> wd) {
+    WorkflowDefinition<? extends WorkflowState> conflict = workflowDefitions.put(wd.getType(), wd);
+    if (conflict != null) {
+      throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName() +
+          " define same workflow type: " + wd.getType());
+    }
+    logger.info("Added workflow type: " + wd.getType() + " (" + wd.getClass().getName() + ")");
   }
 
 }

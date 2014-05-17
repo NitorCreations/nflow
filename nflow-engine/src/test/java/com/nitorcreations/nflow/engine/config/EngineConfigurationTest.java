@@ -1,7 +1,7 @@
 package com.nitorcreations.nflow.engine.config;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -38,8 +38,8 @@ public class EngineConfigurationTest {
   }
 
   @Test
-  public void workflowDefinitionListingInstantiated() {
-    assertThat(configuration.workflowDefinitionListing(), notNullValue());
+  public void nonSpringWorkflowsListingNotInstantiated() {
+    assertThat(configuration.nonSpringWorkflowsListing(), nullValue());
   }
 
 }

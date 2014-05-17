@@ -30,9 +30,13 @@ public class EngineConfiguration {
     return executor;
   }
 
-  @Bean(name = "workflow-definition-listing")
-  public ClassPathResource workflowDefinitionListing() {
-    return new ClassPathResource("nflow-workflows.txt");
+  @Bean(name = "non-spring-workflows-listing")
+  public ClassPathResource nonSpringWorkflowsListing() {
+    String filename = env.getProperty("non.spring.workflows.filename");
+    if (filename != null) {
+      return new ClassPathResource(filename);
+    }
+    return null;
   }
 
 }
