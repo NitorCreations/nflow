@@ -43,18 +43,12 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownInProgress()) {
         try {
-          int nextBatchSize = Math.max(0, 2 * pool.getMaxPoolSize() - pool.getActiveCount());
-          logger.debug("Polling next " + nextBatchSize + " workflow instances");
-          List<Integer> nextInstanceIds = repository.pollNextWorkflowInstanceIds(nextBatchSize);
+          List<Integer> nextInstanceIds = getNextInstanceIds();
           if (nextInstanceIds.isEmpty()) {
             logger.debug("Found no workflow instances, sleeping.");
             sleep();
           } else {
-            logger.debug("Found " + nextInstanceIds.size() + " workflow instances, dispatching executors.");
-            for (Integer instanceId : nextInstanceIds) {
-              WorkflowExecutor executor = executorFactory.createExecutor(instanceId);
-              pool.execute(executor);
-            }
+            dispatchWorkflows(nextInstanceIds);
           }
         } catch (Exception ex) {
           logger.error("Exception in executing dispatcher - retrying after sleep period.", ex);
@@ -71,19 +65,6 @@ public class WorkflowDispatcher implements Runnable {
     }
   }
 
-  private boolean shutdownInProgress() {
-    shutdownLock.lock();
-    return shutdownFlag;
-  }
-
-  private void sleep() {
-    try {
-      Thread.sleep(sleepTime);
-    } catch (InterruptedException e) {
-      /* ok */
-    }
-  }
-
   public void shutdown() {
     try {
       shutdownLock.lock();
@@ -94,6 +75,36 @@ public class WorkflowDispatcher implements Runnable {
       logger.error("Error in shutting down thread pool", ex);
     } finally {
       shutdownLock.unlock();
+    }
+  }
+
+  private List<Integer> getNextInstanceIds() {
+    int nextBatchSize = calculateBatchSize();
+    logger.debug("Polling next " + nextBatchSize + " workflow instances");
+    return repository.pollNextWorkflowInstanceIds(nextBatchSize);
+  }
+
+  private int calculateBatchSize() {
+    return Math.max(0, 2 * pool.getMaxPoolSize() - pool.getActiveCount());
+  }
+
+  private void dispatchWorkflows(List<Integer> instanceIds) {
+    logger.debug("Found " + instanceIds.size() + " workflow instances, dispatching executors.");
+    for (Integer instanceId : instanceIds) {
+      pool.execute(executorFactory.createExecutor(instanceId));
+    }
+  }
+
+  private boolean shutdownInProgress() {
+    shutdownLock.lock();
+    return shutdownFlag;
+  }
+
+  private void sleep() {
+    try {
+      Thread.sleep(sleepTime);
+    } catch (InterruptedException e) {
+      /* ok */
     }
   }
 }
