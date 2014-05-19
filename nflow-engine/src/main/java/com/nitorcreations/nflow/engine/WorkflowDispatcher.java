@@ -50,8 +50,8 @@ public class WorkflowDispatcher implements Runnable {
           } else {
             dispatchWorkflows(nextInstanceIds);
           }
-        } catch (Exception ex) {
-          logger.error("Exception in executing dispatcher - retrying after sleep period.", ex);
+        } catch (Exception e) {
+          logger.error("Exception in executing dispatcher - retrying after sleep period.", e);
           sleep();
         }
       }
@@ -76,14 +76,14 @@ public class WorkflowDispatcher implements Runnable {
   private void shutdownPool() {
     try  {
       pool.shutdown();
-    } catch (Exception ex) {
-      logger.error("Error in shutting down thread pool", ex);
+    } catch (Exception e) {
+      logger.error("Error in shutting down thread pool.", e);
     }
   }
 
   private List<Integer> getNextInstanceIds() {
     int nextBatchSize = calculateBatchSize();
-    logger.debug("Polling next " + nextBatchSize + " workflow instances");
+    logger.debug("Polling next {} workflow instances.", nextBatchSize);
     return repository.pollNextWorkflowInstanceIds(nextBatchSize);
   }
 
@@ -92,7 +92,7 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   private void dispatchWorkflows(List<Integer> instanceIds) {
-    logger.debug("Found " + instanceIds.size() + " workflow instances, dispatching executors.");
+    logger.debug("Found {} workflow instances, dispatching executors.", instanceIds.size());
     for (Integer instanceId : instanceIds) {
       pool.execute(executorFactory.createExecutor(instanceId));
     }
@@ -101,8 +101,7 @@ public class WorkflowDispatcher implements Runnable {
   private void sleep() {
     try {
       Thread.sleep(sleepTime);
-    } catch (InterruptedException e) {
-      /* ok */
+    } catch (InterruptedException ok) {
     }
   }
 }
