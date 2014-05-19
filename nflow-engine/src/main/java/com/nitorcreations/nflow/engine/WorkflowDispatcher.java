@@ -3,7 +3,7 @@ package com.nitorcreations.nflow.engine;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,13 +20,13 @@ public class WorkflowDispatcher implements Runnable {
 
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
 
-  private volatile boolean shutdownFlag;
+  private volatile boolean shutdownRequested;
+  private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final ThreadPoolTaskExecutor pool;
   private final RepositoryService repository;
   private final WorkflowExecutorFactory executorFactory;
   private final long sleepTime;
-  private final ReentrantLock shutdownLock = new ReentrantLock(true);
 
   @Inject
   public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, RepositoryService repository,
@@ -41,7 +41,7 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Starting.");
     try {
-      while (!shutdownInProgress()) {
+      while (!shutdownRequested) {
         try {
           List<Integer> nextInstanceIds = getNextInstanceIds();
           if (nextInstanceIds.isEmpty()) {
@@ -53,28 +53,31 @@ public class WorkflowDispatcher implements Runnable {
         } catch (Exception ex) {
           logger.error("Exception in executing dispatcher - retrying after sleep period.", ex);
           sleep();
-        } finally {
-          shutdownLock.unlock();
         }
       }
     } finally {
-      if (shutdownLock.isHeldByCurrentThread()) {
-        shutdownLock.unlock();
-      }
+      shutdownPool();
       logger.info("Shutdown finished.");
+      shutdownDone.countDown();
     }
   }
 
   public void shutdown() {
+    shutdownRequested = true;
+    logger.info("Shutdown requested.");
     try {
-      shutdownLock.lock();
-      this.shutdownFlag = true;
-      logger.info("Shutdown starting.");
+      // TODO use timeout?
+      shutdownDone.await();
+    } catch (InterruptedException e) {
+      logger.info("Shutdown interrupted.");
+    }
+  }
+
+  private void shutdownPool() {
+    try  {
       pool.shutdown();
     } catch (Exception ex) {
       logger.error("Error in shutting down thread pool", ex);
-    } finally {
-      shutdownLock.unlock();
     }
   }
 
@@ -93,11 +96,6 @@ public class WorkflowDispatcher implements Runnable {
     for (Integer instanceId : instanceIds) {
       pool.execute(executorFactory.createExecutor(instanceId));
     }
-  }
-
-  private boolean shutdownInProgress() {
-    shutdownLock.lock();
-    return shutdownFlag;
   }
 
   private void sleep() {
