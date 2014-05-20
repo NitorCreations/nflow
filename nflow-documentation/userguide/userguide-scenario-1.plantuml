@@ -1,0 +1,20 @@
+@startuml 
+
+node "Your application server" {
+  package "Your application" {
+    component [nflow-engine] as nflowEngine
+    component [Your workflows] as yourWorkflows
+    component [Your user interface] as yourUi
+  }
+}
+ 
+interface "Users" as users
+interface "External resources" as externalResources
+users --> yourUi
+yourUi --> nflowEngine
+nflowEngine --> Database
+nflowEngine -> yourWorkflows
+yourWorkflows ..> externalResources
+ 
+@enduml
+

@@ -1,0 +1,18 @@
+@startuml 
+
+node "nflow-jetty" {
+  component [nflow-engine] as nflowEngine
+  component [nflow-rest] as nflowRest
+  component [Your workflows] as yourWorkflows
+}
+ 
+interface "Your other systems" as yourOtherSystems
+interface "External resources" as externalResources
+yourOtherSystems --> nflowRest
+nflowRest --> nflowEngine
+nflowEngine --> Database
+nflowEngine -> yourWorkflows
+yourWorkflows ..> externalResources
+ 
+@enduml
+
