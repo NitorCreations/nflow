@@ -22,7 +22,6 @@ public class CreateWorkflowInstanceRequest {
   @ApiModelProperty(value = "Workflow definition identifier", required=true)
   public String type;
 
-  @NotNull
   @Size(max=64)
   @ApiModelProperty(value = "Main business key or identifier for the started workflow instance", required=false)
   public String businessKey;
