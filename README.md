@@ -1,4 +1,4 @@
-## nFlow goals and non-goals
+# nFlow goals and non-goals
 
 nFlow is a light weight business process engine with emphasis on the following goals or features.
 
@@ -11,9 +11,9 @@ nFlow non-goals are important to understand as well:
 * **BPMN/BPEL Support:** excluded by the goal of conciseness
 * **Full UI Support:** although read-only visualization of workflows is in future roadmap
 
-## Getting started
+# Getting started
 
-### 1 minute guide
+## 1 minute guide
 
 Create a Maven project. Add the following to your  `pom.xml`. nFlow is available in Maven central repository. 
 
@@ -37,37 +37,60 @@ public class App {
 ```
 That's it! Running *App* will start nFlow server though without any workflow definitions. See the next sections for creating your own workflow definitions.
 
-### Architecture
+## Components
 
-### Anatomy of workflow definition
+nFlow consist of the following main components, each having the previous component as a dependency.
+ 1. **nflow-engine** contains a multithreaded workflow dispatcher, Java API for managing workflows and the persistance layer implementation. 
+ 2. **nflow-rest** contains a JAX-RS compliant REST service implementation for exposing workflow management and query APIs.
+ 3. **nflow-jetty** contains an embeddable Jetty server for running nFlow with your custom workflows.
+
+In addition, nflow-tests component contains integration tests over demo workflows.
+
+## Usage scenarios
+
+The following example scenarios illustrate how you can use nFlow with your applications.
+
+### Scenario 1: embedded engine
+
+![Scenario 1 picture](nflow-documentation/userguide/userguide-scenario-1.png)
+
+### Scenario 2: your application server
+
+![Scenario 2 picture](nflow-documentation/userguide/userguide-scenario-2.png)
+
+### Scenario 3: full nFlow stack
+
+![Scenario 3 picture](nflow-documentation/userguide/userguide-scenario-3.png)
+
+## Anatomy of workflow definition
 
 TODO: through concrete example
 
-## Configuration
+# Configuration
 
-### nFlow properties
+## nFlow properties
 
 Default values for nFlow properties can be overridden by adding *<env>*.properties file to classpath and specifying *env* as system property. For instance, add *dev.properties* to classpath and add *-Denv=dev* to JVM startup parameters.
 
 TODO: table of nFlow properties and default values
 
-### Database
+## Database
 
 PostgreSQL, MySQL/MariaDB and H2 supported...
 Database structures initialized manually or automatically...
 Description of database tables...
 
-### Security
+## Security
 
 Currently nFlow does not come with any security framework. You can add your own layer of security e.g. through Spring Security if you wish.
 
-## REST API
+# REST API
 
-### Swagger
+## Swagger
 
-## Deployment
+# Deployment
 
-### Logging
+## Logging
 
-### JMX
+## JMX
 
