@@ -1,0 +1,17 @@
+@startuml
+
+start
+
+:Create credit application;
+
+if (Accept credit application?) then (yes)
+  :Grant loan;
+else (no)
+endif
+
+:Finish credit application;
+
+stop
+
+@enduml
+
