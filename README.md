@@ -62,9 +62,15 @@ The following example scenarios illustrate how you can use nFlow with your appli
 
 ![Scenario 3 picture](nflow-documentation/userguide/userguide-scenario-3.png)
 
-## Anatomy of workflow definition
+## Anatomy of a workflow
 
-TODO: through concrete example
+In nFlow terminology, you have workflow definitions and instances. A workflow definition is Java class that contains the implementation of a business process (e.g. credit application process). A workflow instance is a runtime instance of the business process (e.g. credit application from a certain customer). As a developer, you need to implement the workflow definition after which the workflow instances can be submitted through nflow-engine API or nflow-rest-api services.
+
+A workflow can be composed of human tasks (e.g. accept application), technical tasks (e.g. call REST service) or both of these tasks. A simple workflow that involves creating a credit application, the credit decision, possible money transfer and finally closing the credit application is illustrated below.
+
+![](nflow-documentation/userguide/userguide-example-workflow.png)
+
+TODO: go through the code
 
 # Configuration
 
