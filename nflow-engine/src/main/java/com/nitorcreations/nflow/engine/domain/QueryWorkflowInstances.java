@@ -7,6 +7,7 @@ import java.util.List;
 
 public class QueryWorkflowInstances {
 
+  public final List<Integer> ids;
   public final List<String> types;
   public final List<String> states;
   public final String businessKey;
@@ -15,6 +16,7 @@ public class QueryWorkflowInstances {
 
   private QueryWorkflowInstances(Builder builder) {
     super();
+    this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
     this.states = new ArrayList<>(builder.states);
     this.businessKey = builder.businessKey;
@@ -23,6 +25,7 @@ public class QueryWorkflowInstances {
   }
 
   public static class Builder {
+    List<Integer> ids = new ArrayList<>();
     List<String> types = new ArrayList<>();
     List<String> states = new ArrayList<>();
     String businessKey;
@@ -30,6 +33,11 @@ public class QueryWorkflowInstances {
     boolean includeActions;
 
     public Builder() {
+    }
+
+    public Builder addIds(Integer ... ids) {
+      this.ids.addAll(asList(ids));
+      return this;
     }
 
     public Builder addTypes(String ... types) {

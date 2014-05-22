@@ -91,8 +91,9 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void listWorkflowInstancesWorks() throws JsonProcessingException {
-    resource.listWorkflowInstances(new String[] { "type" }, new String[] { "state" }, "businessKey", "externalId", "actions");
+    resource.listWorkflowInstances(new Integer[]{42}, new String[] { "type" }, new String[] { "state" }, "businessKey", "externalId", "actions");
     verify(repositoryService).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+        hasField("ids", contains(42)),
         hasField("types", contains("type")),
         hasField("states", contains("state")),
         hasField("businessKey", equalTo("businessKey")),

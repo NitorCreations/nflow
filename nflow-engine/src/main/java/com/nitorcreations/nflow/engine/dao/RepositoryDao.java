@@ -171,6 +171,10 @@ public class RepositoryDao {
 
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
+    if (!isEmpty(query.ids)) {
+      conditions.add("id in (:ids)");
+      params.addValue("ids", query.ids);
+    }
     if (!isEmpty(query.types)) {
       conditions.add("type in (:types)");
       params.addValue("types", query.types);

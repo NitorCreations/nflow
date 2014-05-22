@@ -95,6 +95,9 @@ public class WorkflowInstanceResource {
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
+      @QueryParam("id")
+      @ApiParam(value = "Internal id of workflow instance")
+      Integer[] ids,
       @QueryParam("type")
       @ApiParam(value = "Type of workflow instance")
       String[] types,
@@ -110,7 +113,7 @@ public class WorkflowInstanceResource {
       @QueryParam("include")
       @ApiParam(value = "Data to include in response. actions = state transitions.", allowableValues="actions")
       String include) throws JsonProcessingException {
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(types).addStates(states).setBusinessKey(businessKey)
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
         .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
     Collection<WorkflowInstance> instances = repositoryService.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();

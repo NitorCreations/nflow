@@ -51,7 +51,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
     i1.stateVariables.put("b", "2");
     int id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(i1.type).addStates(i1.state).setBusinessKey(i1.businessKey)
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(id).addTypes(i1.type).addStates(i1.state).setBusinessKey(i1.businessKey)
         .setExternalId(i1.externalId).setIncludeActions(true).build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
