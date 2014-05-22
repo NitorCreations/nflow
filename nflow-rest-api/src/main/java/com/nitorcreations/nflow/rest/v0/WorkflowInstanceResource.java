@@ -35,6 +35,7 @@ import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Path("/v0/workflow-instance")
 @Consumes(APPLICATION_JSON)
@@ -73,7 +74,10 @@ public class WorkflowInstanceResource {
   @PUT
   @Path("/{id}")
   @ApiOperation(value = "Update workflow instance state")
-  public void updateWorkflowInstance(@PathParam("id") int id, UpdateWorkflowInstanceRequest req) throws JsonProcessingException {
+  public void updateWorkflowInstance(
+      @ApiParam("Internal id for workflow instance")
+      @PathParam("id") int id,
+      UpdateWorkflowInstanceRequest req) throws JsonProcessingException {
     // TODO: requires more work, e.g. concurrent check with engine, validation
     WorkflowInstance instance = repositoryService.getWorkflowInstance(id);
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
@@ -91,8 +95,21 @@ public class WorkflowInstanceResource {
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
-      @QueryParam("type") String[] types, @QueryParam("state") String[] states, @QueryParam("businessKey") String businessKey,
-      @QueryParam("externalId") String externalId, @QueryParam("include") String include) throws JsonProcessingException {
+      @QueryParam("type")
+      @ApiParam(value = "Type of workflow instance")
+      String[] types,
+      @QueryParam("state")
+      @ApiParam(value = "Current state of workflow instance")
+      String[] states,
+      @QueryParam("businessKey")
+      @ApiParam(value = "Business key for workflow instance")
+      String businessKey,
+      @QueryParam("externalId")
+      @ApiParam(value = "External id for workflow instance")
+      String externalId,
+      @QueryParam("include")
+      @ApiParam(value = "Data to include in response. actions = state transitions.", allowableValues="actions")
+      String include) throws JsonProcessingException {
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addTypes(types).addStates(states).setBusinessKey(businessKey)
         .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
     Collection<WorkflowInstance> instances = repositoryService.listWorkflowInstances(q);
