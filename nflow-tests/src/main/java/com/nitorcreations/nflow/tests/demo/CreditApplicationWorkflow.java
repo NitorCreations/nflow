@@ -16,9 +16,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.math.BigDecimal;
 
 import org.slf4j.Logger;
+import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
 
 public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicationWorkflow.State> {
@@ -26,13 +28,19 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
 
   public static enum State implements com.nitorcreations.nflow.engine.workflow.WorkflowState {
-    createCreditApplication(start), acceptCreditApplication(manual), grantLoan(manual),
-    finishCreditApplication(normal), done(end), error(manual);
+    createCreditApplication(start, "Credit application is persisted to database"),
+    acceptCreditApplication(manual, "Manual credit decision is made"),
+    grantLoan(normal, "Loan is created to loan system"),
+    finishCreditApplication(normal, "Credit application status is set"),
+    done(end, "Credit application process finished"),
+    error(manual, "Manual processing of failed applications");
 
-    private WorkflowStateType type;
+    private final WorkflowStateType type;
+    private final String description;
 
-    private State(WorkflowStateType type) {
+    private State(WorkflowStateType type, String description) {
       this.type = type;
+      this.description = description;
     }
 
     @Override
@@ -47,12 +55,12 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
 
     @Override
     public String getDescription() {
-      return name();
+      return description;
     }
   }
 
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error);
+    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings(null));
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
     permit(acceptCreditApplication, finishCreditApplication);
@@ -60,30 +68,34 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public void createCreditApplication(StateExecution execution) {
-    logger.info("External service call for creating credit application");
+    logger.info("IRL: external service call for persisting credit application using execution.requestData");
     execution.setNextState(acceptCreditApplication, "Credit application created", now());
   }
 
   public void acceptCreditApplication(StateExecution execution) {
-    logger.info("TODO: should not require method for manual state");
+    logger.info("IRL: descheduling workflow instance, next state set externally");
+    execution.setNextState(acceptCreditApplication, "Expecting manual credit decision", null);
   }
 
   public void grantLoan(StateExecution execution) {
-    logger.info("External service call for granting a loan");
-    execution.setNextState(finishCreditApplication, "Loan granted", now());
+    logger.info("IRL: external service call for granting a loan");
+    throw new RuntimeException("Failed to create loan");
   }
 
   public void finishCreditApplication(StateExecution execution) {
-    logger.info("External service call for finishing credit application");
+    logger.info("IRL: external service call for updating credit application status");
     execution.setNextState(done, "Credit application finished", now());
   }
 
   public void done(StateExecution execution) {
     logger.info("Credit application process ended");
+    execution.setNextState(done);
+    execution.setSaveTrace(false);
   }
 
   public void error(StateExecution execution) {
-    logger.info("TODO: should not require method for manual state");
+    logger.info("IRL: some UI should poll for workflows that have reached error state");
+    execution.setNextState(error);
   }
 
   public static class CreditApplication {
@@ -93,6 +105,23 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     public CreditApplication(String customerId, BigDecimal amount) {
       this.customerId = customerId;
       this.amount = amount;
+    }
+  }
+
+  public static class CreditApplicationWorkflowSettings extends WorkflowSettings {
+
+    public CreditApplicationWorkflowSettings(Environment env) {
+      super(env);
+    }
+
+    @Override
+    public int getErrorTransitionDelay() {
+      return 0;
+    }
+
+    @Override
+    public int getShortTransitionDelay() {
+      return 0;
     }
   }
 
