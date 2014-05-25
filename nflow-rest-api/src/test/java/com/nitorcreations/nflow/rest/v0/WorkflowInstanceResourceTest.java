@@ -4,6 +4,7 @@ import static com.nitorcreations.Matchers.hasField;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -98,6 +99,19 @@ public class WorkflowInstanceResourceTest {
         hasField("states", contains("state")),
         hasField("businessKey", equalTo("businessKey")),
         hasField("externalId", equalTo("externalId")),
+        hasField("includeActions", equalTo(true)))));
+  }
+
+
+  @Test
+  public void fetchWorkflowInstancesWorks() throws JsonProcessingException {
+    resource.fetchWorkflowInstance(42);
+    verify(repositoryService).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+        hasField("ids", contains(42)),
+        hasField("types", emptyCollectionOf(String.class)),
+        hasField("states", emptyCollectionOf(String.class)),
+        hasField("businessKey", equalTo(null)),
+        hasField("externalId", equalTo(null)),
         hasField("includeActions", equalTo(true)))));
   }
 

@@ -93,6 +93,20 @@ public class WorkflowInstanceResource {
   }
 
   @GET
+  @Path("/{id}")
+  @ApiOperation(value = "Fetch a workflow instance")
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(
+      @ApiParam("Internal id for workflow instance")
+      @PathParam("id") int id
+      ) throws JsonProcessingException {
+    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null, "actions");
+    if(instances.isEmpty()) {
+      return null;
+    }
+    return instances.iterator().next();
+  }
+
+  @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("id")
