@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.workflow;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.joda.time.DateTime.now;
 
 import javax.inject.Inject;
@@ -21,8 +23,8 @@ public class WorkflowSettings {
   @Inject
   public WorkflowSettings(Environment env) {
     this.env = env;
-    errorTransitionDelay = getIntegerProperty("transition.delay.waiterror.ms", 7200000);
-    shortTransitionDelay = getIntegerProperty("transition.delay.waitshort.ms", 30000);
+    errorTransitionDelay = getIntegerProperty("transition.delay.waiterror.ms", (int) HOURS.toMillis(2));
+    shortTransitionDelay = getIntegerProperty("transition.delay.waitshort.ms", (int) SECONDS.toMillis(30));
     immediateTransitionDelay = getIntegerProperty("transition.delay.immediate.ms", 0);
     maxRetries = getIntegerProperty("max.state.retries", 3);
   }
