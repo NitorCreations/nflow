@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.joda.time.DateTime.now;
@@ -9,6 +10,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -22,6 +27,7 @@ import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
+import com.nitorcreations.nflow.engine.workflow.Data;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
@@ -76,6 +82,27 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     executor.run();
     verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
         Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
+  }
+
+  @SuppressWarnings("serial")
+  @Test
+  public void runWorkflowWithParameters() {
+    WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
+    Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
+    Map<String, String> state = new HashMap<String, String>() {{
+      put("string", "Str");
+      put("int", "42");
+      put("pojo", "{\"field\": \"val\", \"test\": true}");
+    }};
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("process").setStateVariables(state).build();
+    when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    executor.run();
+    assertThat((String) lastArgs.get(0), is("Str"));
+    assertThat((Integer) lastArgs.get(1), is(42));
+    assertThat(((Pojo) lastArgs.get(2)).field, is("val"));
+    assertThat(((Pojo) lastArgs.get(2)).test, is(true));
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
@@ -169,6 +196,13 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     // TODO
   }
 
+  public static class Pojo {
+    public String field;
+    public boolean test;
+  }
+
+  static List<Object> lastArgs;
+
   public static class ExecuteTestWorkflow extends
       WorkflowDefinition<ExecuteTestWorkflow.State> {
 
@@ -203,9 +237,10 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           getSettings().getErrorTransitionDelay()));
     }
 
-    public void process(StateExecution execution) {
+    public void process(StateExecution execution, @Data("string") String s, @Data("int") Integer i, @Data("pojo") Pojo pojo) {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
+      lastArgs = asList(s, i, pojo);
     }
 
     public void done(StateExecution execution) {

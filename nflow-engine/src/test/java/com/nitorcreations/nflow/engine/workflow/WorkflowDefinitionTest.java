@@ -104,7 +104,7 @@ public class WorkflowDefinitionTest {
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Class " + workflow.getClass().getName() +
-        " is missing state handling method notfound(StateExecution execution)");
+        " is missing state handling method notfound(StateExecution execution, ... args)");
 
     workflow.permit(TestState.start, TestState.done, TestState.notfound);
   }
@@ -182,7 +182,7 @@ public class WorkflowDefinitionTest {
     public void start(StateExecution execution) {
     }
 
-    public void state1(StateExecution execution) {
+    public void state1(StateExecution execution, @Data("arg") String param) {
     }
 
     public void state2(StateExecution execution) {

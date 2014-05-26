@@ -3,22 +3,26 @@ package com.nitorcreations.nflow.engine;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.lang.reflect.Method;
+import java.io.IOException;
 
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.util.ReflectionUtils;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.WorkflowStateMethod;
+import com.nitorcreations.nflow.engine.workflow.WorkflowStateMethod.StateParameter;
 
 public class WorkflowExecutor implements Runnable {
 
@@ -123,9 +127,35 @@ public class WorkflowExecutor implements Runnable {
 
   private void processState(WorkflowInstance instance,
       WorkflowDefinition<?> definition, StateExecutionImpl execution) {
-    Method stateHandler = ReflectionUtils.findMethod(definition.getClass(),
-        instance.state, StateExecution.class);
-    ReflectionUtils.invokeMethod(stateHandler, definition, execution);
+    WorkflowStateMethod method = definition.getMethod(instance.state);
+    Object[] args = createArguments(execution, method);
+    ReflectionUtils.invokeMethod(method.method, definition, args);
+    // TODO: serialize arguments back to execution stateVariables
+  }
+
+  private Object[] createArguments(StateExecutionImpl execution,
+      WorkflowStateMethod method) {
+    Object[] args = new Object[method.params.length + 1];
+    args[0] = execution;
+    StateParameter[] params = method.params;
+    for (int i = 0; i < params.length; i++) {
+      StateParameter param = params[i];
+      String value = execution.getVariable(param.key);
+      if (value == null) {
+        continue;
+      }
+      if (String.class.equals(param.type)) {
+        args[i+1] = value;
+        continue;
+      }
+      JavaType type = TypeFactory.defaultInstance().constructType(param.type);
+      try {
+        args[i+1] = new ObjectMapper().readValue(value, type);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return args;
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {
