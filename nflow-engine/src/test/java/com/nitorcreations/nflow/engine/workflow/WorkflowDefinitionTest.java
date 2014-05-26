@@ -12,8 +12,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,11 +41,10 @@ public class WorkflowDefinitionTest {
     };
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void getStatesWorks() {
     TestDefinition def = new TestDefinition("x", TestState.start);
-    assertThat((Set<WorkflowState>)def.getStates(),
+    assertThat(def.getStates(),
         containsInAnyOrder((WorkflowState)TestState.start, (WorkflowState)TestState.done,
             (WorkflowState)TestState.notfound, (WorkflowState)TestState.error));
   }

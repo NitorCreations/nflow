@@ -1,10 +1,8 @@
 package com.nitorcreations.nflow.engine.workflow;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +12,7 @@ import org.springframework.util.ReflectionUtils;
 
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 
-public abstract class WorkflowDefinition<S extends WorkflowState> {
+public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> {
 
   private final String type;
   private String name;
@@ -67,20 +65,9 @@ public abstract class WorkflowDefinition<S extends WorkflowState> {
     return errorState;
   }
 
-  public Set<? extends WorkflowState> getStates() {
-    Class<?> clazz = initialState.getClass();
-    Class<? extends WorkflowState> stateClass;
-    try {
-      stateClass = clazz.asSubclass(WorkflowState.class);
-    } catch (ClassCastException cce) {
-      throw new IllegalStateException("Specified type doesn't implement WorkflowState", cce);
-    }
-    @SuppressWarnings("unchecked")
-    S[] enumConstants = (S[]) stateClass.getEnumConstants();
-    if (enumConstants == null) {
-        throw new IllegalStateException("Specified type is not an enum.");
-    }
-    return new LinkedHashSet<S>(asList(enumConstants));
+  @SuppressWarnings("unchecked")
+  public Set<S> getStates() {
+    return EnumSet.allOf(initialState.getClass());
   }
 
   public Map<String, List<String>> getAllowedTransitions() {
