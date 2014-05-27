@@ -68,7 +68,7 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> {
 
   @SuppressWarnings("unchecked")
   public Set<S> getStates() {
-    return EnumSet.allOf(initialState.getClass());
+    return EnumSet.allOf((Class<S>) initialState.getClass());
   }
 
   public Map<String, List<String>> getAllowedTransitions() {
