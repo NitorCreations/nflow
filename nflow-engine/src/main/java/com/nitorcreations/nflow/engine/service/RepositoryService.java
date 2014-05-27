@@ -116,7 +116,7 @@ public class RepositoryService {
     try (BufferedReader br = new BufferedReader(new InputStreamReader(nonSpringWorkflowsListing.getInputStream(), UTF_8))) {
       String row;
       while ((row = br.readLine()) != null) {
-        logger.info("Preparing workflow " + row);
+        logger.info("Preparing workflow {}", row);
         @SuppressWarnings("unchecked")
         Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
         addWorkflowDefinition(clazz.newInstance());
@@ -130,7 +130,7 @@ public class RepositoryService {
       throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName() +
           " define same workflow type: " + wd.getType());
     }
-    logger.info("Added workflow type: " + wd.getType() + " (" + wd.getClass().getName() + ")");
+    logger.info("Added workflow type: {} ({})",  wd.getType(), wd.getClass().getName());
   }
 
 }

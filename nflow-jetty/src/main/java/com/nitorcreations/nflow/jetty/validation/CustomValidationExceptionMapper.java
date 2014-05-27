@@ -23,10 +23,7 @@ public class CustomValidationExceptionMapper implements ExceptionMapper<Validati
       final boolean isResponseException = constraint instanceof ResponseConstraintViolationException;
       StringBuilder sb = new StringBuilder();
       for (final ConstraintViolation<?> violation: constraint.getConstraintViolations()) {
-        LOG.warn(
-            violation.getRootBeanClass().getSimpleName()
-            + "." + violation.getPropertyPath()
-            + ": " + violation.getMessage());
+        LOG.warn("{}.{}: {}",violation.getRootBeanClass().getSimpleName(), violation.getPropertyPath(), violation.getMessage());
         sb.append(violation.getPropertyPath()).append(": ").append(violation.getMessage()).append(", ");
       }
       sb.setLength(sb.length() - 2);

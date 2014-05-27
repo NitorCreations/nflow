@@ -60,7 +60,7 @@ public class WorkflowExecutor implements Runnable {
     WorkflowInstance instance = repository.getWorkflowInstance(instanceId);
     Duration executionLag = new Duration(instance.nextActivation, null);
     if (executionLag.isLongerThan(Duration.standardMinutes(1))) {
-      logger.warn("Execution lagging " + executionLag.getStandardSeconds() + " seconds.");
+      logger.warn("Execution lagging {} seconds.", executionLag.getStandardSeconds());
     }
     WorkflowDefinition<? extends WorkflowState> definition = repository.getWorkflowDefinition(instance.type);
     if (definition == null) {
@@ -91,7 +91,7 @@ public class WorkflowExecutor implements Runnable {
   }
 
   private void unscheduleUnknownWorkflowInstance(WorkflowInstance instance) {
-    logger.warn("Workflow type %s not configured to this nflow instance - unscheduling workflow instance", instance.type);
+    logger.warn("Workflow type {} not configured to this nflow instance - unscheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
         .setStateText("Unsupported workflow type").build();
     repository.updateWorkflowInstance(instance, null);
@@ -101,8 +101,7 @@ public class WorkflowExecutor implements Runnable {
   private int busyLoopPrevention(WorkflowSettings settings,
       int subsequentStateExecutions, StateExecutionImpl execution) {
     if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && execution.getNextActivation() != null) {
-      logger.warn("Executed " + MAX_SUBSEQUENT_STATE_EXECUTIONS
-          + " times without delay, forcing short transition delay");
+      logger.warn("Executed {} times without delay, forcing short transition delay", MAX_SUBSEQUENT_STATE_EXECUTIONS);
       execution.setNextActivation(execution.getNextActivation().plusMillis(settings.getShortTransitionDelay()));
     }
     return subsequentStateExecutions;
