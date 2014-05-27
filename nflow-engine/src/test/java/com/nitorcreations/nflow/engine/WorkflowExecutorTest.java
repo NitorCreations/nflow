@@ -101,8 +101,9 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     executor.run();
     assertThat((String) lastArgs.get(0), is("Str"));
     assertThat((Integer) lastArgs.get(1), is(42));
-    assertThat(((Pojo) lastArgs.get(2)).field, is("val"));
+    assertThat(((Pojo) lastArgs.get(2)).field, is("valmodified"));
     assertThat(((Pojo) lastArgs.get(2)).test, is(true));
+    assertThat(state.get("pojo"), is("{\"field\":\"valmodified\",\"test\":true}"));
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
@@ -241,6 +242,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
       lastArgs = asList(s, i, pojo);
+      pojo.field += "modified";
     }
 
     public void done(StateExecution execution) {

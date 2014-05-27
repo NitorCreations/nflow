@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.util.ReflectionUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
@@ -130,11 +130,12 @@ public class WorkflowExecutor implements Runnable {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     Object[] args = createArguments(execution, method);
     ReflectionUtils.invokeMethod(method.method, definition, args);
-    // TODO: serialize arguments back to execution stateVariables
+    storeArguments(execution, method, args);
   }
 
   private Object[] createArguments(StateExecutionImpl execution,
       WorkflowStateMethod method) {
+    ObjectMapper objMapper = new ObjectMapper();
     Object[] args = new Object[method.params.length + 1];
     args[0] = execution;
     StateParameter[] params = method.params;
@@ -142,20 +143,43 @@ public class WorkflowExecutor implements Runnable {
       StateParameter param = params[i];
       String value = execution.getVariable(param.key);
       if (value == null) {
+        args[i+1] = param.nullValue;
         continue;
       }
       if (String.class.equals(param.type)) {
         args[i+1] = value;
         continue;
       }
-      JavaType type = TypeFactory.defaultInstance().constructType(param.type);
+      JavaType type = objMapper.getTypeFactory().constructType(param.type);
       try {
-        args[i+1] = new ObjectMapper().readValue(value, type);
+        args[i+1] = objMapper.readValue(value, type);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
     return args;
+  }
+
+  private void storeArguments(StateExecutionImpl execution,
+      WorkflowStateMethod method, Object[] args) {
+    ObjectMapper objMapper = new ObjectMapper();
+    StateParameter[] params = method.params;
+    for (int i = 0; i < params.length; i++) {
+      StateParameter param = params[i];
+      if (param.readoOnly) {
+        continue;
+      }
+      Object value = args[i+1];
+      if (value == null) {
+        continue;
+      }
+      try {
+        String sVal = objMapper.writeValueAsString(value);
+        execution.setVariable(param.key, sVal);
+      } catch (JsonProcessingException e) {
+          throw new RuntimeException(e);
+      }
+    }
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

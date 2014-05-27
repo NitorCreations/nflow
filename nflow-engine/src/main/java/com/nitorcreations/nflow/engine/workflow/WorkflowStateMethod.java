@@ -10,10 +10,14 @@ public class WorkflowStateMethod {
   public static class StateParameter {
     public final String key;
     public final Type type;
+    public final Object nullValue;
+    public final boolean readoOnly;
 
-    public StateParameter(String key, Type type) {
+    public StateParameter(String key, Type type, Object nullValue, boolean readOnly) {
       this.key = key;
       this.type = type;
+      this.nullValue = nullValue;
+      readoOnly = readOnly;
     }
   }
 
