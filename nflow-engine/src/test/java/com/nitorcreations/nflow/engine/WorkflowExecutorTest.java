@@ -3,6 +3,8 @@ package com.nitorcreations.nflow.engine;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -15,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -108,13 +112,20 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
       final int retries, final boolean isProcessing) {
+    return matchesWorkflowInstance(state, retries, isProcessing, CoreMatchers.any(DateTime.class));
+  }
+
+  private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
+      final int retries, final boolean isProcessing, final Matcher<DateTime> nextActivationMatcher) {
     return new ArgumentMatcher<WorkflowInstance>() {
       @Override
       public boolean matches(Object argument) {
         WorkflowInstance i = (WorkflowInstance) argument;
+        assertThat(i, notNullValue());
         assertThat(i.state, equalTo(state.name()));
         assertThat(i.retries, is(retries));
         assertThat(i.processing, is(isProcessing));
+        assertThat(i.nextActivation, nextActivationMatcher);
         return true;
       }
     };
@@ -191,10 +202,16 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     // TODO
   }
 
-  @Ignore("not implemented yet")
   @Test
   public void runUnsupportedWorkflow() {
-    // TODO
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("start").build();
+    when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    when(repository.getWorkflowDefinition(eq("test"))).thenReturn(null);
+    executor.run();
+    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.start, 0, true,
+        is(nullValue(DateTime.class)))), Mockito.argThat(is(nullValue(WorkflowInstanceAction.class))));
   }
 
   public static class Pojo {
