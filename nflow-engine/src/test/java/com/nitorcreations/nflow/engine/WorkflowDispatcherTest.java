@@ -1,11 +1,8 @@
 package com.nitorcreations.nflow.engine;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -15,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,16 +23,15 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 
 public class WorkflowDispatcherTest extends BaseNflowTest {
   private WorkflowDispatcher dispatcher;
-  private Thread shutdownThread;
 
-  @Mock
-  private ThreadPoolTaskExecutor pool;
+  private ThreadPoolTaskExecutor pool = dispatcherPoolExecutor() ;
 
   @Mock
   private RepositoryService repository;
@@ -50,7 +47,6 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     when(env.getProperty("dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
 
     dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, env);
-    shutdownThread = newShutdownThread();
   }
 
   @Test
@@ -65,14 +61,16 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
           }
         });
 
+    when(executorFactory.createExecutor(1)).thenReturn(fakeWorkflowExecutor(1, noOpRunnable()));
+    when(executorFactory.createExecutor(2)).thenReturn(fakeWorkflowExecutor(2, noOpRunnable()));
+
     dispatcher.run();
-    shutdownThread.join();
+    assertPoolIsShutdown(true);
 
     verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
     InOrder inOrder = inOrder(executorFactory);
     inOrder.verify(executorFactory).createExecutor(1);
     inOrder.verify(executorFactory).createExecutor(2);
-    verify(pool, times(2)).execute(Mockito.any(Runnable.class));
   }
 
   @Test
@@ -85,10 +83,11 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
       dispatcher.run();
       Assert.fail("Error should stop the dispatcher");
     } catch (AssertionError expected) {
+      assertPoolIsShutdown(true);
     }
 
     verify(repository).pollNextWorkflowInstanceIds(anyInt());
-    verify(pool, never()).execute(any(Runnable.class));
+    verify(executorFactory, never()).createExecutor(anyInt());
   }
 
   @Test
@@ -103,75 +102,75 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
         });
 
     dispatcher.run();
-    shutdownThread.join();
 
     verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
-    verify(pool, never()).execute(Mockito.any(Runnable.class));
+    verify(executorFactory, never()).createExecutor(anyInt());
   }
 
   @Test
   public void shutdownBlocksUntilPoolShutdown() throws InterruptedException {
-    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new ShutdownRequestDispatcher() {
+    ShutdownRequestDispatcher shutdownRequestDispatcher = new ShutdownRequestDispatcher() {
       @Override
       protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-        return ints(100);
+        return asList(1);
       }
-    });
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        assertTrue(shutdownThread.isAlive());
-        return null;
-      }
-    }).when(pool).shutdown();
+    };
+    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(shutdownRequestDispatcher);
+    when(executorFactory.createExecutor(anyInt())).thenAnswer(
+        workflowExecutorAnswer(delayedRunnable(Sandman.SHORT_DELAY_MS)));
 
-    dispatcher.run();
-    shutdownThread.join();
+    Thread t = new Thread(dispatcher);
+    t.start();
+    shutdownRequestDispatcher.waitUntilFinished();
+
+    try {
+      assertPoolIsShutdown(true);
+    } finally {
+      t.join();
+    }
 
     verify(repository).pollNextWorkflowInstanceIds(anyInt());
-    verify(executorFactory, times(100)).createExecutor(anyInt());
-    InOrder inOrder = inOrder(pool);
-    inOrder.verify(pool, times(100)).execute(Mockito.any(Runnable.class));
-    inOrder.verify(pool).shutdown();
+    verify(executorFactory, times(1)).createExecutor(anyInt());
   }
 
   @Test
   public void shutdownCanBeInterrupted() throws InterruptedException {
-    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new ShutdownRequestDispatcher() {
+    ShutdownRequestDispatcher shutdownRequestDispatcher = new ShutdownRequestDispatcher() {
       @Override
       protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-        shutdownThread.interrupt();
-        return ints(100);
+        interruptShutdownThread();
+        return asList(1);
       }
-    });
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        assertFalse(shutdownThread.isAlive());
-        return null;
-      }
-    }).when(pool).shutdown();
+    };
+    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(shutdownRequestDispatcher);
+    when(executorFactory.createExecutor(anyInt())).thenAnswer(
+        workflowExecutorAnswer(delayedRunnable(Sandman.SHORT_DELAY_MS)));
 
-    dispatcher.run();
-    shutdownThread.join();
+    Thread t = new Thread(dispatcher);
+    t.start();
+    shutdownRequestDispatcher.waitUntilFinished();
 
-    verify(pool).shutdown();
+    try {
+      assertPoolIsShutdown(false);
+    } finally {
+      t.join();
+    }
   }
 
   @Test
   public void exceptionOnPoolShutdownIsNotPropagated() throws InterruptedException {
+    ThreadPoolTaskExecutor poolSpy = Mockito.spy(pool);
+    dispatcher = new WorkflowDispatcher(poolSpy, repository, executorFactory, env);
+
     when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new ShutdownRequestDispatcher() {
       @Override
       protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
         return new ArrayList<Integer>();
       }
     });
-    doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(pool).shutdown();
+    doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown();
 
     dispatcher.run();
-    shutdownThread.join();
-
-    verify(pool).shutdown();
   }
 
   @Test
@@ -184,18 +183,45 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     });
 
     dispatcher.run();
+    assertPoolIsShutdown(true);
+
     Thread t = newShutdownThread();
     t.start();
-    shutdownThread.join();
     t.join();
   }
 
   private abstract class ShutdownRequestDispatcher implements Answer<List<Integer>> {
+    private Thread shutdownThread;
+    private CountDownLatch shutdownThreadStarted = new CountDownLatch(1);
+
+    public ShutdownRequestDispatcher() {
+      this(new Runnable() {
+        @Override
+        public void run() {
+          dispatcher.shutdown();
+        }
+      });
+    }
+
+    public ShutdownRequestDispatcher(Runnable shutdownCommand) {
+      shutdownThread = new Thread(shutdownCommand);
+    }
+
     @Override
     public final List<Integer> answer(InvocationOnMock invocation) throws Throwable {
       shutdownThread.start();
+      shutdownThreadStarted.countDown();
       Sandman.sleep(Sandman.SHORT_DELAY_MS);
       return afterShutdownRequestDispatch(invocation);
+    }
+
+    public void interruptShutdownThread() {
+      shutdownThread.interrupt();
+    }
+
+    public void waitUntilFinished() throws InterruptedException {
+      shutdownThreadStarted.await();
+      shutdownThread.join();
     }
 
     protected abstract List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation);
@@ -210,11 +236,56 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     });
   }
 
-  private List<Integer> ints(int howMany) {
-    List<Integer> ints = new ArrayList<Integer>();
-    for (int i = 0; i < howMany; i++) {
-      ints.add(i);
-    }
-    return ints;
+  private static  ThreadPoolTaskExecutor dispatcherPoolExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    Integer threadCount = 2 * Runtime.getRuntime().availableProcessors();
+    executor.setCorePoolSize(threadCount);
+    executor.setMaxPoolSize(threadCount);
+    executor.setKeepAliveSeconds(0);
+    executor.setAwaitTerminationSeconds(60);
+    executor.setWaitForTasksToCompleteOnShutdown(true);
+    executor.setThreadFactory(new CustomizableThreadFactory("nflow-executor-"));
+    executor.afterPropertiesSet();
+    return executor;
+  }
+
+  private void assertPoolIsShutdown(boolean isTrue) {
+    assertEquals(pool.getThreadPoolExecutor().isShutdown(), isTrue);
+  }
+
+  private Runnable noOpRunnable() {
+    return new Runnable() {
+      @Override
+      public void run() {
+      }
+    };
+  }
+
+  private Runnable delayedRunnable(final long delayMs) {
+    return new Runnable() {
+      @Override
+      public void run() {
+        Sandman.sleep(delayMs);
+      }
+    };
+  }
+
+  private WorkflowExecutor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
+    return new WorkflowExecutor(instanceId, null) {
+      @Override
+      public void run() {
+        fakeCommand.run();
+      }
+    };
+  }
+
+  private Answer<WorkflowExecutor> workflowExecutorAnswer(final Runnable fakeCommand) {
+    return new Answer<WorkflowExecutor>() {
+      @Override
+      public WorkflowExecutor answer(InvocationOnMock invocation) throws Throwable {
+        Integer instanceId = (Integer) invocation.getArguments()[0];
+        return fakeWorkflowExecutor(instanceId, fakeCommand);
+      }
+    };
   }
 }
