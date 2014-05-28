@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.tests;
 
 import static java.lang.Thread.sleep;
+import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -22,14 +23,14 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "demo";
     req.businessKey = "1";
-    CreateWorkflowInstanceResponse resp = workflowInstanceResource.put(req, CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
   }
 
   @Test
   public void t02_queryDemoWorkflowHistory() throws Exception {
     sleep(5000);
-    ListWorkflowInstanceResponse[] instances = workflowInstanceResource.query("type", "demo")
+    ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
             .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
     assertThat(instances.length, is(1));
     assertThat(instances[0].state, is("done"));
