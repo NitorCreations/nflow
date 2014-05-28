@@ -10,10 +10,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
+import edu.umd.cs.mtc.MultithreadedTestCase;
+import edu.umd.cs.mtc.TestFramework;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +30,7 @@ import com.nitorcreations.nflow.engine.service.RepositoryService;
 
 public class WorkflowDispatcherTest extends BaseNflowTest {
   private WorkflowDispatcher dispatcher;
-
-  private ThreadPoolTaskExecutor pool = dispatcherPoolExecutor() ;
+  private ThreadPoolTaskExecutor pool;
 
   @Mock
   private RepositoryService repository;
@@ -45,195 +44,188 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
   @Before
   public void setup() {
     when(env.getProperty("dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
-
+    pool = dispatcherPoolExecutor();
     dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, env);
   }
 
   @Test
-  public void exceptionDuringDispatcherExecutionCausesRetry() throws InterruptedException {
-    when(repository.pollNextWorkflowInstanceIds(anyInt()))
-        .thenReturn(asList(1))
-        .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
-        .thenAnswer(new ShutdownRequestDispatcher() {
-          @Override
-          protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-            return asList(2);
-          }
-        });
+  public void exceptionDuringDispatcherExecutionCausesRetry() throws Throwable {
+    class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
+      public void threadDispatcher() {
+        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+            .thenReturn(ids(1))
+            .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
+            .thenAnswer(waitForTickAndAnswer(2, ids(2), this));
+        when(executorFactory.createExecutor(1)).thenReturn(fakeWorkflowExecutor(1, noOpRunnable()));
+        when(executorFactory.createExecutor(2)).thenReturn(fakeWorkflowExecutor(2, noOpRunnable()));
 
-    when(executorFactory.createExecutor(1)).thenReturn(fakeWorkflowExecutor(1, noOpRunnable()));
-    when(executorFactory.createExecutor(2)).thenReturn(fakeWorkflowExecutor(2, noOpRunnable()));
-
-    dispatcher.run();
-    assertPoolIsShutdown(true);
-
-    verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
-    InOrder inOrder = inOrder(executorFactory);
-    inOrder.verify(executorFactory).createExecutor(1);
-    inOrder.verify(executorFactory).createExecutor(2);
-  }
-
-  @Test
-  public void errorDuringDispatcherExecutionStopsDispatcher() {
-    when(repository.pollNextWorkflowInstanceIds(anyInt()))
-        .thenThrow(new AssertionError())
-        .thenReturn(asList(1));
-
-    try {
-      dispatcher.run();
-      Assert.fail("Error should stop the dispatcher");
-    } catch (AssertionError expected) {
-      assertPoolIsShutdown(true);
-    }
-
-    verify(repository).pollNextWorkflowInstanceIds(anyInt());
-    verify(executorFactory, never()).createExecutor(anyInt());
-  }
-
-  @Test
-  public void emptyPollResultCausesNoTasksToBeScheduled() throws InterruptedException {
-    when(repository.pollNextWorkflowInstanceIds(anyInt()))
-        .thenReturn(new ArrayList<Integer>(), new ArrayList<Integer>())
-        .thenAnswer(new ShutdownRequestDispatcher() {
-          @Override
-          protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-            return new ArrayList<Integer>();
-          }
-        });
-
-    dispatcher.run();
-
-    verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
-    verify(executorFactory, never()).createExecutor(anyInt());
-  }
-
-  @Test
-  public void shutdownBlocksUntilPoolShutdown() throws InterruptedException {
-    ShutdownRequestDispatcher shutdownRequestDispatcher = new ShutdownRequestDispatcher() {
-      @Override
-      protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-        return asList(1);
+        dispatcher.run();
       }
-    };
-    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(shutdownRequestDispatcher);
-    when(executorFactory.createExecutor(anyInt())).thenAnswer(
-        workflowExecutorAnswer(delayedRunnable(Sandman.SHORT_DELAY_MS)));
 
-    Thread t = new Thread(dispatcher);
-    t.start();
-    shutdownRequestDispatcher.waitUntilFinished();
-
-    try {
-      assertPoolIsShutdown(true);
-    } finally {
-      t.join();
-    }
-
-    verify(repository).pollNextWorkflowInstanceIds(anyInt());
-    verify(executorFactory, times(1)).createExecutor(anyInt());
-  }
-
-  @Test
-  public void shutdownCanBeInterrupted() throws InterruptedException {
-    ShutdownRequestDispatcher shutdownRequestDispatcher = new ShutdownRequestDispatcher() {
-      @Override
-      protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-        interruptShutdownThread();
-        return asList(1);
-      }
-    };
-    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(shutdownRequestDispatcher);
-    when(executorFactory.createExecutor(anyInt())).thenAnswer(
-        workflowExecutorAnswer(delayedRunnable(Sandman.SHORT_DELAY_MS)));
-
-    Thread t = new Thread(dispatcher);
-    t.start();
-    shutdownRequestDispatcher.waitUntilFinished();
-
-    try {
-      assertPoolIsShutdown(false);
-    } finally {
-      t.join();
-    }
-  }
-
-  @Test
-  public void exceptionOnPoolShutdownIsNotPropagated() throws InterruptedException {
-    ThreadPoolTaskExecutor poolSpy = Mockito.spy(pool);
-    dispatcher = new WorkflowDispatcher(poolSpy, repository, executorFactory, env);
-
-    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new ShutdownRequestDispatcher() {
-      @Override
-      protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-        return new ArrayList<Integer>();
-      }
-    });
-    doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown();
-
-    dispatcher.run();
-  }
-
-  @Test
-  public void shutdownCanBeCalledMultipleTimes() throws InterruptedException {
-    when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new ShutdownRequestDispatcher() {
-      @Override
-      protected List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation) {
-        return new ArrayList<Integer>();
-      }
-    });
-
-    dispatcher.run();
-    assertPoolIsShutdown(true);
-
-    Thread t = newShutdownThread();
-    t.start();
-    t.join();
-  }
-
-  private abstract class ShutdownRequestDispatcher implements Answer<List<Integer>> {
-    private Thread shutdownThread;
-    private CountDownLatch shutdownThreadStarted = new CountDownLatch(1);
-
-    public ShutdownRequestDispatcher() {
-      this(new Runnable() {
-        @Override
-        public void run() {
-          dispatcher.shutdown();
-        }
-      });
-    }
-
-    public ShutdownRequestDispatcher(Runnable shutdownCommand) {
-      shutdownThread = new Thread(shutdownCommand);
-    }
-
-    @Override
-    public final List<Integer> answer(InvocationOnMock invocation) throws Throwable {
-      shutdownThread.start();
-      shutdownThreadStarted.countDown();
-      Sandman.sleep(Sandman.SHORT_DELAY_MS);
-      return afterShutdownRequestDispatch(invocation);
-    }
-
-    public void interruptShutdownThread() {
-      shutdownThread.interrupt();
-    }
-
-    public void waitUntilFinished() throws InterruptedException {
-      shutdownThreadStarted.await();
-      shutdownThread.join();
-    }
-
-    protected abstract List<Integer> afterShutdownRequestDispatch(InvocationOnMock invocation);
-  }
-
-  private Thread newShutdownThread() {
-    return new Thread(new Runnable() {
-      @Override
-      public void run() {
+      public void threadShutdown() {
+        waitForTick(1);
         dispatcher.shutdown();
       }
-    });
+
+      @Override
+      public void finish() {
+        verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
+        InOrder inOrder = inOrder(executorFactory);
+        inOrder.verify(executorFactory).createExecutor(1);
+        inOrder.verify(executorFactory).createExecutor(2);
+      }
+    }
+    TestFramework.runOnce(new ExceptionDuringDispatcherExecutionCausesRetry());
+  }
+
+  @Test
+  public void errorDuringDispatcherExecutionStopsDispatcher() throws Throwable {
+    class ErrorDuringDispatcherExecutionStopsDispatcher extends MultithreadedTestCase {
+      public void threadDispatcher() {
+        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+            .thenThrow(new AssertionError())
+            .thenReturn(ids(1));
+
+        try {
+          dispatcher.run();
+          Assert.fail("Error should stop the dispatcher");
+        } catch (AssertionError expected) {
+          assertPoolIsShutdown(true);
+        }
+      }
+
+      @Override
+      public void finish() {
+        verify(repository).pollNextWorkflowInstanceIds(anyInt());
+        verify(executorFactory, never()).createExecutor(anyInt());
+      }
+    }
+    TestFramework.runOnce(new ErrorDuringDispatcherExecutionStopsDispatcher());
+  }
+
+  @Test
+  public void emptyPollResultCausesNoTasksToBeScheduled() throws Throwable {
+    class EmptyPollResultCausesNoTasksToBeScheduledTC extends MultithreadedTestCase {
+      public void threadDispatcher() {
+        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+            .thenReturn(ids(), ids())
+            .thenAnswer(waitForTickAndAnswer(2, ids(), this));
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+      }
+
+      @Override
+      public void finish() {
+        verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
+        verify(executorFactory, never()).createExecutor(anyInt());
+      }
+    }
+    TestFramework.runOnce(new EmptyPollResultCausesNoTasksToBeScheduledTC());
+  }
+
+  @Test
+  public void shutdownBlocksUntilPoolShutdown() throws Throwable {
+    class ShutdownBlocksUntilPoolShutdownTC extends MultithreadedTestCase {
+      public void threadDispatcher() {
+        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+            .thenAnswer(waitForTickAndAnswer(2, ids(1), this));
+        when(executorFactory.createExecutor(anyInt()))
+            .thenReturn(fakeWorkflowExecutor(1, waitForTickRunnable(3, this)));
+
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+        assertPoolIsShutdown(true);
+      }
+    }
+    TestFramework.runOnce(new ShutdownBlocksUntilPoolShutdownTC());
+  }
+
+  @Test
+  public void shutdownCanBeInterrupted() throws Throwable {
+    class ShutdownCanBeInterrupted extends MultithreadedTestCase {
+      public void threadDispatcher() {
+        when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new Answer<Object>() {
+          @Override
+          public Object answer(InvocationOnMock invocation) throws Throwable {
+            waitForTick(2);
+            getThreadByName("threadShutdown").interrupt();
+            return ids(1);
+          }
+        });
+        when(executorFactory.createExecutor(anyInt()))
+            .thenReturn(fakeWorkflowExecutor(1, waitForTickRunnable(3, this)));
+
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+        assertPoolIsShutdown(false);
+      }
+    }
+    TestFramework.runOnce(new ShutdownCanBeInterrupted());
+  }
+
+  @Test
+  public void exceptionOnPoolShutdownIsNotPropagated() throws Throwable {
+    class ExceptionOnPoolShutdownIsNotPropagated extends MultithreadedTestCase {
+      private ThreadPoolTaskExecutor poolSpy;
+
+      @Override
+      public void initialize() {
+        poolSpy = Mockito.spy(pool);
+        dispatcher = new WorkflowDispatcher(poolSpy, repository, executorFactory, env);
+      }
+
+      public void threadDispatcher() {
+        when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
+        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown();
+
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+      }
+
+      @Override
+      public void finish() {
+        verify(poolSpy).shutdown();
+      }
+    }
+    TestFramework.runOnce(new ExceptionOnPoolShutdownIsNotPropagated());
+  }
+
+  @Test
+  public void shutdownCanBeCalledMultipleTimes() throws Throwable {
+    class ShutdownCanBeCalledMultipleTimes extends MultithreadedTestCase {
+      public void threadDispatcher() throws InterruptedException {
+        when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+      }
+
+      @Override
+      public void finish() {
+        assertPoolIsShutdown(true);
+        dispatcher.shutdown();
+      }
+    }
+    TestFramework.runOnce(new ShutdownCanBeCalledMultipleTimes());
   }
 
   private static  ThreadPoolTaskExecutor dispatcherPoolExecutor() {
@@ -261,11 +253,11 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     };
   }
 
-  private Runnable delayedRunnable(final long delayMs) {
+  private Runnable waitForTickRunnable(final int tick, final MultithreadedTestCase mtc) {
     return new Runnable() {
       @Override
       public void run() {
-        Sandman.sleep(delayMs);
+        mtc.waitForTick(tick);
       }
     };
   }
@@ -279,13 +271,17 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     };
   }
 
-  private Answer<WorkflowExecutor> workflowExecutorAnswer(final Runnable fakeCommand) {
-    return new Answer<WorkflowExecutor>() {
+  private Answer<List<Integer>> waitForTickAndAnswer(final int tick, final List<Integer> answer, final MultithreadedTestCase mtc) {
+    return new Answer<List<Integer>>() {
       @Override
-      public WorkflowExecutor answer(InvocationOnMock invocation) throws Throwable {
-        Integer instanceId = (Integer) invocation.getArguments()[0];
-        return fakeWorkflowExecutor(instanceId, fakeCommand);
+      public List<Integer> answer(InvocationOnMock invocation) throws Throwable {
+        mtc.waitForTick(tick);
+        return answer;
       }
     };
+  }
+
+  private static List<Integer> ids(Integer... ids) {
+    return asList(ids);
   }
 }
