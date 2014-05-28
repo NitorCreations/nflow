@@ -105,7 +105,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
 
   @Test
   public void emptyPollResultCausesNoTasksToBeScheduled() throws Throwable {
-    class EmptyPollResultCausesNoTasksToBeScheduledTC extends MultithreadedTestCase {
+    class EmptyPollResultCausesNoTasksToBeScheduled extends MultithreadedTestCase {
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt()))
             .thenReturn(ids(), ids())
@@ -124,12 +124,12 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
         verify(executorFactory, never()).createExecutor(anyInt());
       }
     }
-    TestFramework.runOnce(new EmptyPollResultCausesNoTasksToBeScheduledTC());
+    TestFramework.runOnce(new EmptyPollResultCausesNoTasksToBeScheduled());
   }
 
   @Test
   public void shutdownBlocksUntilPoolShutdown() throws Throwable {
-    class ShutdownBlocksUntilPoolShutdownTC extends MultithreadedTestCase {
+    class ShutdownBlocksUntilPoolShutdown extends MultithreadedTestCase {
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt()))
             .thenAnswer(waitForTickAndAnswer(2, ids(1), this));
@@ -145,7 +145,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
         assertPoolIsShutdown(true);
       }
     }
-    TestFramework.runOnce(new ShutdownBlocksUntilPoolShutdownTC());
+    TestFramework.runOnce(new ShutdownBlocksUntilPoolShutdown());
   }
 
   @Test
