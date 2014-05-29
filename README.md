@@ -98,5 +98,7 @@ Currently nFlow does not come with any security framework. You can add your own 
 
 ## Logging
 
+nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](https://github.com/NitorCreations/nflow/tree/master/nflow-jetty) uses [Logback](http://logback.qos.ch/) as the logging implementation.
+
 ## JMX
 
