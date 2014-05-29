@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.workflow.data;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -48,18 +49,22 @@ public class ObjectStringMapper {
       } else if (String.class.equals(param.type)) {
         args[i] = value;
       } else {
-        JavaType type = mapper.getTypeFactory().constructType(param.type);
-        try {
-          args[i] = mapper.readValue(value, type);
-        } catch (IOException e) {
-          throw new RuntimeException("Failed to deserialize value for " + param.key, e);
-        }
+        args[i] = convertToObject(param.type, param.key, value);
       }
       if (param.mutable) {
         args[i] = new Mutable<>(args[i]);
       }
     }
     return args;
+  }
+
+  public Object convertToObject(Type type, String key, String value) {
+    JavaType javaType = mapper.getTypeFactory().constructType(type);
+    try {
+      return mapper.readValue(value, javaType);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to deserialize value for " + key, e);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -82,13 +87,17 @@ public class ObjectStringMapper {
       if (String.class.equals(param.type)) {
         sVal = (String) value;
       } else {
-        try {
-          sVal = mapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-          throw new RuntimeException("Failed to serialize value for " + param.key, e);
-        }
+        sVal = convertFromObject(param.key, value);
       }
       execution.setVariable(param.key, sVal);
+    }
+  }
+
+  public String convertFromObject(String key, Object value) {
+    try {
+      return mapper.writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Failed to serialize value for " + key, e);
     }
   }
 

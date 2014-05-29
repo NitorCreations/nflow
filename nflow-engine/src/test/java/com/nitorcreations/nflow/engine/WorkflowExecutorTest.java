@@ -121,6 +121,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     assertThat(state.get("nullPojo"), is("{\"field\":\"magical instance\",\"test\":false}"));
     assertThat(state.get("immutablePojo"), is("{\"field\": \"unmodified\"}"));
     assertThat(state.get("mutableString"), is("mutated"));
+    assertThat(state.get("hello"), is("[1,2,3]"));
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
@@ -272,11 +273,15 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     public void process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
+      Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
+      assertThat(pojo.field, is(pojo1.field));
+      assertThat(pojo.test, is(pojo1.test));
       lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero, mutableString.val);
       pojo.field += " modified";
       pojo2.field = "magical instance";
       unmodifiablePojo.field += " ignored";
       mutableString.val = "mutated";
+      execution.setVariable("hello", new int[]{1,2,3});
     }
 
     public void done(StateExecution execution) {

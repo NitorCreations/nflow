@@ -10,8 +10,10 @@ public interface StateExecution {
   boolean isFailure();
 
   String getVariable(String name);
+  <T> T getVariable(String name, Class<T> type);
   String getVariable(String name, String defaultValue);
   void setVariable(String name, String value);
+  void setVariable(String name, Object value);
 
   void setNextActivation(DateTime time);
   void setNextState(WorkflowState state);

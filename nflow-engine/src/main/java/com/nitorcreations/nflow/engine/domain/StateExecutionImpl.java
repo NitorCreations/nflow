@@ -9,6 +9,7 @@ import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
 public class StateExecutionImpl implements StateExecution {
 
   private final WorkflowInstance instance;
+  private final ObjectStringMapper objectMapper;
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
@@ -17,6 +18,7 @@ public class StateExecutionImpl implements StateExecution {
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
     this.instance = instance;
+    this.objectMapper = objectMapper;
   }
 
   public DateTime getNextActivation() {
@@ -62,7 +64,13 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public String getVariable(String name) {
-    return getVariable(name, null);
+    return getVariable(name, (String) null);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getVariable(String name, Class<T> type) {
+    return (T) objectMapper.convertToObject(type, name, getVariable(name));
   }
 
   @Override
@@ -76,6 +84,11 @@ public class StateExecutionImpl implements StateExecution {
   @Override
   public void setVariable(String name, String value) {
     instance.stateVariables.put(name, value);
+  }
+
+  @Override
+  public void setVariable(String name, Object value) {
+    setVariable(name, objectMapper.convertFromObject(name, value));
   }
 
   @Override
