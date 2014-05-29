@@ -101,6 +101,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       put("string", "Str");
       put("int", "42");
       put("pojo", "{\"field\": \"val\", \"test\": true}");
+      put("immutablePojo", "{\"field\": \"unmodified\"}");
     }};
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
@@ -109,9 +110,12 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     executor.run();
     assertThat((String) lastArgs.get(0), is("Str"));
     assertThat((Integer) lastArgs.get(1), is(42));
-    assertThat(((Pojo) lastArgs.get(2)).field, is("valmodified"));
+    assertThat(((Pojo) lastArgs.get(2)).field, is("val modified"));
     assertThat(((Pojo) lastArgs.get(2)).test, is(true));
-    assertThat(state.get("pojo"), is("{\"field\":\"valmodified\",\"test\":true}"));
+    assertThat(((Pojo) lastArgs.get(4)).field, is("unmodified ignored"));
+    assertThat(state.get("pojo"), is("{\"field\":\"val modified\",\"test\":true}"));
+    assertThat(state.get("nullPojo"), is("{\"field\":\"magical instance\",\"test\":false}"));
+    assertThat(state.get("immutablePojo"), is("{\"field\": \"unmodified\"}"));
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
@@ -260,11 +264,13 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           getSettings().getErrorTransitionDelay()));
     }
 
-    public void process(StateExecution execution, @Data("string") String s, @Data("int") Integer i, @Data("pojo") Pojo pojo) {
+    public void process(StateExecution execution, @Data("string") String s, @Data("int") Integer i, @Data("pojo") Pojo pojo, @Data(value="nullPojo", instantiateNull=true) Pojo pojo2, @Data(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo) {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
-      lastArgs = asList(s, i, pojo);
-      pojo.field += "modified";
+      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo);
+      pojo.field += " modified";
+      pojo2.field = "magical instance";
+      unmodifiablePojo.field += " ignored";
     }
 
     public void done(StateExecution execution) {

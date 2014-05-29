@@ -5,6 +5,7 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.asList;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -44,7 +45,7 @@ public class WorkflowDefinitionScanner {
             if (Data.class.equals(a.annotationType())) {
               Type type = genericParameterTypes[i];
               Data data = (Data) a;
-              params.add(new StateParameter(data.value(), type, defaultValue(type), data.readOnly() || isReadOnly(type)));
+              params.add(new StateParameter(data.value(), type, defaultValue(data, type), data.readOnly() || isReadOnly(type)));
               break;
             }
           }
@@ -62,10 +63,17 @@ public class WorkflowDefinitionScanner {
     return knownImmutableTypes.contains(type);
   }
 
-  Object defaultValue(Type type) {
+  Object defaultValue(Data data, Type type) {
     Class<?> clazz = (Class<?>) type;
     if (clazz.isPrimitive()) {
       return ReflectionUtils.invokeMethod(ReflectionUtils.findMethod(clazz, "valueOf", String.class), null, "0");
+    }
+    if (data != null && data.instantiateNull()) {
+      try {
+        return clazz.getConstructor().newInstance();
+      } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        // ignore
+      }
     }
     return null;
   }

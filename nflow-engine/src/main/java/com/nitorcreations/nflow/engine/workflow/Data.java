@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
 public @interface Data {
   public String value();
   boolean readOnly() default false;
+  boolean instantiateNull() default false;
 }
