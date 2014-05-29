@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,6 +34,7 @@ import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.Data;
+import com.nitorcreations.nflow.engine.workflow.Mutable;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
@@ -114,9 +116,11 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     assertThat(((Pojo) lastArgs.get(2)).test, is(true));
     assertThat(((Pojo) lastArgs.get(4)).field, is("unmodified ignored"));
     assertThat((Integer) lastArgs.get(5), is(0));
+    assertThat(lastArgs.get(6), Matchers.nullValue());
     assertThat(state.get("pojo"), is("{\"field\":\"val modified\",\"test\":true}"));
     assertThat(state.get("nullPojo"), is("{\"field\":\"magical instance\",\"test\":false}"));
     assertThat(state.get("immutablePojo"), is("{\"field\": \"unmodified\"}"));
+    assertThat(state.get("mutableString"), is("mutated"));
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
@@ -265,13 +269,14 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           getSettings().getErrorTransitionDelay()));
     }
 
-    public void process(StateExecution execution, @Data("string") String s, @Data("int") int i, @Data("pojo") Pojo pojo, @Data(value="nullPojo", instantiateNull=true) Pojo pojo2, @Data(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @Data("nullInt") int zero) {
+    public void process(StateExecution execution, @Data("string") String s, @Data("int") int i, @Data("pojo") Pojo pojo, @Data(value="nullPojo", instantiateNull=true) Pojo pojo2, @Data(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @Data("nullInt") int zero, @Data("mutableString") Mutable<String> mutableString) {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
-      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero);
+      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero, mutableString.val);
       pojo.field += " modified";
       pojo2.field = "magical instance";
       unmodifiablePojo.field += " ignored";
+      mutableString.val = "mutated";
     }
 
     public void done(StateExecution execution) {

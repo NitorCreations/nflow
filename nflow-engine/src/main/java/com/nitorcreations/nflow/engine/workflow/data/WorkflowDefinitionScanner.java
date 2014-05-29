@@ -9,8 +9,10 @@ import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -25,6 +27,7 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import com.nitorcreations.nflow.engine.workflow.Data;
+import com.nitorcreations.nflow.engine.workflow.Mutable;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod.StateParameter;
@@ -42,13 +45,23 @@ public class WorkflowDefinitionScanner {
       public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
         List<StateParameter> params = new ArrayList<>();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
+        Class<?>[] parameterTypes = method.getParameterTypes();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for (int i = 1; i < genericParameterTypes.length; ++i) {
           for (Annotation a : parameterAnnotations[i]) {
             if (Data.class.equals(a.annotationType())) {
-              Type type = genericParameterTypes[i];
               Data data = (Data) a;
-              params.add(new StateParameter(data.value(), type, defaultValue(data, type), data.readOnly() || isReadOnly(type)));
+              Type type = genericParameterTypes[i];
+              Class<?> clazz = parameterTypes[i];
+              boolean mutable = false;
+              boolean readOnly = isReadOnly(type);
+              if (Mutable.class.isAssignableFrom(clazz)) {
+                ParameterizedType pType = (ParameterizedType) type;
+                type = pType.getActualTypeArguments()[0];
+                readOnly = false;
+                mutable = true;
+              }
+              params.add(new StateParameter(data.value(), type, defaultValue(data, clazz), data.readOnly() || readOnly, mutable));
               break;
             }
           }
@@ -66,14 +79,15 @@ public class WorkflowDefinitionScanner {
     return knownImmutableTypes.contains(type);
   }
 
-  Object defaultValue(Data data, Type type) {
-    Class<?> clazz = (Class<?>) type;
+  Object defaultValue(Data data, Class<?> clazz) {
     if (clazz.isPrimitive()) {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
     }
     if (data != null && data.instantiateNull()) {
       try {
-        return clazz.getConstructor().newInstance();
+        Constructor<?> ctr = clazz.getConstructor();
+        ctr.newInstance();
+        return ctr;
       } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         // ignore
       }

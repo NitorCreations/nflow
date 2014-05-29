@@ -11,13 +11,15 @@ public class WorkflowStateMethod {
     final String key;
     final Type type;
     final Object nullValue;
-    final boolean readoOnly;
+    final boolean readOnly;
+    final boolean mutable;
 
-    public StateParameter(String key, Type type, Object nullValue, boolean readOnly) {
+    public StateParameter(String key, Type type, Object nullValue, boolean readOnly, boolean mutable) {
       this.key = key;
       this.type = type;
       this.nullValue = nullValue;
-      readoOnly = readOnly;
+      this.readOnly = readOnly;
+      this.mutable = mutable;
     }
   }
 
