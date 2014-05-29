@@ -7,6 +7,8 @@ import static java.util.Arrays.asList;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +28,7 @@ import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod.StatePa
 public class WorkflowDefinitionScanner {
   private static final Set<Type> knownImmutableTypes = new HashSet<>();
   {
-    knownImmutableTypes.addAll(asList(Integer.TYPE, Integer.class, String.class));
+    knownImmutableTypes.addAll(asList(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class, BigDecimal.class, BigInteger.class, Enum.class));
   }
 
   public Map<String, WorkflowStateMethod> getStateMethods(@SuppressWarnings("rawtypes") Class<? extends WorkflowDefinition> definition) {
@@ -63,9 +65,6 @@ public class WorkflowDefinitionScanner {
   Object defaultValue(Type type) {
     Class<?> clazz = (Class<?>) type;
     if (clazz.isPrimitive()) {
-      if (Boolean.TYPE.equals(clazz)) {
-        return Boolean.FALSE;
-      }
       return ReflectionUtils.invokeMethod(ReflectionUtils.findMethod(clazz, "valueOf", String.class), null, "0");
     }
     return null;
