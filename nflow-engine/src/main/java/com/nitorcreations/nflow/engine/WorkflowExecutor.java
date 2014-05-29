@@ -19,21 +19,19 @@ import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod;
 
-public class WorkflowExecutor implements Runnable {
+class WorkflowExecutor implements Runnable {
 
   private static final Logger logger = getLogger(WorkflowExecutor.class);
+  private static final String MDC_KEY = "workflowInstanceId";
 
   private final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
 
   private final int instanceId;
   private final RepositoryService repository;
   private final ObjectStringMapper objectMapper;
-
-  private static final String MDC_KEY = "workflowInstanceId";
   private final WorkflowExecutorListener[] executorListeners;
 
-
-  public WorkflowExecutor(int instanceId, ObjectStringMapper objectMapper, RepositoryService repository,
+  WorkflowExecutor(int instanceId, ObjectStringMapper objectMapper, RepositoryService repository,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
