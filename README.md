@@ -92,7 +92,6 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     error(manual, "Manual processing of failed applications");
 ...
 ```
-
 ## Settings and State Transitions
 
 Each workflow implementation must have the following properties set through base class constructor:
@@ -104,7 +103,8 @@ Optionally you can also override default timing related settings through custom 
 
 ```java
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings());
+    super("creditApplicationProcess", createCreditApplication, error, 
+        new CreditApplicationWorkflowSettings());
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
     permit(acceptCreditApplication, finishCreditApplication);
@@ -112,8 +112,42 @@ Optionally you can also override default timing related settings through custom 
   }
 ```
 
+## State Handler Methods
 
-TODO: go through the code
+For each state there must exist a state handler method with the same name. The state handler method must be a `public` method that takes [`StateExecution`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/StateExecution.java) as an argument. `StateExecution` contains the main interface through which workflow implementation can interact with nFlow (see next section).
+
+Optionally you can define `@Data`-annotated POJOs (must have zero argument constructor) or Java primitive types as additional arguments after `StateExecution`. The additional arguments are automatically persisted by nFlow after state execution and passed automatically to subsequent state handler methods (see state variables in next section). In `CreditApplicationWorkflow` class `WorkflowInfo` is instantiated automatically (`instantiateNull=true`) when `createCreditApplication`-method is entered. Values set in `createCreditApplication` are afterwards available in other state handler methods.
+
+Each state handler method must define and schedule the next state execution. For instance, `CreditApplicationWorkflow.createCreditApplication()` defines that acceptCreditApplication-state is executed immediately next. Manual and final states (e.g. acceptCreditApplication and error) must unschedule themself.
+
+```java
+  public void createCreditApplication(StateExecution execution, 
+          @Data(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+    ...
+    info.applicationId = "abc";
+    execution.setNextState(acceptCreditApplication, "Credit application created", now());
+  }
+
+  public void acceptCreditApplication(StateExecution execution, @Data(value=VAR_KEY) WorkflowInfo info) {
+    ...
+    execution.setNextState(acceptCreditApplication, "Expecting manual credit decision", null);
+  }
+
+  public void grantLoan(StateExecution execution, @Data(value=VAR_KEY) WorkflowInfo info) { ... }
+  public void finishCreditApplication(StateExecution execution, @Data(value=VAR_KEY) WorkflowInfo info) { ... }
+  public void done(StateExecution execution, @Data(value=VAR_KEY) WorkflowInfo info) { ...  }
+  public void error(StateExecution execution, @Data(value=VAR_KEY) WorkflowInfo info) {
+    ...
+    execution.setNextState(error);
+  }
+```
+
+## Interacting with nFlow
+
+TODO
+* StateExecution in more detail
+* State variables
+* Retrying
 
 # Versioning
 
