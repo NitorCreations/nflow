@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 
 public class WorkflowInstanceAction {
 
-  public final Integer workflowId;
+  public final int workflowId;
   public final String state;
   public final String stateText;
   public final int retryNo;
@@ -24,7 +24,7 @@ public class WorkflowInstanceAction {
 
   public static class Builder {
 
-    private Integer workflowId;
+    private int workflowId;
     private String state;
     private String stateText;
     private int retryNo;
@@ -41,7 +41,7 @@ public class WorkflowInstanceAction {
       this.executionStart = now();
     }
 
-    public Builder setWorkflowId(Integer workflowId) {
+    public Builder setWorkflowId(int workflowId) {
       this.workflowId = workflowId;
       return this;
     }
