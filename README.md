@@ -21,7 +21,7 @@ Create a Maven project. Add the following to your  `pom.xml`. nFlow is available
 <dependency>
   <groupId>com.nitorcreations</groupId>
   <artifactId>nflow-jetty</artifactId>
-  <version>0.1</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 Create a class for starting nFlow in embedded Jetty using H2 memory database.
@@ -71,6 +71,10 @@ A workflow can be composed of human tasks (e.g. accept application), technical t
 ![](nflow-documentation/userguide/userguide-example-workflow.png)
 
 TODO: go through the code
+
+# Versioning
+
+nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/)
 
 # Configuration
 

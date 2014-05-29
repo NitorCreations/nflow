@@ -6,7 +6,7 @@
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <url>https://github.com/NitorCreations/nflow</url>
   <prerequisites>
     <maven>3.1</maven>
