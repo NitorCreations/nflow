@@ -16,11 +16,12 @@ public class NflowStandardEnvironment extends StandardEnvironment {
   @Override
   protected void customizePropertySources(MutablePropertySources propertySources) {
     super.customizePropertySources(propertySources);
+    String propertyFilename = System.getProperty("env", "dev") + ".properties";
     try {
-      propertySources.addLast(new ResourcePropertySource(System.getProperty("env", "dev") + ".properties",
+      propertySources.addLast(new ResourcePropertySource(propertyFilename,
           NflowStandardEnvironment.class.getClassLoader()));
     } catch (IOException e) {
-      LOG.warn("Failed to initialize environment-specific properties", e);
+      LOG.info("Failed to initialize environment-specific properties from file {}", propertyFilename);
     }
   }
 
