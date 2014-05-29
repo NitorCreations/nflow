@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(PARAMETER)
-public @interface Data {
+public @interface StateVar {
   public String value();
   boolean readOnly() default false;
   boolean instantiateNull() default false;

@@ -33,9 +33,9 @@ import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
-import com.nitorcreations.nflow.engine.workflow.Data;
 import com.nitorcreations.nflow.engine.workflow.Mutable;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.StateVar;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
@@ -269,7 +269,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           getSettings().getErrorTransitionDelay()));
     }
 
-    public void process(StateExecution execution, @Data("string") String s, @Data("int") int i, @Data("pojo") Pojo pojo, @Data(value="nullPojo", instantiateNull=true) Pojo pojo2, @Data(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @Data("nullInt") int zero, @Data("mutableString") Mutable<String> mutableString) {
+    public void process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
       lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero, mutableString.val);

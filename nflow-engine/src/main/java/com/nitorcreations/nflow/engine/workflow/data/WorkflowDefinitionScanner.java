@@ -26,9 +26,9 @@ import java.util.Set;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
-import com.nitorcreations.nflow.engine.workflow.Data;
 import com.nitorcreations.nflow.engine.workflow.Mutable;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.StateVar;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod.StateParameter;
 
@@ -49,8 +49,8 @@ public class WorkflowDefinitionScanner {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for (int i = 1; i < genericParameterTypes.length; ++i) {
           for (Annotation a : parameterAnnotations[i]) {
-            if (Data.class.equals(a.annotationType())) {
-              Data data = (Data) a;
+            if (StateVar.class.equals(a.annotationType())) {
+              StateVar stateInfo = (StateVar) a;
               Type type = genericParameterTypes[i];
               Class<?> clazz = parameterTypes[i];
               boolean mutable = false;
@@ -61,13 +61,13 @@ public class WorkflowDefinitionScanner {
                 readOnly = false;
                 mutable = true;
               }
-              params.add(new StateParameter(data.value(), type, defaultValue(data, clazz), data.readOnly() || readOnly, mutable));
+              params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz), stateInfo.readOnly() || readOnly, mutable));
               break;
             }
           }
         }
         if (params.size() != genericParameterTypes.length - 1) {
-          throw new IllegalStateException("Not all parameter names could be resolved for " + method + ". Maybe missing @Data annotation?");
+          throw new IllegalStateException("Not all parameter names could be resolved for " + method + ". Maybe missing @StateVar annotation?");
         }
         methods.put(method.getName(), new WorkflowStateMethod(method, params.toArray(new StateParameter[params.size()])));
       }
@@ -79,11 +79,11 @@ public class WorkflowDefinitionScanner {
     return knownImmutableTypes.contains(type);
   }
 
-  Object defaultValue(Data data, Class<?> clazz) {
+  Object defaultValue(StateVar stateInfo, Class<?> clazz) {
     if (clazz.isPrimitive()) {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
     }
-    if (data != null && data.instantiateNull()) {
+    if (stateInfo != null && stateInfo.instantiateNull()) {
       try {
         Constructor<?> ctr = clazz.getConstructor();
         ctr.newInstance();

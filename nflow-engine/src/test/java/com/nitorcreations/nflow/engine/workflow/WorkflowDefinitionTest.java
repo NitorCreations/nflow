@@ -182,7 +182,7 @@ public class WorkflowDefinitionTest {
     public void start(StateExecution execution) {
     }
 
-    public void state1(StateExecution execution, @Data("arg") String param) {
+    public void state1(StateExecution execution, @StateVar("arg") String param) {
     }
 
     public void state2(StateExecution execution) {
