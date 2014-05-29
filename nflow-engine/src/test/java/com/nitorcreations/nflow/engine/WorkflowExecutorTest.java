@@ -113,6 +113,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     assertThat(((Pojo) lastArgs.get(2)).field, is("val modified"));
     assertThat(((Pojo) lastArgs.get(2)).test, is(true));
     assertThat(((Pojo) lastArgs.get(4)).field, is("unmodified ignored"));
+    assertThat((Integer) lastArgs.get(5), is(0));
     assertThat(state.get("pojo"), is("{\"field\":\"val modified\",\"test\":true}"));
     assertThat(state.get("nullPojo"), is("{\"field\":\"magical instance\",\"test\":false}"));
     assertThat(state.get("immutablePojo"), is("{\"field\": \"unmodified\"}"));
@@ -264,10 +265,10 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           getSettings().getErrorTransitionDelay()));
     }
 
-    public void process(StateExecution execution, @Data("string") String s, @Data("int") Integer i, @Data("pojo") Pojo pojo, @Data(value="nullPojo", instantiateNull=true) Pojo pojo2, @Data(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo) {
+    public void process(StateExecution execution, @Data("string") String s, @Data("int") int i, @Data("pojo") Pojo pojo, @Data(value="nullPojo", instantiateNull=true) Pojo pojo2, @Data(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @Data("nullInt") int zero) {
       execution.setNextState(State.done);
       execution.setNextActivation(DateTime.now());
-      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo);
+      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero);
       pojo.field += " modified";
       pojo2.field = "magical instance";
       unmodifiablePojo.field += " ignored";

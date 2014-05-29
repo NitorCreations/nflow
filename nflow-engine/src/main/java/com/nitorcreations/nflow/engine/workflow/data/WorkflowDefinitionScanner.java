@@ -3,6 +3,10 @@ package com.nitorcreations.nflow.engine.workflow.data;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.ClassUtils.primitiveToWrapper;
+import static org.springframework.util.ReflectionUtils.doWithMethods;
+import static org.springframework.util.ReflectionUtils.findMethod;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
@@ -34,7 +37,7 @@ public class WorkflowDefinitionScanner {
 
   public Map<String, WorkflowStateMethod> getStateMethods(@SuppressWarnings("rawtypes") Class<? extends WorkflowDefinition> definition) {
     final Map<String, WorkflowStateMethod> methods = new HashMap<>();
-    ReflectionUtils.doWithMethods(definition, new MethodCallback() {
+    doWithMethods(definition, new MethodCallback() {
       @Override
       public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
         List<StateParameter> params = new ArrayList<>();
@@ -66,7 +69,7 @@ public class WorkflowDefinitionScanner {
   Object defaultValue(Data data, Type type) {
     Class<?> clazz = (Class<?>) type;
     if (clazz.isPrimitive()) {
-      return ReflectionUtils.invokeMethod(ReflectionUtils.findMethod(clazz, "valueOf", String.class), null, "0");
+      return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
     }
     if (data != null && data.instantiateNull()) {
       try {
