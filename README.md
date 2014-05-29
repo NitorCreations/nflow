@@ -66,11 +66,13 @@ The following example scenarios illustrate how you can use nFlow with your appli
 
 In nFlow terminology, you have workflow definitions and instances. A workflow definition is Java class that contains the implementation of a business process (e.g. credit application process). A workflow instance is a runtime instance of the business process (e.g. credit application from a certain customer). As a developer, you need to implement the workflow definition after which the workflow instances can be submitted through nflow-engine API or nflow-rest-api services.
 
-A workflow can be composed of human tasks (e.g. accept application), technical tasks (e.g. call REST service) or both of these tasks. A simple workflow that involves creating a credit application, the credit decision, possible money transfer and finally closing the credit application is illustrated below.
+A workflow can be composed of human tasks (e.g. accept application), technical tasks (e.g. call REST service) or both of these tasks. A simple workflow that involves creating a credit application, the credit decision, possible money transfer and finally closing the credit application is illustrated below. The Java code for `CreditApplicationWorkflow` can be found from [nflow-tests -module](nflow-tests/src/main/java/com/nitorcreations/nflow/tests/demo/CreditApplicationWorkflow.java).
 
 ![](nflow-documentation/userguide/userguide-example-workflow.png)
 
-The Java code for CreditApplicationWorkflow can be found from [nflow-tests -module](nflow-tests/src/main/java/com/nitorcreations/nflow/tests/demo/CreditApplicationWorkflow.java). CreditApplicationWorkflow begins by extends [WorkflowDefinition](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/WorkflowDefinition.java) which is the base class for all workflow implementations in nFlow. The state space of the workflow is enumerated after the class declaration. In this example, the states are also given a type and documentation. The following state types are supported (WorkflowStateType-enumeration):
+## Implementation Class and States Declarations
+
+`CreditApplicationWorkflow` begins by extends [`WorkflowDefinition`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/WorkflowDefinition.java) which is the base class for all workflow implementations in nFlow. The state space of the workflow is enumerated after the class declaration. In this example, the states are also given a type and documentation. The following state types are supported (`WorkflowStateType`-enumeration):
  * **start:** an entry point to the workflow
  * **manual:** requires external state update (usually a human task required)
  * **normal:** state is executed and retried automatically by nFlow
@@ -89,6 +91,25 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     done(end, "Credit application process finished"),
     error(manual, "Manual processing of failed applications");
 ...
+```
+
+## Settings and State Transitions
+
+Each workflow implementation must have the following properties set through base class constructor:
+ * **name:** defines the name that is used when submitting new instances (_creditApplicationProcess_)
+ * **default start state:** state from which new instances start by default (_createCreditApplication_)
+ * **generic error state:** error state for generic failures (_error_)
+
+Optionally you can also override default timing related settings through custom subclass of `WorkflowSettings` (_CreditApplicationWorkflowSettings_). Next you can define allowed state transitions through `permit()` which checks that the corresponding state handler methods exist.
+
+```java
+  public CreditApplicationWorkflow() {
+    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings());
+    permit(createCreditApplication, acceptCreditApplication);
+    permit(acceptCreditApplication, grantLoan);
+    permit(acceptCreditApplication, finishCreditApplication);
+    permit(finishCreditApplication, done);
+  }
 ```
 
 
