@@ -67,7 +67,7 @@ class WorkflowExecutor implements Runnable {
     int subsequentStateExecutions = 0;
     while (instance.processing) {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
-      ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
+      ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       try {
         processBeforeListeners(listenerContext);
