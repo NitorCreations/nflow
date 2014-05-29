@@ -60,7 +60,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings(null));
+    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings());
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
     permit(acceptCreditApplication, finishCreditApplication);
@@ -109,6 +109,10 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public static class CreditApplicationWorkflowSettings extends WorkflowSettings {
+
+    public CreditApplicationWorkflowSettings() {
+      this(null);
+    }
 
     public CreditApplicationWorkflowSettings(Environment env) {
       super(env);
