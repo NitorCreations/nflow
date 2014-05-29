@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.data;
 
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
@@ -18,7 +18,10 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
-import com.nitorcreations.nflow.engine.workflow.WorkflowStateMethod.StateParameter;
+import com.nitorcreations.nflow.engine.workflow.Data;
+import com.nitorcreations.nflow.engine.workflow.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod.StateParameter;
 
 public class WorkflowDefinitionScanner {
   private static final Set<Type> knownImmutableTypes = new HashSet<>();

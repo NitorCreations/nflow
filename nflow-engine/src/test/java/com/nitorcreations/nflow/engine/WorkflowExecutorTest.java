@@ -27,6 +27,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
@@ -36,17 +37,20 @@ import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
+import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
 
 public class WorkflowExecutorTest extends BaseNflowTest {
 
   @Mock
   RepositoryService repository;
 
+  ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
+
   WorkflowExecutor executor;
 
   @Before
   public void setup() {
-    executor = new WorkflowExecutor(1, repository);
+    executor = new WorkflowExecutor(1, objectMapper, repository);
   }
 
   @Test
@@ -149,7 +153,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .mock(WorkflowExecutorListener.class);
     WorkflowExecutorListener listener2 = Mockito
         .mock(WorkflowExecutorListener.class);
-    executor = new WorkflowExecutor(1, repository, listener1, listener2);
+    executor = new WorkflowExecutor(1, objectMapper, repository, listener1, listener2);
 
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
@@ -173,7 +177,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   public void failureListenersAreExecutedAfterFailure() {
     WorkflowExecutorListener listener1 = Mockito
         .mock(WorkflowExecutorListener.class);
-    executor = new WorkflowExecutor(1, repository, listener1);
+    executor = new WorkflowExecutor(1, objectMapper, repository, listener1);
 
     FailingTestWorkflow wf = new FailingTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("failing"));
@@ -188,6 +192,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
           @Override
           public boolean matches(Object argument) {
             Exception ex = (RuntimeException) argument;
+            ex.printStackTrace();
             assertThat(ex.getMessage(), equalTo("test-fail"));
             return true;
           }

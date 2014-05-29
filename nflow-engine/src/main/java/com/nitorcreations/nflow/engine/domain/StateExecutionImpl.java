@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
 
 public class StateExecutionImpl implements StateExecution {
 
@@ -14,7 +15,7 @@ public class StateExecutionImpl implements StateExecution {
   private boolean failure = false;
   private boolean saveTrace = true;
 
-  public StateExecutionImpl(WorkflowInstance instance) {
+  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
     this.instance = instance;
   }
 

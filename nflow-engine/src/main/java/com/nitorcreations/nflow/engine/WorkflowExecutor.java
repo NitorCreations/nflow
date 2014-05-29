@@ -3,16 +3,11 @@ package com.nitorcreations.nflow.engine;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
-
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.util.ReflectionUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
@@ -21,8 +16,8 @@ import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
-import com.nitorcreations.nflow.engine.workflow.WorkflowStateMethod;
-import com.nitorcreations.nflow.engine.workflow.WorkflowStateMethod.StateParameter;
+import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
+import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod;
 
 public class WorkflowExecutor implements Runnable {
 
@@ -32,13 +27,16 @@ public class WorkflowExecutor implements Runnable {
 
   private final int instanceId;
   private final RepositoryService repository;
+  private final ObjectStringMapper objectMapper;
 
   private static final String MDC_KEY = "workflowInstanceId";
   private final WorkflowExecutorListener[] executorListeners;
 
-  public WorkflowExecutor(int instanceId, RepositoryService repository,
+
+  public WorkflowExecutor(int instanceId, ObjectStringMapper objectMapper, RepositoryService repository,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
+    this.objectMapper = objectMapper;
     this.repository = repository;
     this.executorListeners = executorListeners;
   }
@@ -70,7 +68,7 @@ public class WorkflowExecutor implements Runnable {
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.processing) {
-      StateExecutionImpl execution = new StateExecutionImpl(instance);
+      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
       ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       try {
@@ -127,58 +125,9 @@ public class WorkflowExecutor implements Runnable {
   private void processState(WorkflowInstance instance,
       WorkflowDefinition<?> definition, StateExecutionImpl execution) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
-    Object[] args = createArguments(execution, method);
+    Object[] args = objectMapper.createArguments(execution, method);
     ReflectionUtils.invokeMethod(method.method, definition, args);
-    storeArguments(execution, method, args);
-  }
-
-  private Object[] createArguments(StateExecutionImpl execution,
-      WorkflowStateMethod method) {
-    ObjectMapper objMapper = new ObjectMapper();
-    Object[] args = new Object[method.params.length + 1];
-    args[0] = execution;
-    StateParameter[] params = method.params;
-    for (int i = 0; i < params.length; i++) {
-      StateParameter param = params[i];
-      String value = execution.getVariable(param.key);
-      if (value == null) {
-        args[i+1] = param.nullValue;
-        continue;
-      }
-      if (String.class.equals(param.type)) {
-        args[i+1] = value;
-        continue;
-      }
-      JavaType type = objMapper.getTypeFactory().constructType(param.type);
-      try {
-        args[i+1] = objMapper.readValue(value, type);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return args;
-  }
-
-  private void storeArguments(StateExecutionImpl execution,
-      WorkflowStateMethod method, Object[] args) {
-    ObjectMapper objMapper = new ObjectMapper();
-    StateParameter[] params = method.params;
-    for (int i = 0; i < params.length; i++) {
-      StateParameter param = params[i];
-      if (param.readoOnly) {
-        continue;
-      }
-      Object value = args[i+1];
-      if (value == null) {
-        continue;
-      }
-      try {
-        String sVal = objMapper.writeValueAsString(value);
-        execution.setVariable(param.key, sVal);
-      } catch (JsonProcessingException e) {
-          throw new RuntimeException(e);
-      }
-    }
+    objectMapper.storeArguments(execution, method, args);
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

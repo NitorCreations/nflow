@@ -1,17 +1,17 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.data;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 public class WorkflowStateMethod {
   public final Method method;
-  public final StateParameter[] params;
+  final StateParameter[] params;
 
-  public static class StateParameter {
-    public final String key;
-    public final Type type;
-    public final Object nullValue;
-    public final boolean readoOnly;
+  static class StateParameter {
+    final String key;
+    final Type type;
+    final Object nullValue;
+    final boolean readoOnly;
 
     public StateParameter(String key, Type type, Object nullValue, boolean readOnly) {
       this.key = key;

@@ -10,6 +10,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
@@ -28,6 +30,12 @@ public class EngineConfiguration {
     executor.setWaitForTasksToCompleteOnShutdown(true);
     executor.setThreadFactory(new CustomizableThreadFactory("nflow-executor-"));
     return executor;
+  }
+
+  @Bean(name="nflow-ObjectMapper")
+  public ObjectMapper nflowObjectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper;
   }
 
   @Bean(name = "non-spring-workflows-listing")
