@@ -35,7 +35,7 @@ public class ListWorkflowDefinitionResponse {
 
   public static class State {
 
-      public State(String id, String type, String name, String description) {
+    public State(String id, String type, String name, String description) {
       this.id = id;
       this.type = type;
       this.name = name;
