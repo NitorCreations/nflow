@@ -60,7 +60,9 @@ public class App {
   }
 }
 ```
-That's it! Running *App* will start nFlow server though without any workflow definitions. See the next sections for creating your own workflow definitions.
+That's it! Running *App* will start nFlow server though without any workflow definitions. 
+Point your browser to http://localhost:7500/ui and you can use interactive online documentation for the nFlow REST API. 
+See the next sections for creating your own workflow definitions.
 
 ## <a name="components"></a>Components
 
