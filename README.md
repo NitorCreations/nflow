@@ -230,7 +230,8 @@ Properties whose name ends to _.ms_ define milliseconds.
 | nflow.db.type | h2 | nFlow database type (supported: h2, mysql, postgresql) |
 | nflow.db.max_pool_size | 4 | Maximum size of database connection pool |
 | nflow.db.create_on_startup | true | Automatically create missing database structures (note: cannot manage nflow version updates) |
-| nflow.non_spring_workflows_filename | 
+| nflow.non_spring_workflows_filename | _empty_ | Filename in classpath that contains fully qualified class name of non-Spring bean WorkflowDefinitions |
+| nflow.executor.thread.count | _2 x number of CPU cores_ | Maximum amount of concurrent nFlow execution threads |
 
 ### nflow-rest-api
 
