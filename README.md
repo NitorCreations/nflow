@@ -251,6 +251,28 @@ nFlow supports the following databases:
 
 First you need to create a database for nFlow, unless you're using memory-based H2 which is suitable for development and testing. 
 
+**MySQL 5.6 or newer, MariaDB 5.6 or newer**
+
+Execute the following commands:
+```
+sudo mysql -e "create database nflow character set utf8mb4;"
+sudo mysql -e "create user 'nflow'@'localhost' identified by 'nflow';"
+```
+
+**PostgreSQL 9.x or newer**
+
+Add following line before other host lines in _/var/lib/pgsql/data/pg_hba.conf_:
+```
+host	nflow	nflow	samenet	md5
+```
+
+Execute the following commands:
+```
+sudo -u postgres createuser --echo --pwprompt nflow
+sudo -u postgres createdb --echo --owner nflow nflow
+sudo systemctl reload postgresql.service
+```
+
 ### <a name="database-initialize-and-use-nflow-database"></a>Initialize and Use nFlow Database
 
 After creating nFlow database, override the default nFlow database properties whose name is prefixed by _nflow.db_ as described [above](#nflow-properties).
