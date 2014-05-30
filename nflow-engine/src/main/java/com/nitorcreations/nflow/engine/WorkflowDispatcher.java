@@ -100,7 +100,7 @@ public class WorkflowDispatcher implements Runnable {
     }
   }
 
-  private List<Integer> getNextInstanceIds() throws InterruptedException {
+  private List<Integer> getNextInstanceIds() {
     int nextBatchSize = Math.max(0, 2 * pool.getMaxPoolSize() - pool.getActiveCount());
     logger.debug("Polling next {} workflow instances.", nextBatchSize);
     return repository.pollNextWorkflowInstanceIds(nextBatchSize);

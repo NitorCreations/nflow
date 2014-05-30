@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -31,9 +30,6 @@ public class RepositoryDaoTest extends BaseDaoTest {
 
   @Inject
   RepositoryDao dao;
-
-  @Inject
-  DataSource ds;
 
   @Test
   public void roundTripTest() {

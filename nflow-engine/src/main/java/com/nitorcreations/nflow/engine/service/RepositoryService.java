@@ -43,7 +43,7 @@ public class RepositoryService {
 
   @Inject
   public RepositoryService(RepositoryDao repositoryDao,
-      @Named("non-spring-workflows-listing") AbstractResource nonSpringWorkflowsListing) throws Exception {
+      @Named("non-spring-workflows-listing") AbstractResource nonSpringWorkflowsListing) {
     this.repositoryDao = repositoryDao;
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
   }

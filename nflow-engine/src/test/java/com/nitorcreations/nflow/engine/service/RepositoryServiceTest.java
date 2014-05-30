@@ -57,7 +57,7 @@ public class RepositoryServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void demoWorkflowLoadedSuccessfully() throws Exception {
+  public void demoWorkflowLoadedSuccessfully() {
     List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
   }

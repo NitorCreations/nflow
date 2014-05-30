@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import edu.umd.cs.mtc.MultithreadedTestCase;
-import edu.umd.cs.mtc.TestFramework;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,18 +26,19 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 
+import edu.umd.cs.mtc.MultithreadedTestCase;
+import edu.umd.cs.mtc.TestFramework;
+
+@SuppressWarnings("unused")
 public class WorkflowDispatcherTest extends BaseNflowTest {
-  private WorkflowDispatcher dispatcher;
-  private ThreadPoolTaskExecutor pool;
+  WorkflowDispatcher dispatcher;
+  ThreadPoolTaskExecutor pool;
 
-  @Mock
-  private RepositoryService repository;
+  @Mock RepositoryService repository;
 
-  @Mock
-  private WorkflowExecutorFactory executorFactory;
+  @Mock WorkflowExecutorFactory executorFactory;
 
-  @Mock
-  private Environment env;
+  @Mock Environment env;
 
   @Before
   public void setup() {
@@ -107,6 +106,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
   @Test
   public void emptyPollResultCausesNoTasksToBeScheduled() throws Throwable {
     class EmptyPollResultCausesNoTasksToBeScheduled extends MultithreadedTestCase {
+      @SuppressWarnings("unchecked")
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt()))
             .thenReturn(ids(), ids())
@@ -242,11 +242,11 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     return executor;
   }
 
-  private void assertPoolIsShutdown(boolean isTrue) {
+  void assertPoolIsShutdown(boolean isTrue) {
     assertEquals(pool.getThreadPoolExecutor().isShutdown(), isTrue);
   }
 
-  private Runnable noOpRunnable() {
+  Runnable noOpRunnable() {
     return new Runnable() {
       @Override
       public void run() {
@@ -254,7 +254,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     };
   }
 
-  private Runnable waitForTickRunnable(final int tick, final MultithreadedTestCase mtc) {
+  Runnable waitForTickRunnable(final int tick, final MultithreadedTestCase mtc) {
     return new Runnable() {
       @Override
       public void run() {
@@ -263,8 +263,8 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     };
   }
 
-  private WorkflowExecutor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
-    return new WorkflowExecutor(instanceId, null, null, null) {
+  WorkflowExecutor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
+    return new WorkflowExecutor(instanceId, null, null, (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();
@@ -272,7 +272,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     };
   }
 
-  private Answer<List<Integer>> waitForTickAndAnswer(final int tick, final List<Integer> answer, final MultithreadedTestCase mtc) {
+  Answer<List<Integer>> waitForTickAndAnswer(final int tick, final List<Integer> answer, final MultithreadedTestCase mtc) {
     return new Answer<List<Integer>>() {
       @Override
       public List<Integer> answer(InvocationOnMock invocation) throws Throwable {
@@ -282,7 +282,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     };
   }
 
-  private static List<Integer> ids(Integer... ids) {
+  static List<Integer> ids(Integer... ids) {
     return asList(ids);
   }
 }

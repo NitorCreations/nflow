@@ -11,11 +11,11 @@ import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public interface WorkflowExecutorListener {
 
-  @SuppressWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="listeners are implemented by business applications")
+  @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="listeners are implemented by business applications")
   static class ListenerContext {
     public final DateTime start = now();
     public final WorkflowDefinition<?> definition;

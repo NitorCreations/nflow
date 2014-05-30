@@ -47,7 +47,7 @@ public class WorkflowDefinitionScanner {
     final Map<String, WorkflowStateMethod> methods = new HashMap<>();
     doWithMethods(definition, new MethodCallback() {
       @Override
-      public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
+      public void doWith(Method method) throws IllegalArgumentException {
         List<StateParameter> params = new ArrayList<>();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Class<?>[] parameterTypes = method.getParameterTypes();

@@ -25,7 +25,7 @@ public class WorkflowInstance {
   public final DateTime modified;
   public final String owner;
 
-  private WorkflowInstance(Builder builder) {
+  WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.type = builder.type;
     this.businessKey = builder.businessKey;

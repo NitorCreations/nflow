@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,8 +65,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.process, 0, false)),
-        Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
+    verify(repository).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.process, 0, false)),
+        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
   }
 
   @Test
@@ -77,8 +78,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.start, 1, false)),
-        Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
+    verify(repository).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.start, 1, false)),
+        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
   }
 
   @Test
@@ -90,8 +91,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").setRetries(wf.getSettings().getMaxRetries()).build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
-        Mockito.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
+    verify(repository).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
+        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
   }
 
   @SuppressWarnings("serial")
@@ -198,7 +199,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     executor.run();
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).afterFailure(any(ListenerContext.class),
-        Mockito.argThat(new ArgumentMatcher<Exception>() {
+        argThat(new ArgumentMatcher<Exception>() {
           @Override
           public boolean matches(Object argument) {
             Exception ex = (RuntimeException) argument;
@@ -225,8 +226,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     when(repository.getWorkflowDefinition(eq("test"))).thenReturn(null);
     executor.run();
-    verify(repository).updateWorkflowInstance(Mockito.argThat(matchesWorkflowInstance(FailingTestWorkflow.State.start, 0, true,
-        is(nullValue(DateTime.class)))), Mockito.argThat(is(nullValue(WorkflowInstanceAction.class))));
+    verify(repository).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.start, 0, true,
+        is(nullValue(DateTime.class)))), argThat(is(nullValue(WorkflowInstanceAction.class))));
   }
 
   public static class Pojo {

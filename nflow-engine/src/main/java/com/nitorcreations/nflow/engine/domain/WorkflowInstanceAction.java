@@ -24,12 +24,12 @@ public class WorkflowInstanceAction {
 
   public static class Builder {
 
-    private int workflowId;
-    private String state;
-    private String stateText;
-    private int retryNo;
-    private DateTime executionStart;
-    private DateTime executionEnd;
+    int workflowId;
+    String state;
+    String stateText;
+    int retryNo;
+    DateTime executionStart;
+    DateTime executionEnd;
 
     public Builder() {
     }

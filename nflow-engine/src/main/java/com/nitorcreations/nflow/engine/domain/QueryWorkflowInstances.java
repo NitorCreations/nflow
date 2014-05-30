@@ -14,7 +14,7 @@ public class QueryWorkflowInstances {
   public final String externalId;
   public final boolean includeActions;
 
-  private QueryWorkflowInstances(Builder builder) {
+  QueryWorkflowInstances(Builder builder) {
     super();
     this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
@@ -35,18 +35,18 @@ public class QueryWorkflowInstances {
     public Builder() {
     }
 
-    public Builder addIds(Integer ... ids) {
-      this.ids.addAll(asList(ids));
+    public Builder addIds(Integer ... newIds) {
+      this.ids.addAll(asList(newIds));
       return this;
     }
 
-    public Builder addTypes(String ... types) {
-      this.types.addAll(asList(types));
+    public Builder addTypes(String ... newTypes) {
+      this.types.addAll(asList(newTypes));
       return this;
     }
 
-    public Builder addStates(String ... states) {
-      this.states.addAll(asList(states));
+    public Builder addStates(String ... newStates) {
+      this.states.addAll(asList(newStates));
       return this;
     }
 
