@@ -1,4 +1,4 @@
-# nFlow Goals and Non-Goals [![Build Status](https://travis-ci.org/NitorCreations/nflow.svg?branch=master)](https://travis-ci.org/NitorCreations/nflow)
+# nFlow [![Build Status](https://travis-ci.org/NitorCreations/nflow.svg?branch=master)](https://travis-ci.org/NitorCreations/nflow)
 
 nFlow is a light weight business process engine with emphasis on the following goals or features.
 
@@ -17,11 +17,16 @@ nFlow non-goals are important to understand as well:
   * [1 Minute Guide](#one-minute-guide)
   * [Components](#components)
   * [Usage Scenarios](#usage-scenarios)
+    * [Scenario 1: Embedded Engine Only](#usage-scenarios-embedded-engine-only)
+    * [Scenario 2: Inside Your Application Server](#usage-scenarios-inside-your-application-server)
+    * [Scenario 3: Full nFlow Stack](#usage-scenarios-full-nflow-stack)
   * [Anatomy of a Workflow](#anatomy-of-workflow)
     * [Implementation Class and States Declarations](#implementation-class-and-states-declarations)
     * [Settings and State Transitions](#settings-and-state-transitions)
     * [State Handler Methods](#state-handler-methods)
   * [Setting Up Your nFlow](#setting-up-your-nflow)
+    * [Using Spring Framework](#using-spring-framework)
+    * [Without Spring Framework](#using-spring-framework)
 * [Configuration](#configuration)
   * [nFlow Properties](#nflow-properties)
   * [Database](#database)
@@ -70,15 +75,15 @@ In addition, nflow-tests component contains integration tests over demo workflow
 
 The following example scenarios illustrate how you can use nFlow with your applications.
 
-### Scenario 1: Embedded Engine Only
+### <a name="usage-scenarios-embedded-engine-only"></a>Scenario 1: Embedded Engine Only
 
 ![Scenario 1 picture](nflow-documentation/userguide/userguide-scenario-1.png)
 
-### Scenario 2: Inside Your Application Server
+### <a name="usage-scenarios-inside-your-application-server"></a>Scenario 2: Inside Your Application Server
 
 ![Scenario 2 picture](nflow-documentation/userguide/userguide-scenario-2.png)
 
-### Scenario 3: Full nFlow Stack
+### <a name="usage-scenarios-full-nflow-stack"></a>Scenario 3: Full nFlow Stack
 
 ![Scenario 3 picture](nflow-documentation/userguide/userguide-scenario-3.png)
 
@@ -171,6 +176,25 @@ TODO
 * StateExecution in more detail
 * State variables
 * Retrying
+
+## <a name="setting-up-your-nflow"></a>Setting Up Your nFlow
+
+### <a name="using-spring-framework"></a>Using Spring Framework
+
+Spring is the preferred way of integrating nFlow with your own application. You need to import/declare a Spring configuration bean in your Spring application context. The configuration bean type depends on the usage scenario (see section [Usage Scenarios](#usage-scenarios)) that you selected.
+ * `com.nitorcreations.nflow.engine.config.EngineConfiguration` ([Embedded Engine Only](#usage-scenarios-embedded-engine-only))
+ * `com.nitorcreations.nflow.rest.config.RestConfiguration` ([Inside Your Application Server](#usage-scenarios-inside-your-application-server))
+ * `com.nitorcreations.nflow.jetty.config.NflowJettyConfiguration` ([Full nFlow Stack](#usage-scenarios-full-nflow-stack))
+
+nFlow will autodetect your `WorkflowDefinitions` that are defined as Spring beans in the same Spring application context.
+
+### <a name="without-spring-framework"></a>Without Spring Framework
+
+If you don't want to learn Spring, you can only use [Full nFlow Stack](#usage-scenarios-full-nflow-stack)-scenario. 
+
+Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide"). Then the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `non.spring.workflows.filename`. 
+
+See `nflow-tests`-module for an example.
 
 # <a name="configuration"></a>Configuration
 
