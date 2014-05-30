@@ -29,6 +29,9 @@ nFlow non-goals are important to understand as well:
     * [Without Spring Framework](#using-spring-framework)
 * [Configuration](#configuration)
   * [nFlow Properties](#nflow-properties)
+    * [nflow-engine](#nflow-properties-nflow-engine)
+    * [nflow-rest-api](#nflow-properties-nflow-rest-api)
+    * [nflow-jetty](#nflow-properties-nflow-jetty)
   * [Database](#database)
   * [Security](#security)
   * [Logging](#logging)
@@ -60,9 +63,7 @@ public class App {
   }
 }
 ```
-That's it! Running *App* will start nFlow server though without any workflow definitions. 
-Point your browser to http://localhost:7500/ui and you can use interactive online documentation for the nFlow REST API. 
-See the next sections for creating your own workflow definitions.
+That's it! Running *App* will start nFlow server though without any workflow definitions. See the next sections for creating your own workflow definitions.
 
 ## <a name="components"></a>Components
 
@@ -203,11 +204,11 @@ See `nflow-tests`-module for an example.
 
 ## <a name="nflow-properties"></a>nFlow Properties
 
-Default values for nFlow properties can be overridden by adding *<env>*.properties file to classpath and specifying *env* as system property. For instance, add *dev.properties* to classpath and add *-Denv=dev* to JVM startup parameters.
-
-### nflow-engine
+Default values for nFlow properties can be overridden by adding *<env>*.properties file to classpath and specifying *env* as system property. For instance, add *dev.properties* to classpath and add *-Denv=dev* to JVM startup parameters. Similarly, you can override property values through system properties (e.g. *-Dnflow.db.user=mydbuser*).
 
 Properties whose name ends to _.ms_ define milliseconds.
+
+### <a name="nflow-properties-nflow-engine"></a>nflow-engine
 
 | Property name | Default value | Description |
 | ------------- | ------------- | ----------- |
@@ -218,22 +219,41 @@ Properties whose name ends to _.ms_ define milliseconds.
 | nflow.transition.delay.waiterror.ms | 7200000 | Delay for next activation of workflow instance after an error/exception |
 | nflow.max.state.retries | 3 | Maximum amount of automatic retries for normal state, after which the failure or error transition is taken |
 | nflow.db.driver | org.h2.jdbcx.JdbcDataSource | Fully qualified class name of datasource |
-| nflow.db.url | jdbc:h2:mem:test;TRACE_LEVEL_FILE=4 | nFlow database JDBC URL |
+| nflow.db.url | jdbc:h2:mem:test | nFlow database JDBC URL |
 | nflow.db.user | sa | nFlow database user |
 | nflow.db.password | _empty_ | nFlow database user password |
 | nflow.db.type | h2 | nFlow database type (supported: h2, mysql, postgresql) |
 | nflow.db.max.pool.size | 4 | Maximum size of database connection pool |
-| nflow.db.create.on.startup | true | Automatically create missing database structures (note: cannot manage nflow version updates) |
+| nflow.db.create_on_startup | true | Automatically create missing database structures (note: cannot manage nflow version updates) |
 
 ### nflow-rest-api
 
+No properties defined.
+
 ### nflow-jetty
+
+| Property name | Default value | Description |
+| ------------- | ------------- | ----------- |
+| nflow.jetty.host | 0.0.0.0 |   |
 
 ## <a name="database"></a>Database
 
-PostgreSQL, MySQL/MariaDB and H2 supported...
-Database structures initialized manually or automatically...
-Description of database tables...
+nFlow supports the following databases:
+* PostgreSQL (version 9.3.4 tested)
+* MySQL/MariaDB (MariaDB version 10.0 tested)
+* H2 (version 1.4.178 tested)
+
+### Create nFlow Database
+
+First you need to create a database for nFlow, unless you're using memory-based H2 which is suitable for development and testing. 
+
+### Initialize and Use nFlow Database
+
+After creating nFlow database, override the default nFlow database properties whose name is prefixed by _nflow.db_ as described [above](#nflow-properties).
+
+There're two options for creating nFlow database structures:
+1. Start nFlow with _nflow.db.create_on_startup_ property set to true: missing database objects will be created automatically.
+2. Connect to the database using your favourite client and execute the database specific DDL in _nflow-engine/src/main/resources/scripts/db_ directory.
 
 ## <a name="security"></a>Security
 
@@ -247,21 +267,7 @@ nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](h
 
 ## <a name="versioning"></a>Versioning
 
-nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/). Currently nFlow is in initial development phase, and API may change and features may be added or removed. Once API becames stable, we will release version 1.0.0. 
+nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/)
 
 ## <a name="rest-api"></a>REST API
 
-nFlow REST API supports currently following operations:
-
-* `GET /v0/workflow-definition`
- * Get definition of a workflow: all possible states, transitions between states, and other setting related to the workflow.
-* `GET /v0/workflow-instance`
- * Query list of workflow instances with different query criterias
-* `GET /v0/workflow-instance/{id}`
- * Fetch full state and history of single workflow instance 
-* `PUT /v0/workflow-instance`
- * Create a new workflow instance that will be processed as soon as there are free WorkflowExecutors.
-* `PUT /v0/workflow-instance/{id}`
- * Update existing workflow instance. This is typically used in manual step via some UI.
-
-nFlow REST API is described in more detail via [Swagger](https://helloreverb.com/developers/swagger) documentation system. Swagger documentation is included automatically in nflow-jetty.
