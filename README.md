@@ -27,6 +27,10 @@ nFlow non-goals are important to understand as well:
   * [Setting Up Your nFlow](#setting-up-your-nflow)
     * [Using Spring Framework](#using-spring-framework)
     * [Without Spring Framework](#using-spring-framework)
+  * [Interacting with nFlow](#interacting-with-nflow)
+    * [StateExecution -interface](#stateexecution-interface)
+    * [State Variables](#state-variables)
+    * [WorkflowSettings -interface](#workflow-settings)
 * [Configuration](#configuration)
   * [nFlow Properties](#nflow-properties)
     * [nflow-engine](#nflow-properties-nflow-engine)
@@ -179,12 +183,27 @@ public void error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInf
 }
 ```
 
-## Interacting with nFlow
+## <a name="interacting-with-nflow"></a>Interacting with nFlow
+
+The mechanisms described in this section should be sufficient to implement the interaction between your workflows and nFlow. 
+
+### <a name="stateexecution-interface"></a>StateExecution -interface
+
+`StateExecution` is the access point for all the workflow instance-specific information. 
+* **businessKey:** optional business identifier (e.g. application id) for the workflow instance (read-only)
+* **requestData:** initial workflow instance business parameters (read-only)
+* **variables:** business process variables
+* **nextActivation:** next activation time for the workflow instance 
+* **nextState:** next workflow state for the workflow instance
+* **failure:** flag that indicates failure and causes automatic retry after error timeout (false by default)
+* **saveTrace:** flag that controls saving of action history (true by default)
+
+### <a name="state-variables"></a>State Variables
 
 TODO
-* StateExecution in more detail
-* State variables
-* Retrying
+### <a name="workflow-settings"></a>WorkflowSettings -interface
+
+TODO
 
 ## <a name="setting-up-your-nflow"></a>Setting Up Your nFlow
 
