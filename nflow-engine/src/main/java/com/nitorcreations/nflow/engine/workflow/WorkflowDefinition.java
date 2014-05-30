@@ -114,6 +114,7 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> {
     }
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value="BC_UNCONFIRMED_CAST", justification="cast is safe")
   public void handleRetry(StateExecutionImpl execution) {
     if (execution.getRetries() >= getSettings().getMaxRetries()) {
       String failureState = failureTransitions.get(execution.getCurrentStateName());
