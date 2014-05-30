@@ -88,5 +88,10 @@
       <artifactId>matchers</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.multithreadedtc</groupId>
+      <artifactId>multithreadedtc</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
