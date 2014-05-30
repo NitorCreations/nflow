@@ -6,7 +6,7 @@ import java.util.Set;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
-@ApiModel(value = "xxxion")
+@ApiModel(value = "Workflow definition states and transition to next states")
 public class State {
 
   public State(String id, String type, String name, String description) {
