@@ -11,9 +11,29 @@ nFlow non-goals are important to understand as well:
 * **BPMN/BPEL Support:** excluded by the goal of conciseness
 * **Full UI Support:** although read-only visualization of workflows is in future roadmap
 
-# Getting Started
+# Table of Contents
 
-## 1 Minute Guide
+* [Getting Started](#getting-started)
+  * [1 Minute Guide](#one-minute-guide)
+  * [Components](#components)
+  * [Usage Scenarios](#usage-scenarios)
+  * [Anatomy of a Workflow](#anatomy-of-workflow)
+    * [Implementation Class and States Declarations](#implementation-class-and-states-declarations)
+    * [Settings and State Transitions](#settings-and-state-transitions)
+    * [State Handler Methods](#state-handler-methods)
+  * [Setting Up Your nFlow](#setting-up-your-nflow)
+* [Configuration](#configuration)
+  * [nFlow Properties](#nflow-properties)
+  * [Database](#database)
+  * [Security](#security)
+  * [Logging](#logging)
+* [Other Stuff](#other-stuff)
+  * [Versioning](#versioning)
+  * [REST API](#rest-api)
+
+# <a name="getting-started"></a>Getting Started
+
+## <a name="one-minute-guide"></a>1 Minute Guide
 
 Create a Maven project. Add the following to your  `pom.xml`. nFlow is available in Maven central repository. 
 
@@ -37,7 +57,7 @@ public class App {
 ```
 That's it! Running *App* will start nFlow server though without any workflow definitions. See the next sections for creating your own workflow definitions.
 
-## Components
+## <a name="components"></a>Components
 
 nFlow consist of the following main components, each having the previous component as a dependency.
  1. **nflow-engine** contains a multithreaded workflow dispatcher, Java API for managing workflows and the persistance layer implementation. 
@@ -46,7 +66,7 @@ nFlow consist of the following main components, each having the previous compone
 
 In addition, nflow-tests component contains integration tests over demo workflows.
 
-## Usage Scenarios
+## <a name="usage-scenarios"></a>Usage Scenarios
 
 The following example scenarios illustrate how you can use nFlow with your applications.
 
@@ -62,7 +82,7 @@ The following example scenarios illustrate how you can use nFlow with your appli
 
 ![Scenario 3 picture](nflow-documentation/userguide/userguide-scenario-3.png)
 
-## Anatomy of a Workflow
+## <a name="anatomy-of-workflow"></a>Anatomy of a Workflow
 
 In nFlow terminology, you have workflow definitions and instances. A workflow definition is Java class that contains the implementation of a business process (e.g. credit application process). A workflow instance is a runtime instance of the business process (e.g. credit application from a certain customer). As a developer, you need to implement the workflow definition after which the workflow instances can be submitted through nflow-engine API or nflow-rest-api services.
 
@@ -70,7 +90,7 @@ A workflow can be composed of human tasks (e.g. accept application), technical t
 
 ![](nflow-documentation/userguide/userguide-example-workflow.png)
 
-## Implementation Class and States Declarations
+### <a name="implementation-class-and-states-declarations"></a>Implementation Class and States Declarations
 
 `CreditApplicationWorkflow` begins by extends [`WorkflowDefinition`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/WorkflowDefinition.java) which is the base class for all workflow implementations in nFlow. The state space of the workflow is enumerated after the class declaration. In this example, the states are also given a type and documentation. The following state types are supported (`WorkflowStateType`-enumeration):
  * **start:** an entry point to the workflow
@@ -81,9 +101,9 @@ A workflow can be composed of human tasks (e.g. accept application), technical t
 Currently the state types are informational only and useful for visualization. 
 
 ```java
-public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicationWorkflow.State> {
+public class CreditApplicationWorkflow extends WorkflowDefinition<State> {
 ...
-  public static enum State implements com.nitorcreations.nflow.engine.workflow.WorkflowState {
+  public static enum State implements WorkflowState {
     createCreditApplication(start, "Credit application is persisted to database"),
     acceptCreditApplication(manual, "Manual credit decision is made"),
     grantLoan(normal, "Loan is created to loan system"),
@@ -92,7 +112,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     error(manual, "Manual processing of failed applications");
 ...
 ```
-## Settings and State Transitions
+### <a name="settings-and-state-transitions"></a>Settings and State Transitions
 
 Each workflow implementation must have the following properties set through base class constructor:
  * **name:** defines the name that is used when submitting new instances (_creditApplicationProcess_)
@@ -102,17 +122,17 @@ Each workflow implementation must have the following properties set through base
 Optionally you can also override default timing related settings through custom subclass of `WorkflowSettings` (_CreditApplicationWorkflowSettings_). Next you can define allowed state transitions through `permit()` which checks that the corresponding state handler methods exist.
 
 ```java
-  public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error, 
-        new CreditApplicationWorkflowSettings());
-    permit(createCreditApplication, acceptCreditApplication);
-    permit(acceptCreditApplication, grantLoan);
-    permit(acceptCreditApplication, finishCreditApplication);
-    permit(finishCreditApplication, done);
-  }
+public CreditApplicationWorkflow() {
+  super("creditApplicationProcess", createCreditApplication, error, 
+      new CreditApplicationWorkflowSettings());
+  permit(createCreditApplication, acceptCreditApplication);
+  permit(acceptCreditApplication, grantLoan);
+  permit(acceptCreditApplication, finishCreditApplication);
+  permit(finishCreditApplication, done);
+}
 ```
 
-## State Handler Methods
+### <a name="state-handler-methods"></a>State Handler Methods
 
 For each state there must exist a state handler method with the same name. The state handler method must be a `public` method that takes [`StateExecution`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/StateExecution.java) as an argument. `StateExecution` contains the main interface through which workflow implementation can interact with nFlow (see next section).
 
@@ -121,25 +141,28 @@ Optionally you can define `@StateVar`-annotated POJOs (must have zero argument c
 Each state handler method must define and schedule the next state execution. For instance, `CreditApplicationWorkflow.createCreditApplication()` defines that acceptCreditApplication-state is executed immediately next. Manual and final states (e.g. acceptCreditApplication and error) must unschedule themself.
 
 ```java
-  public void createCreditApplication(StateExecution execution, 
-          @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
-    ...
-    info.applicationId = "abc";
-    execution.setNextState(acceptCreditApplication, "Credit application created", now());
-  }
+public void createCreditApplication(StateExecution execution, 
+        @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  ...
+  info.applicationId = "abc";
+  execution.setNextState(acceptCreditApplication, "Credit application created", now());
+}
 
-  public void acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
-    ...
-    execution.setNextState(acceptCreditApplication, "Expecting manual credit decision", null);
-  }
+public void acceptCreditApplication(StateExecution execution, 
+        @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  ...
+  execution.setNextState(acceptCreditApplication, 
+        "Expecting manual credit decision", null);
+}
 
-  public void grantLoan(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) { ... }
-  public void finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) { ... }
-  public void done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) { ...  }
-  public void error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
-    ...
-    execution.setNextState(error);
-  }
+public void grantLoan(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info)
+public void finishCreditApplication(StateExecution execution, 
+        @StateVar(value=VAR_KEY) WorkflowInfo info)
+public void done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info)
+public void error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  ...
+  execution.setNextState(error);
+}
 ```
 
 ## Interacting with nFlow
@@ -149,37 +172,33 @@ TODO
 * State variables
 * Retrying
 
-# Versioning
+# <a name="configuration"></a>Configuration
 
-nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/)
-
-# Configuration
-
-## nFlow Properties
+## <a name="nflow-properties"></a>nFlow Properties
 
 Default values for nFlow properties can be overridden by adding *<env>*.properties file to classpath and specifying *env* as system property. For instance, add *dev.properties* to classpath and add *-Denv=dev* to JVM startup parameters.
 
 TODO: table of nFlow properties and default values
 
-## Database
+## <a name="database"></a>Database
 
 PostgreSQL, MySQL/MariaDB and H2 supported...
 Database structures initialized manually or automatically...
 Description of database tables...
 
-## Security
+## <a name="security"></a>Security
 
 Currently nFlow does not come with any security framework. You can add your own layer of security e.g. through Spring Security if you wish.
 
-# REST API
-
-## Swagger
-
-# Deployment
-
-## Logging
+## <a name="logging"></a>Logging
 
 nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](https://github.com/NitorCreations/nflow/tree/master/nflow-jetty) uses [Logback](http://logback.qos.ch/) as the logging implementation.
 
-## JMX
+# <a name="other-stuff"></a>Other Stuff
+
+## <a name="versioning"></a>Versioning
+
+nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/)
+
+## <a name="rest-api"></a>REST API
 
