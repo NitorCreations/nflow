@@ -33,6 +33,8 @@ nFlow non-goals are important to understand as well:
     * [nflow-rest-api](#nflow-properties-nflow-rest-api)
     * [nflow-jetty](#nflow-properties-nflow-jetty)
   * [Database](#database)
+    * [Create nFlow Database](#database-create-nflow-database)
+    * [Initialize and Use nFlow Database](database-initialize-and-use-nflow-database)
   * [Security](#security)
   * [Logging](#logging)
 * [Other Stuff](#other-stuff)
@@ -63,7 +65,9 @@ public class App {
   }
 }
 ```
-That's it! Running *App* will start nFlow server though without any workflow definitions. See the next sections for creating your own workflow definitions.
+That's it! Running *App* will start nFlow server though without any workflow definitions. 
+Point your browser to http://localhost:7500/ui and you can use interactive online documentation for the nFlow REST API. 
+See the next sections for creating your own workflow definitions.
 
 ## <a name="components"></a>Components
 
@@ -243,11 +247,11 @@ nFlow supports the following databases:
 * MySQL/MariaDB (MariaDB version 10.0 tested)
 * H2 (version 1.4.178 tested)
 
-### Create nFlow Database
+### <a name="database-create-nflow-database"></a>Create nFlow Database
 
 First you need to create a database for nFlow, unless you're using memory-based H2 which is suitable for development and testing. 
 
-### Initialize and Use nFlow Database
+### <a name="database-initialize-and-use-nflow-database"></a>Initialize and Use nFlow Database
 
 After creating nFlow database, override the default nFlow database properties whose name is prefixed by _nflow.db_ as described [above](#nflow-properties).
 
@@ -267,7 +271,21 @@ nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](h
 
 ## <a name="versioning"></a>Versioning
 
-nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/)
++nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/). Currently nFlow is in initial development phase, and API may change and features may be added or removed. Once API becames stable, we will release version 1.0.0.
 
 ## <a name="rest-api"></a>REST API
 
+nFlow REST API supports currently following operations:
+
+* `GET /v0/workflow-definition`
+ * Get definition of a workflow: all possible states, transitions between states, and other setting related to the workflow.
+* `GET /v0/workflow-instance`
+ * Query list of workflow instances with different query criterias
+* `GET /v0/workflow-instance/{id}`
+ * Fetch full state and history of single workflow instance 
+* `PUT /v0/workflow-instance`
+ * Create a new workflow instance that will be processed as soon as there are free WorkflowExecutors.
+* `PUT /v0/workflow-instance/{id}`
+ * Update existing workflow instance. This is typically used in manual step via some UI.
+
+nFlow REST API is described in more detail via [Swagger](https://helloreverb.com/developers/swagger) documentation system. Swagger documentation is included automatically in nflow-jetty.
