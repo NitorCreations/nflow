@@ -117,7 +117,7 @@ class WorkflowExecutor implements Runnable {
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
-    return !now().isBefore(execution.getNextActivation()) && execution.getNextActivation() != null;
+    return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
   private void processState(WorkflowInstance instance,
