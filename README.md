@@ -40,6 +40,7 @@ nFlow non-goals are important to understand as well:
 * [Other Stuff](#other-stuff)
   * [Versioning](#versioning)
   * [REST API](#rest-api)
+  * [Licence](#licence)
 
 # <a name="getting-started"></a>Getting Started
 
