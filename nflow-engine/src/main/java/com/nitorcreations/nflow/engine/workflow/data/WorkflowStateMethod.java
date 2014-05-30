@@ -3,6 +3,9 @@ package com.nitorcreations.nflow.engine.workflow.data;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
+@SuppressWarnings(value="EI_EXPOSE_REP2", justification = "internal class, not important for security")
 public class WorkflowStateMethod {
   public final Method method;
   final StateParameter[] params;
