@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.StateVar;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
@@ -26,6 +27,7 @@ import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
 public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicationWorkflow.State> {
 
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
+  private static final String VAR_KEY = "info";
 
   public static enum State implements com.nitorcreations.nflow.engine.workflow.WorkflowState {
     createCreditApplication(start, "Credit application is persisted to database"),
@@ -67,33 +69,34 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     permit(finishCreditApplication, done);
   }
 
-  public void createCreditApplication(StateExecution execution) {
+  public void createCreditApplication(StateExecution execution, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using execution.requestData");
+    info.applicationId = "abc";
     execution.setNextState(acceptCreditApplication, "Credit application created", now());
   }
 
-  public void acceptCreditApplication(StateExecution execution) {
+  public void acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: descheduling workflow instance, next state set externally");
     execution.setNextState(acceptCreditApplication, "Expecting manual credit decision", null);
   }
 
-  public void grantLoan(StateExecution execution) {
+  public void grantLoan(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for granting a loan");
     throw new RuntimeException("Failed to create loan");
   }
 
-  public void finishCreditApplication(StateExecution execution) {
+  public void finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for updating credit application status");
     execution.setNextState(done, "Credit application finished", now());
   }
 
-  public void done(StateExecution execution) {
+  public void done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("Credit application process ended");
     execution.setNextState(done);
     execution.setSaveTrace(false);
   }
 
-  public void error(StateExecution execution) {
+  public void error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: some UI should poll for workflows that have reached error state");
     execution.setNextState(error);
   }
@@ -106,6 +109,10 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
       this.customerId = customerId;
       this.amount = amount;
     }
+  }
+
+  public static class WorkflowInfo {
+    public String applicationId;
   }
 
   public static class CreditApplicationWorkflowSettings extends WorkflowSettings {
