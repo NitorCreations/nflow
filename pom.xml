@@ -23,6 +23,11 @@
     <url>http://www.nitorcreations.com</url>
   </organization>
   <inceptionYear>2014</inceptionYear>
+  <scm>
+    <developerConnection>scm:git:git@github.com:NitorCreations/nflow.git</developerConnection>
+    <connection>scm:git:git@github.com:NitorCreations/nflow.git</connection>
+    <tag>HEAD</tag>
+  </scm>
   <issueManagement>
     <system>Github</system>
     <url>https://github.com/NitorCreations/nflow/issues</url>
