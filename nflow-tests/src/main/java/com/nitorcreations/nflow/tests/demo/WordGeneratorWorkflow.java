@@ -24,7 +24,7 @@ public class WordGeneratorWorkflow extends
         0.06327), t(0.09056), u(0.02758), v(0.00978), w(0.02360), x(0.00150), y(
         0.01974), z(0.00074), end(0.13012), error(WorkflowStateType.end);
 
-    private final double fraction;
+    final double fraction;
     private final WorkflowStateType type;
 
     private State(WorkflowStateType type) {
@@ -54,7 +54,7 @@ public class WordGeneratorWorkflow extends
     public String getDescription() {
       return name();
     }
-  };
+  }
 
   protected WordGeneratorWorkflow(String flowName) {
     super(flowName, randState(), State.error);

@@ -42,9 +42,9 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   public void t02_checkAcceptCreditApplicationReached() throws InterruptedException {
-    ListWorkflowInstanceResponse resp = getWorkflowInstance(req.externalId, "acceptCreditApplication");
-    assertThat(resp.state, is("acceptCreditApplication"));
-    assertThat(resp.nextActivation, nullValue());
+    ListWorkflowInstanceResponse response = getWorkflowInstance(req.externalId, "acceptCreditApplication");
+    assertThat(response.state, is("acceptCreditApplication"));
+    assertThat(response.nextActivation, nullValue());
   }
 
   @Test
@@ -57,9 +57,9 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   public void t04_checkErrorStateReached() throws InterruptedException {
-    ListWorkflowInstanceResponse resp = getWorkflowInstance(req.externalId, "error");
-    assertThat(resp.state, is("error"));
-    assertThat(resp.nextActivation, nullValue());
+    ListWorkflowInstanceResponse response = getWorkflowInstance(req.externalId, "error");
+    assertThat(response.state, is("error"));
+    assertThat(response.nextActivation, nullValue());
   }
 
   // TODO: replace with id query when /v0/workflow-instance/{id} exists
