@@ -32,6 +32,28 @@
     <system>Github</system>
     <url>https://github.com/NitorCreations/nflow/issues</url>
   </issueManagement>
+  <developers>
+  	<developer>
+ 		<name>Esa Puttonen</name>
+ 		<organization>Nitor Creations Oy</organization>
+  	</developer>
+  	<developer>
+ 		<name>Mikko Tiihonen</name>
+ 		<organization>Nitor Creations Oy</organization>
+  	</developer>
+  	<developer>
+ 		<name>Juha Syrjälä</name>
+ 		<organization>Nitor Creations Oy</organization>
+  	</developer>
+  	<developer>
+ 		<name>Isto Nikula</name>
+ 		<organization>Nitor Creations Oy</organization>
+  	</developer>
+  	<developer>
+ 		<name>Edvard Fonsell</name>
+ 		<organization>Nitor Creations Oy</organization>
+  	</developer>
+  </developers>
   <modules>
     <module>nflow-rest-api</module>
     <module>nflow-engine</module>
