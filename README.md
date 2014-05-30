@@ -326,6 +326,8 @@ nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](h
 
 nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/). Currently nFlow is in initial development phase, and API may change and features may be added or removed. Once API becames stable, we will release version 1.0.0.
 
+<a href="https://github.com/NitorCreations/nflow/blob/master/CHANGELOG.md">CHANGELOG.md</a> contains the version history.
+
 ## <a name="rest-api"></a>REST API
 
 nFlow REST API supports currently following operations:
