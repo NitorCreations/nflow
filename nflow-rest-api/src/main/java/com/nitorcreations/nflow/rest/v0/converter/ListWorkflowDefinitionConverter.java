@@ -12,8 +12,8 @@ import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.Settings;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.State;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.TransitionDelays;
+import com.nitorcreations.nflow.rest.v0.msg.State;
 
 @Component
 public class ListWorkflowDefinitionConverter {

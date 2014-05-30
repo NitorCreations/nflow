@@ -19,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.rest.v0.DummyTestWorkflow;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v0.msg.State;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ListWorkflowDefinitionConverterTest {
@@ -49,9 +50,9 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.settings.maxRetries, is(def.getSettings().getMaxRetries()));
   }
 
-  private ListWorkflowDefinitionResponse.State getResponseState(DummyTestWorkflow.State workflowState,
+  private State getResponseState(DummyTestWorkflow.State workflowState,
       List<String> nextStateNames, String errorStateName) {
-    ListWorkflowDefinitionResponse.State state = new ListWorkflowDefinitionResponse.State(workflowState.name(),
+    State state = new State(workflowState.name(),
         workflowState.getType().name(), workflowState.getName(), workflowState.getDescription());
     state.transitions.addAll(nextStateNames);
     state.onFailure = errorStateName;
