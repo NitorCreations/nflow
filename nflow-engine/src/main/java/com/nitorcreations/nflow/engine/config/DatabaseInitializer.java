@@ -15,7 +15,7 @@ public class DatabaseInitializer {
   private static final Logger logger = getLogger(DatabaseInitializer.class);
 
   public DatabaseInitializer(DataSource ds, Environment env) {
-    if (!env.getRequiredProperty("db.create.on.startup", Boolean.class)) {
+    if (!env.getRequiredProperty("nflow.db.create_on_startup", Boolean.class)) {
       return;
     }
 
@@ -39,10 +39,10 @@ public class DatabaseInitializer {
   }
 
   private ClassPathResource resolveScript(Environment env) {
-    String dbType = env.getRequiredProperty("db.type");
+    String dbType = env.getRequiredProperty("nflow.db.type");
     ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
     if (!script.exists()) {
-      throw new IllegalArgumentException("Unsupported database type (db.type): " + dbType);
+      throw new IllegalArgumentException("Unsupported database type (nflow.db.type): " + dbType);
     }
     return script;
   }

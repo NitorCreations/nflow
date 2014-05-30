@@ -23,10 +23,10 @@ public class WorkflowSettings {
   @Inject
   public WorkflowSettings(Environment env) {
     this.env = env;
-    errorTransitionDelay = getIntegerProperty("transition.delay.waiterror.ms", (int) HOURS.toMillis(2));
-    shortTransitionDelay = getIntegerProperty("transition.delay.waitshort.ms", (int) SECONDS.toMillis(30));
-    immediateTransitionDelay = getIntegerProperty("transition.delay.immediate.ms", 0);
-    maxRetries = getIntegerProperty("max.state.retries", 3);
+    errorTransitionDelay = getIntegerProperty("nflow.transition.delay.waiterror.ms", (int) HOURS.toMillis(2));
+    shortTransitionDelay = getIntegerProperty("nflow.transition.delay.waitshort.ms", (int) SECONDS.toMillis(30));
+    immediateTransitionDelay = getIntegerProperty("nflow.transition.delay.immediate.ms", 0);
+    maxRetries = getIntegerProperty("nflow.max.state.retries", 3);
   }
 
   public DateTime getErrorTransitionActivation() {

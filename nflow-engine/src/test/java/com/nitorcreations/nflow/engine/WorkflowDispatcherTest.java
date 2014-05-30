@@ -47,7 +47,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
 
   @Before
   public void setup() {
-    when(env.getProperty("dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
+    when(env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
 
     dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, env);
     shutdownThread = newShutdownThread();

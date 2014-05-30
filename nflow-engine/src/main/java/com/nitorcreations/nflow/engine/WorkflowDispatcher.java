@@ -34,7 +34,7 @@ public class WorkflowDispatcher implements Runnable {
     this.pool = pool;
     this.repository = repository;
     this.executorFactory = executorFactory;
-    this.sleepTime = env.getProperty("dispatcher.sleep.ms", Long.class, 5000l);
+    this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
   }
 
   @Override

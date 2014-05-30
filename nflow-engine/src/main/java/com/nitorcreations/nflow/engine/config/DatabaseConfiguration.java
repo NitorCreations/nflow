@@ -15,11 +15,11 @@ public class DatabaseConfiguration {
   @Bean(name="nflow-datasource")
   public DataSource datasource(Environment env) throws ClassNotFoundException {
     HikariConfig config = new HikariConfig();
-    config.setDataSourceClassName(env.getRequiredProperty("db.driver"));
-    config.addDataSourceProperty("url", env.getRequiredProperty("db.url"));
-    config.addDataSourceProperty("user", env.getRequiredProperty("db.user"));
-    config.addDataSourceProperty("password", env.getRequiredProperty("db.password"));
-    config.setMaximumPoolSize(env.getRequiredProperty("db.max.pool.size", Integer.class));
+    config.setDataSourceClassName(env.getRequiredProperty("nflow.db.driver"));
+    config.addDataSourceProperty("url", env.getRequiredProperty("nflow.db.url"));
+    config.addDataSourceProperty("user", env.getRequiredProperty("nflow.db.user"));
+    config.addDataSourceProperty("password", env.getRequiredProperty("nflow.db.password"));
+    config.setMaximumPoolSize(env.getRequiredProperty("nflow.db.max_pool_size", Integer.class));
     return new HikariDataSource(config);
   }
 
