@@ -2,21 +2,28 @@ package com.nitorcreations.nflow.engine;
 
 import java.util.concurrent.BlockingQueue;
 
+import javax.inject.Inject;
+
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+@Component
 public class CongestionControl {
   private final BlockingQueue<Runnable> queue;
   private final int waitUntilQueueThreshold;
   private final Monitor monitor = new Monitor();
 
-  public CongestionControl(ThreadPoolTaskExecutor pool, int waitUntilQueueThreshold) {
-    this.waitUntilQueueThreshold = waitUntilQueueThreshold;
+  @Inject
+  public CongestionControl(ThreadPoolTaskExecutor pool, Environment env) {
+    this.waitUntilQueueThreshold =
+        env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0);
     this.queue = pool.getThreadPoolExecutor().getQueue();
   }
 
-  synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
+  public synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
     monitor.waitUntilQueueUnderThreshold();
   }
 

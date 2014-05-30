@@ -12,13 +12,17 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import edu.umd.cs.mtc.MultithreadedTestCase;
+import edu.umd.cs.mtc.TestFramework;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
@@ -26,13 +30,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 
-import edu.umd.cs.mtc.MultithreadedTestCase;
-import edu.umd.cs.mtc.TestFramework;
-
-@SuppressWarnings("unused")
-public class WorkflowDispatcherTest extends BaseNflowTest {
+@RunWith(MockitoJUnitRunner.class)
+public class WorkflowDispatcherTest {
   WorkflowDispatcher dispatcher;
   ThreadPoolTaskExecutor pool;
+  CongestionControl congestionCtrl;
 
   @Mock RepositoryService repository;
 
@@ -45,7 +47,8 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
     when(env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
     pool = dispatcherPoolExecutor();
-    dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, env);
+    congestionCtrl = new CongestionControl(pool, env);
+    dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, congestionCtrl, env);
   }
 
   @Test
@@ -184,7 +187,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(pool);
-        dispatcher = new WorkflowDispatcher(poolSpy, repository, executorFactory, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, repository, executorFactory, congestionCtrl, env);
       }
 
       public void threadDispatcher() {

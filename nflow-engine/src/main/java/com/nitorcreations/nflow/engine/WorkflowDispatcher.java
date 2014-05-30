@@ -31,13 +31,12 @@ public class WorkflowDispatcher implements Runnable {
 
   @Inject
   public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, RepositoryService repository,
-      WorkflowExecutorFactory executorFactory, Environment env) {
+      WorkflowExecutorFactory executorFactory, CongestionControl congestionCtrl, Environment env) {
     this.pool = pool;
     this.repository = repository;
     this.executorFactory = executorFactory;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
-    this.congestionCtrl = new CongestionControl(pool,
-        env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
+    this.congestionCtrl = congestionCtrl;
   }
 
   @Override
