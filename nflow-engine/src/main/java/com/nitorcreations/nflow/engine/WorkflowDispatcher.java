@@ -3,7 +3,7 @@ package com.nitorcreations.nflow.engine;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
@@ -114,7 +114,7 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   static class Monitor implements ListenableFutureCallback<Object> {
-    private final Queue<Runnable> queue;
+    private final BlockingQueue<Runnable> queue;
     private final long sleepTime;
 
     public Monitor(ThreadPoolTaskExecutor pool, long sleepTime) {
