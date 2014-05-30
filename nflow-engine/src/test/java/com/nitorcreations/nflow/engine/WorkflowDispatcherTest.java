@@ -44,6 +44,7 @@ public class WorkflowDispatcherTest extends BaseNflowTest {
   @Before
   public void setup() {
     when(env.getProperty("dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
+    when(env.getProperty("dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
     pool = dispatcherPoolExecutor();
     dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, env);
   }

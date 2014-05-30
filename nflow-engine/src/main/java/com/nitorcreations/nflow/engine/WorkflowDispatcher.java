@@ -32,7 +32,6 @@ public class WorkflowDispatcher implements Runnable {
   private final WorkflowExecutorFactory executorFactory;
   private final long sleepTime;
 
-
   @Inject
   public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, RepositoryService repository,
       WorkflowExecutorFactory executorFactory, Environment env) {
@@ -40,7 +39,8 @@ public class WorkflowDispatcher implements Runnable {
     this.repository = repository;
     this.executorFactory = executorFactory;
     this.sleepTime = env.getProperty("dispatcher.sleep.ms", Long.class, 5000l);
-    this.monitor = new Monitor(pool, sleepTime);
+    this.monitor = new Monitor(pool, sleepTime,
+        env.getProperty("dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
   }
 
   @Override
@@ -49,7 +49,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          monitor.waitUntilQueueEmpty();
+          monitor.waitUntilQueueUnderThreshold();
 
           if (!shutdownRequested) {
             dispatch(getNextInstanceIds());
@@ -116,14 +116,16 @@ public class WorkflowDispatcher implements Runnable {
   static class Monitor implements ListenableFutureCallback<Object> {
     private final BlockingQueue<Runnable> queue;
     private final long sleepTime;
+    private final int waitUntilQueueThreshold;
 
-    public Monitor(ThreadPoolTaskExecutor pool, long sleepTime) {
+    public Monitor(ThreadPoolTaskExecutor pool, long sleepTime, int waitUntilQueueThreshold) {
+      this.waitUntilQueueThreshold = waitUntilQueueThreshold;
       this.queue = pool.getThreadPoolExecutor().getQueue();
       this.sleepTime = sleepTime;
     }
 
-    synchronized void waitUntilQueueEmpty() throws InterruptedException {
-      while (!queue.isEmpty()) {
+    synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
+      while (queue.size() > waitUntilQueueThreshold) {
         wait(sleepTime);
       }
     }
