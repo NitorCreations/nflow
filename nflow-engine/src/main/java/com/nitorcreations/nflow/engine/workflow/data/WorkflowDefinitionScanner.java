@@ -4,6 +4,7 @@ import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ClassUtils.primitiveToWrapper;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.doWithMethods;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
@@ -33,6 +35,9 @@ import com.nitorcreations.nflow.engine.workflow.StateVar;
 import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod.StateParameter;
 
 public class WorkflowDefinitionScanner {
+
+  private static final Logger logger = getLogger(WorkflowDefinitionScanner.class);
+
   private static final Set<Type> knownImmutableTypes = new HashSet<>();
   {
     knownImmutableTypes.addAll(asList(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class, BigDecimal.class, BigInteger.class, Enum.class));
@@ -89,7 +94,7 @@ public class WorkflowDefinitionScanner {
         ctr.newInstance();
         return ctr;
       } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        // ignore
+        logger.warn("Could not instantiate " + clazz + " using empty constructor", e);
       }
     }
     return null;
