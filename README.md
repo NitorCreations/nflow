@@ -1,4 +1,4 @@
-# nFlow Goals and Non-Goals
+# nFlow Goals and Non-Goals [![Build Status](https://travis-ci.org/NitorCreations/nflow.svg?branch=master)](https://travis-ci.org/NitorCreations/nflow)
 
 nFlow is a light weight business process engine with emphasis on the following goals or features.
 
