@@ -94,7 +94,7 @@ public class WorkflowInstanceResource {
 
   @GET
   @Path("/{id}")
-  @ApiOperation(value = "Fetch a workflow instance")
+  @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance")
       @PathParam("id") int id
