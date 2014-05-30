@@ -3,7 +3,6 @@ package com.nitorcreations.nflow.engine;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
@@ -13,8 +12,6 @@ import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 
@@ -25,7 +22,7 @@ public class WorkflowDispatcher implements Runnable {
 
   private volatile boolean shutdownRequested;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
-  private final Monitor monitor;
+  private final CongestionControl congestionCtrl;
 
   private final ThreadPoolTaskExecutor pool;
   private final RepositoryService repository;
@@ -39,7 +36,7 @@ public class WorkflowDispatcher implements Runnable {
     this.repository = repository;
     this.executorFactory = executorFactory;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
-    this.monitor = new Monitor(pool,
+    this.congestionCtrl = new CongestionControl(pool,
         env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
   }
 
@@ -49,7 +46,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          monitor.waitUntilQueueUnderThreshold();
+          congestionCtrl.waitUntilQueueUnderThreshold();
 
           if (!shutdownRequested) {
             dispatch(getNextInstanceIds());
@@ -95,8 +92,7 @@ public class WorkflowDispatcher implements Runnable {
 
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Integer instanceId : nextInstanceIds) {
-      ListenableFuture<?> listenableFuture = pool.submitListenable(executorFactory.createExecutor(instanceId));
-      listenableFuture.addCallback(monitor);
+      congestionCtrl.register(pool.submitListenable(executorFactory.createExecutor(instanceId)));
     }
   }
 
@@ -110,32 +106,6 @@ public class WorkflowDispatcher implements Runnable {
     try {
       Thread.sleep(sleepTime);
     } catch (InterruptedException ok) {
-    }
-  }
-
-  static class Monitor implements ListenableFutureCallback<Object> {
-    private final BlockingQueue<Runnable> queue;
-    private final int waitUntilQueueThreshold;
-
-    public Monitor(ThreadPoolTaskExecutor pool, int waitUntilQueueThreshold) {
-      this.waitUntilQueueThreshold = waitUntilQueueThreshold;
-      this.queue = pool.getThreadPoolExecutor().getQueue();
-    }
-
-    synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
-      while (queue.size() > waitUntilQueueThreshold) {
-        wait();
-      }
-    }
-
-    @Override
-    public synchronized void onSuccess(Object result) {
-      notifyAll();
-    }
-
-    @Override
-    public synchronized void onFailure(Throwable t) {
-      notifyAll();
     }
   }
 }
