@@ -227,7 +227,7 @@ nFlow will autodetect your `WorkflowDefinitions` that are defined as Spring bean
 
 If you don't want to learn Spring, you can only use [Full nFlow Stack](#usage-scenarios-full-nflow-stack)-scenario. 
 
-Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide). Then the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `nflow.non_spring_workflows_filename`. 
+Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide). Then add the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `nflow.non_spring_workflows_filename`. 
 
 See `nflow-tests`-module for an example.
 
