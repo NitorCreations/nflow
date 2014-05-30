@@ -77,7 +77,7 @@ public class WorkflowInstanceResource {
   public void updateWorkflowInstance(
       @ApiParam("Internal id for workflow instance")
       @PathParam("id") int id,
-      UpdateWorkflowInstanceRequest req) throws JsonProcessingException {
+      UpdateWorkflowInstanceRequest req) {
     // TODO: requires more work, e.g. concurrent check with engine, validation
     WorkflowInstance instance = repositoryService.getWorkflowInstance(id);
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
@@ -97,8 +97,7 @@ public class WorkflowInstanceResource {
   @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance")
-      @PathParam("id") int id
-      ) throws JsonProcessingException {
+      @PathParam("id") int id) {
     Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null, "actions");
     if(instances.isEmpty()) {
       return null;
@@ -126,7 +125,7 @@ public class WorkflowInstanceResource {
       String externalId,
       @QueryParam("include")
       @ApiParam(value = "Data to include in response. actions = state transitions.", allowableValues="actions")
-      String include) throws JsonProcessingException {
+      String include) {
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
         .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
     Collection<WorkflowInstance> instances = repositoryService.listWorkflowInstances(q);

@@ -81,7 +81,7 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWorks() throws JsonProcessingException {
+  public void updateWorkflowInstanceWorks() {
     when(repositoryService.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
@@ -91,7 +91,7 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void listWorkflowInstancesWorks() throws JsonProcessingException {
+  public void listWorkflowInstancesWorks() {
     resource.listWorkflowInstances(new Integer[]{42}, new String[] { "type" }, new String[] { "state" }, "businessKey", "externalId", "actions");
     verify(repositoryService).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
@@ -104,7 +104,7 @@ public class WorkflowInstanceResourceTest {
 
 
   @Test
-  public void fetchWorkflowInstancesWorks() throws JsonProcessingException {
+  public void fetchWorkflowInstancesWorks() {
     resource.fetchWorkflowInstance(42);
     verify(repositoryService).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),

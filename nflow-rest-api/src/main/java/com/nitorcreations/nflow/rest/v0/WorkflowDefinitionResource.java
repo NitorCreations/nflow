@@ -18,7 +18,6 @@ import javax.ws.rs.QueryParam;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
@@ -45,7 +44,7 @@ public class WorkflowDefinitionResource {
 
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowDefinitionResponse> listWorkflowInstances(@QueryParam("type") String[] types) throws JsonProcessingException {
+  public Collection<ListWorkflowDefinitionResponse> listWorkflowInstances(@QueryParam("type") String[] types) {
     List<WorkflowDefinition<? extends WorkflowState>> definitions = repositoryService.getWorkflowDefinitions();
     Set<String> reqTypes = new HashSet<>(Arrays.asList(types));
     Collection<ListWorkflowDefinitionResponse> response = new ArrayList<>();

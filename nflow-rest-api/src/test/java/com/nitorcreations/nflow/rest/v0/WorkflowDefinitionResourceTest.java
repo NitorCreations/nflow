@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.service.RepositoryService;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
@@ -43,13 +42,13 @@ public class WorkflowDefinitionResourceTest {
   }
 
   @Test
-  public void listWorkflowInstancesFindsExistingDefinition() throws JsonProcessingException {
+  public void listWorkflowInstancesFindsExistingDefinition() {
     Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowInstances(new String[] { "dummy" } );
     Assert.assertThat(ret.size(), equalTo(1));
   }
 
   @Test
-  public void listWorkflowInstancesNotFindsNonExistentDefinition() throws JsonProcessingException {
+  public void listWorkflowInstancesNotFindsNonExistentDefinition() {
     Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowInstances(new String[] { "nonexistent" } );
     Assert.assertThat(ret.size(), equalTo(0));
   }
