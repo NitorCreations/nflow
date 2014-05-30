@@ -58,6 +58,12 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getRequestData(Class<T> type) {
+    return (T) objectMapper.convertToObject(type, "request", instance.requestData);
+  }
+
+  @Override
   public int getRetries() {
     return instance.retries;
   }
