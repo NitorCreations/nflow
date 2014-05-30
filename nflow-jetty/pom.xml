@@ -80,9 +80,8 @@
       <artifactId>h2</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sourceforge.findbugs</groupId>
+      <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
