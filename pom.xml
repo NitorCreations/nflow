@@ -187,6 +187,10 @@
           <version>${maven-cobertura.version}</version>
           <configuration>
             <aggregate>true</aggregate>
+            <formats>
+              <format>xml</format>
+              <format>html</format>
+            </formats>
           </configuration>
         </plugin>
         <plugin>
