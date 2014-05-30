@@ -201,7 +201,7 @@ nFlow will autodetect your `WorkflowDefinitions` that are defined as Spring bean
 
 If you don't want to learn Spring, you can only use [Full nFlow Stack](#usage-scenarios-full-nflow-stack)-scenario. 
 
-Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide). Then the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `non.spring.workflows.filename`. 
+Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide). Then the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `nflow.non_spring_workflows_filename`. 
 
 See `nflow-tests`-module for an example.
 
@@ -228,8 +228,9 @@ Properties whose name ends to _.ms_ define milliseconds.
 | nflow.db.user | sa | nFlow database user |
 | nflow.db.password | _empty_ | nFlow database user password |
 | nflow.db.type | h2 | nFlow database type (supported: h2, mysql, postgresql) |
-| nflow.db.max.pool.size | 4 | Maximum size of database connection pool |
+| nflow.db.max_pool_size | 4 | Maximum size of database connection pool |
 | nflow.db.create_on_startup | true | Automatically create missing database structures (note: cannot manage nflow version updates) |
+| nflow.non_spring_workflows_filename | 
 
 ### nflow-rest-api
 
