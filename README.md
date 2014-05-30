@@ -70,7 +70,7 @@ public class App {
   }
 }
 ```
-That's it! Running *App* will start nFlow server though without any workflow definitions. 
+That's it! Running `App` will start nFlow server though without any workflow definitions. 
 Point your browser to [http://localhost:7500/ui](http://localhost:7500/ui) and you can use interactive online documentation for the nFlow REST API. 
 See the next sections for creating your own workflow definitions.
 
@@ -78,7 +78,7 @@ See the next sections for creating your own workflow definitions.
 
 nFlow consist of the following main components, each having the previous component as a dependency.
  1. **nflow-engine** contains a multithreaded workflow dispatcher, Java API for managing workflows and the persistance layer implementation. 
- 2. **nflow-rest** contains a JAX-RS compliant REST service implementation for exposing workflow management and query APIs.
+ 2. **nflow-rest-api** contains a JAX-RS compliant REST service implementation for exposing workflow management and query APIs.
  3. **nflow-jetty** contains an embeddable Jetty server for running nFlow with your custom workflows.
 
 In addition, nflow-tests component contains integration tests over demo workflows.
@@ -89,13 +89,19 @@ The following example scenarios illustrate how you can use nFlow with your appli
 
 ### <a name="usage-scenarios-embedded-engine-only"></a>Scenario 1: Embedded Engine Only
 
+Use embedded nflow-engine to run your own workflows inside your own application. 
+
 ![Scenario 1 picture](nflow-documentation/userguide/userguide-scenario-1.png)
 
 ### <a name="usage-scenarios-inside-your-application-server"></a>Scenario 2: Inside Your Application Server
 
+Same as the previous scenario except you've exposed nFlow services through REST services implemented in nflow-rest-api. You can use any REST stack (e.g. Jersey, Apache CXF, etc) that supports JAX-RS specification. 
+
 ![Scenario 2 picture](nflow-documentation/userguide/userguide-scenario-2.png)
 
 ### <a name="usage-scenarios-full-nflow-stack"></a>Scenario 3: Full nFlow Stack
+
+Full blown nFlow running on embedded Jetty (nflow-jetty -module). 
 
 ![Scenario 3 picture](nflow-documentation/userguide/userguide-scenario-3.png)
 
@@ -109,7 +115,7 @@ A workflow can be composed of human tasks (e.g. accept application), technical t
 
 ### <a name="implementation-class-and-states-declarations"></a>Implementation Class and States Declarations
 
-`CreditApplicationWorkflow` begins by extends [`WorkflowDefinition`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/WorkflowDefinition.java) which is the base class for all workflow implementations in nFlow. The state space of the workflow is enumerated after the class declaration. In this example, the states are also given a type and documentation. The following state types are supported (`WorkflowStateType`-enumeration):
+`CreditApplicationWorkflow` begins by extending [`WorkflowDefinition`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/WorkflowDefinition.java) which is the base class for all workflow implementations in nFlow. The state space of the workflow is enumerated after the class declaration. In this example, the states are also given a type and documentation. The following state types are supported (`WorkflowStateType`-enumeration):
  * **start:** an entry point to the workflow
  * **manual:** requires external state update (usually a human task required)
  * **normal:** state is executed and retried automatically by nFlow
@@ -151,9 +157,7 @@ public CreditApplicationWorkflow() {
 
 ### <a name="state-handler-methods"></a>State Handler Methods
 
-For each state there must exist a state handler method with the same name. The state handler method must be a `public` method that takes [`StateExecution`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/StateExecution.java) as an argument. `StateExecution` contains the main interface through which workflow implementation can interact with nFlow (see next section).
-
-Optionally you can define `@StateVar`-annotated POJOs (must have zero argument constructor) or Java primitive types as additional arguments after `StateExecution`. The additional arguments are automatically persisted by nFlow after state execution and passed automatically to subsequent state handler methods (see state variables in next section). In `CreditApplicationWorkflow` class `WorkflowInfo` is instantiated automatically (`instantiateNull=true`) when `createCreditApplication`-method is entered. Values set in `createCreditApplication` are afterwards available in other state handler methods.
+For each state there must exist a state handler method with the same name. The state handler method must be a `public` method that takes [`StateExecution`](nflow-engine/src/main/java/com/nitorcreations/nflow/engine/workflow/StateExecution.java) as an argument. `StateExecution` contains the main interface through which workflow implementation can interact with nFlow (see next section). `StateExecution` can be followed by optional state variable definitions ([see state variables](#state-variables)).
 
 Each state handler method must define and schedule the next state execution. For instance, `CreditApplicationWorkflow.createCreditApplication()` defines that acceptCreditApplication-state is executed immediately next. Manual and final states (e.g. acceptCreditApplication and error) must unschedule themself.
 
@@ -189,7 +193,7 @@ The mechanisms described in this section should be sufficient to implement the i
 
 ### <a name="stateexecution-interface"></a>StateExecution -interface
 
-`StateExecution` is the access point for all the workflow instance-specific information. 
+`StateExecution` is the access point for all the workflow instance-specific information in state handler methods.
 * **businessKey:** optional business identifier (e.g. application id) for the workflow instance (read-only)
 * **requestData:** initial workflow instance business parameters (read-only)
 * **variables:** business process variables
@@ -200,10 +204,13 @@ The mechanisms described in this section should be sufficient to implement the i
 
 ### <a name="state-variables"></a>State Variables
 
-TODO
+State variables are persistent objects/values that are workflow instance specific. State variables are stored after successful state handler method execution and are available in subsequent states of the process.
+
+Optionally you can define `@StateVar`-annotated POJOs (must have zero argument constructor) or Java primitive types as additional arguments after `StateExecution` argument. The additional arguments are automatically persisted by nFlow after successful state execution. In `CreditApplicationWorkflow` class `WorkflowInfo` is instantiated automatically (`instantiateNull=true`) before `createCreditApplication`-method is entered. 
+
 ### <a name="workflow-settings"></a>WorkflowSettings -interface
 
-TODO
+`WorkflowSettings` can be accessed through `WorkflowDefinition.getSettings()`-method. Currently it contains timing and retry related parameters. 
 
 ## <a name="setting-up-your-nflow"></a>Setting Up Your nFlow
 
