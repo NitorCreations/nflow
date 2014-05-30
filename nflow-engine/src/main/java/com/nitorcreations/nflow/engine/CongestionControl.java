@@ -23,7 +23,7 @@ public class CongestionControl {
     this.queue = pool.getThreadPoolExecutor().getQueue();
   }
 
-  public synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
+  public void waitUntilQueueUnderThreshold() throws InterruptedException {
     monitor.waitUntilQueueUnderThreshold();
   }
 
