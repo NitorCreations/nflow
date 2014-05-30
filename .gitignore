@@ -1,6 +1,6 @@
 .classpath
 .project
-/*/log
+/*/*log
 target
 .idea
 *.iml
