@@ -11,7 +11,7 @@
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <url>https://github.com/NitorCreations/nflow</url>
   <licenses>
     <license>
@@ -31,7 +31,7 @@
   <scm>
     <developerConnection>scm:git:git@github.com:NitorCreations/nflow.git</developerConnection>
     <connection>scm:git:git@github.com:NitorCreations/nflow.git</connection>
-    <tag>nflow-root-0.1.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>Github</system>
