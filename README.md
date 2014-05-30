@@ -256,8 +256,8 @@ First you need to create a database for nFlow, unless you're using memory-based 
 After creating nFlow database, override the default nFlow database properties whose name is prefixed by _nflow.db_ as described [above](#nflow-properties).
 
 There're two options for creating nFlow database structures:
-1. Start nFlow with _nflow.db.create_on_startup_ property set to true: missing database objects will be created automatically.
-2. Connect to the database using your favourite client and execute the database specific DDL in _nflow-engine/src/main/resources/scripts/db_ directory.
+ 1. Start nFlow with _nflow.db.create_on_startup_ property set to true: missing database objects will be created automatically.
+ 2. Connect to the database using your favourite client and execute the database specific DDL in _nflow-engine/src/main/resources/scripts/db_ directory.
 
 ## <a name="security"></a>Security
 
@@ -271,7 +271,7 @@ nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](h
 
 ## <a name="versioning"></a>Versioning
 
-+nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/). Currently nFlow is in initial development phase, and API may change and features may be added or removed. Once API becames stable, we will release version 1.0.0.
+nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/). Currently nFlow is in initial development phase, and API may change and features may be added or removed. Once API becames stable, we will release version 1.0.0.
 
 ## <a name="rest-api"></a>REST API
 
