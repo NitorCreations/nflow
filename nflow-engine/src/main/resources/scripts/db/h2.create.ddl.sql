@@ -13,6 +13,7 @@ create table if not exists nflow_workflow (
   modified timestamp not null default current_timestamp,
   owner varchar(64)
 );
+create trigger if not exists nflow_workflow_modified after update on nflow_workflow for each row call "com.nitorcreations.nflow.engine.dao.H2ModifiedColumnTrigger";
 
 create unique index if not exists nflow_workflow_uniq on nflow_workflow (type, external_id);
 
@@ -33,7 +34,7 @@ create table if not exists nflow_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
-  state_value varchar(1024) not null,
+  state_value varchar(10240) not null,
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );

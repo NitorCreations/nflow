@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.engine.dao;
 
 import static java.lang.System.currentTimeMillis;
-import static org.joda.time.DateTime.now;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -11,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -247,7 +245,7 @@ public class RepositoryDao {
 
     private final static String updateSql =
         "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
-        + "is_processing = ?, retries = ?, modified = ? where id = ?";
+        + "is_processing = ?, retries = ? where id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
       this.isInsert = isInsert;
@@ -272,15 +270,10 @@ public class RepositoryDao {
       }
       ps.setString(p++, instance.state);
       ps.setString(p++, instance.stateText);
-      if (instance.nextActivation == null) {
-        ps.setNull(p++, Types.TIMESTAMP);
-      } else {
-        ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-      }
+      ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
       ps.setBoolean(p++, instance.processing);
       if (!isInsert) {
         ps.setInt(p++, instance.retries);
-        ps.setTimestamp(p++, toTimestamp(now()));
         ps.setInt(p++, instance.id);
       }
       return ps;
