@@ -16,8 +16,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
+import com.nitorcreations.nflow.rest.v0.msg.Action;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse.Action;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ListWorkflowInstanceConverterTest {
