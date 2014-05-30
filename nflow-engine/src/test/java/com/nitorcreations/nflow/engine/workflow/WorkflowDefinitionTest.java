@@ -12,6 +12,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
+
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,10 +45,10 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void getStatesWorks() {
-    TestDefinition def = new TestDefinition("x", TestState.start);
+    TestDefinition2 def = new TestDefinition2("x", TestState2.start);
     assertThat(def.getStates(),
-        containsInAnyOrder((WorkflowState)TestState.start, (WorkflowState)TestState.done,
-            (WorkflowState)TestState.notfound, (WorkflowState)TestState.error));
+        containsInAnyOrder(TestState2.start, TestState2.done,
+            TestState2.state1, TestState2.state2, TestState2.error));
   }
 
   @Test
@@ -114,11 +116,11 @@ public class WorkflowDefinitionTest {
     WorkflowDefinition<?> def = new TestDefinition2("y", TestState2.start);
     assertEquals(asList(TestState2.done.name(),
         TestState2.state1.name(), TestState2.state2.name()), def.getAllowedTransitions().get(TestState2.start.name()));
-    assertEquals(TestState2.notfound.name(), def.getFailureTransitions().get(TestState2.start.name()));
+    assertEquals(TestState2.error.name(), def.getFailureTransitions().get(TestState2.start.name()));
   }
 
   public static class TestDefinition extends
-      WorkflowDefinition<TestDefinition.TestState> {
+      AbstractWorkflowDefinition<TestDefinition.TestState> {
     public static enum TestState implements WorkflowState {
       start, done, notfound, error;
 
@@ -147,12 +149,18 @@ public class WorkflowDefinitionTest {
     public void done(StateExecution execution) { }
     public void error(StateExecution execution) { }
 
+    @Override
+    public Set<TestState> getStates() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   }
 
   public static class TestDefinition2 extends
       WorkflowDefinition<TestDefinition2.TestState2> {
     public static enum TestState2 implements WorkflowState {
-      start, done, state1, state2, notfound;
+      start, done, state1, state2, error;
 
       @Override
       public WorkflowStateType getType() {
@@ -171,8 +179,8 @@ public class WorkflowDefinitionTest {
     }
 
     public TestDefinition2(String type, TestState2 initialState) {
-      super(type, initialState, TestState2.notfound);
-      permit(TestState2.start, TestState2.done, TestState2.notfound);
+      super(type, initialState, TestState2.error);
+      permit(TestState2.start, TestState2.done, TestState2.error);
       permit(TestState2.start, TestState2.state1);
       permit(TestState2.start, TestState2.state2);
       permit(TestState2.state1, TestState2.state2);
@@ -191,7 +199,7 @@ public class WorkflowDefinitionTest {
     public void done(StateExecution execution) {
     }
 
-    public void notfound(StateExecution execution) {
+    public void error(StateExecution execution) {
     }
 
   }
