@@ -243,9 +243,25 @@ nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](h
 
 # <a name="other-stuff"></a>Other Stuff
 
+## <a name="rest-api"></a>REST API
+
+nFlow REST API supports currently following operations:
+
+* GET /v0/workflow-definition
+** Get definition of a workflow: all possible states, transitions between states, and other setting related to the workflow.
+* GET /v0/workflow-instance
+** Query list of workflow instances with different query criterias
+* GET /v0/workflow-instance/{id}
+** Fetch full state and history of single workflow instance 
+* PUT /v0/workflow-instance
+** Create a new workflow instance that will be processed as soon as there are free WorkflowExecutors.
+* PUT /v0/workflow-instance/{id}
+** Update existing workflow instance. This is typically used in manual step via some UI.
+
+nFlow REST API is described in more detail via [Swagger](https://helloreverb.com/developers/swagger) documentation system. Swagger documentation is included automatically in nflow-jetty. 
+
 ## <a name="versioning"></a>Versioning
 
-nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/)
+nFlow uses [Semantic Versioning Specification (SemVer)](http://semver.org/). Currently nFlow is in initial development phase, and API may change and features may be added or removed. Once API becames stable, we will release version 1.0.0. 
 
-## <a name="rest-api"></a>REST API
 
