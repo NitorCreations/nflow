@@ -25,7 +25,7 @@ public class EngineConfigurationTest {
   public void setup() {
     configuration = new EngineConfiguration();
     configuration.env = environment;
-    when(environment.getProperty("executor.thread.count", Integer.class,
+    when(environment.getProperty("nflow.executor.thread.count", Integer.class,
         2 * Runtime.getRuntime().availableProcessors())).thenReturn(100);
   }
 

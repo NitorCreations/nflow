@@ -22,7 +22,7 @@ public class EngineConfiguration {
   @Bean(name="nflow-executor")
   public ThreadPoolTaskExecutor dispatcherPoolExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    Integer threadCount = env.getProperty("executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
+    Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
     executor.setMaxPoolSize(threadCount);
     executor.setKeepAliveSeconds(0);
@@ -40,7 +40,7 @@ public class EngineConfiguration {
 
   @Bean(name = "non-spring-workflows-listing")
   public ClassPathResource nonSpringWorkflowsListing() {
-    String filename = env.getProperty("non.spring.workflows.filename");
+    String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {
       return new ClassPathResource(filename);
     }
