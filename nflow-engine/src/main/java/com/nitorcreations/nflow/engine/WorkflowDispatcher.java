@@ -39,7 +39,7 @@ public class WorkflowDispatcher implements Runnable {
     this.repository = repository;
     this.executorFactory = executorFactory;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
-    this.monitor = new Monitor(pool, sleepTime,
+    this.monitor = new Monitor(pool,
         env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
   }
 
@@ -115,29 +115,27 @@ public class WorkflowDispatcher implements Runnable {
 
   static class Monitor implements ListenableFutureCallback<Object> {
     private final BlockingQueue<Runnable> queue;
-    private final long sleepTime;
     private final int waitUntilQueueThreshold;
 
-    public Monitor(ThreadPoolTaskExecutor pool, long sleepTime, int waitUntilQueueThreshold) {
+    public Monitor(ThreadPoolTaskExecutor pool, int waitUntilQueueThreshold) {
       this.waitUntilQueueThreshold = waitUntilQueueThreshold;
       this.queue = pool.getThreadPoolExecutor().getQueue();
-      this.sleepTime = sleepTime;
     }
 
     synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
       while (queue.size() > waitUntilQueueThreshold) {
-        wait(sleepTime);
+        wait();
       }
     }
 
     @Override
     public synchronized void onSuccess(Object result) {
-      notify();
+      notifyAll();
     }
 
     @Override
     public synchronized void onFailure(Throwable t) {
-      notify();
+      notifyAll();
     }
   }
 }
