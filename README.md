@@ -152,6 +152,7 @@ public CreditApplicationWorkflow() {
   permit(createCreditApplication, acceptCreditApplication);
   permit(acceptCreditApplication, grantLoan);
   permit(acceptCreditApplication, finishCreditApplication);
+  permit(grantLoan, finishCreditApplication);
   permit(finishCreditApplication, done);
 }
 ```
