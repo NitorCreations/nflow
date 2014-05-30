@@ -160,7 +160,8 @@ public void acceptCreditApplication(StateExecution execution,
         "Expecting manual credit decision", null);
 }
 
-public void grantLoan(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info)
+public void grantLoan(StateExecution execution, 
+        @StateVar(value=VAR_KEY) WorkflowInfo info)
 public void finishCreditApplication(StateExecution execution, 
         @StateVar(value=VAR_KEY) WorkflowInfo info)
 public void done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info)
@@ -192,7 +193,7 @@ nFlow will autodetect your `WorkflowDefinitions` that are defined as Spring bean
 
 If you don't want to learn Spring, you can only use [Full nFlow Stack](#usage-scenarios-full-nflow-stack)-scenario. 
 
-Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide"). Then the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `non.spring.workflows.filename`. 
+Define a start class for nFlow like in [1 Minute Guide](#one-minute-guide). Then the fully qualified class names of your WorkflowDefinitions in a text file. Package the text file with nFlow and define the name of the text in nFlow property called `non.spring.workflows.filename`. 
 
 See `nflow-tests`-module for an example.
 
@@ -202,7 +203,29 @@ See `nflow-tests`-module for an example.
 
 Default values for nFlow properties can be overridden by adding *<env>*.properties file to classpath and specifying *env* as system property. For instance, add *dev.properties* to classpath and add *-Denv=dev* to JVM startup parameters.
 
-TODO: table of nFlow properties and default values
+### nflow-engine
+
+Properties whose name ends to _.ms_ define milliseconds.
+
+| Property name | Default value | Description |
+| ------------- | ------------- | ----------- |
+| nflow.instance.name | nflow | Instance name separates the workflow data of multiple nflow instances in the database |
+| nflow.dispatcher.sleep.ms | 1000 | Polling frequency for new workflow activations, when no new activations are found |
+| nflow.transition.delay.immediate.ms | 0 | Delay for immediate next activation of workflow instance |
+| nflow.transition.delay.waitshort.ms | 30000 | Delay for next activation of workflow instance after e.g. starting async operation |
+| nflow.transition.delay.waiterror.ms | 7200000 | Delay for next activation of workflow instance after an error/exception |
+| nflow.max.state.retries | 3 | Maximum amount of automatic retries for normal state, after which the failure or error transition is taken |
+| nflow.db.driver | org.h2.jdbcx.JdbcDataSource | Fully qualified class name of datasource |
+| nflow.db.url | jdbc:h2:mem:test;TRACE_LEVEL_FILE=4 | nFlow database JDBC URL |
+| nflow.db.user | sa | nFlow database user |
+| nflow.db.password | _empty_ | nFlow database user password |
+| nflow.db.type | h2 | nFlow database type (supported: h2, mysql, postgresql) |
+| nflow.db.max.pool.size | 4 | Maximum size of database connection pool |
+| nflow.db.create.on.startup | true | Automatically create missing database structures (note: cannot manage nflow version updates) |
+
+### nflow-rest-api
+
+### nflow-jetty
 
 ## <a name="database"></a>Database
 
