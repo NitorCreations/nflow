@@ -1,7 +1,9 @@
 package com.nitorcreations.nflow.engine.dao;
 
+import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -59,7 +61,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void updateWorkflowInstance() {
+  public void updateWorkflowInstance() throws InterruptedException {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(i1);
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id))
@@ -68,6 +70,8 @@ public class RepositoryDaoTest extends BaseDaoTest {
       .setNextActivation(DateTime.now())
       .setProcessing(!i1.processing)
       .build();
+    final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
+    sleep(1);
     dao.updateWorkflowInstance(i2);
     JdbcTemplate template = new JdbcTemplate(ds);
     template.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
@@ -77,6 +81,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state_text"), equalTo(i2.stateText));
         assertThat(rs.getTimestamp("next_activation").getTime(), equalTo(i2.nextActivation.toDate().getTime()));
         assertThat(rs.getBoolean("is_processing"), equalTo(i2.processing));
+        assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
       }
     });
   }
