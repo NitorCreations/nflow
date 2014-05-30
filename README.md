@@ -289,3 +289,7 @@ nFlow REST API supports currently following operations:
  * Update existing workflow instance. This is typically used in manual step via some UI.
 
 nFlow REST API is described in more detail via [Swagger](https://helloreverb.com/developers/swagger) documentation system. Swagger documentation is included automatically in nflow-jetty.
+
+## <a name="licence"><a/>Licence
+
+nFlow is licenced under [European Union Public Licence v1.1](https://joinup.ec.europa.eu/system/files/EN/EUPL%20v.1.1%20-%20Licence.pdf). 
