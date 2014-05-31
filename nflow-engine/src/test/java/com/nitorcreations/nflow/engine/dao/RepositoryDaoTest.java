@@ -57,6 +57,17 @@ public class RepositoryDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void queryWorkflowInstanceWithMinimalConditions() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    int id = dao.insertWorkflowInstance(i1);
+    assertThat(id, not(equalTo(-1)));
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().build();
+    List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
+    assertThat(l.size(), is(1));
+    checkSameWorkflowInfo(i1, l.get(0));
+  }
+
+  @Test
   public void updateWorkflowInstance() throws InterruptedException {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(i1);
