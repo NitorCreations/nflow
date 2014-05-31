@@ -67,11 +67,12 @@ public class StartNflow
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
     ConfigurableEnvironment env = new NflowStandardEnvironment(properties);
+    String host = env.getProperty("host", "localhost");
     int port = env.getProperty("port", Integer.class, 7500);
     KillProcess.killProcessUsingPort(port);
     Server server = setupServer();
     setupJmx(server, env);
-    setupServerConnector(server, port);
+    setupServerConnector(server, host, port);
     ServletContextHandler context = setupServletContextHandler();
     setupHandlers(server, context);
     setupSpring(context, env);
@@ -80,8 +81,8 @@ public class StartNflow
     server.start();
     long end = currentTimeMillis();
     LOG.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
-    LOG.info("API available at http://localhost:" + port + "/");
-    LOG.info("API doc available at http://localhost:" + port + "/ui");
+    LOG.info("API available at http://" + host + ":" + port + "/");
+    LOG.info("API doc available at http://" + host + ":" + port + "/ui");
     return server;
   }
 
@@ -117,9 +118,10 @@ public class StartNflow
     }
   }
 
-  private void setupServerConnector(final Server server, final int port) {
+  private void setupServerConnector(Server server, String host, int port) {
     @SuppressWarnings("resource")
     ServerConnector connector = new ServerConnector(server);
+    connector.setHost(host);
     connector.setPort(port);
     connector.setIdleTimeout(TimeUnit.MINUTES.toMillis(2));
     connector.setReuseAddress(true);

@@ -66,7 +66,7 @@ import com.nitorcreations.nflow.jetty.StartNflow;
 
 public class App {
   public static void main(String[] args) throws Exception {
-    new StartNflow().startTcpServerForH2().startJetty(7500, "dev");
+    new StartNflow().startJetty(7500, "local", "");
   }
 }
 ```
@@ -239,7 +239,17 @@ See `nflow-tests`-module for an example.
 
 Default values for nFlow properties can be overridden by adding *<env>*.properties file to classpath and specifying *env* as system property. For instance, add *dev.properties* to classpath and add *-Denv=dev* to JVM startup parameters. Similarly, you can override property values through system properties (e.g. *-Dnflow.db.user=mydbuser*).
 
+Common property values for all environments can also be set to a file *common.properties* on classpath.
+
 Properties whose name ends to _.ms_ define milliseconds.
+
+### <a name="nflow-profiles-nflow-engine"></a>nflow-engine spring profiles
+
+| Property name | Default value | Description |
+| ------------- | ------------- | ----------- |
+| nflow.mysql   | not set       | Enables MySQL database support. Use _nflow.db.mysql.url_  to configure the location if not default localhost. |
+| nflow.postgresql | not set    | Enables PostgreSQL database support. Use _nflow.db.postgresql.url_  to configure the location if not default localhost. |
+
 
 ### <a name="nflow-properties-nflow-engine"></a>nflow-engine
 
@@ -251,11 +261,10 @@ Properties whose name ends to _.ms_ define milliseconds.
 | nflow.transition.delay.waitshort.ms | 30000 | Delay for next activation of workflow instance after e.g. starting async operation |
 | nflow.transition.delay.waiterror.ms | 7200000 | Delay for next activation of workflow instance after an error/exception |
 | nflow.max.state.retries | 3 | Maximum amount of automatic retries for normal state, after which the failure or error transition is taken |
-| nflow.db.driver | org.h2.jdbcx.JdbcDataSource | Fully qualified class name of datasource |
-| nflow.db.url | jdbc:h2:mem:test | nFlow database JDBC URL |
+| nflow.db.\[type\].driver | org.h2.jdbcx.JdbcDataSource | Fully qualified class name of datasource |
+| nflow.db.\[type\].url | jdbc:h2:mem:test | nFlow database JDBC URL |
 | nflow.db.user | sa | nFlow database user |
 | nflow.db.password | _empty_ | nFlow database user password |
-| nflow.db.type | h2 | nFlow database type (supported: h2, mysql, postgresql) |
 | nflow.db.max_pool_size | 4 | Maximum size of database connection pool |
 | nflow.db.create_on_startup | true | Automatically create missing database structures (note: cannot manage nflow version updates) |
 | nflow.non_spring_workflows_filename | _empty_ | Filename in classpath that contains fully qualified class name of non-Spring bean WorkflowDefinitions |
@@ -265,11 +274,19 @@ Properties whose name ends to _.ms_ define milliseconds.
 
 No properties defined.
 
-### nflow-jetty
+### <a name="nflow-profiles-nflow-jetty"></a>nflow-jetty spring profiles
 
 | Property name | Default value | Description |
 | ------------- | ------------- | ----------- |
-| nflow.jetty.host | 0.0.0.0 |   |
+| jmx           | not set       | Enables JMX statistics. |
+
+### nflow-jetty properties
+
+| Property name | Default value | Description |
+| ------------- | ------------- | ----------- |
+| host | localhost |   |
+| port | 7500 |   |
+| profiles | _empty_ | Comma separated list of profiles to enable. See [nflow-engine](#nflow-profiles-nflow-engine) and [nflow-jetty](#nflow-profiles-nflow-jetty) spring profiles|
 
 ## <a name="database"></a>Database
 
