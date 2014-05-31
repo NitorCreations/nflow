@@ -119,11 +119,12 @@ public class RepositoryDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstancesWithRaceCondition() throws InterruptedException {
-    for (int i=0; i<10000; i++) {
+    int batchSize = 10;
+    for (int i=0; i<batchSize; i++) {
       WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setOwner("junit").build();
       dao.insertWorkflowInstance(instance);
     }
-    Poller[] pollers = new Poller[] { new Poller(dao), new Poller(dao) };
+    Poller[] pollers = new Poller[] { new Poller(dao, batchSize), new Poller(dao, batchSize) };
     Thread[] threads = new Thread[] { new Thread(pollers[0]), new Thread(pollers[1]) };
     threads[0].start();
     threads[1].start();
@@ -150,15 +151,17 @@ public class RepositoryDaoTest extends BaseDaoTest {
   static class Poller implements Runnable {
     RepositoryDao dao;
     boolean detectedRaceCondition = false;
+    int batchSize;
 
-    public Poller(RepositoryDao dao) {
+    public Poller(RepositoryDao dao, int batchSize) {
       this.dao = dao;
+      this.batchSize = batchSize;
     }
 
     @Override
     public void run() {
       try {
-        dao.pollNextWorkflowInstanceIds(10000);
+        dao.pollNextWorkflowInstanceIds(batchSize);
       } catch(Exception ex) {
         ex.printStackTrace();
         detectedRaceCondition = ex.getMessage().startsWith("Race condition");
