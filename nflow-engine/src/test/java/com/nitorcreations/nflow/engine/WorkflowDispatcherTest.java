@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import edu.umd.cs.mtc.MultithreadedTestCase;
-import edu.umd.cs.mtc.TestFramework;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +27,9 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.service.RepositoryService;
+
+import edu.umd.cs.mtc.MultithreadedTestCase;
+import edu.umd.cs.mtc.TestFramework;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDispatcherTest {
@@ -53,6 +54,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void exceptionDuringDispatcherExecutionCausesRetry() throws Throwable {
+    @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt()))
@@ -83,6 +85,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void errorDuringDispatcherExecutionStopsDispatcher() throws Throwable {
+    @SuppressWarnings("unused")
     class ErrorDuringDispatcherExecutionStopsDispatcher extends MultithreadedTestCase {
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt()))
@@ -108,6 +111,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void emptyPollResultCausesNoTasksToBeScheduled() throws Throwable {
+    @SuppressWarnings("unused")
     class EmptyPollResultCausesNoTasksToBeScheduled extends MultithreadedTestCase {
       @SuppressWarnings("unchecked")
       public void threadDispatcher() {
@@ -133,6 +137,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void shutdownBlocksUntilPoolShutdown() throws Throwable {
+    @SuppressWarnings("unused")
     class ShutdownBlocksUntilPoolShutdown extends MultithreadedTestCase {
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt()))
@@ -154,6 +159,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void shutdownCanBeInterrupted() throws Throwable {
+    @SuppressWarnings("unused")
     class ShutdownCanBeInterrupted extends MultithreadedTestCase {
       public void threadDispatcher() {
         when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new Answer<Object>() {
@@ -181,6 +187,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void exceptionOnPoolShutdownIsNotPropagated() throws Throwable {
+    @SuppressWarnings("unused")
     class ExceptionOnPoolShutdownIsNotPropagated extends MultithreadedTestCase {
       private ThreadPoolTaskExecutor poolSpy;
 
@@ -212,6 +219,7 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void shutdownCanBeCalledMultipleTimes() throws Throwable {
+    @SuppressWarnings("unused")
     class ShutdownCanBeCalledMultipleTimes extends MultithreadedTestCase {
       public void threadDispatcher() throws InterruptedException {
         when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
@@ -278,7 +286,7 @@ public class WorkflowDispatcherTest {
   Answer<List<Integer>> waitForTickAndAnswer(final int tick, final List<Integer> answer, final MultithreadedTestCase mtc) {
     return new Answer<List<Integer>>() {
       @Override
-      public List<Integer> answer(InvocationOnMock invocation) throws Throwable {
+      public List<Integer> answer(InvocationOnMock invocation) {
         mtc.waitForTick(tick);
         return answer;
       }

@@ -5,13 +5,10 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.umd.cs.mtc.MultithreadedTestCase;
-import edu.umd.cs.mtc.TestFramework;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +21,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
+
+import edu.umd.cs.mtc.MultithreadedTestCase;
+import edu.umd.cs.mtc.TestFramework;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CongestionControlTest {
@@ -53,6 +53,7 @@ public class CongestionControlTest {
 
   @Test
   public void waitDoesNotBlockWhenNotAboveQueueTheshold() throws Throwable {
+    @SuppressWarnings("unused")
     class WaitDoesNotBlockWhenNotAboveQueueTheshold extends MultithreadedTestCase {
       @Override
       public void initialize() {
@@ -69,6 +70,7 @@ public class CongestionControlTest {
 
   @Test
   public void waitBlocksWhenAboveQueueThreshold() throws Throwable {
+    @SuppressWarnings("unused")
     class WaitBlocksWhenAboveQueueThreshold extends MultithreadedTestCase {
       @Override
       public void initialize() {
@@ -79,7 +81,7 @@ public class CongestionControlTest {
         congestionCtrl.register(task);
         try {
           congestionCtrl.waitUntilQueueThreshold();
-          fail("should block");
+          Assert.fail("should block");
         } catch (InterruptedException expected) {
         }
       }
@@ -94,6 +96,7 @@ public class CongestionControlTest {
 
   @Test
   public void completingTaskCanUnblockWaiter() throws Throwable {
+    @SuppressWarnings("unused")
     class CompletingTaskCanUnblockWaiter extends MultithreadedTestCase {
       @Override
       public void initialize() {
@@ -116,6 +119,7 @@ public class CongestionControlTest {
 
   @Test
   public void failingTaskCanUnblockWaiter() throws Throwable {
+    @SuppressWarnings("unused")
     class FailingTaskCanUnblockWaiter extends MultithreadedTestCase {
       @Override
       public void initialize() {
@@ -139,7 +143,7 @@ public class CongestionControlTest {
   private Answer<Integer> queueSizeAnswer() {
     return new Answer<Integer>() {
       @Override
-      public Integer answer(InvocationOnMock invocation) throws Throwable {
+      public Integer answer(InvocationOnMock invocation) {
         return queueSize.get();
       }
     };
@@ -149,8 +153,8 @@ public class CongestionControlTest {
     ListenableFutureCallback<? super Object> callback;
 
     @Override
-    public void addCallback(ListenableFutureCallback<? super Object> callback) {
-      this.callback = callback;
+    public void addCallback(ListenableFutureCallback<? super Object> newCallback) {
+      this.callback = newCallback;
     }
 
     @Override
@@ -169,12 +173,12 @@ public class CongestionControlTest {
     }
 
     @Override
-    public Object get() throws InterruptedException, ExecutionException {
+    public Object get() {
       return null;
     }
 
     @Override
-    public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public Object get(long timeout, TimeUnit unit) {
       return null;
     }
   }
