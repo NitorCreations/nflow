@@ -150,6 +150,13 @@ public class RepositoryServiceTest extends BaseNflowTest {
     assertEquals(result, service.listWorkflowInstances(query));
   }
 
+  @Test
+  public void nonSpringWorkflowsAreOptional() throws Exception {
+    service = new RepositoryService(repositoryDao, null);
+    service.initNonSpringWorkflowDefinitions();
+    assertEquals(0, service.getWorkflowDefinitions().size());
+  }
+
   public static class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.DummyTestState> {
 
     public static enum DummyTestState implements com.nitorcreations.nflow.engine.workflow.WorkflowState {
