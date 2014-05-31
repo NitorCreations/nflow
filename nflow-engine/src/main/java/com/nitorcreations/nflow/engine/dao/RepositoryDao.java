@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.dao;
 
 import static java.lang.System.currentTimeMillis;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -53,10 +54,7 @@ public class RepositoryDao {
   public RepositoryDao(@Named("nflow-datasource") DataSource dataSource, Environment env) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
-    this.nflowName = env.getProperty("nflow.instance.name");
-    if (isEmpty(nflowName)) {
-      this.nflowName = null;
-    }
+    this.nflowName = trimToNull(env.getProperty("nflow.instance.name"));
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
