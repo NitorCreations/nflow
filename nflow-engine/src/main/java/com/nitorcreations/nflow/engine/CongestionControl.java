@@ -12,15 +12,11 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Component
 public class CongestionControl {
-  private final BlockingQueue<Runnable> queue;
-  private final int waitUntilQueueThreshold;
-  private final Monitor monitor = new Monitor();
+  private final Monitor monitor;
 
   @Inject
   public CongestionControl(ThreadPoolTaskExecutor pool, Environment env) {
-    this.waitUntilQueueThreshold =
-        env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0);
-    this.queue = pool.getThreadPoolExecutor().getQueue();
+    monitor = new Monitor(pool.getThreadPoolExecutor().getQueue(), env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
   }
 
   public void waitUntilQueueThreshold() throws InterruptedException {
@@ -32,9 +28,17 @@ public class CongestionControl {
   }
 
   private class Monitor implements ListenableFutureCallback<Object> {
+    private final BlockingQueue<Runnable> queue;
+    private final int waitUntilQueueThreshold;
+
+    Monitor(BlockingQueue<Runnable> queue, int waitUntilQueueThreshold) {
+      this.queue = queue;
+      this.waitUntilQueueThreshold = waitUntilQueueThreshold;
+    }
+
     public synchronized void waitUntilQueueThreshold() throws InterruptedException {
       while (queue.size() > waitUntilQueueThreshold) {
-        monitor.wait();
+        wait();
       }
     }
 
