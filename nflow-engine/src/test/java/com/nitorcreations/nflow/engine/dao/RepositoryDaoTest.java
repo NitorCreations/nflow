@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -129,7 +129,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
     assertThat(i1.processing, equalTo(i2.processing));
     assertThat(i1.requestData, equalTo(i2.requestData));
     assertThat(i1.stateVariables.size(), equalTo(i2.stateVariables.size()));
-    Map<String, String> tmpVars = new HashMap<>(i1.stateVariables);
+    Map<String, String> tmpVars = new LinkedHashMap<>(i1.stateVariables);
     for (Map.Entry<String,String> entry : tmpVars.entrySet()) {
       assertTrue(i2.stateVariables.containsKey(entry.getKey()));
       assertThat(i2.stateVariables.get(entry.getKey()), equalTo(entry.getValue()));

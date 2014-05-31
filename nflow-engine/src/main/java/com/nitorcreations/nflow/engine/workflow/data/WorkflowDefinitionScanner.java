@@ -18,8 +18,8 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +44,7 @@ public class WorkflowDefinitionScanner {
   }
 
   public Map<String, WorkflowStateMethod> getStateMethods(@SuppressWarnings("rawtypes") Class<? extends AbstractWorkflowDefinition> definition) {
-    final Map<String, WorkflowStateMethod> methods = new HashMap<>();
+    final Map<String, WorkflowStateMethod> methods = new LinkedHashMap<>();
     doWithMethods(definition, new MethodCallback() {
       @Override
       public void doWith(Method method) throws IllegalArgumentException {

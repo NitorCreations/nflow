@@ -14,7 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,7 +100,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   public void runWorkflowWithParameters() {
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
-    Map<String, String> state = new HashMap<String, String>() {{
+    Map<String, String> state = new LinkedHashMap<String, String>() {{
       put("string", "Str");
       put("int", "42");
       put("pojo", "{\"field\": \"val\", \"test\": true}");
