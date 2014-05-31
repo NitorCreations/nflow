@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -40,7 +40,7 @@ public class CustomValidationExceptionMapperTest {
     when(violation.getMessage()).thenReturn("violationMessage");
 
     ConstraintViolationException cex = mock(ConstraintViolationException.class);
-    when(cex.getConstraintViolations()).thenReturn(new HashSet(asList(violation)));
+    when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
     Response resp = exceptionMapper.toResponse(cex);
     assertThat(resp.getEntity().toString(), is("violationPath: violationMessage"));
   }

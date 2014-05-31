@@ -18,8 +18,8 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class WorkflowDefinitionScanner {
 
   private static final Logger logger = getLogger(WorkflowDefinitionScanner.class);
 
-  private static final Set<Type> knownImmutableTypes = new HashSet<>();
+  private static final Set<Type> knownImmutableTypes = new LinkedHashSet<>();
   {
     knownImmutableTypes.addAll(asList(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class, BigDecimal.class, BigInteger.class, Enum.class));
   }
