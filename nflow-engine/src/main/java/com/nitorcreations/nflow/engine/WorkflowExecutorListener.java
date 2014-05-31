@@ -13,16 +13,31 @@ import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+/**
+ * WorkflowExecutorListener is a global, stateless listener for workflow
+ * executors.
+ * <p>
+ * Same instance of WorkflowExecutorListener is used for all workflow
+ * state executions: all state must be stored in <code>ListenerContext.data</code>.
+ * </p>
+ */
 public interface WorkflowExecutorListener {
 
-  @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="listeners are implemented by business applications")
+  /**
+   * ListenerContext instance is created at start of workflow state execution and passed to listener's
+   * life-cycle methods.
+   */
+  @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "listeners are implemented by business applications")
   class ListenerContext {
     public final DateTime start = now();
     public final WorkflowDefinition<?> definition;
     public final String originalState;
     public final WorkflowInstance instance;
     public final StateExecution stateExecution;
-    /** Stateless listeners can use data to pass information between listener stages. */
+    /**
+     * Stateless listeners can use data to pass information between listener
+     * stages.
+     */
     public final Map<Object, Object> data = new LinkedHashMap<>();
 
     public ListenerContext(WorkflowDefinition<?> definition,
