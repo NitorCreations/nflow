@@ -45,7 +45,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          congestionCtrl.waitUntilQueueUnderThreshold();
+          congestionCtrl.waitUntilQueueThreshold();
 
           if (!shutdownRequested) {
             dispatch(getNextInstanceIds());

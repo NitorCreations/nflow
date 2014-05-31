@@ -52,8 +52,8 @@ public class CongestionControlTest {
   }
 
   @Test
-  public void waitDoesNotBlockWhenUnderQueueTheshold() throws Throwable {
-    class WaitDoesNotBlockWhenUnderQueueTheshold extends MultithreadedTestCase {
+  public void waitDoesNotBlockWhenNotAboveQueueTheshold() throws Throwable {
+    class WaitDoesNotBlockWhenNotAboveQueueTheshold extends MultithreadedTestCase {
       @Override
       public void initialize() {
         queueSize.set(threshold);
@@ -61,15 +61,15 @@ public class CongestionControlTest {
 
       public void thread1() throws InterruptedException {
         congestionCtrl.register(task);
-        congestionCtrl.waitUntilQueueUnderThreshold();
+        congestionCtrl.waitUntilQueueThreshold();
       }
     }
-    TestFramework.runOnce(new WaitDoesNotBlockWhenUnderQueueTheshold());
+    TestFramework.runOnce(new WaitDoesNotBlockWhenNotAboveQueueTheshold());
   }
 
   @Test
-  public void waitsUntilQueueIsUnderThreshold() throws Throwable {
-    class WaitsUntilQueueIsUnderThreshold extends MultithreadedTestCase {
+  public void waitBlocksWhenAboveQueueThreshold() throws Throwable {
+    class WaitBlocksWhenAboveQueueThreshold extends MultithreadedTestCase {
       @Override
       public void initialize() {
         queueSize.set(threshold+1);
@@ -78,7 +78,7 @@ public class CongestionControlTest {
       public void thread1() {
         congestionCtrl.register(task);
         try {
-          congestionCtrl.waitUntilQueueUnderThreshold();
+          congestionCtrl.waitUntilQueueThreshold();
           fail("should block");
         } catch (InterruptedException expected) {
         }
@@ -89,7 +89,7 @@ public class CongestionControlTest {
         getThread(1).interrupt();
       }
     }
-    TestFramework.runOnce(new WaitsUntilQueueIsUnderThreshold());
+    TestFramework.runOnce(new WaitBlocksWhenAboveQueueThreshold());
   }
 
   @Test
@@ -102,7 +102,7 @@ public class CongestionControlTest {
 
       public void thread1() throws InterruptedException {
         congestionCtrl.register(task);
-        congestionCtrl.waitUntilQueueUnderThreshold();
+        congestionCtrl.waitUntilQueueThreshold();
       }
 
       public void thread2() {
@@ -124,7 +124,7 @@ public class CongestionControlTest {
 
       public void thread1() throws InterruptedException {
         congestionCtrl.register(task);
-        congestionCtrl.waitUntilQueueUnderThreshold();
+        congestionCtrl.waitUntilQueueThreshold();
       }
 
       public void thread2() {

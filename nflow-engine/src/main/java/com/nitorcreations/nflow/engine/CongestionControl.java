@@ -23,8 +23,8 @@ public class CongestionControl {
     this.queue = pool.getThreadPoolExecutor().getQueue();
   }
 
-  public void waitUntilQueueUnderThreshold() throws InterruptedException {
-    monitor.waitUntilQueueUnderThreshold();
+  public void waitUntilQueueThreshold() throws InterruptedException {
+    monitor.waitUntilQueueThreshold();
   }
 
   public void register(ListenableFuture<?> listenableFuture) {
@@ -32,7 +32,7 @@ public class CongestionControl {
   }
 
   private class Monitor implements ListenableFutureCallback<Object> {
-    public synchronized void waitUntilQueueUnderThreshold() throws InterruptedException {
+    public synchronized void waitUntilQueueThreshold() throws InterruptedException {
       while (queue.size() > waitUntilQueueThreshold) {
         monitor.wait();
       }
