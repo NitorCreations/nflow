@@ -119,7 +119,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstancesWithRaceCondition() throws InterruptedException {
-    int batchSize = 10;
+    int batchSize = 100;
     for (int i=0; i<batchSize; i++) {
       WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setOwner("junit").build();
       dao.insertWorkflowInstance(instance);
@@ -130,7 +130,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
     threads[1].start();
     threads[0].join();
     threads[1].join();
-    assertTrue(pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition);
+    assertTrue("Race condition should happen", pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition);
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
