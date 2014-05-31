@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.rest.v0.converter;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -43,6 +45,17 @@ public class CreateWorkflowConverterTest {
     assertThat(i.nextActivation, equalTo(req.activationTime));
     assertThat(i.businessKey, equalTo(req.businessKey));
     assertThat(i.externalId, equalTo(req.externalId));
+    assertThat(i.type, equalTo(req.type));
+  }
+
+  @Test
+  public void convertAndValidateWorksWithMinimalData() throws JsonProcessingException {
+    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
+    req.type = "wfType";
+    WorkflowInstance i = converter.convertAndValidate(req);
+    assertThat(i.nextActivation, notNullValue(DateTime.class));
+    assertThat(i.businessKey, nullValue(String.class));
+    assertThat(i.externalId, nullValue(String.class));
     assertThat(i.type, equalTo(req.type));
   }
 
