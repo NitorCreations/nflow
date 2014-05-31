@@ -24,6 +24,9 @@ import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads public fields")
 public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicationWorkflow.State> {
 
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
