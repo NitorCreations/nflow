@@ -16,7 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public interface WorkflowExecutorListener {
 
   @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="listeners are implemented by business applications")
-  static class ListenerContext {
+  class ListenerContext {
     public final DateTime start = now();
     public final WorkflowDefinition<?> definition;
     public final String originalState;
