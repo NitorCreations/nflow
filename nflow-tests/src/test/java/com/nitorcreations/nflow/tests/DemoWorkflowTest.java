@@ -8,15 +8,24 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
+import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.tests.runner.NflowServerRulue;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class DemoWorkflowTest extends AbstractNflowTest {
+
+  @ClassRule
+  public static NflowServerRulue server = new NflowServerRulue().port(7501);
+
+  public DemoWorkflowTest() {
+    super(server);
+  }
 
   @Test
   public void t01_startDemoWorkflow() {

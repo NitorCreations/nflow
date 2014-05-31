@@ -16,7 +16,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.math.BigDecimal;
 
 import org.slf4j.Logger;
-import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.workflow.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.StateVar;
@@ -121,11 +120,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   public static class CreditApplicationWorkflowSettings extends WorkflowSettings {
 
     public CreditApplicationWorkflowSettings() {
-      this(null);
-    }
-
-    public CreditApplicationWorkflowSettings(Environment env) {
-      super(env);
+      super(null);
     }
 
     @Override

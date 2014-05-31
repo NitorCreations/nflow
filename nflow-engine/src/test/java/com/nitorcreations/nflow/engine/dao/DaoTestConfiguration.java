@@ -9,12 +9,12 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.nitorcreations.nflow.engine.config.DatabaseConfiguration;
+import com.nitorcreations.nflow.engine.db.H2DatabaseConfiguration;
 
 @Configuration
 @PropertySource({"classpath:junit.properties"})
 @EnableTransactionManagement
-@Import(DatabaseConfiguration.class)
+@Import(H2DatabaseConfiguration.class)
 public class DaoTestConfiguration {
 
   @Bean

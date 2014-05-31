@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.config;
+package com.nitorcreations.nflow.engine.db;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -13,8 +13,10 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 public class DatabaseInitializer {
   private static final Logger logger = getLogger(DatabaseInitializer.class);
+  private final String dbType;
 
-  public DatabaseInitializer(DataSource ds, Environment env) {
+  public DatabaseInitializer(String dbType, DataSource ds, Environment env) {
+    this.dbType = dbType;
     if (!env.getRequiredProperty("nflow.db.create_on_startup", Boolean.class)) {
       return;
     }
@@ -26,7 +28,7 @@ public class DatabaseInitializer {
     try {
       execute(populator, ds);
     } catch(Exception ex) {
-      logger.warn("Failed to create the database - maybe it exists already", ex);
+      logger.warn("Failed to create the database", ex);
     }
   }
 
@@ -39,10 +41,9 @@ public class DatabaseInitializer {
   }
 
   private ClassPathResource resolveScript(Environment env) {
-    String dbType = env.getRequiredProperty("nflow.db.type");
     ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
     if (!script.exists()) {
-      throw new IllegalArgumentException("Unsupported database type (nflow.db.type): " + dbType);
+      throw new IllegalArgumentException("No ddl script found: " + script.toString());
     }
     return script;
   }

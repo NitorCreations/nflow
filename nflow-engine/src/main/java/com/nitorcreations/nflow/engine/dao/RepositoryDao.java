@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.dao;
 
 import static java.lang.System.currentTimeMillis;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -24,6 +25,7 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,15 +48,18 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 public class RepositoryDao {
 
+  private static final Logger logger = getLogger(RepositoryDao.class);
+
   private final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
-  String nflowName;
+  private final String nflowName;
 
   @Inject
   public RepositoryDao(@Named("nflow-datasource") DataSource dataSource, Environment env) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
     this.nflowName = trimToNull(env.getProperty("nflow.instance.name"));
+    logger.info("Using nflow instance name " + nflowName);
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {

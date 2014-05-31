@@ -1,9 +1,8 @@
 package com.nitorcreations.nflow.jetty;
 
-import static java.lang.Integer.getInteger;
+import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.getProperty;
-import static java.lang.System.setProperty;
+import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
@@ -11,7 +10,10 @@ import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Paths;
-import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -29,11 +31,14 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.web.context.ContextLoaderListener;
 
 import com.nitorcreations.core.utils.KillProcess;
 import com.nitorcreations.nflow.jetty.config.NflowJettyConfiguration;
 import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
+import com.nitorcreations.nflow.jetty.spring.NflowStandardEnvironment;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -42,27 +47,39 @@ public class StartNflow
   private static final Logger LOG = LoggerFactory.getLogger(StartNflow.class);
 
   public static void main(final String... args) throws Exception {
-    new StartNflow()
-      .startTcpServerForH2()
-      .startJetty(getInteger("port", 7500), getProperty("env", "dev"));
+    new StartNflow().startJetty(Collections.<String, Object>emptyMap());
   }
 
-  public Server startJetty(final int port, final String env) throws Exception {
+  public Server startJetty(int port, String env, String profiles) throws Exception {
+    return startJetty(port, env, profiles, new HashMap<String, Object>());
+  }
+
+  public Server startJetty(int port, String env, String profiles, Map<String, Object> properties) throws Exception {
+    properties.put("port", port);
+    properties.put("env", env);
+    properties.put("profiles", profiles);
+    return startJetty(properties);
+  }
+
+  public Server startJetty(Map<String, Object> properties) throws Exception {
     long start = currentTimeMillis();
     // also CXF uses JDK logging
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
-    setProperty("env", env);
+    ConfigurableEnvironment env = new NflowStandardEnvironment(properties);
+    int port = env.getProperty("port", Integer.class, 7500);
     KillProcess.killProcessUsingPort(port);
     Server server = setupServer();
+    setupJmx(server, env);
     setupServerConnector(server, port);
     ServletContextHandler context = setupServletContextHandler();
     setupHandlers(server, context);
-    setupSpringAndCxf(context, env);
+    setupSpring(context, env);
+    setupCxf(context);
     setupNflowEngine(context);
     server.start();
     long end = currentTimeMillis();
-    LOG.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, env);
+    LOG.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
     LOG.info("API available at http://localhost:" + port + "/");
     LOG.info("API doc available at http://localhost:" + port + "/ui");
     return server;
@@ -72,37 +89,32 @@ public class StartNflow
     context.addEventListener(new EngineContextListener());
   }
 
-  public StartNflow startTcpServerForH2() throws SQLException {
-    org.h2.tools.Server h2Server = org.h2.tools.Server.createTcpServer(new String[] {"-tcp","-tcpAllowOthers","-tcpPort","8043"});
-    h2Server.start();
-    return this;
+  @SuppressWarnings("resource")
+  protected void setupSpring(final ServletContextHandler context, ConfigurableEnvironment env) {
+    context.addEventListener(new ContextLoaderListener(new NflowAnnotationConfigWebApplicationContext(env)));
+    context.setInitParameter("contextConfigLocation", NflowJettyConfiguration.class.getName());
   }
 
-  protected void setupSpringAndCxf(final ServletContextHandler context, String env) {
+  protected void setupCxf(final ServletContextHandler context) {
     ServletHolder servlet = context.addServlet(CXFServlet.class, "/*");
     servlet.setDisplayName("cxf-services");
     servlet.setInitOrder(1);
     servlet.setInitParameter("redirects-list", "/favicon.ico");
     servlet.setInitParameter("redirect-servlet-name", "default");
-    context.addEventListener(new ContextLoaderListener());
-    context.setInitParameter("contextClass", NflowAnnotationConfigWebApplicationContext.class.getName() );
-    context.setInitParameter("contextConfigLocation", NflowJettyConfiguration.class.getName());
-    String envs = env;
-    if (enableJmx()) {
-      envs += ",jmx";
-    }
-    setProperty("spring.profiles.active", envs);
   }
 
   private Server setupServer() {
     Server server = new Server(new QueuedThreadPool(100));
     server.setStopAtShutdown(true);
-    if (enableJmx()) {
+    return server;
+  }
+
+  private void setupJmx(Server server, Environment env) {
+    if (asList(env.getActiveProfiles()).contains("jmx")) {
       MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
       server.addEventListener(mbContainer);
       server.addBean(mbContainer);
     }
-    return server;
   }
 
   private void setupServerConnector(final Server server, final int port) {
@@ -111,6 +123,7 @@ public class StartNflow
     connector.setPort(port);
     connector.setIdleTimeout(TimeUnit.MINUTES.toMillis(2));
     connector.setReuseAddress(true);
+    connector.setName(valueOf(port));
     server.addConnector(connector);
   }
 
@@ -147,9 +160,4 @@ public class StartNflow
     requestLogHandler.setRequestLog(requestLog);
     return requestLogHandler;
   }
-
-  protected boolean enableJmx() {
-    return Boolean.getBoolean("nflow.jmx");
-  }
-
 }

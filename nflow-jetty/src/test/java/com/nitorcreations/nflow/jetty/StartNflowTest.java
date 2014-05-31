@@ -5,13 +5,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.eclipse.jetty.server.Server;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class StartNflowTest {
 
   @Test
   public void startNflowJetty() throws Exception {
-    Server jetty = new StartNflow().startJetty(7501, "junit");
+    startStop("");
+  }
+
+  private void startStop(String profiles) throws Exception {
+    Server jetty = new StartNflow().startJetty(7505, "junit", profiles);
     for (int i = 0; i < 5000; i+=50) {
       if (jetty.isStarted())
         break;
@@ -26,6 +31,19 @@ public class StartNflowTest {
       sleep(50);
     }
     fail("Jetty did not stop gracefully in 10 seconds");
+
+  }
+
+  @Test
+  @Ignore
+  public void startNflowJettyMysql() throws Exception {
+    startStop("nflow.mysql");
+  }
+
+  @Test
+  @Ignore
+  public void startNflowJettyPostgreSQL() throws Exception {
+    startStop("nflow.postgresql");
   }
 
 }

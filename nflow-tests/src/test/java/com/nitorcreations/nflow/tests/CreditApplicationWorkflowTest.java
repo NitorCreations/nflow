@@ -12,6 +12,7 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
@@ -21,9 +22,17 @@ import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow;
+import com.nitorcreations.nflow.tests.runner.NflowServerRulue;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class CreditApplicationWorkflowTest extends AbstractNflowTest {
+
+  @ClassRule
+  public static NflowServerRulue server = new NflowServerRulue().port(7502);
+
+  public CreditApplicationWorkflowTest() {
+    super(server);
+  }
 
   private static CreateWorkflowInstanceRequest req;
   private static CreateWorkflowInstanceResponse resp;

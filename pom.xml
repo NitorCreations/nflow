@@ -138,6 +138,7 @@
               <include>**/*Test.java</include>
             </includes>
             <runOrder>random</runOrder>
+            <forkCount>0.8C</forkCount>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
         </plugin>
