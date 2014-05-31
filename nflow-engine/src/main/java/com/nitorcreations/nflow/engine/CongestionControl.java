@@ -4,6 +4,7 @@ import java.util.concurrent.BlockingQueue;
 
 import javax.inject.Inject;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,8 @@ public class CongestionControl {
     listenableFuture.addCallback(monitor);
   }
 
-  private class Monitor implements ListenableFutureCallback<Object> {
+  @SuppressFBWarnings(value="NN_NAKED_NOTIFY", justification = "callback methods are called after mutable state change")
+  private static class Monitor implements ListenableFutureCallback<Object> {
     private final BlockingQueue<Runnable> queue;
     private final int waitUntilQueueThreshold;
 
@@ -36,7 +38,7 @@ public class CongestionControl {
       this.waitUntilQueueThreshold = waitUntilQueueThreshold;
     }
 
-    public synchronized void waitUntilQueueThreshold() throws InterruptedException {
+    synchronized void waitUntilQueueThreshold() throws InterruptedException {
       while (queue.size() > waitUntilQueueThreshold) {
         wait();
       }
