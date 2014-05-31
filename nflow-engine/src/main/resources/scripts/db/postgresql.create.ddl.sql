@@ -15,16 +15,18 @@ create table if not exists nflow_workflow (
   constraint nflow_workflow_uniq unique (type, external_id)
 );
 
-create function update_modified() returns trigger language plpgsql
-as $$
+create or replace function update_modified() returns trigger language plpgsql as '
 begin
   NEW.modified := now();
   return NEW;
 end;
-$$;
+';
+
+drop trigger if exists update_nflow_modified on nflow_workflow;
 create trigger update_nflow_modified before update on nflow_workflow for each row execute procedure update_modified();
 
-create index on nflow_workflow(next_activation) where next_activation is not null;
+drop index nflow_workflow_activation;
+create index nflow_workflow_activation on nflow_workflow(next_activation) where next_activation is not null;
 
 create table if not exists nflow_workflow_action (
   id serial primary key,
