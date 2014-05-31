@@ -282,12 +282,14 @@ nFlow supports the following databases:
 
 First you need to create a database for nFlow, unless you're using memory-based H2 which is suitable for development and testing. 
 
-**MySQL 5.6 or newer, MariaDB 5.6 or newer**
+**MySQL 5.6 or newer, MariaDB 5.5 or newer**
 
 Execute the following commands:
 ```
 sudo mysql -e "create database nflow character set utf8mb4;"
-sudo mysql -e "create user 'nflow'@'localhost' identified by 'nflow';"
+sudo mysql -e "create user 'nflow'@'%' identified by 'nflow';"
+sudo mysql -e "grant create,drop,delete,insert,update,index,select on nflow.* TO 'nflow'@'%';"
+sudo mysql -e "flush privileges;"
 ```
 
 **PostgreSQL 9.x or newer**
