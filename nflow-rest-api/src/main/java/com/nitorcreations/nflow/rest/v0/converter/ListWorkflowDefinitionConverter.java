@@ -15,9 +15,12 @@ import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.Setti
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.TransitionDelays;
 import com.nitorcreations.nflow.rest.v0.msg.State;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class ListWorkflowDefinitionConverter {
 
+  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
   public ListWorkflowDefinitionResponse convert(WorkflowDefinition<? extends WorkflowState> definition) {
     ListWorkflowDefinitionResponse resp = new ListWorkflowDefinitionResponse();
     resp.type = definition.getType();

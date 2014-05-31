@@ -32,6 +32,8 @@ import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class RepositoryService {
 
@@ -59,6 +61,7 @@ public class RepositoryService {
     return repositoryDao.getWorkflowInstance(id);
   }
 
+  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
   @Transactional
   public int insertWorkflowInstance(WorkflowInstance instance) {
     WorkflowDefinition<?> def = getWorkflowDefinition(instance.type);
