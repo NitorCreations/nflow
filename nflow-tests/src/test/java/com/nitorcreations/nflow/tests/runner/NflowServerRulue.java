@@ -69,7 +69,7 @@ public class NflowServerRulue extends ExternalResource {
   @Override
   protected void after() {
     try {
-      nflowJetty.setStopTimeout(1);
+      nflowJetty.setStopTimeout(100);
       nflowJetty.stop();
     } catch (Exception e) {
       e.printStackTrace();

@@ -51,7 +51,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   public void t02_checkAcceptCreditApplicationReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response = getWorkflowInstance(req.externalId, "acceptCreditApplication");
+    ListWorkflowInstanceResponse response = getWorkflowInstance(resp.id, "acceptCreditApplication");
     assertThat(response.state, is("acceptCreditApplication"));
     assertThat(response.nextActivation, nullValue());
   }
@@ -66,24 +66,24 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   public void t04_checkErrorStateReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response = getWorkflowInstance(req.externalId, "error");
+    ListWorkflowInstanceResponse response = getWorkflowInstance(resp.id, "error");
     assertThat(response.state, is("error"));
     assertThat(response.nextActivation, nullValue());
   }
 
-  // TODO: replace with id query when /v0/workflow-instance/{id} exists
-  private ListWorkflowInstanceResponse getWorkflowInstance(String externalId, String expectedState) throws InterruptedException {
-    ListWorkflowInstanceResponse[] tmp = new ListWorkflowInstanceResponse[0];
+  @SuppressWarnings("null")
+  private ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
+    ListWorkflowInstanceResponse wf = null;
     for (int i=0; i<10; i++) {
-      tmp = fromClient(workflowInstanceResource, true).query("externalId", req.externalId).get(ListWorkflowInstanceResponse[].class);
-      if (tmp.length == 0 || !expectedState.equals(tmp[0].state)) {
-        sleep(1000l);
-      } else {
-        break;
+      wf = fromClient(workflowInstanceResource, true).path(id).get(ListWorkflowInstanceResponse.class);
+      if (expectedState.equals(wf.state)) {
+        return wf;
       }
+      sleep(1000);
     }
-    assertThat(tmp.length, is(1));
-    return tmp[0];
+    assertThat("No workflow found with id " + id, wf, notNullValue());
+    assertThat(wf.state, is(expectedState));
+    return wf;
   }
 
 }
