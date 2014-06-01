@@ -2,3 +2,16 @@ language: java
 jdk:
   - openjdk7
   - oraclejdk8
+env:
+  - SPRING_PROFILES_ACTIVE=
+  - SPRING_PROFILES_ACTIVE=nflow.postgresql
+  - SPRING_PROFILES_ACTIVE=nflow.mysql
+addons:
+  postgresql: "9.3"
+before_script:
+  - psql -c "create user nflow with password 'nflow';" -U postgres
+  - psql -c 'create database nflow owner nflow;' -U postgres
+  - mysql -e 'create database nflow character set utf8mb4;'
+  - mysql -e "create user 'nflow'@'%' identified by 'nflow';"
+  - mysql -e "grant all on nflow.* TO 'nflow'@'%';"
+  - mysql -e "flush privileges;"
