@@ -11,7 +11,7 @@ addons:
 before_script:
   - psql -c "create user nflow with password 'nflow';" -U postgres
   - psql -c 'create database nflow owner nflow;' -U postgres
-  - mysql -e 'create database nflow character set utf8mb4;'
-  - mysql -e "create user 'nflow'@'%' identified by 'nflow';"
-  - mysql -e "grant all on nflow.* TO 'nflow'@'%';"
-  - mysql -e "flush privileges;"
+  - mysql -e 'create database nflow character set utf8mb4;' -u root
+  - mysql -e "create user 'nflow'@'%' identified by 'nflow';" -u root
+  - mysql -e "grant all on nflow.* TO 'nflow'@'%';" -u root
+  - mysql -e "flush privileges;" -u root
