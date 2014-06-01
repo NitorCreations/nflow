@@ -10,8 +10,8 @@ addons:
   postgresql: "9.3"
 before_script:
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c "create user nflow with password 'nflow';" -U postgres; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c 'create database nflow-break owner nflow;' -U postgres; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e 'create database nflow-break character set utf8mb4;' -u root; fi
+  - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c 'create database nflowbreak owner nflow;' -U postgres; fi
+  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e 'create database nflowbreak character set utf8mb4;' -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e "create user 'nflow'@'%' identified by 'nflow';" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e "grant all on nflow.* TO 'nflow'@'%';" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e "flush privileges;" -u root; fi
