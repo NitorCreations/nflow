@@ -3,15 +3,17 @@ jdk:
   - openjdk7
   - oraclejdk8
 env:
-  - SPRING_PROFILES_ACTIVE=
+  - SPRING_PROFILES_ACTIVE=nflow.h2
   - SPRING_PROFILES_ACTIVE=nflow.postgresql
   - SPRING_PROFILES_ACTIVE=nflow.mysql
 addons:
   postgresql: "9.3"
 before_script:
-  - psql -c "create user nflow with password 'nflow';" -U postgres
-  - psql -c 'create database nflow owner nflow;' -U postgres
-  - mysql -e 'create database nflow character set utf8mb4;' -u root
-  - mysql -e "create user 'nflow'@'%' identified by 'nflow';" -u root
-  - mysql -e "grant all on nflow.* TO 'nflow'@'%';" -u root
-  - mysql -e "flush privileges;" -u root
+  - [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]] && psql -c "create user nflow with password 'nflow';" -U postgres
+  - [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]] && psql -c 'create database nflow owner nflow;' -U postgres
+  - [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]] && mysql -e 'create database nflow character set utf8mb4;' -u root
+  - [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]] && mysql -e "create user 'nflow'@'%' identified by 'nflow';" -u root
+  - [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]] && mysql -e "grant all on nflow.* TO 'nflow'@'%';" -u root
+  - [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]] && mysql -e "flush privileges;" -u root
+after_script:
+  - egrep -q "environment.*$SPRING_PROFILES_ACTIVE" nflow-tests/target/surefire-reports/*.txt
