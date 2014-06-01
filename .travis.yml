@@ -16,5 +16,5 @@ before_script:
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e "grant all on nflow.* TO 'nflow'@'%';" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -e "flush privileges;" -u root; fi
 after_script:
-  - echo "$SPRING_PROFILES_ACTIVE"
-  - egrep -q "environment.*$SPRING_PROFILES_ACTIVE" nflow-tests/target/surefire-reports/*.txt
+  - fgrep "jdbc:" nflow-tests/target/surefire-reports/*.txt
+  - egrep "environment.*$SPRING_PROFILES_ACTIVE" nflow-tests/target/surefire-reports/*.txt
