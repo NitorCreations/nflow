@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.tests;
 
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -23,6 +24,8 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @ClassRule
   public static NflowServerRulue server = new NflowServerRulue().port(7501);
 
+  private static CreateWorkflowInstanceResponse resp;
+
   public DemoWorkflowTest() {
     super(server);
   }
@@ -32,19 +35,27 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "demo";
     req.businessKey = "1";
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void t02_queryDemoWorkflowHistory() throws Exception {
-    sleep(5000);
-    ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
-            .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
-    assertThat(instances.length, is(1));
-    assertThat(instances[0].state, is("done"));
-    assertThat(instances[0].nextActivation, nullValue());
-    assertThat(instances[0].actions.size(), is(3));
+    ListWorkflowInstanceResponse wf = null;
+    do {
+      sleep(200);
+      ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
+              .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
+      assertThat(instances.length, greaterThanOrEqualTo(1));
+      for (ListWorkflowInstanceResponse instance : instances) {
+        if (instance.id == resp.id && "done".equals(instance.state)) {
+          wf = instance;
+          break;
+        }
+      }
+    } while (wf == null);
+    assertThat(wf.nextActivation, nullValue());
+    assertThat(wf.actions.size(), is(3));
   }
 
 }

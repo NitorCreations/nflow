@@ -15,7 +15,9 @@ public class NflowStandardEnvironment extends StandardEnvironment {
 
   public NflowStandardEnvironment(Map<String, Object> overrideProperties) {
     getPropertySources().addLast(new MapPropertySource("override", overrideProperties));
-    addPropertyResource(getProperty("env", "local"));
+    String env = getProperty("env", "local");
+    addActiveProfile(env);
+    addPropertyResource(env);
     addPropertyResource("common");
     String profiles = getProperty("profiles", String.class, "");
     for (String profile : profiles.split(",")) {

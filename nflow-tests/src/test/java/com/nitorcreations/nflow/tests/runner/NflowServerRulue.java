@@ -51,6 +51,10 @@ public class NflowServerRulue extends ExternalResource {
     return this;
   }
 
+  public String getInstanceName() {
+    return (String) props.get("nflow.instance.name");
+  }
+
   @Override
   public Statement apply(Statement base, Description description) {
     if (!props.containsKey("nflow.instance.name")) {

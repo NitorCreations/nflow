@@ -49,7 +49,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void t02_checkAcceptCreditApplicationReached() throws InterruptedException {
     ListWorkflowInstanceResponse response = getWorkflowInstance(resp.id, "acceptCreditApplication");
     assertThat(response.state, is("acceptCreditApplication"));
@@ -64,25 +64,19 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     fromClient(workflowInstanceResource, true).path(resp.id).put(ureq);
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void t04_checkErrorStateReached() throws InterruptedException {
     ListWorkflowInstanceResponse response = getWorkflowInstance(resp.id, "error");
     assertThat(response.state, is("error"));
     assertThat(response.nextActivation, nullValue());
   }
 
-  @SuppressWarnings("null")
   private ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
     ListWorkflowInstanceResponse wf = null;
-    for (int i=0; i<10; i++) {
+    do {
+      sleep(200);
       wf = fromClient(workflowInstanceResource, true).path(id).get(ListWorkflowInstanceResponse.class);
-      if (expectedState.equals(wf.state)) {
-        return wf;
-      }
-      sleep(1000);
-    }
-    assertThat("No workflow found with id " + id, wf, notNullValue());
-    assertThat(wf.state, is(expectedState));
+    } while (wf == null || !expectedState.equals(wf.state));
     return wf;
   }
 
