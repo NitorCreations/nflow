@@ -82,7 +82,7 @@
     <hamcrest.version>1.3</hamcrest.version>
     <hibernate.validator.version>5.1.1.Final</hibernate.validator.version>
     <hikaricp.version>1.3.8</hikaricp.version>
-    <jackson.version>2.3.3</jackson.version>
+    <jackson.version>2.4.0</jackson.version>
     <javassist.version>3.18.2-GA</javassist.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <javax.ws.rs.version>2.0</javax.ws.rs.version>

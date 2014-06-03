@@ -247,8 +247,8 @@ Properties whose name ends to _.ms_ define milliseconds.
 
 | Property name | Default value | Description |
 | ------------- | ------------- | ----------- |
-| nflow.mysql   | not set       | Enables MySQL database support. Use _nflow.db.mysql.url_  to configure the location if not default localhost. |
-| nflow.postgresql | not set    | Enables PostgreSQL database support. Use _nflow.db.postgresql.url_  to configure the location if not default localhost. |
+| nflow.mysql   | not set       | Enables MySQL database support |
+| nflow.postgresql | not set    | Enables PostgreSQL database support |
 
 
 ### <a name="nflow-properties-nflow-engine"></a>nflow-engine
@@ -261,8 +261,14 @@ Properties whose name ends to _.ms_ define milliseconds.
 | nflow.transition.delay.waitshort.ms | 30000 | Delay for next activation of workflow instance after e.g. starting async operation |
 | nflow.transition.delay.waiterror.ms | 7200000 | Delay for next activation of workflow instance after an error/exception |
 | nflow.max.state.retries | 3 | Maximum amount of automatic retries for normal state, after which the failure or error transition is taken |
-| nflow.db.\[type\].driver | org.h2.jdbcx.JdbcDataSource | Fully qualified class name of datasource |
-| nflow.db.\[type\].url | jdbc:h2:mem:test | nFlow database JDBC URL |
+| nflow.db.driver | Autoselect between 
+org.h2.jdbcx.JdbcDataSource 
+com.mysql.jdbc.jdbc2.optional.MysqlDataSource 
+org.postgresql.ds.PGSimpleDataSource | Fully qualified class name of datasource |
+| nflow.db.url | Autoselect between
+jdbc:h2:mem:test
+jdbc:mysql://localhost/nflow
+jdbc:postgresql://localhost/nflow | nFlow database JDBC URL |
 | nflow.db.user | sa | nFlow database user |
 | nflow.db.password | _empty_ | nFlow database user password |
 | nflow.db.max_pool_size | 4 | Maximum size of database connection pool |

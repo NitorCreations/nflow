@@ -38,9 +38,12 @@ public abstract class DatabaseConfiguration {
   }
 
   protected <T> T property(Environment env, String key, Class<T> type) {
-    T val = env.getProperty("nflow.db." + dbType + "." + key, type);
+    T val = env.getProperty("nflow.db." + key, type);
     if (val == null) {
-      val = env.getRequiredProperty("nflow.db." + key, type);
+      val = env.getProperty("nflow.db." + dbType + "." + key, type);
+      if (val == null) {
+        throw new IllegalStateException("required key [nflow.db." + key + "] not found");
+      }
     }
     return val;
   }
