@@ -1,0 +1,17 @@
+com.nitorcreations.nflow.engine
+com.nitorcreations.nflow.engine.config
+com.nitorcreations.nflow.engine.dao
+com.nitorcreations.nflow.engine.db
+com.nitorcreations.nflow.engine.domain
+com.nitorcreations.nflow.engine.service
+com.nitorcreations.nflow.engine.workflow
+com.nitorcreations.nflow.engine.workflow.data
+com.nitorcreations.nflow.jetty
+com.nitorcreations.nflow.jetty.config
+com.nitorcreations.nflow.jetty.spring
+com.nitorcreations.nflow.jetty.validation
+com.nitorcreations.nflow.rest.config
+com.nitorcreations.nflow.rest.v0
+com.nitorcreations.nflow.rest.v0.converter
+com.nitorcreations.nflow.rest.v0.msg
+com.nitorcreations.nflow.tests.demo
