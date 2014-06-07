@@ -42,6 +42,7 @@ nFlow non-goals are important to understand as well:
   * [Security](#security)
   * [Logging](#logging)
 * [Other Stuff](#other-stuff)
+  * [JavaDocs](#javadoc)
   * [Versioning](#versioning)
   * [REST API](#rest-api)
   * [Licence](#licence)
@@ -346,6 +347,10 @@ Currently nFlow does not come with any security framework. You can add your own 
 nFlow implements logging via [SLF4J](http://www.slf4j.org/) API. [nflow-jetty](https://github.com/NitorCreations/nflow/tree/master/nflow-jetty) uses [Logback](http://logback.qos.ch/) as the logging implementation.
 
 # <a name="other-stuff"></a>Other Stuff
+
+## <a name="javadoc"></a>JavaDocs
+
+JavaDocs are available at http://nitorcreations.github.io/nflow/apidocs/ .
 
 ## <a name="versioning"></a>Versioning
 
