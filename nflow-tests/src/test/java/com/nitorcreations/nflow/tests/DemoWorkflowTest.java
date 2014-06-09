@@ -16,13 +16,13 @@ import org.junit.Test;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
-import com.nitorcreations.nflow.tests.runner.NflowServerRulue;
+import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class DemoWorkflowTest extends AbstractNflowTest {
 
   @ClassRule
-  public static NflowServerRulue server = new NflowServerRulue().port(7501);
+  public static NflowServerRule server = new NflowServerRule().port(7501);
 
   private static CreateWorkflowInstanceResponse resp;
 

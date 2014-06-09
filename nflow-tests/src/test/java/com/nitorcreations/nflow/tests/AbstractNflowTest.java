@@ -13,16 +13,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
-import com.nitorcreations.nflow.tests.runner.NflowServerRulue;
+import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
 
-  private final NflowServerRulue server;
+  private final NflowServerRule server;
 
-  public AbstractNflowTest(NflowServerRulue server) {
+  public AbstractNflowTest(NflowServerRule server) {
     this.server = server;
   }
 

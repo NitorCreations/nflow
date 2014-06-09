@@ -16,7 +16,7 @@ import org.junit.runners.model.Statement;
 
 import com.nitorcreations.nflow.jetty.StartNflow;
 
-public class NflowServerRulue extends ExternalResource {
+public class NflowServerRule extends ExternalResource {
   private Server nflowJetty;
   private int port = 7500;
   private String env = "local";
@@ -27,7 +27,7 @@ public class NflowServerRulue extends ExternalResource {
     props.put("nflow.db.h2.console.port", "");
   }
 
-  public NflowServerRulue port(int newPort) {
+  public NflowServerRule port(int newPort) {
     this.port = newPort;
     return this;
   }
@@ -36,17 +36,17 @@ public class NflowServerRulue extends ExternalResource {
     return port;
   }
 
-  public NflowServerRulue env(String newEnv) {
+  public NflowServerRule env(String newEnv) {
     this.env = newEnv;
     return this;
   }
 
-  public NflowServerRulue profiles(String newProfiles) {
+  public NflowServerRule profiles(String newProfiles) {
     this.profiles = newProfiles;
     return this;
   }
 
-  public NflowServerRulue prop(String key, Object val) {
+  public NflowServerRule prop(String key, Object val) {
     props.put(key, val);
     return this;
   }

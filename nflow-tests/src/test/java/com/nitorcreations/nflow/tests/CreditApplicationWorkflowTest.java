@@ -22,13 +22,13 @@ import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow;
-import com.nitorcreations.nflow.tests.runner.NflowServerRulue;
+import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @ClassRule
-  public static NflowServerRulue server = new NflowServerRulue().port(7502);
+  public static NflowServerRule server = new NflowServerRule().port(7502);
 
   public CreditApplicationWorkflowTest() {
     super(server);
