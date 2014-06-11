@@ -13,7 +13,9 @@ before_script:
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c "create database nflow owner nflow;" -U postgres; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "create database nflow character set utf8mb4;" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "create user 'nflow'@'%' identified by 'nflow';" -u root; fi
+  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "create user 'nflow'@'localhost' identified by 'nflow';" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "grant all on nflow.* TO 'nflow'@'%';" -u root; fi
+  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "grant all on nflow.* TO 'nflow'@'localhost';" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "flush privileges;" -u root; fi
 after_script:
   - for i in nflow-tests/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
