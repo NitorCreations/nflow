@@ -47,7 +47,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
               .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
       assertThat(instances.length, greaterThanOrEqualTo(1));
       for (ListWorkflowInstanceResponse instance : instances) {
-        if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation != null) {
+        if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
           wf = instance;
           break;
         }
