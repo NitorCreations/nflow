@@ -262,8 +262,8 @@ Properties whose name ends to _.ms_ define milliseconds.
 | nflow.transition.delay.waitshort.ms | 30000 | Delay for next activation of workflow instance after e.g. starting async operation |
 | nflow.transition.delay.waiterror.ms | 7200000 | Delay for next activation of workflow instance after an error/exception |
 | nflow.max.state.retries | 3 | Maximum amount of automatic retries for normal state, after which the failure or error transition is taken |
-| nflow.db.driver | Autoselect between <br>org.h2.jdbcx.JdbcDataSource <br>com.mysql.jdbc.jdbc2.optional.MysqlDataSource <br>org.postgresql.ds.PGSimpleDataSource | Fully qualified class name of datasource |
-| nflow.db.url | Autoselect between <br>jdbc:h2:mem:test <br>jdbc:mysql://localhost/nflow <br>jdbc:postgresql://localhost/nflow | nFlow database JDBC URL |
+| nflow.db.driver | Autoselect between h2, mysql or postgresql DataSource | Fully qualified class name of datasource |
+| nflow.db.url | Autoselect between jdbc: <br>h2:mem:test <br>mysql://localhost/nflow <br>postgresql://localhost/nflow | nFlow database JDBC URL |
 | nflow.db.user | sa | nFlow database user |
 | nflow.db.password | _empty_ | nFlow database user password |
 | nflow.db.max_pool_size | 4 | Maximum size of database connection pool |
