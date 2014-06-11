@@ -2,9 +2,7 @@ package com.nitorcreations.nflow.tests;
 
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
@@ -51,9 +49,10 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test(timeout = 5000)
   public void t02_checkAcceptCreditApplicationReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response = getWorkflowInstance(resp.id, "acceptCreditApplication");
-    assertThat(response.state, is("acceptCreditApplication"));
-    assertThat(response.nextActivation, nullValue());
+    ListWorkflowInstanceResponse response;
+    do {
+      response = getWorkflowInstance(resp.id, "acceptCreditApplication");
+    } while (response.nextActivation != null);
   }
 
   @Test
