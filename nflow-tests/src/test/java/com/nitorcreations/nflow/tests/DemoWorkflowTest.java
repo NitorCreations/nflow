@@ -5,7 +5,6 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
@@ -48,13 +47,12 @@ public class DemoWorkflowTest extends AbstractNflowTest {
               .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
       assertThat(instances.length, greaterThanOrEqualTo(1));
       for (ListWorkflowInstanceResponse instance : instances) {
-        if (instance.id == resp.id && "done".equals(instance.state)) {
+        if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation != null) {
           wf = instance;
           break;
         }
       }
     } while (wf == null);
-    assertThat(wf.nextActivation, nullValue());
     assertThat(wf.actions.size(), is(3));
   }
 
