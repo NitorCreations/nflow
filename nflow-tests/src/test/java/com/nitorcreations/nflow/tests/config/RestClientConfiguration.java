@@ -14,8 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.rest.config.NflowJacksonObjectMapper;
+import com.nitorcreations.nflow.rest.config.JacksonJodaModule;
 
 @Configuration
 public class RestClientConfiguration {
@@ -36,13 +37,14 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(NflowJacksonObjectMapper mapper) {
-    return new JacksonJsonProvider(mapper);
+  public ObjectMapper objectMapper() {
+    // this must be kept in sync with the server side
+    return new ObjectMapper().registerModule(new JacksonJodaModule());
   }
 
   @Bean
-  public NflowJacksonObjectMapper jsonObjectMapper() {
-    return new NflowJacksonObjectMapper();
+  public JacksonJsonProvider jsonProvider(ObjectMapper mapper) {
+    return new JacksonJsonProvider(mapper);
   }
 
   @Bean(name="workflow-instance")

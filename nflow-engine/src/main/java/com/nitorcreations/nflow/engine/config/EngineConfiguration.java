@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.config;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 import javax.inject.Inject;
 
 import org.springframework.context.annotation.Bean;
@@ -35,6 +37,7 @@ public class EngineConfiguration {
   @Bean(name="nflow-ObjectMapper")
   public ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(NON_EMPTY);
     return mapper;
   }
 

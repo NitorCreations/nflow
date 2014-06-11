@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.jetty.config;
 
 import java.util.Arrays;
 
+import javax.inject.Named;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.RuntimeDelegate;
@@ -21,9 +22,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
-import com.nitorcreations.nflow.rest.config.NflowJacksonObjectMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v0.WorkflowInstanceResource;
@@ -39,7 +40,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 public class NflowJettyConfiguration {
 
   @Bean
-  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, NflowJacksonObjectMapper mapper) {
+  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflow-ObjectMapper") ObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
@@ -59,13 +60,8 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(NflowJacksonObjectMapper mapper) {
+  public JacksonJsonProvider jsonProvider(@Named("nflow-ObjectMapper") ObjectMapper mapper) {
     return new JacksonJsonProvider(mapper);
-  }
-
-  @Bean
-  public NflowJacksonObjectMapper jsonObjectMapper(Environment env) {
-    return new NflowJacksonObjectMapper();
   }
 
   @Bean
