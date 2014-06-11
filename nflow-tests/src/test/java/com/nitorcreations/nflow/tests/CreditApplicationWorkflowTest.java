@@ -66,9 +66,10 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test(timeout = 5000)
   public void t04_checkErrorStateReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response = getWorkflowInstance(resp.id, "error");
-    assertThat(response.state, is("error"));
-    assertThat(response.nextActivation, nullValue());
+    ListWorkflowInstanceResponse response;
+    do {
+      response = getWorkflowInstance(resp.id, "error");
+    } while (response.nextActivation != null);
   }
 
   private ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
