@@ -9,12 +9,17 @@ create table if not exists nflow_workflow (
   next_activation timestamp null,
   is_processing boolean not null default false,
   retries int not null default 0,
-  created timestamp not null default current_timestamp,
+  created timestamp not null,
   modified timestamp not null default current_timestamp on update current_timestamp,
   owner varchar(64),
   constraint nflow_workflow_uniq unique (type, external_id),
   index nflow_workflow(next_activation)
 );
+
+drop trigger if exists nflow_workflow_insert;
+
+create trigger nflow_workflow_insert before insert on `nflow_workflow`
+  for each row set new.created = now();
 
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
