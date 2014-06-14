@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.nitorcreations</groupId>
     <artifactId>nflow-root</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2.0</version>
   </parent>
   <artifactId>nflow-tests</artifactId>
   <name>nflow-tests</name>
