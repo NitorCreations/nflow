@@ -37,13 +37,13 @@ public class StartNflowTest {
   @Test
   @Ignore
   public void startNflowJettyMysql() throws Exception {
-    startStop("nflow.mysql");
+    startStop("nflow.db.mysql");
   }
 
   @Test
   @Ignore
   public void startNflowJettyPostgreSQL() throws Exception {
-    startStop("nflow.postgresql");
+    startStop("nflow.db.postgresql");
   }
 
 }

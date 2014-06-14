@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -23,6 +24,7 @@ import com.nitorcreations.nflow.engine.BaseNflowTest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={DaoTestConfiguration.class})
+@ActiveProfiles("nflow.db.h2")
 public abstract class BaseDaoTest extends BaseNflowTest {
 
   @Inject

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
-@Profile("!nflow.mysql,!nflow.postgresql")
+@Profile("nflow.db.h2")
 @Configuration
 public class H2DatabaseConfiguration extends DatabaseConfiguration {
   public H2DatabaseConfiguration() {

@@ -3,9 +3,9 @@ jdk:
   - openjdk7
   - oraclejdk8
 env:
-  - SPRING_PROFILES_ACTIVE=nflow.h2
-  - SPRING_PROFILES_ACTIVE=nflow.postgresql
-  - SPRING_PROFILES_ACTIVE=nflow.mysql
+  - SPRING_PROFILES_ACTIVE=nflow.db.h2
+  - SPRING_PROFILES_ACTIVE=nflow.db.postgresql
+  - SPRING_PROFILES_ACTIVE=nflow.db.mysql
 addons:
   postgresql: "9.3"
 before_script:
