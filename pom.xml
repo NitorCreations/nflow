@@ -231,7 +231,9 @@
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-			<aggregate>true</aggregate>
+        	<!-- maven-javadoc-plugin may hang for a long time if it can't access these links
+        		http://maven.apache.org/plugins-archives/maven-javadoc-plugin-2.9/apidocs/org/apache/maven/plugin/javadoc/JavadocUtil.html#DEFAULT_TIMEOUT
+        	 -->
         	<links>
         		<link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
         	</links>
