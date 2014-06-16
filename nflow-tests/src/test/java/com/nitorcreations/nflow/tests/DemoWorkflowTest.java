@@ -19,9 +19,8 @@ import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class DemoWorkflowTest extends AbstractNflowTest {
-
   @ClassRule
-  public static NflowServerRule server = new NflowServerRule().port(7501);
+  public static NflowServerRule server = new NflowServerRule.Builder().build();
 
   private static CreateWorkflowInstanceResponse resp;
 

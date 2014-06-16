@@ -1,22 +1,32 @@
 package com.nitorcreations.nflow.jetty;
 
 import static java.lang.Thread.sleep;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.eclipse.jetty.server.Server;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class StartNflowTest {
-
   @Test
-  public void startNflowJetty() throws Exception {
-    startStop("");
+  public void startNflowJettyToRandomFreeLocalPort() throws Exception {
+    JettyServerContainer jetty = initJettyStart(0, "");
+    assertThat(jetty.getPort(), is(not(0)));
+    startStop(jetty);
   }
 
-  private void startStop(String profiles) throws Exception {
-    Server jetty = new StartNflow().startJetty(7505, "junit", profiles);
+  private JettyServerContainer initJettyStart(String profiles) throws Exception {
+    return initJettyStart(0, profiles);
+  }
+
+  private JettyServerContainer initJettyStart(int port, String profiles) throws Exception {
+    return new StartNflow().startJetty(port, "junit", profiles);
+  }
+
+  private void startStop(JettyServerContainer jetty) throws Exception {
     for (int i = 0; i < 5000; i+=50) {
       if (jetty.isStarted())
         break;
@@ -34,16 +44,24 @@ public class StartNflowTest {
 
   }
 
+  @Ignore(value = "Not used generally to avoid port conflicts")
+  @Test
+  public void startNflowJettyToPredefinedPort() throws Exception {
+    JettyServerContainer jetty = initJettyStart(7505, "");
+    assertThat(jetty.getPort(), is(7505));
+    startStop(jetty);
+  }
+
   @Test
   @Ignore
   public void startNflowJettyMysql() throws Exception {
-    startStop("nflow.db.mysql");
+    startStop(initJettyStart("nflow.db.mysql"));
   }
 
   @Test
   @Ignore
   public void startNflowJettyPostgreSQL() throws Exception {
-    startStop("nflow.db.postgresql");
+    startStop(initJettyStart("nflow.db.postgresql"));
   }
 
 }

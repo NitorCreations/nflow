@@ -26,7 +26,7 @@ import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @ClassRule
-  public static NflowServerRule server = new NflowServerRule().port(7502);
+  public static NflowServerRule server = new NflowServerRule.Builder().build();
 
   public CreditApplicationWorkflowTest() {
     super(server);

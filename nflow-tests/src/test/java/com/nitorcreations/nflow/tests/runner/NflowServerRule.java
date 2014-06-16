@@ -8,47 +8,66 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.jetty.server.Server;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import com.nitorcreations.nflow.jetty.JettyServerContainer;
 import com.nitorcreations.nflow.jetty.StartNflow;
 
 public class NflowServerRule extends ExternalResource {
-  private Server nflowJetty;
-  private int port = 7500;
-  private String env = "local";
-  private String profiles = "";
-  private final Map<String, Object> props = new HashMap<>();
-  {
-    props.put("nflow.db.h2.tcp.port", "");
-    props.put("nflow.db.h2.console.port", "");
+  private final Map<String, Object> props;
+  private final String env;
+  private final String profiles;
+  private final AtomicReference<Integer> port;
+  private JettyServerContainer nflowJetty;
+
+  private NflowServerRule(Builder b) {
+    props = b.props;
+    env = b.env;
+    profiles = b.profiles;
+    port = new AtomicReference<>(b.port);
   }
 
-  public NflowServerRule port(int newPort) {
-    this.port = newPort;
-    return this;
+  public static class Builder {
+    private int port = 0;
+    private String env = "local";
+    private String profiles = "";
+    private final Map<String, Object> props = new HashMap<>();
+    {
+      props.put("nflow.db.h2.tcp.port", "");
+      props.put("nflow.db.h2.console.port", "");
+    }
+
+    public Builder port(int newPort) {
+      this.port = newPort;
+      return this;
+    }
+
+    public Builder env(String newEnv) {
+      this.env = newEnv;
+      return this;
+    }
+
+    public Builder profiles(String newProfiles) {
+      this.profiles = newProfiles;
+      return this;
+    }
+
+    public Builder prop(String key, Object val) {
+      props.put(key, val);
+      return this;
+    }
+
+    public NflowServerRule build() {
+      return new NflowServerRule(this);
+    }
   }
 
   public int getPort() {
-    return port;
-  }
-
-  public NflowServerRule env(String newEnv) {
-    this.env = newEnv;
-    return this;
-  }
-
-  public NflowServerRule profiles(String newProfiles) {
-    this.profiles = newProfiles;
-    return this;
-  }
-
-  public NflowServerRule prop(String key, Object val) {
-    props.put(key, val);
-    return this;
+    return port.get();
   }
 
   public String getInstanceName() {
@@ -66,8 +85,9 @@ public class NflowServerRule extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
-    nflowJetty = new StartNflow().startJetty(port, env, profiles, props);
+    nflowJetty = new StartNflow().startJetty(port.get(), env, profiles, props);
     assertTrue("Jetty did not start", nflowJetty.isStarted());
+    port.set(nflowJetty.getPort());
   }
 
   @Override

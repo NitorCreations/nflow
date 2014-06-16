@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -40,8 +41,6 @@ import com.nitorcreations.nflow.jetty.config.NflowJettyConfiguration;
 import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 import com.nitorcreations.nflow.jetty.spring.NflowStandardEnvironment;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 public class StartNflow
 {
   private static final Logger LOG = LoggerFactory.getLogger(StartNflow.class);
@@ -50,18 +49,18 @@ public class StartNflow
     new StartNflow().startJetty(Collections.<String, Object>emptyMap());
   }
 
-  public Server startJetty(int port, String env, String profiles) throws Exception {
+  public JettyServerContainer startJetty(int port, String env, String profiles) throws Exception {
     return startJetty(port, env, profiles, new HashMap<String, Object>());
   }
 
-  public Server startJetty(int port, String env, String profiles, Map<String, Object> properties) throws Exception {
+  public JettyServerContainer startJetty(int port, String env, String profiles, Map<String, Object> properties) throws Exception {
     properties.put("port", port);
     properties.put("env", env);
     properties.put("profiles", profiles);
     return startJetty(properties);
   }
 
-  public Server startJetty(Map<String, Object> properties) throws Exception {
+  public JettyServerContainer startJetty(Map<String, Object> properties) throws Exception {
     long start = currentTimeMillis();
     // also CXF uses JDK logging
     SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -80,10 +79,12 @@ public class StartNflow
     setupNflowEngine(context);
     server.start();
     long end = currentTimeMillis();
+    JettyServerContainer startedServer = new JettyServerContainer(server);
+    port = startedServer.getPort();
     LOG.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
     LOG.info("API available at http://" + host + ":" + port + "/");
     LOG.info("API doc available at http://" + host + ":" + port + "/ui");
-    return server;
+    return startedServer;
   }
 
   private void setupNflowEngine(ServletContextHandler context) {
