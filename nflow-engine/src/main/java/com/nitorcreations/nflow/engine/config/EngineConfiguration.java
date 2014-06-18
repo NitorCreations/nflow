@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -42,7 +43,7 @@ public class EngineConfiguration {
   }
 
   @Bean(name = "non-spring-workflows-listing")
-  public ClassPathResource nonSpringWorkflowsListing() {
+  public AbstractResource nonSpringWorkflowsListing() {
     String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {
       return new ClassPathResource(filename);
