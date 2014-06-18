@@ -117,6 +117,7 @@
     <spring.version>4.0.5.RELEASE</spring.version>
     <swagger.version>1.3.5</swagger.version>
     <validation.api.version>1.1.0.Final</validation.api.version>
+    <flywaydb.version>3.0</flywaydb.version>
   </properties>
   <build>
     <pluginManagement>
@@ -500,6 +501,11 @@
         <groupId>com.googlecode.multithreadedtc</groupId>
         <artifactId>multithreadedtc</artifactId>
         <version>${multithreadedtc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>${flywaydb.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
