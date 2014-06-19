@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ public class DatabaseSchemaMigrator {
 
   private Flyway createFlyway() {
     Flyway flyway = new Flyway();
+    flyway.setInitVersion(MigrationVersion.fromVersion("0"));
     flyway.setTable("nflow_schema_version");
     flyway.setDataSource(dataSource);
     flyway.setLocations("classpath:/db/migration/" + dbType);
