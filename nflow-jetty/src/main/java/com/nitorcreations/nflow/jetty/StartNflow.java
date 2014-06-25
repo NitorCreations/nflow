@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -40,6 +39,8 @@ import com.nitorcreations.core.utils.KillProcess;
 import com.nitorcreations.nflow.jetty.config.NflowJettyConfiguration;
 import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 import com.nitorcreations.nflow.jetty.spring.NflowStandardEnvironment;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class StartNflow
 {
@@ -76,7 +77,6 @@ public class StartNflow
     setupHandlers(server, context);
     setupSpring(context, env);
     setupCxf(context);
-    setupNflowEngine(context);
     server.start();
     long end = currentTimeMillis();
     JettyServerContainer startedServer = new JettyServerContainer(server);
@@ -85,10 +85,6 @@ public class StartNflow
     LOG.info("API available at http://" + host + ":" + port + "/");
     LOG.info("API doc available at http://" + host + ":" + port + "/ui");
     return startedServer;
-  }
-
-  private void setupNflowEngine(ServletContextHandler context) {
-    context.addEventListener(new EngineContextListener());
   }
 
   @SuppressWarnings("resource")
