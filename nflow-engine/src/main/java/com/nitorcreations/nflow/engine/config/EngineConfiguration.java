@@ -2,7 +2,10 @@ package com.nitorcreations.nflow.engine.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
+import java.util.concurrent.ThreadFactory;
+
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,7 +26,7 @@ public class EngineConfiguration {
   Environment env;
 
   @Bean(name="nflow-executor")
-  public ThreadPoolTaskExecutor dispatcherPoolExecutor() {
+  public ThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflow-ThreadFactory") ThreadFactory threadFactory) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
@@ -31,8 +34,15 @@ public class EngineConfiguration {
     executor.setKeepAliveSeconds(0);
     executor.setAwaitTerminationSeconds(60);
     executor.setWaitForTasksToCompleteOnShutdown(true);
-    executor.setThreadFactory(new CustomizableThreadFactory("nflow-executor-"));
+    executor.setThreadFactory(threadFactory);
     return executor;
+  }
+
+  @Bean(name="nflow-ThreadFactory")
+  public ThreadFactory threadFactory() {
+    CustomizableThreadFactory factory = new CustomizableThreadFactory("nflow-executor-");
+    factory.setThreadGroupName("nflow");
+    return factory;
   }
 
   @Bean(name="nflow-ObjectMapper")

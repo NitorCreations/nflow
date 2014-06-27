@@ -2,7 +2,10 @@ package com.nitorcreations.nflow.engine;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.concurrent.ThreadFactory;
+
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.env.Environment;
@@ -15,10 +18,11 @@ public class WorkflowLifecycle implements SmartLifecycle {
   private final Thread dispatcherThread;
 
   @Inject
-  public WorkflowLifecycle(WorkflowDispatcher dispatcher, Environment env) {
+  public WorkflowLifecycle(WorkflowDispatcher dispatcher, @Named("nflow-ThreadFactory") ThreadFactory threadFactory, Environment env) {
     this.dispatcher = dispatcher;
     this.autoStart = env.getProperty("nflow.autostart", Boolean.class, true);
-    this.dispatcherThread = new Thread(dispatcher, "nflow-dispatcher");
+    this.dispatcherThread = threadFactory.newThread(dispatcher);
+    this.dispatcherThread.setName("nflow-dispatcher");
     if (!this.autoStart) {
       getLogger(WorkflowLifecycle.class).info("nFlow engine autostart disabled (system property nflow.autostart=false)");
     }
