@@ -13,10 +13,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
+import com.nitorcreations.nflow.engine.domain.WorkflowInstanceFactory;
+import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 
@@ -24,17 +24,17 @@ import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 public class CreateWorkflowConverterTest {
 
   @Mock
-  private ObjectMapper objectMapper;
+  private ObjectStringMapper objectMapper;
 
   private CreateWorkflowConverter converter;
 
   @Before
   public void setup() {
-    converter = new CreateWorkflowConverter(objectMapper);
+    converter = new CreateWorkflowConverter(new WorkflowInstanceFactory(objectMapper));
   }
 
   @Test
-  public void convertAndValidateWorks() throws JsonProcessingException {
+  public void convertAndValidateWorks() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.activationTime = DateTime.now();
     req.businessKey = "businessKey";
@@ -49,7 +49,7 @@ public class CreateWorkflowConverterTest {
   }
 
   @Test
-  public void convertAndValidateWorksWithMinimalData() throws JsonProcessingException {
+  public void convertAndValidateWorksWithMinimalData() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "wfType";
     WorkflowInstance i = converter.convertAndValidate(req);

@@ -1,10 +1,13 @@
 package com.nitorcreations.nflow.engine.domain;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+
+import com.nitorcreations.nflow.engine.workflow.data.ObjectStringMapper;
 
 public class WorkflowInstance {
 
@@ -16,7 +19,6 @@ public class WorkflowInstance {
   public final String stateText;
   public final DateTime nextActivation;
   public final boolean processing;
-  public final String requestData;
   public final Map<String, String> stateVariables;
   public final Map<String, String> originalStateVariables = new LinkedHashMap<>();
   public final List<WorkflowInstanceAction> actions;
@@ -34,7 +36,6 @@ public class WorkflowInstance {
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
     this.processing = builder.processing;
-    this.requestData = builder.requestData;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
     this.retries = builder.retries;
@@ -53,15 +54,20 @@ public class WorkflowInstance {
     String stateText;
     DateTime nextActivation;
     boolean processing;
-    String requestData;
-    Map<String, String> stateVariables;
+    final HashMap<String, String> stateVariables = new HashMap<>();
     List<WorkflowInstanceAction> actions;
     int retries;
     DateTime created;
     DateTime modified;
     String owner;
 
+    private ObjectStringMapper mapper;
+
     public Builder() {
+    }
+
+    public Builder(ObjectStringMapper objectMapper) {
+      this.mapper = objectMapper;
     }
 
     public Builder(WorkflowInstance copy) {
@@ -73,8 +79,7 @@ public class WorkflowInstance {
       this.stateText = copy.stateText;
       this.nextActivation = copy.nextActivation;
       this.processing = copy.processing;
-      this.requestData = copy.requestData;
-      this.stateVariables = copy.stateVariables;
+      this.stateVariables.putAll(copy.stateVariables);
       this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;
@@ -121,13 +126,22 @@ public class WorkflowInstance {
       return this;
     }
 
-    public Builder setRequestData(String requestData) {
-      this.requestData = requestData;
+    public Builder setStateVariables(Map<String, String> stateVariables) {
+      this.stateVariables.clear();
+      this.stateVariables.putAll(stateVariables);
       return this;
     }
 
-    public Builder setStateVariables(Map<String, String> stateVariables) {
-      this.stateVariables = stateVariables;
+    public Builder putStateVariable(String key, String value) {
+      this.stateVariables.put(key, value);
+      return this;
+    }
+
+    public Builder putStateVariable(String key, Object value) {
+      if (mapper == null) {
+        throw new IllegalStateException("WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
+      }
+      this.stateVariables.put(key, mapper.convertFromObject(key, value));
       return this;
     }
 

@@ -25,7 +25,9 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -46,6 +48,9 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
   @Mock
   RepositoryService repository;
+
+  @Captor
+  ArgumentCaptor<WorkflowInstance> update;
 
   ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
 
@@ -100,7 +105,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   public void runWorkflowWithParameters() {
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(repository).getWorkflowDefinition(eq("test"));
-    Map<String, String> state = new LinkedHashMap<String, String>() {{
+    Map<String, String> startState = new LinkedHashMap<String, String>() {{
       put("string", "Str");
       put("int", "42");
       put("pojo", "{\"field\": \"val\", \"test\": true}");
@@ -108,8 +113,9 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }};
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("process").setStateVariables(state).build();
+        .setState("process").setStateVariables(startState).build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    when(repository.updateWorkflowInstance(update.capture(), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, 0)))).thenReturn(null);
     executor.run();
     assertThat((String) lastArgs.get(0), is("Str"));
     assertThat((Integer) lastArgs.get(1), is(42));
@@ -118,6 +124,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     assertThat(((Pojo) lastArgs.get(4)).field, is("unmodified ignored"));
     assertThat((Integer) lastArgs.get(5), is(0));
     assertThat(lastArgs.get(6), Matchers.nullValue());
+    Map<String, String> state = update.getValue().stateVariables;
     assertThat(state.get("pojo"), is("{\"field\":\"val modified\",\"test\":true}"));
     assertThat(state.get("nullPojo"), is("{\"field\":\"magical instance\",\"test\":false}"));
     assertThat(state.get("immutablePojo"), is("{\"field\": \"unmodified\"}"));

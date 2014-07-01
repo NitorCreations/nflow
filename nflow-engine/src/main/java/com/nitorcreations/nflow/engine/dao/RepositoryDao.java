@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -243,8 +242,8 @@ public class RepositoryDao {
     private final String owner;
 
     private final static String insertSql =
-        "insert into nflow_workflow(type, business_key, external_id, owner, request_data, state, state_text, "
-        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?,?)";
+        "insert into nflow_workflow(type, business_key, external_id, owner, state, state_text, "
+        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?)";
 
     private final static String updateSql =
         "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
@@ -268,7 +267,6 @@ public class RepositoryDao {
         ps.setString(p++, instance.businessKey);
         ps.setString(p++, instance.externalId);
         ps.setString(p++, owner);
-        ps.setString(p++, instance.requestData);
       } else {
         ps = connection.prepareStatement(updateSql);
       }
@@ -294,11 +292,9 @@ public class RepositoryDao {
         .setExternalId(rs.getString("external_id"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
-        .setStateVariables(new LinkedHashMap<String, String>())
         .setActions(new ArrayList<WorkflowInstanceAction>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
         .setProcessing(rs.getBoolean("is_processing"))
-        .setRequestData(rs.getString("request_data"))
         .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))

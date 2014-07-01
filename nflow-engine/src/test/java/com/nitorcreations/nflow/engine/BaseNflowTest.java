@@ -11,19 +11,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
 
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("serial")
 public abstract class BaseNflowTest {
 
   protected WorkflowInstance.Builder constructWorkflowInstanceBuilder() {
     return new WorkflowInstance.Builder()
       .setType("dummy")
-      .setRequestData("{ \"parameter\": \"abc\" }")
       .setState("CreateLoan")
       .setStateText(null)
       .setNextActivation(new DateTime())
       .setProcessing(FALSE)
       .setRetries(0)
       .setOwner("flowInstance1")
-      .setStateVariables(new LinkedHashMap<String,String>());
+      .setStateVariables(new LinkedHashMap<String,String>() {{put("req", "{ \"parameter\": \"abc\" }"); }});
   }
 
 }
