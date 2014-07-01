@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
@@ -84,7 +85,8 @@ public class RepositoryDao {
       return;
     }
     final Iterator<Entry<String, String>> variables = stateVariables.entrySet().iterator();
-    jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)",
+    final MutableInt expectedCount = new MutableInt(0);
+    int[] updateStatus = jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)",
         new AbstractInterruptibleBatchPreparedStatementSetter() {
       @Override
       protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
@@ -103,9 +105,17 @@ public class RepositoryDao {
         ps.setInt(2, actionId);
         ps.setString(3, var.getKey());
         ps.setString(4, var.getValue());
+        expectedCount.add(1);
         return true;
       }
     });
+    int updatedRows = 0;
+    for (int i=0; i<updateStatus.length; ++i) {
+      updatedRows += updateStatus[i];
+    }
+    if (updatedRows != expectedCount.intValue()) {
+      throw new IllegalStateException("Failed to insert/update state variables, expected update count " + expectedCount.intValue() + ", actual " + updatedRows);
+    }
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
