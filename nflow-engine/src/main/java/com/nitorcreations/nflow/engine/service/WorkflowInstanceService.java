@@ -23,10 +23,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 public class WorkflowInstanceService {
 
-  private final WorkflowDefinitionService workflowDefinitionService;
-  private final WorkflowInstanceDao workflowInstanceDao;
-
   @Inject
+  private WorkflowDefinitionService workflowDefinitionService;
+  @Inject
+  private WorkflowInstanceDao workflowInstanceDao;
+
+  public WorkflowInstanceService() {
+  }
+
   public WorkflowInstanceService(WorkflowDefinitionService workflowDefinitionService, WorkflowInstanceDao workflowInstanceDao) {
     this.workflowDefinitionService = workflowDefinitionService;
     this.workflowInstanceDao = workflowInstanceDao;

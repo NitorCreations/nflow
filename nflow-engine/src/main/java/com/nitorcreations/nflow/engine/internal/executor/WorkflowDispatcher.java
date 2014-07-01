@@ -10,11 +10,11 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
+import com.nitorcreations.nflow.engine.util.ThresholdThreadPoolTaskExecutor;
 
 @Component
 public class WorkflowDispatcher implements Runnable {
@@ -23,23 +23,21 @@ public class WorkflowDispatcher implements Runnable {
 
   private volatile boolean shutdownRequested;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
-  private final CongestionControl congestionCtrl;
 
-  private final ThreadPoolTaskExecutor pool;
+  private final ThresholdThreadPoolTaskExecutor pool;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowExecutorFactory executorFactory;
   private final ExecutorDao executorRecovery;
   private final long sleepTime;
 
   @Inject
-  public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, WorkflowInstanceService workflowInstances,
-      WorkflowExecutorFactory executorFactory, CongestionControl congestionCtrl, ExecutorDao executorRecovery, Environment env) {
+  public WorkflowDispatcher(@Named("nflow-executor") ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceService workflowInstances,
+      WorkflowExecutorFactory executorFactory, ExecutorDao executorRecovery, Environment env) {
     this.pool = pool;
     this.workflowInstances = workflowInstances;
     this.executorFactory = executorFactory;
     this.executorRecovery = executorRecovery;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
-    this.congestionCtrl = congestionCtrl;
   }
 
   @Override
@@ -48,7 +46,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          congestionCtrl.waitUntilQueueThreshold(executorRecovery.getMaxWaitUntil());
+          pool.waitUntilQueueSizeLowerThanThreshold(executorRecovery.getMaxWaitUntil());
 
           if (!shutdownRequested) {
             executorRecovery.tick();
@@ -95,7 +93,7 @@ public class WorkflowDispatcher implements Runnable {
 
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Integer instanceId : nextInstanceIds) {
-      congestionCtrl.register(pool.submitListenable(executorFactory.createExecutor(instanceId)));
+      pool.submit(executorFactory.createExecutor(instanceId));
     }
   }
 

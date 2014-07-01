@@ -34,6 +34,7 @@ public class EngineConfigurationTest {
   public void setup() {
     when(environment.getProperty("nflow.executor.thread.count", Integer.class,
         2 * Runtime.getRuntime().availableProcessors())).thenReturn(100);
+    when(environment.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(1);
   }
 
   @Test
