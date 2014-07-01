@@ -71,9 +71,9 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     permit(finishCreditApplication, done);
   }
 
-  public void createCreditApplication(StateExecution execution, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
-    logger.info("IRL: external service call for persisting credit application using execution.requestData");
-    info.applicationId = "abc";
+  public void createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+    logger.info("IRL: external service call for persisting credit application using request data");
+    info.applicationId = "abc" + request.customerId;
     execution.setNextState(acceptCreditApplication, "Credit application created", now());
   }
 
@@ -106,6 +106,8 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   public static class CreditApplication {
     public String customerId;
     public BigDecimal amount;
+
+    public CreditApplication() {}
 
     public CreditApplication(String customerId, BigDecimal amount) {
       this.customerId = customerId;
