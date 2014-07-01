@@ -80,7 +80,7 @@ public class RepositoryDaoTest extends BaseDaoTest {
     final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
     sleep(1);
     dao.updateWorkflowInstance(i2);
-    JdbcTemplate template = new JdbcTemplate(ds);
+    JdbcTemplate template = new JdbcTemplate(datasource);
     template.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {

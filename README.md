@@ -328,9 +328,9 @@ sudo systemctl reload postgresql.service
 
 After creating nFlow database, override the default nFlow database properties whose name is prefixed by _nflow.db_ as described [above](#nflow-properties).
 
-There're two options for creating nFlow database structures:
+There are two options for creating nFlow database structures:
  1. Start nFlow with _nflow.db.create_on_startup_ property set to true: missing database objects will be created automatically.
- 2. Connect to the database using your favourite client and execute the database specific DDL in _nflow-engine/src/main/resources/scripts/db_ directory.
+ 2. Connect to the database using your favourite client and execute the database specific DDL scripts in order under _nflow-engine/src/main/resources/db/migration/_ directory.
 
 ## <a name="security"></a>Security
 

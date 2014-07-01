@@ -1,11 +1,7 @@
 package com.nitorcreations.nflow.engine.dao;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.readAllBytes;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
-
-import java.io.IOException;
-import java.nio.file.Paths;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -13,35 +9,40 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nitorcreations.nflow.engine.BaseNflowTest;
+import com.nitorcreations.nflow.engine.db.migrations.DatabaseSchemaMigrator;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={DaoTestConfiguration.class})
 @ActiveProfiles("nflow.db.h2")
 public abstract class BaseDaoTest extends BaseNflowTest {
+  static final Logger log = LoggerFactory.getLogger(BaseDaoTest.class);
 
   @Inject
-  protected DataSource ds;
+  protected DataSource datasource;
+
+  @Inject
+  protected DatabaseSchemaMigrator migrator;
 
   @Before
-  public void initDb() throws IOException {
-    ResourceDatabasePopulator populator = populator();
-    populator.addScript(getSqlResource("h2.create.ddl.sql"));
-    execute(populator, ds);
+  public void initDb() {
+    migrator.migrateDatabaseSchema();
   }
 
   @After
-  public void dropDb() throws IOException {
+  public void dropDb() {
     ResourceDatabasePopulator populator = populator();
-    populator.addScript(getSqlResource("h2.drop.ddl.sql"));
-    execute(populator, ds);
+    String sql = "DROP ALL OBJECTS";
+    populator.addScript(new ByteArrayResource(sql.getBytes(UTF_8)));
+    execute(populator, datasource);
   }
 
   private static ResourceDatabasePopulator populator() {
@@ -49,14 +50,6 @@ public abstract class BaseDaoTest extends BaseNflowTest {
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
     return populator;
-  }
-
-  private static Resource getSqlResource(String fileName) throws IOException {
-    String sql = new String(readAllBytes(Paths.get("src", "main", "resources", "scripts", "db", fileName)), UTF_8);
-    sql = sql.replaceAll(" unsigned ", " ")
-        .replaceAll(" enum *\\([^)]*\\)", " varchar(30)")
-        .replaceAll("on update current_timestamp", "");
-    return new ByteArrayResource(sql.getBytes(UTF_8));
   }
 
 }
