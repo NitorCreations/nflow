@@ -6,9 +6,6 @@ public interface StateExecution {
 
   String getBusinessKey();
 
-  String getRequestData();
-  <T> T getRequestData(Class<T> type);
-
   int getRetries();
   boolean isFailure();
 
