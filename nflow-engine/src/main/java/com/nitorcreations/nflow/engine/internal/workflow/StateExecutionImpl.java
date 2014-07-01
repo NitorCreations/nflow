@@ -2,9 +2,9 @@ package com.nitorcreations.nflow.engine.internal.workflow;
 
 import org.joda.time.DateTime;
 
-import com.nitorcreations.nflow.engine.service.WorkflowInstance;
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class StateExecutionImpl implements StateExecution {
 

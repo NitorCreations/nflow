@@ -9,15 +9,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutor;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorFactory;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
+import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 public class WorkflowExecutorFactoryTest extends BaseNflowTest {
   @Mock
-  WorkflowInstanceService repository;
+  WorkflowDefinitionService workflowDefinitions;
+  @Mock
+  WorkflowInstanceService workflowInstances;
   @Mock
   ObjectStringMapper objectMapper;
   @Mock
@@ -30,7 +30,7 @@ public class WorkflowExecutorFactoryTest extends BaseNflowTest {
 
   @Before
   public void setup() {
-    factory = new WorkflowExecutorFactory(repository, objectMapper);
+    factory = new WorkflowExecutorFactory(workflowDefinitions, workflowInstances, objectMapper);
   }
 
   @Test

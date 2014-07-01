@@ -8,7 +8,7 @@ import org.joda.time.DateTime;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nitorcreations.nflow.engine.service.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("serial")

@@ -12,12 +12,13 @@ import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListene
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
-import com.nitorcreations.nflow.engine.service.WorkflowInstance;
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
-import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 class WorkflowExecutor implements Runnable {
 
@@ -27,15 +28,17 @@ class WorkflowExecutor implements Runnable {
   private final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
 
   private final int instanceId;
-  private final WorkflowInstanceService repository;
+  private final WorkflowDefinitionService workflowDefinitions;
+  private final WorkflowInstanceService workflowInstances;
   private final ObjectStringMapper objectMapper;
   private final WorkflowExecutorListener[] executorListeners;
 
-  WorkflowExecutor(int instanceId, ObjectStringMapper objectMapper, WorkflowInstanceService repository,
-      WorkflowExecutorListener... executorListeners) {
+  WorkflowExecutor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
+      WorkflowInstanceService workflowInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
-    this.repository = repository;
+    this.workflowDefinitions = workflowDefinitions;
+    this.workflowInstances = workflowInstances;
     this.executorListeners = executorListeners;
   }
 
@@ -53,12 +56,12 @@ class WorkflowExecutor implements Runnable {
 
   private void runImpl() {
     logger.debug("Starting.");
-    WorkflowInstance instance = repository.getWorkflowInstance(instanceId);
+    WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId);
     Duration executionLag = new Duration(instance.nextActivation, null);
     if (executionLag.isLongerThan(Duration.standardMinutes(1))) {
       logger.warn("Execution lagging {} seconds.", executionLag.getStandardSeconds());
     }
-    WorkflowDefinition<? extends WorkflowState> definition = repository.getWorkflowDefinition(instance.type);
+    WorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
       unscheduleUnknownWorkflowInstance(instance);
       return;
@@ -90,7 +93,7 @@ class WorkflowExecutor implements Runnable {
     logger.warn("Workflow type {} not configured to this nflow instance - unscheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
         .setStateText("Unsupported workflow type").build();
-    repository.updateWorkflowInstance(instance, null);
+    workflowInstances.updateWorkflowInstance(instance, null);
     logger.debug("Exiting.");
   }
 
@@ -114,7 +117,7 @@ class WorkflowExecutor implements Runnable {
     }
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
     WorkflowInstance newInstance = builder.build();
-    repository.updateWorkflowInstance(newInstance, actionBuilder.build());
+    workflowInstances.updateWorkflowInstance(newInstance, actionBuilder.build());
     return newInstance;
   }
 

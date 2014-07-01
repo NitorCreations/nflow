@@ -6,14 +6,14 @@ import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.start;
 
 import org.springframework.core.env.Environment;
 
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
-import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.State> {
 
-  public static enum State implements com.nitorcreations.nflow.engine.workflow.WorkflowState {
+  public static enum State implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
     start(WorkflowStateType.start, "start", "start desc"),
     error(WorkflowStateType.manual, "error", "error desc"),
     end(WorkflowStateType.end, "end", "end desc");

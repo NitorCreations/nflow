@@ -14,9 +14,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nitorcreations.nflow.engine.service.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.service.WorkflowInstance;
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.rest.v0.msg.Action;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
 

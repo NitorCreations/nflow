@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
 
 @Configuration
@@ -19,7 +18,7 @@ import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfigurati
 public class DaoTestConfiguration {
 
   @Bean
-  public WorkflowInstanceDao repositoryDao(DataSource ds, Environment env) {
+  public WorkflowInstanceDao workflowInstanceDao(DataSource ds, Environment env) {
     return new WorkflowInstanceDao(ds, env);
   }
 

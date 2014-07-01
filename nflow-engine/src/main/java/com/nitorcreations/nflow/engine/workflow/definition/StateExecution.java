@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.definition;
 
 import org.joda.time.DateTime;
 

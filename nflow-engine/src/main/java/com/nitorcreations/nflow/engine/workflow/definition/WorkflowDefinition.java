@@ -1,7 +1,7 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.definition;
 
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.end;
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.manual;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 
 import java.util.EnumSet;
 import java.util.Set;

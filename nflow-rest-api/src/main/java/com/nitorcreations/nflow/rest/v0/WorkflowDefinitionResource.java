@@ -18,9 +18,9 @@ import javax.ws.rs.QueryParam;
 
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
 import com.wordnik.swagger.annotations.Api;
@@ -33,19 +33,19 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @Component
 public class WorkflowDefinitionResource {
 
-  private final WorkflowInstanceService repositoryService;
+  private final WorkflowDefinitionService workflowDefinitions;
   private final ListWorkflowDefinitionConverter converter;
 
   @Inject
-  public WorkflowDefinitionResource(WorkflowInstanceService repositoryService, ListWorkflowDefinitionConverter converter) {
-    this.repositoryService = repositoryService;
+  public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter) {
+    this.workflowDefinitions = workflowDefinitions;
     this.converter = converter;
   }
 
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
   public Collection<ListWorkflowDefinitionResponse> listWorkflowInstances(@QueryParam("type") String[] types) {
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = repositoryService.getWorkflowDefinitions();
+    List<WorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
     Set<String> reqTypes = new LinkedHashSet<>(Arrays.asList(types));
     Collection<ListWorkflowDefinitionResponse> response = new ArrayList<>();
     for (WorkflowDefinition<? extends WorkflowState> definition : definitions) {

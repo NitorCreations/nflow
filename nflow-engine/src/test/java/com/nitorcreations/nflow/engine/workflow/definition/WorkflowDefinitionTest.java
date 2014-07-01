@@ -1,6 +1,6 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.definition;
 
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.normal;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
@@ -20,8 +20,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition.TestState;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition2.TestState2;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition.TestState;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition2.TestState2;
 
 public class WorkflowDefinitionTest {
   @Rule

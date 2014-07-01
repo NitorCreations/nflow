@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.service;
+package com.nitorcreations.nflow.engine.workflow.instance;
 
 import static java.util.Arrays.asList;
 

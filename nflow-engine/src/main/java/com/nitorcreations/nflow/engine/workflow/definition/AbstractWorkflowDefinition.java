@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.definition;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

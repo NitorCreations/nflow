@@ -26,11 +26,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.nitorcreations.nflow.engine.internal.executor.CongestionControl;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowDispatcher;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutor;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorFactory;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;
@@ -42,7 +37,7 @@ public class WorkflowDispatcherTest {
   ThreadPoolTaskExecutor pool;
   CongestionControl congestionCtrl;
 
-  @Mock WorkflowInstanceService repository;
+  @Mock WorkflowInstanceService workflowInstances;
 
   @Mock WorkflowExecutorFactory executorFactory;
 
@@ -54,7 +49,7 @@ public class WorkflowDispatcherTest {
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
     pool = dispatcherPoolExecutor();
     congestionCtrl = new CongestionControl(pool, env);
-    dispatcher = new WorkflowDispatcher(pool, repository, executorFactory, congestionCtrl, env);
+    dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, congestionCtrl, env);
   }
 
   @Test
@@ -62,7 +57,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
             .thenReturn(ids(1))
             .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
             .thenAnswer(waitForTickAndAnswer(2, ids(2), this));
@@ -79,7 +74,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
+        verify(workflowInstances, times(3)).pollNextWorkflowInstanceIds(anyInt());
         InOrder inOrder = inOrder(executorFactory);
         inOrder.verify(executorFactory).createExecutor(1);
         inOrder.verify(executorFactory).createExecutor(2);
@@ -93,7 +88,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ErrorDuringDispatcherExecutionStopsDispatcher extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
             .thenThrow(new AssertionError())
             .thenReturn(ids(1));
 
@@ -107,7 +102,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(repository).pollNextWorkflowInstanceIds(anyInt());
+        verify(workflowInstances).pollNextWorkflowInstanceIds(anyInt());
         verify(executorFactory, never()).createExecutor(anyInt());
       }
     }
@@ -120,7 +115,7 @@ public class WorkflowDispatcherTest {
     class EmptyPollResultCausesNoTasksToBeScheduled extends MultithreadedTestCase {
       @SuppressWarnings("unchecked")
       public void threadDispatcher() {
-        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
             .thenReturn(ids(), ids())
             .thenAnswer(waitForTickAndAnswer(2, ids(), this));
         dispatcher.run();
@@ -133,7 +128,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(repository, times(3)).pollNextWorkflowInstanceIds(anyInt());
+        verify(workflowInstances, times(3)).pollNextWorkflowInstanceIds(anyInt());
         verify(executorFactory, never()).createExecutor(anyInt());
       }
     }
@@ -145,7 +140,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ShutdownBlocksUntilPoolShutdown extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(repository.pollNextWorkflowInstanceIds(anyInt()))
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
             .thenAnswer(waitForTickAndAnswer(2, ids(1), this));
         when(executorFactory.createExecutor(anyInt()))
             .thenReturn(fakeWorkflowExecutor(1, waitForTickRunnable(3, this)));
@@ -167,7 +162,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ShutdownCanBeInterrupted extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new Answer<Object>() {
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new Answer<Object>() {
           @Override
           public Object answer(InvocationOnMock invocation) throws Throwable {
             waitForTick(2);
@@ -199,11 +194,11 @@ public class WorkflowDispatcherTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(pool);
-        dispatcher = new WorkflowDispatcher(poolSpy, repository, executorFactory, congestionCtrl, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, congestionCtrl, env);
       }
 
       public void threadDispatcher() {
-        when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
         doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown();
 
         dispatcher.run();
@@ -227,7 +222,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ShutdownCanBeCalledMultipleTimes extends MultithreadedTestCase {
       public void threadDispatcher() throws InterruptedException {
-        when(repository.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
         dispatcher.run();
       }
 
@@ -280,7 +275,7 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowExecutor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
-    return new WorkflowExecutor(instanceId, null, null, (WorkflowExecutorListener) null) {
+    return new WorkflowExecutor(instanceId, null, null, null, (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
-import com.nitorcreations.nflow.engine.workflow.Mutable;
+import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
 
 @Component
 public class ObjectStringMapper {

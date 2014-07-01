@@ -15,9 +15,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
 
@@ -25,7 +25,7 @@ import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
 public class WorkflowDefinitionResourceTest {
 
   @Mock
-  private WorkflowInstanceService repositoryService;
+  private WorkflowDefinitionService workflowDefinitions;
 
   @Mock
   private ListWorkflowDefinitionConverter converter;
@@ -37,8 +37,8 @@ public class WorkflowDefinitionResourceTest {
     @SuppressWarnings("unchecked")
     WorkflowDefinition<? extends WorkflowState> def = mock(WorkflowDefinition.class);
     when(def.getType()).thenReturn("dummy");
-    doReturn(Arrays.asList(def)).when(repositoryService).getWorkflowDefinitions();
-    resource = new WorkflowDefinitionResource(repositoryService, converter);
+    doReturn(Arrays.asList(def)).when(workflowDefinitions).getWorkflowDefinitions();
+    resource = new WorkflowDefinitionResource(workflowDefinitions, converter);
   }
 
   @Test

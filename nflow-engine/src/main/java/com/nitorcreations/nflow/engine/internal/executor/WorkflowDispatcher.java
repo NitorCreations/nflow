@@ -25,15 +25,15 @@ public class WorkflowDispatcher implements Runnable {
   private final CongestionControl congestionCtrl;
 
   private final ThreadPoolTaskExecutor pool;
-  private final WorkflowInstanceService repository;
+  private final WorkflowInstanceService workflowInstances;
   private final WorkflowExecutorFactory executorFactory;
   private final long sleepTime;
 
   @Inject
-  public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, WorkflowInstanceService repository,
+  public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, WorkflowInstanceService workflowInstances,
       WorkflowExecutorFactory executorFactory, CongestionControl congestionCtrl, Environment env) {
     this.pool = pool;
-    this.repository = repository;
+    this.workflowInstances = workflowInstances;
     this.executorFactory = executorFactory;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
     this.congestionCtrl = congestionCtrl;
@@ -98,7 +98,7 @@ public class WorkflowDispatcher implements Runnable {
   private List<Integer> getNextInstanceIds() {
     int nextBatchSize = Math.max(0, 2 * pool.getMaxPoolSize() - pool.getActiveCount());
     logger.debug("Polling next {} workflow instances.", nextBatchSize);
-    return repository.pollNextWorkflowInstanceIds(nextBatchSize);
+    return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);
   }
 
   private void sleep() {

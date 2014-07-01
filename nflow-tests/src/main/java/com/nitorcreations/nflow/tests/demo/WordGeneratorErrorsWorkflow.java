@@ -5,7 +5,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 
 public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
   private static final Logger log = LoggerFactory

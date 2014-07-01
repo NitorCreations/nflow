@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.workflow;
+package com.nitorcreations.nflow.engine.workflow.definition;
 
 public class Mutable<T> {
   public T val;

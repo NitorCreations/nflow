@@ -8,18 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
+import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 @Component
 public class WorkflowExecutorFactory {
 
-  private final WorkflowInstanceService repository;
+  private final WorkflowDefinitionService workflowDefinitions;
+  private final WorkflowInstanceService workflowInstances;
   private final ObjectStringMapper objectMapper;
   private WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[0];
 
   @Inject
-  public WorkflowExecutorFactory(WorkflowInstanceService repository, ObjectStringMapper objectMapper) {
-    this.repository = repository;
+  public WorkflowExecutorFactory(WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
+      ObjectStringMapper objectMapper) {
+    this.workflowDefinitions = workflowDefinitions;
+    this.workflowInstances = workflowInstances;
     this.objectMapper = objectMapper;
   }
 
@@ -29,8 +33,8 @@ public class WorkflowExecutorFactory {
     return this;
   }
 
-
   public WorkflowExecutor createExecutor(int instanceId) {
-    return new WorkflowExecutor(instanceId, objectMapper, repository, listeners);
+    return new WorkflowExecutor(instanceId, objectMapper, workflowDefinitions, workflowInstances, listeners);
   }
+
 }

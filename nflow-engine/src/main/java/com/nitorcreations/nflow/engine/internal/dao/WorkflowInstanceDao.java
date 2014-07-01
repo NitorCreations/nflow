@@ -39,9 +39,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.service.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.service.WorkflowInstance;
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 

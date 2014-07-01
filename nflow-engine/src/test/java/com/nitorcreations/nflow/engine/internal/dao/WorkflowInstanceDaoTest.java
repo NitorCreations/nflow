@@ -23,9 +23,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
-import com.nitorcreations.nflow.engine.service.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.service.WorkflowInstance;
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class WorkflowInstanceDaoTest extends BaseDaoTest {
 

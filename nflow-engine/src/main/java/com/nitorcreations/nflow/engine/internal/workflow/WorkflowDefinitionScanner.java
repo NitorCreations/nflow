@@ -29,10 +29,10 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
-import com.nitorcreations.nflow.engine.workflow.AbstractWorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.Mutable;
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.StateVar;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 
 public class WorkflowDefinitionScanner {
 
