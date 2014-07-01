@@ -1,16 +1,12 @@
 package com.nitorcreations.nflow.engine.service;
 
-import static com.nitorcreations.Matchers.hasField;
-import static com.nitorcreations.Matchers.reflectEquals;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -25,6 +21,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
@@ -44,9 +42,12 @@ public class RepositoryServiceTest extends BaseNflowTest {
   public ExpectedException thrown = ExpectedException.none();
   @Mock
   private RepositoryDao repositoryDao;
-
   @Mock
   private ClassPathResource nonSpringWorkflowListing;
+  @Captor
+  private ArgumentCaptor<WorkflowInstance> stored, stored2;
+  @Captor
+  private ArgumentCaptor<WorkflowInstanceAction> storedAction;
 
   private RepositoryService service;
 
@@ -110,21 +111,17 @@ public class RepositoryServiceTest extends BaseNflowTest {
   @Test
   public void insertWorkflowInstanceWorks() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").build();
-    service.insertWorkflowInstance(i);
-    verify(repositoryDao).insertWorkflowInstance((WorkflowInstance)argThat(allOf(
-        hasField("externalId", is("123")),
-        hasField("created", notNullValue(WorkflowInstance.class)),
-        hasField("modified", notNullValue(WorkflowInstance.class)))));
+    when(repositoryDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
+    assertThat(service.insertWorkflowInstance(i), is(42));
+    assertThat(stored.getValue().externalId, is("123"));
   }
 
   @Test
   public void insertWorkflowCreatesMissingExternalId() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().build();
+    when(repositoryDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     service.insertWorkflowInstance(i);
-    verify(repositoryDao).insertWorkflowInstance((WorkflowInstance)argThat(allOf(
-        hasField("externalId", notNullValue(WorkflowInstance.class)),
-        hasField("created", notNullValue(WorkflowInstance.class)),
-        hasField("modified", notNullValue(WorkflowInstance.class)))));
+    assertThat(stored.getValue().externalId, notNullValue());
   }
 
   @Test(expected = RuntimeException.class)
@@ -138,8 +135,8 @@ public class RepositoryServiceTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().build();
     service.updateWorkflowInstance(i, a);
-    verify(repositoryDao).updateWorkflowInstance(argThat(reflectEquals(i, "modified")));
-    verify(repositoryDao).insertWorkflowInstanceAction(argThat(reflectEquals(i, "modified")), argThat(equalTo(a)));
+    verify(repositoryDao).updateWorkflowInstance(i);
+    verify(repositoryDao).insertWorkflowInstanceAction(i, a);
   }
 
   @Test

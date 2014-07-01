@@ -10,6 +10,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -115,7 +116,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
         .setState("process").setStateVariables(startState).build();
     when(repository.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
-    when(repository.updateWorkflowInstance(update.capture(), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, 0)))).thenReturn(null);
+    doNothing().when(repository).updateWorkflowInstance(update.capture(), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, 0)));
     executor.run();
     assertThat((String) lastArgs.get(0), is("Str"));
     assertThat((Integer) lastArgs.get(1), is(42));

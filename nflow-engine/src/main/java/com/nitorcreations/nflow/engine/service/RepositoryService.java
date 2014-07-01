@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.engine.service;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -18,7 +17,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
@@ -68,9 +66,7 @@ public class RepositoryService {
     if (def == null) {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
-    DateTime now = now();
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString())
-      .setCreated(now).setModified(now);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString());
     if (isEmpty(instance.externalId)) {
       builder.setExternalId(UUID.randomUUID().toString());
     }
@@ -78,20 +74,15 @@ public class RepositoryService {
   }
 
   @Transactional
-  public WorkflowInstance updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
-    WorkflowInstance saved = new WorkflowInstance.Builder(instance)
-      .setModified(now())
-      .build();
-    repositoryDao.updateWorkflowInstance(saved);
+  public void updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
+    repositoryDao.updateWorkflowInstance(instance);
     if (action != null) {
-      repositoryDao.insertWorkflowInstanceAction(saved, action);
+      repositoryDao.insertWorkflowInstanceAction(instance, action);
     }
-    return saved;
   }
 
   @Transactional
-  public List<Integer> pollNextWorkflowInstanceIds(
-      int batchSize) {
+  public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     if (batchSize > 0) {
       return repositoryDao.pollNextWorkflowInstanceIds(batchSize);
     }
