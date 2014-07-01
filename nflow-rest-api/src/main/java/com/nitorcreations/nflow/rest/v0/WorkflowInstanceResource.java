@@ -23,10 +23,10 @@ import javax.ws.rs.core.Response;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
-import com.nitorcreations.nflow.engine.service.RepositoryService;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
@@ -44,14 +44,14 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Component
 public class WorkflowInstanceResource {
 
-  private final RepositoryService repositoryService;
+  private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
 
   @Inject
   public WorkflowInstanceResource(
-      RepositoryService repositoryService, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
-    this.repositoryService = repositoryService;
+      WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
+    this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
   }
@@ -60,13 +60,13 @@ public class WorkflowInstanceResource {
   @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
   public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
-    int id = repositoryService.insertWorkflowInstance(instance);
+    int id = workflowInstances.insertWorkflowInstance(instance);
     if (id == -1) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(req.type).setExternalId(req.externalId).build();
-      instance = repositoryService.listWorkflowInstances(query).iterator().next();
+      instance = workflowInstances.listWorkflowInstances(query).iterator().next();
       id = instance.id;
     } else {
-      instance = repositoryService.getWorkflowInstance(id);
+      instance = workflowInstances.getWorkflowInstance(id);
     }
     return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
@@ -79,7 +79,7 @@ public class WorkflowInstanceResource {
       @PathParam("id") int id,
       UpdateWorkflowInstanceRequest req) {
     // TODO: requires more work, e.g. concurrent check with engine, validation
-    WorkflowInstance instance = repositoryService.getWorkflowInstance(id);
+    WorkflowInstance instance = workflowInstances.getWorkflowInstance(id);
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (!isEmpty(req.state)) {
       builder.setState(req.state);
@@ -88,7 +88,7 @@ public class WorkflowInstanceResource {
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
     }
-    repositoryService.updateWorkflowInstance(builder.build(), new WorkflowInstanceAction.Builder(instance).setExecutionStart(instance.modified)
+    workflowInstances.updateWorkflowInstance(builder.build(), new WorkflowInstanceAction.Builder(instance).setExecutionStart(instance.modified)
         .setExecutionEnd(now()).build());
   }
 
@@ -128,7 +128,7 @@ public class WorkflowInstanceResource {
       String include) {
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
         .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
-    Collection<WorkflowInstance> instances = repositoryService.listWorkflowInstances(q);
+    Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
       resp.add(listWorkflowConverter.convert(instance, q));

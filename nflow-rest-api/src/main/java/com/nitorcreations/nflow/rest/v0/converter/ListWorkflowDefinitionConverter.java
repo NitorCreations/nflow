@@ -7,9 +7,9 @@ import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
-import com.nitorcreations.nflow.engine.workflow.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.Settings;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.TransitionDelays;

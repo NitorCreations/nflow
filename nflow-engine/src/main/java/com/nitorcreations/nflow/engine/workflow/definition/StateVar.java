@@ -1,0 +1,15 @@
+package com.nitorcreations.nflow.engine.workflow.definition;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention(RUNTIME)
+@Target(PARAMETER)
+public @interface StateVar {
+  public String value();
+  boolean readOnly() default false;
+  boolean instantiateNull() default false;
+}

@@ -1,9 +1,9 @@
 package com.nitorcreations.nflow.tests.demo;
 
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.end;
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.manual;
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.normal;
-import static com.nitorcreations.nflow.engine.workflow.WorkflowStateType.start;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow.State.acceptCreditApplication;
 import static com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow.State.createCreditApplication;
 import static com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow.State.done;
@@ -17,11 +17,11 @@ import java.math.BigDecimal;
 
 import org.slf4j.Logger;
 
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.StateVar;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.WorkflowSettings;
-import com.nitorcreations.nflow.engine.workflow.WorkflowStateType;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -31,7 +31,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
   private static final String VAR_KEY = "info";
 
-  public static enum State implements com.nitorcreations.nflow.engine.workflow.WorkflowState {
+  public static enum State implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
     createCreditApplication(start, "Credit application is persisted to database"),
     acceptCreditApplication(manual, "Manual credit decision is made"),
     grantLoan(normal, "Loan is created to loan system"),
