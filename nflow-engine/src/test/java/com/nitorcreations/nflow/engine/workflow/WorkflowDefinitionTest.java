@@ -19,7 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
+import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition.TestState;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinitionTest.TestDefinition2.TestState2;
 

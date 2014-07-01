@@ -18,7 +18,7 @@ import javax.ws.rs.QueryParam;
 
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.service.RepositoryService;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowDefinitionConverter;
@@ -33,11 +33,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @Component
 public class WorkflowDefinitionResource {
 
-  private final RepositoryService repositoryService;
+  private final WorkflowInstanceService repositoryService;
   private final ListWorkflowDefinitionConverter converter;
 
   @Inject
-  public WorkflowDefinitionResource(RepositoryService repositoryService, ListWorkflowDefinitionConverter converter) {
+  public WorkflowDefinitionResource(WorkflowInstanceService repositoryService, ListWorkflowDefinitionConverter converter) {
     this.repositoryService = repositoryService;
     this.converter = converter;
   }

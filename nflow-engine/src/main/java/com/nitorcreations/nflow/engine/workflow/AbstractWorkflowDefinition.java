@@ -8,9 +8,9 @@ import java.util.Set;
 
 import org.springframework.util.Assert;
 
-import com.nitorcreations.nflow.engine.domain.StateExecutionImpl;
-import com.nitorcreations.nflow.engine.workflow.data.WorkflowDefinitionScanner;
-import com.nitorcreations.nflow.engine.workflow.data.WorkflowStateMethod;
+import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowDefinitionScanner;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
 
 public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 

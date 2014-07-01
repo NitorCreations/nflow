@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nitorcreations.nflow.engine.service.RepositoryService;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.WorkflowState;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowDefinitionConverter;
@@ -25,7 +25,7 @@ import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
 public class WorkflowDefinitionResourceTest {
 
   @Mock
-  private RepositoryService repositoryService;
+  private WorkflowInstanceService repositoryService;
 
   @Mock
   private ListWorkflowDefinitionConverter converter;

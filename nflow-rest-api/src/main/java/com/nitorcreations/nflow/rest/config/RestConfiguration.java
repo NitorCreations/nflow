@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nitorcreations.nflow.engine.config.EngineConfiguration;
+import com.nitorcreations.nflow.engine.internal.config.EngineConfiguration;
 
 @Configuration
 @Import(EngineConfiguration.class)

@@ -22,10 +22,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
-import com.nitorcreations.nflow.engine.service.RepositoryService;
+import com.nitorcreations.nflow.engine.service.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.service.WorkflowInstance;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
@@ -35,7 +35,7 @@ import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
 public class WorkflowInstanceResourceTest {
 
   @Mock
-  private RepositoryService repositoryService;
+  private WorkflowInstanceService repositoryService;
 
   @Mock
   private CreateWorkflowConverter createWorkflowConverter;

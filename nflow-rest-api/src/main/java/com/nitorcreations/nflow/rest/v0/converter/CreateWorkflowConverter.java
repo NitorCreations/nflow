@@ -5,8 +5,8 @@ import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstanceFactory;
+import com.nitorcreations.nflow.engine.service.WorkflowInstance;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceFactory;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 

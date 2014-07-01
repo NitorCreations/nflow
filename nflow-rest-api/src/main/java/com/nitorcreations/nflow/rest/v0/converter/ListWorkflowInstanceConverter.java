@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.service.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.service.WorkflowInstance;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
 import com.nitorcreations.nflow.rest.v0.msg.Action;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
 

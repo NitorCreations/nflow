@@ -23,10 +23,10 @@ import javax.ws.rs.core.Response;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nitorcreations.nflow.engine.domain.QueryWorkflowInstances;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstanceAction;
-import com.nitorcreations.nflow.engine.service.RepositoryService;
+import com.nitorcreations.nflow.engine.service.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.service.WorkflowInstance;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
@@ -44,13 +44,13 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Component
 public class WorkflowInstanceResource {
 
-  private final RepositoryService repositoryService;
+  private final WorkflowInstanceService repositoryService;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
 
   @Inject
   public WorkflowInstanceResource(
-      RepositoryService repositoryService, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
+      WorkflowInstanceService repositoryService, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
     this.repositoryService = repositoryService;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
