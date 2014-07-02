@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.tests;
 
-import static java.lang.Thread.sleep;
+import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
@@ -15,6 +15,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nitorcreations.nflow.rest.v0.msg.Action;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
@@ -71,13 +72,16 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     } while (response.nextActivation != null);
   }
 
-  private ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
-    ListWorkflowInstanceResponse wf = null;
-    do {
-      sleep(200);
-      wf = fromClient(workflowInstanceResource, true).path(id).get(ListWorkflowInstanceResponse.class);
-    } while (wf == null || !expectedState.equals(wf.state));
-    return wf;
+  @Test
+  public void t05_checkWorkflowInstanceActions() {
+    assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
+            new Action("createCreditApplication", "", 0, null, null),
+            new Action("acceptCreditApplication", "", 0, null, null), // probably not the way to show manual action in future
+            new Action("acceptCreditApplication", "", 0, null, null),
+            new Action("grantLoan", "", 0, null, null),
+            new Action("grantLoan", "", 1, null, null),
+            new Action("grantLoan", "", 2, null, null),
+            new Action("grantLoan", "", 3, null, null))));
   }
 
 }
