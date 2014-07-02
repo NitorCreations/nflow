@@ -11,9 +11,9 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,17 +30,10 @@ public abstract class BaseDaoTest extends BaseNflowTest {
   @Inject
   protected DataSource ds;
 
-  @Before
-  public void initDb() throws IOException {
-    ResourceDatabasePopulator populator = populator();
-    populator.addScript(getSqlResource("h2.create.ddl.sql"));
-    execute(populator, ds);
-  }
-
   @After
-  public void dropDb() throws IOException {
+  public void truncateDb() throws IOException {
     ResourceDatabasePopulator populator = populator();
-    populator.addScript(getSqlResource("h2.drop.ddl.sql"));
+    populator.addScript(new ClassPathResource("scripts/db/h2.truncate.sql"));
     execute(populator, ds);
   }
 
@@ -52,11 +45,6 @@ public abstract class BaseDaoTest extends BaseNflowTest {
   }
 
   private static Resource getSqlResource(String fileName) throws IOException {
-    String sql = new String(readAllBytes(Paths.get("src", "main", "resources", "scripts", "db", fileName)), UTF_8);
-    sql = sql.replaceAll(" unsigned ", " ")
-        .replaceAll(" enum *\\([^)]*\\)", " varchar(30)")
-        .replaceAll("on update current_timestamp", "");
-    return new ByteArrayResource(sql.getBytes(UTF_8));
+    return new ByteArrayResource(readAllBytes(Paths.get("src", "main", "resources", "scripts", "db", fileName)));
   }
-
 }

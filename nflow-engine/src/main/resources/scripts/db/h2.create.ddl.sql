@@ -6,11 +6,11 @@ create table if not exists nflow_workflow (
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamp,
-  is_processing boolean not null default false,
+  executor_id int,
   retries int not null default 0,
   created timestamp not null default current_timestamp,
   modified timestamp not null default current_timestamp,
-  owner varchar(64)
+  executor_group varchar(64)
 );
 create trigger if not exists nflow_workflow_modified before update on nflow_workflow for each row call "com.nitorcreations.nflow.engine.internal.storage.db.H2ModifiedColumnTrigger";
 
@@ -36,4 +36,13 @@ create table if not exists nflow_workflow_state (
   state_value varchar(10240) not null,
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
+);
+
+create table if not exists nflow_executor (
+  id int not null auto_increment primary key,
+  host varchar(64) not null,
+  pid int not null,
+  executor_group varchar(64),
+  started timestamp not null default current_timestamp,
+  active timestamp not null default current_timestamp
 );

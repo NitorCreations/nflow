@@ -6,11 +6,11 @@ create table if not exists nflow_workflow (
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamp(3) null,
-  is_processing boolean not null default false,
+  executor_id int,
   retries int not null default 0,
   created timestamp(3) not null,
   modified timestamp(3) not null default current_timestamp on update current_timestamp,
-  owner varchar(64),
+  executor_group varchar(64),
   constraint nflow_workflow_uniq unique (type, external_id),
   index nflow_workflow(next_activation)
 );
@@ -39,3 +39,16 @@ create table if not exists nflow_workflow_state (
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );
+
+create table if not exists nflow_executor (
+  id int not null auto_increment primary key,
+  host varchar(64) not null,
+  pid int not null,
+  executor_group varchar(64),
+  started timestamp(3) not null,
+  active timestamp(3) not null default current_timestamp
+);
+
+drop trigger if exists nflow_executor_insert;
+create trigger nflow_executor_insert before insert on `nflow_executor`
+  for each row set new.started = now();
