@@ -34,4 +34,16 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     }
     return Server.createTcpServer("-webPort",port);
   }
+
+  @Bean
+  public SQLVariants sqlVariants() {
+    return new H2SQLVariants();
+  }
+
+  public static class H2SQLVariants implements SQLVariants {
+    @Override
+    public String currentTimePlusSeconds(int seconds) {
+      return "dateadd('second', " + seconds + ", current_time)";
+    }
+  }
 }

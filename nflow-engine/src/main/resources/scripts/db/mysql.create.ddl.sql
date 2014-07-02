@@ -45,10 +45,7 @@ create table if not exists nflow_executor (
   host varchar(64) not null,
   pid int not null,
   executor_group varchar(64),
-  started timestamp(3) not null,
-  active timestamp(3) not null default current_timestamp
+  started timestamp(3) not null default current_timestamp,
+  active timestamp(3),
+  expires timestamp(3)
 );
-
-drop trigger if exists nflow_executor_insert;
-create trigger nflow_executor_insert before insert on `nflow_executor`
-  for each row set new.started = now();

@@ -26,6 +26,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;
@@ -38,7 +39,7 @@ public class WorkflowDispatcherTest {
   CongestionControl congestionCtrl;
 
   @Mock WorkflowInstanceService workflowInstances;
-
+  @Mock ExecutorDao recovery;
   @Mock WorkflowExecutorFactory executorFactory;
 
   @Mock Environment env;
@@ -49,7 +50,7 @@ public class WorkflowDispatcherTest {
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
     pool = dispatcherPoolExecutor();
     congestionCtrl = new CongestionControl(pool, env);
-    dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, congestionCtrl, env);
+    dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, congestionCtrl, recovery, env);
   }
 
   @Test
@@ -194,7 +195,7 @@ public class WorkflowDispatcherTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(pool);
-        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, congestionCtrl, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, congestionCtrl, recovery, env);
       }
 
       public void threadDispatcher() {
