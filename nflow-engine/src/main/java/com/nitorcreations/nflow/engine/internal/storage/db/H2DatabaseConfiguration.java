@@ -43,7 +43,7 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
   public static class H2SQLVariants implements SQLVariants {
     @Override
     public String currentTimePlusSeconds(int seconds) {
-      return "dateadd('second', " + seconds + ", current_time)";
+      return "dateadd('second', " + seconds + ", current_timestamp)";
     }
   }
 }
