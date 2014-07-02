@@ -8,6 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +22,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
-
-import com.nitorcreations.nflow.engine.internal.executor.CongestionControl;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import edu.umd.cs.mtc.TestFramework;
@@ -64,7 +63,7 @@ public class CongestionControlTest {
 
       public void thread1() throws InterruptedException {
         congestionCtrl.register(task);
-        congestionCtrl.waitUntilQueueThreshold();
+        congestionCtrl.waitUntilQueueThreshold(new DateTime().plusMinutes(1));
       }
     }
     TestFramework.runOnce(new WaitDoesNotBlockWhenNotAboveQueueTheshold());
@@ -82,7 +81,7 @@ public class CongestionControlTest {
       public void thread1() {
         congestionCtrl.register(task);
         try {
-          congestionCtrl.waitUntilQueueThreshold();
+          congestionCtrl.waitUntilQueueThreshold(new DateTime().plusMinutes(1));
           Assert.fail("should block");
         } catch (InterruptedException expected) {
         }
@@ -107,7 +106,7 @@ public class CongestionControlTest {
 
       public void thread1() throws InterruptedException {
         congestionCtrl.register(task);
-        congestionCtrl.waitUntilQueueThreshold();
+        congestionCtrl.waitUntilQueueThreshold(new DateTime().plusMinutes(1));
       }
 
       public void thread2() {
@@ -130,7 +129,7 @@ public class CongestionControlTest {
 
       public void thread1() throws InterruptedException {
         congestionCtrl.register(task);
-        congestionCtrl.waitUntilQueueThreshold();
+        congestionCtrl.waitUntilQueueThreshold(new DateTime().plusMinutes(1));
       }
 
       public void thread2() {

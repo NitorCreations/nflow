@@ -48,7 +48,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          congestionCtrl.waitUntilQueueThreshold();
+          congestionCtrl.waitUntilQueueThreshold(executorRecovery.getMaxWaitUntil());
 
           if (!shutdownRequested) {
             executorRecovery.tick();

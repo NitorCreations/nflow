@@ -82,6 +82,10 @@ public class ExecutorDao {
     return executorId;
   }
 
+  public DateTime getMaxWaitUntil() {
+    return nextUpdate;
+  }
+
   @PostConstruct
   private void allocateExecutorId() {
     final String host;
