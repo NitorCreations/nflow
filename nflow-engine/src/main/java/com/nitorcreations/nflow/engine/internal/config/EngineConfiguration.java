@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.engine")
@@ -49,6 +50,7 @@ public class EngineConfiguration {
   public ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.registerModule(new JodaModule());
     return mapper;
   }
 
