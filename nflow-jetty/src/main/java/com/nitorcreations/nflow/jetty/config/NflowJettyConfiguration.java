@@ -40,7 +40,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 public class NflowJettyConfiguration {
 
   @Bean
-  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflow-ObjectMapper") ObjectMapper mapper) {
+  public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflow-rest-ObjectMapper") ObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
@@ -60,7 +60,7 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(@Named("nflow-ObjectMapper") ObjectMapper mapper) {
+  public JacksonJsonProvider jsonProvider(@Named("nflow-rest-ObjectMapper") ObjectMapper mapper) {
     return new JacksonJsonProvider(mapper);
   }
 
