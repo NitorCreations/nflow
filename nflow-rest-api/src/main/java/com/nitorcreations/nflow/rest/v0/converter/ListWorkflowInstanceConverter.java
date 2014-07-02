@@ -25,7 +25,7 @@ public class ListWorkflowInstanceConverter {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
         resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
-            action.executionStart.getMillis(), action.executionEnd.getMillis()));
+            action.executionStart, action.executionEnd));
       }
     }
     return resp;
