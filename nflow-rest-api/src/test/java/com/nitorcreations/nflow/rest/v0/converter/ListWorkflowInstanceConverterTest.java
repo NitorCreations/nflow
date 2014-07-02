@@ -45,7 +45,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.stateText, is(i.stateText));
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.state, a.stateText, a.retryNo,
-        a.executionStart.getMillis(), a.executionEnd.getMillis()))));
+        a.executionStart, a.executionEnd))));
   }
 
   @Test
