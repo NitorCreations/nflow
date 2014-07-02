@@ -5,18 +5,20 @@ create table if not exists nflow_workflow (
   external_id varchar(64),
   state varchar(64) not null,
   state_text varchar(128),
-  next_activation timestamp,
+  next_activation timestamp null,
   executor_id int,
   retries int not null default 0,
-  created timestamp not null default current_timestamp,
-  modified timestamp not null default current_timestamp,
-  executor_group varchar(64)
+  created timestamp not null,
+  modified timestamp not null default current_timestamp on update current_timestamp,
+  executor_group varchar(64),
+  constraint nflow_workflow_uniq unique (type, external_id),
+  index nflow_workflow(next_activation)
 );
-create trigger if not exists nflow_workflow_modified before update on nflow_workflow for each row call "com.nitorcreations.nflow.engine.internal.storage.db.H2ModifiedColumnTrigger";
 
-create unique index if not exists nflow_workflow_uniq on nflow_workflow (type, external_id);
+drop trigger if exists nflow_workflow_insert;
 
-create index if not exists nflow_workflow_next_activation on nflow_workflow(next_activation);
+create trigger nflow_workflow_insert before insert on `nflow_workflow`
+  for each row set new.created = now();
 
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,

@@ -24,7 +24,7 @@ public class NflowServerRule extends ExternalResource {
   private final AtomicReference<Integer> port;
   private JettyServerContainer nflowJetty;
 
-  private NflowServerRule(Builder b) {
+  NflowServerRule(Builder b) {
     props = b.props;
     env = b.env;
     profiles = b.profiles;
@@ -32,10 +32,10 @@ public class NflowServerRule extends ExternalResource {
   }
 
   public static class Builder {
-    private int port = 0;
-    private String env = "local";
-    private String profiles = "";
-    private final Map<String, Object> props = new HashMap<>();
+    int port = 0;
+    String env = "local";
+    String profiles = "";
+    final Map<String, Object> props = new HashMap<>();
     {
       props.put("nflow.db.h2.tcp.port", "");
       props.put("nflow.db.h2.console.port", "");

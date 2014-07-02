@@ -1,11 +1,9 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static java.lang.System.currentTimeMillis;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
-import static org.springframework.util.StringUtils.isEmpty;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +24,6 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -52,14 +49,18 @@ public class WorkflowInstanceDao {
 
   private final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
-  private final String nflowName;
+  private final int executorId;
+  private final String executorGroup;
+  private final String executorGroupCondition;
 
   @Inject
-  public WorkflowInstanceDao(@Named("nflow-datasource") DataSource dataSource, Environment env) {
+  public WorkflowInstanceDao(@Named("nflow-datasource") DataSource dataSource, ExecutorDao executorDao) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
-    this.nflowName = trimToNull(env.getProperty("nflow.instance.name"));
-    logger.info("Using nflow instance name " + nflowName);
+    this.executorGroup = executorDao.getExecutorGroup();
+    this.executorId = executorDao.getExecutorId();
+    this.executorGroupCondition = executorDao.getExecutorGroupCondition();
+    logger.info("Using nflow executor group " + executorGroup + " and executor id " + executorId);
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -72,7 +73,7 @@ public class WorkflowInstanceDao {
 
   private int insertWorkflowInstanceImpl(WorkflowInstance instance) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, nflowName), keyHolder);
+    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorGroup, executorId), keyHolder);
     int id = keyHolder.getKey().intValue();
     insertVariables(id, 0, instance.stateVariables, Collections.<String, String>emptyMap());
     return id;
@@ -119,7 +120,7 @@ public class WorkflowInstanceDao {
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
-    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, nflowName));
+    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorGroup, executorId));
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
@@ -146,13 +147,9 @@ public class WorkflowInstanceDao {
 
   @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
-    String ownerCondition = "and owner = '" + nflowName + "' ";
-    if (isEmpty(nflowName)) {
-      ownerCondition = "and owner is null ";
-    }
     String sql =
-      "select id from nflow_workflow where is_processing is false and next_activation < current_timestamp "
-        + ownerCondition + "order by next_activation asc limit " + batchSize;
+      "select id from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
+        + executorGroupCondition + " order by next_activation asc limit " + batchSize;
     List<Integer> instanceIds = jdbc.query(sql, new RowMapper<Integer>() {
       @Override
       public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -164,13 +161,13 @@ public class WorkflowInstanceDao {
       batchArgs.add(new Object[] { instanceId });
     }
     int[] updateStatuses = jdbc.batchUpdate(
-      "update nflow_workflow set is_processing = true where id = ? and is_processing = false",
+      "update nflow_workflow set executor_id = " + executorId + " where id = ? and executor_id is null",
       batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
         throw new RuntimeException(
             "Race condition in polling workflow instances detected. " +
-            "Multiple pollers using same name? (" + nflowName +")");
+            "Multiple pollers using same name? (" + executorGroup +")");
       }
     }
     return instanceIds;
@@ -249,20 +246,22 @@ public class WorkflowInstanceDao {
 
     private final WorkflowInstance instance;
     private final boolean isInsert;
-    private final String owner;
+    private final String executorGroup;
+    private final int executorId;
 
     private final static String insertSql =
-        "insert into nflow_workflow(type, business_key, external_id, owner, state, state_text, "
-        + "next_activation, is_processing) values (?,?,?,?,?,?,?,?)";
+        "insert into nflow_workflow(type, business_key, external_id, executor_group, state, state_text, "
+        + "next_activation) values (?,?,?,?,?,?,?)";
 
     private final static String updateSql =
         "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
-        + "is_processing = ?, retries = ? where id = ?";
+        + "executor_id = ?, retries = ? where id = ?";
 
-    public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String owner) {
+    public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String executorGroup, int executorId) {
       this.isInsert = isInsert;
       this.instance = instance;
-      this.owner = owner;
+      this.executorGroup = executorGroup;
+      this.executorId = executorId;
     }
 
     @Override
@@ -276,15 +275,15 @@ public class WorkflowInstanceDao {
         ps.setString(p++, instance.type);
         ps.setString(p++, instance.businessKey);
         ps.setString(p++, instance.externalId);
-        ps.setString(p++, owner);
+        ps.setString(p++, executorGroup);
       } else {
         ps = connection.prepareStatement(updateSql);
       }
       ps.setString(p++, instance.state);
       ps.setString(p++, instance.stateText);
       ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-      ps.setBoolean(p++, instance.processing);
       if (!isInsert) {
+        ps.setObject(p++, instance.processing ? executorId : null);
         ps.setInt(p++, instance.retries);
         ps.setInt(p++, instance.id);
       }
@@ -304,11 +303,11 @@ public class WorkflowInstanceDao {
         .setStateText(rs.getString("state_text"))
         .setActions(new ArrayList<WorkflowInstanceAction>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
-        .setProcessing(rs.getBoolean("is_processing"))
+        .setProcessing(rs.getObject("executor_id") != null)
         .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))
-        .setOwner(rs.getString("owner"))
+        .setOwner(rs.getString("executor_group"))
         .build();
     }
 

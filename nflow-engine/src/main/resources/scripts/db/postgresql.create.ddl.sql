@@ -6,11 +6,11 @@ create table if not exists nflow_workflow (
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamptz,
-  is_processing boolean not null default false,
+  executor_id int,
   retries int not null default 0,
   created timestamptz not null default current_timestamp,
   modified timestamptz not null default current_timestamp,
-  owner varchar(64),
+  executor_group varchar(64),
   constraint nflow_workflow_uniq unique (type, external_id)
 );
 
@@ -46,4 +46,14 @@ create table if not exists nflow_workflow_state (
   state_value text not null,
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
+);
+
+create table if not exists nflow_executor (
+  id serial primary key,
+  host varchar(64) not null,
+  pid int not null,
+  executor_group varchar(64),
+  started timestamptz not null default current_timestamp,
+  active timestamptz,
+  expires timestamptz
 );

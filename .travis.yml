@@ -18,4 +18,7 @@ before_script:
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "grant all on nflow.* TO 'nflow'@'localhost';" -u root; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "flush privileges;" -u root; fi
 after_script:
-  - for i in nflow-tests/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
+  - for i in nflow-*/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
+notifications:
+  flowdock:
+    secure: QbIGfsj64a2Ms5y/aTO0PUAVBRv9mKxAwLFj5NxWACEVxm1JKZvrQ4ov/8XbVRbRl96sMIoWPox7Gu++ZgLjb7w+jeiCvWLwJwRDxlCgsYvb4hAcPXlNBO7SF4kcUifPfJpaDsb3EThUUK8EtsI5aOxvCqGKMChTDoQnej3kc0o=

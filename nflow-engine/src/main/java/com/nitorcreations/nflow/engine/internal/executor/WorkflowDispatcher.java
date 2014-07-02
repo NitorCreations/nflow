@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 @Component
@@ -27,14 +28,16 @@ public class WorkflowDispatcher implements Runnable {
   private final ThreadPoolTaskExecutor pool;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowExecutorFactory executorFactory;
+  private final ExecutorDao executorRecovery;
   private final long sleepTime;
 
   @Inject
   public WorkflowDispatcher(@Named("nflow-executor") ThreadPoolTaskExecutor pool, WorkflowInstanceService workflowInstances,
-      WorkflowExecutorFactory executorFactory, CongestionControl congestionCtrl, Environment env) {
+      WorkflowExecutorFactory executorFactory, CongestionControl congestionCtrl, ExecutorDao executorRecovery, Environment env) {
     this.pool = pool;
     this.workflowInstances = workflowInstances;
     this.executorFactory = executorFactory;
+    this.executorRecovery = executorRecovery;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
     this.congestionCtrl = congestionCtrl;
   }
@@ -45,9 +48,10 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          congestionCtrl.waitUntilQueueThreshold();
+          congestionCtrl.waitUntilQueueThreshold(executorRecovery.getMaxWaitUntil());
 
           if (!shutdownRequested) {
+            executorRecovery.tick();
             dispatch(getNextInstanceIds());
           }
         } catch (InterruptedException dropThrough) {

@@ -10,6 +10,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
+import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration.H2SQLVariants;
 
 @Configuration
 @PropertySource({"classpath:junit.properties"})
@@ -18,8 +19,13 @@ import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfigurati
 public class DaoTestConfiguration {
 
   @Bean
-  public WorkflowInstanceDao workflowInstanceDao(DataSource ds, Environment env) {
-    return new WorkflowInstanceDao(ds, env);
+  public WorkflowInstanceDao workflowInstanceDao(DataSource ds, ExecutorDao executorDao) {
+    return new WorkflowInstanceDao(ds, executorDao);
+  }
+
+  @Bean
+  public ExecutorDao executorDao(DataSource ds, Environment env) {
+    return new ExecutorDao(ds, env, new H2SQLVariants());
   }
 
 }
