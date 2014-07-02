@@ -44,7 +44,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
   public static class MySQLVariants implements SQLVariants {
     @Override
     public String currentTimePlusSeconds(int seconds) {
-      return "date_add(current_time, interval " + seconds + " second)";
+      return "date_add(current_timestamp, interval " + seconds + " second)";
     }
   }
 }
