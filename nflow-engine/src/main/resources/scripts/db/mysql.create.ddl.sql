@@ -8,8 +8,8 @@ create table if not exists nflow_workflow (
   next_activation timestamp(3) null,
   executor_id int,
   retries int not null default 0,
-  created timestamp(3) not null default current_timestamp,
-  modified timestamp(3) not null default current_timestamp on update current_timestamp,
+  created timestamp(3) not null default current_timestamp(3),
+  modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
   executor_group varchar(64),
   constraint nflow_workflow_uniq unique (type, external_id),
   index nflow_workflow(next_activation)
@@ -40,7 +40,7 @@ create table if not exists nflow_executor (
   host varchar(64) not null,
   pid int not null,
   executor_group varchar(64),
-  started timestamp(3) not null default current_timestamp,
+  started timestamp(3) not null default current_timestamp(3),
   active timestamp(3),
   expires timestamp(3)
 );
