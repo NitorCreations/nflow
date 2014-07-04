@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
@@ -40,8 +39,7 @@ public class ExecutorDao {
   final String executorGroup;
   final String executorGroupCondition;
   final int timeoutSeconds;
-  int executorId;
-
+  int executorId = -1;
 
   @Inject
   public ExecutorDao(@Named("nflow-datasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
@@ -78,7 +76,10 @@ public class ExecutorDao {
     return executorGroupCondition;
   }
 
-  public int getExecutorId() {
+  public synchronized int getExecutorId() {
+    if (executorId == -1) {
+      executorId = allocateExecutorId();
+    }
     return executorId;
   }
 
@@ -86,8 +87,7 @@ public class ExecutorDao {
     return nextUpdate;
   }
 
-  @PostConstruct
-  private void allocateExecutorId() {
+  private int allocateExecutorId() {
     final String host;
     final int pid;
     try {
@@ -108,14 +108,14 @@ public class ExecutorDao {
         return p;
       }
     }, keyHolder);
-    executorId = keyHolder.getKey().intValue();
+    return keyHolder.getKey().intValue();
   }
 
   public void updateActiveTimestamp() {
-    jdbc.update("update nflow_executor set active=current_timestamp, expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + executorId);
+    jdbc.update("update nflow_executor set active=current_timestamp, expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    jdbc.update("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + executorId + " and expires < current_timestamp)");
+    jdbc.update("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
   }
 }

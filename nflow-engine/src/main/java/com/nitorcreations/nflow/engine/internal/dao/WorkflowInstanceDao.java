@@ -49,18 +49,13 @@ public class WorkflowInstanceDao {
 
   private final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
-  private final int executorId;
-  private final String executorGroup;
-  private final String executorGroupCondition;
+  private final ExecutorDao executorInfo;
 
   @Inject
-  public WorkflowInstanceDao(@Named("nflow-datasource") DataSource dataSource, ExecutorDao executorDao) {
+  public WorkflowInstanceDao(@Named("nflow-datasource") DataSource dataSource, ExecutorDao executorInfo) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
-    this.executorGroup = executorDao.getExecutorGroup();
-    this.executorId = executorDao.getExecutorId();
-    this.executorGroupCondition = executorDao.getExecutorGroupCondition();
-    logger.info("Using nflow executor group " + executorGroup + " and executor id " + executorId);
+    this.executorInfo = executorInfo;
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -73,7 +68,7 @@ public class WorkflowInstanceDao {
 
   private int insertWorkflowInstanceImpl(WorkflowInstance instance) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorGroup, executorId), keyHolder);
+    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorInfo), keyHolder);
     int id = keyHolder.getKey().intValue();
     insertVariables(id, 0, instance.stateVariables, Collections.<String, String>emptyMap());
     return id;
@@ -120,7 +115,7 @@ public class WorkflowInstanceDao {
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
-    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorGroup, executorId));
+    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo));
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
@@ -149,7 +144,7 @@ public class WorkflowInstanceDao {
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     String sql =
       "select id from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
-        + executorGroupCondition + " order by next_activation asc limit " + batchSize;
+        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize;
     List<Integer> instanceIds = jdbc.query(sql, new RowMapper<Integer>() {
       @Override
       public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -161,13 +156,13 @@ public class WorkflowInstanceDao {
       batchArgs.add(new Object[] { instanceId });
     }
     int[] updateStatuses = jdbc.batchUpdate(
-      "update nflow_workflow set executor_id = " + executorId + " where id = ? and executor_id is null",
+      "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + " where id = ? and executor_id is null",
       batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
         throw new RuntimeException(
             "Race condition in polling workflow instances detected. " +
-            "Multiple pollers using same name? (" + executorGroup +")");
+            "Multiple pollers using same name? (" + executorInfo.getExecutorGroup() +")");
       }
     }
     return instanceIds;
@@ -257,11 +252,11 @@ public class WorkflowInstanceDao {
         "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
         + "executor_id = ?, retries = ? where id = ?";
 
-    public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, String executorGroup, int executorId) {
+    public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, ExecutorDao executorInfo) {
       this.isInsert = isInsert;
       this.instance = instance;
-      this.executorGroup = executorGroup;
-      this.executorId = executorId;
+      this.executorGroup = executorInfo.getExecutorGroup();
+      this.executorId = executorInfo.getExecutorId();
     }
 
     @Override
