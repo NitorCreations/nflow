@@ -4,6 +4,6 @@ import com.nitorcreations.nflow.jetty.StartNflow;
 
 public class DemoServer {
   public static void main(String[] args) throws Exception {
-    new StartNflow().startJetty(7500, "local", "");
+    new StartNflow().startJetty(7500, "local", "jmx");
   }
 }

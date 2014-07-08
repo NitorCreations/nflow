@@ -15,11 +15,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
-import com.nitorcreations.nflow.engine.WorkflowExecutorListener;
-import com.nitorcreations.nflow.engine.WorkflowExecutorListener.ListenerContext;
-import com.nitorcreations.nflow.engine.domain.WorkflowInstance;
-import com.nitorcreations.nflow.engine.workflow.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener.ListenerContext;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 
 public class MetricsWorkflowExecutorListenerTest {
@@ -38,32 +38,32 @@ public class MetricsWorkflowExecutorListenerTest {
     ctx = new AnnotationConfigApplicationContext(Config.class);
     metricRegistry = ctx.getBean(MetricRegistry.class);
     listener = ctx.getBean(MetricsWorkflowExecutorListener.class);
-    when(definition.getName()).thenReturn("myWorkflow");
+    when(definition.getType()).thenReturn("myWorkflow");
   }
 
   @Test
   public void beforeContext() {
     listener.beforeProcessing(context);
-    assertEquals(1, metricRegistry.getHistograms().get("nflow.foobarName.myWorkflow.my-state.retries").getCount());
-    assertNotNull(metricRegistry.getTimers().get("nflow.foobarName.myWorkflow.my-state.execution-time"));
+    assertEquals(1, metricRegistry.getHistograms().get("foobarName.myWorkflow.my-state.retries").getCount());
+    assertNotNull(metricRegistry.getTimers().get("foobarName.myWorkflow.my-state.execution-time"));
   }
 
   @Test
   public void afterSuccess() {
     listener.beforeProcessing(context);
     listener.afterProcessing(context);
-    assertNotNull(metricRegistry.getHistograms().get("nflow.foobarName.myWorkflow.my-state.retries"));
-    assertEquals(1, metricRegistry.getTimers().get("nflow.foobarName.myWorkflow.my-state.execution-time").getCount());
-    assertEquals(1, metricRegistry.getMeters().get("nflow.foobarName.myWorkflow.my-state.success-count").getCount());
+    assertNotNull(metricRegistry.getHistograms().get("foobarName.myWorkflow.my-state.retries"));
+    assertEquals(1, metricRegistry.getTimers().get("foobarName.myWorkflow.my-state.execution-time").getCount());
+    assertEquals(1, metricRegistry.getMeters().get("foobarName.myWorkflow.my-state.success-count").getCount());
   }
 
   @Test
   public void afterFailure() {
     listener.beforeProcessing(context);
     listener.afterFailure(context, new Exception());
-    assertNotNull(metricRegistry.getHistograms().get("nflow.foobarName.myWorkflow.my-state.retries"));
-    assertEquals(1, metricRegistry.getTimers().get("nflow.foobarName.myWorkflow.my-state.execution-time").getCount());
-    assertEquals(1, metricRegistry.getMeters().get("nflow.foobarName.myWorkflow.my-state.error-count").getCount());
+    assertNotNull(metricRegistry.getHistograms().get("foobarName.myWorkflow.my-state.retries"));
+    assertEquals(1, metricRegistry.getTimers().get("foobarName.myWorkflow.my-state.execution-time").getCount());
+    assertEquals(1, metricRegistry.getMeters().get("foobarName.myWorkflow.my-state.error-count").getCount());
   }
 
   @Configuration

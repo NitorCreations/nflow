@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.jetty.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Named;
 import javax.ws.rs.ApplicationPath;
@@ -15,6 +17,8 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.message.Message;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,9 +26,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.metrics.NflowMetricsContext;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v0.WorkflowInstanceResource;
@@ -36,9 +43,9 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @Configuration
 @PropertySource("classpath:nflow-jetty.properties")
 @ComponentScan("com.nitorcreations.nflow.jetty")
-@Import(value = { RestConfiguration.class, JmxConfiguration.class })
-public class NflowJettyConfiguration {
-
+@Import(value = { RestConfiguration.class, JmxConfiguration.class, NflowMetricsContext.class })
+public class NflowJettyConfiguration implements ApplicationContextAware {
+  private ApplicationContext applicationContext;
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflow-rest-ObjectMapper") ObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
@@ -108,8 +115,22 @@ public class NflowJettyConfiguration {
    return new ResourceListingProvider();
   }
 
+  @Bean
+  public List<WorkflowExecutorListener> workflowExecutorListeners() {
+    return new ArrayList<>(applicationContext.getBeansOfType(WorkflowExecutorListener.class).values());
+  }
+
+  @Bean
+  public MetricRegistry metricRegistry() {
+    return new MetricRegistry();
+  }
+
   @ApplicationPath("/")
   public static class JaxRsApiApplication extends Application {
   }
 
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
 }
