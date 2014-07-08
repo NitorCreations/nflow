@@ -6,7 +6,7 @@ import org.springframework.core.env.Environment;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
-import com.nitorcreations.nflow.engine.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
 
 /**
  * Compute following metrics on per state basis
@@ -57,9 +57,9 @@ public class MetricsWorkflowExecutorListener implements
   }
 
   private String metricKey(ListenerContext context, String type) {
-    String workflowName = context.definition.getName();
+    String workflowName = context.definition.getType();
     String stateName = context.originalState;
-    return format("nflow.%s.%s.%s.%s", nflowInstanceName, workflowName,
+    return format("%s.%s.%s.%s", nflowInstanceName, workflowName,
         stateName, type);
   }
 
