@@ -33,8 +33,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
+import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
