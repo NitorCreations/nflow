@@ -26,12 +26,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
-import com.nitorcreations.nflow.metrics.NflowMetricsContext;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v0.WorkflowInstanceResource;
@@ -43,7 +41,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @Configuration
 @PropertySource("classpath:nflow-jetty.properties")
 @ComponentScan("com.nitorcreations.nflow.jetty")
-@Import(value = { RestConfiguration.class, JmxConfiguration.class, NflowMetricsContext.class })
+@Import(value = { RestConfiguration.class, JmxConfiguration.class})
 public class NflowJettyConfiguration implements ApplicationContextAware {
   private ApplicationContext applicationContext;
   @Bean
@@ -118,11 +116,6 @@ public class NflowJettyConfiguration implements ApplicationContextAware {
   @Bean
   public List<WorkflowExecutorListener> workflowExecutorListeners() {
     return new ArrayList<>(applicationContext.getBeansOfType(WorkflowExecutorListener.class).values());
-  }
-
-  @Bean
-  public MetricRegistry metricRegistry() {
-    return new MetricRegistry();
   }
 
   @ApplicationPath("/")
