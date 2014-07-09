@@ -118,6 +118,10 @@ public class WorkflowInstanceDao {
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo));
   }
 
+  public boolean wakeupWorkflowInstanceIfNotExecuting(long id) {
+    return jdbc.update("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and next_activation > currrent_timestamp", id) == 1;
+  }
+
   public WorkflowInstance getWorkflowInstance(int id) {
     String sql = "select * from nflow_workflow where id = ?";
     WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);

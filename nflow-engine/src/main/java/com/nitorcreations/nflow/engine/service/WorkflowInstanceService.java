@@ -63,6 +63,11 @@ public class WorkflowInstanceService {
   }
 
   @Transactional
+  public boolean wakeupWorkflowInstance(long id) {
+    return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id);
+  }
+
+  @Transactional
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     if (batchSize > 0) {
       return workflowInstanceDao.pollNextWorkflowInstanceIds(batchSize);
