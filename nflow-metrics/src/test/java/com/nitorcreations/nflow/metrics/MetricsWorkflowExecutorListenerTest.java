@@ -10,10 +10,9 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
@@ -41,7 +40,17 @@ public class MetricsWorkflowExecutorListenerTest {
       definition, instance2, stateExecution);
   @Before
   public void setup() {
-    ctx = new AnnotationConfigApplicationContext(Config.class);
+    ctx = new AnnotationConfigApplicationContext(Config.class) {
+      @Override
+      protected ConfigurableEnvironment createEnvironment() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("nflow.instance.name", "foobarName");
+        env.addActiveProfile("metrics");
+        env.addActiveProfile("jmx");
+        return env;
+      }
+    };
+    System.out.println(ctx.getEnvironment());
     metricRegistry = ctx.getBean(MetricRegistry.class);
     listener = ctx.getBean(MetricsWorkflowExecutorListener.class);
     when(definition.getType()).thenReturn("myWorkflow");
@@ -83,16 +92,7 @@ public class MetricsWorkflowExecutorListenerTest {
 
   @Configuration
   @Import(NflowMetricsContext.class)
-  static class Config {
-    @Bean
-    public Environment env() {
-      MockEnvironment env = new MockEnvironment();
-      env.setProperty("nflow.instance.name", "foobarName");
-      return env;
-    }
-    @Bean
-    public MetricRegistry metricRegistry() {
-      return new MetricRegistry();
-    }
+  public static class Config {
+
   }
 }

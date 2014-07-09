@@ -20,10 +20,6 @@
     </dependency>
     <dependency>
       <groupId>com.nitorcreations</groupId>
-      <artifactId>nflow-metrics</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.nitorcreations</groupId>
       <artifactId>core-utils</artifactId>
     </dependency>
     <dependency>

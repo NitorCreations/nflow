@@ -15,6 +15,10 @@
       <artifactId>nflow-jetty</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.nitorcreations</groupId>
+      <artifactId>nflow-metrics</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>
