@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.metrics;
 
 import static java.lang.String.format;
 
+import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 
 import com.codahale.metrics.MetricRegistry;
@@ -33,16 +34,28 @@ public class MetricsWorkflowExecutorListener implements
   public void beforeProcessing(ListenerContext context) {
     @SuppressWarnings("resource")
     Context timerContext = metricRegistry.timer(
-        metricKey(context, "execution-time")).time();
+        stateMetricKey(context, "execution-time")).time();
     context.data.put(EXECUTION_KEY, timerContext);
-    metricRegistry.histogram(metricKey(context, "retries")).update(
+    meterRetries(context);
+    meterStartupDelay(context);
+  }
+
+  private void meterRetries(ListenerContext context) {
+    metricRegistry.histogram(stateMetricKey(context, "retries")).update(
         context.stateExecution.getRetries());
+  }
+
+  private void meterStartupDelay(ListenerContext context) {
+    if(context.instance.nextActivation != null) {
+      long delay = DateTime.now().getMillis() - context.instance.nextActivation.getMillis();
+      metricRegistry.histogram(groupNameMetricKey("startup-delay")).update(delay);
+    }
   }
 
   @Override
   public void afterProcessing(ListenerContext context) {
     executionTimer(context).stop();
-    metricRegistry.meter(metricKey(context, "success-count")).mark();
+    metricRegistry.meter(stateMetricKey(context, "success-count")).mark();
   }
 
   @Override
@@ -53,14 +66,18 @@ public class MetricsWorkflowExecutorListener implements
       timer.close();
     }
 
-    metricRegistry.meter(metricKey(context, "error-count")).mark();
+    metricRegistry.meter(stateMetricKey(context, "error-count")).mark();
   }
 
-  private String metricKey(ListenerContext context, String type) {
+  private String stateMetricKey(ListenerContext context, String type) {
     String workflowName = context.definition.getType();
     String stateName = context.originalState;
     return format("%s.%s.%s.%s", nflowInstanceName, workflowName,
         stateName, type);
+  }
+
+  private String groupNameMetricKey(String type) {
+    return format("%s.%s", nflowInstanceName, type);
   }
 
   private Context executionTimer(ListenerContext context) {
