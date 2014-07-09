@@ -29,7 +29,7 @@ import org.springframework.core.env.Environment;
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
 import com.nitorcreations.nflow.metrics.NflowMetricsContext;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;

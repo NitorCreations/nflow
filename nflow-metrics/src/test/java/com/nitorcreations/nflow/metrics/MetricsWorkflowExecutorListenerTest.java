@@ -15,8 +15,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener.ListenerContext;
+import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
