@@ -18,7 +18,6 @@ import com.codahale.metrics.MetricRegistry;
  */
 @Named("nflow-metrics/metricsContext")
 @Configuration
-@Profile("metrics")
 public class NflowMetricsContext {
   private static final Logger log = LoggerFactory.getLogger(NflowMetricsContext.class);
   @Inject
