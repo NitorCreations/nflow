@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.internal.executor;
+package com.nitorcreations.nflow.engine.listener;
 
 import static org.joda.time.DateTime.now;
 
@@ -28,7 +28,7 @@ public interface WorkflowExecutorListener {
    * life-cycle methods.
    */
   @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "listeners are implemented by business applications")
-  class ListenerContext {
+  public class ListenerContext {
     public final DateTime start = now();
     public final WorkflowDefinition<?> definition;
     public final String originalState;
