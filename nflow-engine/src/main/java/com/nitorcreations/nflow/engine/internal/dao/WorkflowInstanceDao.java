@@ -47,6 +47,9 @@ public class WorkflowInstanceDao {
 
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
 
+  // TODO: fetch text field max sizes from database meta data
+  private static final int STATE_TEXT_LENGTH = 128;
+
   private final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
   private final ExecutorDao executorInfo;
@@ -230,7 +233,7 @@ public class WorkflowInstanceDao {
             new String[] { "id" });
         p.setInt(1, action.workflowId);
         p.setString(2, action.state);
-        p.setString(3, action.stateText);
+        p.setString(3, limitLength(action.stateText, STATE_TEXT_LENGTH));
         p.setInt(4, action.retryNo);
         p.setTimestamp(5, toTimestamp(action.executionStart));
         p.setTimestamp(6, toTimestamp(action.executionEnd));
@@ -279,7 +282,7 @@ public class WorkflowInstanceDao {
         ps = connection.prepareStatement(updateSql);
       }
       ps.setString(p++, instance.state);
-      ps.setString(p++, instance.stateText);
+      ps.setString(p++, limitLength(instance.stateText, STATE_TEXT_LENGTH));
       ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
       if (!isInsert) {
         ps.setObject(p++, instance.processing ? executorId : null);
@@ -343,4 +346,13 @@ public class WorkflowInstanceDao {
     return time == null ? null : new DateTime(time.getTime());
   }
 
+  static String limitLength(String s, int maxLen) {
+    if (s == null) {
+      return null;
+    }
+    if (s.length() < maxLen) {
+      return s;
+    }
+    return s.substring(0, maxLen);
+  }
 }

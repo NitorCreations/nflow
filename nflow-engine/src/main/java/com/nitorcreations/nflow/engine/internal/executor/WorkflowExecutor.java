@@ -73,13 +73,16 @@ class WorkflowExecutor implements Runnable {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
       ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
+      WorkflowState state = definition.getState(instance.state);
       try {
         processBeforeListeners(listenerContext);
         processState(instance, definition, execution);
         processAfterListeners(listenerContext);
-      } catch (Exception ex) {
+      } catch (Throwable ex) {
         logger.error("Handler threw exception, trying again later", ex);
         execution.setFailure(true);
+        execution.setNextState(state);
+        execution.setNextStateReason(ex.toString());
         definition.handleRetry(execution);
         processAfterFailureListeners(listenerContext, ex);
       } finally {
@@ -146,8 +149,7 @@ class WorkflowExecutor implements Runnable {
     }
   }
 
-  private void processAfterFailureListeners(ListenerContext listenerContext,
-      Exception ex) {
+  private void processAfterFailureListeners(ListenerContext listenerContext, Throwable ex) {
     for (WorkflowExecutorListener listener : executorListeners) {
       listener.afterFailure(listenerContext, ex);
     }

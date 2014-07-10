@@ -37,4 +37,13 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> exte
   public Set<S> getStates() {
     return allStates;
   }
+
+  public WorkflowState getState(String state) {
+    for (WorkflowState s : allStates) {
+      if (state.equals(s.getName())) {
+        return s;
+      }
+    }
+    throw new IllegalStateException("No state '" + state + "' in workflow definiton " + getType());
+  }
 }
