@@ -18,8 +18,6 @@ import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 @Component
 public class WorkflowInstanceService {
 
@@ -40,7 +38,6 @@ public class WorkflowInstanceService {
     return workflowInstanceDao.getWorkflowInstance(id);
   }
 
-  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
   @Transactional
   public int insertWorkflowInstance(WorkflowInstance instance) {
     WorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
@@ -51,7 +48,12 @@ public class WorkflowInstanceService {
     if (isEmpty(instance.externalId)) {
       builder.setExternalId(UUID.randomUUID().toString());
     }
-    return workflowInstanceDao.insertWorkflowInstance(builder.build());
+    int id = workflowInstanceDao.insertWorkflowInstance(builder.build());
+    if (id == -1 && !isEmpty(instance.externalId)) {
+      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(def.getType()).setExternalId(instance.externalId).build();
+      id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
+    }
+    return id;
   }
 
   @Transactional

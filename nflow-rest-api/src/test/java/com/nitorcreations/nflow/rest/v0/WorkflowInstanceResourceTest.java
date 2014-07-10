@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.rest.v0;
 
 import static com.nitorcreations.Matchers.hasField;
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyCollectionOf;
@@ -21,7 +20,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -53,7 +51,7 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void createWorkflowInstanceWorks() throws JsonProcessingException {
+  public void createWorkflowInstanceWorks() {
     when(workflowInstances.insertWorkflowInstance(any(WorkflowInstance.class))).thenReturn(1);
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     Response r = resource.createWorkflowInstance(req);
@@ -61,22 +59,7 @@ public class WorkflowInstanceResourceTest {
     assertThat(r.getHeaderString("Location"), is("1"));
     verify(createWorkflowConverter).convertAndValidate(req);
     verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
-    verify(workflowInstances).getWorkflowInstance(any(Integer.class));
-    verify(createWorkflowConverter).convert(any(WorkflowInstance.class));
-  }
-
-  @Test
-  public void createWorkflowInstanceRetryWorks() throws JsonProcessingException {
-    when(workflowInstances.insertWorkflowInstance(any(WorkflowInstance.class))).thenReturn(-1);
-    when(workflowInstances.listWorkflowInstances(any(QueryWorkflowInstances.class))).thenReturn(asList(i));
-    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.externalId = "ABC12345";
-    Response r = resource.createWorkflowInstance(req);
-    assertThat(r.getStatus(), is(201));
-    assertThat(r.getHeaderString("Location"), is("2"));
-    verify(createWorkflowConverter).convertAndValidate(req);
-    verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
-    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(hasField("externalId", equalTo(req.externalId))));
+    verify(workflowInstances).getWorkflowInstance(1);
     verify(createWorkflowConverter).convert(any(WorkflowInstance.class));
   }
 

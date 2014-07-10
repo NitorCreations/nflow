@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static com.nitorcreations.Matchers.containsElementsInAnyOrder;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -40,6 +42,8 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   private ArgumentCaptor<WorkflowInstance> stored, stored2;
   @Captor
   private ArgumentCaptor<WorkflowInstanceAction> storedAction;
+  @Captor
+  private ArgumentCaptor<QueryWorkflowInstances> queryCapture;
 
   private WorkflowInstanceService service;
 
@@ -77,6 +81,17 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     assertThat(service.insertWorkflowInstance(i), is(42));
     assertThat(stored.getValue().externalId, is("123"));
+  }
+
+  @Test
+  public void insertDuplicateWorkflowInstanceFetchesExistingId() {
+    List<WorkflowInstance> list  = singletonList(constructWorkflowInstanceBuilder().setId(43).build());
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").build();
+    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(-1);
+    when(workflowInstanceDao.queryWorkflowInstances(queryCapture.capture())).thenReturn(list);
+    assertThat(service.insertWorkflowInstance(i), is(43));
+    assertThat(queryCapture.getValue().types, containsElementsInAnyOrder(singletonList("dummy")));
+    assertThat(queryCapture.getValue().externalId, is("123"));
   }
 
   @Test
