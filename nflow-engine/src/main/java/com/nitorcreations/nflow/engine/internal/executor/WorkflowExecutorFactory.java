@@ -1,7 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +12,11 @@ import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 @Component
 public class WorkflowExecutorFactory {
-
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final ObjectStringMapper objectMapper;
-  private WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[0];
+  @Autowired(required = false)
+  protected WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[0];
 
   @Inject
   public WorkflowExecutorFactory(WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
@@ -26,12 +24,6 @@ public class WorkflowExecutorFactory {
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.objectMapper = objectMapper;
-  }
-
-  @Autowired(required = false)
-  public WorkflowExecutorFactory setListeners(List<WorkflowExecutorListener> listeners) {
-    this.listeners = listeners.toArray(new WorkflowExecutorListener[listeners.size()]);
-    return this;
   }
 
   public WorkflowExecutor createExecutor(int instanceId) {

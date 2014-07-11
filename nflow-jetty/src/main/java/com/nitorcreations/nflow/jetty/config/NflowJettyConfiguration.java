@@ -1,10 +1,7 @@
 package com.nitorcreations.nflow.jetty.config;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -18,7 +15,6 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.message.Message;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +24,6 @@ import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v0.WorkflowDefinitionResource;
@@ -43,8 +38,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @ComponentScan("com.nitorcreations.nflow.jetty")
 @Import(value = { RestConfiguration.class, JmxConfiguration.class})
 public class NflowJettyConfiguration {
-  @Inject
-  private ApplicationContext applicationContext;
+
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflow-rest-ObjectMapper") ObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
@@ -112,11 +106,6 @@ public class NflowJettyConfiguration {
   @Bean
   public ResourceListingProvider resourceListingProvider() {
    return new ResourceListingProvider();
-  }
-
-  @Bean
-  public List<WorkflowExecutorListener> workflowExecutorListeners() {
-    return new ArrayList<>(applicationContext.getBeansOfType(WorkflowExecutorListener.class).values());
   }
 
   @ApplicationPath("/")
