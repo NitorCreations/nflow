@@ -36,7 +36,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @Configuration
 @PropertySource("classpath:nflow-jetty.properties")
 @ComponentScan("com.nitorcreations.nflow.jetty")
-@Import(value = { RestConfiguration.class, JmxConfiguration.class })
+@Import(value = { RestConfiguration.class, JmxConfiguration.class})
 public class NflowJettyConfiguration {
 
   @Bean

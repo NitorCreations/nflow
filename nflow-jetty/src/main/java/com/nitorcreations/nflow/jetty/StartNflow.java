@@ -13,7 +13,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -46,8 +48,15 @@ public class StartNflow
 {
   private static final Logger LOG = LoggerFactory.getLogger(StartNflow.class);
 
+  private final Set<Class<?>> annotatedContextClasses = new LinkedHashSet<>();
+
   public static void main(final String... args) throws Exception {
     new StartNflow().startJetty(Collections.<String, Object>emptyMap());
+  }
+
+  public StartNflow registerSpringContext(Class<?> ... springContextClass) {
+    annotatedContextClasses.addAll(asList(springContextClass));
+    return this;
   }
 
   public JettyServerContainer startJetty(int port, String env, String profiles) throws Exception {
@@ -89,7 +98,11 @@ public class StartNflow
 
   @SuppressWarnings("resource")
   protected void setupSpring(final ServletContextHandler context, ConfigurableEnvironment env) {
-    context.addEventListener(new ContextLoaderListener(new NflowAnnotationConfigWebApplicationContext(env)));
+    NflowAnnotationConfigWebApplicationContext webContext = new NflowAnnotationConfigWebApplicationContext(env);
+    if(!annotatedContextClasses.isEmpty()) {
+      webContext.register(annotatedContextClasses.toArray(new Class<?>[annotatedContextClasses.size()]));
+    }
+    context.addEventListener(new ContextLoaderListener(webContext));
     context.setInitParameter("contextConfigLocation", NflowJettyConfiguration.class.getName());
   }
 
