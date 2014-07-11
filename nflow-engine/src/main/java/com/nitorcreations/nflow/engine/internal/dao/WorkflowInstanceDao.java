@@ -122,7 +122,7 @@ public class WorkflowInstanceDao {
   }
 
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id) {
-    return jdbc.update("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and next_activation > currrent_timestamp", id) == 1;
+    return jdbc.update("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and (next_activation is null or next_activation > current_timestamp)", id) == 1;
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
