@@ -7,7 +7,7 @@ import org.springframework.core.env.Environment;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 
 /**
  * Compute following metrics on per state basis
