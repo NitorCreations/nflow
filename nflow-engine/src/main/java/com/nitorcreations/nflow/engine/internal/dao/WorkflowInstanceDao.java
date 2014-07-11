@@ -121,8 +121,8 @@ public class WorkflowInstanceDao {
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo));
   }
 
-  public boolean wakeupWorkflowInstanceIfNotExecuting(long id) {
-    return jdbc.update("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and (next_activation is null or next_activation > current_timestamp)", id) == 1;
+  public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String expectedState) {
+    return jdbc.update("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and state = ? and (next_activation is null or next_activation > current_timestamp)", id, expectedState) == 1;
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
