@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
@@ -56,8 +57,8 @@ public class WordGeneratorWorkflow extends
     }
   }
 
-  protected WordGeneratorWorkflow(String flowName) {
-    super(flowName, randState(), State.error);
+  protected WordGeneratorWorkflow(String flowName, WorkflowSettings settings) {
+    super(flowName, randState(), State.error, settings);
     for (State originState : State.values()) {
       for (State targetState : State.values()) {
         if (originState == State.end || originState == State.error || targetState == State.error) {
@@ -69,7 +70,7 @@ public class WordGeneratorWorkflow extends
   }
 
   public WordGeneratorWorkflow() {
-    this("wordGenerator");
+    this("wordGenerator", new WorkflowSettings(null));
   }
   protected static State randState() {
     Random random = new Random();

@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Configurable;
 
 public class StartNflowTest {
   @Test
@@ -23,7 +24,7 @@ public class StartNflowTest {
   }
 
   private JettyServerContainer initJettyStart(int port, String profiles) throws Exception {
-    return new StartNflow().startJetty(port, "junit", profiles);
+    return new StartNflow().registerSpringContext(DummyContext.class).startJetty(port, "junit", profiles);
   }
 
   private void startStop(JettyServerContainer jetty) throws Exception {
@@ -64,4 +65,8 @@ public class StartNflowTest {
     startStop(initJettyStart("nflow.db.postgresql"));
   }
 
+  @Configurable
+  static class DummyContext {
+
+  }
 }

@@ -2,10 +2,12 @@ package com.nitorcreations.nflow.tests.demo;
 
 import java.util.Random;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 
 public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
   private static final Logger log = LoggerFactory
@@ -13,7 +15,7 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
   private static final double ERROR_FRACTION = 0.5;
 
   public WordGeneratorErrorsWorkflow() {
-    super("wordGeneratorErrors");
+    super("wordGeneratorErrors", new WordGeneratorErrorsWorkSettings());
   }
 
   @Override
@@ -31,4 +33,33 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
     }
   }
 
+  private static class WordGeneratorErrorsWorkSettings extends WorkflowSettings {
+    public WordGeneratorErrorsWorkSettings() {
+      super(null);
+    }
+    @Override
+    public DateTime getErrorTransitionActivation() {
+      return super.getErrorTransitionActivation();
+    }
+
+    @Override
+    public int getErrorTransitionDelay() {
+      return 300;
+    }
+
+    @Override
+    public int getShortTransitionDelay() {
+      return 200;
+    }
+
+    @Override
+    public int getImmediateTransitionDelay() {
+      return 100;
+    }
+
+    @Override
+    public int getMaxRetries() {
+      return 10;
+    }
+  }
 }

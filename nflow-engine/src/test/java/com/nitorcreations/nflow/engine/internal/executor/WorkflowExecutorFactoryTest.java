@@ -1,9 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertNotNull;
-
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +22,7 @@ public class WorkflowExecutorFactoryTest extends BaseNflowTest {
   WorkflowExecutorListener listener1;
   @Mock
   WorkflowExecutorListener listener2;
-  List<WorkflowExecutorListener> listeners = asList(listener1, listener2);
+  WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[]{listener1, listener2};
 
   WorkflowExecutorFactory factory;
 
@@ -42,7 +39,7 @@ public class WorkflowExecutorFactoryTest extends BaseNflowTest {
 
   @Test
   public void factoryCreatesExecutorsWithListeners() {
-    factory.setListeners(listeners);
+    factory.listeners = listeners;
     WorkflowExecutor executor = factory.createExecutor(122);
     assertNotNull(executor);
   }
