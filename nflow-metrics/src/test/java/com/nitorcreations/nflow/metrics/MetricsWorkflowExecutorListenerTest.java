@@ -44,7 +44,7 @@ public class MetricsWorkflowExecutorListenerTest {
       @Override
       protected ConfigurableEnvironment createEnvironment() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("nflow.instance.name", "foobarName");
+        env.setProperty("nflow.executor.group", "foobarName");
         env.addActiveProfile("metrics");
         env.addActiveProfile("jmx");
         return env;

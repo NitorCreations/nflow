@@ -22,12 +22,12 @@ public class MetricsWorkflowExecutorListener implements
     WorkflowExecutorListener {
   private static final String EXECUTION_KEY = "nflow-metrics-execution";
   private final MetricRegistry metricRegistry;
-  private final String nflowInstanceName;
+  private final String nflowExecutorGroup;
 
   public MetricsWorkflowExecutorListener(MetricRegistry metricRegistry,
       Environment env) {
     this.metricRegistry = metricRegistry;
-    this.nflowInstanceName = env.getRequiredProperty("nflow.instance.name");
+    this.nflowExecutorGroup = env.getRequiredProperty("nflow.executor.group");
   }
 
   @Override
@@ -72,12 +72,12 @@ public class MetricsWorkflowExecutorListener implements
   private String stateMetricKey(ListenerContext context, String type) {
     String workflowName = context.definition.getType();
     String stateName = context.originalState;
-    return format("%s.%s.%s.%s", nflowInstanceName, workflowName,
+    return format("%s.%s.%s.%s", nflowExecutorGroup, workflowName,
         stateName, type);
   }
 
   private String groupNameMetricKey(String type) {
-    return format("%s.%s", nflowInstanceName, type);
+    return format("%s.%s", nflowExecutorGroup, type);
   }
 
   private Context executionTimer(ListenerContext context) {

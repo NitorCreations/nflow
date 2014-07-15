@@ -256,7 +256,7 @@ Properties whose name ends to _.ms_ define milliseconds.
 
 | Property name | Default value | Description |
 | ------------- | ------------- | ----------- |
-| nflow.instance.name | nflow | Instance name separates the workflow data of multiple nflow instances in the database |
+| nflow.executor.group | nflow | nFlow Instances that process same workflows have same executor group name. |
 | nflow.dispatcher.sleep.ms | 1000 | Polling frequency for new workflow activations, when no new activations are found |
 | nflow.transition.delay.immediate.ms | 0 | Delay for immediate next activation of workflow instance |
 | nflow.transition.delay.waitshort.ms | 30000 | Delay for next activation of workflow instance after e.g. starting async operation |
