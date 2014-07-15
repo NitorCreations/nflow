@@ -71,14 +71,14 @@ public class NflowServerRule extends ExternalResource {
   }
 
   public String getInstanceName() {
-    return (String) props.get("nflow.instance.name");
+    return (String) props.get("nflow.executor.group");
   }
 
   @Override
   public Statement apply(Statement base, Description description) {
-    if (!props.containsKey("nflow.instance.name")) {
+    if (!props.containsKey("nflow.executor.group")) {
       String processName = "nflow-tests-" + right(substringAfterLast(defaultString(description.getMethodName(), description.getClassName()), "."), 25) + "-" + currentTimeMillis();
-      props.put("nflow.instance.name", processName);
+      props.put("nflow.executor.group", processName);
     }
     return super.apply(base, description);
   }
