@@ -22,3 +22,6 @@ after_script:
 notifications:
   flowdock:
     secure: QbIGfsj64a2Ms5y/aTO0PUAVBRv9mKxAwLFj5NxWACEVxm1JKZvrQ4ov/8XbVRbRl96sMIoWPox7Gu++ZgLjb7w+jeiCvWLwJwRDxlCgsYvb4hAcPXlNBO7SF4kcUifPfJpaDsb3EThUUK8EtsI5aOxvCqGKMChTDoQnej3kc0o=
+after_success:
+  - mvn clean cobertura:cobertura coveralls:cobertura
+
