@@ -128,6 +128,12 @@ public class WorkflowInstance {
       return this;
     }
 
+    public Builder setOriginalStateVariables(Map<String, String> originalStateVariables) {
+      this.originalStateVariables.clear();
+      this.originalStateVariables.putAll(originalStateVariables);
+      return this;
+    }
+
     public Builder setStateVariables(Map<String, String> stateVariables) {
       this.stateVariables.clear();
       this.stateVariables.putAll(stateVariables);

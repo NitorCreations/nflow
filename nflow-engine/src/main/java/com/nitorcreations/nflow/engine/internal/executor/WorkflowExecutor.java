@@ -129,9 +129,8 @@ class WorkflowExecutor implements Runnable {
       builder.setState(execution.getNextState()).setStateText(execution.getNextStateReason()).setRetries(0);
     }
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
-    WorkflowInstance newInstance = builder.build();
-    workflowInstances.updateWorkflowInstance(newInstance, actionBuilder.build());
-    return newInstance;
+    workflowInstances.updateWorkflowInstance(builder.build(), actionBuilder.build());
+    return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
