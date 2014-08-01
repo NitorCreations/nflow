@@ -20,14 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
-import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition.TestState;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition2.TestState2;
 
 public class WorkflowDefinitionTest {
   @Rule
@@ -51,10 +44,10 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void getStatesWorks() {
-    TestDefinition2 def = new TestDefinition2("x", TestState2.start);
+    TestDefinitionWithStateTypes def = new TestDefinitionWithStateTypes("x", TestDefinitionWithStateTypes.State.initial);
     assertThat(def.getStates(),
-        containsInAnyOrder(TestState2.start, TestState2.done,
-            TestState2.state1, TestState2.state2, TestState2.error));
+        containsInAnyOrder(TestDefinitionWithStateTypes.State.initial, TestDefinitionWithStateTypes.State.done,
+            TestDefinitionWithStateTypes.State.state1, TestDefinitionWithStateTypes.State.state2, TestDefinitionWithStateTypes.State.error));
   }
 
   @Test
@@ -119,10 +112,11 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void allowedTranstionsCanContainMultipleTargetStates(){
-    WorkflowDefinition<?> def = new TestDefinition2("y", TestState2.start);
-    assertEquals(asList(TestState2.done.name(),
-        TestState2.state1.name(), TestState2.state2.name()), def.getAllowedTransitions().get(TestState2.start.name()));
-    assertEquals(TestState2.error.name(), def.getFailureTransitions().get(TestState2.start.name()));
+    WorkflowDefinition<?> def = new TestDefinitionWithStateTypes("y", TestDefinitionWithStateTypes.State.initial);
+    assertEquals(asList(TestDefinitionWithStateTypes.State.done.name(),
+        TestDefinitionWithStateTypes.State.state1.name(), TestDefinitionWithStateTypes.State.state2.name()),
+        def.getAllowedTransitions().get(TestDefinitionWithStateTypes.State.initial.name()));
+    assertEquals(TestDefinitionWithStateTypes.State.error.name(), def.getFailureTransitions().get(TestDefinitionWithStateTypes.State.initial.name()));
   }
 
   public static class TestDefinition extends
@@ -159,53 +153,6 @@ public class WorkflowDefinitionTest {
     public Set<TestState> getStates() {
       // TODO Auto-generated method stub
       return null;
-    }
-
-  }
-
-  public static class TestDefinition2 extends
-      WorkflowDefinition<TestDefinition2.TestState2> {
-    public static enum TestState2 implements WorkflowState {
-      start, done, state1, state2, error;
-
-      @Override
-      public WorkflowStateType getType() {
-        return normal;
-      }
-
-      @Override
-      public String getName() {
-        return name();
-      }
-
-      @Override
-      public String getDescription() {
-        return name();
-      }
-    }
-
-    public TestDefinition2(String type, TestState2 initialState) {
-      super(type, initialState, TestState2.error);
-      permit(TestState2.start, TestState2.done, TestState2.error);
-      permit(TestState2.start, TestState2.state1);
-      permit(TestState2.start, TestState2.state2);
-      permit(TestState2.state1, TestState2.state2);
-      permit(TestState2.state2, TestState2.done);
-    }
-
-    public void start(StateExecution execution) {
-    }
-
-    public void state1(StateExecution execution, @StateVar("arg") String param) {
-    }
-
-    public void state2(StateExecution execution) {
-    }
-
-    public void done(StateExecution execution) {
-    }
-
-    public void error(StateExecution execution) {
     }
 
   }
