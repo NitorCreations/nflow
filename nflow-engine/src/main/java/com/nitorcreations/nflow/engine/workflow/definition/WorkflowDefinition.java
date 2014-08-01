@@ -1,8 +1,5 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
-
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -27,9 +24,7 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> exte
   @SuppressFBWarnings(value="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "findbugs does not understand that S extends both WorkflowState end Enum")
   private void requireEnumValuesHaveMatchingMethod() {
     for (S state : allStates) {
-      if (state.getType() != manual && state.getType() != end) {
-        requireStateMethodExists(state);
-      }
+      requireStateMethodExists(state);
     }
   }
 
