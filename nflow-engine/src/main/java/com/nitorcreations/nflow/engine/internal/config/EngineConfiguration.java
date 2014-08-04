@@ -17,7 +17,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.nitorcreations.nflow.engine.util.ThresholdThreadPoolTaskExecutor;
+import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTaskExecutor;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.engine")

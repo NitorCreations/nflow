@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
-import com.nitorcreations.nflow.engine.util.ThresholdThreadPoolTaskExecutor;
 
 @Component
 public class WorkflowDispatcher implements Runnable {
