@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -58,16 +57,10 @@ public class WorkflowInstanceResource {
 
   @PUT
   @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
-  public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) throws JsonProcessingException {
+  public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
     int id = workflowInstances.insertWorkflowInstance(instance);
-    if (id == -1) {
-      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(req.type).setExternalId(req.externalId).build();
-      instance = workflowInstances.listWorkflowInstances(query).iterator().next();
-      id = instance.id;
-    } else {
-      instance = workflowInstances.getWorkflowInstance(id);
-    }
+    instance = workflowInstances.getWorkflowInstance(id);
     return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
 

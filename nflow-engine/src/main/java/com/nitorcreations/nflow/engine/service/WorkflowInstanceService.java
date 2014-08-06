@@ -23,10 +23,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 public class WorkflowInstanceService {
 
-  private final WorkflowDefinitionService workflowDefinitionService;
-  private final WorkflowInstanceDao workflowInstanceDao;
-
   @Inject
+  private WorkflowDefinitionService workflowDefinitionService;
+  @Inject
+  private WorkflowInstanceDao workflowInstanceDao;
+
+  public WorkflowInstanceService() {
+  }
+
   public WorkflowInstanceService(WorkflowDefinitionService workflowDefinitionService, WorkflowInstanceDao workflowInstanceDao) {
     this.workflowDefinitionService = workflowDefinitionService;
     this.workflowInstanceDao = workflowInstanceDao;
@@ -36,7 +40,7 @@ public class WorkflowInstanceService {
     return workflowInstanceDao.getWorkflowInstance(id);
   }
 
-  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
+  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
   @Transactional
   public int insertWorkflowInstance(WorkflowInstance instance) {
     WorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
@@ -47,7 +51,12 @@ public class WorkflowInstanceService {
     if (isEmpty(instance.externalId)) {
       builder.setExternalId(UUID.randomUUID().toString());
     }
-    return workflowInstanceDao.insertWorkflowInstance(builder.build());
+    int id = workflowInstanceDao.insertWorkflowInstance(builder.build());
+    if (id == -1 && !isEmpty(instance.externalId)) {
+      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(def.getType()).setExternalId(instance.externalId).build();
+      id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
+    }
+    return id;
   }
 
   @Transactional
@@ -56,6 +65,11 @@ public class WorkflowInstanceService {
     if (action != null) {
       workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
     }
+  }
+
+  @Transactional
+  public boolean wakeupWorkflowInstance(long id, String expectedState) {
+    return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id, expectedState);
   }
 
   @Transactional

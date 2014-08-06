@@ -73,18 +73,21 @@ class WorkflowExecutor implements Runnable {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
       ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
+      WorkflowState state = definition.getState(instance.state);
       try {
         processBeforeListeners(listenerContext);
         processState(instance, definition, execution);
         processAfterListeners(listenerContext);
-      } catch (Exception ex) {
+      } catch (Throwable ex) {
         logger.error("Handler threw exception, trying again later", ex);
         execution.setFailure(true);
+        execution.setNextState(state);
+        execution.setNextStateReason(ex.toString());
         definition.handleRetry(execution);
         processAfterFailureListeners(listenerContext, ex);
       } finally {
         subsequentStateExecutions = busyLoopPrevention(settings, subsequentStateExecutions, execution);
-        instance = saveWorkflowInstanceState(execution, instance, actionBuilder);
+        instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
       }
     }
     logger.debug("Finished.");
@@ -107,7 +110,16 @@ class WorkflowExecutor implements Runnable {
     return subsequentStateExecutions;
   }
 
-  private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance, WorkflowInstanceAction.Builder actionBuilder) {
+  private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
+      WorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+    if (execution.getNextState() == null) {
+      execution.setNextState(definition.getErrorState(), "No next state defined by state " + execution.getCurrentStateName(), now());
+      execution.setNextActivation(null);
+    }
+    if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null)  {
+      logger.info("No handler method defined for " + execution.getNextState() + ", clearing next activation");
+      execution.setNextActivation(null);
+    }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setProcessing(isNextActivationImmediately(execution));
@@ -117,9 +129,8 @@ class WorkflowExecutor implements Runnable {
       builder.setState(execution.getNextState()).setStateText(execution.getNextStateReason()).setRetries(0);
     }
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
-    WorkflowInstance newInstance = builder.build();
-    workflowInstances.updateWorkflowInstance(newInstance, actionBuilder.build());
-    return newInstance;
+    workflowInstances.updateWorkflowInstance(builder.build(), actionBuilder.build());
+    return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
@@ -146,8 +157,7 @@ class WorkflowExecutor implements Runnable {
     }
   }
 
-  private void processAfterFailureListeners(ListenerContext listenerContext,
-      Exception ex) {
+  private void processAfterFailureListeners(ListenerContext listenerContext, Throwable ex) {
     for (WorkflowExecutorListener listener : executorListeners) {
       listener.afterFailure(listenerContext, ex);
     }

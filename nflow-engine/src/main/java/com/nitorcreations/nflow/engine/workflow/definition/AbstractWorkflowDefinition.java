@@ -1,5 +1,8 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -103,8 +106,12 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     return settings;
   }
 
+  boolean isStateMethodObligatory(S state) {
+    return state.getType() != manual && state.getType() != end;
+  }
+
   void requireStateMethodExists(S state) {
-    if (!stateMethods.containsKey(state.name())) {
+    if (!stateMethods.containsKey(state.name()) && isStateMethodObligatory(state)) {
       String msg = String.format("Class %s is missing state handling method %s(StateExecution execution, ... args)", this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }

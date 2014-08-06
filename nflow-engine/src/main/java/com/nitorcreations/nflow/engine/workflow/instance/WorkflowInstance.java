@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ public class WorkflowInstance {
   public final DateTime nextActivation;
   public final boolean processing;
   public final Map<String, String> stateVariables;
-  public final Map<String, String> originalStateVariables = new LinkedHashMap<>();
+  public final Map<String, String> originalStateVariables;
   public final List<WorkflowInstanceAction> actions;
   public final int retries;
   public final DateTime created;
@@ -36,6 +35,7 @@ public class WorkflowInstance {
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
     this.processing = builder.processing;
+    this.originalStateVariables = builder.originalStateVariables;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
     this.retries = builder.retries;
@@ -54,6 +54,7 @@ public class WorkflowInstance {
     String stateText;
     DateTime nextActivation;
     boolean processing;
+    final HashMap<String, String> originalStateVariables = new HashMap<>();
     final HashMap<String, String> stateVariables = new HashMap<>();
     List<WorkflowInstanceAction> actions;
     int retries;
@@ -79,6 +80,7 @@ public class WorkflowInstance {
       this.stateText = copy.stateText;
       this.nextActivation = copy.nextActivation;
       this.processing = copy.processing;
+      this.originalStateVariables.putAll(copy.originalStateVariables);
       this.stateVariables.putAll(copy.stateVariables);
       this.retries = copy.retries;
       this.created = copy.created;
@@ -123,6 +125,12 @@ public class WorkflowInstance {
 
     public Builder setProcessing(boolean processing) {
       this.processing = processing;
+      return this;
+    }
+
+    public Builder setOriginalStateVariables(Map<String, String> originalStateVariables) {
+      this.originalStateVariables.clear();
+      this.originalStateVariables.putAll(originalStateVariables);
       return this;
     }
 

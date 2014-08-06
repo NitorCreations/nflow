@@ -76,8 +76,8 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setState("start").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.process, 0, false)),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, 0)));
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(ExecuteTestWorkflow.State.process, 0, false)),
+        argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, 0)));
   }
 
   @Test
@@ -94,7 +94,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   }
 
   @Test
-  public void runWorkflowToFailureState() {
+  public void runWorkflowToThroughFailureState() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
@@ -104,6 +104,32 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     executor.run();
     verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
+  }
+
+  @Test
+  public void nextActivationClearedWhenMissingHandlerMethod() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("failure").build();
+    when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    executor.run();
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false,
+        is(nullValue(DateTime.class)))), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.failure, 0)));
+  }
+
+  @Test
+  public void errorStateWhenNoNextStateDefined() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("processNoNextState").build();
+    when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    executor.run();
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false,
+        is(nullValue(DateTime.class)))), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.processNoNextState, 0)));
   }
 
   @SuppressWarnings("serial")
@@ -260,11 +286,18 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public static enum State implements WorkflowState {
-      start, process, done, error;
+      start(WorkflowStateType.start), process(WorkflowStateType.normal), done(WorkflowStateType.end),
+      error(WorkflowStateType.manual);
+
+      private WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
 
       @Override
       public WorkflowStateType getType() {
-        return WorkflowStateType.normal;
+        return stateType;
       }
 
       @Override
@@ -298,12 +331,6 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       execution.setVariable("hello", new int[]{1,2,3});
     }
 
-    public void done(StateExecution execution) {
-    }
-
-    public void error(StateExecution execution) {
-    }
-
   }
 
   public static class FailingTestWorkflow extends
@@ -315,11 +342,18 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public static enum State implements WorkflowState {
-      start, process, failure, error;
+      start(WorkflowStateType.start), process(WorkflowStateType.normal), error(WorkflowStateType.end),
+      processNoNextState(WorkflowStateType.normal), failure(WorkflowStateType.manual);
+
+      private WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
 
       @Override
       public WorkflowStateType getType() {
-        return WorkflowStateType.normal;
+        return stateType;
       }
 
       @Override
@@ -341,10 +375,11 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       throw new RuntimeException("test-fail2");
     }
 
-    public void failure(StateExecution execution) {
+    public void processNoNextState(StateExecution execution) {
     }
 
-    public void error(StateExecution execution) {
+    public void failure(StateExecution execution) {
+      execution.setNextState(State.error, "Go to error state", now());
     }
 
   }

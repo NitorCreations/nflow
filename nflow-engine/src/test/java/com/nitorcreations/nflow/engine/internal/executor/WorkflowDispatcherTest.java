@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,8 +37,7 @@ import edu.umd.cs.mtc.TestFramework;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDispatcherTest {
   WorkflowDispatcher dispatcher;
-  ThreadPoolTaskExecutor pool;
-  CongestionControl congestionCtrl;
+  ThresholdThreadPoolTaskExecutor pool;
 
   @Mock WorkflowInstanceService workflowInstances;
   @Mock ExecutorDao recovery;
@@ -50,8 +50,7 @@ public class WorkflowDispatcherTest {
     when(env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
     pool = dispatcherPoolExecutor();
-    congestionCtrl = new CongestionControl(pool, env);
-    dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, congestionCtrl, recovery, env);
+    dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, recovery, env);
   }
 
   @Test
@@ -191,12 +190,12 @@ public class WorkflowDispatcherTest {
   public void exceptionOnPoolShutdownIsNotPropagated() throws Throwable {
     @SuppressWarnings("unused")
     class ExceptionOnPoolShutdownIsNotPropagated extends MultithreadedTestCase {
-      private ThreadPoolTaskExecutor poolSpy;
+      private ThresholdThreadPoolTaskExecutor poolSpy;
 
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(pool);
-        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, congestionCtrl, recovery, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, recovery, env);
       }
 
       public void threadDispatcher() {
@@ -242,13 +241,14 @@ public class WorkflowDispatcherTest {
     TestFramework.runOnce(new ShutdownCanBeCalledMultipleTimes());
   }
 
-  private static  ThreadPoolTaskExecutor dispatcherPoolExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+  private static ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor() {
+    ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = 2 * Runtime.getRuntime().availableProcessors();
+    executor.setNotifyThreshold(0);
     executor.setCorePoolSize(threadCount);
     executor.setMaxPoolSize(threadCount);
     executor.setKeepAliveSeconds(0);
-    executor.setAwaitTerminationSeconds(60);
+    executor.setAwaitTerminationSeconds(10);
     executor.setWaitForTasksToCompleteOnShutdown(true);
     executor.setThreadFactory(new CustomizableThreadFactory("nflow-executor-"));
     executor.afterPropertiesSet();
@@ -293,6 +293,14 @@ public class WorkflowDispatcherTest {
         return answer;
       }
     };
+  }
+
+  @SuppressWarnings("serial")
+  static class ThreadPoolTaskExecutorWithThresholdQueue extends ThreadPoolTaskExecutor {
+    @Override
+    protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
+      return new ThresholdBlockingQueue<>(queueCapacity, 0);
+    }
   }
 
   static List<Integer> ids(Integer... ids) {

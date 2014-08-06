@@ -12,4 +12,9 @@ public class Mutable<T> {
   public T getVal() {
     return val;
   }
+
+  @Override
+  public String toString() {
+    return String.valueOf(val);
+  }
 }

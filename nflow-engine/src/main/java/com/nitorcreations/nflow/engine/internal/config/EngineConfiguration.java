@@ -14,10 +14,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTaskExecutor;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.engine")
@@ -27,14 +27,15 @@ public class EngineConfiguration {
   Environment env;
 
   @Bean(name="nflow-executor")
-  public ThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflow-ThreadFactory") ThreadFactory threadFactory) {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflow-ThreadFactory") ThreadFactory threadFactory) {
+    ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
     executor.setMaxPoolSize(threadCount);
     executor.setKeepAliveSeconds(0);
     executor.setAwaitTerminationSeconds(60);
     executor.setWaitForTasksToCompleteOnShutdown(true);
+    executor.setNotifyThreshold(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
     executor.setThreadFactory(threadFactory);
     return executor;
   }

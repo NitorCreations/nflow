@@ -48,7 +48,7 @@ public abstract class DatabaseConfiguration {
     return val;
   }
 
-  @Bean
+  @Bean(name="nflowDatabaseInitializer")
   public DatabaseInitializer nflowDatabaseInitializer(@Named("nflow-datasource") DataSource dataSource, Environment env) {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
