@@ -256,7 +256,7 @@ public class WorkflowDispatcherTest {
   }
 
   void assertPoolIsShutdown(boolean isTrue) {
-    assertEquals(pool.getThreadPoolExecutor().isShutdown(), isTrue);
+    assertEquals(isTrue, pool.getThreadPoolExecutor().isShutdown());
   }
 
   Runnable noOpRunnable() {
