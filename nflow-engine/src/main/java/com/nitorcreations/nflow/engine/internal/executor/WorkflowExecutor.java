@@ -122,11 +122,12 @@ class WorkflowExecutor implements Runnable {
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
-      .setProcessing(isNextActivationImmediately(execution));
+      .setProcessing(isNextActivationImmediately(execution))
+      .setStateText(execution.getNextStateReason());
     if (execution.isFailure()) {
       builder.setRetries(execution.getRetries() + 1);
     } else {
-      builder.setState(execution.getNextState()).setStateText(execution.getNextStateReason()).setRetries(0);
+      builder.setState(execution.getNextState()).setRetries(0);
     }
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
     workflowInstances.updateWorkflowInstance(builder.build(), actionBuilder.build());
