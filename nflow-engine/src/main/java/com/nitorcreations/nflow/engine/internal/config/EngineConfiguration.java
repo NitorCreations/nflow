@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 import java.util.concurrent.ThreadFactory;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.springframework.context.annotation.Bean;
@@ -23,11 +22,8 @@ import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTask
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
 
-  @Inject
-  Environment env;
-
   @Bean(name="nflow-executor")
-  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflow-ThreadFactory") ThreadFactory threadFactory) {
+  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflow-ThreadFactory") ThreadFactory threadFactory, Environment env) {
     ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
@@ -56,7 +52,7 @@ public class EngineConfiguration {
   }
 
   @Bean(name = "non-spring-workflows-listing")
-  public AbstractResource nonSpringWorkflowsListing() {
+  public AbstractResource nonSpringWorkflowsListing(Environment env) {
     String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {
       return new ClassPathResource(filename);

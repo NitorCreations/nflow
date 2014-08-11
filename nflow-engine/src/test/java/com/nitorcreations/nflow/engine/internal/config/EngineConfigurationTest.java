@@ -17,8 +17,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.nitorcreations.nflow.engine.internal.config.EngineConfiguration;
-
 @RunWith(MockitoJUnitRunner.class)
 public class EngineConfigurationTest {
 
@@ -39,7 +37,7 @@ public class EngineConfigurationTest {
 
   @Test
   public void dispatcherPoolExecutorInstantiation() {
-    ThreadPoolTaskExecutor executor = configuration.dispatcherPoolExecutor(threadFactory);
+    ThreadPoolTaskExecutor executor = configuration.dispatcherPoolExecutor(threadFactory, environment);
     assertThat(executor.getCorePoolSize(), is(100));
     assertThat(executor.getMaxPoolSize(), is(100));
     assertThat(executor.getKeepAliveSeconds(), is(0));
@@ -49,7 +47,7 @@ public class EngineConfigurationTest {
 
   @Test
   public void nonSpringWorkflowsListingNotInstantiated() {
-    assertThat(configuration.nonSpringWorkflowsListing(), nullValue());
+    assertThat(configuration.nonSpringWorkflowsListing(environment), nullValue());
   }
 
 }
