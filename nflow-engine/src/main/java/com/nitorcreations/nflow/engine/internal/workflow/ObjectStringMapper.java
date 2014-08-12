@@ -82,6 +82,9 @@ public class ObjectStringMapper {
       String sVal;
       if (param.mutable) {
         value = ((Mutable<Object>) value).val;
+        if (value == null) {
+          continue;
+        }
       }
       if (String.class.equals(param.type)) {
         sVal = (String) value;
