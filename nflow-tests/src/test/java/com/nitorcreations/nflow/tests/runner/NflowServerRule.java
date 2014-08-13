@@ -6,7 +6,7 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.right;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,7 +35,7 @@ public class NflowServerRule extends ExternalResource {
     int port = 0;
     String env = "local";
     String profiles = "";
-    final Map<String, Object> props = new HashMap<>();
+    final Map<String, Object> props = new LinkedHashMap<>();
     {
       props.put("nflow.db.h2.tcp.port", "");
       props.put("nflow.db.h2.console.port", "");

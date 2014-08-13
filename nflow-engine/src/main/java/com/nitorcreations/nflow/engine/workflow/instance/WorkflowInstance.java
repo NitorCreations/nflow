@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +54,8 @@ public class WorkflowInstance {
     String stateText;
     DateTime nextActivation;
     boolean processing;
-    final HashMap<String, String> originalStateVariables = new HashMap<>();
-    final HashMap<String, String> stateVariables = new HashMap<>();
+    final Map<String, String> originalStateVariables = new LinkedHashMap<>();
+    final Map<String, String> stateVariables = new LinkedHashMap<>();
     List<WorkflowInstanceAction> actions;
     int retries;
     DateTime created;

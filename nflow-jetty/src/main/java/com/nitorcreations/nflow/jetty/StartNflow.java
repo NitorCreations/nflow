@@ -12,7 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class StartNflow
   }
 
   public JettyServerContainer startJetty(int port, String env, String profiles) throws Exception {
-    return startJetty(port, env, profiles, new HashMap<String, Object>());
+    return startJetty(port, env, profiles, new LinkedHashMap<String, Object>());
   }
 
   public JettyServerContainer startJetty(int port, String env, String profiles, Map<String, Object> properties) throws Exception {
