@@ -68,8 +68,8 @@ public class WorkflowInstanceService {
   }
 
   @Transactional
-  public boolean wakeupWorkflowInstance(long id, String expectedState) {
-    return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id, expectedState);
+  public boolean wakeupWorkflowInstance(long id, String... expectedStates) {
+    return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id, expectedStates);
   }
 
   @Transactional

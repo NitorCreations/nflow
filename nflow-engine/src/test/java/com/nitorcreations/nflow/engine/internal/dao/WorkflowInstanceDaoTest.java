@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -131,6 +132,32 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     threads[0].join();
     threads[1].join();
     assertTrue("Race condition should happen", pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition);
+  }
+
+  @Test
+  public void wakesUpSleepingWorklfow() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
+    int id = dao.insertWorkflowInstance(i1);
+    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[0]);
+    assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
+  }
+
+  public void doesNotWakesUpRunningWorklfow() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setOwner("junit").setNextActivation(null).build();
+    int id = dao.insertWorkflowInstance(i1);
+    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setProcessing(true).build());
+    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] {i1.state});
+    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+  }
+
+  public void wakesUpWorklfowInMatchingState() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
+    int id = dao.insertWorkflowInstance(i1);
+    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] {"otherState", i1.state});
+    assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
