@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.internal.executor;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
@@ -13,7 +14,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
+import com.nitorcreations.nflow.engine.internal.dao.PollingRaceConditionException;
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 
 @Component
 public class WorkflowDispatcher implements Runnable {
@@ -24,13 +26,14 @@ public class WorkflowDispatcher implements Runnable {
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final ThresholdThreadPoolTaskExecutor pool;
-  private final WorkflowInstanceService workflowInstances;
+  private final WorkflowInstanceDao workflowInstances;
   private final WorkflowExecutorFactory executorFactory;
   private final ExecutorDao executorRecovery;
   private final long sleepTime;
+  private final Random rand = new Random();
 
   @Inject
-  public WorkflowDispatcher(@Named("nflow-executor") ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceService workflowInstances,
+  public WorkflowDispatcher(@Named("nflow-executor") ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
       WorkflowExecutorFactory executorFactory, ExecutorDao executorRecovery, Environment env) {
     this.pool = pool;
     this.workflowInstances = workflowInstances;
@@ -51,10 +54,13 @@ public class WorkflowDispatcher implements Runnable {
             executorRecovery.tick();
             dispatch(getNextInstanceIds());
           }
+        } catch (PollingRaceConditionException pex) {
+          logger.info(pex.getMessage());
+          sleep(true);
         } catch (InterruptedException dropThrough) {
         } catch (Exception e) {
           logger.error("Exception in executing dispatcher - retrying after sleep period.", e);
-          sleep();
+          sleep(false);
         }
       }
     } finally {
@@ -86,7 +92,7 @@ public class WorkflowDispatcher implements Runnable {
   private void dispatch(List<Integer> nextInstanceIds) {
     if (nextInstanceIds.isEmpty()) {
       logger.debug("Found no workflow instances, sleeping.");
-      sleep();
+      sleep(false);
       return;
     }
 
@@ -102,9 +108,9 @@ public class WorkflowDispatcher implements Runnable {
     return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);
   }
 
-  private void sleep() {
+  private void sleep(boolean randomize) {
     try {
-      Thread.sleep(sleepTime);
+      Thread.sleep((long)(sleepTime * rand.nextDouble()));
     } catch (InterruptedException ok) {
     }
   }

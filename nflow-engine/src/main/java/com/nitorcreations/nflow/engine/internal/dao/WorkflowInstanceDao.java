@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedS
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -159,6 +160,7 @@ public class WorkflowInstanceDao {
   }
 
   @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
+  @Transactional
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     String sql =
       "select id from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
@@ -169,6 +171,7 @@ public class WorkflowInstanceDao {
         return rs.getInt("id");
       }
     });
+    Collections.sort(instanceIds);
     List<Object[]> batchArgs = new ArrayList<>();
     for (Integer instanceId : instanceIds) {
       batchArgs.add(new Object[] { instanceId });
@@ -178,9 +181,9 @@ public class WorkflowInstanceDao {
       batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
-        throw new RuntimeException(
+        throw new PollingRaceConditionException(
             "Race condition in polling workflow instances detected. " +
-            "Multiple pollers using same name? (" + executorInfo.getExecutorGroup() +")");
+            "Multiple pollers using same name (" + executorInfo.getExecutorGroup() +")");
       }
     }
     return instanceIds;

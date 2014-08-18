@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
@@ -26,6 +28,11 @@ public class DaoTestConfiguration {
   @Bean
   public ExecutorDao executorDao(DataSource ds, Environment env) {
     return new ExecutorDao(ds, env, new H2SQLVariants());
+  }
+
+  @Bean
+  public PlatformTransactionManager transactionManager(DataSource ds) {
+    return new DataSourceTransactionManager(ds);
   }
 
 }

@@ -28,8 +28,8 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
-import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import edu.umd.cs.mtc.TestFramework;
@@ -39,7 +39,7 @@ public class WorkflowDispatcherTest {
   WorkflowDispatcher dispatcher;
   ThresholdThreadPoolTaskExecutor pool;
 
-  @Mock WorkflowInstanceService workflowInstances;
+  @Mock WorkflowInstanceDao workflowInstances;
   @Mock ExecutorDao recovery;
   @Mock WorkflowExecutorFactory executorFactory;
 
