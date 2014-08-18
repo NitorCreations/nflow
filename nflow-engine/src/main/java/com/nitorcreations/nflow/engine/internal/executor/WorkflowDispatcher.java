@@ -110,7 +110,11 @@ public class WorkflowDispatcher implements Runnable {
 
   private void sleep(boolean randomize) {
     try {
-      Thread.sleep((long)(sleepTime * rand.nextDouble()));
+      if (randomize) {
+        Thread.sleep((long)(sleepTime * rand.nextDouble()));
+      } else {
+        Thread.sleep(sleepTime);
+      }
     } catch (InterruptedException ok) {
     }
   }
