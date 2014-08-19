@@ -188,7 +188,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     public void run() {
       try {
         dao.pollNextWorkflowInstanceIds(batchSize);
-      } catch(Exception ex) {
+      } catch(PollingRaceConditionException ex) {
         ex.printStackTrace();
         detectedRaceCondition = ex.getMessage().startsWith("Race condition");
       }

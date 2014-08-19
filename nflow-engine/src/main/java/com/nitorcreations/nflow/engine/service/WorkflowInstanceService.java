@@ -2,9 +2,7 @@ package com.nitorcreations.nflow.engine.service;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -70,14 +68,6 @@ public class WorkflowInstanceService {
   @Transactional
   public boolean wakeupWorkflowInstance(long id, String... expectedStates) {
     return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id, expectedStates);
-  }
-
-  @Transactional
-  public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
-    if (batchSize > 0) {
-      return workflowInstanceDao.pollNextWorkflowInstanceIds(batchSize);
-    }
-    return new ArrayList<>();
   }
 
   public Collection<WorkflowInstance> listWorkflowInstances(QueryWorkflowInstances query) {

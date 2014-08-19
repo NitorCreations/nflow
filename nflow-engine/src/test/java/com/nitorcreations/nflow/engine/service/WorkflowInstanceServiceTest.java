@@ -9,10 +9,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -59,20 +57,6 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
     when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(instance);
     assertEquals(instance, service.getWorkflowInstance(42));
-  }
-
-  @Test
-  public void whenBatchSizeIsZeroShouldNotPoll() {
-    assertEquals(Collections.emptyList(), service.pollNextWorkflowInstanceIds(0));
-    verifyZeroInteractions(workflowInstanceDao);
-  }
-
-  @Test
-  public void whenBatchSizeIsNonZeroShouldPoll() {
-    List<Integer> ids = asList(2, 3, 5);
-    when(workflowInstanceDao.pollNextWorkflowInstanceIds(42)).thenReturn(ids);
-    assertEquals(ids, service.pollNextWorkflowInstanceIds(42));
-    verify(workflowInstanceDao).pollNextWorkflowInstanceIds(42);
   }
 
   @Test
