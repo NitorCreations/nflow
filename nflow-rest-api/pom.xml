@@ -7,7 +7,7 @@
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>com.nitorcreations</groupId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.3.1</version>
   </parent>
   <dependencies>
     <dependency>
