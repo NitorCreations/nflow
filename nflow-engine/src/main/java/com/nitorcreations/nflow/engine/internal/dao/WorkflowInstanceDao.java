@@ -51,15 +51,16 @@ public class WorkflowInstanceDao {
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
 
-  private final JdbcTemplate jdbc;
-  private final NamedParameterJdbcTemplate namedJdbc;
-  private final ExecutorDao executorInfo;
+  private JdbcTemplate jdbc;
+  private NamedParameterJdbcTemplate namedJdbc;
 
   @Inject
-  public WorkflowInstanceDao(@Named("nflow-datasource") DataSource dataSource, ExecutorDao executorInfo) {
+  ExecutorDao executorInfo;
+
+  @Inject
+  public void setDataSource(@Named("nflow-datasource") DataSource dataSource) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
-    this.executorInfo = executorInfo;
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {

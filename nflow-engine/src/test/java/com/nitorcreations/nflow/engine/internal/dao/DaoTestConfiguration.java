@@ -22,7 +22,10 @@ public class DaoTestConfiguration {
 
   @Bean
   public WorkflowInstanceDao workflowInstanceDao(DataSource ds, ExecutorDao executorDao) {
-    return new WorkflowInstanceDao(ds, executorDao);
+    WorkflowInstanceDao wfDao = new WorkflowInstanceDao();
+    wfDao.executorInfo = executorDao;
+    wfDao.setDataSource(ds);
+    return wfDao;
   }
 
   @Bean
