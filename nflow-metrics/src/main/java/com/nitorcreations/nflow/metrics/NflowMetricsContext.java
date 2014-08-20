@@ -19,7 +19,7 @@ import com.codahale.metrics.MetricRegistry;
 @Named("nflow-metrics/metricsContext")
 @Configuration
 public class NflowMetricsContext {
-  private static final Logger log = LoggerFactory.getLogger(NflowMetricsContext.class);
+  private static final Logger logger = LoggerFactory.getLogger(NflowMetricsContext.class);
   @Inject
   private Environment env;
 
@@ -30,14 +30,14 @@ public class NflowMetricsContext {
 
   @Bean
   public MetricsWorkflowExecutorListener metricsWorkflowExecutorListener() {
-    log.info("Enabling MetricsWorkflowExecutorListener");
+    logger.info("Enabling MetricsWorkflowExecutorListener");
     return new MetricsWorkflowExecutorListener(metricRegistry(), env);
   }
 
   @Profile("jmx")
   @Bean(destroyMethod="stop")
   public JmxReporter jmxMetricsReporter() {
-    log.info("Enabling Metrics JmxReporter");
+    logger.info("Enabling Metrics JmxReporter");
     JmxReporter jmxMetricsReporter = JmxReporter.forRegistry(metricRegistry()).inDomain("nflow.metrics").build();
     jmxMetricsReporter.start();
     return jmxMetricsReporter;
