@@ -117,7 +117,7 @@ class WorkflowExecutor implements Runnable {
       execution.setNextActivation(null);
     }
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null)  {
-      logger.info("No handler method defined for " + execution.getNextState() + ", clearing next activation");
+      logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
