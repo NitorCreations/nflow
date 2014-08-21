@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
-import static java.lang.System.currentTimeMillis;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

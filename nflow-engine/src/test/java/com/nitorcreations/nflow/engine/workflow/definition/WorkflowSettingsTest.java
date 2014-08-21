@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
-import static java.lang.System.currentTimeMillis;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
