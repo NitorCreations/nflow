@@ -9,14 +9,11 @@
   * better user guide
 * reliability improvements
   * automatic task recovery (based on dead node detection)
-* admin features
-  * optional support for flyway
 * workflow management
   * remove limit on single initial data variable -> make them normal state vars
   * do not execute end or manual states
-  * internal nFlow metastate for workflows (created, started, finished)?
 * improved PostgreSQL support
-* smaller improvements (e.g. for update selection of workflow instances)
+* smaller improvements
 
 ## 1.X.X
 
@@ -36,6 +33,7 @@
 * workflow management
   * high-level locks - only one workflow against lock running at a time
   * subworkflow support
+  * internal nFlow metastate for workflows (created, started, finished)?
 * improved human workflow support
   * e.g. send ticket (http-link containing token) through email for opening  a form in which human task can be performed
 * additional data storage support
@@ -43,6 +41,8 @@
   * MongoDB
 * Archive tables
 * performance testing
+* admin features
+  * optional support for flyway
 
 ## Future releases
 
