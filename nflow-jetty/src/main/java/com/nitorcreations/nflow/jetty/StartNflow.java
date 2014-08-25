@@ -46,7 +46,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class StartNflow
 {
-  private static final Logger LOG = LoggerFactory.getLogger(StartNflow.class);
+  private static final Logger logger = LoggerFactory.getLogger(StartNflow.class);
 
   private final Set<Class<?>> annotatedContextClasses = new LinkedHashSet<>();
 
@@ -90,9 +90,9 @@ public class StartNflow
     long end = currentTimeMillis();
     JettyServerContainer startedServer = new JettyServerContainer(server);
     port = startedServer.getPort();
-    LOG.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
-    LOG.info("API available at http://" + host + ":" + port + "/");
-    LOG.info("API doc available at http://" + host + ":" + port + "/ui");
+    logger.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
+    logger.info("API available at http://{}:{}/", host, port);
+    logger.info("API doc available at http://{}:{}/ui", host, port);
     return startedServer;
   }
 

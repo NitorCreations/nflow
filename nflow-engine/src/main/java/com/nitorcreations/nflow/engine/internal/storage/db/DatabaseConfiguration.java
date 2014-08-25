@@ -23,7 +23,7 @@ public abstract class DatabaseConfiguration {
   @Bean(name="nflow-datasource")
   public DataSource datasource(Environment env) {
     String url = property(env, "url");
-    logger.info("Database connection to " + dbType + " using " + url);
+    logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
     config.setDataSourceClassName(property(env, "driver"));
     config.addDataSourceProperty("url", url);
