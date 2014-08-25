@@ -12,9 +12,9 @@ import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)

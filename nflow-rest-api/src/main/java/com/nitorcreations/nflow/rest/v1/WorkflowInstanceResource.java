@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0;
+package com.nitorcreations.nflow.rest.v1;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.joda.time.DateTime.now;
@@ -26,17 +26,17 @@ import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
-import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
-import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
+import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
-@Path("/v0/workflow-instance")
+@Path("/v1/workflow-instance")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 @Api(value = "/workflow-instance", description = "Manage workflow instances")

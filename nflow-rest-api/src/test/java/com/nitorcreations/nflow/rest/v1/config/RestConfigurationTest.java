@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.config;
+package com.nitorcreations.nflow.rest.v1.config;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

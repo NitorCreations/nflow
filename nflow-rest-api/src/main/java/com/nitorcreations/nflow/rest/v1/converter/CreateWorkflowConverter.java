@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.converter;
+package com.nitorcreations.nflow.rest.v1.converter;
 
 import javax.inject.Inject;
 
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 
 @Component
 public class CreateWorkflowConverter {

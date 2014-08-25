@@ -16,8 +16,8 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nitorcreations.nflow.rest.v0.msg.Action;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.Action;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;

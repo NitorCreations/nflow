@@ -1,9 +1,9 @@
-package com.nitorcreations.nflow.rest.v0.converter;
+package com.nitorcreations.nflow.rest.v1.converter;
 
 import static com.nitorcreations.Matchers.reflectEquals;
-import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.end;
-import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.error;
-import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.start;
+import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
+import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
+import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.start;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -17,9 +17,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nitorcreations.nflow.rest.v0.DummyTestWorkflow;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
-import com.nitorcreations.nflow.rest.v0.msg.State;
+import com.nitorcreations.nflow.rest.v1.DummyTestWorkflow;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v1.msg.State;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ListWorkflowDefinitionConverterTest {

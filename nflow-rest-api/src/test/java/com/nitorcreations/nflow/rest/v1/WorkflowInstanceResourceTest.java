@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0;
+package com.nitorcreations.nflow.rest.v1;
 
 import static com.nitorcreations.Matchers.hasField;
 import static org.hamcrest.Matchers.allOf;
@@ -24,10 +24,11 @@ import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.rest.v0.converter.CreateWorkflowConverter;
-import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowInstanceConverter;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v0.msg.UpdateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
+import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
+import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowInstanceResourceTest {

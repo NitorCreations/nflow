@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.converter;
+package com.nitorcreations.nflow.rest.v1.converter;
 
 import java.util.ArrayList;
 
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.rest.v0.msg.Action;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.Action;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
 @Component
 public class ListWorkflowInstanceConverter {
