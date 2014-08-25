@@ -1,3 +1,9 @@
+## 0.3.1 (2014-08-19)
+- Do not log exception, when "Race condition in polling workflow instances detected" happens
+- Make dispatcher wait "random(0,1) * short wait time" after race condition (so that probability for race condition lowers in the next poll)
+- Sort workflow instances by id before trying to reserve them in dispatcher (otherwise deadlocks may occur)
+- Removed pollNextWorkflowInstanceIds from nflow-engine public API 
+
 ## 0.3.0 (2014-08-14)
 - Spring 3.2.x compatibility (previously only 4.0.x)
 - Divided nflow-engine API to internal and public java packages
