@@ -20,7 +20,7 @@ public abstract class DatabaseConfiguration {
     this.dbType = dbType;
   }
 
-  @Bean(name="nflow-datasource")
+  @Bean(name="nflowDatasource")
   public DataSource datasource(Environment env) {
     String url = property(env, "url");
     logger.info("Database connection to {} using {}", dbType, url);
@@ -49,7 +49,7 @@ public abstract class DatabaseConfiguration {
   }
 
   @Bean(name="nflowDatabaseInitializer")
-  public DatabaseInitializer nflowDatabaseInitializer(@Named("nflow-datasource") DataSource dataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(@Named("nflowDatasource") DataSource dataSource, Environment env) {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
 }

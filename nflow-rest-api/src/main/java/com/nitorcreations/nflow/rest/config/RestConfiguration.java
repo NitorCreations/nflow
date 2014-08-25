@@ -16,8 +16,8 @@ import com.nitorcreations.nflow.engine.internal.config.EngineConfiguration;
 @ComponentScan("com.nitorcreations.nflow.rest")
 public class RestConfiguration {
 
-  @Bean(name="nflow-rest-ObjectMapper")
-  public ObjectMapper humanObjectMapper(@Named("nflow-ObjectMapper") ObjectMapper engineObjectMapper) {
+  @Bean(name="nflowRestObjectMapper")
+  public ObjectMapper humanObjectMapper(@Named("nflowObjectMapper") ObjectMapper engineObjectMapper) {
     ObjectMapper restObjectMapper = engineObjectMapper.copy();
     restObjectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     return restObjectMapper;

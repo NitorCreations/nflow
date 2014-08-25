@@ -34,7 +34,7 @@ public abstract class AbstractNflowTest {
   }
 
   @Inject
-  public void setWorkflowInstanceResource(@Named("workflow-instance") WebClient client) {
+  public void setWorkflowInstanceResource(@Named("workflowInstance") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowInstanceResource = fromClient(client, true).to(newUri, false);
   }

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 @Configuration
 public class RestClientConfiguration {
 
-  @Bean(name="base-webclient")
+  @Bean(name="baseWebclient")
   public WebClient baseWebClient(JacksonJsonProvider jsonProvider, Environment env) {
     JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
     bean.setAddress(env.getRequiredProperty("nflow.url"));
@@ -40,7 +40,7 @@ public class RestClientConfiguration {
 
   @Bean
   public ObjectMapper objectMapper() {
-    // this must be kept in sync with the server side (nflow-rest-ObjectMapper)
+    // this must be kept in sync with the server side (nflowRestObjectMapper)
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
@@ -53,8 +53,8 @@ public class RestClientConfiguration {
     return new JacksonJsonProvider(mapper);
   }
 
-  @Bean(name="workflow-instance")
-  public WebClient workflowInstanceWebService(@Named("base-webclient") WebClient client) {
+  @Bean(name="workflowInstance")
+  public WebClient workflowInstanceWebService(@Named("baseWebclient") WebClient client) {
     return client.path("v0").path("workflow-instance");
   }
 

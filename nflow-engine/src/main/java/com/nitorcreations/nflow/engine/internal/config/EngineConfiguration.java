@@ -22,8 +22,8 @@ import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTask
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
 
-  @Bean(name="nflow-executor")
-  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflow-ThreadFactory") ThreadFactory threadFactory, Environment env) {
+  @Bean(name="nflowExecutor")
+  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflowThreadFactory") ThreadFactory threadFactory, Environment env) {
     ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
@@ -36,14 +36,14 @@ public class EngineConfiguration {
     return executor;
   }
 
-  @Bean(name="nflow-ThreadFactory")
+  @Bean(name="nflowThreadFactory")
   public ThreadFactory threadFactory() {
     CustomizableThreadFactory factory = new CustomizableThreadFactory("nflow-executor-");
     factory.setThreadGroupName("nflow");
     return factory;
   }
 
-  @Bean(name="nflow-ObjectMapper")
+  @Bean(name="nflowObjectMapper")
   public ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
@@ -51,7 +51,7 @@ public class EngineConfiguration {
     return mapper;
   }
 
-  @Bean(name = "non-spring-workflows-listing")
+  @Bean(name = "nflowNonSpringWorkflowsListing")
   public AbstractResource nonSpringWorkflowsListing(Environment env) {
     String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {

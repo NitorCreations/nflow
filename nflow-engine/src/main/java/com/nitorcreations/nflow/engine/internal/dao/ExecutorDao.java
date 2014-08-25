@@ -42,7 +42,7 @@ public class ExecutorDao {
   int executorId = -1;
 
   @Inject
-  public ExecutorDao(@Named("nflow-datasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
+  public ExecutorDao(@Named("nflowDatasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
     this.jdbc = new JdbcTemplate(dataSource);
     this.executorGroup = trimToNull(env.getProperty("nflow.executor.group"));
