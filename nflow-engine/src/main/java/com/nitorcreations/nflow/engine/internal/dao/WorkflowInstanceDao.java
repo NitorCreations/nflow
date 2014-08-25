@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
-import static java.lang.System.currentTimeMillis;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
