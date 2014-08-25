@@ -21,7 +21,7 @@ public class ObjectStringMapper {
   private final ObjectMapper mapper;
 
   @Inject
-  public ObjectStringMapper(@Named("nflow-ObjectMapper") ObjectMapper mapper) {
+  public ObjectStringMapper(@Named("nflowObjectMapper") ObjectMapper mapper) {
     this.mapper = mapper;
   }
 

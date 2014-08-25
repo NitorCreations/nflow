@@ -58,7 +58,7 @@ public class WorkflowInstanceDao {
   ExecutorDao executorInfo;
 
   @Inject
-  public void setDataSource(@Named("nflow-datasource") DataSource dataSource) {
+  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
   }

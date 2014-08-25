@@ -32,7 +32,7 @@ public class WorkflowDefinitionService {
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
 
   @Inject
-  public WorkflowDefinitionService(@Named("non-spring-workflows-listing") AbstractResource nonSpringWorkflowsListing) {
+  public WorkflowDefinitionService(@Named("nflowNonSpringWorkflowsListing") AbstractResource nonSpringWorkflowsListing) {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
   }
 

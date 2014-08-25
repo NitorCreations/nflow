@@ -29,7 +29,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
 
   @Bean(name="nflowDatabaseInitializer")
   @Override
-  public DatabaseInitializer nflowDatabaseInitializer(@Named("nflow-datasource") DataSource dataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(@Named("nflowDatasource") DataSource dataSource, Environment env) {
     String dbType = "mysql";
     try (Connection c = DataSourceUtils.getConnection(dataSource)) {
       DatabaseMetaData meta = c.getMetaData();

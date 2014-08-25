@@ -16,7 +16,7 @@ import com.codahale.metrics.MetricRegistry;
 /**
  * Configures MetricsWorkflowExecutorListener.
  */
-@Named("nflow-metrics/metricsContext")
+@Named("nflowMetrics/metricsContext")
 @Configuration
 public class NflowMetricsContext {
   private static final Logger log = LoggerFactory.getLogger(NflowMetricsContext.class);
