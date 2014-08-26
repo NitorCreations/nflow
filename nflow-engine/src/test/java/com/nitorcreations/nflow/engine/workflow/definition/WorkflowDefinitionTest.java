@@ -1,8 +1,11 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -12,6 +15,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.joda.time.DateTime;
@@ -119,8 +124,24 @@ public class WorkflowDefinitionTest {
     assertEquals(TestDefinitionWithStateTypes.State.error.name(), def.getFailureTransitions().get(TestDefinitionWithStateTypes.State.initial.name()));
   }
 
+  @Test
+  public void isStartStateWorks() {
+    WorkflowDefinition<?> workflow = new TestDefinitionWithStateTypes("y", TestDefinitionWithStateTypes.State.initial);
+
+    assertThat(workflow.isStartState("initial"), equalTo(true));
+    assertThat(workflow.isStartState("state1"), equalTo(false));
+    assertThat(workflow.isStartState("state2"), equalTo(false));
+    assertThat(workflow.isStartState("error"), equalTo(false));
+    assertThat(workflow.isStartState("done"), equalTo(false));
+  }
+
   public static class TestDefinition extends
       AbstractWorkflowDefinition<TestDefinition.TestState> {
+    @Override
+    public Set<TestState> getStates() {
+      return new HashSet(Arrays.asList(TestState.start, TestState.done, TestState.error));
+    }
+
     public static enum TestState implements WorkflowState {
       start, done, notfound, error;
 
@@ -148,12 +169,6 @@ public class WorkflowDefinitionTest {
     public void start(StateExecution execution) { }
     public void done(StateExecution execution) { }
     public void error(StateExecution execution) { }
-
-    @Override
-    public Set<TestState> getStates() {
-      // TODO Auto-generated method stub
-      return null;
-    }
 
   }
 

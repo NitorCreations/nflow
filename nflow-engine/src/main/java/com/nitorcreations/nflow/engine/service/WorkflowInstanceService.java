@@ -48,6 +48,10 @@ public class WorkflowInstanceService {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
       builder.setState(def.getInitialState().toString());
+    } else {
+      if (!def.isStartState(instance.state)) {
+        throw new RuntimeException("Specified state [" + instance.state + "] is not a start state.");
+      }
     }
     if (isEmpty(instance.externalId)) {
       builder.setExternalId(UUID.randomUUID().toString());

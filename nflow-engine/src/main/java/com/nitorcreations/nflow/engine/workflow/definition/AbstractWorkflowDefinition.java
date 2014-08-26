@@ -135,4 +135,19 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   public WorkflowStateMethod getMethod(String stateName) {
     return stateMethods.get(stateName);
   }
+
+  public WorkflowState getState(String state) {
+    for (WorkflowState s : getStates()) {
+      System.out.println("Found "+ s.getName());
+      if (state.equals(s.getName())) {
+        return s;
+      }
+    }
+    throw new IllegalStateException("No state '" + state + "' in workflow definiton " + getType());
+  }
+
+  public boolean isStartState(String state) {
+    return getState(state).getType() == WorkflowStateType.start;
+  }
+
 }
