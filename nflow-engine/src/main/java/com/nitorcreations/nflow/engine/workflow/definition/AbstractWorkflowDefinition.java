@@ -138,7 +138,6 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   public WorkflowState getState(String state) {
     for (WorkflowState s : getStates()) {
-      System.out.println("Found "+ s.getName());
       if (state.equals(s.getName())) {
         return s;
       }
