@@ -61,7 +61,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void insertWorkflowInstanceWorks() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState(null).build();
     when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     assertThat(service.insertWorkflowInstance(i), is(42));
     assertThat(stored.getValue().externalId, is("123"));
