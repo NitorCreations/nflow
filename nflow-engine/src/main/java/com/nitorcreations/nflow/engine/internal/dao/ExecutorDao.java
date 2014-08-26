@@ -34,7 +34,7 @@ public class ExecutorDao {
   final SQLVariants sqlVariants;
 
   private final int keepaliveIntervalSeconds;
-  private DateTime nextUpdate = new DateTime(0);
+  private DateTime nextUpdate = new DateTime();
 
   final String executorGroup;
   final String executorGroupCondition;
