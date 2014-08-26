@@ -45,7 +45,10 @@ public class WorkflowInstanceService {
     if (def == null) {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance).setState(def.getInitialState().toString());
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
+    if (instance.state == null) {
+      builder.setState(def.getInitialState().toString());
+    }
     if (isEmpty(instance.externalId)) {
       builder.setExternalId(UUID.randomUUID().toString());
     }
