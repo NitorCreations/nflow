@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.converter;
+package com.nitorcreations.nflow.rest.v1.converter;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.Settings;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse.TransitionDelays;
-import com.nitorcreations.nflow.rest.v0.msg.State;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v1.msg.State;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Settings;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.TransitionDelays;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 

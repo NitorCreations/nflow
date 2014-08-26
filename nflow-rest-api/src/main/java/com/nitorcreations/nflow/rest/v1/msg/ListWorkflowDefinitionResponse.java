@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.msg;
+package com.nitorcreations.nflow.rest.v1.msg;
 
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;

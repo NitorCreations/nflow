@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.msg;
+package com.nitorcreations.nflow.rest.v1.msg;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

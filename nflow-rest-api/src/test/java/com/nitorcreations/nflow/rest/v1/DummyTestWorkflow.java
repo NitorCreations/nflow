@@ -1,8 +1,8 @@
-package com.nitorcreations.nflow.rest.v0;
+package com.nitorcreations.nflow.rest.v1;
 
-import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.end;
-import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.error;
-import static com.nitorcreations.nflow.rest.v0.DummyTestWorkflow.State.start;
+import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
+import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
+import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.start;
 
 import org.springframework.core.env.Environment;
 

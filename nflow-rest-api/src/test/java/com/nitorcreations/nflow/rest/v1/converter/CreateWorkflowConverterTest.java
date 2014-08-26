@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0.converter;
+package com.nitorcreations.nflow.rest.v1.converter;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -17,8 +17,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v0.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateWorkflowConverterTest {

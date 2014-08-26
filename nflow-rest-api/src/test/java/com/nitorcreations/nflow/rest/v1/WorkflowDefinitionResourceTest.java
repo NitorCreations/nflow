@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.v0;
+package com.nitorcreations.nflow.rest.v1;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.doReturn;
@@ -18,8 +18,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
-import com.nitorcreations.nflow.rest.v0.converter.ListWorkflowDefinitionConverter;
-import com.nitorcreations.nflow.rest.v0.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
+import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDefinitionResourceTest {
