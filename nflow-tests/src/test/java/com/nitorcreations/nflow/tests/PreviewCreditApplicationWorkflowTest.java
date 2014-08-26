@@ -15,7 +15,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nitorcreations.nflow.rest.v0.msg.*;
+import com.nitorcreations.nflow.rest.v1.msg.*;
 import com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
