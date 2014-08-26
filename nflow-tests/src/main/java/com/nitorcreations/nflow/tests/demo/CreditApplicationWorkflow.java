@@ -78,9 +78,10 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     execution.setNextState(acceptCreditApplication, "Credit application created", now());
   }
 
-  public void previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public void previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
+    request.simulation = true;
     execution.setNextState(acceptCreditApplication, "Credit application created", now());
   }
 
@@ -89,9 +90,14 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     execution.setNextState(acceptCreditApplication, "Expecting manual credit decision", null);
   }
 
-  public void grantLoan(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void grantLoan(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for granting a loan");
-    throw new RuntimeException("Failed to create loan");
+    if (request.simulation) {
+      logger.info("STUPID USER");
+      execution.setNextState(finishCreditApplication, "lörläbä", now());
+    } else {
+      throw new RuntimeException("Failed to create loan");
+    }
   }
 
   public void finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
