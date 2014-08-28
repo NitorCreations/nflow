@@ -178,9 +178,11 @@ public class WorkflowDispatcherTest {
       }
 
       public void threadShutdown() {
+        assertPoolIsShutdown(false);
         waitForTick(1);
         dispatcher.shutdown();
-        assertPoolIsShutdown(false);
+        waitForTick(3);
+        assertPoolIsShutdown(true);
       }
     }
     TestFramework.runOnce(new ShutdownCanBeInterrupted());
