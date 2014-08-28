@@ -19,7 +19,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -144,12 +143,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
   }
 
-  @Ignore("not working, tries to update WorkflowInstance with null id")
   @Test
   public void doesNotWakeUpRunningWorkflow() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setOwner("junit").setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
-    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setProcessing(true).build());
+    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setId(id).setProcessing(true).build());
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] {i1.state});
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
