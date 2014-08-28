@@ -33,6 +33,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
 
   public static enum State implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
     createCreditApplication(start, "Credit application is persisted to database"),
+    previewCreditApplication(start, "Check if credit application would be accepted (ie. simulate)"),
     acceptCreditApplication(manual, "Manual credit decision is made"),
     grantLoan(normal, "Loan is created to loan system"),
     finishCreditApplication(normal, "Credit application status is set"),
@@ -77,14 +78,26 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     execution.setNextState(acceptCreditApplication, "Credit application created", now());
   }
 
+  public void previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+    logger.info("IRL: external service call for persisting credit application using request data");
+    info.applicationId = "abc" + request.customerId;
+    request.simulation = true;
+    execution.setNextState(acceptCreditApplication, "Credit application created", now());
+  }
+
   public void acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: descheduling workflow instance, next state set externally");
     execution.setNextState(acceptCreditApplication, "Expecting manual credit decision", null);
   }
 
-  public void grantLoan(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void grantLoan(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for granting a loan");
-    throw new RuntimeException("Failed to create loan");
+    if (request.simulation) {
+      logger.info("STUPID USER");
+      execution.setNextState(finishCreditApplication, "lörläbä", now());
+    } else {
+      throw new RuntimeException("Failed to create loan");
+    }
   }
 
   public void finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
@@ -106,6 +119,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   public static class CreditApplication {
     public String customerId;
     public BigDecimal amount;
+    public boolean simulation = false;
 
     public CreditApplication() {}
 

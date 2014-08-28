@@ -61,10 +61,28 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void insertWorkflowInstanceWorks() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState(null).build();
     when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     assertThat(service.insertWorkflowInstance(i), is(42));
     assertThat(stored.getValue().externalId, is("123"));
+    assertThat(stored.getValue().state, is("start"));
+  }
+
+  @Test
+  public void insertWorkflowInstanceWorksWithNonDefaultStart() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("alternativeStart").build();
+
+    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
+    service.insertWorkflowInstance(i);
+    assertThat(stored.getValue().state, is("alternativeStart"));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void insertWorkflowInstanceWithWrongStartState() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
+
+//    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
+    service.insertWorkflowInstance(i);
   }
 
   @Test

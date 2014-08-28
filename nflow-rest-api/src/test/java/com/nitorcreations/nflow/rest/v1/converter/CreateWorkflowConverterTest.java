@@ -42,11 +42,13 @@ public class CreateWorkflowConverterTest {
     req.externalId = "externalId";
     req.requestData = mock(JsonNode.class);
     req.type = "wfType";
+    req.startState = "startState";
     WorkflowInstance i = converter.convertAndValidate(req);
     assertThat(i.nextActivation, equalTo(req.activationTime));
     assertThat(i.businessKey, equalTo(req.businessKey));
     assertThat(i.externalId, equalTo(req.externalId));
     assertThat(i.type, equalTo(req.type));
+    assertThat(i.state, equalTo("startState"));
   }
 
   @Test

@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.rest.v1.converter;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,9 @@ public class CreateWorkflowConverter {
       builder.setNextActivation(DateTime.now());
     } else {
       builder.setNextActivation(req.activationTime);
+    }
+    if (StringUtils.isNotEmpty(req.startState)) {
+      builder.setState(req.startState);
     }
     if (req.requestData != null) {
       builder.putStateVariable("req", req.requestData);
