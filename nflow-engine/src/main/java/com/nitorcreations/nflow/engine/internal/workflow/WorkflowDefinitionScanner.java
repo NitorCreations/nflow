@@ -74,6 +74,9 @@ public class WorkflowDefinitionScanner {
         if (params.size() != genericParameterTypes.length - 1) {
           throw new IllegalStateException("Not all parameter names could be resolved for " + method + ". Maybe missing @StateVar annotation?");
         }
+        if(methods.containsKey(method.getName())) {
+          throw new IllegalStateException("Method " + method + " was overloaded. Overloading state methods is not allowed.");
+        }
         methods.put(method.getName(), new WorkflowStateMethod(method, params.toArray(new StateParameter[params.size()])));
       }
     }, new WorkflowTransitionMethod());
