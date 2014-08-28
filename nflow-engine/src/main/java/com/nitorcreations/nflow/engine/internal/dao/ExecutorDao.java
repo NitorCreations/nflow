@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
+import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.lang.management.ManagementFactory;
@@ -63,7 +64,7 @@ public class ExecutorDao {
     if (nextUpdate.isAfterNow()) {
       return;
     }
-    nextUpdate = nextUpdate.plusSeconds(keepaliveIntervalSeconds);
+    nextUpdate = now().plusSeconds(keepaliveIntervalSeconds);
     updateActiveTimestamp();
     recoverWorkflowInstancesFromDeadNodes();
   }
