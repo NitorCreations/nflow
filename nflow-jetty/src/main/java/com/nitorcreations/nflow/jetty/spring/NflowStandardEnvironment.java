@@ -12,6 +12,7 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.support.ResourcePropertySource;
 
 public class NflowStandardEnvironment extends StandardEnvironment {
+  @SuppressWarnings("hiding")
   private static final Logger logger = getLogger(NflowStandardEnvironment.class);
 
   public NflowStandardEnvironment(Map<String, Object> overrideProperties) {

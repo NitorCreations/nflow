@@ -1,7 +1,5 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -15,7 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -139,7 +136,7 @@ public class WorkflowDefinitionTest {
       AbstractWorkflowDefinition<TestDefinition.TestState> {
     @Override
     public Set<TestState> getStates() {
-      return new HashSet(Arrays.asList(TestState.start, TestState.done, TestState.error));
+      return new HashSet<>(asList(TestState.start, TestState.done, TestState.error));
     }
 
     public static enum TestState implements WorkflowState {
