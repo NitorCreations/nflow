@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -34,6 +35,7 @@ public interface WorkflowExecutorListener {
     public final String originalState;
     public final WorkflowInstance instance;
     public final StateExecution stateExecution;
+    public NextState nextState = null;
     /**
      * Stateless listeners can use data to pass information between listener
      * stages.

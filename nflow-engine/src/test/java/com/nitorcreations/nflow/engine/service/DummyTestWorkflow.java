@@ -1,5 +1,8 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
+
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
@@ -36,19 +39,19 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
     super("dummy", DummyTestState.start, DummyTestState.end);
   }
 
-  public void start(StateExecution execution) {
-    execution.setNextState(DummyTestState.end);
+  public NextState start(StateExecution execution) {
+    return stopInState(DummyTestState.end, "Finished");
   }
 
-  public void end(StateExecution execution) {
-    execution.setNextState(DummyTestState.end);
+  public NextState end(StateExecution execution) {
+    return stopInState(DummyTestState.end, "Finished");
   }
 
-  public void alternativeStart(StateExecution execution) {
-    execution.setNextState(DummyTestState.end);
-  }
-  public void CreateLoan(StateExecution execution) {
-    execution.setNextState(DummyTestState.end);
+  public NextState alternativeStart(StateExecution execution) {
+    return stopInState(DummyTestState.end, "Finished");
   }
 
+  public NextState CreateLoan(StateExecution execution) {
+    return stopInState(DummyTestState.end, "Finished");
+  }
 }

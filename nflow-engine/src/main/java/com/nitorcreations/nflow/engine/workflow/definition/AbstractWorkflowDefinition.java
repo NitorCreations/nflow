@@ -24,7 +24,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   private final S errorState;
   private final WorkflowSettings settings;
   protected final Map<String, List<String>> allowedTransitions = new LinkedHashMap<>();
-  protected final Map<String, String> failureTransitions = new LinkedHashMap<>();
+  protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState) {
@@ -76,7 +76,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     return new LinkedHashMap<>(allowedTransitions);
   }
 
-  public Map<String, String> getFailureTransitions() {
+  public Map<String, WorkflowState> getFailureTransitions() {
     return new LinkedHashMap<>(failureTransitions);
   }
 
@@ -90,7 +90,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     allowedTransitionsFor(originState).add(targetState.name());
     if (failureState != null) {
       requireStateMethodExists(failureState);
-      failureTransitions.put(originState.name(), failureState.name());
+      failureTransitions.put(originState.name(), failureState);
     }
     return this;
   }
@@ -112,19 +112,23 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   void requireStateMethodExists(S state) {
     if (!stateMethods.containsKey(state.name()) && isStateMethodObligatory(state)) {
-      String msg = String.format("Class %s is missing state handling method %s(StateExecution execution, ... args)", this.getClass().getName(), state.name());
+      String msg = String.format("Class %s is missing state handling method NextState %s(StateExecution execution, ... args)", this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }
   }
 
   public void handleRetry(StateExecutionImpl execution) {
     if (execution.getRetries() >= getSettings().getMaxRetries()) {
-      String failureState = failureTransitions.get(execution.getCurrentStateName());
+      WorkflowState failureState = failureTransitions.get(execution.getCurrentStateName());
       if (failureState != null) {
-        execution.setNextState(failureState, "Max retry count exceeded", getSettings().getErrorTransitionActivation());
+        execution.setNextState(failureState);
+        execution.setNextStateReason("Max retry count exceeded");
+        execution.setNextActivation(getSettings().getErrorTransitionActivation());
         execution.setFailure(false);
       } else {
-        execution.setNextState(errorState, "Max retry count exceeded, no failure state defined", null);
+        execution.setNextState(errorState);
+        execution.setNextStateReason("Max retry count exceeded, no failure state defined");
+        execution.setNextActivation(null);
         execution.setFailure(false);
       }
     } else {

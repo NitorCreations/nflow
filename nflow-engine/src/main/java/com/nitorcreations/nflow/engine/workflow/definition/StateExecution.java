@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
-import org.joda.time.DateTime;
 
 public interface StateExecution {
 
@@ -14,12 +13,4 @@ public interface StateExecution {
   String getVariable(String name, String defaultValue);
   void setVariable(String name, String value);
   void setVariable(String name, Object value);
-
-  void setNextActivation(DateTime time);
-  void setNextState(WorkflowState state);
-  void setNextStateReason(String stateText);
-  void setNextState(WorkflowState state, String stateText, DateTime time);
-  void setFailure(boolean failure);
-  void setSaveTrace(boolean saveTrace);
-
 }

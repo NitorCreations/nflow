@@ -1,11 +1,14 @@
 package com.nitorcreations.nflow.rest.v1;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.start;
 
 import org.springframework.core.env.Environment;
 
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
@@ -52,16 +55,16 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
     permit(error, end);
   }
 
-  public void start(StateExecution execution) {
-    execution.setNextState(end);
+  public NextState start(StateExecution execution) {
+    return moveToStateImmediately(end, "Go to end state");
   }
 
-  public void error(StateExecution execution) {
-    execution.setNextState(error);
+  public NextState error(StateExecution execution) {
+    return stopInState(error, "Finished in error state");
   }
 
-  public void end(StateExecution execution) {
-    execution.setNextState(end);
+  public NextState end(StateExecution execution) {
+    return stopInState(end, "Finished in end state");
   }
 
   public static class DummyTestSettings extends WorkflowSettings {

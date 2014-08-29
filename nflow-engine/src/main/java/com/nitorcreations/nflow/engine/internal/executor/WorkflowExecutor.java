@@ -1,12 +1,13 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.springframework.util.ReflectionUtils;
 
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -15,6 +16,7 @@ import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -76,7 +78,10 @@ class WorkflowExecutor implements Runnable {
       WorkflowState state = definition.getState(instance.state);
       try {
         processBeforeListeners(listenerContext);
-        processState(instance, definition, execution);
+        NextState nextState = processState(instance, definition, execution);
+        if (listenerContext != null) {
+          listenerContext.nextState = nextState;
+        }
         processAfterListeners(listenerContext);
       } catch (Throwable ex) {
         logger.error("Handler threw exception, trying again later", ex);
@@ -112,11 +117,7 @@ class WorkflowExecutor implements Runnable {
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
       WorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
-    if (execution.getNextState() == null) {
-      execution.setNextState(definition.getErrorState(), "No next state defined by state " + execution.getCurrentStateName(), now());
-      execution.setNextActivation(null);
-    }
-    if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null)  {
+    if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
@@ -138,12 +139,20 @@ class WorkflowExecutor implements Runnable {
     return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
-  private void processState(WorkflowInstance instance,
-      WorkflowDefinition<?> definition, StateExecutionImpl execution) {
+  private NextState processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     Object[] args = objectMapper.createArguments(execution, method);
-    ReflectionUtils.invokeMethod(method.method, definition, args);
+    NextState nextState = (NextState) invokeMethod(method.method, definition, args);
+    if (nextState == null || nextState.getNextState() == null) {
+      nextState = moveToStateImmediately(definition.getErrorState(), "Next state can not be null");
+    }
+    execution.setFailure(nextState.isFailure());
+    execution.setNextActivation(nextState.getActivation());
+    execution.setNextState(nextState.getNextState());
+    execution.setNextStateReason(nextState.getReason());
+    execution.setSaveTrace(nextState.isSaveTrace());
     objectMapper.storeArguments(execution, method, args);
+    return nextState;
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

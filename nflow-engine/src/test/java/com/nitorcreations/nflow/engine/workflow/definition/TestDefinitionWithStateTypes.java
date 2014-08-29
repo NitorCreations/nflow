@@ -41,13 +41,15 @@ public class TestDefinitionWithStateTypes extends WorkflowDefinition<TestDefinit
     permit(State.state2, State.done);
   }
 
-  public void initial(StateExecution execution) {
+  public NextState initial(StateExecution execution) {
+    return null;
   }
 
-  public void state1(StateExecution execution, @StateVar("arg") String param) {
+  public NextState state1(StateExecution execution, @StateVar("arg") String param) {
+    return null;
   }
 
-  public void state2(StateExecution execution) {
+  public NextState state2(StateExecution execution) {
+    return null;
   }
-
 }

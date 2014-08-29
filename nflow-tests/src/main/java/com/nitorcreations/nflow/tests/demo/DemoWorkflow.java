@@ -1,21 +1,18 @@
 package com.nitorcreations.nflow.tests.demo;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
-import static org.slf4j.LoggerFactory.getLogger;
 
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
-
-  private static final Logger logger = getLogger(DemoWorkflow.class);
 
   public static enum State implements WorkflowState {
     start(WorkflowStateType.start), process(normal), done(end), error(manual);
@@ -48,19 +45,15 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     permit(State.process, State.done);
   }
 
-  public void start(StateExecution execution) {
-    execution.setNextState(State.process);
-    execution.setNextActivation(DateTime.now());
+  public NextState start(StateExecution execution) {
+    return moveToStateImmediately(State.process, "Go to process state");
   }
 
-  public void process(StateExecution execution) {
-    execution.setNextState(State.done);
-    execution.setNextActivation(DateTime.now());
+  public NextState process(StateExecution execution) {
+    return moveToStateImmediately(State.done, "Go to done state");
   }
 
-  public void done(StateExecution execution) {
-    execution.setNextState(State.done);
-    logger.info("Finished.");
+  public NextState done(StateExecution execution) {
+    return stopInState(State.done, "Finished in done state");
   }
-
 }

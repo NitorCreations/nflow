@@ -1,12 +1,15 @@
 package com.nitorcreations.nflow.tests.demo;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
+
 import java.util.Locale;
 import java.util.Random;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
@@ -89,127 +92,126 @@ public class WordGeneratorWorkflow extends
     return State.values()[State.values().length - 1];
   }
 
-  public void error(StateExecution execution) {
-    execution.setNextState(State.error);
+  public NextState error(StateExecution execution) {
     logger.error("Finished with error");
+    return stopInState(State.error, "Finished in error state");
   }
 
-  public void end(StateExecution execution) {
-    execution.setNextState(State.end);
+  public NextState end(StateExecution execution) {
     logger.info("Finished word: {}", execution.getVariable("word", "").toUpperCase(Locale.GERMAN));
+    return stopInState(State.end, "Finished in end state");
   }
 
-  protected void update(StateExecution execution, String state) {
+  protected NextState update(StateExecution execution, String state) {
     State newState = randState();
     logger.info("{}->{}", state, newState.name());
     String word = execution.getVariable("word", "");
     execution.setVariable("word", word + state);
-    execution.setNextState(newState);
-    execution.setNextActivation(DateTime.now());
+    return moveToStateImmediately(newState, "Go to state " + newState);
   }
 
-  public void a(StateExecution execution) {
-    update(execution, "a");
+  public NextState a(StateExecution execution) {
+    return update(execution, "a");
   }
 
-  public void b(StateExecution execution) {
-    update(execution, "b");
+  public NextState b(StateExecution execution) {
+    return update(execution, "b");
   }
 
-  public void c(StateExecution execution) {
-    update(execution, "c");
+  public NextState c(StateExecution execution) {
+    return update(execution, "c");
   }
 
-  public void d(StateExecution execution) {
-    update(execution, "d");
+  public NextState d(StateExecution execution) {
+    return update(execution, "d");
   }
 
-  public void e(StateExecution execution) {
-    update(execution, "e");
+  public NextState e(StateExecution execution) {
+    return update(execution, "e");
   }
 
-  public void f(StateExecution execution) {
-    update(execution, "f");
+  public NextState f(StateExecution execution) {
+    return update(execution, "f");
   }
 
-  public void g(StateExecution execution) {
-    update(execution, "g");
+  public NextState g(StateExecution execution) {
+    return update(execution, "g");
   }
 
-  public void h(StateExecution execution) {
-    update(execution, "h");
+  public NextState h(StateExecution execution) {
+    return update(execution, "h");
   }
 
-  public void i(StateExecution execution) {
-    update(execution, "i");
+  public NextState i(StateExecution execution) {
+    return update(execution, "i");
   }
 
-  public void j(StateExecution execution) {
-    update(execution, "j");
+  public NextState j(StateExecution execution) {
+    return update(execution, "j");
   }
 
-  public void k(StateExecution execution) {
-    update(execution, "k");
+  public NextState k(StateExecution execution) {
+    return update(execution, "k");
   }
 
-  public void l(StateExecution execution) {
-    update(execution, "l");
+  public NextState l(StateExecution execution) {
+    return update(execution, "l");
   }
 
-  public void m(StateExecution execution) {
-    update(execution, "m");
+  public NextState m(StateExecution execution) {
+    return update(execution, "m");
   }
 
-  public void n(StateExecution execution) {
-    update(execution, "n");
+  public NextState n(StateExecution execution) {
+    return update(execution, "n");
   }
 
-  public void o(StateExecution execution) {
-    update(execution, "o");
+  public NextState o(StateExecution execution) {
+    return update(execution, "o");
   }
 
-  public void p(StateExecution execution) {
-    update(execution, "p");
+  public NextState p(StateExecution execution) {
+    return update(execution, "p");
   }
 
-  public void q(StateExecution execution) {
-    update(execution, "q");
+  public NextState q(StateExecution execution) {
+    return update(execution, "q");
   }
 
-  public void r(StateExecution execution) {
-    update(execution, "r");
+  public NextState r(StateExecution execution) {
+    return update(execution, "r");
   }
 
-  public void s(StateExecution execution) {
-    update(execution, "s");
+  public NextState s(StateExecution execution) {
+    return update(execution, "s");
   }
 
-  public void t(StateExecution execution) {
-    update(execution, "t");
+  public NextState t(StateExecution execution) {
+    return update(execution, "t");
   }
 
-  public void u(StateExecution execution) {
-    update(execution, "u");
+  public NextState u(StateExecution execution) {
+    return update(execution, "u");
   }
 
-  public void v(StateExecution execution) {
-    update(execution, "v");
+  public NextState v(StateExecution execution) {
+    return update(execution, "v");
   }
 
-  public void w(StateExecution execution) {
-    update(execution, "w");
+  public NextState w(StateExecution execution) {
+    return update(execution, "w");
   }
 
-  public void x(StateExecution execution) {
-    update(execution, "x");
+  public NextState x(StateExecution execution) {
+    return update(execution, "x");
   }
 
-  public void y(StateExecution execution) {
-    update(execution, "y");
+  public NextState y(StateExecution execution) {
+    return update(execution, "y");
   }
 
-  public void z(StateExecution execution) {
-    update(execution, "z");
+  public NextState z(StateExecution execution) {
+    return update(execution, "z");
   }
 
 }

@@ -31,6 +31,7 @@ import org.springframework.util.ReflectionUtils.MethodFilter;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 
@@ -74,7 +75,7 @@ public class WorkflowDefinitionScanner {
         if (params.size() != genericParameterTypes.length - 1) {
           throw new IllegalStateException("Not all parameter names could be resolved for " + method + ". Maybe missing @StateVar annotation?");
         }
-        if(methods.containsKey(method.getName())) {
+        if (methods.containsKey(method.getName())) {
           throw new IllegalStateException("Method " + method + " was overloaded. Overloading state methods is not allowed.");
         }
         methods.put(method.getName(), new WorkflowStateMethod(method, params.toArray(new StateParameter[params.size()])));
@@ -108,7 +109,8 @@ public class WorkflowDefinitionScanner {
     public boolean matches(Method method) {
       int mod = method.getModifiers();
       Class<?>[] parameterTypes = method.getParameterTypes();
-      return isPublic(mod) && !isStatic(mod) && parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]);
+      return isPublic(mod) && !isStatic(mod) && parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]) &&
+          NextState.class.equals(method.getReturnType());
     }
   }
 }

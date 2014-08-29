@@ -1,5 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.nextStateWithActivation;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -39,6 +42,7 @@ import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.Listene
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
+import com.nitorcreations.nflow.engine.workflow.definition.NextState;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -94,7 +98,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   }
 
   @Test
-  public void runWorkflowToThroughFailureState() {
+  public void runWorkflowThroughToFailureState() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
@@ -107,29 +111,66 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   }
 
   @Test
-  public void nextActivationClearedWhenMissingHandlerMethod() {
+  public void goToErrorStateWhenStateMethodReturnsNull() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("failure").build();
+        .setState("processReturnNull").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false,
-        is(nullValue(DateTime.class)))), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.failure, 0)));
+
+    ArgumentCaptor<WorkflowInstance> instanceCaptor = ArgumentCaptor.forClass(WorkflowInstance.class);
+    ArgumentCaptor<WorkflowInstanceAction> action = ArgumentCaptor.forClass(WorkflowInstanceAction.class);
+    verify(workflowInstances, times(2)).updateWorkflowInstance(instanceCaptor.capture(), action.capture());
+    List<WorkflowInstance> instances = instanceCaptor.getAllValues();
+    List<WorkflowInstanceAction> actions = action.getAllValues();
+
+    assertThat(instances.get(0), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true, is(notNullValue(DateTime.class))));
+    assertThat(actions.get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.processReturnNull, 0));
+
+    assertThat(instances.get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
+    assertThat(actions.get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, 0));
   }
 
   @Test
-  public void errorStateWhenNoNextStateDefined() {
+  public void goToErrorStateWhenNextStateIsNull() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("processNoNextState").build();
+        .setState("processReturnNullNextState").build();
+    when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+
+    executor.run();
+
+    ArgumentCaptor<WorkflowInstance> instanceCaptor = ArgumentCaptor.forClass(WorkflowInstance.class);
+    ArgumentCaptor<WorkflowInstanceAction> action = ArgumentCaptor.forClass(WorkflowInstanceAction.class);
+    verify(workflowInstances, times(2)).updateWorkflowInstance(instanceCaptor.capture(), action.capture());
+    List<WorkflowInstance> instances = instanceCaptor.getAllValues();
+    List<WorkflowInstanceAction> actions = action.getAllValues();
+
+    assertThat(instances.get(0), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true, is(notNullValue(DateTime.class))));
+    assertThat(actions.get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.processReturnNullNextState, 0));
+
+    assertThat(instances.get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
+    assertThat(actions.get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, 0));
+  }
+
+  @Test
+  public void clearNextActivationWhenMovingToStateThatHasNoMethod() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("nextStateNoMethod").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false,
-        is(nullValue(DateTime.class)))), argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.processNoNextState, 0)));
+    verify(workflowInstances).updateWorkflowInstance(
+        argThat(matchesWorkflowInstance(
+            FailingTestWorkflow.State.noMethodEndState, 0, false,
+            is(nullValue(DateTime.class)))), any(WorkflowInstanceAction.class));
   }
 
   @SuppressWarnings("serial")
@@ -311,15 +352,11 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       }
     }
 
-    public void start(StateExecution execution) {
-      execution.setNextState(State.process);
-      execution.setNextActivation(now().plusMillis(
-          getSettings().getErrorTransitionDelay()));
+    public NextState start(StateExecution execution) {
+      return nextStateWithActivation(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
     }
 
-    public void process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
-      execution.setNextState(State.done);
-      execution.setNextActivation(DateTime.now());
+    public NextState process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
       assertThat(pojo.field, is(pojo1.field));
       assertThat(pojo.test, is(pojo1.test));
@@ -329,6 +366,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       unmodifiablePojo.field += " ignored";
       mutableString.val = "mutated";
       execution.setVariable("hello", new int[]{1,2,3});
+      return stopInState(State.done, "Finished");
     }
 
   }
@@ -343,7 +381,9 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
     public static enum State implements WorkflowState {
       start(WorkflowStateType.start), process(WorkflowStateType.normal), error(WorkflowStateType.end),
-      processNoNextState(WorkflowStateType.normal), failure(WorkflowStateType.manual);
+      processReturnNull(WorkflowStateType.normal), processReturnNullNextState(WorkflowStateType.normal),
+      nextStateNoMethod(WorkflowStateType.normal), noMethodEndState(WorkflowStateType.end),
+      failure(WorkflowStateType.manual);
 
       private WorkflowStateType stateType;
 
@@ -367,21 +407,33 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       }
     }
 
-    public void start(StateExecution execution) {
+    public NextState start(StateExecution execution) {
       throw new RuntimeException("test-fail");
     }
 
-    public void process(StateExecution execution) {
+    public NextState process(StateExecution execution) {
       throw new RuntimeException("test-fail2");
     }
 
-    public void processNoNextState(StateExecution execution) {
+    public NextState processReturnNull(StateExecution execution) {
+      return null;
     }
 
-    public void failure(StateExecution execution) {
-      execution.setNextState(State.error, "Go to error state", now());
+    public NextState processReturnNullNextState(StateExecution execution) {
+      return moveToStateImmediately(null, "This should fail");
     }
 
+    public NextState failure(StateExecution execution) {
+      return moveToStateImmediately(State.error, "Go to error state");
+    }
+
+    public NextState nextStateNoMethod(StateExecution execution) {
+      return moveToStateImmediately(State.noMethodEndState, "Go to end state that has no method");
+    }
+
+    public NextState error(StateExecution execution) {
+      return stopInState(State.error, "Stop in error state");
+    }
   }
 
 }
