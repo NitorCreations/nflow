@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
-import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 
@@ -23,7 +22,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -45,8 +43,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Component
 public class WorkflowInstanceDao {
-
-  private static final Logger logger = getLogger(WorkflowInstanceDao.class);
 
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
