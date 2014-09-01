@@ -19,6 +19,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -112,10 +113,16 @@ public class ExecutorDao {
   }
 
   public void updateActiveTimestamp() {
-    jdbc.update("update nflow_executor set active=current_timestamp, expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
+    updateWithPreparedStatement("update nflow_executor set active=current_timestamp, expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    jdbc.update("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
+    updateWithPreparedStatement("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
+  }
+
+  private void updateWithPreparedStatement(String sql) {
+    // jdbc.update(sql) won't use prepared statements, this uses.
+    jdbc.update(sql, (PreparedStatementSetter)null);
+
   }
 }
