@@ -135,7 +135,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void wakesUpSleepingWorklfow() {
+  public void wakesUpSleepingWorkflow() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
@@ -143,16 +143,18 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
   }
 
-  public void doesNotWakesUpRunningWorklfow() {
+  @Test
+  public void doesNotWakeUpRunningWorkflow() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setOwner("junit").setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
-    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setProcessing(true).build());
+    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setId(id).setProcessing(true).build());
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] {i1.state});
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
   }
 
-  public void wakesUpWorklfowInMatchingState() {
+  @Test
+  public void wakesUpWorkflowInMatchingState() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
