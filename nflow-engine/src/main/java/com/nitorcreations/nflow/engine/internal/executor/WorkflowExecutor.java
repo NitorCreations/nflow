@@ -144,6 +144,8 @@ class WorkflowExecutor implements Runnable {
     Object[] args = objectMapper.createArguments(execution, method);
     NextState nextState = (NextState) invokeMethod(method.method, definition, args);
     if (nextState == null || nextState.getNextState() == null) {
+      logger.error("State handler method '{}' returned null next state, proceeding to error state '{}'",
+          method.method, definition.getErrorState());
       nextState = moveToStateImmediately(definition.getErrorState(), "Next state can not be null");
     }
     execution.setFailure(nextState.isFailure());
