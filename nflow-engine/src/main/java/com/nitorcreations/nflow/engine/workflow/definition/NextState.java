@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 
 public class NextState {
 
-  private boolean isFailure;
+  private final boolean isFailure;
   private final DateTime activation;
   private final WorkflowState nextState;
   private final String reason;
@@ -21,10 +21,6 @@ public class NextState {
 
   public boolean isFailure() {
     return isFailure;
-  }
-
-  public void setFailure(boolean isFailure) {
-    this.isFailure = isFailure;
   }
 
   public DateTime getActivation() {
@@ -43,15 +39,19 @@ public class NextState {
     return isSaveTrace;
   }
 
-  public static NextState nextStateWithActivation(WorkflowState nextState, DateTime activation, String reason) {
+  public static NextState retryWithActivation(String reason, DateTime activation) {
+    return new NextState(true, activation, null, reason);
+  }
+
+  public static NextState moveToStateWithActivation(WorkflowState nextState, DateTime activation, String reason) {
     return new NextState(false, activation, nextState, reason);
   }
 
-  public static NextState moveToStateImmediately(WorkflowState nextState, String reason) {
-    return nextStateWithActivation(nextState, now(), reason);
+  public static NextState moveToState(WorkflowState nextState, String reason) {
+    return moveToStateWithActivation(nextState, now(), reason);
   }
 
   public static NextState stopInState(WorkflowState finalState, String reason) {
-    return nextStateWithActivation(finalState, null, reason);
+    return moveToStateWithActivation(finalState, null, reason);
   }
 }

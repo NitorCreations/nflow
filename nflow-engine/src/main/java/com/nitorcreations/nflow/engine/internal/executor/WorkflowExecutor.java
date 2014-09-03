@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -143,14 +143,18 @@ class WorkflowExecutor implements Runnable {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     Object[] args = objectMapper.createArguments(execution, method);
     NextState nextState = (NextState) invokeMethod(method.method, definition, args);
-    if (nextState == null || nextState.getNextState() == null) {
+    if (nextState == null || (nextState.getNextState() == null && !nextState.isFailure())) {
       logger.error("State handler method '{}' returned null next state, proceeding to error state '{}'",
           method.method, definition.getErrorState());
-      nextState = moveToStateImmediately(definition.getErrorState(), "Next state can not be null");
+      nextState = moveToState(definition.getErrorState(), "Next state can not be null");
     }
     execution.setFailure(nextState.isFailure());
     execution.setNextActivation(nextState.getActivation());
-    execution.setNextState(nextState.getNextState());
+    if (nextState.isFailure()) {
+      execution.setNextState(definition.getState(instance.state));
+    } else {
+      execution.setNextState(nextState.getNextState());
+    }
     execution.setNextStateReason(nextState.getReason());
     execution.setSaveTrace(nextState.isSaveTrace());
     objectMapper.storeArguments(execution, method, args);

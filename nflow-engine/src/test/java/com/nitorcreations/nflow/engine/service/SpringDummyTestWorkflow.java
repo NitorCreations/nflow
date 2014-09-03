@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.service;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 
 import com.nitorcreations.nflow.engine.workflow.definition.NextState;
@@ -35,7 +35,7 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
   }
 
   public NextState start(StateExecution execution) {
-    return moveToStateImmediately(SpringDummyTestState.end, "Go to end state");
+    return moveToState(SpringDummyTestState.end, "Go to end state");
   }
 
   public NextState end(StateExecution execution) {

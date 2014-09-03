@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.rest.v1;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
@@ -56,7 +56,7 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
   }
 
   public NextState start(StateExecution execution) {
-    return moveToStateImmediately(end, "Go to end state");
+    return moveToState(end, "Go to end state");
   }
 
   public NextState error(StateExecution execution) {

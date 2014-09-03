@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.tests.demo;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 
 import java.util.Locale;
@@ -107,7 +107,7 @@ public class WordGeneratorWorkflow extends
     logger.info("{}->{}", state, newState.name());
     String word = execution.getVariable("word", "");
     execution.setVariable("word", word + state);
-    return moveToStateImmediately(newState, "Go to state " + newState);
+    return moveToState(newState, "Go to state " + newState);
   }
 
   public NextState a(StateExecution execution) {

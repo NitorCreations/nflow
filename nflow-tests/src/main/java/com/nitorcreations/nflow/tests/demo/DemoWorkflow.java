@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.tests.demo;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
@@ -46,11 +46,11 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
   }
 
   public NextState start(StateExecution execution) {
-    return moveToStateImmediately(State.process, "Go to process state");
+    return moveToState(State.process, "Go to process state");
   }
 
   public NextState process(StateExecution execution) {
-    return moveToStateImmediately(State.done, "Go to done state");
+    return moveToState(State.done, "Go to done state");
   }
 
   public NextState done(StateExecution execution) {

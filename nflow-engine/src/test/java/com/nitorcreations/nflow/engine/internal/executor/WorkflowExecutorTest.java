@@ -1,7 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateImmediately;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.nextStateWithActivation;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateWithActivation;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextState.retryWithActivation;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -14,6 +15,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -171,6 +173,23 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         argThat(matchesWorkflowInstance(
             FailingTestWorkflow.State.noMethodEndState, 0, false,
             is(nullValue(DateTime.class)))), any(WorkflowInstanceAction.class));
+  }
+
+  @Test
+  public void keepCurrentStateOnRetry() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("retryingState").build();
+    when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstances).updateWorkflowInstance(
+        argThat(matchesWorkflowInstance(
+            FailingTestWorkflow.State.retryingState, 1, false,
+            is(notNullValue(DateTime.class)))), any(WorkflowInstanceAction.class));
   }
 
   @SuppressWarnings("serial")
@@ -353,7 +372,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public NextState start(StateExecution execution) {
-      return nextStateWithActivation(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
+      return moveToStateWithActivation(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
     }
 
     public NextState process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
@@ -383,7 +402,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       start(WorkflowStateType.start), process(WorkflowStateType.normal), error(WorkflowStateType.end),
       processReturnNull(WorkflowStateType.normal), processReturnNullNextState(WorkflowStateType.normal),
       nextStateNoMethod(WorkflowStateType.normal), noMethodEndState(WorkflowStateType.end),
-      failure(WorkflowStateType.manual);
+      retryingState(WorkflowStateType.normal), failure(WorkflowStateType.manual);
 
       private WorkflowStateType stateType;
 
@@ -419,16 +438,20 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       return null;
     }
 
+    public NextState retryingState(StateExecution execution) {
+      return retryWithActivation("Retrying", now().plusYears(1));
+    }
+
     public NextState processReturnNullNextState(StateExecution execution) {
-      return moveToStateImmediately(null, "This should fail");
+      return moveToState(null, "This should fail");
     }
 
     public NextState failure(StateExecution execution) {
-      return moveToStateImmediately(State.error, "Go to error state");
+      return moveToState(State.error, "Go to error state");
     }
 
     public NextState nextStateNoMethod(StateExecution execution) {
-      return moveToStateImmediately(State.noMethodEndState, "Go to end state that has no method");
+      return moveToState(State.noMethodEndState, "Go to end state that has no method");
     }
 
     public NextState error(StateExecution execution) {
