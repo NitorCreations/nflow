@@ -439,7 +439,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public NextState retryingState(StateExecution execution) {
-      return retryWithActivation("Retrying", now().plusYears(1));
+      return retryWithActivation(now().plusYears(1), "Retrying");
     }
 
     public NextState processReturnNullNextState(StateExecution execution) {

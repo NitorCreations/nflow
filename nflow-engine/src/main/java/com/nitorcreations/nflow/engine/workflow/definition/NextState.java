@@ -42,7 +42,7 @@ public class NextState {
   /**
    * Schedule retry for current state at time {@code activation}.
    */
-  public static NextState retryWithActivation(String reason, DateTime activation) {
+  public static NextState retryWithActivation(DateTime activation, String reason) {
     return new NextState(true, activation, null, reason);
   }
 
