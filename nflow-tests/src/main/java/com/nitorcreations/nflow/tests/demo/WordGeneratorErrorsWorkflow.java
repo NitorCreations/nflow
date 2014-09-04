@@ -27,12 +27,12 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
       throw new RuntimeException("error at state " + state
           + " before new state is set");
     }
-    NextAction nextState = super.update(execution, state);
+    NextAction nextAction = super.update(execution, state);
     if (random.nextDouble() < ERROR_FRACTION / 2.0) {
       logger.info("Generating error at state {} after new state is set", state);
       throw new RuntimeException("error at state " + state + " after new state is set");
     }
-    return nextState;
+    return nextAction;
   }
 
   private static class WordGeneratorErrorsWorkSettings extends WorkflowSettings {
