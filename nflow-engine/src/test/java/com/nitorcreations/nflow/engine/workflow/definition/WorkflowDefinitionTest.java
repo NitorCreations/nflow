@@ -111,7 +111,7 @@ public class WorkflowDefinitionTest {
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Class '" + workflow.getClass().getName() +
-        "' is missing state handling method 'public NextState notfound(StateExecution execution, ... args)'");
+        "' is missing state handling method 'public NextAction notfound(StateExecution execution, ... args)'");
 
     workflow.permit(TestState.start, TestState.done, TestState.notfound);
   }
@@ -167,9 +167,9 @@ public class WorkflowDefinitionTest {
       permit(TestState.start, TestState.done, TestState.error);
     }
 
-    public NextState start(StateExecution execution) { return null; }
-    public NextState done(StateExecution execution) { return null; }
-    public NextState error(StateExecution execution) { return null; }
+    public NextAction start(StateExecution execution) { return null; }
+    public NextAction done(StateExecution execution) { return null; }
+    public NextAction error(StateExecution execution) { return null; }
 
   }
 

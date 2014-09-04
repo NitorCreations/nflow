@@ -23,7 +23,7 @@ import org.junit.rules.ExpectedException;
 
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -142,9 +142,9 @@ public class WorkflowDefinitionScannerTest {
       super("overload", ScannerState.start, ScannerState.end);
     }
 
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec, @StateVar("foo") String param) { return null; }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec, @StateVar("foo") String param) { return null; }
   }
 
   public static class MissingStateVarWorkflow extends WorkflowDefinition<ScannerState> {
@@ -152,8 +152,8 @@ public class WorkflowDefinitionScannerTest {
       super("missingStateVar", ScannerState.start, ScannerState.end);
     }
 
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec, String param) { return null; }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec, String param) { return null; }
   }
 
   public static class UnknownAnnotationWorkflow extends WorkflowDefinition<ScannerState> {
@@ -161,24 +161,24 @@ public class WorkflowDefinitionScannerTest {
       super("unknownAnnotation", ScannerState.start, ScannerState.end);
     }
 
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec, @Dummy @StateVar("paramKey") String param) { return null; }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec, @Dummy @StateVar("paramKey") String param) { return null; }
   }
 
   public static class MutableParamWorkflow extends WorkflowDefinition<ScannerState> {
     public MutableParamWorkflow() {
       super("mutableParam", ScannerState.start, ScannerState.end);
     }
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec, @StateVar("paramKey") Mutable<String> param) { return null; }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec, @StateVar("paramKey") Mutable<String> param) { return null; }
   }
 
   public static class InitiateParameterWorkflow extends WorkflowDefinition<ScannerState> {
     public InitiateParameterWorkflow() {
       super("instantiateNull", ScannerState.start, ScannerState.end);
     }
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec,
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec,
         @StateVar(value = "paramKey", instantiateNull = true) ParamObj param,
         @StateVar(value = "paramKey2", instantiateNull = true) long paramPrimitive) { return null; }
   }
@@ -187,20 +187,20 @@ public class WorkflowDefinitionScannerTest {
     public NonStateMethodsWorkflow() {
       super("nonStateMethods", ScannerState.start, ScannerState.end);
     }
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec) { return null; }
-    public NextState noArgs() { return null; }
-    public NextState wrongFirstArg(String x) { return null; }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec) { return null; }
+    public NextAction noArgs() { return null; }
+    public NextAction wrongFirstArg(String x) { return null; }
     public void doesNotReturnNextState(StateExecution exec) { }
-    public static NextState staticMethod(StateExecution exec) { return null; }
-    protected NextState nonPublic(StateExecution exec) { return null; }
+    public static NextAction staticMethod(StateExecution exec) { return null; }
+    protected NextAction nonPublic(StateExecution exec) { return null; }
   }
 
   public static class ReadOnlyStateVarWorkflow extends WorkflowDefinition<ScannerState> {
     public ReadOnlyStateVarWorkflow() {
       super("readOnly", ScannerState.start, ScannerState.end);
     }
-    public NextState start(StateExecution exec) { return null; }
-    public NextState end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) { return null; }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) { return null; }
   }
 }

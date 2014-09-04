@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -16,7 +16,7 @@ import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -78,9 +78,9 @@ class WorkflowExecutor implements Runnable {
       WorkflowState state = definition.getState(instance.state);
       try {
         processBeforeListeners(listenerContext);
-        NextState nextState = processState(instance, definition, execution);
+        NextAction nextAction = processState(instance, definition, execution);
         if (listenerContext != null) {
-          listenerContext.nextState = nextState;
+          listenerContext.nextAction = nextAction;
         }
         processAfterListeners(listenerContext);
       } catch (Throwable ex) {
@@ -139,26 +139,26 @@ class WorkflowExecutor implements Runnable {
     return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
-  private NextState processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution) {
+  private NextAction processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     Object[] args = objectMapper.createArguments(execution, method);
-    NextState nextState = (NextState) invokeMethod(method.method, definition, args);
-    if (nextState == null || (nextState.getNextState() == null && !nextState.isFailure())) {
-      logger.error("State handler method '{}' returned null next state, proceeding to error state '{}'",
+    NextAction nextAction = (NextAction) invokeMethod(method.method, definition, args);
+    if (nextAction == null || (nextAction.getNextState() == null && !nextAction.isFailure())) {
+      logger.error("State handler method '{}' returned null for next action or state, proceeding to error state '{}'",
           method.method, definition.getErrorState());
-      nextState = moveToState(definition.getErrorState(), "Next state can not be null");
+      nextAction = moveToState(definition.getErrorState(), "Next action or state was null");
     }
-    execution.setFailure(nextState.isFailure());
-    execution.setNextActivation(nextState.getActivation());
-    if (nextState.isFailure()) {
+    execution.setFailure(nextAction.isFailure());
+    execution.setNextActivation(nextAction.getActivation());
+    if (nextAction.isFailure()) {
       execution.setNextState(definition.getState(instance.state));
     } else {
-      execution.setNextState(nextState.getNextState());
+      execution.setNextState(nextAction.getNextState());
     }
-    execution.setNextStateReason(nextState.getReason());
-    execution.setSaveTrace(nextState.isSaveTrace());
+    execution.setNextStateReason(nextAction.getReason());
+    execution.setSaveTrace(nextAction.isSaveTrace());
     objectMapper.storeArguments(execution, method, args);
-    return nextState;
+    return nextAction;
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

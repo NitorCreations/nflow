@@ -4,7 +4,7 @@ import static org.joda.time.DateTime.now;
 
 import org.joda.time.DateTime;
 
-public class NextState {
+public class NextAction {
 
   private final boolean isFailure;
   private final DateTime activation;
@@ -12,7 +12,7 @@ public class NextState {
   private final String reason;
   private final boolean isSaveTrace = true;
 
-  private NextState(boolean isFailure, DateTime activation, WorkflowState nextState, String reason) {
+  private NextAction(boolean isFailure, DateTime activation, WorkflowState nextState, String reason) {
     this.reason = reason;
     this.nextState = nextState;
     this.activation = activation;
@@ -42,29 +42,29 @@ public class NextState {
   /**
    * Schedule retry for current state at time {@code activation}.
    */
-  public static NextState retryWithActivation(DateTime activation, String reason) {
-    return new NextState(true, activation, null, reason);
+  public static NextAction retryAt(DateTime activation, String reason) {
+    return new NextAction(true, activation, null, reason);
   }
 
   /**
    * Schedule processing of state {@code nextState} at time {@code activation}.
    */
-  public static NextState moveToStateWithActivation(WorkflowState nextState, DateTime activation, String reason) {
-    return new NextState(false, activation, nextState, reason);
+  public static NextAction moveToStateWithActivation(WorkflowState nextState, DateTime activation, String reason) {
+    return new NextAction(false, activation, nextState, reason);
   }
 
   /**
    * Schedule processing of state {@code nextState} immediately.
    */
-  public static NextState moveToState(WorkflowState nextState, String reason) {
+  public static NextAction moveToState(WorkflowState nextState, String reason) {
     return moveToStateWithActivation(nextState, now(), reason);
   }
 
   /**
-   * Set next state to {@finalState} and do not schedule its processing.
-   * Used to indicate final state of workflow or a manual state.
+   * Set next state to {@finalState} and do not schedule its
+   * processing. Used to indicate final state of workflow or a manual state.
    */
-  public static NextState stopInState(WorkflowState finalState, String reason) {
+  public static NextAction stopInState(WorkflowState finalState, String reason) {
     return moveToStateWithActivation(finalState, null, reason);
   }
 }

@@ -1,9 +1,9 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToStateWithActivation;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.retryWithActivation;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToStateWithActivation;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.retryAt;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -44,7 +44,7 @@ import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.Listene
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -371,11 +371,11 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       }
     }
 
-    public NextState start(StateExecution execution) {
+    public NextAction start(StateExecution execution) {
       return moveToStateWithActivation(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
     }
 
-    public NextState process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
+    public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
       assertThat(pojo.field, is(pojo1.field));
       assertThat(pojo.test, is(pojo1.test));
@@ -426,35 +426,35 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       }
     }
 
-    public NextState start(StateExecution execution) {
+    public NextAction start(StateExecution execution) {
       throw new RuntimeException("test-fail");
     }
 
-    public NextState process(StateExecution execution) {
+    public NextAction process(StateExecution execution) {
       throw new RuntimeException("test-fail2");
     }
 
-    public NextState processReturnNull(StateExecution execution) {
+    public NextAction processReturnNull(StateExecution execution) {
       return null;
     }
 
-    public NextState retryingState(StateExecution execution) {
-      return retryWithActivation(now().plusYears(1), "Retrying");
+    public NextAction retryingState(StateExecution execution) {
+      return retryAt(now().plusYears(1), "Retrying");
     }
 
-    public NextState processReturnNullNextState(StateExecution execution) {
+    public NextAction processReturnNullNextState(StateExecution execution) {
       return moveToState(null, "This should fail");
     }
 
-    public NextState failure(StateExecution execution) {
+    public NextAction failure(StateExecution execution) {
       return moveToState(State.error, "Go to error state");
     }
 
-    public NextState nextStateNoMethod(StateExecution execution) {
+    public NextAction nextStateNoMethod(StateExecution execution) {
       return moveToState(State.noMethodEndState, "Go to end state that has no method");
     }
 
-    public NextState error(StateExecution execution) {
+    public NextAction error(StateExecution execution) {
       return stopInState(State.error, "Stop in error state");
     }
   }

@@ -1,7 +1,7 @@
 package com.nitorcreations.nflow.tests.demo;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 
 import org.slf4j.Logger;
 
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -74,25 +74,25 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     permit(finishCreditApplication, done);
   }
 
-  public NextState createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     return moveToState(acceptCreditApplication, "Credit application created");
   }
 
-  public NextState previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     request.simulation = true;
     return moveToState(acceptCreditApplication, "Credit application previewed");
   }
 
-  public NextState acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: descheduling workflow instance, next state set externally");
     return stopInState(acceptCreditApplication, "Expecting manual credit decision");
   }
 
-  public NextState grantLoan(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction grantLoan(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for granting a loan");
     if (request.simulation) {
       logger.info("STUPID USER");
@@ -101,17 +101,17 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     throw new RuntimeException("Failed to create loan");
   }
 
-  public NextState finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for updating credit application status");
     return moveToState(done, "Credit application finished");
   }
 
-  public NextState done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("Credit application process ended");
     return stopInState(done, "Finished in done state");
   }
 
-  public NextState error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: some UI should poll for workflows that have reached error state");
     return stopInState(error, "Finished in error state");
   }

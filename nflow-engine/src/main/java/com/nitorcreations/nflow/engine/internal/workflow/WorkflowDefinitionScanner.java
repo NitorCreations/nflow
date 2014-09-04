@@ -31,7 +31,7 @@ import org.springframework.util.ReflectionUtils.MethodFilter;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 
@@ -110,7 +110,7 @@ public class WorkflowDefinitionScanner {
       int mod = method.getModifiers();
       Class<?>[] parameterTypes = method.getParameterTypes();
       return isPublic(mod) && !isStatic(mod) && parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]) &&
-          NextState.class.equals(method.getReturnType());
+          NextAction.class.equals(method.getReturnType());
     }
   }
 }

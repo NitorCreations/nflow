@@ -1,12 +1,12 @@
 package com.nitorcreations.nflow.tests.demo;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -45,15 +45,15 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     permit(State.process, State.done);
   }
 
-  public NextState start(StateExecution execution) {
+  public NextAction start(StateExecution execution) {
     return moveToState(State.process, "Go to process state");
   }
 
-  public NextState process(StateExecution execution) {
+  public NextAction process(StateExecution execution) {
     return moveToState(State.done, "Go to done state");
   }
 
-  public NextState done(StateExecution execution) {
+  public NextAction done(StateExecution execution) {
     return stopInState(State.done, "Finished in done state");
   }
 }

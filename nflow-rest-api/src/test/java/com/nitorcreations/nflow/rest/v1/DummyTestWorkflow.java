@@ -1,14 +1,14 @@
 package com.nitorcreations.nflow.rest.v1;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextState.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.start;
 
 import org.springframework.core.env.Environment;
 
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
@@ -55,15 +55,15 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
     permit(error, end);
   }
 
-  public NextState start(StateExecution execution) {
+  public NextAction start(StateExecution execution) {
     return moveToState(end, "Go to end state");
   }
 
-  public NextState error(StateExecution execution) {
+  public NextAction error(StateExecution execution) {
     return stopInState(error, "Finished in error state");
   }
 
-  public NextState end(StateExecution execution) {
+  public NextAction end(StateExecution execution) {
     return stopInState(end, "Finished in end state");
   }
 

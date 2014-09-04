@@ -113,7 +113,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   void requireStateMethodExists(S state) {
     if (!stateMethods.containsKey(state.name()) && isStateMethodObligatory(state)) {
-      String msg = format("Class '%s' is missing state handling method 'public NextState %s(StateExecution execution, ... args)'",
+      String msg = format("Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'",
           this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }

@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nitorcreations.nflow.engine.workflow.definition.NextState;
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 
@@ -20,14 +20,14 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
   }
 
   @Override
-  protected NextState update(StateExecution execution, String state) {
+  protected NextAction update(StateExecution execution, String state) {
     Random random = new Random();
     if (random.nextDouble() < ERROR_FRACTION / 2.0) {
       logger.info("Generating error at state {} before new state is set", state);
       throw new RuntimeException("error at state " + state
           + " before new state is set");
     }
-    NextState nextState = super.update(execution, state);
+    NextAction nextState = super.update(execution, state);
     if (random.nextDouble() < ERROR_FRACTION / 2.0) {
       logger.info("Generating error at state {} after new state is set", state);
       throw new RuntimeException("error at state " + state + " after new state is set");
