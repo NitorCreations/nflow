@@ -14,7 +14,7 @@ public class StateExecutionImpl implements StateExecution {
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
-  private boolean failure = false;
+  private boolean isRetry = false;
   private boolean saveTrace = true;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
@@ -98,12 +98,11 @@ public class StateExecutionImpl implements StateExecution {
     this.saveTrace = saveTrace;
   }
 
-  @Override
-  public boolean isFailure() {
-    return failure;
+  public boolean isRetry() {
+    return isRetry;
   }
 
-  public void setFailure(boolean failure) {
-    this.failure = failure;
+  public void setRetry(boolean isRetry) {
+    this.isRetry = isRetry;
   }
 }

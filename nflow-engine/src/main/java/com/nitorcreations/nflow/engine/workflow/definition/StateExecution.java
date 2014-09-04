@@ -6,7 +6,6 @@ public interface StateExecution {
   String getBusinessKey();
 
   int getRetries();
-  boolean isFailure();
 
   String getVariable(String name);
   <T> T getVariable(String name, Class<T> type);

@@ -85,7 +85,7 @@ class WorkflowExecutor implements Runnable {
         processAfterListeners(listenerContext);
       } catch (Throwable ex) {
         logger.error("Handler threw exception, trying again later", ex);
-        execution.setFailure(true);
+        execution.setRetry(true);
         execution.setNextState(state);
         execution.setNextStateReason(ex.toString());
         definition.handleRetry(execution);
@@ -124,12 +124,9 @@ class WorkflowExecutor implements Runnable {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setProcessing(isNextActivationImmediately(execution))
-      .setStateText(execution.getNextStateReason());
-    if (execution.isFailure()) {
-      builder.setRetries(execution.getRetries() + 1);
-    } else {
-      builder.setState(execution.getNextState()).setRetries(0);
-    }
+      .setStateText(execution.getNextStateReason())
+      .setState(execution.getNextState())
+      .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
     workflowInstances.updateWorkflowInstance(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
@@ -142,16 +139,24 @@ class WorkflowExecutor implements Runnable {
   private NextAction processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     Object[] args = objectMapper.createArguments(execution, method);
-    NextAction nextAction = (NextAction) invokeMethod(method.method, definition, args);
-    if (nextAction == null || (nextAction.getNextState() == null && !nextAction.isFailure())) {
-      logger.error("State handler method '{}' returned null for next action or state, proceeding to error state '{}'",
-          method.method, definition.getErrorState());
-      nextAction = moveToState(definition.getErrorState(), "Next action or state was null");
+    NextAction nextAction;
+    try {
+      nextAction = (NextAction) invokeMethod(method.method, definition, args);
+    } catch (InvalidNextActionException e) {
+      logger.error("State '" + instance.state
+          + "' handler method failed to create valid next action, proceeding to error state '"
+          + definition.getErrorState().name() + "'", e);
+      nextAction = moveToState(definition.getErrorState(), e.getMessage());
     }
-    execution.setFailure(nextAction.isFailure());
+    if (nextAction == null) {
+      logger.error("State '{}' handler method returned null, proceeding to error state '{}'",
+          instance.state, definition.getErrorState().name());
+      nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+    }
     execution.setNextActivation(nextAction.getActivation());
-    if (nextAction.isFailure()) {
+    if (nextAction.getNextState() == null) {
       execution.setNextState(definition.getState(instance.state));
+      execution.setRetry(true);
     } else {
       execution.setNextState(nextAction.getNextState());
     }

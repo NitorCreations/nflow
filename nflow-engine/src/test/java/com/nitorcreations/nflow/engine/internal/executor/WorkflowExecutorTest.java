@@ -1,8 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToStateWithActivation;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.retryAt;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -372,7 +372,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
-      return moveToStateWithActivation(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
+      return moveToStateAfter(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
     }
 
     public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
@@ -439,7 +439,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public NextAction retryingState(StateExecution execution) {
-      return retryAt(now().plusYears(1), "Retrying");
+      return retryAfter(now().plusYears(1), "Retrying");
     }
 
     public NextAction processReturnNullNextState(StateExecution execution) {
