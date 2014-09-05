@@ -23,6 +23,9 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
+/**
+ * Service for managing workflow definitions.
+ */
 @Component
 public class WorkflowDefinitionService {
 
@@ -36,6 +39,9 @@ public class WorkflowDefinitionService {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
   }
 
+  /**
+   * Add given workflow definitions to the managed definitions.
+   */
   @Autowired(required=false)
   public void setWorkflowDefinitions(Collection<WorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
     for (WorkflowDefinition<? extends WorkflowState> wd : workflowDefinitions) {
@@ -43,14 +49,25 @@ public class WorkflowDefinitionService {
     }
   }
 
+  /**
+   * Return the workflow definition that matches the give workflow type name.
+   * @return The workflow definition or null if not found.
+   */
   public WorkflowDefinition<?> getWorkflowDefinition(String type) {
     return workflowDefitions.get(type);
   }
 
+  /**
+   * Return all managed workflow definitions.
+   * @return
+   */
   public List<WorkflowDefinition<? extends WorkflowState>> getWorkflowDefinitions() {
     return new ArrayList<>(workflowDefitions.values());
   }
 
+  /**
+   * Add workflow definitions from the nflowNonSpringWorkflowsListing resource.
+   */
   @PostConstruct
   public void initNonSpringWorkflowDefinitions() throws Exception {
     if (nonSpringWorkflowsListing == null) {
@@ -76,5 +93,4 @@ public class WorkflowDefinitionService {
     }
     logger.info("Added workflow type: {} ({})",  wd.getType(), wd.getClass().getName());
   }
-
 }
