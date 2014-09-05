@@ -174,7 +174,11 @@ class WorkflowExecutor implements Runnable {
 
   private void processBeforeListeners(ListenerContext listenerContext) {
     for (WorkflowExecutorListener listener : executorListeners) {
-      listener.beforeProcessing(listenerContext);
+      try {
+        listener.beforeProcessing(listenerContext);
+      } catch (Throwable t) {
+        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing", t);
+      }
     }
   }
 

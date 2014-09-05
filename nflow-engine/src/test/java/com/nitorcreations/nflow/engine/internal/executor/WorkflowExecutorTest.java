@@ -184,6 +184,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
         .setState("retryingState").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    doThrow(RuntimeException.class).when(listener1).beforeProcessing(any(ListenerContext.class));
     doThrow(RuntimeException.class).when(listener1).afterProcessing(any(ListenerContext.class));
 
     executor.run();
@@ -191,9 +192,27 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
-    verify(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
-    assertThat(update.getValue(), matchesWorkflowInstance(FailingTestWorkflow.State.retryingState, 1, false, is(notNullValue(DateTime.class))));
-    assertThat(action.getValue(), matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, 0));
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(
+            FailingTestWorkflow.State.retryingState, 1, false)), any(WorkflowInstanceAction.class));
+  }
+
+  @Test
+  public void continueProcessingWhenAfterFailureListenerThrowsException() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("start").build();
+    when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    doThrow(RuntimeException.class).when(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
+
+    executor.run();
+
+    verify(listener1).beforeProcessing(any(ListenerContext.class));
+    verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
+    verifyNoMoreInteractions(listener1);
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(
+            FailingTestWorkflow.State.start, 1, false)), any(WorkflowInstanceAction.class));
   }
 
   @Test
