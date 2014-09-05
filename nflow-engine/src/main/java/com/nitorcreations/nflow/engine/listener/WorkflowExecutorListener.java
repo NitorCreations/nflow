@@ -51,15 +51,21 @@ public interface WorkflowExecutorListener {
     }
   }
 
-  /** Executed before state is processed. */
+  /**
+   * Executed before state is processed. Exceptions are logged but they do not
+   * affect workflow processing.
+   */
   void beforeProcessing(ListenerContext listenerContext);
 
   /**
    * Executed after state has been successfully processed and before persisting
-   * state.
+   * state. Exceptions are logged but they do not affect workflow processing.
    */
   void afterProcessing(ListenerContext listenerContext);
 
-  /** Executed after state processing has failed and before persisting state. */
+  /**
+   * Executed after state processing has failed and before persisting state.
+   * Exceptions are logged but they do not affect workflow processing.
+   */
   void afterFailure(ListenerContext listenerContext, Throwable exeption);
 }
