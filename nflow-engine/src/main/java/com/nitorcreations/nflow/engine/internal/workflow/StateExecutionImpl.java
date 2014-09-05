@@ -14,8 +14,10 @@ public class StateExecutionImpl implements StateExecution {
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
-  private boolean isRetry = false;
+  private boolean isRetry;
   private boolean saveTrace = true;
+  private Throwable thrown;
+  private boolean isFailed;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
     this.instance = instance;
@@ -104,5 +106,22 @@ public class StateExecutionImpl implements StateExecution {
 
   public void setRetry(boolean isRetry) {
     this.isRetry = isRetry;
+  }
+
+  public boolean isFailed() {
+    return isFailed;
+  }
+
+  public Throwable getThrown() {
+    return thrown;
+  }
+
+  public void setFailed() {
+    isFailed = true;
+  }
+
+  public void setFailed(Throwable t) {
+    isFailed = true;
+    thrown = t;
   }
 }

@@ -82,15 +82,19 @@ class WorkflowExecutor implements Runnable {
         if (listenerContext != null) {
           listenerContext.nextAction = nextAction;
         }
-        processAfterListeners(listenerContext);
-      } catch (Throwable ex) {
-        logger.error("Handler threw exception, trying again later", ex);
+      } catch (Throwable t) {
+        execution.setFailed(t);
+        logger.error("Handler threw exception, trying again later", t);
         execution.setRetry(true);
         execution.setNextState(state);
-        execution.setNextStateReason(ex.toString());
+        execution.setNextStateReason(t.toString());
         definition.handleRetry(execution);
-        processAfterFailureListeners(listenerContext, ex);
       } finally {
+        if (execution.isFailed()) {
+          processAfterFailureListeners(listenerContext, execution.getThrown());
+        } else {
+          processAfterListeners(listenerContext);
+        }
         subsequentStateExecutions = busyLoopPrevention(settings, subsequentStateExecutions, execution);
         instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
       }
@@ -147,11 +151,13 @@ class WorkflowExecutor implements Runnable {
           + "' handler method failed to create valid next action, proceeding to error state '"
           + definition.getErrorState().name() + "'", e);
       nextAction = moveToState(definition.getErrorState(), e.getMessage());
+      execution.setFailed(e);
     }
     if (nextAction == null) {
       logger.error("State '{}' handler method returned null, proceeding to error state '{}'",
           instance.state, definition.getErrorState().name());
       nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+      execution.setFailed();
     }
     execution.setNextActivation(nextAction.getActivation());
     if (nextAction.getNextState() == null) {
@@ -183,5 +189,4 @@ class WorkflowExecutor implements Runnable {
       listener.afterFailure(listenerContext, ex);
     }
   }
-
 }
