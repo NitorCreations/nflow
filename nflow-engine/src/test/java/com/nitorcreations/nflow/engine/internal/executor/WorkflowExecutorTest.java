@@ -16,6 +16,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -173,6 +174,26 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
     assertThat(instances.get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
     assertThat(actions.get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, 0));
+  }
+
+  @Test
+  public void continueProcessingWhenListenerThrowsException() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("retryingState").build();
+    when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    doThrow(RuntimeException.class).when(listener1).afterProcessing(any(ListenerContext.class));
+
+    executor.run();
+
+    verify(listener1).beforeProcessing(any(ListenerContext.class));
+    verify(listener1).afterProcessing(any(ListenerContext.class));
+    verifyNoMoreInteractions(listener1);
+    verify(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
+    assertThat(update.getValue(), matchesWorkflowInstance(FailingTestWorkflow.State.retryingState, 1, false, is(notNullValue(DateTime.class))));
+    assertThat(action.getValue(), matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, 0));
   }
 
   @Test
