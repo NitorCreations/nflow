@@ -16,6 +16,9 @@ import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowDefinitionScanner;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
 
+/**
+ * The base class for all workflow definitions.
+ */
 public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   private final String type;
@@ -43,48 +46,88 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     requireStateMethodExists(initialState);
   }
 
+  /**
+   * Return the name of the workflow.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Set the name of the workflow.
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Return the description of the workflow.
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Set the description of the workflow.
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
+  /**
+   * Return the type of the workflow.
+   */
   public String getType() {
     return type;
   }
 
+  /**
+   * Return the initial state of the workflow.
+   */
   public S getInitialState() {
     return initialState;
   }
 
+  /**
+   * Return the generic error state of the workflow.
+   */
   public S getErrorState() {
     return errorState;
   }
 
+  /**
+   * Return all possible states of the workflow.
+   */
   public abstract Set<S> getStates();
 
+  /**
+   * Return allowed transitions between the states of the workflow.
+   */
   public Map<String, List<String>> getAllowedTransitions() {
     return new LinkedHashMap<>(allowedTransitions);
   }
 
+  /**
+   * Return allowed failure transitions between the states of the workflow.
+   */
   public Map<String, WorkflowState> getFailureTransitions() {
     return new LinkedHashMap<>(failureTransitions);
   }
 
+  /**
+   * Add a state transition to the allowed transitions.
+   *
+   * @return This.
+   */
   protected AbstractWorkflowDefinition<S> permit(S originState, S targetState) {
     return permit(originState, targetState, null);
   }
 
+  /**
+   * Add a failure transition to the allowed failure transitions.
+   *
+   * @return This.
+   */
   protected AbstractWorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
     requireStateMethodExists(originState);
     requireStateMethodExists(targetState);
@@ -103,6 +146,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     return allowedTransitions.get(state.name());
   }
 
+  /**
+   * Return the workflow settings.
+   */
   public WorkflowSettings getSettings() {
     return settings;
   }
@@ -113,12 +159,21 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   void requireStateMethodExists(S state) {
     if (!stateMethods.containsKey(state.name()) && isStateMethodObligatory(state)) {
-      String msg = format("Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'",
-          this.getClass().getName(), state.name());
+      String msg = format(
+          "Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'", this
+              .getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }
   }
 
+  /**
+   * Handle retries for the state execution. The default implementation moves
+   * the workflow to a failure state after the maximum retry attempts is
+   * exceeded. If there is no failure state defined for the retried state, moves
+   * the workflow to the generic error state. If the maximum retry attempts is
+   * not exceeded, schedules the next attempt for the state based on workflow
+   * settings.
+   */
   public void handleRetry(StateExecutionImpl execution) {
     if (execution.getRetries() >= getSettings().getMaxRetries()) {
       execution.setRetry(false);
@@ -137,10 +192,19 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     }
   }
 
+  /**
+   * Returns the workflow state method for the given state name.
+   * @return The workflow state method, or null if not found.
+   */
   public WorkflowStateMethod getMethod(String stateName) {
     return stateMethods.get(stateName);
   }
 
+  /**
+   * Returns the workflow state for the given state name.
+   * @return The workflos state matching the state name.
+   * @throws IllegalStateException when a matching state can not be found.
+   */
   public WorkflowState getState(String state) {
     for (WorkflowState s : getStates()) {
       if (state.equals(s.getName())) {
@@ -150,8 +214,11 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     throw new IllegalStateException("No state '" + state + "' in workflow definiton " + getType());
   }
 
+  /**
+   * Returns true if the given state is a valid start state, or false otherwise.
+   * @throws IllegalStateException if the given state name does not match any state.
+   */
   public boolean isStartState(String state) {
     return getState(state).getType() == WorkflowStateType.start;
   }
-
 }
