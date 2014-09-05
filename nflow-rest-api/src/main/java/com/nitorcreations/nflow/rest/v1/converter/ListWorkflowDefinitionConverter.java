@@ -11,9 +11,9 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import com.nitorcreations.nflow.rest.v1.msg.State;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Settings;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.TransitionDelays;
+import com.nitorcreations.nflow.rest.v1.msg.State;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -38,9 +38,9 @@ public class ListWorkflowDefinitionConverter {
         state.transitions.add(targetState);
       }
     }
-    for (Entry<String,String> entry : definition.getFailureTransitions().entrySet()) {
+    for (Entry<String, WorkflowState> entry : definition.getFailureTransitions().entrySet()) {
       State state = states.get(entry.getKey());
-      state.onFailure = entry.getValue();
+      state.onFailure = entry.getValue().name();
     }
     resp.states = states.values().toArray(new State[states.values().size()]);
 

@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.workflow.definition;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -24,7 +25,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   private final S errorState;
   private final WorkflowSettings settings;
   protected final Map<String, List<String>> allowedTransitions = new LinkedHashMap<>();
-  protected final Map<String, String> failureTransitions = new LinkedHashMap<>();
+  protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState) {
@@ -76,7 +77,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     return new LinkedHashMap<>(allowedTransitions);
   }
 
-  public Map<String, String> getFailureTransitions() {
+  public Map<String, WorkflowState> getFailureTransitions() {
     return new LinkedHashMap<>(failureTransitions);
   }
 
@@ -90,7 +91,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     allowedTransitionsFor(originState).add(targetState.name());
     if (failureState != null) {
       requireStateMethodExists(failureState);
-      failureTransitions.put(originState.name(), failureState.name());
+      failureTransitions.put(originState.name(), failureState);
     }
     return this;
   }
@@ -112,20 +113,24 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   void requireStateMethodExists(S state) {
     if (!stateMethods.containsKey(state.name()) && isStateMethodObligatory(state)) {
-      String msg = String.format("Class %s is missing state handling method %s(StateExecution execution, ... args)", this.getClass().getName(), state.name());
+      String msg = format("Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'",
+          this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }
   }
 
   public void handleRetry(StateExecutionImpl execution) {
     if (execution.getRetries() >= getSettings().getMaxRetries()) {
-      String failureState = failureTransitions.get(execution.getCurrentStateName());
+      execution.setRetry(false);
+      WorkflowState failureState = failureTransitions.get(execution.getCurrentStateName());
       if (failureState != null) {
-        execution.setNextState(failureState, "Max retry count exceeded", getSettings().getErrorTransitionActivation());
-        execution.setFailure(false);
+        execution.setNextState(failureState);
+        execution.setNextStateReason("Max retry count exceeded");
+        execution.setNextActivation(getSettings().getErrorTransitionActivation());
       } else {
-        execution.setNextState(errorState, "Max retry count exceeded, no failure state defined", null);
-        execution.setFailure(false);
+        execution.setNextState(errorState);
+        execution.setNextStateReason("Max retry count exceeded, no failure state defined");
+        execution.setNextActivation(null);
       }
     } else {
       execution.setNextActivation(getSettings().getErrorTransitionActivation());

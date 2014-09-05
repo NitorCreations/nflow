@@ -1,12 +1,15 @@
 package com.nitorcreations.nflow.tests.demo;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
+
 import java.util.Locale;
 import java.util.Random;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
@@ -89,127 +92,126 @@ public class WordGeneratorWorkflow extends
     return State.values()[State.values().length - 1];
   }
 
-  public void error(StateExecution execution) {
-    execution.setNextState(State.error);
+  public NextAction error(StateExecution execution) {
     logger.error("Finished with error");
+    return stopInState(State.error, "Finished in error state");
   }
 
-  public void end(StateExecution execution) {
-    execution.setNextState(State.end);
+  public NextAction end(StateExecution execution) {
     logger.info("Finished word: {}", execution.getVariable("word", "").toUpperCase(Locale.GERMAN));
+    return stopInState(State.end, "Finished in end state");
   }
 
-  protected void update(StateExecution execution, String state) {
+  protected NextAction update(StateExecution execution, String state) {
     State newState = randState();
     logger.info("{}->{}", state, newState.name());
     String word = execution.getVariable("word", "");
     execution.setVariable("word", word + state);
-    execution.setNextState(newState);
-    execution.setNextActivation(DateTime.now());
+    return moveToState(newState, "Go to state " + newState);
   }
 
-  public void a(StateExecution execution) {
-    update(execution, "a");
+  public NextAction a(StateExecution execution) {
+    return update(execution, "a");
   }
 
-  public void b(StateExecution execution) {
-    update(execution, "b");
+  public NextAction b(StateExecution execution) {
+    return update(execution, "b");
   }
 
-  public void c(StateExecution execution) {
-    update(execution, "c");
+  public NextAction c(StateExecution execution) {
+    return update(execution, "c");
   }
 
-  public void d(StateExecution execution) {
-    update(execution, "d");
+  public NextAction d(StateExecution execution) {
+    return update(execution, "d");
   }
 
-  public void e(StateExecution execution) {
-    update(execution, "e");
+  public NextAction e(StateExecution execution) {
+    return update(execution, "e");
   }
 
-  public void f(StateExecution execution) {
-    update(execution, "f");
+  public NextAction f(StateExecution execution) {
+    return update(execution, "f");
   }
 
-  public void g(StateExecution execution) {
-    update(execution, "g");
+  public NextAction g(StateExecution execution) {
+    return update(execution, "g");
   }
 
-  public void h(StateExecution execution) {
-    update(execution, "h");
+  public NextAction h(StateExecution execution) {
+    return update(execution, "h");
   }
 
-  public void i(StateExecution execution) {
-    update(execution, "i");
+  public NextAction i(StateExecution execution) {
+    return update(execution, "i");
   }
 
-  public void j(StateExecution execution) {
-    update(execution, "j");
+  public NextAction j(StateExecution execution) {
+    return update(execution, "j");
   }
 
-  public void k(StateExecution execution) {
-    update(execution, "k");
+  public NextAction k(StateExecution execution) {
+    return update(execution, "k");
   }
 
-  public void l(StateExecution execution) {
-    update(execution, "l");
+  public NextAction l(StateExecution execution) {
+    return update(execution, "l");
   }
 
-  public void m(StateExecution execution) {
-    update(execution, "m");
+  public NextAction m(StateExecution execution) {
+    return update(execution, "m");
   }
 
-  public void n(StateExecution execution) {
-    update(execution, "n");
+  public NextAction n(StateExecution execution) {
+    return update(execution, "n");
   }
 
-  public void o(StateExecution execution) {
-    update(execution, "o");
+  public NextAction o(StateExecution execution) {
+    return update(execution, "o");
   }
 
-  public void p(StateExecution execution) {
-    update(execution, "p");
+  public NextAction p(StateExecution execution) {
+    return update(execution, "p");
   }
 
-  public void q(StateExecution execution) {
-    update(execution, "q");
+  public NextAction q(StateExecution execution) {
+    return update(execution, "q");
   }
 
-  public void r(StateExecution execution) {
-    update(execution, "r");
+  public NextAction r(StateExecution execution) {
+    return update(execution, "r");
   }
 
-  public void s(StateExecution execution) {
-    update(execution, "s");
+  public NextAction s(StateExecution execution) {
+    return update(execution, "s");
   }
 
-  public void t(StateExecution execution) {
-    update(execution, "t");
+  public NextAction t(StateExecution execution) {
+    return update(execution, "t");
   }
 
-  public void u(StateExecution execution) {
-    update(execution, "u");
+  public NextAction u(StateExecution execution) {
+    return update(execution, "u");
   }
 
-  public void v(StateExecution execution) {
-    update(execution, "v");
+  public NextAction v(StateExecution execution) {
+    return update(execution, "v");
   }
 
-  public void w(StateExecution execution) {
-    update(execution, "w");
+  public NextAction w(StateExecution execution) {
+    return update(execution, "w");
   }
 
-  public void x(StateExecution execution) {
-    update(execution, "x");
+  public NextAction x(StateExecution execution) {
+    return update(execution, "x");
   }
 
-  public void y(StateExecution execution) {
-    update(execution, "y");
+  public NextAction y(StateExecution execution) {
+    return update(execution, "y");
   }
 
-  public void z(StateExecution execution) {
-    update(execution, "z");
+  public NextAction z(StateExecution execution) {
+    return update(execution, "z");
   }
 
 }

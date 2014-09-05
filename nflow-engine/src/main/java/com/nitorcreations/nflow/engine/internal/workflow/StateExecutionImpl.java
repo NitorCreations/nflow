@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
 import org.joda.time.DateTime;
+import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -13,8 +14,10 @@ public class StateExecutionImpl implements StateExecution {
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
-  private boolean failure = false;
+  private boolean isRetry;
   private boolean saveTrace = true;
+  private Throwable thrown;
+  private boolean isFailed;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
     this.instance = instance;
@@ -27,12 +30,6 @@ public class StateExecutionImpl implements StateExecution {
 
   public String getNextState() {
     return this.nextState;
-  }
-
-  public void setNextState(String state, String reason, DateTime activation) {
-    this.nextState = state;
-    this.nextStateReason = reason;
-    this.nextActivation = activation;
   }
 
   public String getNextStateReason() {
@@ -86,39 +83,45 @@ public class StateExecutionImpl implements StateExecution {
     setVariable(name, objectMapper.convertFromObject(name, value));
   }
 
-  @Override
   public void setNextActivation(DateTime activation) {
     this.nextActivation = activation;
   }
 
-  @Override
   public void setNextState(WorkflowState state) {
-    this.nextState = state != null ? state.name() : null;
+    Assert.notNull(state, "Next state can not be null");
+    this.nextState = state.name();
   }
 
-  @Override
   public void setNextStateReason(String reason) {
     this.nextStateReason = reason;
   }
 
-  @Override
-  public void setNextState(WorkflowState state, String reason, DateTime activation) {
-    setNextState(state != null ? state.name() : null, reason, activation);
-  }
-
-  @Override
   public void setSaveTrace(boolean saveTrace) {
     this.saveTrace = saveTrace;
   }
 
-  @Override
-  public boolean isFailure() {
-    return failure;
+  public boolean isRetry() {
+    return isRetry;
   }
 
-  @Override
-  public void setFailure(boolean failure) {
-    this.failure = failure;
+  public void setRetry(boolean isRetry) {
+    this.isRetry = isRetry;
   }
 
+  public boolean isFailed() {
+    return isFailed;
+  }
+
+  public Throwable getThrown() {
+    return thrown;
+  }
+
+  public void setFailed() {
+    isFailed = true;
+  }
+
+  public void setFailed(Throwable t) {
+    isFailed = true;
+    thrown = t;
+  }
 }

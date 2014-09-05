@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,13 +54,17 @@ public class WorkflowDefinitionTest {
   @Test
   public void handleRetryMaxRetriesExceededHaveFailureState() {
     StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.start);
-    verify(execution).setNextState(eq(TestState.error.name()), any(String.class), any(DateTime.class));
+    verify(execution).setNextState(TestState.error);
+    verify(execution).setNextStateReason(any(String.class));
+    verify(execution).setNextActivation(any(DateTime.class));
   }
 
   @Test
   public void handleRetryMaxRetriesExceededNotHaveFailureState() {
     StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.notfound);
-    verify(execution).setNextState(eq(TestState.notfound), any(String.class), isNull(DateTime.class));
+    verify(execution).setNextState(TestState.notfound);
+    verify(execution).setNextStateReason(any(String.class));
+    verify(execution).setNextActivation(eq((DateTime) null));
   }
 
   private StateExecutionImpl handleRetryMaxRetriesExceeded(TestState currentState) {
@@ -106,8 +109,8 @@ public class WorkflowDefinitionTest {
     TestDefinition workflow = new TestDefinition("x", TestState.start);
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Class " + workflow.getClass().getName() +
-        " is missing state handling method notfound(StateExecution execution, ... args)");
+    thrown.expectMessage("Class '" + workflow.getClass().getName() +
+        "' is missing state handling method 'public NextAction notfound(StateExecution execution, ... args)'");
 
     workflow.permit(TestState.start, TestState.done, TestState.notfound);
   }
@@ -118,7 +121,7 @@ public class WorkflowDefinitionTest {
     assertEquals(asList(TestDefinitionWithStateTypes.State.done.name(),
         TestDefinitionWithStateTypes.State.state1.name(), TestDefinitionWithStateTypes.State.state2.name()),
         def.getAllowedTransitions().get(TestDefinitionWithStateTypes.State.initial.name()));
-    assertEquals(TestDefinitionWithStateTypes.State.error.name(), def.getFailureTransitions().get(TestDefinitionWithStateTypes.State.initial.name()));
+    assertEquals(TestDefinitionWithStateTypes.State.error, def.getFailureTransitions().get(TestDefinitionWithStateTypes.State.initial.name()));
   }
 
   @Test
@@ -163,9 +166,9 @@ public class WorkflowDefinitionTest {
       permit(TestState.start, TestState.done, TestState.error);
     }
 
-    public void start(StateExecution execution) { }
-    public void done(StateExecution execution) { }
-    public void error(StateExecution execution) { }
+    public NextAction start(StateExecution execution) { return null; }
+    public NextAction done(StateExecution execution) { return null; }
+    public NextAction error(StateExecution execution) { return null; }
 
   }
 

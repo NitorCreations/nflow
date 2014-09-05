@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -34,6 +35,7 @@ public interface WorkflowExecutorListener {
     public final String originalState;
     public final WorkflowInstance instance;
     public final StateExecution stateExecution;
+    public NextAction nextAction = null;
     /**
      * Stateless listeners can use data to pass information between listener
      * stages.
@@ -49,15 +51,21 @@ public interface WorkflowExecutorListener {
     }
   }
 
-  /** Executed before state is processed. */
+  /**
+   * Executed before state is processed. Exceptions are logged but they do not
+   * affect workflow processing.
+   */
   void beforeProcessing(ListenerContext listenerContext);
 
   /**
    * Executed after state has been successfully processed and before persisting
-   * state.
+   * state. Exceptions are logged but they do not affect workflow processing.
    */
   void afterProcessing(ListenerContext listenerContext);
 
-  /** Executed after state processing has failed and before persisting state. */
+  /**
+   * Executed after state processing has failed and before persisting state.
+   * Exceptions are logged but they do not affect workflow processing.
+   */
   void afterFailure(ListenerContext listenerContext, Throwable exeption);
 }
