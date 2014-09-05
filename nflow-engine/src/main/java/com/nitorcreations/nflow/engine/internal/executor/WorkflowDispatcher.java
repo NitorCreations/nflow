@@ -59,7 +59,7 @@ public class WorkflowDispatcher implements Runnable {
           sleep(true);
         } catch (InterruptedException dropThrough) {
         } catch (Exception e) {
-          logger.error("Exception in executing dispatcher - retrying after sleep period.", e);
+          logger.error("Exception in executing dispatcher - retrying after sleep period (" + e.getMessage() + ")", e);
           sleep(false);
         }
       }

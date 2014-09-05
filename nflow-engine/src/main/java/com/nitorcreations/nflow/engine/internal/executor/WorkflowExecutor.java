@@ -51,7 +51,7 @@ class WorkflowExecutor implements Runnable {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
       runImpl();
     } catch (Throwable ex) {
-      logger.error("Totally unexpected failure (e.g. deadlock) occurred.", ex);
+      logger.error("Totally unexpected failure (e.g. deadlock) occurred (" + ex.getMessage() + ")", ex);
     } finally {
       MDC.remove(MDC_KEY);
     }
@@ -84,7 +84,7 @@ class WorkflowExecutor implements Runnable {
         }
       } catch (Throwable t) {
         execution.setFailed(t);
-        logger.error("Handler threw exception, trying again later", t);
+        logger.error("Handler threw exception, trying again later (" + t.getMessage() + ")", t);
         execution.setRetry(true);
         execution.setNextState(state);
         execution.setNextStateReason(t.toString());
@@ -177,7 +177,7 @@ class WorkflowExecutor implements Runnable {
       try {
         listener.beforeProcessing(listenerContext);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing", t);
+        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing (" + t.getMessage() + ")", t);
       }
     }
   }
@@ -187,7 +187,7 @@ class WorkflowExecutor implements Runnable {
       try {
         listener.afterProcessing(listenerContext);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterProcessing", t);
+        logger.error("Error in " + listener.getClass().getName() + ".afterProcessing (" + t.getMessage() + ")", t);
       }
     }
   }
@@ -197,7 +197,7 @@ class WorkflowExecutor implements Runnable {
       try {
         listener.afterFailure(listenerContext, ex);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterFailure", t);
+        logger.error("Error in " + listener.getClass().getName() + ".afterFailure (" + t.getMessage() + ")", t);
       }
     }
   }
