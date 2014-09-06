@@ -80,18 +80,22 @@ public interface WorkflowExecutorListener {
   /**
    * Executed before state is processed. Exceptions are logged but they do not
    * affect workflow processing.
+   * @param listenerContext The listener context.
    */
   void beforeProcessing(ListenerContext listenerContext);
 
   /**
    * Executed after state has been successfully processed and before persisting
    * state. Exceptions are logged but they do not affect workflow processing.
+   * @param listenerContext The listener context.
    */
   void afterProcessing(ListenerContext listenerContext);
 
   /**
    * Executed after state processing has failed and before persisting state.
    * Exceptions are logged but they do not affect workflow processing.
+   * @param listenerContext The listener context.
+   * @param throwable The exception thrown by the state handler method.
    */
-  void afterFailure(ListenerContext listenerContext, Throwable exeption);
+  void afterFailure(ListenerContext listenerContext, Throwable throwable);
 }

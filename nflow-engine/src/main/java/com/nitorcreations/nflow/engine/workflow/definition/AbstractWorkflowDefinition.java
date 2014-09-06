@@ -48,6 +48,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return the name of the workflow.
+   * @return The name.
    */
   public String getName() {
     return name;
@@ -55,6 +56,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Set the name of the workflow.
+   * @param name The name.
    */
   public void setName(String name) {
     this.name = name;
@@ -62,6 +64,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return the description of the workflow.
+   * @return The description.
    */
   public String getDescription() {
     return description;
@@ -69,6 +72,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Set the description of the workflow.
+   * @param description The description.
    */
   public void setDescription(String description) {
     this.description = description;
@@ -76,6 +80,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return the type of the workflow.
+   * @return The type.
    */
   public String getType() {
     return type;
@@ -83,6 +88,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return the initial state of the workflow.
+   * @return Workflow state.
    */
   public S getInitialState() {
     return initialState;
@@ -90,6 +96,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return the generic error state of the workflow.
+   * @return Workflow state.
    */
   public S getErrorState() {
     return errorState;
@@ -97,18 +104,21 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return all possible states of the workflow.
+   * @return Set of workflow states.
    */
   public abstract Set<S> getStates();
 
   /**
    * Return allowed transitions between the states of the workflow.
+   * @return Map from origin states to a list of target states.
    */
   public Map<String, List<String>> getAllowedTransitions() {
     return new LinkedHashMap<>(allowedTransitions);
   }
 
   /**
-   * Return allowed failure transitions between the states of the workflow.
+   * Return transitions from states to failure states.
+   * @return Map from origin state to failure state.
    */
   public Map<String, WorkflowState> getFailureTransitions() {
     return new LinkedHashMap<>(failureTransitions);
@@ -116,27 +126,31 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Add a state transition to the allowed transitions.
-   *
+   * @param originState The origin state.
+   * @param targetState The target state.
    * @return This.
    */
   protected AbstractWorkflowDefinition<S> permit(S originState, S targetState) {
-    return permit(originState, targetState, null);
-  }
-
-  /**
-   * Add a failure transition to the allowed failure transitions.
-   *
-   * @return This.
-   */
-  protected AbstractWorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
     requireStateMethodExists(originState);
     requireStateMethodExists(targetState);
     allowedTransitionsFor(originState).add(targetState.name());
-    if (failureState != null) {
-      requireStateMethodExists(failureState);
-      failureTransitions.put(originState.name(), failureState);
-    }
     return this;
+  }
+
+  /**
+   * Add a state and failure state transitions to the allowed transitions.
+   * If this method is called multiple times for the same origin state,
+   * the last failure state will be effective.
+   * @param originState The origin state.
+   * @param targetState The target state.
+   * @param failureState The failure state.
+   * @return This.
+   */
+  protected AbstractWorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
+    Assert.notNull(failureState, "Failure state can not be null");
+    requireStateMethodExists(failureState);
+    failureTransitions.put(originState.name(), failureState);
+    return permit(originState, targetState);
   }
 
   private List<String> allowedTransitionsFor(S state) {
@@ -148,6 +162,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Return the workflow settings.
+   * @return Workflow settings.
    */
   public WorkflowSettings getSettings() {
     return settings;
@@ -173,6 +188,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
    * the workflow to the generic error state. If the maximum retry attempts is
    * not exceeded, schedules the next attempt for the state based on workflow
    * settings.
+   * @param execution State execution information.
    */
   public void handleRetry(StateExecutionImpl execution) {
     if (execution.getRetries() >= getSettings().getMaxRetries()) {
@@ -194,6 +210,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Returns the workflow state method for the given state name.
+   * @param stateName The name of the workflow state.
    * @return The workflow state method, or null if not found.
    */
   public WorkflowStateMethod getMethod(String stateName) {
@@ -202,6 +219,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Returns the workflow state for the given state name.
+   * @param state The name of the workflow state.
    * @return The workflos state matching the state name.
    * @throws IllegalStateException when a matching state can not be found.
    */
@@ -215,7 +233,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   }
 
   /**
-   * Returns true if the given state is a valid start state, or false otherwise.
+   * Check if the given state is a valid start state.
+   * @param state The name of the workflow state.
+   * @return True if the given state is a valid start date, false otherwise.
    * @throws IllegalStateException if the given state name does not match any state.
    */
   public boolean isStartState(String state) {
