@@ -1,5 +1,7 @@
 # nFlow [![Build Status](https://travis-ci.org/NitorCreations/nflow.svg?branch=master)](https://travis-ci.org/NitorCreations/nflow) [![Coverage Status](https://img.shields.io/coveralls/NitorCreations/nflow.svg)](https://coveralls.io/r/NitorCreations/nflow?branch=master)
 
+[![Logo](https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo.png)]
+
 nFlow is a light weight business process engine with emphasis on the following goals or features.
 
 * **Conciseness:** effort put on making the writing the workflow definitions easy
