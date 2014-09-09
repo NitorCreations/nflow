@@ -74,6 +74,14 @@ public class NflowServerRule extends ExternalResource {
     return (String) props.get("nflow.executor.group");
   }
 
+  public void stopServer() {
+    stopJetty();
+  }
+
+  public void startServer() throws Exception {
+    startJetty();
+  }
+
   @Override
   public Statement apply(Statement base, Description description) {
     if (!props.containsKey("nflow.executor.group")) {
@@ -85,18 +93,27 @@ public class NflowServerRule extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
+    startJetty();
+  }
+
+  @Override
+  protected void after() {
+    stopJetty();
+  }
+
+  private void startJetty() throws Exception {
     nflowJetty = new StartNflow().startJetty(port.get(), env, profiles, props);
     assertTrue("Jetty did not start", nflowJetty.isStarted());
     port.set(nflowJetty.getPort());
   }
 
-  @Override
-  protected void after() {
+  private void stopJetty() {
     try {
-      nflowJetty.setStopTimeout(100);
+      nflowJetty.setStopTimeout(10000);
       nflowJetty.stop();
     } catch (Exception e) {
       e.printStackTrace();
     }
+    assertTrue("Jetty did not stop", nflowJetty.isStopped());
   }
 }
