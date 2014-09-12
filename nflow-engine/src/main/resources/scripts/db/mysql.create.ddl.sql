@@ -2,7 +2,7 @@ create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
   type varchar(64) not null,
   business_key varchar(64),
-  external_id varchar(64),
+  external_id varchar(64) not null,
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamp(3) null,
