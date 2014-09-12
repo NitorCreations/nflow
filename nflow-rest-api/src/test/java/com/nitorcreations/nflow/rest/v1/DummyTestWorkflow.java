@@ -6,8 +6,6 @@ import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.start;
 
-import org.springframework.core.env.Environment;
-
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -49,7 +47,7 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
   }
 
   public DummyTestWorkflow() {
-    super("dummy", start, error, new DummyTestSettings(null));
+    super("dummy", start, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(300).setMaxErrorTransitionDelay(1000).setShortTransitionDelay(200).setImmediateTransitionDelay(100).setMaxRetries(10).build());
     permit(start, end, error);
     permit(start, error);
     permit(error, end);
@@ -66,33 +64,4 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
   public NextAction end(StateExecution execution) {
     return stopInState(end, "Finished in end state");
   }
-
-  public static class DummyTestSettings extends WorkflowSettings {
-
-    public DummyTestSettings(Environment env) {
-      super(env);
-    }
-
-    @Override
-    public int getErrorTransitionDelay() {
-      return 300;
-    }
-
-    @Override
-    public int getShortTransitionDelay() {
-      return 200;
-    }
-
-    @Override
-    public int getImmediateTransitionDelay() {
-      return 100;
-    }
-
-    @Override
-    public int getMaxRetries() {
-      return 10;
-    }
-
-  }
-
 }

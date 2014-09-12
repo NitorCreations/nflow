@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -29,7 +30,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   private Map<String, WorkflowStateMethod> stateMethods;
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState) {
-    this(type, initialState, errorState, new WorkflowSettings(null));
+    this(type, initialState, errorState, new WorkflowSettings.Builder().build());
   }
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
@@ -120,20 +121,20 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   }
 
   public void handleRetry(StateExecutionImpl execution) {
-    if (execution.getRetries() >= getSettings().getMaxRetries()) {
+    if (execution.getRetries() >= getSettings().maxRetries) {
       execution.setRetry(false);
       WorkflowState failureState = failureTransitions.get(execution.getCurrentStateName());
       if (failureState != null) {
         execution.setNextState(failureState);
         execution.setNextStateReason("Max retry count exceeded");
-        execution.setNextActivation(getSettings().getErrorTransitionActivation());
+        execution.setNextActivation(new DateTime());
       } else {
         execution.setNextState(errorState);
         execution.setNextStateReason("Max retry count exceeded, no failure state defined");
         execution.setNextActivation(null);
       }
     } else {
-      execution.setNextActivation(getSettings().getErrorTransitionActivation());
+      execution.setNextActivation(getSettings().getErrorTransitionActivation(execution.getRetries()));
     }
   }
 

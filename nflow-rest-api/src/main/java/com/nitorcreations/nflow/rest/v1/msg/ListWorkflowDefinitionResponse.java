@@ -49,8 +49,11 @@ public class ListWorkflowDefinitionResponse {
     @ApiModelProperty(value = "Short delay between transitions", required=true)
     public long waitShort;
 
-    @ApiModelProperty(value = "Maximum retries for a state before moving to failure", required=true)
-    public long waitError;
+    @ApiModelProperty(value = "First retry delay after failure", required=true)
+    public long minErrorWait;
+
+    @ApiModelProperty(value = "Maximum delay between failure retries", required=true)
+    public long maxErrorWait;
 
   }
 

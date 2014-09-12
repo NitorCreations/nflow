@@ -73,8 +73,9 @@ public class WordGeneratorWorkflow extends
   }
 
   public WordGeneratorWorkflow() {
-    this("wordGenerator", new WorkflowSettings(null));
+    this("wordGenerator", new WorkflowSettings.Builder().build());
   }
+
   protected static State randState() {
     Random random = new Random();
     double sum = 0;
