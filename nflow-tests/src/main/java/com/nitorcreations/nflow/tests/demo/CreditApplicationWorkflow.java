@@ -74,13 +74,13 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     permit(finishCreditApplication, done);
   }
 
-  public NextAction createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateIfNotExists=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     return moveToState(acceptCreditApplication, "Credit application created");
   }
 
-  public NextAction previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateIfNotExists=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     request.simulation = true;

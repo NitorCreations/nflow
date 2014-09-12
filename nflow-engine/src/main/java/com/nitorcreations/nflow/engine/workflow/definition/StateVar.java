@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 public @interface StateVar {
   public String value();
   boolean readOnly() default false;
-  boolean instantiateNull() default false;
+  boolean instantiateIfNotExists() default false;
 }
