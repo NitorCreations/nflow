@@ -10,7 +10,7 @@ create table if not exists nflow_workflow (
   retries int not null default 0,
   created timestamptz not null default current_timestamp,
   modified timestamptz not null default current_timestamp,
-  executor_group varchar(64),
+  executor_group varchar(64) not null,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
 

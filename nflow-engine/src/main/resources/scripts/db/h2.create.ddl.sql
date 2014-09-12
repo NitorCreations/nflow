@@ -10,7 +10,7 @@ create table if not exists nflow_workflow (
   retries int not null default 0,
   created timestamp not null default current_timestamp,
   modified timestamp not null default current_timestamp,
-  executor_group varchar(64)
+  executor_group varchar(64) not null
 );
 create trigger if not exists nflow_workflow_modified before update on nflow_workflow for each row call "com.nitorcreations.nflow.engine.internal.storage.db.H2ModifiedColumnTrigger";
 

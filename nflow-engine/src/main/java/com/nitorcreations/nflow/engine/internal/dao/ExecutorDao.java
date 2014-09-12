@@ -3,7 +3,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
-import static org.springframework.util.StringUtils.isEmpty;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -47,18 +46,14 @@ public class ExecutorDao {
   public ExecutorDao(@Named("nflowDatasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
     this.jdbc = new JdbcTemplate(dataSource);
-    this.executorGroup = trimToNull(env.getProperty("nflow.executor.group"));
+    this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
     keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
   }
 
   private static String createWhereCondition(String group) {
-    String groupCondition = "executor_group = '" + group + "'";
-    if (isEmpty(group)) {
-      groupCondition = "executor_group is null";
-    }
-    return groupCondition;
+    return "executor_group = '" + group + "'";
   }
 
   public void tick() {
