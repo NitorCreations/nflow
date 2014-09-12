@@ -1,4 +1,4 @@
-<img src="https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo.png" height="128" width="128" />
+<img src="https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo-no-borders.png" height="100" width="195" />
 
 nFlow is a light weight business process engine with emphasis on the following goals or features.
 
