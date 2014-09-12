@@ -91,10 +91,10 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("start").build();
+        .setState("start").setStateText("stateText").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(ExecuteTestWorkflow.State.process, 0, false)),
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(ExecuteTestWorkflow.State.process, 0, false, (String)null)),
         argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, 0)));
   }
 
@@ -196,7 +196,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(
-            FailingTestWorkflow.State.retryingState, 1, false)), any(WorkflowInstanceAction.class));
+            FailingTestWorkflow.State.retryingState, 1, false, "Retrying")), any(WorkflowInstanceAction.class));
   }
 
   @Test
@@ -289,6 +289,22 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
       final int retries, final boolean isProcessing) {
     return matchesWorkflowInstance(state, retries, isProcessing, CoreMatchers.any(DateTime.class));
+  }
+
+  private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
+      final int retries, final boolean isProcessing, final String stateText) {
+    return new ArgumentMatcher<WorkflowInstance>() {
+      @Override
+      public boolean matches(Object argument) {
+        WorkflowInstance i = (WorkflowInstance) argument;
+        assertThat(i, notNullValue());
+        assertThat(i.state, equalTo(state.name()));
+        assertThat(i.stateText, equalTo(stateText));
+        assertThat(i.retries, is(retries));
+        assertThat(i.processing, is(isProcessing));
+        return true;
+      }
+    };
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
