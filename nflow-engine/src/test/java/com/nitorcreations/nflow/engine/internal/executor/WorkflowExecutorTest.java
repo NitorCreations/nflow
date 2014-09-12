@@ -249,11 +249,6 @@ public class WorkflowExecutorTest extends BaseNflowTest {
             is(notNullValue(DateTime.class)))), any(WorkflowInstanceAction.class));
   }
 
-  @Test
-  public void stateReasonIsNotSetOnStateChange() {
-
-  }
-
   @SuppressWarnings("serial")
   @Test
   public void runWorkflowWithParameters() {
@@ -309,7 +304,6 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     };
   }
 
-
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
       final int retries, final boolean isProcessing, final Matcher<DateTime> nextActivationMatcher) {
     return new ArgumentMatcher<WorkflowInstance>() {
@@ -337,8 +331,6 @@ public class WorkflowExecutorTest extends BaseNflowTest {
       }
     };
   }
-
-
 
   @Test
   public void beforeAndAfterListenersAreExecutedForSuccessfulProcessing() {
