@@ -1,9 +1,34 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
-
+/**
+ * Provides access to the workflow state information.
+ */
 public interface WorkflowState {
-    String name();
-    WorkflowStateType getType();
-    String getName();
-    String getDescription();
+  /**
+   * Return the name of the workflow state.
+   *
+   * @return The name.
+   */
+  String name();
+
+  /**
+   * Return the workflow state type.
+   *
+   * @return The workflow state type.
+   */
+  WorkflowStateType getType();
+
+  /**
+   * Return the name of the workflow state.
+   *
+   * @return The name.
+   */
+  String getName();
+
+  /**
+   * Return the description of the workflow state.
+   *
+   * @return The description.
+   */
+  String getDescription();
 }
