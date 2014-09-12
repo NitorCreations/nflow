@@ -1,16 +1,12 @@
 <img src="https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo-no-borders.png" height="100" width="195" />
 
-nFlow is a light weight business process engine with emphasis on the following goals or features.
+nFlow is a light-weight and modular solution for orchestrating processes using Java. Non-exhaustive list of nFlow usage scenarios:
 
-* **Conciseness:** effort put on making the writing the workflow definitions easy
-* **Modularity:** you can pick the desired components from nFlow stack or use it as standalone server
-* **Deployment:** startup in seconds instead of minutes, effort put on supporting many scenarios
- 
-nFlow non-goals are important to understand as well:
+* **Orchestration of microservices:** trending REST-based microservice architecture does not provide standardized solutions for composing services into reliable business processes. nFlow fills this gap by providing a framework for implementing workflows based on ideas like [idempotent retry](http://www.servicedesignpatterns.com/WebServiceInfrastructures/IdempotentRetry) and [finite state machine](http://en.wikipedia.org/wiki/Finite-state_machine).
 
-* **BPMN/BPEL Support:** excluded by the goal of conciseness
-* **Full UI Support:** although read-only visualization of workflows is in future roadmap
+* **Traditional business process engine:** although nFlow does not implement (bloated) BPMN/BPEL standards, it can be utilized as superfast business process engine that runs on Jetty and starts in seconds instead of minutes. Custom visualization tools can be implemented on top nFlow REST API while waiting for the development of 'official' nFlow tools. 
 
+* **Asynchronous backend dispatcher:** submit tasks from UI to nFlow that executes or forwards them realiably following [Request/Acknowledge pattern](http://servicedesignpatterns.com/ClientServiceInteractions/RequestAcknowledge). nFlow engine can be embedded to your UI applications or run as an external service.
 
 # <a name="getting-started"></a>Getting Started
 
