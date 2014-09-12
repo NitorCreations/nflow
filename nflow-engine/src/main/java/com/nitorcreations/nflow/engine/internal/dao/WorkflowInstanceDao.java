@@ -191,6 +191,7 @@ public class WorkflowInstanceDao {
 
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
+    conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
       conditions.add("id in (:ids)");
       params.addValue("ids", query.ids);
