@@ -114,7 +114,9 @@ class WorkflowExecutor implements Runnable {
       int subsequentStateExecutions, StateExecutionImpl execution) {
     if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && execution.getNextActivation() != null) {
       logger.warn("Executed {} times without delay, forcing short transition delay", MAX_SUBSEQUENT_STATE_EXECUTIONS);
-      execution.setNextActivation(execution.getNextActivation().plusMillis(settings.shortTransitionDelay));
+      if (execution.getNextActivation().isBefore(settings.getShortTransitionActivation())) {
+        execution.setNextActivation(settings.getShortTransitionActivation());
+      }
     }
     return subsequentStateExecutions;
   }
