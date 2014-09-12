@@ -51,7 +51,7 @@ class WorkflowExecutor implements Runnable {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
       runImpl();
     } catch (Throwable ex) {
-      logger.error("Totally unexpected failure (e.g. deadlock) occurred (" + ex.getMessage() + ")", ex);
+      logger.error("Unexpected failure occurred (" + ex.getMessage() + ")", ex);
     } finally {
       MDC.remove(MDC_KEY);
     }
