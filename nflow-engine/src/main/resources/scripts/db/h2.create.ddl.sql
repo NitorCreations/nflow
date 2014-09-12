@@ -14,7 +14,7 @@ create table if not exists nflow_workflow (
 );
 create trigger if not exists nflow_workflow_modified before update on nflow_workflow for each row call "com.nitorcreations.nflow.engine.internal.storage.db.H2ModifiedColumnTrigger";
 
-create unique index if not exists nflow_workflow_uniq on nflow_workflow (type, external_id);
+create unique index if not exists nflow_workflow_uniq on nflow_workflow (type, external_id, executor_group);
 
 create index if not exists nflow_workflow_next_activation on nflow_workflow(next_activation);
 

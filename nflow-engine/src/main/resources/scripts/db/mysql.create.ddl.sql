@@ -11,7 +11,7 @@ create table if not exists nflow_workflow (
   created timestamp(3) not null default current_timestamp(3),
   modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
   executor_group varchar(64),
-  constraint nflow_workflow_uniq unique (type, external_id),
+  constraint nflow_workflow_uniq unique (type, external_id, executor_group),
   index nflow_workflow(next_activation)
 );
 

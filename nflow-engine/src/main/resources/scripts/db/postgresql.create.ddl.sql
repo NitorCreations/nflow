@@ -11,7 +11,7 @@ create table if not exists nflow_workflow (
   created timestamptz not null default current_timestamp,
   modified timestamptz not null default current_timestamp,
   executor_group varchar(64),
-  constraint nflow_workflow_uniq unique (type, external_id)
+  constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
 
 create or replace function update_modified() returns trigger language plpgsql as '
