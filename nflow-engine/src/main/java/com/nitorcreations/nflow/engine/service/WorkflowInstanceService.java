@@ -18,6 +18,9 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+/**
+ * Service for managing workflow instances.
+ */
 @Component
 public class WorkflowInstanceService {
 
@@ -34,10 +37,22 @@ public class WorkflowInstanceService {
     this.workflowInstanceDao = workflowInstanceDao;
   }
 
+  /**
+   * Return the workflow instance matching the given id.
+   * @param id Workflow instance id.
+   * @return The workflow instance, or null if not found.
+   */
   public WorkflowInstance getWorkflowInstance(int id) {
     return workflowInstanceDao.getWorkflowInstance(id);
   }
 
+  /**
+   * Insert the workflow instance to the database and return the id of the
+   * instance. If the instance already exists, return the id of the existing
+   * instance.
+   * @param instance The workflow instance to be inserted.
+   * @return The id of the inserted or existing workflow instance.
+   */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
   @Transactional
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -64,6 +79,11 @@ public class WorkflowInstanceService {
     return id;
   }
 
+  /**
+   * Update the workflow instance in the database, and insert the workflow instance action if not null.
+   * @param instance The instance to be updated.
+   * @param action The action to be inserted. Can be null.
+   */
   @Transactional
   public void updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     workflowInstanceDao.updateWorkflowInstance(instance);
@@ -72,13 +92,23 @@ public class WorkflowInstanceService {
     }
   }
 
+  /**
+   * Wake up the workflow instance matching the given id if it is in one of the expected states.
+   * @param id Workflow instance id.
+   * @param expectedStates The expected states.
+   * @return True if the instance was woken up, false otherwise.
+   */
   @Transactional
   public boolean wakeupWorkflowInstance(long id, String... expectedStates) {
     return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id, expectedStates);
   }
 
+  /**
+   * Return workflow instances matching the given query.
+   * @param query The query parameters.
+   * @return Matching workflow instances, or empty collection if none found.
+   */
   public Collection<WorkflowInstance> listWorkflowInstances(QueryWorkflowInstances query) {
     return workflowInstanceDao.queryWorkflowInstances(query);
   }
-
 }

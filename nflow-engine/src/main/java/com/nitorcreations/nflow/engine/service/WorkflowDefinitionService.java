@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +24,9 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
+/**
+ * Service for managing workflow definitions.
+ */
 @Component
 public class WorkflowDefinitionService {
 
@@ -36,6 +40,10 @@ public class WorkflowDefinitionService {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
   }
 
+  /**
+   * Add given workflow definitions to the managed definitions.
+   * @param workflowDefinitions The workflow definitions to be added.
+   */
   @Autowired(required=false)
   public void setWorkflowDefinitions(Collection<WorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
     for (WorkflowDefinition<? extends WorkflowState> wd : workflowDefinitions) {
@@ -43,16 +51,30 @@ public class WorkflowDefinitionService {
     }
   }
 
+  /**
+   * Return the workflow definition that matches the give workflow type name.
+   * @param type Workflow definition type.
+   * @return The workflow definition or null if not found.
+   */
   public WorkflowDefinition<?> getWorkflowDefinition(String type) {
     return workflowDefitions.get(type);
   }
 
+  /**
+   * Return all managed workflow definitions.
+   * @return List of workflow definitions.
+   */
   public List<WorkflowDefinition<? extends WorkflowState>> getWorkflowDefinitions() {
     return new ArrayList<>(workflowDefitions.values());
   }
 
+  /**
+   * Add workflow definitions from the nflowNonSpringWorkflowsListing resource.
+   * @throws IOException when workflow definitions can not be read from the resource.
+   * @throws ReflectiveOperationException when the workflow definition can not be instantiated.
+   */
   @PostConstruct
-  public void initNonSpringWorkflowDefinitions() throws Exception {
+  public void initNonSpringWorkflowDefinitions() throws IOException, ReflectiveOperationException {
     if (nonSpringWorkflowsListing == null) {
       logger.info("No non-Spring workflow definitions");
       return;
@@ -76,5 +98,4 @@ public class WorkflowDefinitionService {
     }
     logger.info("Added workflow type: {} ({})",  wd.getType(), wd.getClass().getName());
   }
-
 }
