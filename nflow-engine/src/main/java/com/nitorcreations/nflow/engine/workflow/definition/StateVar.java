@@ -35,5 +35,5 @@ public @interface StateVar {
    *
    * @return True if non-existing variables should be initialized, false otherwise.
    */
-  boolean instantiateNull() default false;
+  boolean instantiateIfNotExists() default false;
 }

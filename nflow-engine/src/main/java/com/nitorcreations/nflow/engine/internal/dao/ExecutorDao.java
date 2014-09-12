@@ -3,7 +3,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
-import static org.springframework.util.StringUtils.isEmpty;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -20,6 +19,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -46,18 +46,14 @@ public class ExecutorDao {
   public ExecutorDao(@Named("nflowDatasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
     this.jdbc = new JdbcTemplate(dataSource);
-    this.executorGroup = trimToNull(env.getProperty("nflow.executor.group"));
+    this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
     keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
   }
 
   private static String createWhereCondition(String group) {
-    String groupCondition = "executor_group = '" + group + "'";
-    if (isEmpty(group)) {
-      groupCondition = "executor_group is null";
-    }
-    return groupCondition;
+    return "executor_group = '" + group + "'";
   }
 
   public void tick() {
@@ -113,10 +109,16 @@ public class ExecutorDao {
   }
 
   public void updateActiveTimestamp() {
-    jdbc.update("update nflow_executor set active=current_timestamp, expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
+    updateWithPreparedStatement("update nflow_executor set active=current_timestamp, expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    jdbc.update("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
+    updateWithPreparedStatement("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
+  }
+
+  private void updateWithPreparedStatement(String sql) {
+    // jdbc.update(sql) won't use prepared statements, this uses.
+    jdbc.update(sql, (PreparedStatementSetter)null);
+
   }
 }

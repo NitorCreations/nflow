@@ -91,10 +91,10 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("start").build();
+        .setState("start").setStateText("stateText").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(ExecuteTestWorkflow.State.process, 0, false)),
+    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(ExecuteTestWorkflow.State.process, 0, false, (String)null)),
         argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, 0)));
   }
 
@@ -117,11 +117,14 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("start").setRetries(wf.getSettings().getMaxRetries()).build();
+        .setState("start").setRetries(wf.getSettings().maxRetries).build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    doNothing().when(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
+    assertThat(update.getAllValues().get(0), matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, true));
+    assertThat(update.getAllValues().get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true));
+    assertThat(action.getAllValues().get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().maxRetries));
+    assertThat(action.getAllValues().get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.failure, 0));
   }
 
   @Test
@@ -193,7 +196,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(
-            FailingTestWorkflow.State.retryingState, 1, false)), any(WorkflowInstanceAction.class));
+            FailingTestWorkflow.State.retryingState, 1, false, "Retrying")), any(WorkflowInstanceAction.class));
   }
 
   @Test
@@ -286,6 +289,22 @@ public class WorkflowExecutorTest extends BaseNflowTest {
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
       final int retries, final boolean isProcessing) {
     return matchesWorkflowInstance(state, retries, isProcessing, CoreMatchers.any(DateTime.class));
+  }
+
+  private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
+      final int retries, final boolean isProcessing, final String stateText) {
+    return new ArgumentMatcher<WorkflowInstance>() {
+      @Override
+      public boolean matches(Object argument) {
+        WorkflowInstance i = (WorkflowInstance) argument;
+        assertThat(i, notNullValue());
+        assertThat(i.state, equalTo(state.name()));
+        assertThat(i.stateText, equalTo(stateText));
+        assertThat(i.retries, is(retries));
+        assertThat(i.processing, is(isProcessing));
+        return true;
+      }
+    };
   }
 
   private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowState state,
@@ -423,10 +442,10 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
-      return moveToStateAfter(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
+      return moveToStateAfter(State.process, getSettings().getErrorTransitionActivation(0), "Process after delay");
     }
 
-    public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
+    public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateIfNotExists=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
       assertThat(pojo.field, is(pojo1.field));
       assertThat(pojo.test, is(pojo1.test));

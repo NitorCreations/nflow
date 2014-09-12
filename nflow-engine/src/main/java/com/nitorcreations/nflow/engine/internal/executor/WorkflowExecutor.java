@@ -51,7 +51,7 @@ class WorkflowExecutor implements Runnable {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
       runImpl();
     } catch (Throwable ex) {
-      logger.error("Totally unexpected failure (e.g. deadlock) occurred.", ex);
+      logger.error("Unexpected failure occurred (" + ex.getMessage() + ")", ex);
     } finally {
       MDC.remove(MDC_KEY);
     }
@@ -84,7 +84,7 @@ class WorkflowExecutor implements Runnable {
         }
       } catch (Throwable t) {
         execution.setFailed(t);
-        logger.error("Handler threw exception, trying again later", t);
+        logger.error("Handler threw exception, trying again later (" + t.getMessage() + ")", t);
         execution.setRetry(true);
         execution.setNextState(state);
         execution.setNextStateReason(t.toString());
@@ -114,7 +114,7 @@ class WorkflowExecutor implements Runnable {
       int subsequentStateExecutions, StateExecutionImpl execution) {
     if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && execution.getNextActivation() != null) {
       logger.warn("Executed {} times without delay, forcing short transition delay", MAX_SUBSEQUENT_STATE_EXECUTIONS);
-      execution.setNextActivation(execution.getNextActivation().plusMillis(settings.getShortTransitionDelay()));
+      execution.setNextActivation(execution.getNextActivation().plusMillis(settings.shortTransitionDelay));
     }
     return subsequentStateExecutions;
   }
@@ -128,7 +128,7 @@ class WorkflowExecutor implements Runnable {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setProcessing(isNextActivationImmediately(execution))
-      .setStateText(execution.getNextStateReason())
+      .setStateText(execution.isRetry() ? execution.getNextStateReason() : null)
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
@@ -177,7 +177,7 @@ class WorkflowExecutor implements Runnable {
       try {
         listener.beforeProcessing(listenerContext);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing", t);
+        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing (" + t.getMessage() + ")", t);
       }
     }
   }
@@ -187,7 +187,7 @@ class WorkflowExecutor implements Runnable {
       try {
         listener.afterProcessing(listenerContext);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterProcessing", t);
+        logger.error("Error in " + listener.getClass().getName() + ".afterProcessing (" + t.getMessage() + ")", t);
       }
     }
   }
@@ -197,7 +197,7 @@ class WorkflowExecutor implements Runnable {
       try {
         listener.afterFailure(listenerContext, ex);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterFailure", t);
+        logger.error("Error in " + listener.getClass().getName() + ".afterFailure (" + t.getMessage() + ")", t);
       }
     }
   }

@@ -67,20 +67,20 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings());
+    super("creditApplicationProcess", createCreditApplication, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0).setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
     permit(acceptCreditApplication, finishCreditApplication);
     permit(finishCreditApplication, done);
   }
 
-  public NextAction createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction createCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(instantiateIfNotExists=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     return moveToState(acceptCreditApplication, "Credit application created");
   }
 
-  public NextAction previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateNull=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction previewCreditApplication(StateExecution execution, @StateVar(value="req", readOnly=false) CreditApplication request, @StateVar(instantiateIfNotExists=true, value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     request.simulation = true;
@@ -132,22 +132,4 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   public static class WorkflowInfo {
     public String applicationId;
   }
-
-  public static class CreditApplicationWorkflowSettings extends WorkflowSettings {
-
-    public CreditApplicationWorkflowSettings() {
-      super(null);
-    }
-
-    @Override
-    public int getErrorTransitionDelay() {
-      return 0;
-    }
-
-    @Override
-    public int getShortTransitionDelay() {
-      return 0;
-    }
-  }
-
 }

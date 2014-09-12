@@ -21,7 +21,7 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> exte
    */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "findbugs does not understand that S extends both WorkflowState end Enum")
   protected WorkflowDefinition(String type, S initialState, S errorState) {
-    this(type, initialState, errorState, new WorkflowSettings(null));
+    this(type, initialState, errorState, new WorkflowSettings.Builder().build());
   }
 
   /**

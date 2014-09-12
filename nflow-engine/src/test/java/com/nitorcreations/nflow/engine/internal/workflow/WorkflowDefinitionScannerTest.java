@@ -179,8 +179,8 @@ public class WorkflowDefinitionScannerTest {
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
-        @StateVar(value = "paramKey", instantiateNull = true) ParamObj param,
-        @StateVar(value = "paramKey2", instantiateNull = true) long paramPrimitive) { return null; }
+        @StateVar(value = "paramKey", instantiateIfNotExists = true) ParamObj param,
+        @StateVar(value = "paramKey2", instantiateIfNotExists = true) long paramPrimitive) { return null; }
   }
 
   public static class NonStateMethodsWorkflow extends WorkflowDefinition<ScannerState> {

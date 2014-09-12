@@ -92,7 +92,7 @@ public class WorkflowDefinitionScanner {
     if (clazz.isPrimitive()) {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
     }
-    if (stateInfo != null && stateInfo.instantiateNull()) {
+    if (stateInfo != null && stateInfo.instantiateIfNotExists()) {
       try {
         Constructor<?> ctr = clazz.getConstructor();
         ctr.newInstance();

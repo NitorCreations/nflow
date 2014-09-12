@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.internal.executor;
 import static java.lang.Boolean.FALSE;
 
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ public abstract class BaseNflowTest {
       .setState("CreateLoan")
       .setStateText(null)
       .setNextActivation(new DateTime())
+      .setExternalId(UUID.randomUUID().toString())
       .setProcessing(FALSE)
       .setRetries(0)
       .setOwner("flowInstance1")

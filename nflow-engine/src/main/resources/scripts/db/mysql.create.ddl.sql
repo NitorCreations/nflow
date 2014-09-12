@@ -2,7 +2,7 @@ create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
   type varchar(64) not null,
   business_key varchar(64),
-  external_id varchar(64),
+  external_id varchar(64) not null,
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamp(3) null,
@@ -10,8 +10,8 @@ create table if not exists nflow_workflow (
   retries int not null default 0,
   created timestamp(3) not null default current_timestamp(3),
   modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
-  executor_group varchar(64),
-  constraint nflow_workflow_uniq unique (type, external_id),
+  executor_group varchar(64) not null,
+  constraint nflow_workflow_uniq unique (type, external_id, executor_group),
   index nflow_workflow(next_activation)
 );
 

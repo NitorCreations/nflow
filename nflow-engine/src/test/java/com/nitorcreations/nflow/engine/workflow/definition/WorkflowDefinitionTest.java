@@ -70,7 +70,7 @@ public class WorkflowDefinitionTest {
   private StateExecutionImpl handleRetryMaxRetriesExceeded(TestState currentState) {
     TestDefinition def = new TestDefinition("x", TestState.start);
     StateExecutionImpl execution = mock(StateExecutionImpl.class);
-    when(execution.getRetries()).thenReturn(def.getSettings().getMaxRetries());
+    when(execution.getRetries()).thenReturn(def.getSettings().maxRetries);
     when(execution.getCurrentStateName()).thenReturn(currentState.name());
     def.handleRetry(execution);
     return execution;
