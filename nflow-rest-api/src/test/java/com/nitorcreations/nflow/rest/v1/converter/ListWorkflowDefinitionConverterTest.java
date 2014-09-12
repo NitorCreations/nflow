@@ -44,10 +44,11 @@ public class ListWorkflowDefinitionConverterTest {
         reflectEquals(getResponseState(end, Collections.<String>emptyList(), null)),
         reflectEquals(getResponseState(error, asList(end.name()), null)),
         reflectEquals(getResponseState(start, asList(end.name(), error.name()), error.name()))));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.immediate, is(def.getSettings().getImmediateTransitionDelay()));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().getShortTransitionDelay()));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.waitError, is(def.getSettings().getErrorTransitionDelay()));
-    assertThat(resp.settings.maxRetries, is(def.getSettings().getMaxRetries()));
+    assertThat((int)resp.settings.transitionDelaysInMilliseconds.immediate, is(def.getSettings().immediateTransitionDelay));
+    assertThat((int)resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay));
+    assertThat((int)resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
+    assertThat((int)resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));
+    assertThat(resp.settings.maxRetries, is(def.getSettings().maxRetries));
   }
 
   private State getResponseState(DummyTestWorkflow.State workflowState,

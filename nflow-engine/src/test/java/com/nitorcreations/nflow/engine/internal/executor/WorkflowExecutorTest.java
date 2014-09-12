@@ -117,11 +117,14 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
-        .setState("start").setRetries(wf.getSettings().getMaxRetries()).build();
+        .setState("start").setRetries(wf.getSettings().maxRetries).build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
+    doNothing().when(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
     executor.run();
-    verify(workflowInstances).updateWorkflowInstance(argThat(matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false)),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().getMaxRetries())));
+    assertThat(update.getAllValues().get(0), matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, true));
+    assertThat(update.getAllValues().get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true));
+    assertThat(action.getAllValues().get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().maxRetries));
+    assertThat(action.getAllValues().get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.failure, 0));
   }
 
   @Test
@@ -423,7 +426,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
-      return moveToStateAfter(State.process, now().plusMillis(getSettings().getErrorTransitionDelay()), "Process after delay");
+      return moveToStateAfter(State.process, getSettings().getErrorTransitionActivation(0), "Process after delay");
     }
 
     public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateNull=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {

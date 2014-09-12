@@ -67,7 +67,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error, new CreditApplicationWorkflowSettings());
+    super("creditApplicationProcess", createCreditApplication, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0).setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
     permit(acceptCreditApplication, finishCreditApplication);
@@ -132,22 +132,4 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   public static class WorkflowInfo {
     public String applicationId;
   }
-
-  public static class CreditApplicationWorkflowSettings extends WorkflowSettings {
-
-    public CreditApplicationWorkflowSettings() {
-      super(null);
-    }
-
-    @Override
-    public int getErrorTransitionDelay() {
-      return 0;
-    }
-
-    @Override
-    public int getShortTransitionDelay() {
-      return 0;
-    }
-  }
-
 }
