@@ -62,6 +62,10 @@
  	  <name>Edvard Fonsell</name>
  	  <organization>Nitor Creations Oy</organization>
     </developer>
+    <developer>
+      <name>Janne Sinivirta</name>
+      <organization>Nitor Creations Oy</organization>
+    </developer>
   </developers>
   <modules>
     <module>nflow-rest-api</module>
