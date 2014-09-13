@@ -1,3 +1,24 @@
+## 1.0.0 (2014-09-13)
+- nflow-engine
+  - New API between nflow-engine and workflow implementations (StateExecution --> NextAction)
+  - Added JavaDoc to public API
+  - Support for multiple start states
+  - Disallow overloading state methods in WorkflowDefinitions
+  - Add executor_group to nflow_workflow_uniq index
+  - Change nflow_workflow.external_id to not null in database
+  - Use binary backoff for errors by default. Add builder for WorkflowSettings.
+  - Set nflow_workflow.state_text only when retrying
+  - Rename instantiateNull to instantiateIfNotExists (@StateVar annotation)
+  - Check that busy loop next activation is never before now plus small activation delay
+- nflow-rest-api
+  - REST API from v0 to v1 context
+  - Add externalId to ListWorkflowInstanceResponse
+- nflow-tests
+  - Use fail-fast rule for integration tests
+- Code cleanup
+  - Changed bean names to camelCase
+  - Replace System.currentTimeMillis with DateTimeUtils.currentTimeMillis
+
 ## 0.3.1 (2014-08-19)
 - Do not log exception, when "Race condition in polling workflow instances detected" happens
 - Make dispatcher wait "random(0,1) * short wait time" after race condition (so that probability for race condition lowers in the next poll)
