@@ -109,7 +109,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstances() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setOwner("junit").build();
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setExecutorGroup("junit").build();
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> firstBatch = dao.pollNextWorkflowInstanceIds(100);
     List<Integer> secondBatch = dao.pollNextWorkflowInstanceIds(100);
@@ -122,7 +122,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void pollNextWorkflowInstancesWithRaceCondition() throws InterruptedException {
     int batchSize = 100;
     for (int i=0; i<batchSize; i++) {
-      WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setOwner("junit").build();
+      WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1)).setExecutorGroup("junit").build();
       dao.insertWorkflowInstance(instance);
     }
     Poller[] pollers = new Poller[] { new Poller(dao, batchSize), new Poller(dao, batchSize) };
@@ -145,7 +145,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void doesNotWakeUpRunningWorkflow() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setOwner("junit").setNextActivation(null).build();
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setExecutorGroup("junit").setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
     dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setId(id).setProcessing(true).build());
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());

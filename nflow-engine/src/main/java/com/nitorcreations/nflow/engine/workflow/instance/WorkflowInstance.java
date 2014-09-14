@@ -13,21 +13,80 @@ import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
  */
 public class WorkflowInstance {
 
+  /**
+   * The workflow instance identifier.
+   */
   public final Integer id;
+
+  /**
+   * The type of the workflow definition.
+   */
   public final String type;
+
+  /**
+   * Business key.
+   */
   public final String businessKey;
+
+  /**
+   * External identifier of the workflow instance. Must be unique within the same executor group.
+   */
   public final String externalId;
+
+  /**
+   * The name of the current state.
+   */
   public final String state;
+
+  /**
+   * The description of the last action executed by the workflow.
+   */
   public final String stateText;
+
+  /**
+   * The next activation time for the workflow instance.
+   */
   public final DateTime nextActivation;
+
+  /**
+   * True when the workflow instance is being processed by an executor, false otherwise.
+   */
   public final boolean processing;
+
+  /**
+   * The state variables. Uses the variable name as the key and serialized variable value as value.
+   */
   public final Map<String, String> stateVariables;
+
+  /**
+   * The state variable values before executor started processing the state.
+   */
   public final Map<String, String> originalStateVariables;
+
+  /**
+   * The list of actions.
+   */
   public final List<WorkflowInstanceAction> actions;
+
+  /**
+   * Number of retry attempts of the current state. Zero when the state is executed for the first time.
+   */
   public final int retries;
+
+  /**
+   * The workflow instance creation time.
+   */
   public final DateTime created;
+
+  /**
+   * The last modification time of the workflow instance.
+   */
   public final DateTime modified;
-  public final String owner;
+
+  /**
+   * The name of the executor group for this workflow instance.
+   */
+  public final String executorGroup;
 
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
@@ -44,7 +103,7 @@ public class WorkflowInstance {
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
-    this.owner = builder.owner;
+    this.executorGroup = builder.executorGroup;
   }
 
   /**
@@ -66,7 +125,7 @@ public class WorkflowInstance {
     int retries;
     DateTime created;
     DateTime modified;
-    String owner;
+    String executorGroup;
 
     private ObjectStringMapper mapper;
 
@@ -102,7 +161,7 @@ public class WorkflowInstance {
       this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;
-      this.owner = copy.owner;
+      this.executorGroup = copy.executorGroup;
     }
 
     /**
@@ -274,11 +333,11 @@ public class WorkflowInstance {
 
     /**
      * Set the executor group name.
-     * @param owner The executor group name.
+     * @param executorGroup The executor group name.
      * @return this.
      */
-    public Builder setOwner(String owner) {
-      this.owner = owner;
+    public Builder setExecutorGroup(String executorGroup) {
+      this.executorGroup = executorGroup;
       return this;
     }
 
