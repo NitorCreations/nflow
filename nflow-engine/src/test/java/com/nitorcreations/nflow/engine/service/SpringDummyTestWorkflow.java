@@ -20,7 +20,7 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
 
     @Override
     public String getName() {
-      return null;
+      return name();
     }
 
     @Override

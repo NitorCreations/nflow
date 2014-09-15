@@ -226,7 +226,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
    */
   public WorkflowState getState(String state) {
     for (WorkflowState s : getStates()) {
-      if (state.equals(s.getName())) {
+      if (state.equals(s.name())) {
         return s;
       }
     }
