@@ -75,6 +75,7 @@
     <module>nflow-metrics</module>
   </modules>
   <properties>
+  	<jdk.version>1.7</jdk.version>
     <apache.cxf.version>3.0.1</apache.cxf.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.3.2</commons.lang3.version>
@@ -131,8 +132,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler.version}</version>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>${jdk.version}</source>
+            <target>${jdk.version}</target>
           </configuration>
         </plugin>
         <plugin>
@@ -588,7 +589,7 @@
         <configuration>
           <linkXref>false</linkXref>
           <minimumTokens>100</minimumTokens>
-          <targetJdk>1.7</targetJdk>
+          <targetJdk>${jdk.version}</targetJdk>
           <!-- <rulesets> <ruleset>PATH_TO_PMD_XML/pmd.xml</ruleset> </rulesets> -->
         </configuration>
       </plugin>
