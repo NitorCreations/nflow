@@ -85,7 +85,7 @@ public class WorkflowInstance {
 
   /**
    * The name of the executor group for this workflow instance.
-   * @deprecated Use executorGroup instead.
+   * @deprecated Use executorGroup instead. Will be removed in 2.0.
    */
   @Deprecated
   public final String owner;
@@ -353,7 +353,7 @@ public class WorkflowInstance {
      * Set the executor group name.
      * @param executorGroup The executor group name.
      * @return this.
-     * @depracated Use setExecutorGroup instead.
+     * @depracated Use setExecutorGroup instead. Will be removed in 2.0.
      */
     @Deprecated
     public Builder setOwner(String executorGroup) {
