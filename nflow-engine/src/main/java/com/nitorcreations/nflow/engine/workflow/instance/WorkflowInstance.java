@@ -85,6 +85,13 @@ public class WorkflowInstance {
 
   /**
    * The name of the executor group for this workflow instance.
+   * @deprecated Use executorGroup instead.
+   */
+  @Deprecated
+  public final String owner;
+
+  /**
+   * The name of the executor group for this workflow instance.
    */
   public final String executorGroup;
 
@@ -103,6 +110,7 @@ public class WorkflowInstance {
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
+    this.owner = builder.executorGroup;
     this.executorGroup = builder.executorGroup;
   }
 
@@ -337,6 +345,18 @@ public class WorkflowInstance {
      * @return this.
      */
     public Builder setExecutorGroup(String executorGroup) {
+      this.executorGroup = executorGroup;
+      return this;
+    }
+
+    /**
+     * Set the executor group name.
+     * @param executorGroup The executor group name.
+     * @return this.
+     * @depracated Use setExecutorGroup instead.
+     */
+    @Deprecated
+    public Builder setOwner(String executorGroup) {
       this.executorGroup = executorGroup;
       return this;
     }
