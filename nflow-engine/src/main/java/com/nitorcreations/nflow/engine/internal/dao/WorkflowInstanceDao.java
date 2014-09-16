@@ -321,7 +321,7 @@ public class WorkflowInstanceDao {
         .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))
-        .setOwner(rs.getString("executor_group"))
+        .setExecutorGroup(rs.getString("executor_group"))
         .build();
     }
 

@@ -24,7 +24,7 @@ public abstract class BaseNflowTest {
       .setExternalId(UUID.randomUUID().toString())
       .setProcessing(FALSE)
       .setRetries(0)
-      .setOwner("flowInstance1")
+      .setExecutorGroup("flowInstance1")
       .setStateVariables(new LinkedHashMap<String,String>() {{put("req", "{ \"parameter\": \"abc\" }"); }});
   }
 
