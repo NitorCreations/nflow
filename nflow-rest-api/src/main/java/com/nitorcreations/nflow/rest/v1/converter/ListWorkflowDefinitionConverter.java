@@ -30,7 +30,7 @@ public class ListWorkflowDefinitionConverter {
     Map<String, State> states = new LinkedHashMap<>();
     for (WorkflowState state : definition.getStates()) {
       states.put(state.name(), new State(state.name(), state.getType().name(),
-          state.getName(), state.getDescription()));
+          state.getDescription()));
     }
     for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
       State state = states.get(entry.getKey());

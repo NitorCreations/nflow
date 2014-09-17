@@ -22,7 +22,7 @@ public interface WorkflowState {
    * Return the name of the workflow state.
    *
    * @return The name.
-   * @deprecate Use name() instead. Will be removed in 2.0.
+   * @deprecated Use name() instead. Will be removed in 2.0.
    * TODO 2.0: remove
    */
   @Deprecated

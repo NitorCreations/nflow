@@ -38,7 +38,9 @@ public interface StateExecution {
    *          The name of the variable.
    * @param type
    *          The class of the variable.
-   * @return The deserialized value of class {code <T>}.
+   * @param <T>
+   *          The type of object to be deserialized.
+   * @return The deserialized value of class {code T}.
    */
   <T> T getVariable(String name, Class<T> type);
 
