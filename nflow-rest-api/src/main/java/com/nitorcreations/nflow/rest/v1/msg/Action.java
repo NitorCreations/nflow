@@ -10,6 +10,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @ApiModel(value = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class Action {
+
   @ApiModelProperty(value = "Name of state")
   public String state;
   @ApiModelProperty(value = "Description of state")

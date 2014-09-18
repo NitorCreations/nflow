@@ -100,7 +100,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     i1.stateVariables.put("a", "1");
     int id = dao.insertWorkflowInstance(i1);
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(DateTime.now()).
-        setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text").
+        setExecutorId(42).setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text").
         setWorkflowId(id).build();
     i1.stateVariables.put("b", "2");
     dao.insertWorkflowInstanceAction(i1, a1);
@@ -164,6 +164,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
     assertThat(i1.type, equalTo(i2.type));
+    assertThat(i1.executorId,equalTo(i2.executorId));
     assertThat(i1.state, equalTo(i2.state));
     assertThat(i1.stateText, equalTo(i2.stateText));
     assertThat(i1.nextActivation, equalTo(i2.nextActivation));

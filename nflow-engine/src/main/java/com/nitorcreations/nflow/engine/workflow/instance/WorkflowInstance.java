@@ -19,6 +19,11 @@ public class WorkflowInstance {
   public final Integer id;
 
   /**
+   * The id of executor that is currently processing this workflow. May be null.
+   */
+  public final Integer executorId;
+
+  /**
    * The type of the workflow definition.
    */
   public final String type;
@@ -97,6 +102,7 @@ public class WorkflowInstance {
 
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
+    this.executorId = builder.executorId;
     this.type = builder.type;
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
@@ -120,6 +126,7 @@ public class WorkflowInstance {
   public static class Builder {
 
     Integer id;
+    Integer executorId;
     String type;
     String businessKey;
     String externalId;
@@ -157,6 +164,7 @@ public class WorkflowInstance {
      */
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
+      this.executorId = copy.executorId;
       this.type = copy.type;
       this.businessKey = copy.businessKey;
       this.externalId = copy.externalId;
@@ -179,6 +187,16 @@ public class WorkflowInstance {
      */
     public Builder setId(Integer id) {
       this.id = id;
+      return this;
+    }
+
+    /**
+     * Set the executor instance identifier.
+     * @param executorId The identifier.
+     * @return this.
+     */
+    public Builder setExecutorId(Integer executorId) {
+      this.executorId = executorId;
       return this;
     }
 
