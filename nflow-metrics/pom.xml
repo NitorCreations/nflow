@@ -8,13 +8,13 @@
   <artifactId>nflow-metrics</artifactId>
   <packaging>jar</packaging>
   <name>nflow-metrics</name>
-  <description>Integrate http://metrics.codahale.com/ with nFlow</description>
+  <description>Integrate http://metrics.dropwizard.io/ with nFlow</description>
   <properties>
-  	<metrics.version>3.0.2</metrics.version>
+  	<metrics.version>3.1.0</metrics.version>
   </properties>
   <dependencies>
   	<dependency>
-		<groupId>com.codahale.metrics</groupId>
+		<groupId>io.dropwizard.metrics</groupId>
 		<artifactId>metrics-core</artifactId>
 		<version>${metrics.version}</version>
   	</dependency>
