@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowStateProcessor;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
@@ -55,7 +56,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
-public class WorkflowExecutorTest extends BaseNflowTest {
+public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Mock
   WorkflowDefinitionService workflowDefinitions;
@@ -77,12 +78,12 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
   ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
 
-  WorkflowExecutor executor;
+  WorkflowStateProcessor executor;
 
 
   @Before
   public void setup() {
-    executor = new WorkflowExecutor(1, objectMapper, workflowDefinitions, workflowInstances, listener1, listener2);
+    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, listener1, listener2);
   }
 
   @Test
