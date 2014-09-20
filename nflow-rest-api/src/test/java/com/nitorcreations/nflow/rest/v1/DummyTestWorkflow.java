@@ -15,17 +15,15 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.State> {
 
   public static enum State implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
-    start(WorkflowStateType.start, "start", "start desc"),
-    error(WorkflowStateType.manual, "error", "error desc"),
-    end(WorkflowStateType.end, "end", "end desc");
+    start(WorkflowStateType.start, "start desc"),
+    error(WorkflowStateType.manual, "error desc"),
+    end(WorkflowStateType.end, "end desc");
 
     private WorkflowStateType type;
-    private String name;
     private String description;
 
-    private State(WorkflowStateType type, String name, String description) {
+    private State(WorkflowStateType type, String description) {
       this.type = type;
-      this.name = name;
       this.description = description;
     }
 
@@ -36,14 +34,13 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
 
     @Override
     public String getName() {
-      return name;
+      return name();
     }
 
     @Override
     public String getDescription() {
       return description;
     }
-
   }
 
   public DummyTestWorkflow() {

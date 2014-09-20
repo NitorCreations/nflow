@@ -25,7 +25,7 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
 
     @Override
     public String getName() {
-      return toString();
+      return name();
     }
 
     @Override

@@ -54,7 +54,7 @@ public class ListWorkflowDefinitionConverterTest {
   private State getResponseState(DummyTestWorkflow.State workflowState,
       List<String> nextStateNames, String errorStateName) {
     State state = new State(workflowState.name(),
-        workflowState.getType().name(), workflowState.getName(), workflowState.getDescription());
+        workflowState.getType().name(), workflowState.getDescription());
     state.transitions.addAll(nextStateNames);
     state.onFailure = errorStateName;
     return state;

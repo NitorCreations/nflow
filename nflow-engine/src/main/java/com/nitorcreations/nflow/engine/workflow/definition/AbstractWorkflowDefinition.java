@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.joda.time.DateTime;
@@ -226,7 +227,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
    */
   public WorkflowState getState(String state) {
     for (WorkflowState s : getStates()) {
-      if (state.equals(s.getName())) {
+      if (Objects.equals(s.name(), state)) {
         return s;
       }
     }
