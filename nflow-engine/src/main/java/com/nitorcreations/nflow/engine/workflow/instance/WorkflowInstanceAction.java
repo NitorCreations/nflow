@@ -15,6 +15,11 @@ public class WorkflowInstanceAction {
   public final int workflowId;
 
   /**
+   * The id for executor that processed this state.
+   */
+  public final int executorId;
+
+  /**
    * The workflow state before the execution.
    */
   public final String state;
@@ -41,6 +46,7 @@ public class WorkflowInstanceAction {
 
   WorkflowInstanceAction(Builder builder) {
     this.workflowId = builder.workflowId;
+    this.executorId = builder.executorId;
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.retryNo = builder.retryNo;
@@ -54,6 +60,7 @@ public class WorkflowInstanceAction {
   public static class Builder {
 
     int workflowId;
+    int executorId;
     String state;
     String stateText;
     int retryNo;
@@ -87,6 +94,15 @@ public class WorkflowInstanceAction {
       return this;
     }
 
+    /**
+     * Set the executor id.
+     * @param executorId The executor id.
+     * @return this
+     */
+    public Builder setExecutorId(Integer executorId) {
+      this.executorId = executorId;
+      return this;
+    }
     /**
      * Set the state.
      * @param state The name of the state.

@@ -241,14 +241,15 @@ public class WorkflowInstanceDao {
       public PreparedStatement createPreparedStatement(Connection con)
           throws SQLException {
         PreparedStatement p = con.prepareStatement(
-            "insert into nflow_workflow_action(workflow_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?)",
+            "insert into nflow_workflow_action(workflow_id, executor_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?,?)",
             new String[] { "id" });
         p.setInt(1, action.workflowId);
-        p.setString(2, action.state);
-        p.setString(3, limitLength(action.stateText, STATE_TEXT_LENGTH));
-        p.setInt(4, action.retryNo);
-        p.setTimestamp(5, toTimestamp(action.executionStart));
-        p.setTimestamp(6, toTimestamp(action.executionEnd));
+        p.setInt(2, executorInfo.getExecutorId());
+        p.setString(3, action.state);
+        p.setString(4, limitLength(action.stateText, STATE_TEXT_LENGTH));
+        p.setInt(5, action.retryNo);
+        p.setTimestamp(6, toTimestamp(action.executionStart));
+        p.setTimestamp(7, toTimestamp(action.executionEnd));
         return p;
       }
     }, keyHolder);
@@ -308,8 +309,10 @@ public class WorkflowInstanceDao {
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
+      Integer executorId = (Integer) rs.getObject("executor_id");
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
+        .setExecutorId(executorId)
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))
         .setExternalId(rs.getString("external_id"))
@@ -317,7 +320,7 @@ public class WorkflowInstanceDao {
         .setStateText(rs.getString("state_text"))
         .setActions(new ArrayList<WorkflowInstanceAction>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
-        .setProcessing(rs.getObject("executor_id") != null)
+        .setProcessing(executorId != null)
         .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))
@@ -332,6 +335,7 @@ public class WorkflowInstanceDao {
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
       return new WorkflowInstanceAction.Builder()
         .setWorkflowId(rs.getInt("workflow_id"))
+        .setExecutorId(rs.getInt("executor_id"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
         .setRetryNo(rs.getInt("retry_no"))

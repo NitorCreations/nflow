@@ -30,6 +30,7 @@ create index nflow_workflow_activation on nflow_workflow(next_activation) where 
 create table if not exists nflow_workflow_action (
   id serial primary key,
   workflow_id int not null,
+  executor_id int not null default -1,
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,

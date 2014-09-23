@@ -23,6 +23,7 @@ create trigger nflow_workflow_insert before insert on `nflow_workflow`
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
   workflow_id int not null,
+  executor_id int not null default -1,
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,
