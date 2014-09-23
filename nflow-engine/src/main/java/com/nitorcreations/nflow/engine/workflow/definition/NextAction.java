@@ -89,14 +89,27 @@ public class NextAction {
 
   /**
    * Set next state to {@code finalState} and do not schedule its
-   * processing. Used to indicate final state of workflow or a manual state.
-   * @param state Final or manual workflow state.
+   * processing. The {@code finalState} workflow state type must
+   * be final, e.g. it must be either end state or manual state.
+   * The state handler method of the state, even if it exists, is
+   * not executed. Additionally, there is no workflow action
+   * recorded for the {@code finalState}. If you want to execute
+   * the state handler method and record a workflow action, use
+   * one of the {@code moveToState} methods instead.
+   * @param state Final workflow state (end state or manual state).
    * @param reason The reason for the action.
    * @return A valid {@code NextAction} value.
    */
-  public static NextAction stopInState(WorkflowState state, String reason) {
-    assertNotNull(state, "State can not be null");
-    return new NextAction(null, state, reason);
+  public static NextAction stopInState(WorkflowState finalState, String reason) {
+    assertNotNull(finalState, "State can not be null");
+    assertFinalState(finalState);
+    return new NextAction(null, finalState, reason);
+  }
+
+  private static void assertFinalState(WorkflowState state) {
+    if (!state.getType().isFinal()) {
+      throw new InvalidNextActionException("Cannot stop in a state that is not final");
+    }
   }
 
   private static void assertNotNull(Object object, String message) {
