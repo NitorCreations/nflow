@@ -45,6 +45,11 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
+  public int getWorkflowId() {
+    return instance.id;
+  }
+
+  @Override
   public String getBusinessKey() {
     return instance.businessKey;
   }
@@ -124,4 +129,5 @@ public class StateExecutionImpl implements StateExecution {
     isFailed = true;
     thrown = t;
   }
+
 }

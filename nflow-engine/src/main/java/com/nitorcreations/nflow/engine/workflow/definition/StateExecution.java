@@ -8,6 +8,13 @@ package com.nitorcreations.nflow.engine.workflow.definition;
 public interface StateExecution {
 
   /**
+   * Return the id of the workflow instance.
+   *
+   * @return
+   */
+  int getWorkflowId();
+
+  /**
    * Return the business key associated to the workflow instance.
    *
    * @return The business key.
