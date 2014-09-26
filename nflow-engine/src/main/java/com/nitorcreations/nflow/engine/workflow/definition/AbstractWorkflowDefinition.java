@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.workflow.definition;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static java.lang.String.format;
+import static org.joda.time.DateTime.now;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -187,26 +188,44 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
    * Handle retries for the state execution. The default implementation moves
    * the workflow to a failure state after the maximum retry attempts is
    * exceeded. If there is no failure state defined for the retried state, moves
-   * the workflow to the generic error state. If the maximum retry attempts is
-   * not exceeded, schedules the next attempt for the state based on workflow
-   * settings.
+   * the workflow to the generic error state and stops processing. Error state
+   * handler method, if it exists, is not executed. If the maximum retry attempts
+   * is not exceeded, schedules the next attempt for the state based on workflow
+   * settings. This method is called when an unexpected exception happens during
+   * state method handling.
    * @param execution State execution information.
    */
   public void handleRetry(StateExecutionImpl execution) {
+    handleRetryAfter(execution, getSettings().getErrorTransitionActivation(execution.getRetries()));
+  }
+
+  /**
+   * Handle retries for the state execution. The default implementation moves
+   * the workflow to a failure state after the maximum retry attempts is
+   * exceeded. If there is no failure state defined for the retried state, moves
+   * the workflow to the generic error state and stops processing. Error state
+   * handler method, if it exists, is not executed. If the maximum retry attempts
+   * is not exceeded, schedules the next attempt to the given activation time.
+   * This method is called when a retry attempt is explicitly requested by a
+   * state handling method.
+   * @param execution State execution information.
+   * @param activation Time for next retry attempt.
+   */
+  public void handleRetryAfter(StateExecutionImpl execution, DateTime activation) {
     if (execution.getRetries() >= getSettings().maxRetries) {
       execution.setRetry(false);
       WorkflowState failureState = failureTransitions.get(execution.getCurrentStateName());
       if (failureState != null) {
         execution.setNextState(failureState);
         execution.setNextStateReason("Max retry count exceeded");
-        execution.setNextActivation(new DateTime());
+        execution.setNextActivation(now());
       } else {
         execution.setNextState(errorState);
         execution.setNextStateReason("Max retry count exceeded, no failure state defined");
         execution.setNextActivation(null);
       }
     } else {
-      execution.setNextActivation(getSettings().getErrorTransitionActivation(execution.getRetries()));
+      execution.setNextActivation(activation);
     }
   }
 

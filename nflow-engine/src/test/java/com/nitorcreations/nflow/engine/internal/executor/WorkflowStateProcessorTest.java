@@ -128,6 +128,22 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
+  public void maxRetryIsObeyedForManualRetry() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("retryingState").setRetries(wf.getSettings().maxRetries).build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
+    assertThat(update.getValue(), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
+    assertThat(action.getValue(), matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, wf.getSettings().maxRetries));
+  }
+
+  @Test
   public void goToErrorStateWhenStateMethodReturnsNull() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
     doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
