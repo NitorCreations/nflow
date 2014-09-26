@@ -447,6 +447,7 @@ public class WorkflowExecutorTest extends BaseNflowTest {
 
     public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i, @StateVar("pojo") Pojo pojo, @StateVar(value="nullPojo", instantiateIfNotExists=true) Pojo pojo2, @StateVar(value="immutablePojo", readOnly=true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero, @StateVar("mutableString") Mutable<String> mutableString) {
       assertThat(execution.getWorkflowInstanceId(), is(1));
+      assertThat(execution.getWorkflowInstanceExternalId(), is(notNullValue()));
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
       assertThat(pojo.field, is(pojo1.field));
       assertThat(pojo.test, is(pojo1.test));
