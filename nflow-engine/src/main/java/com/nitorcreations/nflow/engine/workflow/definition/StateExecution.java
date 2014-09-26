@@ -10,9 +10,9 @@ public interface StateExecution {
   /**
    * Return the id of the workflow instance.
    *
-   * @return
+   * @return The workflow instance id.
    */
-  int getWorkflowId();
+  int getWorkflowInstanceId();
 
   /**
    * Return the business key associated to the workflow instance.
@@ -74,4 +74,11 @@ public interface StateExecution {
    * @param value The value for the variable.
    */
   void setVariable(String name, Object value);
+
+  /**
+   * Return the external id of the workflow instance.
+   *
+   * @return The external id of the workflow instance.
+   */
+  String getWorkflowInstanceExternalId();
 }

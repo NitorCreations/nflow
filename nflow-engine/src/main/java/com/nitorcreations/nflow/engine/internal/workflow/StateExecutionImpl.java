@@ -45,8 +45,13 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
-  public int getWorkflowId() {
+  public int getWorkflowInstanceId() {
     return instance.id;
+  }
+
+  @Override
+  public String getWorkflowInstanceExternalId() {
+    return instance.externalId;
   }
 
   @Override
