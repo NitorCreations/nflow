@@ -18,7 +18,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
-import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 

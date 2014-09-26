@@ -1,11 +1,11 @@
 package com.nitorcreations.nflow.jetty;
 
 import static java.lang.String.valueOf;
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;

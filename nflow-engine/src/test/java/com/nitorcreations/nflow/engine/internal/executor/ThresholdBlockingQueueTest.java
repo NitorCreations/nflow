@@ -15,8 +15,6 @@ import java.util.concurrent.Future;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.nitorcreations.nflow.engine.internal.executor.ThresholdBlockingQueue;
-
 public class ThresholdBlockingQueueTest {
   ThresholdBlockingQueue<Integer> q = new ThresholdBlockingQueue<>(3, 1);
 

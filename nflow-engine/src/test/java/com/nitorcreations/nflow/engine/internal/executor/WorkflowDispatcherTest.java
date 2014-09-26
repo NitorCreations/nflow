@@ -29,11 +29,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
-import com.nitorcreations.nflow.engine.internal.executor.ThresholdBlockingQueue;
-import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTaskExecutor;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowStateProcessor;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowStateProcessorFactory;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowDispatcher;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;

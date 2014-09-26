@@ -4,8 +4,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nitorcreations.nflow.engine.internal.config.PropertiesConfiguration;
-
 @RunWith(MockitoJUnitRunner.class)
 public class PropertiesConfigurationTest {
 

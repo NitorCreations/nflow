@@ -24,7 +24,6 @@ import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
 import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
