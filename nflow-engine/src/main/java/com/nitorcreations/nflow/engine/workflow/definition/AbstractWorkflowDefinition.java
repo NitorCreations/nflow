@@ -215,14 +215,26 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     if (execution.getRetries() >= getSettings().maxRetries) {
       execution.setRetry(false);
       WorkflowState failureState = failureTransitions.get(execution.getCurrentStateName());
+      WorkflowState currentState = getState(execution.getCurrentStateName());
       if (failureState != null) {
-        execution.setNextState(failureState);
-        execution.setNextStateReason("Max retry count exceeded");
-        execution.setNextActivation(now());
+        if (failureState.equals(currentState)) {
+          execution.setNextState(errorState);
+          execution.setNextStateReason("Max retry count exceeded when handling failure state, going to error state");
+          execution.setNextActivation(now());
+        } else {
+          execution.setNextState(failureState);
+          execution.setNextStateReason("Max retry count exceeded, going to failure state");
+          execution.setNextActivation(now());
+        }
       } else {
         execution.setNextState(errorState);
-        execution.setNextStateReason("Max retry count exceeded, no failure state defined");
-        execution.setNextActivation(null);
+        if (errorState.equals(currentState)) {
+          execution.setNextStateReason("Max retry count exceeded when handling error state, processing stopped");
+          execution.setNextActivation(null);
+        } else {
+          execution.setNextStateReason("Max retry count exceeded, no failure state defined, going to error state");
+          execution.setNextActivation(now());
+        }
       }
     } else {
       execution.setNextActivation(activation);
