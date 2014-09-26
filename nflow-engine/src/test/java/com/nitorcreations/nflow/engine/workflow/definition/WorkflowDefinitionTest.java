@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,21 +53,21 @@ public class WorkflowDefinitionTest {
   @Test
   public void handleRetryMaxRetriesExceededHaveFailureState() {
     StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.start);
-    verify(execution).setNextState(TestState.error);
+    verify(execution).setNextState(TestState.failed);
     verify(execution).setNextStateReason(any(String.class));
     verify(execution).setNextActivation(any(DateTime.class));
   }
 
   @Test
   public void handleRetryMaxRetriesExceededNotHaveFailureState() {
-    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.notfound);
-    verify(execution).setNextState(TestState.notfound);
+    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.start2);
+    verify(execution).setNextState(TestState.error);
     verify(execution).setNextStateReason(any(String.class));
-    verify(execution).setNextActivation(eq((DateTime) null));
+    verify(execution).setNextActivation(any(DateTime.class));
   }
 
   private StateExecutionImpl handleRetryMaxRetriesExceeded(TestState currentState) {
-    TestDefinition def = new TestDefinition("x", TestState.start);
+    TestDefinition def = new TestDefinition("x", currentState);
     StateExecutionImpl execution = mock(StateExecutionImpl.class);
     when(execution.getRetries()).thenReturn(def.getSettings().maxRetries);
     when(execution.getCurrentStateName()).thenReturn(currentState.name());
@@ -139,11 +138,11 @@ public class WorkflowDefinitionTest {
       AbstractWorkflowDefinition<TestDefinition.TestState> {
     @Override
     public Set<TestState> getStates() {
-      return new HashSet<>(asList(TestState.start, TestState.done, TestState.error));
+      return new HashSet<>(asList(TestState.start, TestState.start2, TestState.done, TestState.error, TestState.failed));
     }
 
     public static enum TestState implements WorkflowState {
-      start, done, notfound, error;
+      start, start2, done, notfound, failed, error;
 
       @Override
       public WorkflowStateType getType() {
@@ -162,12 +161,15 @@ public class WorkflowDefinitionTest {
     }
 
     public TestDefinition(String type, TestState initialState) {
-      super(type, initialState, TestState.notfound);
-      permit(TestState.start, TestState.done, TestState.error);
+      super(type, initialState, TestState.error);
+      permit(TestState.start, TestState.done, TestState.failed);
+      permit(TestState.start2, TestState.done);
     }
 
     public NextAction start(StateExecution execution) { return null; }
+    public NextAction start2(StateExecution execution) { return null; }
     public NextAction done(StateExecution execution) { return null; }
+    public NextAction failed(StateExecution execution) { return null; }
     public NextAction error(StateExecution execution) { return null; }
 
   }
