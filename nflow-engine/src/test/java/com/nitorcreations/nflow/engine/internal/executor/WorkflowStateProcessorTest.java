@@ -40,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nitorcreations.nflow.engine.internal.executor.WorkflowStateProcessor;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
@@ -126,6 +125,22 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     assertThat(update.getAllValues().get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true));
     assertThat(action.getAllValues().get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().maxRetries));
     assertThat(action.getAllValues().get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.failure, 0));
+  }
+
+  @Test
+  public void maxRetryIsObeyedForManualRetry() {
+    WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    WorkflowInstance instance = constructWorkflowInstanceBuilder()
+        .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
+        .setState("retryingState").setRetries(wf.getSettings().maxRetries).build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
+    assertThat(update.getValue(), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
+    assertThat(action.getValue(), matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, wf.getSettings().maxRetries));
   }
 
   @Test

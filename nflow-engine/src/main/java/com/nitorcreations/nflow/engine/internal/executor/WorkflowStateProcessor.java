@@ -162,14 +162,15 @@ class WorkflowStateProcessor implements Runnable {
       execution.setFailed();
     }
     execution.setNextActivation(nextAction.getActivation());
+    execution.setNextStateReason(nextAction.getReason());
+    execution.setSaveTrace(nextAction.isSaveTrace());
     if (nextAction.getNextState() == null) {
       execution.setNextState(definition.getState(instance.state));
       execution.setRetry(true);
+      definition.handleRetryAfter(execution, nextAction.getActivation());
     } else {
       execution.setNextState(nextAction.getNextState());
     }
-    execution.setNextStateReason(nextAction.getReason());
-    execution.setSaveTrace(nextAction.isSaveTrace());
     objectMapper.storeArguments(execution, method, args);
     return nextAction;
   }
