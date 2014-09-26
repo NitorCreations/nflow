@@ -11,7 +11,7 @@ import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
 @Component
-public class WorkflowExecutorFactory {
+public class WorkflowStateProcessorFactory {
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final ObjectStringMapper objectMapper;
@@ -19,15 +19,15 @@ public class WorkflowExecutorFactory {
   protected WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[0];
 
   @Inject
-  public WorkflowExecutorFactory(WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
+  public WorkflowStateProcessorFactory(WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
       ObjectStringMapper objectMapper) {
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.objectMapper = objectMapper;
   }
 
-  public WorkflowExecutor createExecutor(int instanceId) {
-    return new WorkflowExecutor(instanceId, objectMapper, workflowDefinitions, workflowInstances, listeners);
+  public WorkflowStateProcessor createProcessor(int instanceId) {
+    return new WorkflowStateProcessor(instanceId, objectMapper, workflowDefinitions, workflowInstances, listeners);
   }
 
 }

@@ -6,12 +6,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowStateProcessor;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowStateProcessorFactory;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 
-public class WorkflowExecutorFactoryTest extends BaseNflowTest {
+public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   @Mock
   WorkflowDefinitionService workflowDefinitions;
   @Mock
@@ -24,23 +26,23 @@ public class WorkflowExecutorFactoryTest extends BaseNflowTest {
   WorkflowExecutorListener listener2;
   WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[]{listener1, listener2};
 
-  WorkflowExecutorFactory factory;
+  WorkflowStateProcessorFactory factory;
 
   @Before
   public void setup() {
-    factory = new WorkflowExecutorFactory(workflowDefinitions, workflowInstances, objectMapper);
+    factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper);
   }
 
   @Test
   public void factoryCreatesExecutorsWithoutListeners() {
-    WorkflowExecutor executor = factory.createExecutor(12);
+    WorkflowStateProcessor executor = factory.createProcessor(12);
     assertNotNull(executor);
   }
 
   @Test
   public void factoryCreatesExecutorsWithListeners() {
     factory.listeners = listeners;
-    WorkflowExecutor executor = factory.createExecutor(122);
+    WorkflowStateProcessor executor = factory.createProcessor(122);
     assertNotNull(executor);
   }
 }

@@ -27,17 +27,17 @@ public class WorkflowDispatcher implements Runnable {
 
   private final ThresholdThreadPoolTaskExecutor pool;
   private final WorkflowInstanceDao workflowInstances;
-  private final WorkflowExecutorFactory executorFactory;
+  private final WorkflowStateProcessorFactory stateProcessorFactory;
   private final ExecutorDao executorRecovery;
   private final long sleepTime;
   private final Random rand = new Random();
 
   @Inject
   public WorkflowDispatcher(@Named("nflowExecutor") ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
-      WorkflowExecutorFactory executorFactory, ExecutorDao executorRecovery, Environment env) {
+      WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
     this.pool = pool;
     this.workflowInstances = workflowInstances;
-    this.executorFactory = executorFactory;
+    this.stateProcessorFactory = stateProcessorFactory;
     this.executorRecovery = executorRecovery;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
   }
@@ -98,7 +98,7 @@ public class WorkflowDispatcher implements Runnable {
 
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Integer instanceId : nextInstanceIds) {
-      pool.submit(executorFactory.createExecutor(instanceId));
+      pool.submit(stateProcessorFactory.createProcessor(instanceId));
     }
   }
 
