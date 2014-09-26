@@ -1,23 +1,26 @@
 package com.nitorcreations.nflow.jetty;
 
 import static java.lang.String.valueOf;
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.DispatcherType;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.jmx.MBeanContainer;
@@ -107,6 +110,7 @@ public class StartNflow
   }
 
   protected void setupCxf(final ServletContextHandler context) {
+    context.addFilter(CorsHeaderFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
     ServletHolder servlet = context.addServlet(CXFServlet.class, "/*");
     servlet.setDisplayName("cxf-services");
     servlet.setInitOrder(1);
@@ -144,7 +148,7 @@ public class StartNflow
     context.setResourceBase(getClass().getClassLoader().getResource("static").toExternalForm());
     context.setDisplayName("nflow-static");
     context.setStopTimeout(SECONDS.toMillis(10));
-//    context.addFilter(new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain")), "/*", EnumSet.allOf(DispatcherType.class));
+    //context.addFilter(new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain")), "/*", EnumSet.allOf(DispatcherType.class));
     ServletHolder holder = new ServletHolder("default", DefaultServlet.class);
     context.addServlet(holder, "/ui/*");
     return context;
