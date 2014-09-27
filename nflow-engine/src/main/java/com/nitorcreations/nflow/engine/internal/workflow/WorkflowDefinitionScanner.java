@@ -109,8 +109,16 @@ public class WorkflowDefinitionScanner {
     public boolean matches(Method method) {
       int mod = method.getModifiers();
       Class<?>[] parameterTypes = method.getParameterTypes();
-      return isPublic(mod) && !isStatic(mod) && parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]) &&
-          NextAction.class.equals(method.getReturnType());
+      return isPublic(mod) && !isStatic(mod) && hasStateExecutionParameter(parameterTypes) &&
+          hasValidReturnType(method.getReturnType());
+    }
+
+    private boolean hasValidReturnType(Class<?> returnType) {
+      return NextAction.class.equals(returnType) || Void.TYPE.equals(returnType);
+    }
+
+    private boolean hasStateExecutionParameter(Class<?>[] parameterTypes) {
+      return parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]);
     }
   }
 }

@@ -4,6 +4,7 @@ import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateT
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static java.lang.String.format;
 import static org.joda.time.DateTime.now;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -24,6 +26,7 @@ import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
  */
 public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
+  private static final Logger logger = getLogger(AbstractWorkflowDefinition.class);
   private final String type;
   private String name;
   private String description;
@@ -176,11 +179,25 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   }
 
   void requireStateMethodExists(S state) {
-    if (!stateMethods.containsKey(state.name()) && isStateMethodObligatory(state)) {
+    WorkflowStateMethod stateMethod = stateMethods.get(state.name());
+    if (stateMethod == null && isStateMethodObligatory(state)) {
       String msg = format(
-          "Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'", this
-              .getClass().getName(), state.name());
+          "Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'",
+          this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
+    }
+    if (stateMethod != null) {
+      WorkflowStateType stateType = state.getType();
+      Class<?> returnType = stateMethod.method.getReturnType();
+      if (Void.TYPE.equals(returnType) && !stateType.isFinal()) {
+        String msg = format(
+            "Class '%s' has %s state method '%s' that does not return NextAction",
+            this.getClass().getName(), stateType.name(), state.name());
+        throw new IllegalArgumentException(msg);
+      } else if (NextAction.class.equals(returnType) && stateType.isFinal()) {
+        logger.warn("Class '{}' has {} state method '{}' that returns NextAction, should return void. Return value will be ignored. Returning NextAction from final state method will be disallowed in nFlow 2.0.0.",
+            this.getClass().getName(), stateType.name(), state.name());
+      }
     }
   }
 

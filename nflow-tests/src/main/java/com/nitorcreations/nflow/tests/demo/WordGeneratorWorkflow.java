@@ -93,9 +93,8 @@ public class WordGeneratorWorkflow extends
     return State.values()[State.values().length - 1];
   }
 
-  public NextAction error(StateExecution execution) {
+  public void error(StateExecution execution) {
     logger.error("Finished with error");
-    return stopInState(State.error, "Finished in error state");
   }
 
   public NextAction end(StateExecution execution) {

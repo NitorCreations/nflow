@@ -96,7 +96,7 @@ public class NextAction {
    * recorded for the {@code finalState}. If you want to execute
    * the state handler method and record a workflow action, use
    * one of the {@code moveToState} methods instead.
-   * @param state Final workflow state (end state or manual state).
+   * @param finalState Final workflow state (end state or manual state).
    * @param reason The reason for the action.
    * @return A valid {@code NextAction} value.
    */
