@@ -47,16 +47,19 @@ public class WorkflowInstanceDao {
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
 
-  private JdbcTemplate jdbc;
-  private NamedParameterJdbcTemplate namedJdbc;
-
-  @Inject
+  private final JdbcTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedJdbc;
   ExecutorDao executorInfo;
 
   @Inject
-  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
+  public WorkflowInstanceDao(@Named("nflowDatasource") DataSource dataSource) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
+  }
+
+  @Inject
+  public void setExecutorDao(ExecutorDao executorDao) {
+    this.executorInfo = executorDao;
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -232,8 +235,13 @@ public class WorkflowInstanceDao {
         new WorkflowInstanceActionRowMapper(), instance.id));
   }
 
-  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
+    int actionId = insertWorkflowInstanceAction(action);
+    insertVariables(action.workflowId, actionId, instance.stateVariables, instance.originalStateVariables);
+  }
+
+  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
+  public int insertWorkflowInstanceAction(final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
@@ -253,8 +261,7 @@ public class WorkflowInstanceDao {
         return p;
       }
     }, keyHolder);
-    int actionId = keyHolder.getKey().intValue();
-    insertVariables(action.workflowId, actionId, instance.stateVariables, instance.originalStateVariables);
+    return keyHolder.getKey().intValue();
   }
 
   static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {

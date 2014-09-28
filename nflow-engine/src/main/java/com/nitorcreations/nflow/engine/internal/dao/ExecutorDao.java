@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,6 +26,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -33,6 +35,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class ExecutorDao {
   private final JdbcTemplate jdbc;
   final SQLVariants sqlVariants;
+  private WorkflowInstanceDao workflowInstanceDao;
 
   private final int keepaliveIntervalSeconds;
   private DateTime nextUpdate = now();
@@ -50,6 +53,11 @@ public class ExecutorDao {
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
     keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
+  }
+
+  @Inject
+  public void setWorkflowInstanceDao(WorkflowInstanceDao workflowInstanceDao) {
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   private static String createWhereCondition(String group) {
@@ -113,7 +121,17 @@ public class ExecutorDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    updateWithPreparedStatement("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
+    List<Integer> workflowInstanceIds = jdbc.queryForList("select id from nflow_workflow where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
+        Integer.class, getExecutorId());
+    for (Integer workflowInstanceId : workflowInstanceIds) {
+      int updated = jdbc.update("update nflow_workflow set executor_id = null where id = ? and executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
+          workflowInstanceId, getExecutorId());
+      if (updated > 0) {
+        WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
+            .setExecutorId(getExecutorId()).setStateText("Recovered").setWorkflowId(workflowInstanceId).build();
+        workflowInstanceDao.insertWorkflowInstanceAction(action);
+      }
+    }
   }
 
   private void updateWithPreparedStatement(String sql) {
