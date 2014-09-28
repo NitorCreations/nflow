@@ -47,12 +47,17 @@ public class WorkflowInstanceDao {
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
 
-  private final JdbcTemplate jdbc;
-  private final NamedParameterJdbcTemplate namedJdbc;
+  private JdbcTemplate jdbc;
+  private NamedParameterJdbcTemplate namedJdbc;
   ExecutorDao executorInfo;
 
+  /**
+   * Use setter injection because having the dataSource in constructor may not work
+   * when nFlow is used in some legacy systems.
+   * @param dataSource The nFlow data source.
+   */
   @Inject
-  public WorkflowInstanceDao(@Named("nflowDatasource") DataSource dataSource) {
+  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
   }

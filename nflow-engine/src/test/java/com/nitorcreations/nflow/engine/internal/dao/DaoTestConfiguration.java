@@ -21,13 +21,13 @@ import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfigurati
 public class DaoTestConfiguration {
 
   @Bean
-  public WorkflowInstanceDao workflowInstanceDao(DataSource ds) {
-    return new WorkflowInstanceDao(ds);
+  public WorkflowInstanceDao workflowInstanceDao() {
+    return new WorkflowInstanceDao();
   }
 
   @Bean
-  public ExecutorDao executorDao(DataSource ds, Environment env) {
-    return new ExecutorDao(ds, env, new H2SQLVariants());
+  public ExecutorDao executorDao(Environment env) {
+    return new ExecutorDao(env, new H2SQLVariants());
   }
 
   @Bean

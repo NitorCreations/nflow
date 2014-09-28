@@ -33,7 +33,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 @DependsOn("nflowDatabaseInitializer")
 public class ExecutorDao {
-  private final JdbcTemplate jdbc;
+  private JdbcTemplate jdbc;
   final SQLVariants sqlVariants;
   private WorkflowInstanceDao workflowInstanceDao;
 
@@ -46,13 +46,22 @@ public class ExecutorDao {
   int executorId = -1;
 
   @Inject
-  public ExecutorDao(@Named("nflowDatasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
+  public ExecutorDao(Environment env, SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
-    this.jdbc = new JdbcTemplate(dataSource);
     this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
     keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
+  }
+
+  /**
+   * Use setter injection because having the dataSource in constructor may not work
+   * when nFlow is used in some legacy systems.
+   * @param dataSource The nFlow data source.
+   */
+  @Inject
+  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
+    this.jdbc = new JdbcTemplate(dataSource);
   }
 
   @Inject
