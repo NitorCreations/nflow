@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.jetty.config;
 
 import java.util.Arrays;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -25,6 +26,7 @@ import org.springframework.core.env.Environment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
@@ -39,6 +41,9 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @Import(value = { RestConfiguration.class, JmxConfiguration.class})
 public class NflowJettyConfiguration {
 
+  @Inject
+  private Environment env;
+
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflowRestObjectMapper") ObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
@@ -47,16 +52,22 @@ public class NflowJettyConfiguration {
         workflowDefinitionResource,
         apiListingResourceJson()));
     factory.setAddress('/' + factory.getAddress());
-    factory.setProviders( Arrays.< Object >asList(
+    factory.setProviders( Arrays.asList(
         jsonProvider(mapper),
         validationExceptionMapper(),
         resourceListingProvider(),
-        apiDeclarationProvider()) );
+        apiDeclarationProvider(),
+        corsHeadersProvider()
+        ));
     factory.setFeatures(Arrays.asList(new LoggingFeature()));
     factory.setBus(cxf());
     factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationInInterceptor()));
     factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationOutInterceptor()));
     return factory.create();
+  }
+
+  private CorsHeaderContainerResponseFilter corsHeadersProvider() {
+    return new CorsHeaderContainerResponseFilter(env);
   }
 
   @Bean
