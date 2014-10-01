@@ -81,7 +81,8 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
             new Action("grantLoan", "", 0, null, null),
             new Action("grantLoan", "", 1, null, null),
             new Action("grantLoan", "", 2, null, null),
-            new Action("grantLoan", "", 3, null, null))));
+            new Action("grantLoan", "", 3, null, null),
+            new Action("error", "", 0, null, null))));
   }
 
 }
