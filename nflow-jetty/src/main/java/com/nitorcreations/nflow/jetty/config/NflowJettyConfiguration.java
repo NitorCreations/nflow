@@ -91,7 +91,7 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public BeanConfig swaggerConfig(Environment env) {
+  public BeanConfig swaggerConfig() {
     final BeanConfig config = new BeanConfig();
     config.setVersion("1.0.0");
     config.setScan(true);
