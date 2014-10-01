@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.rest.v1;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static com.nitorcreations.nflow.rest.v1.DummyTestWorkflow.State.start;
@@ -54,11 +53,7 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
     return moveToState(end, "Go to end state");
   }
 
-  public NextAction error(StateExecution execution) {
-    return stopInState(error, "Finished in error state");
-  }
+  public void error(StateExecution execution) {}
 
-  public NextAction end(StateExecution execution) {
-    return stopInState(end, "Finished in end state");
-  }
+  public void end(StateExecution execution) {}
 }

@@ -43,9 +43,7 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
     return stopInState(DummyTestState.end, "Finished");
   }
 
-  public NextAction end(StateExecution execution) {
-    return stopInState(DummyTestState.end, "Finished");
-  }
+  public void end(StateExecution execution) {}
 
   public NextAction alternativeStart(StateExecution execution) {
     return stopInState(DummyTestState.end, "Finished");

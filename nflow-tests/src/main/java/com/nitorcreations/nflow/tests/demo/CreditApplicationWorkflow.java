@@ -1,7 +1,6 @@
 package com.nitorcreations.nflow.tests.demo;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
-import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
@@ -87,9 +86,8 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     return moveToState(acceptCreditApplication, "Credit application previewed");
   }
 
-  public NextAction acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: descheduling workflow instance, next state set externally");
-    return stopInState(acceptCreditApplication, "Expecting manual credit decision");
   }
 
   public NextAction grantLoan(StateExecution execution, @StateVar(value="req", readOnly=true) CreditApplication request, @StateVar(value=VAR_KEY) WorkflowInfo info) {
@@ -106,14 +104,12 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     return moveToState(done, "Credit application finished");
   }
 
-  public NextAction done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("Credit application process ended");
-    return stopInState(done, "Finished in done state");
   }
 
-  public NextAction error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: some UI should poll for workflows that have reached error state");
-    return stopInState(error, "Finished in error state");
   }
 
   public static class CreditApplication {
