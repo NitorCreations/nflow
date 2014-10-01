@@ -8,6 +8,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -130,22 +132,35 @@ public class ExecutorDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    List<Integer> workflowInstanceIds = jdbc.queryForList("select id from nflow_workflow where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
-        Integer.class, getExecutorId());
-    for (Integer workflowInstanceId : workflowInstanceIds) {
+    List<InstanceInfo> instances = jdbc.query(
+        "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
+            + executorGroupCondition + " and id <> ? and expires < current_timestamp)", new RowMapper<InstanceInfo>() {
+          @Override
+          public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+            InstanceInfo instance = new InstanceInfo();
+            instance.id = rs.getInt(1);
+            instance.state = rs.getString(2);
+            return instance;
+          }
+        }, getExecutorId());
+    for (InstanceInfo instance : instances) {
       int updated = jdbc.update("update nflow_workflow set executor_id = null where id = ? and executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
-          workflowInstanceId, getExecutorId());
+          instance.id, getExecutorId());
       if (updated > 0) {
         WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
-            .setExecutorId(getExecutorId()).setStateText("Recovered").setWorkflowId(workflowInstanceId).build();
+            .setExecutorId(getExecutorId()).setState(instance.state).setStateText("Recovered").setWorkflowId(instance.id).build();
         workflowInstanceDao.insertWorkflowInstanceAction(action);
       }
     }
   }
 
+  static final class InstanceInfo {
+    public int id;
+    public String state;
+  }
+
   private void updateWithPreparedStatement(String sql) {
     // jdbc.update(sql) won't use prepared statements, this uses.
     jdbc.update(sql, (PreparedStatementSetter)null);
-
   }
 }
