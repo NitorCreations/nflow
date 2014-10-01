@@ -15,7 +15,7 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
 
     @Override
     public WorkflowStateType getType() {
-      return null;
+      return WorkflowStateType.normal;
     }
 
     @Override

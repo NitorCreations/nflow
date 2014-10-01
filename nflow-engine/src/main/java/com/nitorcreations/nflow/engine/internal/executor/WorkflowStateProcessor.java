@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -146,26 +147,32 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     Object[] args = objectMapper.createArguments(execution, method);
     NextAction nextAction;
-    try {
-      nextAction = (NextAction) invokeMethod(method.method, definition, args);
-    } catch (InvalidNextActionException e) {
-      logger.error("State '" + instance.state
-          + "' handler method failed to create valid next action, proceeding to error state '"
-          + definition.getErrorState().name() + "'", e);
-      nextAction = moveToState(definition.getErrorState(), e.getMessage());
-      execution.setFailed(e);
-    }
-    if (nextAction == null) {
-      logger.error("State '{}' handler method returned null, proceeding to error state '{}'",
-          instance.state, definition.getErrorState().name());
-      nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
-      execution.setFailed();
+    WorkflowState currentState = definition.getState(instance.state);
+    if (currentState.getType().isFinal()) {
+      invokeMethod(method.method, definition, args);
+      nextAction = stopInState(currentState, "Stopped in final state");
+    } else {
+      try {
+        nextAction = (NextAction) invokeMethod(method.method, definition, args);
+      } catch (InvalidNextActionException e) {
+        logger.error("State '" + instance.state
+            + "' handler method failed to create valid next action, proceeding to error state '"
+            + definition.getErrorState().name() + "'", e);
+        nextAction = moveToState(definition.getErrorState(), e.getMessage());
+        execution.setFailed(e);
+      }
+      if (nextAction == null) {
+        logger.error("State '{}' handler method returned null, proceeding to error state '{}'",
+            instance.state, definition.getErrorState().name());
+        nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+        execution.setFailed();
+      }
     }
     execution.setNextActivation(nextAction.getActivation());
     execution.setNextStateReason(nextAction.getReason());
     execution.setSaveTrace(nextAction.isSaveTrace());
     if (nextAction.getNextState() == null) {
-      execution.setNextState(definition.getState(instance.state));
+      execution.setNextState(currentState);
       execution.setRetry(true);
       definition.handleRetryAfter(execution, nextAction.getActivation());
     } else {

@@ -242,7 +242,7 @@ public class WorkflowInstanceDao {
 
   public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
     int actionId = insertWorkflowInstanceAction(action);
-    insertVariables(action.workflowId, actionId, instance.stateVariables, instance.originalStateVariables);
+    insertVariables(action.workflowInstanceId, actionId, instance.stateVariables, instance.originalStateVariables);
   }
 
   @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
@@ -256,7 +256,7 @@ public class WorkflowInstanceDao {
         PreparedStatement p = con.prepareStatement(
             "insert into nflow_workflow_action(workflow_id, executor_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?,?)",
             new String[] { "id" });
-        p.setInt(1, action.workflowId);
+        p.setInt(1, action.workflowInstanceId);
         p.setInt(2, executorInfo.getExecutorId());
         p.setString(3, action.state);
         p.setString(4, limitLength(action.stateText, STATE_TEXT_LENGTH));
@@ -346,7 +346,7 @@ public class WorkflowInstanceDao {
     @Override
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
       return new WorkflowInstanceAction.Builder()
-        .setWorkflowId(rs.getInt("workflow_id"))
+        .setWorkflowInstanceId(rs.getInt("workflow_id"))
         .setExecutorId(rs.getInt("executor_id"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))

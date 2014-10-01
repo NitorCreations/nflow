@@ -148,7 +148,7 @@ public class ExecutorDao {
           instance.id, getExecutorId());
       if (updated > 0) {
         WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
-            .setExecutorId(getExecutorId()).setState(instance.state).setStateText("Recovered").setWorkflowId(instance.id).build();
+            .setExecutorId(getExecutorId()).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
         workflowInstanceDao.insertWorkflowInstanceAction(action);
       }
     }

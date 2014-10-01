@@ -10,9 +10,16 @@ import org.joda.time.DateTime;
 public class WorkflowInstanceAction {
 
   /**
-   * The workflow identifier.
+   * The workflow instance identifier.
+   * @deprecated Use @{code workflowInstanceId} instead. This will be removed in 2.0.0.
    */
+  @Deprecated
   public final int workflowId;
+
+  /**
+   * The workflow instance identifier.
+   */
+  public final int workflowInstanceId;
 
   /**
    * The id for executor that processed this state.
@@ -45,7 +52,8 @@ public class WorkflowInstanceAction {
   public final DateTime executionEnd;
 
   WorkflowInstanceAction(Builder builder) {
-    this.workflowId = builder.workflowId;
+    this.workflowId = builder.workflowInstanceId;
+    this.workflowInstanceId = builder.workflowInstanceId;
     this.executorId = builder.executorId;
     this.state = builder.state;
     this.stateText = builder.stateText;
@@ -59,7 +67,7 @@ public class WorkflowInstanceAction {
    */
   public static class Builder {
 
-    int workflowId;
+    int workflowInstanceId;
     int executorId;
     String state;
     String stateText;
@@ -78,19 +86,31 @@ public class WorkflowInstanceAction {
      * @param instance The workflow instance for which the action is created.
      */
     public Builder(WorkflowInstance instance) {
-      this.workflowId = instance.id;
+      this.workflowInstanceId = instance.id;
       this.state = instance.state;
       this.retryNo = instance.retries;
       this.executionStart = now();
     }
 
     /**
-     * Set the workflow identifier.
-     * @param workflowId The workflow identifier.
+     * Set the workflow instance identifier.
+     * @param workflowInstanceId The workflow instance identifier.
+     * @return this.
+     * @deprecated Use @{code setWorkflowInstanceId} instead. This will be removed in 2.0.0.
+     */
+    @Deprecated
+    public Builder setWorkflowId(int workflowInstanceId) {
+      this.workflowInstanceId = workflowInstanceId;
+      return this;
+    }
+
+    /**
+     * Set the workflow instance identifier.
+     * @param workflowInstanceId The workflow instance identifier.
      * @return this.
      */
-    public Builder setWorkflowId(int workflowId) {
-      this.workflowId = workflowId;
+    public Builder setWorkflowInstanceId(int workflowInstanceId) {
+      this.workflowInstanceId = workflowInstanceId;
       return this;
     }
 

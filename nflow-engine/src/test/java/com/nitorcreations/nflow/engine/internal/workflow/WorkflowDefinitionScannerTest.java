@@ -84,8 +84,8 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void onlyPublicMethodsWithCorrectSignatureAreReturned() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(NonStateMethodsWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
-    assertThat(methods.keySet().size(), is(2));
+    assertThat(methods.keySet(), hasItemsOf(asList("start", "end", "doesNotReturnNextState")));
+    assertThat(methods.keySet().size(), is(3));
   }
 
   @Test

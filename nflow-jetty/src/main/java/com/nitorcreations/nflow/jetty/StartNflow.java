@@ -144,7 +144,7 @@ public class StartNflow
     context.setResourceBase(getClass().getClassLoader().getResource("static").toExternalForm());
     context.setDisplayName("nflow-static");
     context.setStopTimeout(SECONDS.toMillis(10));
-//    context.addFilter(new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain")), "/*", EnumSet.allOf(DispatcherType.class));
+    //context.addFilter(new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain")), "/*", EnumSet.allOf(DispatcherType.class));
     ServletHolder holder = new ServletHolder("default", DefaultServlet.class);
     context.addServlet(holder, "/ui/*");
     return context;

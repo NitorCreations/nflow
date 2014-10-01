@@ -114,7 +114,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void runWorkflowThroughToFailureState() {
     WorkflowDefinition<FailingTestWorkflow.State> wf = new FailingTestWorkflow();
-    Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
     WorkflowInstance instance = constructWorkflowInstanceBuilder()
         .setType("test").setId(Integer.valueOf(1)).setProcessing(true)
         .setState("start").setRetries(wf.getSettings().maxRetries).build();
@@ -122,7 +122,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doNothing().when(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
     executor.run();
     assertThat(update.getAllValues().get(0), matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, true));
-    assertThat(update.getAllValues().get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true));
+    assertThat(update.getAllValues().get(1), matchesWorkflowInstance(FailingTestWorkflow.State.failure, 0, false, is(nullValue(DateTime.class))));
     assertThat(action.getAllValues().get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, wf.getSettings().maxRetries));
     assertThat(action.getAllValues().get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.failure, 0));
   }
@@ -138,9 +138,11 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstances).updateWorkflowInstance(update.capture(), action.capture());
-    assertThat(update.getValue(), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
-    assertThat(action.getValue(), matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, wf.getSettings().maxRetries));
+    verify(workflowInstances, times(2)).updateWorkflowInstance(update.capture(), action.capture());
+    assertThat(update.getAllValues().get(0), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, true));
+    assertThat(update.getAllValues().get(1), matchesWorkflowInstance(FailingTestWorkflow.State.error, 0, false, is(nullValue(DateTime.class))));
+    assertThat(action.getAllValues().get(0), matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, wf.getSettings().maxRetries));
+    assertThat(action.getAllValues().get(1), matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, 0));
   }
 
   @Test
@@ -535,15 +537,17 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
 
     public NextAction failure(StateExecution execution) {
-      return moveToState(State.error, "Go to error state");
+      // Return NextAction to verify that backward compatibility is maintained.
+      // It should be allowed until nFlow 2.0.0 release, even though the return
+      // value is ignored.
+      // TODO: remove in 2.0.0
+      return moveToState(State.process, "this state transfer will be ignored");
     }
 
     public NextAction nextStateNoMethod(StateExecution execution) {
       return moveToState(State.noMethodEndState, "Go to end state that has no method");
     }
 
-    public NextAction error(StateExecution execution) {
-      return stopInState(State.error, "Stop in error state");
-    }
+    public void error(StateExecution execution) {}
   }
 }
