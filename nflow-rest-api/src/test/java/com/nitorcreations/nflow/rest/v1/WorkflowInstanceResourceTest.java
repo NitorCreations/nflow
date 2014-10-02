@@ -73,19 +73,38 @@ public class WorkflowInstanceResourceTest {
         any(WorkflowInstanceAction.class));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {
-    resource.listWorkflowInstances(new Integer[]{42}, new String[] { "type" }, new String[] { "state" }, "businessKey", "externalId", "actions");
+    resource.listWorkflowInstances(new Integer[]{42}, new String[] { "type" }, new String[] { "state" }, "businessKey", "externalId", "");
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
         hasField("types", contains("type")),
         hasField("states", contains("state")),
         hasField("businessKey", equalTo("businessKey")),
         hasField("externalId", equalTo("externalId")),
-        hasField("includeActions", equalTo(true)))));
+        hasField("includeActions", equalTo(false)),
+        hasField("includeCurrentStateVariables", equalTo(false)),
+        hasField("includeActionStateVariables", equalTo(false)))));
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void listWorkflowInstancesWorksWithActionAndStateVariableFetches() {
+    resource.listWorkflowInstances(new Integer[]{42}, new String[] { "type" },
+        new String[] { "state" }, "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables");
+    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+        hasField("ids", contains(42)),
+        hasField("types", contains("type")),
+        hasField("states", contains("state")),
+        hasField("businessKey", equalTo("businessKey")),
+        hasField("externalId", equalTo("externalId")),
+        hasField("includeActions", equalTo(true)),
+        hasField("includeCurrentStateVariables", equalTo(true)),
+        hasField("includeActionStateVariables", equalTo(true)))));
+  }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void fetchWorkflowInstancesWorks() {
     resource.fetchWorkflowInstance(42);
@@ -95,7 +114,9 @@ public class WorkflowInstanceResourceTest {
         hasField("states", emptyCollectionOf(String.class)),
         hasField("businessKey", equalTo(null)),
         hasField("externalId", equalTo(null)),
-        hasField("includeActions", equalTo(true)))));
+        hasField("includeActions", equalTo(true)),
+        hasField("includeCurrentStateVariables", equalTo(true)),
+        hasField("includeActionStateVariables", equalTo(true)))));
   }
 
 }
