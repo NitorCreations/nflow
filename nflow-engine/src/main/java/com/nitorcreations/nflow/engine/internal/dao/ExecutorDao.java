@@ -132,15 +132,6 @@ public class ExecutorDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    System.err.println(jdbc.queryForList("select id from nflow_executor where "
-            + executorGroupCondition + " and id <> ? and expires < current_timestamp", getExecutorId()));
-    jdbc.query("select executor_id, state from nflow_workflow", new RowMapper<Object>() {
-      @Override
-      public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-        System.err.println(rs.getInt(1));
-        System.err.println(rs.getString(2));
-        return null;
-      }});
     List<InstanceInfo> instances = jdbc.query(
         "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
             + executorGroupCondition + " and id <> ? and expires < current_timestamp)", new RowMapper<InstanceInfo>() {
