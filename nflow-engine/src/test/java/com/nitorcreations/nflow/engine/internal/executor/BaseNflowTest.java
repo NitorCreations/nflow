@@ -25,7 +25,7 @@ public abstract class BaseNflowTest {
       .setProcessing(FALSE)
       .setRetries(0)
       .setExecutorGroup("flowInstance1")
-      .setStateVariables(new LinkedHashMap<String,String>() {{put("req", "{ \"parameter\": \"abc\" }"); }});
+      .setStateVariables(new LinkedHashMap<String,String>() {{put("requestData", "{ \"parameter\": \"abc\" }"); }});
   }
 
 }

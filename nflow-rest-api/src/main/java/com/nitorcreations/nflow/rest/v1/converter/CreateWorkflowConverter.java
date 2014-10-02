@@ -32,7 +32,7 @@ public class CreateWorkflowConverter {
       builder.setState(req.startState);
     }
     if (req.requestData != null) {
-      builder.putStateVariable("req", req.requestData);
+      builder.putStateVariable("requestData", req.requestData);
     }
     return builder.build();
   }
