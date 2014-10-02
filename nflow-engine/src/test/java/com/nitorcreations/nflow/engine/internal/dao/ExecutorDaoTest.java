@@ -23,14 +23,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class ExecutorDaoTest extends BaseDaoTest {
   @Inject
   ExecutorDao dao;
-  @Inject
-  WorkflowInstanceDao workflowInstanceDao;
 
   @Test
   public void tickCausesDeadNodeRecoveryPeriodically() {
@@ -51,8 +48,8 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
     dao.recoverWorkflowInstancesFromDeadNodes();
 
-    WorkflowInstance recoveredInstance = workflowInstanceDao.getWorkflowInstance(id);
-    assertThat(recoveredInstance.executorId, is(nullValue()));
+    Integer executorId = jdbcTemplate.queryForObject("select executor_id from nflow_workflow where id = ?", Integer.class, id);
+    assertThat(executorId, is(nullValue()));
 
     List<WorkflowInstanceAction> actions = jdbcTemplate.query("select * from nflow_workflow_action where workflow_id = ?",
         new WorkflowInstanceActionRowMapper(), id);
@@ -67,23 +64,21 @@ public class ExecutorDaoTest extends BaseDaoTest {
     jdbcTemplate.update(new PreparedStatementCreator() {
       @Override
       public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-        int p = 1;
         PreparedStatement ps = connection.prepareStatement(
-            "insert into nflow_workflow(type, external_id, executor_group, state, executor_id) values (?, ?, ?, ?, ?)",
+            "insert into nflow_workflow (type, external_id, executor_group, state, executor_id) values (?, ?, ?, ?, ?)",
             new String[] { "id" });
-        ps.setString(p++, "test");
-        ps.setString(p++, "extId");
-        ps.setString(p++, dao.getExecutorGroup());
-        ps.setString(p++, "processing");
-        ps.setInt(p++, crashedExecutorId);
+        ps.setString(1, "test");
+        ps.setString(2, "extId");
+        ps.setString(3, dao.getExecutorGroup());
+        ps.setString(4, "processing");
+        ps.setInt(5, crashedExecutorId);
         return ps;
       }
     }, keyHolder);
-    int id = keyHolder.getKey().intValue();
-    return id;
+    return keyHolder.getKey().intValue();
   }
 
-  private void insertCrashedExecutor(final int crashedExecutorId, JdbcTemplate jdbcTemplate) {
+  private void insertCrashedExecutor(int crashedExecutorId, JdbcTemplate jdbcTemplate) {
     jdbcTemplate.update(
         "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
         crashedExecutorId, "localhost", 666, dao.getExecutorGroup(), new Timestamp(now().minusDays(1).getMillis()),
