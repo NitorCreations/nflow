@@ -29,7 +29,7 @@ public class EngineConfiguration {
     executor.setCorePoolSize(threadCount);
     executor.setMaxPoolSize(threadCount);
     executor.setKeepAliveSeconds(0);
-    executor.setAwaitTerminationSeconds(60);
+    executor.setAwaitTerminationSeconds(env.getProperty("nflow.dispatcher.await.termination.seconds", Integer.class, 60));
     executor.setWaitForTasksToCompleteOnShutdown(true);
     executor.setNotifyThreshold(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
     executor.setThreadFactory(threadFactory);
