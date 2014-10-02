@@ -5,6 +5,7 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.math.BigDecimal;
@@ -55,6 +56,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     do {
       response = getWorkflowInstance(resp.id, "acceptCreditApplication");
     } while (response.nextActivation != null);
+    assertTrue(response.stateVariables.containsKey("info"));
   }
 
   @Test
