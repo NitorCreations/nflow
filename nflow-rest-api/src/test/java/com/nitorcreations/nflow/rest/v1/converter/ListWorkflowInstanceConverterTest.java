@@ -6,14 +6,26 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -22,23 +34,33 @@ import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ListWorkflowInstanceConverterTest {
-
-  private ListWorkflowInstanceConverter converter;
-
-  @Before
-  public void setup() {
-    converter = new ListWorkflowInstanceConverter();
-  }
+  @Mock
+  private ObjectMapper nflowObjectMapper;
+  @InjectMocks
+  private final ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
 
   @Test
-  public void convertWithActionsWorks() {
+  public void convertWithActionsWorks() throws IOException {
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
+    Map<String, String> stateVariables = new LinkedHashMap<>();
+    stateVariables.put("foo", "1");
+    stateVariables.put("bar", "quux");
+
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now()).
-        setActions(Arrays.asList(a)).build();
+        setActions(Arrays.asList(a)).
+        setStateVariables(stateVariables).build();
+
+    JsonNode node1 = mock(JsonNode.class);
+    JsonNode nodeQuux = mock(JsonNode.class);
+    when(nflowObjectMapper.readTree("1")).thenReturn(node1);
+    when(nflowObjectMapper.readTree("quux")).thenReturn(nodeQuux);
 
     ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().setIncludeActions(true).build());
+
+    verify(nflowObjectMapper).readTree("1");
+    verify(nflowObjectMapper).readTree("quux");
     assertThat(resp.id, is(i.id));
     assertThat(resp.type, is(i.type));
     assertThat(resp.businessKey, is(i.businessKey));
@@ -60,6 +82,86 @@ public class ListWorkflowInstanceConverterTest {
 
     ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
     assertThat(resp.id, is(i.id));
+    assertThat(resp.type, is(i.type));
+    assertThat(resp.businessKey, is(i.businessKey));
+    assertThat(resp.externalId, is(i.externalId));
+    assertThat(resp.state, is(i.state));
+    assertThat(resp.stateText, is(i.stateText));
+    assertThat(resp.nextActivation, is(i.nextActivation));
+    assertThat(resp.actions, nullValue());
+  }
+
+
+  @Test
+  public void convertWithoutStateVariablesWorks() {
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
+    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
+        setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
+        .setActions(Arrays.asList(a))
+        .build();
+
+    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+    assertThat(resp.id, is(i.id));
+    assertThat(resp.stateVariables, is((Map<String, Object>)null));
+    assertThat(resp.type, is(i.type));
+    assertThat(resp.businessKey, is(i.businessKey));
+    assertThat(resp.externalId, is(i.externalId));
+    assertThat(resp.state, is(i.state));
+    assertThat(resp.stateText, is(i.stateText));
+    assertThat(resp.nextActivation, is(i.nextActivation));
+    assertThat(resp.actions, nullValue());
+  }
+
+  @Test
+  public void convertWithEmptyStateVariablesWorks() {
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
+    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
+        setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
+        .setActions(Arrays.asList(a))
+        .setStateVariables(new LinkedHashMap<String, String>()). build();
+
+    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+    assertThat(resp.id, is(i.id));
+    assertThat(resp.stateVariables, is((Map<String, Object>)null));
+    assertThat(resp.type, is(i.type));
+    assertThat(resp.businessKey, is(i.businessKey));
+    assertThat(resp.externalId, is(i.externalId));
+    assertThat(resp.state, is(i.state));
+    assertThat(resp.stateText, is(i.stateText));
+    assertThat(resp.nextActivation, is(i.nextActivation));
+    assertThat(resp.actions, nullValue());
+  }
+
+  @Test
+  public void convertWithMalformedStateVariablesWorks() throws JsonProcessingException, IOException {
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
+    Map<String, String> stateVariables = new LinkedHashMap<>();
+    String value1 = "{\"a\":1";
+    String value2 = "quux\"";
+    stateVariables.put("foo", value1);
+    stateVariables.put("bar", value2);
+
+    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
+        setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
+        .setActions(Arrays.asList(a))
+        .setStateVariables(stateVariables). build();
+
+    when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException("bad data", null));
+    when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException("bad data", null));
+
+    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+
+    verify(nflowObjectMapper).readTree(value1);
+    verify(nflowObjectMapper).readTree(value2);
+    Map<String, Object> expectedStateVariables = new LinkedHashMap<>();
+    expectedStateVariables.put("foo", new TextNode(value1));
+    expectedStateVariables.put("bar", new TextNode(value2));
+
+    assertThat(resp.id, is(i.id));
+    assertThat(resp.stateVariables, is(expectedStateVariables));
     assertThat(resp.type, is(i.type));
     assertThat(resp.businessKey, is(i.businessKey));
     assertThat(resp.externalId, is(i.externalId));
