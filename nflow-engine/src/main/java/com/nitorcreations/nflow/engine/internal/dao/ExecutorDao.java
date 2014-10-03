@@ -8,7 +8,9 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,19 +22,22 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Component
 @DependsOn("nflowDatabaseInitializer")
 public class ExecutorDao {
-  private final JdbcTemplate jdbc;
+  private JdbcTemplate jdbc;
   final SQLVariants sqlVariants;
+  private WorkflowInstanceDao workflowInstanceDao;
 
   private final int keepaliveIntervalSeconds;
   private DateTime nextUpdate = now();
@@ -43,13 +48,27 @@ public class ExecutorDao {
   int executorId = -1;
 
   @Inject
-  public ExecutorDao(@Named("nflowDatasource") DataSource dataSource, Environment env, SQLVariants sqlVariants) {
+  public ExecutorDao(Environment env, SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
-    this.jdbc = new JdbcTemplate(dataSource);
     this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
     keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
+  }
+
+  /**
+   * Use setter injection because having the dataSource in constructor may not work
+   * when nFlow is used in some legacy systems.
+   * @param dataSource The nFlow data source.
+   */
+  @Inject
+  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
+    this.jdbc = new JdbcTemplate(dataSource);
+  }
+
+  @Inject
+  public void setWorkflowInstanceDao(WorkflowInstanceDao workflowInstanceDao) {
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   private static String createWhereCondition(String group) {
@@ -113,12 +132,35 @@ public class ExecutorDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    updateWithPreparedStatement("update nflow_workflow set executor_id = null where executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)");
+    List<InstanceInfo> instances = jdbc.query(
+        "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
+            + executorGroupCondition + " and id <> ? and expires < current_timestamp)", new RowMapper<InstanceInfo>() {
+          @Override
+          public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+            InstanceInfo instance = new InstanceInfo();
+            instance.id = rs.getInt(1);
+            instance.state = rs.getString(2);
+            return instance;
+          }
+        }, getExecutorId());
+    for (InstanceInfo instance : instances) {
+      int updated = jdbc.update("update nflow_workflow set executor_id = null where id = ? and executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
+          instance.id, getExecutorId());
+      if (updated > 0) {
+        WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
+            .setExecutorId(getExecutorId()).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
+        workflowInstanceDao.insertWorkflowInstanceAction(action);
+      }
+    }
+  }
+
+  static final class InstanceInfo {
+    public int id;
+    public String state;
   }
 
   private void updateWithPreparedStatement(String sql) {
     // jdbc.update(sql) won't use prepared statements, this uses.
     jdbc.update(sql, (PreparedStatementSetter)null);
-
   }
 }

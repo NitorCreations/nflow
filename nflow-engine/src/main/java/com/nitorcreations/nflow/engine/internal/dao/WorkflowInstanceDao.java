@@ -49,14 +49,22 @@ public class WorkflowInstanceDao {
 
   private JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
-
-  @Inject
   ExecutorDao executorInfo;
 
+  /**
+   * Use setter injection because having the dataSource in constructor may not work
+   * when nFlow is used in some legacy systems.
+   * @param dataSource The nFlow data source.
+   */
   @Inject
   public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
     this.jdbc = new JdbcTemplate(dataSource);
     this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
+  }
+
+  @Inject
+  public void setExecutorDao(ExecutorDao executorDao) {
+    this.executorInfo = executorDao;
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -232,8 +240,13 @@ public class WorkflowInstanceDao {
         new WorkflowInstanceActionRowMapper(), instance.id));
   }
 
-  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
   public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
+    int actionId = insertWorkflowInstanceAction(action);
+    insertVariables(action.workflowInstanceId, actionId, instance.stateVariables, instance.originalStateVariables);
+  }
+
+  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
+  public int insertWorkflowInstanceAction(final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
@@ -253,8 +266,7 @@ public class WorkflowInstanceDao {
         return p;
       }
     }, keyHolder);
-    int actionId = keyHolder.getKey().intValue();
-    insertVariables(action.workflowInstanceId, actionId, instance.stateVariables, instance.originalStateVariables);
+    return keyHolder.getKey().intValue();
   }
 
   static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
