@@ -35,7 +35,7 @@ public class ListWorkflowInstanceResponse {
   @ApiModelProperty(value = "Next activation time for workflow instance processing", required=false)
   public DateTime nextActivation;
 
-  @ApiModelProperty(value = "State vars.", required=false)
+  @ApiModelProperty(value = "State variables for current state.", required=false)
   public Map<String, Object> stateVariables;
 
   @ApiModelProperty(value = "State change attempts. One instance for each processing attempt.", required=false)
