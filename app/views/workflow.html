@@ -1,0 +1,17 @@
+
+<h1>{{workflow.type}}</h1>
+<blockquote>{{workflow.description}}</blockquote>
+
+<h2>States</h2>
+
+<ul ng-repeat="state in workflow.states">
+   <!-- {{state}} -->
+    <li>{{state.name}} - {{state.description}}</li>
+</ul>
+
+
+<h2>Canvas1</h2>
+<div id="canvas1"></div>
+
+<h2>Canvas2</h2>
+<div id="canvas2"></div>
