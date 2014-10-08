@@ -57,7 +57,8 @@ public class ListWorkflowInstanceConverterTest {
     when(nflowObjectMapper.readTree("1")).thenReturn(node1);
     when(nflowObjectMapper.readTree("quux")).thenReturn(nodeQuux);
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().setIncludeActions(true).build());
+    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder()
+                .setIncludeActions(true).setIncludeCurrentStateVariables(true).build());
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -152,7 +153,7 @@ public class ListWorkflowInstanceConverterTest {
     when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException("bad data", null));
     when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException("bad data", null));
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(true).build());
 
     verify(nflowObjectMapper).readTree(value1);
     verify(nflowObjectMapper).readTree(value2);

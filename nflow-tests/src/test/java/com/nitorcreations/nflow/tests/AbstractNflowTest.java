@@ -49,7 +49,7 @@ public abstract class AbstractNflowTest {
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
     WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
-    client.query("include", "actions", "stateVariables", "actionStates");
+    client.query("include", "currentStateVariables,actionStateVariables,actions");
     return client.get(ListWorkflowInstanceResponse.class);
   }
 

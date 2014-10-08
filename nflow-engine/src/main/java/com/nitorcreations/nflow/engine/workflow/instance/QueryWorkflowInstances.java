@@ -41,6 +41,11 @@ public class QueryWorkflowInstances {
   public final boolean includeActions;
 
   /**
+   * Setting this to true will make the query return also the current state variables for the workflow.
+   */
+  public final boolean includeCurrentStateVariables;
+
+  /**
    * Setting this to true will make the query return also the updated state variables for workflow actions.
    */
   public final boolean includeActionStateVariables;
@@ -53,6 +58,7 @@ public class QueryWorkflowInstances {
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
     this.includeActions = builder.includeActions;
+    this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
   }
 
@@ -66,6 +72,7 @@ public class QueryWorkflowInstances {
     String businessKey;
     String externalId;
     boolean includeActions;
+    boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
 
     /**
@@ -133,7 +140,15 @@ public class QueryWorkflowInstances {
       this.includeActions = includeActions;
       return this;
     }
-
+    /**
+     * Set whether current workflow state variables should be included in the results.
+     * @param includeActions True to include state variables, false otherwise.
+     * @return this.
+     */
+    public Builder setIncludeCurrentStateVariables(boolean includeCurrentStateVariables) {
+      this.includeCurrentStateVariables = includeCurrentStateVariables;
+      return this;
+    }
     /**
      * Set whether state variables for workflow actions should be included in the results.
      * @param includeActionStateVariables True to include state variables, false otherwise.

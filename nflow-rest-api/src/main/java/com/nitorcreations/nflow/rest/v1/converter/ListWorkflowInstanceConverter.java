@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.rest.v1.converter;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -39,17 +41,23 @@ public class ListWorkflowInstanceConverter {
     if (query.includeActions) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
-        resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
-            action.executionStart, action.executionEnd, stateVariablesToJson(action.updatedStateVariables)));
+        if(query.includeActionStateVariables) {
+          resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
+              action.executionStart, action.executionEnd, stateVariablesToJson(action.updatedStateVariables)));
+        } else {
+          resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
+              action.executionStart, action.executionEnd));
+        }
       }
     }
-
-    resp.stateVariables = stateVariablesToJson(instance.stateVariables);
+    if(query.includeCurrentStateVariables) {
+      resp.stateVariables = stateVariablesToJson(instance.stateVariables);
+    }
     return resp;
   }
 
   private Map<String, Object> stateVariablesToJson(Map<String, String>  stateVariables) {
-    if(stateVariables == null || stateVariables.isEmpty()) {
+    if(isEmpty(stateVariables)) {
       return null;
     }
     Map<String, Object> jsonStateVariables = new LinkedHashMap<>();
