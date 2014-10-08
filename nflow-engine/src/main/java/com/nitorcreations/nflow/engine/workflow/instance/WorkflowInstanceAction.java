@@ -1,6 +1,10 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import static java.util.Collections.unmodifiableMap;
 import static org.joda.time.DateTime.now;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
@@ -37,6 +41,11 @@ public class WorkflowInstanceAction {
   public final String stateText;
 
   /**
+   * State variables that were updated in this state.
+   */
+  public final Map<String, String> updatedStateVariables;
+
+  /**
    * The retry attempt number. Zero when the state is executed for the first time.
    */
   public final int retryNo;
@@ -57,6 +66,7 @@ public class WorkflowInstanceAction {
     this.executorId = builder.executorId;
     this.state = builder.state;
     this.stateText = builder.stateText;
+    this.updatedStateVariables = unmodifiableMap(builder.updatedStateVariables);
     this.retryNo = builder.retryNo;
     this.executionStart = builder.executionStart;
     this.executionEnd = builder.executionEnd;
@@ -74,6 +84,7 @@ public class WorkflowInstanceAction {
     int retryNo;
     DateTime executionStart;
     DateTime executionEnd;
+    Map<String, String> updatedStateVariables = new LinkedHashMap<>();
 
     /**
      * Create a builder for a workflow instance action.
@@ -140,6 +151,16 @@ public class WorkflowInstanceAction {
      */
     public Builder setStateText(String stateText) {
       this.stateText = stateText;
+      return this;
+    }
+
+    /**
+     * Set the updated state variables.
+     * @param updatedStateVariables The updated state variables.
+     * @return this.
+     */
+    public Builder setUpdatedStateVariables(Map<String, String> updatedStateVariables) {
+      this.updatedStateVariables = updatedStateVariables;
       return this;
     }
 

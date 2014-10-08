@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.rest.v1.converter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -39,16 +40,24 @@ public class ListWorkflowInstanceConverter {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
         resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
-            action.executionStart, action.executionEnd));
+            action.executionStart, action.executionEnd, stateVariablesToJson(action.updatedStateVariables)));
       }
     }
-    if(instance.stateVariables != null && !instance.stateVariables.isEmpty()) {
-      resp.stateVariables = new LinkedHashMap<>();
-      for(Entry<String, String> entry : instance.stateVariables.entrySet()) {
-        resp.stateVariables.put(entry.getKey(), stringToJson(entry.getValue()));
-      }
-    }
+
+    resp.stateVariables = stateVariablesToJson(instance.stateVariables);
     return resp;
+  }
+
+  private Map<String, Object> stateVariablesToJson(Map<String, String>  stateVariables) {
+    if(stateVariables == null || stateVariables.isEmpty()) {
+      return null;
+    }
+    Map<String, Object> jsonStateVariables = new LinkedHashMap<>();
+    for(Entry<String, String> entry : stateVariables.entrySet()) {
+      jsonStateVariables.put(entry.getKey(), stringToJson(entry.getValue()));
+    }
+
+    return jsonStateVariables;
   }
 
   private JsonNode stringToJson(String value) {

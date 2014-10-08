@@ -120,7 +120,7 @@ public class WorkflowInstanceResource {
       @ApiParam(value = "Data to include in response. actions = state transitions.", allowableValues="actions")
       String include) {
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
-        .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
+        .setExternalId(externalId).setIncludeActions("actions".equals(include)).setIncludeActionStateVariables(true).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
