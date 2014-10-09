@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
+import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -162,5 +164,24 @@ public class ExecutorDao {
   private void updateWithPreparedStatement(String sql) {
     // jdbc.update(sql) won't use prepared statements, this uses.
     jdbc.update(sql, (PreparedStatementSetter)null);
+  }
+
+  public List<WorkflowExecutor> getExecutors() {
+    return jdbc.query("select * from nflow_executor where executor_group = ? order by id asc", new RowMapper<WorkflowExecutor>() {
+      @Override
+      public WorkflowExecutor mapRow(ResultSet rs, int rowNum) throws SQLException {
+        int id = rs.getInt("id");
+        String host = rs.getString("host");
+        int pid = rs.getInt("pid");
+        DateTime started = toDateTime(rs.getTimestamp("started"));
+        DateTime active = toDateTime(rs.getTimestamp("active"));
+        DateTime expires = toDateTime(rs.getTimestamp("expires"));
+        return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires);
+      }
+    }, executorGroup);
+  }
+
+  static DateTime toDateTime(Timestamp time) {
+    return time == null ? null : new DateTime(time.getTime());
   }
 }
