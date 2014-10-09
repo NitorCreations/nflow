@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -10,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -179,9 +179,5 @@ public class ExecutorDao {
         return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires);
       }
     }, executorGroup);
-  }
-
-  static DateTime toDateTime(Timestamp time) {
-    return time == null ? null : new DateTime(time.getTime());
   }
 }
