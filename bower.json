@@ -13,7 +13,8 @@
     "angular-touch": "~1.2.0",
     "angular-route": "~1.2.0",
     "vis": "~3.5.0",
-    "underscore": "~1.7.0"
+    "underscore": "~1.7.0",
+    "dagre-d3": "0.2.9"
 
   },
   "devDependencies": {
