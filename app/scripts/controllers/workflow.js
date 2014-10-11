@@ -114,6 +114,23 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     return 'data:image/svg+xml;base64,'+ btoa(html);
   }
 
+  function downloadDataUrl(dataurl, filename) {
+    var a = document.createElement("a");
+    // http://stackoverflow.com/questions/12112844/how-to-detect-support-for-the-html5-download-attribute
+    // TODO firefox supports download attr, but due security doesn't work in our case
+    if("download" in a) {
+      console.debug("Download via a.href,a.download");
+      a.download = filename;
+      a.href = svgDataUrl();
+      a.click();
+    } else {
+      console.debug("Download via location.href");
+      // http://stackoverflow.com/questions/12676649/javascript-programmatically-trigger-file-download-in-firefox
+      location.href = dataurl;
+    }
+  }
+
+
   /**
    * TODO doesn't work with Firefox
    */
@@ -131,10 +148,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
       // image load is async, must use callback
       context.drawImage(image, 0, 0);
       var canvasdata = canvas.toDataURL(contentType);
-      var a = document.createElement("a");
-      a.download = filename;
-      a.href = canvasdata;
-      a.click();
+      downloadDataUrl(canvasdata, filename);
     };
     image.onerror = function(error) {
       console.error("Image downloading failed", error);
@@ -142,10 +156,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
   }
 
   function downloadSvg(filename) {
-    var a = document.createElement("a");
-    a.download = filename;
-    a.href = svgDataUrl();
-    a.click();
+    downloadDataUrl(svgDataUrl(), filename);
   }
 
   $scope.savePng = function savePng() {
