@@ -46,7 +46,9 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     if($scope.selectedNode) {
       unhiglightNode($scope.selectedNode);
     }
-    higlightNode(nodeId);
+    if(nodeId) {
+      higlightNode(nodeId);
+    }
     $scope.selectedNode = nodeId;
   };
 
@@ -91,10 +93,21 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
         return svgNodes;
       }
     );
-    renderer.run(g, d3.select("svg g"));
 
+    var svgRoot = d3.select('svg'), svgGroup = svgRoot.append('g');
+
+    var layout = renderer.run(g, d3.select("svg g"));
+    var svgBackground = d3.select('svg rect.overlay');
+    svgBackground.attr("style", "fill: white; pointer-events: all;");
+    svgBackground.on("click", function(e) {
+      nodeSelected(null);
+    })
+
+
+    svgGroup.attr('transform', 'translate(20, 20)');
+    svgRoot.attr('height', layout.graph().height + 40);
+    svgRoot.attr('width', layout.graph().width + 40)
     disableZoomPan();
-
   };
 
   WorkflowDefinitions.get({type: $routeParams.type},
@@ -118,10 +131,10 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     var a = document.createElement("a");
     // http://stackoverflow.com/questions/12112844/how-to-detect-support-for-the-html5-download-attribute
     // TODO firefox supports download attr, but due security doesn't work in our case
-    if("download" in a) {
+    if('download' in a) {
       console.debug("Download via a.href,a.download");
       a.download = filename;
-      a.href = svgDataUrl();
+      a.href = dataurl;
       a.click();
     } else {
       console.debug("Download via location.href");
@@ -137,22 +150,24 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
   function downloadImage(dataurl, filename, contentType) {
     console.info("Downloading image", filename, contentType);
     var canvas = document.createElement('canvas');
+    //var canvas = document.getElementById('dagreCanvas');
+
     var context = canvas.getContext('2d');
-    canvas.height=680
-    canvas.width=650
+    var svg = $('svg');
+    canvas.height = svg.attr('height')
+    canvas.width = svg.attr('width')
     var image = new Image();
-    image.height = 680
-    image.width=650
-    image.src = dataurl;
     image.onload = function(e) {
       // image load is async, must use callback
       context.drawImage(image, 0, 0);
       var canvasdata = canvas.toDataURL(contentType);
+      console.log(contentType, canvasdata);
       downloadDataUrl(canvasdata, filename);
     };
     image.onerror = function(error) {
       console.error("Image downloading failed", error);
     };
+    image.src = dataurl;
   }
 
   function downloadSvg(filename) {
