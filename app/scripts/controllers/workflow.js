@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+ * Display single workflow definition
+ */
 var app = angular.module('nflowVisApp');
 
 app.factory('WorkflowDefinitions', function ($resource, config) {
@@ -13,102 +15,147 @@ app.factory('Workflows', function ($resource) {
 });
 
 app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routeParams) {
+  function nodeDomId(nodeId) {
+    return "node-" + nodeId;
+  }
+  function disableZoomPan() {
+    var svg =  d3.select("svg");
+    // panning off
+    svg.on("mousedown.zoom", null);
+    svg.on("mousemove.zoom", null);
+    // zooming off
+    svg.on("dblclick.zoom", null);
+    svg.on("touchstart.zoom", null);
+    svg.on("wheel.zoom", null);
+    svg.on("mousewheel.zoom", null);
+    svg.on("MozMousePixelScroll.zoom", null);
+  }
 
-  function nodeSelected(node) {
-    // TODO
-    console.info(node + " selected")
+  function higlightNode(nodeId) {
+    $('#' + nodeDomId(nodeId)).css("stroke-width", "3px");
+  }
+
+  function unhiglightNode(nodeId) {
+    $('#' + nodeDomId(nodeId)).css("stroke-width", "1.5px");
+  }
+
+
+  /** called when node is clicked */
+  function nodeSelected(nodeId) {
+    console.info(nodeId + " selected")
+    if($scope.selectedNode) {
+      unhiglightNode($scope.selectedNode);
+    }
+    higlightNode(nodeId);
+    $scope.selectedNode = nodeId;
   };
 
-  function drawGraphVisJs(definition, canvasId) {
-    function buildNetwork(def) {
-      // create an array with nodes
-      var nodes = [];
-      var edges = [];
-      for(var i in def.states) {
-        var state = def.states[i];
-        var node = {id: state.id,
-                    label: state.name,
-                    title: state.description};
-        if(state.type === "manual") {
-          node.color = {};
-          node.color.border = "black";
-        }
-        if(state.type === "start") {
-          node.shape = "star";
-        }
-        if(state.type === "end") {
-          node.color = {};
-          node.color.border = "green";
-          node.color.background = "lightgreen";
-        }
-        nodes.push(node);
+  function drawGraphDagre(definition, canvasId) {
+    var g = new dagreD3.Digraph();
 
-        for(var k in state.transitions){
-          var transition = state.transitions[k];
-          var edge = {from: state.id,
-                      to: transition,
-                      style: 'arrow'};
-          edges.push(edge);
-        }
-      }
-      console.log(edges);
+    // All nodes must be in graph before edges
 
-      var data = {
-        nodes: nodes,
-        edges: edges
-      };
-      return data;
-    };
-    var container = document.getElementById(canvasId);
-    var options = {
-      zoomable: false,
-      selectable: false,
-      dragNetwork: false,
-      dragNodes: false,
-      hierarchicalLayout: {
-        enabled:false,
-        //levelSeparation: 150,
-        //nodeSpacing: 100,
-        direction: "UD",
-        layout: "direction"
-      }
-    };
-    var network = new vis.Network(container, buildNetwork(definition), options);
-    network.on("select", function(selection) {
-      if(selection.nodes.length > 0) {
-        nodeSelected(_.first(selection.nodes));
-      }
-    });
-
-  };
-
-
-  function drawGraphVizJs(definition, canvasId) {
-    var container = document.getElementById(canvasId);
-    var svgPrefix = "<svg xmlns='http://www.w3.org/2000/svg' width='300px' height='300px'>";
-    var g = "";
+    // Exported SVG has silly defaults for some styles
+    // so the are overridden here.
     for(var i in definition.states) {
       var state = definition.states[i];
+      g.addNode(state.name, {label: state.name,
+                             labelStyle: "font-size: 14px;" +
+                             'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
+                             stroke: "black",
+                             style: "stroke-width: 1.5px"
+                             })
+    }
 
+    for(var i in definition.states) {
+      var state = definition.states[i];
       for(var k in state.transitions){
         var transition = state.transitions[k];
-        g += state.name + " -> " + transition + "; ";
+        g.addEdge(null, state.name, transition,
+                  {style: "stroke: black; fill: none;"});
       }
     }
 
-    var svg = Viz("digraph { " + g + " }", "svg");
+    var renderer = new dagreD3.Renderer();
+    var oldDrawNodes = renderer.drawNodes();
+    renderer.drawNodes(
+      function(g, root) {
+        var svgNodes = oldDrawNodes(g, root);
+        svgNodes.select("rect").attr("id",
+                                  function(nodeId) {
+                                    return nodeDomId(nodeId);
+                                  });
+        svgNodes.on("click", function(nodeId) {
+          nodeSelected(nodeId)
+        });
+        return svgNodes;
+      }
+    );
+    renderer.run(g, d3.select("svg g"));
 
-    console.log(g);
+    disableZoomPan();
 
-    container.innerHTML = svg;
   };
 
   WorkflowDefinitions.get({type: $routeParams.type},
                           function(data) {
+                            var start = new Date().getTime();
                             var definition =  _.first(data);
                             $scope.workflow = definition;
-                            drawGraphVisJs(definition, "canvas1");
-                            drawGraphVizJs(definition, "canvas2");
+                            drawGraphDagre(definition, "dagreSvg");
+                            console.debug("Rendering dagre graph took " + (new Date().getTime() - start) + " msec" )
                           });
+
+  function svgDataUrl() {
+    var html = d3.select("svg")
+      .attr("version", 1.1)
+      .attr("xmlns", "http://www.w3.org/2000/svg")
+      .node().outerHTML;
+    return 'data:image/svg+xml;base64,'+ btoa(html);
+  }
+
+  /**
+   * TODO doesn't work with Firefox
+   */
+  function downloadImage(dataurl, filename, contentType) {
+    console.info("Downloading image", filename, contentType);
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    canvas.height=680
+    canvas.width=650
+    var image = new Image();
+    image.height = 680
+    image.width=650
+    image.src = dataurl;
+    image.onload = function(e) {
+      // image load is async, must use callback
+      context.drawImage(image, 0, 0);
+      var canvasdata = canvas.toDataURL(contentType);
+      var a = document.createElement("a");
+      a.download = filename;
+      a.href = canvasdata;
+      a.click();
+    };
+    image.onerror = function(error) {
+      console.error("Image downloading failed", error);
+    };
+  }
+
+  function downloadSvg(filename) {
+    var a = document.createElement("a");
+    a.download = filename;
+    a.href = svgDataUrl();
+    a.click();
+  }
+
+  $scope.savePng = function savePng() {
+    console.log("Save PNG");
+    downloadImage(svgDataUrl(), $scope.workflow.type + ".png", "image/png")
+  }
+
+  $scope.saveSvg = function saveSvg() {
+    console.log("Save SVG");
+    downloadSvg($scope.workflow.type + ".svg");
+  }
 });
 
