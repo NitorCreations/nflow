@@ -7,13 +7,16 @@
 <svg id="dagreSvg" width="650" height="680">
 </svg>
 <!--
--->
 <canvas id="dagreCanvas" width="650" height="680"></canvas>
+-->
 
 
 <h2>States</h2>
 
-<ul ng-repeat="state in workflow.states">
+<ul id="state-list">
    <!-- {{state}} -->
-    <li>{{state.name}} - {{state.description}}</li>
+    <li class="{{state.selected}}" ng-repeat="state in workflow.states"
+        ng-click="nodeSelected(state.id)">
+        {{state.name}} - {{state.description}}
+    </li>
 </ul>

@@ -15,11 +15,16 @@ app.factory('Workflows', function ($resource) {
 });
 
 app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routeParams) {
+
   function nodeDomId(nodeId) {
-    return "node-" + nodeId;
+    return "node_" + nodeId;
+  }
+  function edgeDomId(edgeId) {
+    return "edge" + edgeId;
   }
   function disableZoomPan() {
     var svg =  d3.select("svg");
+
     // panning off
     svg.on("mousedown.zoom", null);
     svg.on("mousemove.zoom", null);
@@ -31,18 +36,50 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     svg.on("MozMousePixelScroll.zoom", null);
   }
 
+  function nodeEdges(nodeId) {
+    var g = $scope.graph;
+    var inEdges = _.flatten(_.map(g._inEdges[nodeId], function(e) {
+      return e.keys();
+    }));
+    var outEdges = _.flatten(_.map(g._outEdges[nodeId], function(e) {
+      return e.keys();
+    }));
+    return _.flatten([inEdges, outEdges]);
+  }
+
+  function highlightEdges(nodeId) {
+    _.each(nodeEdges(nodeId), function(edgeId) {
+      $('#' + edgeDomId(edgeId)).css('stroke-width', '2px');
+    });
+  }
+
+  function unhighlightEdges(nodeId) {
+    _.each(nodeEdges(nodeId), function(edgeId) {
+      $('#' + edgeDomId(edgeId)).css('stroke-width', '1px');
+    });
+  }
+
   function higlightNode(nodeId) {
+    highlightEdges(nodeId);
     $('#' + nodeDomId(nodeId)).css("stroke-width", "3px");
+    var state = _.find($scope.workflow.states,
+                       function(state) {
+                         return state.id === nodeId;
+                       });
+    state.selected = "highlight";
   }
 
   function unhiglightNode(nodeId) {
+    unhighlightEdges(nodeId);
     $('#' + nodeDomId(nodeId)).css("stroke-width", "1.5px");
+    _.each($scope.workflow.states, function(state) {
+      state.selected = undefined;
+    });
   }
-
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
-    console.info(nodeId + " selected")
+    console.debug("Selecting node " + nodeId);
     if($scope.selectedNode) {
       unhiglightNode($scope.selectedNode);
     }
@@ -50,15 +87,17 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
       higlightNode(nodeId);
     }
     $scope.selectedNode = nodeId;
-  };
+  }
+
+  $scope.nodeSelected = nodeSelected;
 
   function drawGraphDagre(definition, canvasId) {
     var g = new dagreD3.Digraph();
-
+    $scope.graph = g;
     // All nodes must be in graph before edges
 
     // Exported SVG has silly defaults for some styles
-    // so the are overridden here.
+    // so they are overridden here.
     for(var i in definition.states) {
       var state = definition.states[i];
       g.addNode(state.name, {label: state.name,
@@ -69,6 +108,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
                              })
     }
 
+    // Add edges
     for(var i in definition.states) {
       var state = definition.states[i];
       for(var k in state.transitions){
@@ -82,17 +122,34 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     var oldDrawNodes = renderer.drawNodes();
     renderer.drawNodes(
       function(g, root) {
-        var svgNodes = oldDrawNodes(g, root);
-        svgNodes.select("rect").attr("id",
+        var nodes = oldDrawNodes(g, root);
+        // add id attr to nodes' background rects
+        nodes.select("rect").attr("id",
                                   function(nodeId) {
                                     return nodeDomId(nodeId);
                                   });
-        svgNodes.on("click", function(nodeId) {
-          nodeSelected(nodeId)
+
+        // event handler for clicking nodes
+        nodes.on("click", function(nodeId) {
+          // must use $apply() - event not managed by angular
+          $scope.$apply(function() {
+            nodeSelected(nodeId)
+          });
         });
-        return svgNodes;
-      }
-    );
+        return nodes;
+      });
+
+    var oldDrawEdgePaths = renderer.drawEdgePaths();
+    renderer.drawEdgePaths(
+      function(g, root) {
+        var edges = oldDrawEdgePaths(g, root);
+        // add id to edges
+        edges.selectAll("*").attr("id", function(edgeId) {
+          return edgeDomId(edgeId);
+        });
+        return edges;
+      });
+
 
     var svgRoot = d3.select('svg'), svgGroup = svgRoot.append('g');
 
@@ -100,7 +157,11 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     var svgBackground = d3.select('svg rect.overlay');
     svgBackground.attr("style", "fill: white; pointer-events: all;");
     svgBackground.on("click", function(e) {
-      nodeSelected(null);
+      // event handler for clicking outside nodes
+      // must use $apply() - event not managed by angular
+      $scope.$apply(function() {
+        nodeSelected(null);
+      });
     })
 
 
@@ -144,9 +205,6 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
   }
 
 
-  /**
-   * TODO doesn't work with Firefox
-   */
   function downloadImage(dataurl, filename, contentType) {
     console.info("Downloading image", filename, contentType);
     var canvas = document.createElement('canvas');
