@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.tests;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
@@ -78,6 +79,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     if (value == null && expectedValue == null) {
       return;
     }
+    assertNotNull(value);
     assertEquals(expectedValue, value.get("value"));
   }
 }
