@@ -50,6 +50,9 @@ public class StartNflow
 
   private final Set<Class<?>> annotatedContextClasses = new LinkedHashSet<>();
 
+  public static final String DEFAULT_HOST = "localhost";
+  public static final int DEFAULT_PORT = 7500;
+
   public static void main(final String... args) throws Exception {
     new StartNflow().startJetty(Collections.<String, Object>emptyMap());
   }
@@ -76,8 +79,8 @@ public class StartNflow
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
     ConfigurableEnvironment env = new NflowStandardEnvironment(properties);
-    String host = env.getProperty("host", "localhost");
-    int port = env.getProperty("port", Integer.class, 7500);
+    String host = env.getProperty("host", DEFAULT_HOST);
+    int port = env.getProperty("port", Integer.class, DEFAULT_PORT);
     KillProcess.killProcessUsingPort(port);
     Server server = setupServer();
     setupJmx(server, env);
