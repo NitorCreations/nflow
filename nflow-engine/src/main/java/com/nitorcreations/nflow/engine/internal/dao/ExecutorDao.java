@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -28,6 +29,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
+import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -162,5 +164,20 @@ public class ExecutorDao {
   private void updateWithPreparedStatement(String sql) {
     // jdbc.update(sql) won't use prepared statements, this uses.
     jdbc.update(sql, (PreparedStatementSetter)null);
+  }
+
+  public List<WorkflowExecutor> getExecutors() {
+    return jdbc.query("select * from nflow_executor where executor_group = ? order by id asc", new RowMapper<WorkflowExecutor>() {
+      @Override
+      public WorkflowExecutor mapRow(ResultSet rs, int rowNum) throws SQLException {
+        int id = rs.getInt("id");
+        String host = rs.getString("host");
+        int pid = rs.getInt("pid");
+        DateTime started = toDateTime(rs.getTimestamp("started"));
+        DateTime active = toDateTime(rs.getTimestamp("active"));
+        DateTime expires = toDateTime(rs.getTimestamp("expires"));
+        return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires);
+      }
+    }, executorGroup);
   }
 }
