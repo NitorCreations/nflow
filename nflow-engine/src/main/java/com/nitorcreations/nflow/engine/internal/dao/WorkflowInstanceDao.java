@@ -47,8 +47,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 public class WorkflowInstanceDao {
 
-  private static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
-  private static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
+  static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
+  static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
 
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
