@@ -47,7 +47,9 @@ public class WorkflowInstanceResource {
   private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
-
+  public static final String currentStateVariables = "currentStateVariables";
+  public static final String actions = "actions";
+  public static final String actionStateVariables = "actionStateVariables";
   @Inject
   public WorkflowInstanceResource(
       WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
@@ -93,7 +95,7 @@ public class WorkflowInstanceResource {
       @ApiParam("Internal id for workflow instance")
       @PathParam("id") int id) {
     Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null,
-        "actions,currentStateVariables,actionStateVariables");
+        actions + "," + currentStateVariables + "," + actionStateVariables);
     if(instances.isEmpty()) {
       return null;
     }
@@ -120,15 +122,15 @@ public class WorkflowInstanceResource {
       String externalId,
       @QueryParam("include")
       @ApiParam(value = "Data to include in response. currentStateVariables = current stateVariables for worfklow, actions = state transitions, actionStateVariables = state variable changes for actions",
-        allowableValues = "currentStateVariables,actions,actionStateVariables",
+        allowableValues = currentStateVariables + "," + actions + "," + actionStateVariables,
         allowMultiple = true)
       String include) {
     List<String> includes = parseIncludes(include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
         .setExternalId(externalId)
-        .setIncludeCurrentStateVariables(includes.contains("currentStateVariables"))
-        .setIncludeActions(includes.contains("actions"))
-        .setIncludeActionStateVariables(includes.contains("actionStateVariables")).build();
+        .setIncludeCurrentStateVariables(includes.contains(currentStateVariables))
+        .setIncludeActions(includes.contains(actions))
+        .setIncludeActionStateVariables(includes.contains(actionStateVariables)).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
