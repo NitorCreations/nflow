@@ -47,6 +47,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 public class WorkflowInstanceDao {
 
+  private static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
+  private static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
+
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
 
@@ -82,7 +85,7 @@ public class WorkflowInstanceDao {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorInfo), keyHolder);
     int id = keyHolder.getKey().intValue();
-    insertVariables(id, 0, instance.stateVariables, Collections.<String, String>emptyMap());
+    insertVariables(id, 0, instance.stateVariables, EMPTY_STATE_MAP);
     return id;
   }
 
@@ -240,7 +243,7 @@ public class WorkflowInstanceDao {
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables) {
     Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance) :
-      Collections.<Integer, Map<String, String>>emptyMap();
+      EMPTY_ACTION_STATE_MAP;
     instance.actions.addAll(jdbc.query("select * from nflow_workflow_action where workflow_id = ? order by id asc",
         new WorkflowInstanceActionRowMapper(actionStates), instance.id));
   }
@@ -361,7 +364,7 @@ public class WorkflowInstanceDao {
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
       int actionId = rs.getInt("id");
       Map<String, String> actionState = actionStates.containsKey(actionId) ? actionStates.get(actionId) :
-        Collections.<String,String>emptyMap();
+        EMPTY_STATE_MAP;
       return new WorkflowInstanceAction.Builder()
         .setWorkflowInstanceId(rs.getInt("workflow_id"))
         .setExecutorId(rs.getInt("executor_id"))
