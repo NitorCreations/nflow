@@ -1,5 +1,9 @@
 package com.nitorcreations.nflow.jetty.config;
 
+import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_HOST;
+import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_PORT;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import java.util.Arrays;
 
 import javax.inject.Inject;
@@ -16,6 +20,8 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -41,8 +47,10 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @Import(value = { RestConfiguration.class, JmxConfiguration.class})
 public class NflowJettyConfiguration {
 
+  private static final Logger logger = LoggerFactory.getLogger(NflowJettyConfiguration.class);
+
   @Inject
-  private Environment env;
+  Environment env;
 
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource, WorkflowDefinitionResource workflowDefinitionResource, @Named("nflowRestObjectMapper") ObjectMapper mapper) {
@@ -96,11 +104,16 @@ public class NflowJettyConfiguration {
     config.setVersion("1.0.0");
     config.setScan(true);
     config.setResourcePackage(WorkflowInstanceResource.class.getPackage().getName());
-    config.setBasePath(
-        String.format("http://%s:%s",
-            env.getProperty("swagger.server", "localhost"),
-            env.getProperty("swagger.port", "7500")
-    ));
+    String basePath = env.getProperty("swagger.basepath");
+    if (isEmpty(basePath)) {
+      basePath = String.format("%s://%s:%d%s",
+          env.getProperty("swagger.basepath.protocol", "http"),
+          env.getProperty("swagger.basepath.server", env.getProperty("host", DEFAULT_HOST)),
+          env.getProperty("swagger.basepath.port", Integer.class, env.getProperty("port", Integer.class, DEFAULT_PORT)),
+          env.getProperty("swagger.basepath.context", ""));
+    }
+    logger.debug("Swagger basepath: {}", basePath);
+    config.setBasePath(basePath);
     return config;
   }
 
