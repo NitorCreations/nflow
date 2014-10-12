@@ -19,6 +19,10 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
-    "angular": false
+    "angular": false,
+    "$": false,
+    "_": false,
+    "d3": false,
+    "dagreD3": false
   }
 }

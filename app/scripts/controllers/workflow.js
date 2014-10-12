@@ -17,23 +17,23 @@ app.factory('Workflows', function ($resource) {
 app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routeParams) {
 
   function nodeDomId(nodeId) {
-    return "node_" + nodeId;
+    return 'node_' + nodeId;
   }
   function edgeDomId(edgeId) {
-    return "edge" + edgeId;
+    return 'edge' + edgeId;
   }
   function disableZoomPan() {
-    var svg =  d3.select("svg");
+    var svg =  d3.select('svg');
 
     // panning off
-    svg.on("mousedown.zoom", null);
-    svg.on("mousemove.zoom", null);
+    svg.on('mousedown.zoom', null);
+    svg.on('mousemove.zoom', null);
     // zooming off
-    svg.on("dblclick.zoom", null);
-    svg.on("touchstart.zoom", null);
-    svg.on("wheel.zoom", null);
-    svg.on("mousewheel.zoom", null);
-    svg.on("MozMousePixelScroll.zoom", null);
+    svg.on('dblclick.zoom', null);
+    svg.on('touchstart.zoom', null);
+    svg.on('wheel.zoom', null);
+    svg.on('mousewheel.zoom', null);
+    svg.on('MozMousePixelScroll.zoom', null);
   }
 
   function nodeEdges(nodeId) {
@@ -61,17 +61,17 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
 
   function higlightNode(nodeId) {
     highlightEdges(nodeId);
-    $('#' + nodeDomId(nodeId)).css("stroke-width", "3px");
+    $('#' + nodeDomId(nodeId)).css('stroke-width', '3px');
     var state = _.find($scope.workflow.states,
                        function(state) {
                          return state.id === nodeId;
                        });
-    state.selected = "highlight";
+    state.selected = 'highlight';
   }
 
   function unhiglightNode(nodeId) {
     unhighlightEdges(nodeId);
-    $('#' + nodeDomId(nodeId)).css("stroke-width", "1.5px");
+    $('#' + nodeDomId(nodeId)).css('stroke-width', '1.5px');
     _.each($scope.workflow.states, function(state) {
       state.selected = undefined;
     });
@@ -79,7 +79,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
-    console.debug("Selecting node " + nodeId);
+    console.debug('Selecting node ' + nodeId);
     if($scope.selectedNode) {
       unhiglightNode($scope.selectedNode);
     }
@@ -101,20 +101,20 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     for(var i in definition.states) {
       var state = definition.states[i];
       g.addNode(state.name, {label: state.name,
-                             labelStyle: "font-size: 14px;" +
+                             labelStyle: 'font-size: 14px;' +
                              'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
-                             stroke: "black",
-                             style: "stroke-width: 1.5px"
-                             })
+                             stroke: 'black',
+                             style: 'stroke-width: 1.5px'
+                             });
     }
 
     // Add edges
-    for(var i in definition.states) {
-      var state = definition.states[i];
+    for(var edgeIndex in definition.states) {
+      var state = definition.states[edgeIndex];
       for(var k in state.transitions){
         var transition = state.transitions[k];
         g.addEdge(null, state.name, transition,
-                  {style: "stroke: black; fill: none;"});
+                  {style: 'stroke: black; fill: none;'});
       }
     }
 
@@ -124,16 +124,16 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
       function(g, root) {
         var nodes = oldDrawNodes(g, root);
         // add id attr to nodes' background rects
-        nodes.select("rect").attr("id",
+        nodes.select('rect').attr('id',
                                   function(nodeId) {
                                     return nodeDomId(nodeId);
                                   });
 
         // event handler for clicking nodes
-        nodes.on("click", function(nodeId) {
+        nodes.on('click', function(nodeId) {
           // must use $apply() - event not managed by angular
           $scope.$apply(function() {
-            nodeSelected(nodeId)
+            nodeSelected(nodeId);
           });
         });
         return nodes;
@@ -144,7 +144,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
       function(g, root) {
         var edges = oldDrawEdgePaths(g, root);
         // add id to edges
-        edges.selectAll("*").attr("id", function(edgeId) {
+        edges.selectAll('*').attr('id', function(edgeId) {
           return edgeDomId(edgeId);
         });
         return edges;
@@ -153,52 +153,53 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
 
     var svgRoot = d3.select('svg'), svgGroup = svgRoot.append('g');
 
-    var layout = renderer.run(g, d3.select("svg g"));
+    var layout = renderer.run(g, d3.select('svg g'));
     var svgBackground = d3.select('svg rect.overlay');
-    svgBackground.attr("style", "fill: white; pointer-events: all;");
-    svgBackground.on("click", function(e) {
+    svgBackground.attr('style', 'fill: white; pointer-events: all;');
+    svgBackground.on('click', function() {
       // event handler for clicking outside nodes
       // must use $apply() - event not managed by angular
       $scope.$apply(function() {
         nodeSelected(null);
       });
-    })
+    });
 
 
     svgGroup.attr('transform', 'translate(20, 20)');
     svgRoot.attr('height', layout.graph().height + 40);
-    svgRoot.attr('width', layout.graph().width + 40)
+    svgRoot.attr('width', layout.graph().width + 40);
     disableZoomPan();
-  };
+  }
 
   WorkflowDefinitions.get({type: $routeParams.type},
                           function(data) {
                             var start = new Date().getTime();
                             var definition =  _.first(data);
                             $scope.workflow = definition;
-                            drawGraphDagre(definition, "dagreSvg");
-                            console.debug("Rendering dagre graph took " + (new Date().getTime() - start) + " msec" )
+                            drawGraphDagre(definition, 'dagreSvg');
+                            console.debug('Rendering dagre graph took ' +
+                                          (new Date().getTime() - start) + ' msec' );
                           });
 
   function svgDataUrl() {
-    var html = d3.select("svg")
-      .attr("version", 1.1)
-      .attr("xmlns", "http://www.w3.org/2000/svg")
+    var html = d3.select('svg')
+      .attr('version', 1.1)
+      .attr('xmlns', 'http://www.w3.org/2000/svg')
       .node().outerHTML;
     return 'data:image/svg+xml;base64,'+ btoa(html);
   }
 
   function downloadDataUrl(dataurl, filename) {
-    var a = document.createElement("a");
+    var a = document.createElement('a');
     // http://stackoverflow.com/questions/12112844/how-to-detect-support-for-the-html5-download-attribute
     // TODO firefox supports download attr, but due security doesn't work in our case
     if('download' in a) {
-      console.debug("Download via a.href,a.download");
+      console.debug('Download via a.href,a.download');
       a.download = filename;
       a.href = dataurl;
       a.click();
     } else {
-      console.debug("Download via location.href");
+      console.debug('Download via location.href');
       // http://stackoverflow.com/questions/12676649/javascript-programmatically-trigger-file-download-in-firefox
       location.href = dataurl;
     }
@@ -206,16 +207,16 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
 
 
   function downloadImage(dataurl, filename, contentType) {
-    console.info("Downloading image", filename, contentType);
+    console.info('Downloading image', filename, contentType);
     var canvas = document.createElement('canvas');
     //var canvas = document.getElementById('dagreCanvas');
 
     var context = canvas.getContext('2d');
     var svg = $('svg');
-    canvas.height = svg.attr('height')
-    canvas.width = svg.attr('width')
+    canvas.height = svg.attr('height');
+    canvas.width = svg.attr('width');
     var image = new Image();
-    image.onload = function(e) {
+    image.onload = function() {
       // image load is async, must use callback
       context.drawImage(image, 0, 0);
       var canvasdata = canvas.toDataURL(contentType);
@@ -223,7 +224,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
       downloadDataUrl(canvasdata, filename);
     };
     image.onerror = function(error) {
-      console.error("Image downloading failed", error);
+      console.error('Image downloading failed', error);
     };
     image.src = dataurl;
   }
@@ -233,13 +234,13 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
   }
 
   $scope.savePng = function savePng() {
-    console.log("Save PNG");
-    downloadImage(svgDataUrl(), $scope.workflow.type + ".png", "image/png")
-  }
+    console.log('Save PNG');
+    downloadImage(svgDataUrl(), $scope.workflow.type + '.png', 'image/png');
+  };
 
   $scope.saveSvg = function saveSvg() {
-    console.log("Save SVG");
-    downloadSvg($scope.workflow.type + ".svg");
-  }
+    console.log('Save SVG');
+    downloadSvg($scope.workflow.type + '.svg');
+  };
 });
 
