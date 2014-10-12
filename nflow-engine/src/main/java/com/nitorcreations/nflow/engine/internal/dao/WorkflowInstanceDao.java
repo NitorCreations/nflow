@@ -377,9 +377,10 @@ public class WorkflowInstanceDao {
 
   static class WorkflowActionStateRowMapper implements ResultSetExtractor<Map<Integer, Map<String, String>>> {
     private final Map<Integer, Map<String, String>> actionStates = new LinkedHashMap<>();
+
     @Override
     public Map<Integer, Map<String, String>> extractData(ResultSet rs) throws SQLException, DataAccessException {
-      while(rs.next()) {
+      while (rs.next()) {
         int actionId = rs.getInt("action_id");
         String stateKey = rs.getString("state_key");
         String stateValue = rs.getString("state_value");
