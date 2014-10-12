@@ -235,12 +235,18 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
 
   $scope.savePng = function savePng() {
     console.log('Save PNG');
+    var selectedNode = $scope.selectedNode;
+    nodeSelected(null);
     downloadImage(svgDataUrl(), $scope.workflow.type + '.png', 'image/png');
+    nodeSelected(selectedNode);
   };
 
   $scope.saveSvg = function saveSvg() {
     console.log('Save SVG');
+    var selectedNode = $scope.selectedNode;
+    nodeSelected(null);
     downloadSvg($scope.workflow.type + '.svg');
+    nodeSelected(selectedNode);
   };
 });
 
