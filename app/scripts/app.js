@@ -27,7 +27,11 @@ angular
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl'
       })
-      .when('/workflow/:type', {
+      .when('/workflow-definition/:type', {
+        templateUrl: 'views/workflow_definition.html',
+        controller: 'WorkflowDefinitionCtrl'
+      })
+      .when('/workflow/:id', {
         templateUrl: 'views/workflow.html',
         controller: 'WorkflowCtrl'
       })
