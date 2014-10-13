@@ -1,8 +1,5 @@
 package com.nitorcreations.nflow.tests;
 
-import static com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource.actionStateVariables;
-import static com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource.actions;
-import static com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource.currentStateVariables;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
@@ -52,7 +49,6 @@ public abstract class AbstractNflowTest {
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
     WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
-    client.query("include", currentStateVariables + "," + actionStateVariables + "," + actions);
     return client.get(ListWorkflowInstanceResponse.class);
   }
 
