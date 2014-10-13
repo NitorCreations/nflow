@@ -75,7 +75,8 @@ public class ListWorkflowInstanceConverter {
     try {
       return nflowObjectMapper.readTree(value);
     } catch (IOException e) {
-      logger.warn("Failed to parse state variable {} value as JSON, returning value as unparsed string.", key);
+      logger.warn("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}",
+    		  key, e.getClass().getSimpleName(), e.getMessage());
       return new TextNode(value);
     }
   }
