@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.rest.v1;
 
+import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -42,11 +44,12 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Api(value = "/workflow-instance", description = "Manage workflow instances")
 @Component
 public class WorkflowInstanceResource {
-
   private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
-
+  public static final String currentStateVariables = "currentStateVariables";
+  public static final String actions = "actions";
+  public static final String actionStateVariables = "actionStateVariables";
   @Inject
   public WorkflowInstanceResource(
       WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
@@ -91,7 +94,8 @@ public class WorkflowInstanceResource {
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance")
       @PathParam("id") int id) {
-    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null, "actions");
+    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null,
+        actions + "," + currentStateVariables + "," + actionStateVariables);
     if(instances.isEmpty()) {
       return null;
     }
@@ -117,16 +121,26 @@ public class WorkflowInstanceResource {
       @ApiParam(value = "External id for workflow instance")
       String externalId,
       @QueryParam("include")
-      @ApiParam(value = "Data to include in response. actions = state transitions.", allowableValues="actions")
+      @ApiParam(value = "Data to include in response. currentStateVariables = current stateVariables for worfklow, actions = state transitions, actionStateVariables = state variable changes for actions",
+        allowableValues = currentStateVariables + "," + actions + "," + actionStateVariables,
+        allowMultiple = true)
       String include) {
+    List<String> includes = parseIncludes(include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
-        .setExternalId(externalId).setIncludeActions("actions".equals(include)).build();
+        .setExternalId(externalId)
+        .setIncludeCurrentStateVariables(includes.contains(currentStateVariables))
+        .setIncludeActions(includes.contains(actions))
+        .setIncludeActionStateVariables(includes.contains(actionStateVariables)).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
       resp.add(listWorkflowConverter.convert(instance, q));
     }
     return resp;
+  }
+
+  private List<String> parseIncludes(String include) {
+    return asList(trimToEmpty(include).split(","));
   }
 
 }

@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
+import java.util.Map;
+
 import org.joda.time.DateTime;
 
 import com.wordnik.swagger.annotations.ApiModel;
@@ -21,14 +23,20 @@ public class Action {
   public DateTime executionStartTime;
   @ApiModelProperty(value = "End time for execution")
   public DateTime executionEndTime;
+  @ApiModelProperty(value = "Updated state variables.", required=false)
+  public Map<String, Object> updatedStateVariables;
 
   public Action() {}
-
   public Action(String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime) {
+    this(state, stateText, retryNo, executionStartTime, executionEndTime, null);
+  }
+  public Action(String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+      Map<String, Object> updatedStateVariables) {
     this.state = state;
     this.stateText = stateText;
     this.retryNo = retryNo;
     this.executionStartTime = executionStartTime;
     this.executionEndTime = executionEndTime;
+    this.updatedStateVariables = updatedStateVariables;
   }
 }

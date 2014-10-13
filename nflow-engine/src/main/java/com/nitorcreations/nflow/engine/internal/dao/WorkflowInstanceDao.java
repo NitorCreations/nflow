@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,9 +23,11 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -43,6 +46,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Component
 public class WorkflowInstanceDao {
+
+  static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
+  static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
 
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
@@ -79,7 +85,7 @@ public class WorkflowInstanceDao {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorInfo), keyHolder);
     int id = keyHolder.getKey().intValue();
-    insertVariables(id, 0, instance.stateVariables, Collections.<String, String>emptyMap());
+    insertVariables(id, 0, instance.stateVariables, EMPTY_STATE_MAP);
     return id;
   }
 
@@ -229,15 +235,22 @@ public class WorkflowInstanceDao {
     }
     if (query.includeActions) {
       for (WorkflowInstance instance : ret) {
-        fillActions(instance);
+        fillActions(instance, query.includeActionStateVariables);
       }
     }
     return ret;
   }
 
-  private void fillActions(WorkflowInstance instance) {
+  private void fillActions(WorkflowInstance instance, boolean includeStateVariables) {
+    Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance) :
+      EMPTY_ACTION_STATE_MAP;
     instance.actions.addAll(jdbc.query("select * from nflow_workflow_action where workflow_id = ? order by id asc",
-        new WorkflowInstanceActionRowMapper(), instance.id));
+        new WorkflowInstanceActionRowMapper(actionStates), instance.id));
+  }
+
+  private Map<Integer, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance) {
+    return jdbc.query("select * from nflow_workflow_state where workflow_id = ? order by action_id, state_key asc",
+        new WorkflowActionStateRowMapper(), instance.id);
   }
 
   public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
@@ -343,13 +356,21 @@ public class WorkflowInstanceDao {
   }
 
   static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction> {
+    private final Map<Integer, Map<String, String>> actionStates;
+    public WorkflowInstanceActionRowMapper(Map<Integer, Map<String, String>> actionStates) {
+      this.actionStates = actionStates;
+    }
     @Override
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
+      int actionId = rs.getInt("id");
+      Map<String, String> actionState = actionStates.containsKey(actionId) ? actionStates.get(actionId) :
+        EMPTY_STATE_MAP;
       return new WorkflowInstanceAction.Builder()
         .setWorkflowInstanceId(rs.getInt("workflow_id"))
         .setExecutorId(rs.getInt("executor_id"))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
+        .setUpdatedStateVariables(actionState)
         .setRetryNo(rs.getInt("retry_no"))
         .setExecutionStart(toDateTime(rs.getTimestamp("execution_start")))
         .setExecutionEnd(toDateTime(rs.getTimestamp("execution_end")))
@@ -357,4 +378,22 @@ public class WorkflowInstanceDao {
     }
   }
 
+  static class WorkflowActionStateRowMapper implements ResultSetExtractor<Map<Integer, Map<String, String>>> {
+    private final Map<Integer, Map<String, String>> actionStates = new LinkedHashMap<>();
+
+    @Override
+    public Map<Integer, Map<String, String>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+      while (rs.next()) {
+        int actionId = rs.getInt("action_id");
+        String stateKey = rs.getString("state_key");
+        String stateValue = rs.getString("state_value");
+        if (!actionStates.containsKey(actionId)) {
+          actionStates.put(actionId, new LinkedHashMap<String, String>());
+        }
+        Map<String, String> stateMap = actionStates.get(actionId);
+        stateMap.put(stateKey, stateValue);
+      }
+      return actionStates;
+    }
+  }
 }

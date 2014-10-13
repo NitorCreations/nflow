@@ -10,7 +10,9 @@ import static org.junit.Assert.assertThat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -61,7 +63,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(executorId, is(nullValue()));
 
     List<WorkflowInstanceAction> actions = jdbcTemplate.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(), id);
+        new WorkflowInstanceActionRowMapper(Collections.<Integer,Map<String, String>>emptyMap()), id);
     assertThat(actions.size(), is(1));
     WorkflowInstanceAction workflowInstanceAction = actions.get(0);
     assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));

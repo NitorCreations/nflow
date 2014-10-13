@@ -18,6 +18,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nitorcreations.nflow.rest.v1.msg.Action;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
@@ -46,8 +48,8 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
-    return fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId))
-          .query("include", "actions").get(ListWorkflowInstanceResponse.class);
+    WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
+    return client.get(ListWorkflowInstanceResponse.class);
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
@@ -58,6 +60,8 @@ public abstract class AbstractNflowTest {
     } while (wf == null || !expectedState.equals(wf.state));
     return wf;
   }
+
+
 
   protected void assertWorkflowInstance(int instanceId, WorkflowInstanceValidator... validators) {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(instanceId);
@@ -76,6 +80,14 @@ public abstract class AbstractNflowTest {
         }
       }
     };
+  }
+
+  protected CreateWorkflowInstanceResponse createWorkflowInstance(CreateWorkflowInstanceRequest request) {
+    return makeWorkflowInstanceQuery(request, CreateWorkflowInstanceResponse.class);
+  }
+
+  private <T> T makeWorkflowInstanceQuery(CreateWorkflowInstanceRequest request, Class<T> responseClass) {
+    return fromClient(workflowInstanceResource, true).put(request, responseClass);
   }
 
   public interface WorkflowInstanceValidator {

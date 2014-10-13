@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
@@ -33,6 +34,9 @@ public class ListWorkflowInstanceResponse {
 
   @ApiModelProperty(value = "Next activation time for workflow instance processing", required=false)
   public DateTime nextActivation;
+
+  @ApiModelProperty(value = "State variables for current state.", required=false)
+  public Map<String, Object> stateVariables;
 
   @ApiModelProperty(value = "State change attempts. One instance for each processing attempt.", required=false)
   public List<Action> actions;

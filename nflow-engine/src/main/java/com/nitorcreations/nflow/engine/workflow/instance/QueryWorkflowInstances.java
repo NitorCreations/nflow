@@ -40,6 +40,16 @@ public class QueryWorkflowInstances {
    */
   public final boolean includeActions;
 
+  /**
+   * Setting this to true will make the query return also the current state variables for the workflow.
+   */
+  public final boolean includeCurrentStateVariables;
+
+  /**
+   * Setting this to true will make the query return also the updated state variables for workflow actions.
+   */
+  public final boolean includeActionStateVariables;
+
   QueryWorkflowInstances(Builder builder) {
     super();
     this.ids = new ArrayList<>(builder.ids);
@@ -48,6 +58,8 @@ public class QueryWorkflowInstances {
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
     this.includeActions = builder.includeActions;
+    this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
+    this.includeActionStateVariables = builder.includeActionStateVariables;
   }
 
   /**
@@ -60,6 +72,8 @@ public class QueryWorkflowInstances {
     String businessKey;
     String externalId;
     boolean includeActions;
+    boolean includeCurrentStateVariables;
+    boolean includeActionStateVariables;
 
     /**
      * Create a workflow instance query builder.
@@ -124,6 +138,26 @@ public class QueryWorkflowInstances {
      */
     public Builder setIncludeActions(boolean includeActions) {
       this.includeActions = includeActions;
+      return this;
+    }
+
+    /**
+     * Set whether current workflow state variables should be included in the results.
+     * @param includeCurrentStateVariables True to include state variables, false otherwise.
+     * @return this.
+     */
+    public Builder setIncludeCurrentStateVariables(boolean includeCurrentStateVariables) {
+      this.includeCurrentStateVariables = includeCurrentStateVariables;
+      return this;
+    }
+
+    /**
+     * Set whether state variables for workflow actions should be included in the results.
+     * @param includeActionStateVariables True to include state variables, false otherwise.
+     * @return this.
+     */
+    public Builder setIncludeActionStateVariables(boolean includeActionStateVariables) {
+      this.includeActionStateVariables = includeActionStateVariables;
       return this;
     }
 
