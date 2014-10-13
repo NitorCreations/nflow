@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +26,7 @@ import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
 @Component
 public class ListWorkflowInstanceConverter {
+  private static final Logger logger = LoggerFactory.getLogger(ListWorkflowInstanceConverter.class);
 
   @Inject
   @Named("nflowObjectMapper")
@@ -62,16 +65,17 @@ public class ListWorkflowInstanceConverter {
     }
     Map<String, Object> jsonStateVariables = new LinkedHashMap<>();
     for(Entry<String, String> entry : stateVariables.entrySet()) {
-      jsonStateVariables.put(entry.getKey(), stringToJson(entry.getValue()));
+      jsonStateVariables.put(entry.getKey(), stringToJson(entry.getKey(), entry.getValue()));
     }
 
     return jsonStateVariables;
   }
 
-  private JsonNode stringToJson(String value) {
+  private JsonNode stringToJson(String key, String value) {
     try {
       return nflowObjectMapper.readTree(value);
     } catch (IOException e) {
+      logger.warn("Failed to parse state variable {} value as JSON, returning value as unparsed string.", key);
       return new TextNode(value);
     }
   }
