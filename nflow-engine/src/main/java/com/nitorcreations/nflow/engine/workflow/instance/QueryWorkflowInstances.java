@@ -140,15 +140,17 @@ public class QueryWorkflowInstances {
       this.includeActions = includeActions;
       return this;
     }
+
     /**
      * Set whether current workflow state variables should be included in the results.
-     * @param includeActions True to include state variables, false otherwise.
+     * @param includeCurrentStateVariables True to include state variables, false otherwise.
      * @return this.
      */
     public Builder setIncludeCurrentStateVariables(boolean includeCurrentStateVariables) {
       this.includeCurrentStateVariables = includeCurrentStateVariables;
       return this;
     }
+
     /**
      * Set whether state variables for workflow actions should be included in the results.
      * @param includeActionStateVariables True to include state variables, false otherwise.

@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static org.apache.commons.lang3.StringUtils.left;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 
@@ -8,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -22,7 +23,6 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.joda.time.DateTime;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -272,7 +272,7 @@ public class WorkflowInstanceDao {
         p.setInt(1, action.workflowInstanceId);
         p.setInt(2, executorInfo.getExecutorId());
         p.setString(3, action.state);
-        p.setString(4, limitLength(action.stateText, STATE_TEXT_LENGTH));
+        p.setString(4, left(action.stateText, STATE_TEXT_LENGTH));
         p.setInt(5, action.retryNo);
         p.setTimestamp(6, toTimestamp(action.executionStart));
         p.setTimestamp(7, toTimestamp(action.executionEnd));
@@ -320,7 +320,7 @@ public class WorkflowInstanceDao {
         ps = connection.prepareStatement(updateSql);
       }
       ps.setString(p++, instance.state);
-      ps.setString(p++, limitLength(instance.stateText, STATE_TEXT_LENGTH));
+      ps.setString(p++, left(instance.stateText, STATE_TEXT_LENGTH));
       ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
       if (!isInsert) {
         ps.setObject(p++, instance.processing ? executorId : null);
@@ -395,32 +395,5 @@ public class WorkflowInstanceDao {
       }
       return actionStates;
     }
-  }
-
-  static Long getLong(ResultSet rs, String columnName) throws SQLException {
-    long tmp = rs.getLong(columnName);
-    return rs.wasNull() ? null : Long.valueOf(tmp);
-  }
-
-  static Timestamp toTimestampOrNow(DateTime time) {
-    return time == null ? new Timestamp(currentTimeMillis()) : new Timestamp(time.getMillis());
-  }
-
-  static Timestamp toTimestamp(DateTime time) {
-    return time == null ? null : new Timestamp(time.getMillis());
-  }
-
-  static DateTime toDateTime(Timestamp time) {
-    return time == null ? null : new DateTime(time.getTime());
-  }
-
-  static String limitLength(String s, int maxLen) {
-    if (s == null) {
-      return null;
-    }
-    if (s.length() < maxLen) {
-      return s;
-    }
-    return s.substring(0, maxLen);
   }
 }
