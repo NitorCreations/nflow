@@ -91,9 +91,8 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
 
   $scope.nodeSelected = nodeSelected;
 
-  function drawGraphDagre(definition, canvasId) {
+  function drawWorkflowDefinition(definition, canvasId) {
     var g = new dagreD3.Digraph();
-    $scope.graph = g;
     // All nodes must be in graph before edges
 
     // Exported SVG has silly defaults for some styles
@@ -104,7 +103,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
                              labelStyle: 'font-size: 14px;' +
                              'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                              stroke: 'black',
-                             style: 'stroke-width: 1.5px'
+                             style: 'stroke-width: 1.5px;'
                              });
     }
 
@@ -128,7 +127,11 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
                                   function(nodeId) {
                                     return nodeDomId(nodeId);
                                   });
-
+        // use hand mouse cursor for nodes
+        nodes.attr('style',
+                  function(e) {
+                    return "opacity: 1;cursor: pointer;";
+                  });
         // event handler for clicking nodes
         nodes.on('click', function(nodeId) {
           // must use $apply() - event not managed by angular
@@ -151,10 +154,10 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
       });
 
 
-    var svgRoot = d3.select('svg'), svgGroup = svgRoot.append('g');
+    var svgRoot = d3.select('#' + canvasId), svgGroup = svgRoot.append('g');
 
-    var layout = renderer.run(g, d3.select('svg g'));
-    var svgBackground = d3.select('svg rect.overlay');
+    var layout = renderer.run(g, svgGroup);
+    var svgBackground = svgRoot.select('rect.overlay');
     svgBackground.attr('style', 'fill: white; pointer-events: all;');
     svgBackground.on('click', function() {
       // event handler for clicking outside nodes
@@ -169,6 +172,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
     svgRoot.attr('height', layout.graph().height + 40);
     svgRoot.attr('width', layout.graph().width + 40);
     disableZoomPan();
+    return g;
   }
 
   WorkflowDefinitions.get({type: $routeParams.type},
@@ -176,7 +180,7 @@ app.controller('WorkflowCtrl', function ($scope, WorkflowDefinitions, $routePara
                             var start = new Date().getTime();
                             var definition =  _.first(data);
                             $scope.workflow = definition;
-                            drawGraphDagre(definition, 'dagreSvg');
+                            $scope.graph = drawWorkflowDefinition(definition, 'dagreSvg');
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );
                           });
