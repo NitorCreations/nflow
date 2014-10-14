@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_JDBC;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -35,7 +36,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Component
-@DependsOn("nflowDatabaseInitializer")
+@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class ExecutorDao {
   private JdbcTemplate jdbc;
   final SQLVariants sqlVariants;

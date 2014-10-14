@@ -27,7 +27,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     super("mysql");
   }
 
-  @Bean(name="nflowDatabaseInitializer")
+  @Bean(name = NFLOW_DATABASE_INITIALIZER)
   @Override
   public DatabaseInitializer nflowDatabaseInitializer(@Named(NFLOW_DATASOURCE) DataSource dataSource, Environment env) {
     String dbType = "mysql";
