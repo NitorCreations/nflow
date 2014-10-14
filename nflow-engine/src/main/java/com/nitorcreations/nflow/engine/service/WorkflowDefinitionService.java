@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_NON_SPRING_WORKFLOWS_LISTING;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -36,7 +37,7 @@ public class WorkflowDefinitionService {
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
 
   @Inject
-  public WorkflowDefinitionService(@Named("nflowNonSpringWorkflowsListing") AbstractResource nonSpringWorkflowsListing) {
+  public WorkflowDefinitionService(@Named(NFLOW_NON_SPRING_WORKFLOWS_LISTING) AbstractResource nonSpringWorkflowsListing) {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
   }
 

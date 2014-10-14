@@ -23,7 +23,10 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 @Configuration
 public class RestClientConfiguration {
 
-  @Bean(name="baseWebclient")
+  public static final String BASE_WEBCLIENT = "baseWebclient";
+  public static final String WORKFLOW_INSTANCE_CLIENT = "workflowInstance";
+
+  @Bean(name = BASE_WEBCLIENT)
   public WebClient baseWebClient(JacksonJsonProvider jsonProvider, Environment env) {
     JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
     bean.setAddress(env.getRequiredProperty("nflow.url"));
@@ -53,8 +56,8 @@ public class RestClientConfiguration {
     return new JacksonJsonProvider(mapper);
   }
 
-  @Bean(name="workflowInstance")
-  public WebClient workflowInstanceWebService(@Named("baseWebclient") WebClient client) {
+  @Bean(name = WORKFLOW_INSTANCE_CLIENT)
+  public WebClient workflowInstanceWebService(@Named(BASE_WEBCLIENT) WebClient client) {
     return client.path("v1").path("workflow-instance");
   }
 
