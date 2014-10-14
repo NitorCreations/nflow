@@ -23,12 +23,10 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
     });
   }
   $scope.getStateClass = function getStateClass(result) {
-    // TODO fetch via definition type
     var def = getDefinition(result.type);
     var state = _.find(def.states, function(s) {
       return s.id === result.state;
     });
-    console.log("state", state);
     if(state.id === def.onError) {
       return "danger";
     }
