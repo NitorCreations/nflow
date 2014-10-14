@@ -20,6 +20,7 @@ public abstract class DatabaseConfiguration {
   public static final String NFLOW_JDBC = "nflowJdbc";
   public static final String NFLOW_NAMED_JDBC = "nflowNamedJdbc";
   public static final String NFLOW_DATASOURCE = "nflowDatasource";
+  public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
   private static final Logger logger = getLogger(DatabaseConfiguration.class);
   private final String dbType;
 
@@ -67,7 +68,7 @@ public abstract class DatabaseConfiguration {
     return val;
   }
 
-  @Bean(name = "nflowDatabaseInitializer")
+  @Bean(name = NFLOW_DATABASE_INITIALIZER)
   public DatabaseInitializer nflowDatabaseInitializer(@Named(NFLOW_DATASOURCE) DataSource dataSource, Environment env) {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
