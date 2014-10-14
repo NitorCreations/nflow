@@ -146,7 +146,7 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public PlatformTransactionManager transactionManager(DataSource dataSource)  {
+  public PlatformTransactionManager transactionManager(@Named("nflowDatasource") DataSource dataSource)  {
     return new DataSourceTransactionManager(dataSource);
   }
 }
