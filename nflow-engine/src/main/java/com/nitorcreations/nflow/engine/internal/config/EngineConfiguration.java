@@ -22,8 +22,13 @@ import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTask
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
 
-  @Bean(name="nflowExecutor")
-  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named("nflowThreadFactory") ThreadFactory threadFactory, Environment env) {
+  public static final String NFLOW_EXECUTOR = "nflowExecutor";
+  public static final String NFLOW_THREAD_FACTORY = "nflowThreadFactory";
+  public static final String NFLOW_OBJECT_MAPPER = "nflowObjectMapper";
+  public static final String NFLOW_NON_SPRING_WORKFLOWS_LISTING = "nflowNonSpringWorkflowsListing";
+
+  @Bean(name = NFLOW_EXECUTOR)
+  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named(NFLOW_THREAD_FACTORY) ThreadFactory threadFactory, Environment env) {
     ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
@@ -36,14 +41,14 @@ public class EngineConfiguration {
     return executor;
   }
 
-  @Bean(name="nflowThreadFactory")
+  @Bean(name = NFLOW_THREAD_FACTORY)
   public ThreadFactory threadFactory() {
     CustomizableThreadFactory factory = new CustomizableThreadFactory("nflow-executor-");
     factory.setThreadGroupName("nflow");
     return factory;
   }
 
-  @Bean(name="nflowObjectMapper")
+  @Bean(name = NFLOW_OBJECT_MAPPER)
   public ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
@@ -51,7 +56,7 @@ public class EngineConfiguration {
     return mapper;
   }
 
-  @Bean(name = "nflowNonSpringWorkflowsListing")
+  @Bean(name = NFLOW_NON_SPRING_WORKFLOWS_LISTING)
   public AbstractResource nonSpringWorkflowsListing(Environment env) {
     String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {

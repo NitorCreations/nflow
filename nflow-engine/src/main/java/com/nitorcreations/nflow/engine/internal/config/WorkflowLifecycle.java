@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.config;
 
+import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_THREAD_FACTORY;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.concurrent.ThreadFactory;
@@ -20,7 +21,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
   private final Thread dispatcherThread;
 
   @Inject
-  public WorkflowLifecycle(WorkflowDispatcher dispatcher, @Named("nflowThreadFactory") ThreadFactory threadFactory, Environment env) {
+  public WorkflowLifecycle(WorkflowDispatcher dispatcher, @Named(NFLOW_THREAD_FACTORY) ThreadFactory threadFactory, Environment env) {
     this.dispatcher = dispatcher;
     this.autoStart = env.getProperty("nflow.autostart", Boolean.class, true);
     this.dispatcherThread = threadFactory.newThread(dispatcher);

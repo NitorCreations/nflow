@@ -1,12 +1,14 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
 
 import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -39,11 +41,13 @@ public abstract class DatabaseConfiguration {
   }
 
   @Bean(name = NFLOW_JDBC)
+  @Scope(SCOPE_PROTOTYPE)
   public JdbcTemplate jdbcTemplate(Environment env) {
     return new JdbcTemplate(datasource(env));
   }
 
   @Bean(name = NFLOW_NAMED_JDBC)
+  @Scope(SCOPE_PROTOTYPE)
   public NamedParameterJdbcTemplate namedParameterJdbcTemplate(Environment env) {
     return new NamedParameterJdbcTemplate(datasource(env));
   }
