@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.sql.DataSource;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.RuntimeDelegate;
@@ -28,6 +29,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -46,6 +50,7 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @PropertySource("classpath:nflow-jetty.properties")
 @ComponentScan("com.nitorcreations.nflow.jetty")
 @Import(value = { RestConfiguration.class, JmxConfiguration.class})
+@EnableTransactionManagement
 public class NflowJettyConfiguration {
 
   private static final Logger logger = LoggerFactory.getLogger(NflowJettyConfiguration.class);
@@ -140,4 +145,8 @@ public class NflowJettyConfiguration {
   public static class JaxRsApiApplication extends Application {
   }
 
+  @Bean
+  public PlatformTransactionManager transactionManager(@Named("nflowDatasource") DataSource dataSource)  {
+    return new DataSourceTransactionManager(dataSource);
+  }
 }
