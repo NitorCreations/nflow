@@ -1,6 +1,28 @@
-<h1>Workflow</h1>
+<h1>Workflow {{definition.type}}</h1>
 
-{{workflow.type}}
-{{definition.type}}
+<a href="#/workflow-definition/{{workflow.type}}">Go to workflow definition</a></li>
+<blockquote>{{definition.description}}</blockquote>
+<h2>Actions</h2>
 
-<a href="#/workflow-definition/{{workflow.type}}">Workflow definition</a></li>
+<table id="action-history" class="table table-striped table-hover">
+   <thead>
+       <th colspan="3">State</th>
+       <th>Retries</th>
+       <th>Started</th>
+       <th>Finished</th>
+       <th>Duration</th>
+    </thead>
+
+    <tbody>
+        <tr ng-repeat="action in workflow.actions" >
+            <td>{{$index + 1}}</td>
+            <td ng-click="selectAction(action)">{{action.state}}</td>
+            <td class="{{getClass(action)}}" ng-click="selectAction(action)">{{action.stateText}}</td>
+            <td>{{action.retryNo}}</td>
+            <td>{{action.executionStartTime}}</td>
+            <td>{{action.executionEndTime}}</td>
+            <td>{{duration(action)}}</td>
+        </tr>
+    </tbody>
+
+</ul>
