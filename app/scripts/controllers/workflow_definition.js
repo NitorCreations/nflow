@@ -38,7 +38,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                               $scope.$apply(function() {
                                 nodeSelected(nodeId);
                               });
-                            };
+                            }
                             drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack);
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );

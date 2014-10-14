@@ -23,6 +23,8 @@
     "$": false,
     "_": false,
     "d3": false,
-    "dagreD3": false
+    "dagreD3": false,
+    "moment": false
+
   }
 }

@@ -27,12 +27,12 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
                           });
 
   $scope.getClass = function getClass(action) {
-    http://getbootstrap.com/css/#tables
-    return "";
+    // See http://getbootstrap.com/css/#tables
+    return '';
   };
 
   $scope.selectAction = function selectAction(action) {
-    console.log("Action selected", action);
+    console.log('Action selected', action);
   };
 
   $scope.duration = function duration(action) {
@@ -40,7 +40,7 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
     var end = moment(action.executionEndTime);
     var d = moment.duration(end.diff(start));
     if(d < 1000) {
-      return d + " msec";
+      return d + ' msec';
     }
     return d.humanize();
   };

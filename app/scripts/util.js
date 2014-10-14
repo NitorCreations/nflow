@@ -117,7 +117,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
       // use hand mouse cursor for nodes
       nodes.attr('style',
                  function(e) {
-                   return "opacity: 1;cursor: pointer;";
+                   return 'opacity: 1;cursor: pointer;';
                  });
       // event handler for clicking nodes
       nodes.on('click', function(nodeId) {

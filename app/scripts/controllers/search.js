@@ -9,11 +9,11 @@ app.factory('WorkflowSearch', function ($resource, config) {
 });
 
 app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefinitions, WorkflowSearch) {
-  $scope.results = []
+  $scope.results = [];
   $scope.crit = {};
   $scope.definitions = WorkflowDefinitions.query();
   $scope.search = function search() {
-    console.log("search:", $scope.crit);
+    console.log('search:', $scope.crit);
     $scope.results = WorkflowSearch.query();
   };
 
@@ -28,17 +28,17 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
       return s.id === result.state;
     });
     if(state.id === def.onError) {
-      return "danger";
+      return 'danger';
     }
     if(state.type === 'normal') {
-      return "info";
+      return 'info';
     } else if (state.type === 'manual') {
-      return "warning"
+      return 'warning';
     } else if(state.type === 'end') {
-      return "success";
+      return 'success';
     } else if(state.type === 'error') {
-      return "danger";
+      return 'danger';
     }
-    return "";
+    return '';
   };
 });
