@@ -17,6 +17,10 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
     $scope.results = WorkflowSearch.query();
   };
 
+  $scope.hasResults = function hasResults() {
+    return !!_.first($scope.results);
+  }
+
   function getDefinition(type) {
     return _.find($scope.definitions, function(def) {
       return def.type === type;
