@@ -13,8 +13,16 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
   $scope.crit = {};
   $scope.definitions = WorkflowDefinitions.query();
   $scope.search = function search() {
-    console.log('search:', $scope.crit);
-    $scope.results = WorkflowSearch.query($scope.crit);
+
+    var query = {};
+    for (var i in $scope.crit) {
+        query[i] = $scope.crit[i];
+    }
+    if(query.type && typeof(query.type) !== 'string' ) {
+      query.type = query.type.type;
+    }
+    console.log('search:', query);
+    $scope.results = WorkflowSearch.query(query);
   };
 
   if($routeParams.type) {
