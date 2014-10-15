@@ -14,8 +14,13 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
   $scope.definitions = WorkflowDefinitions.query();
   $scope.search = function search() {
     console.log('search:', $scope.crit);
-    $scope.results = WorkflowSearch.query();
+    $scope.results = WorkflowSearch.query($scope.crit);
   };
+
+  if($routeParams.type) {
+    $scope.crit.type = $routeParams.type;
+    $scope.search();
+  }
 
   $scope.hasResults = function hasResults() {
     return !!_.first($scope.results);
@@ -27,7 +32,13 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
     });
   }
   $scope.getStateClass = function getStateClass(result) {
+    if(!result) {
+      return "";
+    }
     var def = getDefinition(result.type);
+    if(!def) {
+      return "";
+    }
     var state = _.find(def.states, function(s) {
       return s.id === result.state;
     });

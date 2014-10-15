@@ -17,10 +17,10 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
   function nodeSelected(nodeId) {
     console.debug('Selecting node ' + nodeId);
     if($scope.selectedNode) {
-      unhiglightNode($scope.graph, $scope.workflow, $scope.selectedNode);
+      unhiglightNode($scope.graph, $scope.definition, $scope.selectedNode);
     }
     if(nodeId) {
-      higlightNode($scope.graph, $scope.workflow, nodeId);
+      higlightNode($scope.graph, $scope.definition, nodeId);
     }
     $scope.selectedNode = nodeId;
   }
@@ -31,7 +31,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                           function(data) {
                             var start = new Date().getTime();
                             var definition =  _.first(data);
-                            $scope.workflow = definition;
+                            $scope.definition = definition;
                             $scope.graph = workflowDefinitionGraph(definition);
                             // must use $apply() - event not managed by angular
                             function nodeSelectedCallBack(nodeId) {
@@ -61,7 +61,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     console.log('Save PNG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
-    downloadImage(svgDataUrl(), $scope.workflow.type + '.png', 'image/png');
+    downloadImage(svgDataUrl(), $scope.definition.type + '.png', 'image/png');
     nodeSelected(selectedNode);
   };
 
@@ -69,7 +69,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     console.log('Save SVG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
-    downloadSvg($scope.workflow.type + '.svg');
+    downloadSvg($scope.definition.type + '.svg');
     nodeSelected(selectedNode);
   };
 });

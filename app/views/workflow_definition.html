@@ -1,9 +1,13 @@
 
-<h1>{{workflow.type}}</h1>
-<blockquote>{{workflow.description}}</blockquote>
-
-<button ng-click="savePng()" class="btn">Save as PNG</button>
-<button ng-click="saveSvg()" class="btn">Save as SVG</button>
+<h1>{{definition.type}}</h1>
+<blockquote>{{definition.description}}</blockquote>
+<p>
+    <div>
+        <a href="#/search?type={{definition.type}}">Search related workflow instances</a>
+    </div>
+    <button ng-click="savePng()" class="btn">Save as PNG</button>
+    <button ng-click="saveSvg()" class="btn">Save as SVG</button>
+</p>
 <svg id="dagreSvg" width="650" height="680">
 </svg>
 <!--
@@ -14,12 +18,12 @@
 <h2>States</h2>
 
 <ul id="state-list">
-    <li class="{{state.selected}}" ng-repeat="state in workflow.states"
+    <li class="{{state.selected}}" ng-repeat="state in definition.states"
         ng-click="nodeSelected(state.id)">
         {{state.name}} - {{state.description}}
     </li>
 </ul>
 <h2>Settings</h2>
-<ul id="workflow-settings" ng-repeat="(key, value) in workflow.settings">
+<ul id="workflow-settings" ng-repeat="(key, value) in definition.settings">
     <li>{{key}} = {{value}}</li>
 </ul>
