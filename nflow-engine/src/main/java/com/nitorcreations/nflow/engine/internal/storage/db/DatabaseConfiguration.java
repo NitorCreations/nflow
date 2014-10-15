@@ -3,7 +3,6 @@ package com.nitorcreations.nflow.engine.internal.storage.db;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
 
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -13,13 +12,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 public abstract class DatabaseConfiguration {
-  public static final String NFLOW_JDBC = "nflowJdbc";
-  public static final String NFLOW_NAMED_JDBC = "nflowNamedJdbc";
-  public static final String NFLOW_DATASOURCE = "nflowDatasource";
   public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
   private static final Logger logger = getLogger(DatabaseConfiguration.class);
   private final String dbType;
@@ -28,7 +25,8 @@ public abstract class DatabaseConfiguration {
     this.dbType = dbType;
   }
 
-  @Bean(name = NFLOW_DATASOURCE)
+  @Bean
+  @NFlow
   public DataSource datasource(Environment env) {
     String url = property(env, "url");
     logger.info("Database connection to {} using {}", dbType, url);
@@ -41,13 +39,15 @@ public abstract class DatabaseConfiguration {
     return new HikariDataSource(config);
   }
 
-  @Bean(name = NFLOW_JDBC)
+  @Bean
+  @NFlow
   @Scope(SCOPE_PROTOTYPE)
   public JdbcTemplate jdbcTemplate(Environment env) {
     return new JdbcTemplate(datasource(env));
   }
 
-  @Bean(name = NFLOW_NAMED_JDBC)
+  @Bean
+  @NFlow
   @Scope(SCOPE_PROTOTYPE)
   public NamedParameterJdbcTemplate namedParameterJdbcTemplate(Environment env) {
     return new NamedParameterJdbcTemplate(datasource(env));
@@ -69,7 +69,8 @@ public abstract class DatabaseConfiguration {
   }
 
   @Bean(name = NFLOW_DATABASE_INITIALIZER)
-  public DatabaseInitializer nflowDatabaseInitializer(@Named(NFLOW_DATASOURCE) DataSource dataSource, Environment env) {
+  @NFlow
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
 }

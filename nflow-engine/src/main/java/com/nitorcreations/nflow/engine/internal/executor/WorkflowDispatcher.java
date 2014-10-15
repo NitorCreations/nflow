@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_EXECUTOR;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -8,13 +7,13 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.PollingRaceConditionException;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -35,7 +34,7 @@ public class WorkflowDispatcher implements Runnable {
   private final Random rand = new Random();
 
   @Inject
-  public WorkflowDispatcher(@Named(NFLOW_EXECUTOR) ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
+  public WorkflowDispatcher(@NFlow ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
     this.pool = pool;
     this.workflowInstances = workflowInstances;

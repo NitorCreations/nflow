@@ -1,20 +1,18 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
-import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_OBJECT_MAPPER;
-
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
 
@@ -23,7 +21,7 @@ public class ObjectStringMapper {
   private final ObjectMapper mapper;
 
   @Inject
-  public ObjectStringMapper(@Named(NFLOW_OBJECT_MAPPER) ObjectMapper mapper) {
+  public ObjectStringMapper(@NFlow ObjectMapper mapper) {
     this.mapper = mapper;
   }
 

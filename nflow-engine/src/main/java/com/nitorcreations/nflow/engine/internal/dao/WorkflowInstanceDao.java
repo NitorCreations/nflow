@@ -2,8 +2,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
-import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_JDBC;
-import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_NAMED_JDBC;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.left;
@@ -23,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
@@ -42,6 +39,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -69,12 +67,12 @@ public class WorkflowInstanceDao {
    * @param jdbcTemplate The JDBC template for accessing the nFlow data source.
    */
   @Inject
-  public void setJdbcTemplate(@Named(NFLOW_JDBC) JdbcTemplate jdbcTemplate) {
+  public void setJdbcTemplate(@NFlow JdbcTemplate jdbcTemplate) {
     this.jdbc = jdbcTemplate;
   }
 
   @Inject
-  public void setNamedParameterJdbcTemplate(@Named(NFLOW_NAMED_JDBC) NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+  public void setNamedParameterJdbcTemplate(@NFlow NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
     this.namedJdbc = namedParameterJdbcTemplate;
   }
 

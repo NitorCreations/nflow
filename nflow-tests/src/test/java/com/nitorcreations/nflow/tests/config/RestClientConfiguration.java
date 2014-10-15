@@ -1,11 +1,10 @@
 package com.nitorcreations.nflow.tests.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.Arrays;
-
-import javax.inject.Named;
 
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.feature.LoggingFeature;
@@ -16,17 +15,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Configuration
 public class RestClientConfiguration {
 
-  public static final String BASE_WEBCLIENT = "baseWebclient";
-  public static final String WORKFLOW_INSTANCE_CLIENT = "workflowInstance";
-
-  @Bean(name = BASE_WEBCLIENT)
+  @Bean
+  @NFlow
   public WebClient baseWebClient(JacksonJsonProvider jsonProvider, Environment env) {
     JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
     bean.setAddress(env.getRequiredProperty("nflow.url"));
@@ -47,7 +44,7 @@ public class RestClientConfiguration {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
-    mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    mapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
     return mapper;
   }
 
@@ -56,9 +53,9 @@ public class RestClientConfiguration {
     return new JacksonJsonProvider(mapper);
   }
 
-  @Bean(name = WORKFLOW_INSTANCE_CLIENT)
-  public WebClient workflowInstanceWebService(@Named(BASE_WEBCLIENT) WebClient client) {
+  @Bean
+  @WorkflowInstance
+  public WebClient workflowInstanceWebService(@NFlow WebClient client) {
     return client.path("v1").path("workflow-instance");
   }
-
 }

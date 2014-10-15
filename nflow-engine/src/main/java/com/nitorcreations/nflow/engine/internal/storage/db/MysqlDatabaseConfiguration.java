@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Profile("nflow.db.mysql")
 @Configuration
@@ -27,9 +28,9 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     super("mysql");
   }
 
-  @Bean(name = NFLOW_DATABASE_INITIALIZER)
+  @Bean
   @Override
-  public DatabaseInitializer nflowDatabaseInitializer(@Named(NFLOW_DATASOURCE) DataSource dataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
     String dbType = "mysql";
     try (Connection c = DataSourceUtils.getConnection(dataSource)) {
       DatabaseMetaData meta = c.getMetaData();

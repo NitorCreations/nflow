@@ -4,8 +4,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 import java.util.concurrent.ThreadFactory;
 
-import javax.inject.Named;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,13 +20,9 @@ import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTask
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
 
-  public static final String NFLOW_EXECUTOR = "nflowExecutor";
-  public static final String NFLOW_THREAD_FACTORY = "nflowThreadFactory";
-  public static final String NFLOW_OBJECT_MAPPER = "nflowObjectMapper";
-  public static final String NFLOW_NON_SPRING_WORKFLOWS_LISTING = "nflowNonSpringWorkflowsListing";
-
-  @Bean(name = NFLOW_EXECUTOR)
-  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@Named(NFLOW_THREAD_FACTORY) ThreadFactory threadFactory, Environment env) {
+  @Bean
+  @NFlow
+  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@NFlow ThreadFactory threadFactory, Environment env) {
     ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
@@ -41,14 +35,16 @@ public class EngineConfiguration {
     return executor;
   }
 
-  @Bean(name = NFLOW_THREAD_FACTORY)
-  public ThreadFactory threadFactory() {
+  @Bean
+  @NFlow
+  public ThreadFactory nflowThreadFactory() {
     CustomizableThreadFactory factory = new CustomizableThreadFactory("nflow-executor-");
     factory.setThreadGroupName("nflow");
     return factory;
   }
 
-  @Bean(name = NFLOW_OBJECT_MAPPER)
+  @Bean
+  @NFlow
   public ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
@@ -56,7 +52,8 @@ public class EngineConfiguration {
     return mapper;
   }
 
-  @Bean(name = NFLOW_NON_SPRING_WORKFLOWS_LISTING)
+  @Bean
+  @NFlow
   public AbstractResource nonSpringWorkflowsListing(Environment env) {
     String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {
@@ -64,5 +61,4 @@ public class EngineConfiguration {
     }
     return null;
   }
-
 }

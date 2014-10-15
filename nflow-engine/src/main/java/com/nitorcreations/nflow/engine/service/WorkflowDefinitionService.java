@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.service;
 
-import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_NON_SPRING_WORKFLOWS_LISTING;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -15,7 +14,6 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -23,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -41,7 +40,7 @@ public class WorkflowDefinitionService {
   private final WorkflowInstanceDao workflowInstanceDao;
 
   @Inject
-  public WorkflowDefinitionService(@Named(NFLOW_NON_SPRING_WORKFLOWS_LISTING) AbstractResource nonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
+  public WorkflowDefinitionService(@NFlow AbstractResource nonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
     this.workflowInstanceDao = workflowInstanceDao;
   }

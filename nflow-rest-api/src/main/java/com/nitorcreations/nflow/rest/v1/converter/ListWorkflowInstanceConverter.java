@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -29,7 +29,7 @@ public class ListWorkflowInstanceConverter {
   private static final Logger logger = LoggerFactory.getLogger(ListWorkflowInstanceConverter.class);
 
   @Inject
-  @Named("nflowObjectMapper")
+  @NFlow
   private ObjectMapper nflowObjectMapper;
 
   public ListWorkflowInstanceResponse convert(WorkflowInstance instance, QueryWorkflowInstances query) {

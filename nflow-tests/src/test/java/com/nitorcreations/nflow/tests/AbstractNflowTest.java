@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.tests;
 
-import static com.nitorcreations.nflow.tests.config.RestClientConfiguration.WORKFLOW_INSTANCE_CLIENT;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
@@ -9,7 +8,6 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -24,6 +22,7 @@ import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
+import com.nitorcreations.nflow.tests.config.WorkflowInstance;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 import com.nitorcreations.nflow.tests.runner.SkipTestMethodsAfterFirstFailureRule;
 
@@ -43,7 +42,7 @@ public abstract class AbstractNflowTest {
   }
 
   @Inject
-  public void setWorkflowInstanceResource(@Named(WORKFLOW_INSTANCE_CLIENT) WebClient client) {
+  public void setWorkflowInstanceResource(@WorkflowInstance WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowInstanceResource = fromClient(client, true).to(newUri, false);
   }
@@ -61,8 +60,6 @@ public abstract class AbstractNflowTest {
     } while (wf == null || !expectedState.equals(wf.state));
     return wf;
   }
-
-
 
   protected void assertWorkflowInstance(int instanceId, WorkflowInstanceValidator... validators) {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(instanceId);
