@@ -24,7 +24,7 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
 
   $scope.hasResults = function hasResults() {
     return !!_.first($scope.results);
-  }
+  };
 
   function getDefinition(type) {
     return _.find($scope.definitions, function(def) {
@@ -33,11 +33,11 @@ app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefi
   }
   $scope.getStateClass = function getStateClass(result) {
     if(!result) {
-      return "";
+      return '';
     }
     var def = getDefinition(result.type);
     if(!def) {
-      return "";
+      return '';
     }
     var state = _.find(def.states, function(s) {
       return s.id === result.state;

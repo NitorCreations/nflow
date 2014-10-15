@@ -59,14 +59,14 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
       state = action.state;
     }
     console.log('Action selected', state);
-    nodeSelected(state)
+    nodeSelected(state);
   };
 
   $scope.duration = function duration(action) {
     var start = moment(action.executionStartTime);
     var end = moment(action.executionEndTime);
     if(!start || !end) {
-      return "-";
+      return '-';
     }
     var d = moment.duration(end.diff(start));
     if(d < 1000) {
@@ -77,21 +77,21 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
 
   $scope.nextActivation = function nextActivation() {
     if(!$scope.workflow) {
-      return "";
+      return '';
     }
     if(!$scope.workflow.nextActivation) {
-      return "never";
+      return 'never';
     }
     return moment($scope.workflow.nextActivation).max(new Date()).fromNow();
   };
 
   $scope.currentStateSince = function currentStateSince() {
     if(!$scope.workflow) {
-      return "";
+      return '';
     }
     var lastAction = _.last($scope.workflow.actions);
     if(!lastAction) {
-      return "";
+      return '';
     }
     return moment(lastAction.executionEndTime).fromNow();
   };
