@@ -1,3 +1,32 @@
+## 1.1.0 (2014-10-16)
+- nflow-engine
+  - added executor_id to table nflow_workflow_action and exposed executor_ids in WorkflowInstanceService
+  - exposed workflow executors through WorkflowExecutorService
+  - state handling logic changes:
+    - stop in non-final state puts workflow to error state
+    - process error state handler method after exceeding max retries, unless workflow instance was already in error state
+    - fix: obey maxRetries when NextAction.retryAfter(...) is used
+    - final state handler methods should return void instead of NextAction (in 2.0.0 returning NextAction will throw exception)
+  - expose new fields through StateExecution: workflow instance id, workflow instance external id
+  - insert WorkflowInstanceAction for each recovered WorkflowInstance
+  - deprecated (removed in 2.0.0):
+    - WorkflowState.getName() (use name() instead)
+    - workflow instance "owner" (new term: "executor group")
+    - WorkflowInstanceAction.workflowId (new field: workflowInstanceId)
+  - internal: 
+    - renamed WorkflowExecutor->WorkflowStateProcessor, WorkflowExecutorFactory->WorkflowStateProcessorFactory
+    - use configured value for workflow dispatcher awaitTermination
+- nflow-rest-api
+  - added filter for adding CORS headers
+  - exposed state variables in REST API
+  - exposed workflow executors through REST API
+  - store requestData under key "requestData" (previously: "req")
+- nflow-jetty
+  - enabled transactions using DataSourceTransactionManager
+  - swagger-tuning:
+    - nFlow branding (titles, favicons, links, etc)
+    - configure basepath through swagger.basepath.* -properties
+
 ## 1.0.0 (2014-09-13)
 - nflow-engine
   - New API between nflow-engine and workflow implementations (StateExecution --> NextAction)
