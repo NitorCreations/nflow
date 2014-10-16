@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.tests.config;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -15,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
@@ -40,10 +38,8 @@ public class RestClientConfiguration {
 
   @Bean
   public ObjectMapper objectMapper() {
-    // this must be kept in sync with the server side (nflowRestObjectMapper)
+    // this must be kept in sync with the server side (@NFlowRest annotated ObjectMapper bean)
     ObjectMapper mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(NON_EMPTY);
-    mapper.registerModule(new JodaModule());
     mapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
     return mapper;
   }

@@ -17,10 +17,10 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import com.nitorcreations.nflow.rest.config.NFlowRest;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
@@ -29,7 +29,7 @@ public class ListWorkflowInstanceConverter {
   private static final Logger logger = LoggerFactory.getLogger(ListWorkflowInstanceConverter.class);
 
   @Inject
-  @NFlow
+  @NFlowRest
   private ObjectMapper nflowObjectMapper;
 
   public ListWorkflowInstanceResponse convert(WorkflowInstance instance, QueryWorkflowInstances query) {
