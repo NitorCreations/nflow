@@ -51,4 +51,3 @@ angular
       return items.slice().reverse();
     };
   });
-;
