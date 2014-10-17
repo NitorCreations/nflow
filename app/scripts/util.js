@@ -20,6 +20,15 @@ function edgeDomId(edgeId) {
   return 'edge' + edgeId;
 }
 
+function nodeColors(nodeId, colors) {
+  var rect = $('#' + nodeDomId(nodeId) + ' rect')
+  rect.attr('fill', colors.background);
+  rect.css('stroke', colors.border);
+
+  var text = $('#' + nodeDomId(nodeId) + ' g text');
+  text.attr('fill', colors.text);
+}
+
 function disableZoomPan() {
   var svg =  d3.select('svg');
 
