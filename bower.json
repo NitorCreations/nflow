@@ -12,9 +12,9 @@
     "angular-animate": "~1.2.0",
     "angular-touch": "~1.2.0",
     "angular-route": "~1.2.0",
-    "underscore": "~1.7.0",
     "dagre-d3": "~0.2.9",
-    "momentjs": "~2.8.3"
+    "momentjs": "~2.8.3",
+    "lodash": "2.4.1"
   },
   "devDependencies": {
     "angular-mocks": "~1.2.0",
