@@ -21,7 +21,7 @@ function edgeDomId(edgeId) {
 }
 
 function nodeColors(nodeId, colors) {
-  var rect = $('#' + nodeDomId(nodeId) + ' rect')
+  var rect = $('#' + nodeDomId(nodeId) + ' rect');
   rect.attr('fill', colors.background);
   rect.css('stroke', colors.border);
 
@@ -89,7 +89,18 @@ function unhiglightNode(graph, workflow, nodeId) {
 
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
-  // All nodes must be in graph before edges
+  // All nodes must be added to graph before edges
+
+  function retryCount(workflow, state) {
+    var retries = 0;
+    if(workflow) {
+      _.each(workflow.actions, function(action) {
+        if(action.state === state.id && action.retryNo > 0)  {
+          retries ++;
+        }});
+    }
+    return retries;
+  }
 
   // Exported SVG has silly defaults for some styles
   // so they are overridden here.
@@ -97,19 +108,12 @@ function workflowDefinitionGraph(definition, workflow) {
     var state = definition.states[i];
 
     // count retries
-    var retries = 0;
-    if(workflow) {
-      _.each(workflow.actions, function(action) {
-        if(action.state == state.id && action.retryNo > 0)  {
-          retries ++;
-        }});
-    }
     g.addNode(state.name, {label: state.name,
                            labelStyle: 'font-size: 14px;' +
                            'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                            stroke: 'black',
                            style: 'stroke-width: 1.5px;',
-                           retries: retries
+                           retries: retryCount(workflow, state)
                           });
   }
 
@@ -158,7 +162,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
         if(node.retries > 0) {
           var c = nodeCoords[nodeId];
           var t = d3.select(this);
-          t.attr('transform', 'translate(' + (- c.x) + ',-4)')
+          t.attr('transform', 'translate(' + (- c.x) + ',-4)');
 
           t.append('ellipse')
           .attr('cx', 10).attr('cy', -5)
@@ -169,7 +173,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
           .append('tspan')
           .text(node.retries);
 
-          t.append('title').text('State was retried ' + node.retries + ' times.')
+          t.append('title').text('State was retried ' + node.retries + ' times.');
         }
       });
       // event handler for clicking nodes
