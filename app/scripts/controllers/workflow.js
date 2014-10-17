@@ -35,7 +35,7 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
                                           function(data) {
                                             $scope.definition = _.first(data);
                                             console.debug($scope.definition);
-                                            $scope.graph = workflowDefinitionGraph($scope.definition);
+                                            $scope.graph = workflowDefinitionGraph($scope.definition, $scope.workflow);
                                             // must use $apply() - event not managed by angular
                                             function nodeSelectedCallBack(nodeId) {
                                               $scope.$apply(function() {

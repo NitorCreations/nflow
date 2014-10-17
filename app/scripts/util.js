@@ -56,9 +56,13 @@ function unhighlightEdges(graph, nodeId) {
   });
 }
 
+function nodeRect(nodeId) {
+  return $('#' + nodeDomId(nodeId) + ' rect');
+}
+
 function higlightNode(graph, workflow, nodeId) {
   highlightEdges(graph, nodeId);
-  $('#' + nodeDomId(nodeId)).css('stroke-width', '3px');
+  nodeRect(nodeId).css('stroke-width', '3px');
   var state = _.find(workflow.states,
                      function(state) {
                        return state.id === nodeId;
@@ -68,13 +72,13 @@ function higlightNode(graph, workflow, nodeId) {
 
 function unhiglightNode(graph, workflow, nodeId) {
   unhighlightEdges(graph, nodeId);
-  $('#' + nodeDomId(nodeId)).css('stroke-width', '1.5px');
+  nodeRect(nodeId).css('stroke-width', '1.5px');
   _.each(workflow.states, function(state) {
     state.selected = undefined;
   });
 }
 
-function workflowDefinitionGraph(definition) {
+function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be in graph before edges
 
@@ -86,7 +90,8 @@ function workflowDefinitionGraph(definition) {
                            labelStyle: 'font-size: 14px;' +
                            'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                            stroke: 'black',
-                           style: 'stroke-width: 1.5px;'
+                           style: 'stroke-width: 1.5px;',
+                           retries: 29
                           });
   }
 
@@ -109,16 +114,16 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
   renderer.drawNodes(
     function(g, root) {
       var nodes = oldDrawNodes(graph, root);
-      // add id attr to nodes' background rects
-      nodes.select('rect').attr('id',
-                                function(nodeId) {
-                                  return nodeDomId(nodeId);
-                                });
+
       // use hand mouse cursor for nodes
       nodes.attr('style',
                  function(e) {
                    return 'opacity: 1;cursor: pointer;';
                  });
+      // add id attr to nodes g elements
+      nodes.attr('id', function(nodeId) {
+                                  return nodeDomId(nodeId);
+                                });
       // event handler for clicking nodes
       nodes.on('click', function(nodeId) {
         nodeSelectedCallBack(nodeId);
