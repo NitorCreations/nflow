@@ -95,12 +95,21 @@ function workflowDefinitionGraph(definition, workflow) {
   // so they are overridden here.
   for(var i in definition.states) {
     var state = definition.states[i];
+
+    // count retries
+    var retries = 0;
+    if(workflow) {
+      _.each(workflow.actions, function(action) {
+        if(action.state == state.id && action.retryNo > 0)  {
+          retries ++;
+        }});
+    }
     g.addNode(state.name, {label: state.name,
                            labelStyle: 'font-size: 14px;' +
                            'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                            stroke: 'black',
                            style: 'stroke-width: 1.5px;',
-                           retries: 29
+                           retries: retries
                           });
   }
 
@@ -133,6 +142,36 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
       nodes.attr('id', function(nodeId) {
                                   return nodeDomId(nodeId);
                                 });
+
+      // draw retry indicator
+      // fetch sizes for node rects => needed for calculating right edge for rect
+      var nodeCoords = {};
+      nodes.selectAll('rect').each(function (nodeName) {
+        var t = d3.select(this);
+        nodeCoords[nodeName] = {x: t.attr('x'), y: t.attr('y')};
+      });
+
+      // orange ellipse with retry count
+      var retryGroup = nodes.append('g');
+      retryGroup.each(function(nodeId) {
+        var node = g.node(nodeId);
+        if(node.retries > 0) {
+          var c = nodeCoords[nodeId];
+          var t = d3.select(this);
+          t.attr('transform', 'translate(' + (- c.x) + ',-4)')
+
+          t.append('ellipse')
+          .attr('cx', 10).attr('cy', -5)
+          .attr('rx', 20).attr('ry', 10)
+          .attr('style', 'fill: orange; stroke: black; stroke-width: 1.5px');
+
+          t.append('text')
+          .append('tspan')
+          .text(node.retries);
+
+          t.append('title').text('State was retried ' + node.retries + ' times.')
+        }
+      });
       // event handler for clicking nodes
       nodes.on('click', function(nodeId) {
         nodeSelectedCallBack(nodeId);
