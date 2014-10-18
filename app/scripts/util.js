@@ -87,34 +87,108 @@ function unhiglightNode(graph, workflow, nodeId) {
   });
 }
 
+/**
+ * Count how many times this state has been retried. Including non-consecutive retries.
+ */
+function calculateRetries(workflow, state) {
+  var retries = 0;
+  if(workflow) {
+    _.each(workflow.actions, function(action) {
+      if(action.state === state.id && action.retryNo > 0)  {
+        retries ++;
+      }});
+  }
+  return retries;
+}
+
+function activeNode(workflow, state) {
+  if(!workflow) {
+    return true;
+  }
+  if(workflow.state === state.name) {
+    return true;
+  }
+  return !!_.find(workflow.actions, function(action) {
+    return action.state === state.name;
+  });
+}
+
+function createNodeStyle(state, workflow) {
+  var active = activeNode(workflow, state);
+  var labelStroke = '';
+  var boxStroke = 'black';
+  if(!active) {
+    boxStroke = 'gray';
+    labelStroke = 'fill: gray;';
+  }
+  var normalNodeStyle = {labelStyle: 'font-size: 14px; ' + labelStroke +
+                         'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
+                         stroke: boxStroke,
+                         style: 'stroke-width: 1.5px;',
+                        };
+
+  var startNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
+                        'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
+                        stroke: boxStroke,
+                        fill: 'LightBlue',
+                        style: 'stroke-width: 1.5px;',
+                       };
+
+
+  var errorNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
+                        'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
+                        stroke: boxStroke,
+                        fill: 'yellow',
+                        style: 'stroke-width: 1.5px;',
+                       };
+
+  var endNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
+                      'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
+                      stroke: boxStroke,
+                      fill: 'LightGreen',
+                      style: 'stroke-width: 1.5px;',
+                     };
+
+  var nodeStyle = normalNodeStyle;
+  if(state.type === 'start') {
+    nodeStyle = startNodeStyle;
+  }
+  if(state.type === 'manual') {
+    nodeStyle = errorNodeStyle;
+  }
+  if(state.type === 'end') {
+    nodeStyle = endNodeStyle;
+  }
+  if(state.type === 'error') {
+    nodeStyle = errorNodeStyle;
+  }
+
+  nodeStyle.retries = calculateRetries(workflow, state);
+  nodeStyle.label = state.name;
+  return nodeStyle;
+}
+
+function createEdgeStyle(workflow, definition, state, transition) {
+  if(activeNode(workflow, state) && activeNode(workflow, {name: transition})) {
+    return {style: 'stroke: black; fill: none;'};
+  } else {
+    return {style: 'stroke: gray; fill: none;'};
+  }
+}
+
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges
 
-  function retryCount(workflow, state) {
-    var retries = 0;
-    if(workflow) {
-      _.each(workflow.actions, function(action) {
-        if(action.state === state.id && action.retryNo > 0)  {
-          retries ++;
-        }});
-    }
-    return retries;
-  }
 
   // Exported SVG has silly defaults for some styles
   // so they are overridden here.
   for(var i in definition.states) {
     var state = definition.states[i];
 
-    // count retries
-    g.addNode(state.name, {label: state.name,
-                           labelStyle: 'font-size: 14px;' +
-                           'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
-                           stroke: 'black',
-                           style: 'stroke-width: 1.5px;',
-                           retries: retryCount(workflow, state)
-                          });
+
+    var nodeStyle = createNodeStyle(state, workflow);
+    g.addNode(state.name, nodeStyle);
   }
 
   // Add edges
@@ -123,7 +197,7 @@ function workflowDefinitionGraph(definition, workflow) {
     for(var k in state.transitions){
       var transition = state.transitions[k];
       g.addEdge(null, state.name, transition,
-                {style: 'stroke: black; fill: none;'});
+                createEdgeStyle(workflow, definition, state, transition));
     }
   }
 
