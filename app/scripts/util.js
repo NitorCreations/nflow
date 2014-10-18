@@ -168,8 +168,35 @@ function createNodeStyle(state, workflow) {
   return nodeStyle;
 }
 
+function activeTransition(workflow, state, transition) {
+  if(!workflow) {
+    return true;
+  }
+
+  if(workflow.actions.length < 2) {
+    return false;
+  }
+
+  var first = null;
+  var found =  _.find(workflow.actions, function(action) {
+    if(!first) {
+      first = action.state;
+      return false;
+    }
+
+    if(first === state.name && action.state === transition) {
+      return true;
+    }
+    first = action.state;
+  });
+  if(found) {
+    return found;
+  }
+  return _.last(workflow.actions).state === state.name && workflow.state === transition;
+}
+
 function createEdgeStyle(workflow, definition, state, transition) {
-  if(activeNode(workflow, state) && activeNode(workflow, {name: transition})) {
+  if(!workflow || activeTransition(workflow, state, transition)) {
     return {style: 'stroke: black; fill: none;'};
   } else {
     return {style: 'stroke: gray; fill: none;'};
@@ -306,7 +333,6 @@ function downloadDataUrl(dataurl, filename) {
 function downloadImage(dataurl, filename, contentType) {
   console.info('Downloading image', filename, contentType);
   var canvas = document.createElement('canvas');
-  //var canvas = document.getElementById('dagreCanvas');
 
   var context = canvas.getContext('2d');
   var svg = $('svg');
@@ -317,7 +343,6 @@ function downloadImage(dataurl, filename, contentType) {
     // image load is async, must use callback
     context.drawImage(image, 0, 0);
     var canvasdata = canvas.toDataURL(contentType);
-    console.log(contentType, canvasdata);
     downloadDataUrl(canvasdata, filename);
   };
   image.onerror = function(error) {
