@@ -100,13 +100,17 @@ function activeNode(workflow, state) {
   });
 }
 
-function createNodeStyle(state, workflow) {
+function createNodeStyle(state, workflow, unexpected) {
   var active = activeNode(workflow, state);
   var labelStroke = '';
   var boxStroke = 'black';
   if(!active) {
     boxStroke = 'gray';
     labelStroke = 'fill: gray;';
+  }
+  if(unexpected) {
+    boxStroke = 'red';
+    labelStroke = 'fill: red;';
   }
   var normalNodeStyle = {labelStyle: 'font-size: 14px; ' + labelStroke +
                          'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
@@ -188,42 +192,56 @@ function createEdgeStyle(workflow, definition, state, transition) {
   }
 }
 
+function addUnexpectedNodes(g, workflow) {
+  if(!workflow) {
+    return;
+  }
+  _.each(workflow.actions, function(action) {
+    if(g._nodes[action.state]) {
+      return;
+    }
+    var nodeStyle = createNodeStyle({name: action.state}, workflow, true);
+    g.addNode(action.state, nodeStyle);
+  });
+}
+
 function addUnexpectedEdges(g, workflow) {
-  if(workflow) {
-    var activeEdges = {};
-    var sourceState = null;
-    _.each(workflow.actions, function(action) {
-      if(!activeEdges[action.state]) {
-        activeEdges[action.state] = {};
-      }
-      if(!sourceState) {
-        sourceState = action.state;
-        return;
-      }
-
-      // do not include retries
-      if(sourceState !== action.state) {
-        activeEdges[sourceState][action.state] = true;
-      }
+  if(!workflow) {
+    return;
+  }
+  var activeEdges = {};
+  var sourceState = null;
+  _.each(workflow.actions, function(action) {
+    if(!activeEdges[action.state]) {
+      activeEdges[action.state] = {};
+    }
+    if(!sourceState) {
       sourceState = action.state;
-    });
-
-    // handle last action -> currentACtion, do not include retries
-    var lastAction = _.last(workflow.actions);
-    if(lastAction && lastAction.state !== workflow.state) {
-      activeEdges[lastAction.state][workflow.state] = true;
+      return;
     }
 
-    _.each(activeEdges, function(targetObj, source) {
-      var target = Object.keys(targetObj)[0];
-      if(!g.inEdges(target, source).length) {
-        g.addEdge(null, source, target,
-                  {style: 'stroke: red; fill: none;'});
-      }
-    });
+    // do not include retries
+    if(sourceState !== action.state) {
+      activeEdges[sourceState][action.state] = true;
+    }
+    sourceState = action.state;
+  });
+
+  // handle last action -> currentACtion, do not include retries
+  var lastAction = _.last(workflow.actions);
+  if(lastAction && lastAction.state !== workflow.state) {
+    activeEdges[lastAction.state][workflow.state] = true;
   }
 
+  _.each(activeEdges, function(targetObj, source) {
+    var target = Object.keys(targetObj)[0];
+    if(!g.inEdges(target, source).length) {
+      g.addEdge(null, source, target,
+                {style: 'stroke: red; fill: none;'});
+    }
+  });
 }
+
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges
@@ -237,7 +255,7 @@ function workflowDefinitionGraph(definition, workflow) {
     g.addNode(state.name, nodeStyle);
   }
   // TODO add nodes not in workflow definition
-
+  addUnexpectedNodes(g, workflow);
 
   // Add edges
   for(var edgeIndex in definition.states) {
