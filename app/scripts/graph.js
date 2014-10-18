@@ -188,6 +188,42 @@ function createEdgeStyle(workflow, definition, state, transition) {
   }
 }
 
+function addUnexpectedEdges(g, workflow) {
+  if(workflow) {
+    var activeEdges = {};
+    var sourceState = null;
+    _.each(workflow.actions, function(action) {
+      if(!activeEdges[action.state]) {
+        activeEdges[action.state] = {};
+      }
+      if(!sourceState) {
+        sourceState = action.state;
+        return;
+      }
+
+      // do not include retries
+      if(sourceState !== action.state) {
+        activeEdges[sourceState][action.state] = true;
+      }
+      sourceState = action.state;
+    });
+
+    // handle last action -> currentACtion, do not include retries
+    var lastAction = _.last(workflow.actions);
+    if(lastAction && lastAction.state !== workflow.state) {
+      activeEdges[lastAction.state][workflow.state] = true;
+    }
+
+    _.each(activeEdges, function(targetObj, source) {
+      var target = Object.keys(targetObj)[0];
+      if(!g.inEdges(target, source).length) {
+        g.addEdge(null, source, target,
+                  {style: 'stroke: red; fill: none;'});
+      }
+    });
+  }
+
+}
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges
@@ -200,6 +236,8 @@ function workflowDefinitionGraph(definition, workflow) {
     var nodeStyle = createNodeStyle(state, workflow);
     g.addNode(state.name, nodeStyle);
   }
+  // TODO add nodes not in workflow definition
+
 
   // Add edges
   for(var edgeIndex in definition.states) {
@@ -211,6 +249,8 @@ function workflowDefinitionGraph(definition, workflow) {
     }
   }
 
+  // add edges that are not present in workflow definition
+  addUnexpectedEdges(g, workflow);
   return g;
 }
 
