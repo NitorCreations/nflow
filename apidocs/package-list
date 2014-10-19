@@ -1,6 +1,7 @@
 com.nitorcreations.nflow.engine.listener
 com.nitorcreations.nflow.engine.service
 com.nitorcreations.nflow.engine.workflow.definition
+com.nitorcreations.nflow.engine.workflow.executor
 com.nitorcreations.nflow.engine.workflow.instance
 com.nitorcreations.nflow.jetty
 com.nitorcreations.nflow.jetty.config
