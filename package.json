@@ -1,6 +1,6 @@
 {
-  "name": "nflowvis",
-  "version": "0.0.0",
+  "name": "nflow-vis",
+  "version": "0.0.1",
   "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.1",

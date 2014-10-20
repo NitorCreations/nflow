@@ -1,8 +1,9 @@
 <!doctype html>
 <html class="no-js">
   <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
-    <title>nFlow-ui</title>
+    <title>nFlow</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <link rel="shortcut icon" href="favicon.ico" />
@@ -23,21 +24,33 @@
 
     <!-- Add your site or application content here -->
     <div class="container-fluid">
-      <div class="header">
-        <ul class="nav nav-pills pull-right">
-            <li class="active"><a ng-href="#">Workflow definitions</a></li>
-            <li><a ng-href="#/search">Workflow Search</a></li>
-            <li><a ng-href="#/about">About</a></li>
-        </ul>
-        <h3 class="text-muted">nflow-ui</h3>
-      </div>
-
-      <div ng-view=""></div>
-        <div id="canvas"></div>
-      <div class="footer">
-        <p><span class="glyphicon"></span>Nitor Creations</p>
-      </div>
+     	<div class="row">
+	     	<div class="col-lg-5">
+	     		<img src="images/nflow-logo.png" alt="nFlow">
+	     	</div>
+	     	<div class="col-lg-5 menu-col">
+		        <ul class="nav nav-pills pull-right">
+		            <li class="active"><a ng-href="#">Workflow definitions</a></li>
+		            <li><a ng-href="#/search">Workflow Search</a></li>
+		            <li><a ng-href="#/about">About</a></li>
+		        </ul>
+     		</div>
+      	</div>
+      	<div class="row">
+	      	<hr>
+      	</div>
     </div>
+	  	
+  	<div class="container">
+		<div ng-view=""></div>
+		<div id="canvas"></div>
+  	</div>
+	
+	<div class="footer">
+		<div class="container-fluid">
+			<p><span class="glyphicon glyphicon-copyright-mark"></span> Nitor Creations</p>
+		</div>
+	</div>     
 
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
@@ -50,6 +63,7 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>
@@ -76,16 +90,16 @@
     <!-- endbower -->
     <!-- endbuild -->
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/util.js"></script>
-        <script src="scripts/graph.js"></script>
-        <script src="scripts/config.js"></script>
-        <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/main.js"></script>
-        <script src="scripts/controllers/about.js"></script>
-        <script src="scripts/controllers/search.js"></script>
-        <script src="scripts/controllers/workflow.js"></script>
-        <script src="scripts/controllers/workflow_definition.js"></script>
-        <!-- endbuild -->
-</body>
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/util.js"></script>
+    <script src="scripts/graph.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/about.js"></script>
+    <script src="scripts/controllers/search.js"></script>
+    <script src="scripts/controllers/workflow.js"></script>
+    <script src="scripts/controllers/workflow_definition.js"></script>
+    <!-- endbuild -->
+	</body>
 </html>
