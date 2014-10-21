@@ -30,9 +30,9 @@
 	     	</div>
 	     	<div class="col-lg-5 menu-col">
 		        <ul class="nav nav-pills pull-right">
-		            <li class="active"><a ng-href="#">Workflow definitions</a></li>
-		            <li><a ng-href="#/search">Workflow Search</a></li>
-		            <li><a ng-href="#/about">About</a></li>
+		            <li ng-class="{active: isActiveTab('main')}"><a ng-href="#">Workflow definitions</a></li>
+		            <li ng-class="{active: isActiveTab('search')}"><a ng-href="#/search">Workflow Search</a></li>
+		            <li ng-class="{active: isActiveTab('about')}"><a ng-href="#/about">About</a></li>
 		        </ul>
      		</div>
       	</div>
@@ -40,17 +40,17 @@
 	      	<hr>
       	</div>
     </div>
-	
+
   	<div class="container">
 		<div ng-view=""></div>
 		<div id="canvas"></div>
   	</div>
-	
+
 	<div class="footer">
 		<div class="container-fluid">
 			<p><span class="glyphicon glyphicon-copyright-mark"></span> Nitor Creations</p>
 		</div>
-	</div>     
+	</div>
 
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
@@ -63,7 +63,6 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>

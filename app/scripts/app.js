@@ -21,27 +21,49 @@ angular
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        controller: 'MainCtrl',
+        activeTab: 'main'
       })
       .when('/search', {
         templateUrl: 'views/search.html',
-        controller: 'WorkflowSearchCtrl'
+        controller: 'WorkflowSearchCtrl',
+        activeTab: 'search'
       })
       .when('/about', {
         templateUrl: 'views/about.html',
-        controller: 'AboutCtrl'
+        controller: 'AboutCtrl',
+        activeTab: 'about'
       })
       .when('/workflow-definition/:type', {
         templateUrl: 'views/workflow_definition.html',
-        controller: 'WorkflowDefinitionCtrl'
+        controller: 'WorkflowDefinitionCtrl',
+        activeTab: 'main'
       })
       .when('/workflow/:id', {
         templateUrl: 'views/workflow.html',
-        controller: 'WorkflowCtrl'
+        controller: 'WorkflowCtrl',
+        activeTab: 'search'
       })
       .otherwise({
         redirectTo: '/'
       });
+  })
+  .run(function($rootScope, $route){
+    var path = function() {
+      if($route && $route.current && $route.current.$$route) {
+        console.log('--', $route.current.$$route);
+        return $route.current.$$route.activeTab;
+      }
+      return '';
+    };
+    $rootScope.$watch(path, function(newVal, oldVal){
+      console.log("activeTab", newVal)
+      $rootScope.activeTab = newVal;
+    });
+    $rootScope.isActiveTab = function(tab) {
+      console.log('act', tab);
+      return $rootScope.activeTab === tab;
+    };
   })
   .filter('reverse', function() {
     return function(items) {
