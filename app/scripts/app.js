@@ -51,17 +51,14 @@ angular
   .run(function($rootScope, $route){
     var path = function() {
       if($route && $route.current && $route.current.$$route) {
-        console.log('--', $route.current.$$route);
         return $route.current.$$route.activeTab;
       }
       return '';
     };
     $rootScope.$watch(path, function(newVal, oldVal){
-      console.log("activeTab", newVal)
       $rootScope.activeTab = newVal;
     });
     $rootScope.isActiveTab = function(tab) {
-      console.log('act', tab);
       return $rootScope.activeTab === tab;
     };
   })
