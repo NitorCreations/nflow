@@ -1,7 +1,7 @@
 
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
 // bower:scss
-@import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+@import "bootstrap-sass-official/assets/stylesheets/bootstrap.scss";
 // endbower
 
 .browsehappy {
@@ -11,10 +11,42 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   padding: 0.2em 0;
 }
 
+/* Colors */
+$color-blue: #01a4e4;
+$color-dark-blue: #0093cc;
+$color-black: #000000;
+$color-grey: #636466;
+$color-light-grey: #888888;
+$color-white: #ffffff;
+
+/* Fonts */
+// latin-ext
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(http://fonts.gstatic.com/s/opensans/v10/u-WUoqrET9fUeobQW7jkRZBw1xU1rKptJj_0jans920.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+
+// latin
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(http://fonts.gstatic.com/s/opensans/v10/cJZKeOuBrn4kERxqtaUH3ZBw1xU1rKptJj_0jans920.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
 /* Space out content a bit */
 body {
   padding-top: 20px;
   padding-bottom: 20px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+a {
+	color: $color-blue;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -96,4 +128,34 @@ body {
 
 .highlight {
    font-weight: bold;
+}
+
+/* Navigation */
+.menu-col {
+	margin-top: 40px;
+}
+
+/* Buttons */
+.nav-pills>li>a {
+	border: 10px solid #000000;
+	border-radius: 0;
+	color: #000000;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+	color: #000000;
+	background-color: $color-blue;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+	background-color: $color-light-grey;
+}
+
+ul.listing {
+	list-style-image: url('dot.png');
+}
+
+/* Form */
+.form {
+	margin-bottom: 30px;
 }
