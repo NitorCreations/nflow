@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
+import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_JDBC;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -15,7 +17,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.DependsOn;
@@ -35,7 +36,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Component
-@DependsOn("nflowDatabaseInitializer")
+@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class ExecutorDao {
   private JdbcTemplate jdbc;
   final SQLVariants sqlVariants;
@@ -59,13 +60,13 @@ public class ExecutorDao {
   }
 
   /**
-   * Use setter injection because having the dataSource in constructor may not work
+   * Use setter injection because constructor injection may not work
    * when nFlow is used in some legacy systems.
-   * @param dataSource The nFlow data source.
+   * @param jdbcTemplate The JDBC template for accessing the nFlow data source.
    */
   @Inject
-  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
-    this.jdbc = new JdbcTemplate(dataSource);
+  public void setJdbcTemplate(@Named(NFLOW_JDBC) JdbcTemplate jdbcTemplate) {
+    this.jdbc = jdbcTemplate;
   }
 
   @Inject

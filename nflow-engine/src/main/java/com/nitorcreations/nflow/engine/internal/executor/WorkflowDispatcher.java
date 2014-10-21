@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_EXECUTOR;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class WorkflowDispatcher implements Runnable {
   private final Random rand = new Random();
 
   @Inject
-  public WorkflowDispatcher(@Named("nflowExecutor") ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
+  public WorkflowDispatcher(@Named(NFLOW_EXECUTOR) ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
     this.pool = pool;
     this.workflowInstances = workflowInstances;

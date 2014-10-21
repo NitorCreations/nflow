@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
+import static com.nitorcreations.nflow.engine.internal.config.EngineConfiguration.NFLOW_OBJECT_MAPPER;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -21,7 +23,7 @@ public class ObjectStringMapper {
   private final ObjectMapper mapper;
 
   @Inject
-  public ObjectStringMapper(@Named("nflowObjectMapper") ObjectMapper mapper) {
+  public ObjectStringMapper(@Named(NFLOW_OBJECT_MAPPER) ObjectMapper mapper) {
     this.mapper = mapper;
   }
 

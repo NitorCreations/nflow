@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.tests;
 
+import static com.nitorcreations.nflow.tests.config.RestClientConfiguration.WORKFLOW_INSTANCE_CLIENT;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
@@ -42,7 +43,7 @@ public abstract class AbstractNflowTest {
   }
 
   @Inject
-  public void setWorkflowInstanceResource(@Named("workflowInstance") WebClient client) {
+  public void setWorkflowInstanceResource(@Named(WORKFLOW_INSTANCE_CLIENT) WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowInstanceResource = fromClient(client, true).to(newUri, false);
   }

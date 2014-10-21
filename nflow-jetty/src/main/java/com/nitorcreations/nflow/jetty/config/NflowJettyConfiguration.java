@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.jetty.config;
 
 import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_HOST;
 import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_PORT;
+import static com.nitorcreations.nflow.rest.config.RestConfiguration.NFLOW_REST_OBJECT_MAPPER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.Arrays;
@@ -61,7 +62,7 @@ public class NflowJettyConfiguration {
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
-      @Named("nflowRestObjectMapper") ObjectMapper mapper) {
+      @Named(NFLOW_REST_OBJECT_MAPPER) ObjectMapper mapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
@@ -88,7 +89,7 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(@Named("nflowRestObjectMapper") ObjectMapper mapper) {
+  public JacksonJsonProvider jsonProvider(@Named(NFLOW_REST_OBJECT_MAPPER) ObjectMapper mapper) {
     return new JacksonJsonProvider(mapper);
   }
 
