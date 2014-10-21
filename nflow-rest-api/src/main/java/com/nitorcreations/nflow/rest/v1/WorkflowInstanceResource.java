@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -97,7 +98,7 @@ public class WorkflowInstanceResource {
     Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null,
         actions + "," + currentStateVariables + "," + actionStateVariables);
     if(instances.isEmpty()) {
-      return null;
+      throw new NotFoundException("Workflow instance not found");
     }
     return instances.iterator().next();
   }
