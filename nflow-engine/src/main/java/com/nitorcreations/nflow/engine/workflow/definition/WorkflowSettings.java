@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -8,6 +9,8 @@ import static org.joda.time.DateTime.now;
 
 import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
+
+import java.math.BigInteger;
 
 /**
  * Configuration for the workflow execution.
@@ -144,7 +147,7 @@ public class WorkflowSettings {
    * @return Next activation time.
    */
   public DateTime getErrorTransitionActivation(int retryCount) {
-    return now().plusMillis(calculateBinaryBackoffDelay(retryCount + 1, minErrorTransitionDelay, maxErrorTransitionDelay));
+    return now().plus(calculateBinaryBackoffDelay(retryCount + 1, minErrorTransitionDelay, maxErrorTransitionDelay));
   }
 
   /**
@@ -158,8 +161,14 @@ public class WorkflowSettings {
    *          Maximum retry delay.
    * @return Delay in milliseconds.
    */
-  protected int calculateBinaryBackoffDelay(int retryCount, int minDelay, int maxDelay) {
-    return min(minDelay * (1 << retryCount), maxDelay);
+  protected long calculateBinaryBackoffDelay(int retryCount, long minDelay, long maxDelay) {
+    BigInteger delay = BigInteger.valueOf(minDelay).multiply(BigInteger.valueOf(2).pow(retryCount));
+    if(!BigInteger.valueOf(delay.longValue()).equals(delay)) {
+      // got overflow in delay calculation
+      // Java 1.8 has delay.longValueExact()
+      return maxDelay;
+    }
+    return max(minDelay, min(delay.longValue(), maxDelay));
   }
 
   /**
