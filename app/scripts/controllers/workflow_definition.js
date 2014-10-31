@@ -57,15 +57,15 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
 
       state.stateStatistics = stats.stateStatistics[name];
 
-      state.stateStatistics.totalActive = _.reduce(_.values(state.stateStatistics), function(a,b) {return a+b}, 0)
-      - (state.stateStatistics.nonScheduled ? state.stateStatistics.nonScheduled : 0);
+      state.stateStatistics.totalActive = _.reduce(_.values(state.stateStatistics), function(a,b) {
+        return a+b;
+      }, 0) - (state.stateStatistics.nonScheduled ? state.stateStatistics.nonScheduled : 0);
       _.each(['executing','queued','sleeping','nonScheduled', 'totalActive'], function(stat) {
-        _.each(definition)
         totals[stat] += state.stateStatistics[stat] ? state.stateStatistics[stat] : 0;
       });
     });
     definition.stateStatisticsTotal = totals;
-  };
+  }
 
   $scope.nodeSelected = nodeSelected;
   $scope.stats = {};
