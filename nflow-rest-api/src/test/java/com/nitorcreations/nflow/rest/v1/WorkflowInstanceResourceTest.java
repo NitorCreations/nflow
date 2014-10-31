@@ -6,16 +6,25 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -27,6 +36,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,6 +54,9 @@ public class WorkflowInstanceResourceTest {
   private final WorkflowInstance i = new WorkflowInstance.Builder().setId(2).build();
 
   private WorkflowInstanceResource resource;
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setup() {
@@ -106,9 +119,9 @@ public class WorkflowInstanceResourceTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void fetchWorkflowInstancesWorks() {
-    resource.fetchWorkflowInstance(42);
-    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+  public void fetchingNonExistingWorkflowThrowsNotFoundException() {
+    thrown.expect(NotFoundException.class);
+    QueryWorkflowInstances query = (QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
         hasField("types", emptyCollectionOf(String.class)),
         hasField("states", emptyCollectionOf(String.class)),
@@ -116,7 +129,34 @@ public class WorkflowInstanceResourceTest {
         hasField("externalId", equalTo(null)),
         hasField("includeActions", equalTo(true)),
         hasField("includeCurrentStateVariables", equalTo(true)),
-        hasField("includeActionStateVariables", equalTo(true)))));
+        hasField("includeActionStateVariables", equalTo(true))));
+    when(workflowInstances.listWorkflowInstances(query)).thenReturn(Collections.<WorkflowInstance>emptyList());
+    resource.fetchWorkflowInstance(42);
+    verify(workflowInstances).listWorkflowInstances(query);
   }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void fetchingExistingWorkflowReturnFirstWorkflowInstance() {
+    WorkflowInstance instance1 = mock(WorkflowInstance.class);
+    WorkflowInstance instance2 = mock(WorkflowInstance.class);
+    QueryWorkflowInstances query = (QueryWorkflowInstances) argThat(allOf(
+        hasField("ids", contains(42)),
+        hasField("types", emptyCollectionOf(String.class)),
+        hasField("states", emptyCollectionOf(String.class)),
+        hasField("businessKey", equalTo(null)),
+        hasField("externalId", equalTo(null)),
+        hasField("includeActions", equalTo(true)),
+        hasField("includeCurrentStateVariables", equalTo(true)),
+        hasField("includeActionStateVariables", equalTo(true))));
+    when(workflowInstances.listWorkflowInstances(query)).thenReturn(Arrays.asList(instance1, instance2));
+    ListWorkflowInstanceResponse resp1 = mock(ListWorkflowInstanceResponse.class);
+    ListWorkflowInstanceResponse resp2 = mock(ListWorkflowInstanceResponse.class);
+    when(listWorkflowConverter.convert(eq(instance1), any(QueryWorkflowInstances.class))).thenReturn(resp1, resp2);
+    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42);
+    verify(workflowInstances).listWorkflowInstances(any(QueryWorkflowInstances.class));
+    assertEquals(resp1, result);
+  }
+
 
 }

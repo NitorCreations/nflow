@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
 import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
+import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
@@ -74,7 +75,8 @@ public class NflowJettyConfiguration {
         validationExceptionMapper(),
         resourceListingProvider(),
         apiDeclarationProvider(),
-        corsHeadersProvider()
+        corsHeadersProvider(),
+        notFoundExceptionMapper()
         ));
     factory.setFeatures(Arrays.asList(new LoggingFeature()));
     factory.setBus(cxf());
@@ -95,6 +97,11 @@ public class NflowJettyConfiguration {
   @Bean
   public CustomValidationExceptionMapper validationExceptionMapper() {
     return new CustomValidationExceptionMapper();
+  }
+
+  @Bean
+  public NotFoundExceptionMapper notFoundExceptionMapper() {
+    return new NotFoundExceptionMapper();
   }
 
   @Bean(destroyMethod = "shutdown")

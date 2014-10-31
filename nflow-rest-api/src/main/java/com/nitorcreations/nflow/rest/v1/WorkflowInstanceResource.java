@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.rest.v1;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -97,7 +99,7 @@ public class WorkflowInstanceResource {
     Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null,
         actions + "," + currentStateVariables + "," + actionStateVariables);
     if(instances.isEmpty()) {
-      return null;
+      throw new NotFoundException(format("Workflow instance %s not found", id));
     }
     return instances.iterator().next();
   }
