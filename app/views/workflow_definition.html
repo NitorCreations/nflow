@@ -31,11 +31,11 @@
         </tr>
         <tr>
             <th colspan="2">Total</th>
-            <th class="numeric">10</th>
-            <th class="numeric">1</th>
-            <th class="numeric">3</th>
-            <th class="numeric">4</th>
-            <th class="numeric">42</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.executing}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.queued}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
         </tr>
     </thead>
     <tbody>
@@ -43,21 +43,21 @@
             ng-click="nodeSelected(state.id)">
             <td >{{state.name}}</td>
             <td>{{state.description}}</td>
-            <td class="numeric">{{state.statistics.executing}}</td>
-            <td class="numeric">{{state.statistics.queued}}</td>
-            <td class="numeric">{{state.statistics.sleeping}}</td>
-            <th class="numeric">{{state.statistics.totalActive}}</th>
-            <td class="numeric">{{state.statistics.nonScheduled}}</td>
+            <td class="numeric">{{state.stateStatistics.executing}}</td>
+            <td class="numeric">{{state.stateStatistics.queued}}</td>
+            <td class="numeric">{{state.stateStatistics.sleeping}}</td>
+            <th class="numeric">{{state.stateStatistics.totalActive}}</th>
+            <td class="numeric">{{state.stateStatistics.nonScheduled}}</td>
         </tr>
     </tbody>
     <tfoot>
         <tr>
             <th colspan="2">Total</th>
-            <th class="numeric">10</th>
-            <th class="numeric">1</th>
-            <th class="numeric">3</th>
-            <th class="numeric">4</th>
-            <th class="numeric">42</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.executing}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.queued}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
+            <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
         </tr>
     </tfoot>
 </table>
