@@ -1,7 +1,7 @@
 
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
 // bower:scss
-@import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+@import "bootstrap-sass-official/assets/stylesheets/bootstrap.scss";
 // endbower
 
 .browsehappy {
@@ -16,8 +16,12 @@ $color-blue: #01a4e4;
 $color-dark-blue: #0093cc;
 $color-black: #000000;
 $color-grey: #636466;
-$color-light-grey: #888888;
+$color-mid-grey: #888888;
+$color-light-grey: #C7C7C7;
 $color-white: #ffffff;
+$color-green: #76e859;
+$color-dark-green: #bcf4ae;
+$color-light-green: #C0F4B3;
 
 /* Fonts */
 // latin-ext
@@ -135,7 +139,10 @@ a {
 	margin-top: 40px;
 }
 
-/* Buttons */
+.nav-pills > li {
+	margin-right: 15px;
+}
+
 .nav-pills>li>a {
 	border: 10px solid #000000;
 	border-radius: 0;
@@ -157,9 +164,51 @@ ul.listing {
 
 /* Form */
 .form {
-	margin-bottom: 30px;
+	margin-bottom: 40px;
+}
+
+.form-control {
+	border-color: $color-grey;
+	box-shadow: none;
+}
+
+.btn {
+	margin-right: 15px;
+	background-color: $color-light-grey;
+	border-color: $color-grey;
+}
+
+.btn-default {
+	background-color: $color-light-grey;
+	border-color: $color-grey;
+}
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open > .btn-default.dropdown-toggle {
+	background-color: $color-light-grey;
+	border-color: $color-grey;
 }
 
 .numeric {
   text-align: right;
+}
+
+#search-result {
+	margin-bottom: 40px;
+}
+
+/* Table */
+.table {
+	margin-bottom: 30px;	
+}
+
+.table > thead > tr > th, .table > thead > tr > td, .table > tbody > tr > th, .table > tbody > tr > td, .table > tfoot > tr > th, .table > tfoot > tr > td {
+	border-color: $color-black;
+}
+
+.table > thead > tr > td.success, .table > thead > tr > th.success, .table > thead > tr.success > td, .table > thead > tr.success > th, .table > tbody > tr > td.success, .table > tbody > tr > th.success, .table > tbody > tr.success > td, .table > tbody > tr.success > th, .table > tfoot > tr > td.success, .table > tfoot > tr > th.success, .table > tfoot > tr.success > td, .table > tfoot > tr.success > th {
+	background-color: $color-green;
+}
+
+.table-hover > tbody > tr > td.success:hover, .table-hover > tbody > tr > th.success:hover, .table-hover > tbody > tr.success:hover > td, .table-hover > tbody > tr:hover > .success, .table-hover > tbody > tr.success:hover > th {
+	background-color: $color-light-green;
 }
