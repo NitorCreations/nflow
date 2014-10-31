@@ -25,13 +25,50 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     $scope.selectedNode = nodeId;
   }
 
-  $scope.nodeSelected = nodeSelected;
+  // TODO replace with actual fetch
+  function getStats(definition) {
+    var stateStatList = _.map(definition.states, function(state) {
+      var result = {};
+      result[state.name] = {
+        executing: state.name.length,
+        queued: Math.floor(Math.random() * (10  + 1)),
+        sleeping: 2,
+        non_scheduled: 10
+      };
 
+
+      return result;
+    });
+
+    var stateStatMap = _.reduce(stateStatList, function(a, b) {
+      return _.merge(a,b);
+    });
+    return {state_statistics: stateStatMap};
+  }
+
+  function loadStats(definition) {
+    var stats = getStats(definition);
+
+    _.each(definition.states, function(state) {
+      var name = state.name;
+
+      state.statistics = stats.state_statistics[name]
+      state.statistics.total_active = _.reduce(_.values(state.statistics), function(a,b) {return a+b})
+                  - state.statistics.non_scheduled;
+    });
+  };
+
+  $scope.nodeSelected = nodeSelected;
+  $scope.stats = {};
   WorkflowDefinitions.get({type: $routeParams.type},
                           function(data) {
                             var start = new Date().getTime();
                             var definition =  _.first(data);
                             $scope.definition = definition;
+
+                            loadStats(definition);
+
+
                             $scope.graph = workflowDefinitionGraph(definition);
                             // must use $apply() - event not managed by angular
                             function nodeSelectedCallBack(nodeId) {
@@ -71,6 +108,14 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     nodeSelected(null);
     downloadSvg($scope.definition.type + '.svg');
     nodeSelected(selectedNode);
+  };
+
+  $scope.prettyPrintJson = function(value) {
+    try {
+      return JSON.stringify(value, undefined, 2);
+    } catch(e) {
+      return value;
+    }
   };
 });
 
