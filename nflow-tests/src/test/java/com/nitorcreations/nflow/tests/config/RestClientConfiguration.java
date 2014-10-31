@@ -23,7 +23,6 @@ import com.nitorcreations.nflow.engine.internal.config.NFlow;
 public class RestClientConfiguration {
 
   @Bean
-  @NFlow
   public WebClient baseWebClient(JacksonJsonProvider jsonProvider, Environment env) {
     JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
     bean.setAddress(env.getRequiredProperty("nflow.url"));
@@ -40,7 +39,7 @@ public class RestClientConfiguration {
 
   @Bean
   public ObjectMapper objectMapper() {
-    // this must be kept in sync with the server side (@NFlowRest annotated ObjectMapper bean)
+    // this must be kept in sync with the server side (nflowRestObjectMapper)
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
@@ -54,8 +53,7 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  @WorkflowInstance
-  public WebClient workflowInstanceWebService(@NFlow WebClient client) {
+  public WebClient workflowInstance(@NFlow WebClient client) {
     return client.path("v1").path("workflow-instance");
   }
 }

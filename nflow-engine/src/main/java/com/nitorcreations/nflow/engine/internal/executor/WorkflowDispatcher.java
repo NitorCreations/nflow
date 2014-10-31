@@ -34,9 +34,9 @@ public class WorkflowDispatcher implements Runnable {
   private final Random rand = new Random();
 
   @Inject
-  public WorkflowDispatcher(@NFlow ThresholdThreadPoolTaskExecutor pool, WorkflowInstanceDao workflowInstances,
+  public WorkflowDispatcher(@NFlow ThresholdThreadPoolTaskExecutor nflowExecutor, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
-    this.pool = pool;
+    this.pool = nflowExecutor;
     this.workflowInstances = workflowInstances;
     this.stateProcessorFactory = stateProcessorFactory;
     this.executorRecovery = executorRecovery;
