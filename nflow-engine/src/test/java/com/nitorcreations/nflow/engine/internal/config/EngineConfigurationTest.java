@@ -29,7 +29,7 @@ public class EngineConfigurationTest {
 
   @Test
   public void dispatcherPoolExecutorInstantiation() {
-    ThreadPoolTaskExecutor executor = configuration.dispatcherPoolExecutor(threadFactory, environment);
+    ThreadPoolTaskExecutor executor = configuration.nflowExecutor(threadFactory, environment);
     assertThat(executor.getCorePoolSize(), is(100));
     assertThat(executor.getMaxPoolSize(), is(100));
     assertThat(executor.getKeepAliveSeconds(), is(0));
@@ -39,6 +39,6 @@ public class EngineConfigurationTest {
 
   @Test
   public void nonSpringWorkflowsListingNotInstantiated() {
-    assertThat(configuration.nonSpringWorkflowsListing(environment), nullValue());
+    assertThat(configuration.nflowNonSpringWorkflowsListing(environment), nullValue());
   }
 }

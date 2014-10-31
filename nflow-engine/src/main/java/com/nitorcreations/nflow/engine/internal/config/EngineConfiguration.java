@@ -22,7 +22,7 @@ public class EngineConfiguration {
 
   @Bean
   @NFlow
-  public ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor(@NFlow ThreadFactory threadFactory, Environment env) {
+  public ThresholdThreadPoolTaskExecutor nflowExecutor(@NFlow ThreadFactory threadFactory, Environment env) {
     ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
     Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
     executor.setCorePoolSize(threadCount);
@@ -54,7 +54,7 @@ public class EngineConfiguration {
 
   @Bean
   @NFlow
-  public AbstractResource nonSpringWorkflowsListing(Environment env) {
+  public AbstractResource nflowNonSpringWorkflowsListing(Environment env) {
     String filename = env.getProperty("nflow.non_spring_workflows_filename");
     if (filename != null) {
       return new ClassPathResource(filename);

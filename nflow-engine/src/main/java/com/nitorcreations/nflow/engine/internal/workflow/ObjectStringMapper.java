@@ -21,8 +21,8 @@ public class ObjectStringMapper {
   private final ObjectMapper mapper;
 
   @Inject
-  public ObjectStringMapper(@NFlow ObjectMapper mapper) {
-    this.mapper = mapper;
+  public ObjectStringMapper(@NFlow ObjectMapper nflowObjectMapper) {
+    this.mapper = nflowObjectMapper;
   }
 
   @SuppressWarnings("unchecked")

@@ -7,13 +7,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.concurrent.ThreadFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.nitorcreations.nflow.engine.internal.executor.WorkflowDispatcher;
 
@@ -23,7 +24,7 @@ public class WorkflowLifecycleTest {
   @Mock
   private WorkflowDispatcher dispatcher;
   @Mock
-  private ThreadPoolTaskExecutor dispatcherExecutor;
+  private ThreadFactory threadFactory;
   @Mock
   private Environment env;
   @Mock
@@ -34,8 +35,8 @@ public class WorkflowLifecycleTest {
   @Before
   public void setup() {
     when(env.getProperty("nflow.autostart", Boolean.class, true)).thenReturn(TRUE);
-    when(dispatcherExecutor.newThread(dispatcher)).thenReturn(dispatcherThread);
-    lifecycle = new WorkflowLifecycle(dispatcher, dispatcherExecutor, env);
+    when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
+    lifecycle = new WorkflowLifecycle(dispatcher, threadFactory, env);
   }
 
   @Test

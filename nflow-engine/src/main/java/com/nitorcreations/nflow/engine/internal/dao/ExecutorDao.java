@@ -63,11 +63,11 @@ public class ExecutorDao {
   /**
    * Use setter injection because constructor injection may not work
    * when nFlow is used in some legacy systems.
-   * @param jdbcTemplate The JDBC template for accessing the nFlow data source.
+   * @param nflowJdbcTemplate The JDBC template for accessing the nFlow data source.
    */
   @Inject
-  public void setJdbcTemplate(@NFlow JdbcTemplate jdbcTemplate) {
-    this.jdbc = jdbcTemplate;
+  public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
+    this.jdbc = nflowJdbcTemplate;
   }
 
   @Inject

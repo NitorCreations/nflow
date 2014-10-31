@@ -40,8 +40,8 @@ public class WorkflowDefinitionService {
   private final WorkflowInstanceDao workflowInstanceDao;
 
   @Inject
-  public WorkflowDefinitionService(@NFlow AbstractResource nonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
-    this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
+  public WorkflowDefinitionService(@NFlow AbstractResource nflowNonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
+    this.nonSpringWorkflowsListing = nflowNonSpringWorkflowsListing;
     this.workflowInstanceDao = workflowInstanceDao;
   }
 

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.rest.config.NFlowRest;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
@@ -29,8 +28,7 @@ public class ListWorkflowInstanceConverter {
   private static final Logger logger = LoggerFactory.getLogger(ListWorkflowInstanceConverter.class);
 
   @Inject
-  @NFlowRest
-  private ObjectMapper nflowObjectMapper;
+  private ObjectMapper nflowRestObjectMapper;
 
   public ListWorkflowInstanceResponse convert(WorkflowInstance instance, QueryWorkflowInstances query) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
@@ -74,7 +72,7 @@ public class ListWorkflowInstanceConverter {
 
   private JsonNode stringToJson(String key, String value) {
     try {
-      return nflowObjectMapper.readTree(value);
+      return nflowRestObjectMapper.readTree(value);
     } catch (IOException e) {
       logger.warn("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}",
     		  key, e.getClass().getSimpleName(), e.getMessage());

@@ -27,7 +27,7 @@ public abstract class DatabaseConfiguration {
 
   @Bean
   @NFlow
-  public DataSource datasource(Environment env) {
+  public DataSource nflowDatasource(Environment env) {
     String url = property(env, "url");
     logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
@@ -42,15 +42,15 @@ public abstract class DatabaseConfiguration {
   @Bean
   @NFlow
   @Scope(SCOPE_PROTOTYPE)
-  public JdbcTemplate jdbcTemplate(Environment env) {
-    return new JdbcTemplate(datasource(env));
+  public JdbcTemplate nflowJdbcTemplate(@NFlow DataSource nflowDataSource) {
+    return new JdbcTemplate(nflowDataSource);
   }
 
   @Bean
   @NFlow
   @Scope(SCOPE_PROTOTYPE)
-  public NamedParameterJdbcTemplate namedParameterJdbcTemplate(Environment env) {
-    return new NamedParameterJdbcTemplate(datasource(env));
+  public NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate(@NFlow DataSource nflowDataSource) {
+    return new NamedParameterJdbcTemplate(nflowDataSource);
   }
 
   protected String property(Environment env, String key) {

@@ -30,9 +30,9 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
 
   @Bean
   @Override
-  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     String dbType = "mysql";
-    try (Connection c = DataSourceUtils.getConnection(dataSource)) {
+    try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
       logger.info("MySQL {}.{}, product version {}", meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), databaseProductVersion);
@@ -50,9 +50,8 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain mysql version", e);
     }
-    return new DatabaseInitializer(dbType, dataSource, env);
+    return new DatabaseInitializer(dbType, nflowDataSource, env);
   }
-
 
   @Bean
   public SQLVariants sqlVariants() {
