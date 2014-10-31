@@ -6,6 +6,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.Arrays;
 
+import javax.inject.Named;
+
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -17,7 +19,6 @@ import org.springframework.core.env.Environment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Configuration
 public class RestClientConfiguration {
@@ -53,7 +54,7 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  public WebClient workflowInstance(@NFlow WebClient client) {
-    return client.path("v1").path("workflow-instance");
+  public WebClient workflowInstance(@Named("baseWebClient") WebClient baseWebClient) {
+    return baseWebClient.path("v1").path("workflow-instance");
   }
 }
