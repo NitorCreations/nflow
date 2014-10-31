@@ -1,14 +1,14 @@
 package com.nitorcreations.nflow.rest.v1;
 
-import static org.hamcrest.Matchers.equalTo;
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +20,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDefinitionResourceTest {
@@ -37,20 +38,25 @@ public class WorkflowDefinitionResourceTest {
     @SuppressWarnings("unchecked")
     WorkflowDefinition<? extends WorkflowState> def = mock(WorkflowDefinition.class);
     when(def.getType()).thenReturn("dummy");
-    doReturn(Arrays.asList(def)).when(workflowDefinitions).getWorkflowDefinitions();
+    doReturn(asList(def)).when(workflowDefinitions).getWorkflowDefinitions();
     resource = new WorkflowDefinitionResource(workflowDefinitions, converter);
   }
 
   @Test
   public void listWorkflowInstancesFindsExistingDefinition() {
     Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowInstances(new String[] { "dummy" } );
-    Assert.assertThat(ret.size(), equalTo(1));
+    assertThat(ret.size(), is(1));
   }
 
   @Test
   public void listWorkflowInstancesNotFindsNonExistentDefinition() {
     Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowInstances(new String[] { "nonexistent" } );
-    Assert.assertThat(ret.size(), equalTo(0));
+    assertThat(ret.size(), is(0));
   }
 
+  @Test
+  public void getWorkflowDefinitionStatistics() {
+    WorkflowDefinitionStatisticsResponse statistics = resource.getStatistics("abc");
+    assertThat(statistics.stateStatistics.size(), is(0));
+  }
 }

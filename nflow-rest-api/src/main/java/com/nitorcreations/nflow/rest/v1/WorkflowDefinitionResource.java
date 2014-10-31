@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
@@ -23,6 +24,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -57,4 +59,10 @@ public class WorkflowDefinitionResource {
     return response;
   }
 
+  @GET
+  @Path("/{type}/statistics")
+  @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
+  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type) {
+    return new WorkflowDefinitionStatisticsResponse();
+  }
 }
