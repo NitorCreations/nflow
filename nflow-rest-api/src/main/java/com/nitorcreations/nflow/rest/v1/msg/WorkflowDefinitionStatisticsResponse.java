@@ -1,6 +1,6 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.wordnik.swagger.annotations.ApiModel;
@@ -13,5 +13,5 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class WorkflowDefinitionStatisticsResponse {
 
   @ApiModelProperty(value = "Statistics per state", required=true)
-  public Map<String, Map<String, Long>> stateStatistics = new HashMap<>();
+  public Map<String, Map<String, Long>> stateStatistics = new LinkedHashMap<>();
 }

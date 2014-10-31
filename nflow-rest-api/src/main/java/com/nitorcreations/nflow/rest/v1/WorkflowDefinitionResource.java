@@ -23,6 +23,7 @@ import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
+import com.nitorcreations.nflow.rest.v1.converter.WorkflowDefinitionStatisticsConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import com.wordnik.swagger.annotations.Api;
@@ -37,11 +38,13 @@ public class WorkflowDefinitionResource {
 
   private final WorkflowDefinitionService workflowDefinitions;
   private final ListWorkflowDefinitionConverter converter;
+  private final WorkflowDefinitionStatisticsConverter statisticsConverter;
 
   @Inject
-  public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter) {
+  public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter, WorkflowDefinitionStatisticsConverter statisticsConverter) {
     this.workflowDefinitions = workflowDefinitions;
     this.converter = converter;
+    this.statisticsConverter = statisticsConverter;
   }
 
   @GET
@@ -63,6 +66,6 @@ public class WorkflowDefinitionResource {
   @Path("/{type}/statistics")
   @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
   public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type) {
-    return new WorkflowDefinitionStatisticsResponse();
+    return statisticsConverter.convert(workflowDefinitions.getStatistics(type));
   }
 }

@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
@@ -34,10 +36,12 @@ public class WorkflowDefinitionService {
 
   private final AbstractResource nonSpringWorkflowsListing;
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
+  private final WorkflowInstanceDao workflowInstanceDao;
 
   @Inject
-  public WorkflowDefinitionService(@Named("nflowNonSpringWorkflowsListing") AbstractResource nonSpringWorkflowsListing) {
+  public WorkflowDefinitionService(@Named("nflowNonSpringWorkflowsListing") AbstractResource nonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   /**
@@ -97,5 +101,14 @@ public class WorkflowDefinitionService {
           " define same workflow type: " + wd.getType());
     }
     logger.info("Added workflow type: {} ({})",  wd.getType(), wd.getClass().getName());
+  }
+
+  /**
+   * Return workflow definition statistics for a given type.
+   * @param type The workflow definition type.
+   * @return The statistics per workflow state.
+   */
+  public Map<String, StateExecutionStatistics> getStatistics(String type) {
+    return workflowInstanceDao.getStateExecutionStatistics(type);
   }
 }

@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -160,6 +161,28 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] {"otherState", i1.state});
     assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
+  }
+
+  @Test
+  public void getStatisticsWorks() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
+    int id = dao.insertWorkflowInstance(i1);
+
+    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type);
+    StateExecutionStatistics stats = statsMap.get("CreateLoan");
+    assertThat(stats.executing, is(0L));
+    assertThat(stats.queued, is(0L));
+    assertThat(stats.sleeping, is(0L));
+    assertThat(stats.nonScheduled, is(1L));
+
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] {"otherState", i1.state});
+
+    statsMap = dao.getStateExecutionStatistics(i1.type);
+    stats = statsMap.get("CreateLoan");
+    assertThat(stats.executing, is(0L));
+    assertThat(stats.queued, is(1L));
+    assertThat(stats.sleeping, is(0L));
+    assertThat(stats.nonScheduled, is(0L));
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
