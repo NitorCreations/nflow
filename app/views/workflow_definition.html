@@ -16,12 +16,41 @@
 
 <h2>States</h2>
 
-<ul id="state-list">
-    <li class="{{state.selected}}" ng-repeat="state in definition.states"
-        ng-click="nodeSelected(state.id)">
-        {{state.name}} - {{state.description}}
-    </li>
-</ul>
+<table id="state-list" class="table table-striped table-hover">
+    <thead>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Executing</th>
+        <th>Queued</th>
+        <th>Sleeping</tg>
+        <th>Total&nbsp;active</th>
+        <th>Passive</th>
+    </thead>
+    <tbody>
+        <tr class="{{state.selected}}" ng-repeat="state in definition.states"
+            ng-click="nodeSelected(state.id)">
+            <td >{{state.name}}</td>
+            <td>{{state.description}}</td>
+            <td class="numeric">0</td>
+            <td class="numeric">1</td>
+            <td class="numeric">2</td>
+            <th class="numeric">3</th>
+            <th class="numeric">6</th>
+        </tr>
+    </tbody>
+    <tfoot>
+        <th></th>
+        <th>Totals</th>
+        <th class="numeric">10</th>
+        <th class="numeric">1</th>
+        <th class="numeric">3</th>
+        <th class="numeric">4</th>
+        <th class="numeric">42</th>
+    </tfoot>
+</table>
+
+
+
 <h2>Settings</h2>
 <ul id="workflow-settings" ng-repeat="(key, value) in definition.settings">
     <li>{{key}} = {{value}}</li>
