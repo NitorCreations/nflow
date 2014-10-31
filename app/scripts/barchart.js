@@ -44,6 +44,7 @@ function drawStateExecutionGraph(canvasId, stats) {
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
+  // Margins around image
   var margin = {top: 20, right: 120, bottom: 130, left: 40},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
@@ -129,7 +130,7 @@ function drawStateExecutionGraph(canvasId, stats) {
     .attr('y', function(d) { return y(d.y1); })
     .attr('height', function(d) { return y(d.y0) - y(d.y1); })
     .style('fill', function(d) { return color(d.name); })
-    .append('title').text(function(d) { return execTypeName(d.name) + ' ' + (  y(d.y0) - y(d.y1) )})
+    .append('title').text(function(d) { return execTypeName(d.name) + ' ' + (  y(d.y0) - y(d.y1) ); });
 
   // Legend
   var legend = svg.selectAll('.legend')
