@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
@@ -106,9 +107,11 @@ public class WorkflowDefinitionService {
   /**
    * Return workflow definition statistics for a given type.
    * @param type The workflow definition type.
+   * @param start If given, include only workflow instances created after this time.
+   * @param end If given, include only workflow instances created before this time.
    * @return The statistics per workflow state.
    */
-  public Map<String, StateExecutionStatistics> getStatistics(String type) {
-    return workflowInstanceDao.getStateExecutionStatistics(type);
+  public Map<String, StateExecutionStatistics> getStatistics(String type, DateTime start, DateTime end) {
+    return workflowInstanceDao.getStateExecutionStatistics(type, start, end);
   }
 }

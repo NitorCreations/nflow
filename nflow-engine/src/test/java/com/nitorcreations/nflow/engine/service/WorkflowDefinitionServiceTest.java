@@ -78,6 +78,6 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void workflowDefinitionStatisticsWorks() {
-    service.getStatistics("type");
+    service.getStatistics("type", null, null);
   }
 }

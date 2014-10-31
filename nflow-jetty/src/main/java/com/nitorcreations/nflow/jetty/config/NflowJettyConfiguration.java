@@ -36,7 +36,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.rest.config.BadRequestExceptionMapper;
 import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
+import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
 import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
@@ -76,7 +78,9 @@ public class NflowJettyConfiguration {
         resourceListingProvider(),
         apiDeclarationProvider(),
         corsHeadersProvider(),
-        notFoundExceptionMapper()
+        notFoundExceptionMapper(),
+        new BadRequestExceptionMapper(),
+        new DateTimeParamConverterProvider()
         ));
     factory.setFeatures(Arrays.asList(new LoggingFeature()));
     factory.setBus(cxf());

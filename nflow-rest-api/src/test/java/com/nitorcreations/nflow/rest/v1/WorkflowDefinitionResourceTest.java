@@ -47,7 +47,7 @@ public class WorkflowDefinitionResourceTest {
     when(def.getType()).thenReturn("dummy");
     doReturn(asList(def)).when(workflowDefinitions).getWorkflowDefinitions();
     Map<String, StateExecutionStatistics> stats = emptyMap();
-    when(workflowDefinitions.getStatistics("dummy")).thenReturn(stats);
+    when(workflowDefinitions.getStatistics("dummy", null, null)).thenReturn(stats);
     when(statisticsConverter.convert(stats)).thenReturn(new WorkflowDefinitionStatisticsResponse());
     resource = new WorkflowDefinitionResource(workflowDefinitions, converter, statisticsConverter);
   }
@@ -66,7 +66,7 @@ public class WorkflowDefinitionResourceTest {
 
   @Test
   public void getWorkflowDefinitionStatistics() {
-    WorkflowDefinitionStatisticsResponse statistics = resource.getStatistics("dummy");
+    WorkflowDefinitionStatisticsResponse statistics = resource.getStatistics("dummy", null, null);
     assertThat(statistics.stateStatistics.size(), is(0));
   }
 }

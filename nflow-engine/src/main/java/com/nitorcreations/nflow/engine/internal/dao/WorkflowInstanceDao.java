@@ -2,6 +2,8 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
@@ -23,6 +25,7 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.joda.time.DateTime;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -53,7 +56,7 @@ public class WorkflowInstanceDao {
 
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
-  private static final String GET_STATISTICS_PREFIX = "select state, count(1) as amount from nflow_workflow where executor_group = ? and type = ? and ";
+  private static final String GET_STATISTICS_PREFIX = "select state, count(1) as amount from nflow_workflow where executor_group = ? and type = ?";
 
   private JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
@@ -399,33 +402,46 @@ public class WorkflowInstanceDao {
     }
   }
 
-  public Map<String, StateExecutionStatistics> getStateExecutionStatistics(String type) {
+  public Map<String, StateExecutionStatistics> getStateExecutionStatistics(String type, DateTime start, DateTime end) {
     final Map<String, StateExecutionStatistics> statistics = new LinkedHashMap<>();
     String executorGroup = executorInfo.getExecutorGroup();
-    jdbc.query(GET_STATISTICS_PREFIX + "executor_id is not null group by state", new RowCallbackHandler() {
+    List<Object> argsList = new ArrayList<>();
+    argsList.addAll(asList(executorGroup, type));
+    StringBuilder queryBuilder = new StringBuilder(GET_STATISTICS_PREFIX);
+    if (start != null) {
+      queryBuilder.append(" and created >= ?");
+      argsList.add(start.toDate());
+    }
+    if (end != null) {
+      queryBuilder.append(" and created < ?");
+      argsList.add(end.toDate());
+    }
+    String query = queryBuilder.append(" and %s").toString();
+    Object[] args = argsList.toArray(new Object[argsList.size()]);
+    jdbc.query(format(query, "executor_id is not null group by state"), args, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
         String state = rs.getString("state");
         getStatisticsForState(statistics, state).executing = rs.getLong("amount");
-      }}, executorGroup, type);
-    jdbc.query(GET_STATISTICS_PREFIX + "next_activation > current_timestamp group by state", new RowCallbackHandler() {
+      }});
+    jdbc.query(format(query, "next_activation > current_timestamp group by state"), args, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
         String state = rs.getString("state");
         getStatisticsForState(statistics, state).sleeping = rs.getLong("amount");
-      }}, executorGroup, type);
-    jdbc.query(GET_STATISTICS_PREFIX + "executor_id is null and next_activation <= current_timestamp group by state", new RowCallbackHandler() {
+      }});
+    jdbc.query(format(query, "executor_id is null and next_activation <= current_timestamp group by state"), args, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
         String state = rs.getString("state");
         getStatisticsForState(statistics, state).queued = rs.getLong("amount");
-      }}, executorGroup, type);
-    jdbc.query(GET_STATISTICS_PREFIX + "next_activation is null group by state", new RowCallbackHandler() {
+      }});
+    jdbc.query(format(query, "next_activation is null group by state"), args, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
         String state = rs.getString("state");
         getStatisticsForState(statistics, state).nonScheduled = rs.getLong("amount");
-      }}, executorGroup, type);
+      }});
     return statistics;
   }
 

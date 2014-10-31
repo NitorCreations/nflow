@@ -17,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
@@ -65,7 +66,7 @@ public class WorkflowDefinitionResource {
   @GET
   @Path("/{type}/statistics")
   @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
-  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type) {
-    return statisticsConverter.convert(workflowDefinitions.getStatistics(type));
+  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type, @QueryParam("start") DateTime start, @QueryParam("end") DateTime end) {
+    return statisticsConverter.convert(workflowDefinitions.getStatistics(type, start, end));
   }
 }
