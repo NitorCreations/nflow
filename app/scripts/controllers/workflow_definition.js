@@ -33,7 +33,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
         executing: state.name.length,
         queued: Math.floor(Math.random() * (10  + 1)),
         sleeping: 2,
-        non_scheduled: 10
+        nonScheduled: 10
       };
 
 
@@ -43,7 +43,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     var stateStatMap = _.reduce(stateStatList, function(a, b) {
       return _.merge(a,b);
     });
-    return {state_statistics: stateStatMap};
+    return {stateStatistics: stateStatMap};
   }
 
   function loadStats(definition) {
@@ -52,9 +52,10 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     _.each(definition.states, function(state) {
       var name = state.name;
 
-      state.statistics = stats.state_statistics[name]
-      state.statistics.total_active = _.reduce(_.values(state.statistics), function(a,b) {return a+b})
-                  - state.statistics.non_scheduled;
+      state.statistics = stats.stateStatistics[name];
+
+      state.statistics.totalActive = _.reduce(_.values(state.statistics), function(a,b) {return a+b}, 0)
+      - (state.statistics.nonScheduled ? state.statistics.nonScheduled : 0);
     });
   };
 
