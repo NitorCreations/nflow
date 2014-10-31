@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
@@ -152,7 +152,7 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.listWorkflowInstances(query)).thenReturn(Arrays.asList(instance1, instance2));
     ListWorkflowInstanceResponse resp1 = mock(ListWorkflowInstanceResponse.class);
     ListWorkflowInstanceResponse resp2 = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(Mockito.eq(instance1), Mockito.any(QueryWorkflowInstances.class))).thenReturn(resp1, resp2);
+    when(listWorkflowConverter.convert(eq(instance1), any(QueryWorkflowInstances.class))).thenReturn(resp1, resp2);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42);
     verify(workflowInstances).listWorkflowInstances(any(QueryWorkflowInstances.class));
     assertEquals(resp1, result);
