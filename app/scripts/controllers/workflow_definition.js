@@ -7,7 +7,9 @@ var app = angular.module('nflowVisApp');
 app.factory('WorkflowDefinitions', function ($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-definition',
                    {type: '@type'},
-                   {'get': {isArray: true}});
+                   {'get': {isArray: true,
+                            method:  'GET'}
+                   });
 });
 
 app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, $routeParams) {
