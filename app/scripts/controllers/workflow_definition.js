@@ -12,7 +12,6 @@ app.factory('WorkflowDefinitions', function ($resource, config) {
 
 app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, $routeParams) {
 
-
   /** called when node is clicked */
   function nodeSelected(nodeId) {
     console.debug('Selecting node ' + nodeId);
@@ -65,7 +64,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
       });
     });
     definition.stateStatisticsTotal = totals;
-    console.log(definition.states);
+    return stats;
   }
 
   $scope.nodeSelected = nodeSelected;
@@ -76,9 +75,8 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                             var definition =  _.first(data);
                             $scope.definition = definition;
 
-                            loadStats(definition);
-
-
+                            var stats = loadStats(definition);
+                            console.info(stats);
                             $scope.graph = workflowDefinitionGraph(definition);
                             // must use $apply() - event not managed by angular
                             function nodeSelectedCallBack(nodeId) {
@@ -87,7 +85,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                               });
                             }
                             drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack);
-                            drawStateExecutionGraph('statisticsGraph', definition);
+                            drawStateExecutionGraph('statisticsGraph', stats.stateStatistics);
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );
                           });
