@@ -107,11 +107,14 @@ public class WorkflowDefinitionService {
   /**
    * Return workflow definition statistics for a given type.
    * @param type The workflow definition type.
-   * @param start If given, include only workflow instances created after this time.
-   * @param end If given, include only workflow instances created before this time.
+   * @param createdAfter If given, count only workflow instances created after this time.
+   * @param createdBefore If given, count only workflow instances created before this time.
+   * @param modifiedAfter If given, count only workflow instances modified after this time.
+   * @param modifiedBefore If given, count only workflow instances modified after this time.
    * @return The statistics per workflow state.
    */
-  public Map<String, StateExecutionStatistics> getStatistics(String type, DateTime start, DateTime end) {
-    return workflowInstanceDao.getStateExecutionStatistics(type, start, end);
+  public Map<String, StateExecutionStatistics> getStatistics(String type, DateTime createdAfter, DateTime createdBefore,
+      DateTime modifiedAfter, DateTime modifiedBefore) {
+    return workflowInstanceDao.getStateExecutionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore);
   }
 }

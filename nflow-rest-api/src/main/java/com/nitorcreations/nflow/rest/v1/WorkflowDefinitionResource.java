@@ -42,7 +42,8 @@ public class WorkflowDefinitionResource {
   private final WorkflowDefinitionStatisticsConverter statisticsConverter;
 
   @Inject
-  public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter, WorkflowDefinitionStatisticsConverter statisticsConverter) {
+  public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter,
+      WorkflowDefinitionStatisticsConverter statisticsConverter) {
     this.workflowDefinitions = workflowDefinitions;
     this.converter = converter;
     this.statisticsConverter = statisticsConverter;
@@ -66,7 +67,10 @@ public class WorkflowDefinitionResource {
   @GET
   @Path("/{type}/statistics")
   @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
-  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type, @QueryParam("start") DateTime start, @QueryParam("end") DateTime end) {
-    return statisticsConverter.convert(workflowDefinitions.getStatistics(type, start, end));
+  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type,
+      @QueryParam("createdAfter") DateTime createdAfter, @QueryParam("createdBefore") DateTime createdBefore,
+      @QueryParam("modifiedAfter") DateTime modifiedAfter, @QueryParam("modifiedBefore") DateTime modifiedBefore) {
+    return statisticsConverter.convert(workflowDefinitions.getStatistics(type, createdAfter, createdBefore, modifiedAfter,
+        modifiedBefore));
   }
 }

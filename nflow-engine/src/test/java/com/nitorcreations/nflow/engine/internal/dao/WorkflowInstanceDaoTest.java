@@ -167,7 +167,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
 
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, null, null);
+    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, null, null, null, null);
     StateExecutionStatistics stats = statsMap.get("CreateLoan");
     assertThat(stats.executing, is(0L));
     assertThat(stats.queued, is(0L));
@@ -176,7 +176,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { "otherState", i1.state });
 
-    statsMap = dao.getStateExecutionStatistics(i1.type, null, null);
+    statsMap = dao.getStateExecutionStatistics(i1.type, null, null, null, null);
     stats = statsMap.get("CreateLoan");
     assertThat(stats.executing, is(0L));
     assertThat(stats.queued, is(1L));
@@ -185,31 +185,31 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void getStatisticsWorksWithStart() {
+  public void getStatisticsWorksWithCreatedLimits() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     dao.insertWorkflowInstance(i1);
 
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, now().plusDays(1), null);
+    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, now().plusDays(1), now().plusDays(2), null, null);
 
     assertThat(statsMap.size(), is(0));
   }
 
   @Test
-  public void getStatisticsWorksWithEnd() {
+  public void getStatisticsWorksWithModifiedLimits() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     dao.insertWorkflowInstance(i1);
 
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, null, now().minusDays(1));
+    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, null, null, now().plusDays(1), now().plusDays(2));
 
     assertThat(statsMap.size(), is(0));
   }
 
   @Test
-  public void getStatisticsWorksWithStartAndEnd() {
+  public void getStatisticsWorksWithCreatedAndModifiedLimits() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     dao.insertWorkflowInstance(i1);
 
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, now().minusDays(1), now().plusDays(1));
+    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, now().minusDays(1), now().plusDays(1), now().minusDays(1), now().plusDays(1));
 
     assertThat(statsMap.size(), is(1));
   }

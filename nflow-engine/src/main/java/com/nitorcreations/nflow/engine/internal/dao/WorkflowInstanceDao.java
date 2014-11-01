@@ -402,19 +402,28 @@ public class WorkflowInstanceDao {
     }
   }
 
-  public Map<String, StateExecutionStatistics> getStateExecutionStatistics(String type, DateTime start, DateTime end) {
+  public Map<String, StateExecutionStatistics> getStateExecutionStatistics(String type, DateTime createdAfter,
+      DateTime createdBefore, DateTime modifiedAfter, DateTime modifiedBefore) {
     final Map<String, StateExecutionStatistics> statistics = new LinkedHashMap<>();
     String executorGroup = executorInfo.getExecutorGroup();
     List<Object> argsList = new ArrayList<>();
     argsList.addAll(asList(executorGroup, type));
     StringBuilder queryBuilder = new StringBuilder(GET_STATISTICS_PREFIX);
-    if (start != null) {
+    if (createdAfter != null) {
       queryBuilder.append(" and created >= ?");
-      argsList.add(start.toDate());
+      argsList.add(createdAfter.toDate());
     }
-    if (end != null) {
+    if (createdBefore != null) {
       queryBuilder.append(" and created < ?");
-      argsList.add(end.toDate());
+      argsList.add(createdBefore.toDate());
+    }
+    if (modifiedAfter != null) {
+      queryBuilder.append(" and modified >= ?");
+      argsList.add(modifiedAfter.toDate());
+    }
+    if (modifiedBefore != null) {
+      queryBuilder.append(" and modified < ?");
+      argsList.add(modifiedBefore.toDate());
     }
     String query = queryBuilder.append(" and %s").toString();
     Object[] args = argsList.toArray(new Object[argsList.size()]);
