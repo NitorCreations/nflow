@@ -185,7 +185,7 @@ function activeTransition(workflow, state, transition) {
 }
 
 function createEdgeStyle(workflow, definition, state, transition, genericError) {
-  // TODO when active, line should be thicker, but note also nodeSelected
+  // TODO when active, line should be thicker, but note also higlightNode()
   if(!workflow || activeTransition(workflow, state, transition)) {
     if(genericError) {
       return {style: 'stroke: black; fill: none; stroke-dasharray: 5,5'};
@@ -261,7 +261,7 @@ function workflowDefinitionGraph(definition, workflow) {
     var nodeStyle = createNodeStyle(state, workflow);
     g.addNode(state.name, nodeStyle);
   }
-  // TODO add nodes not in workflow definition
+  // Add nodes not in workflow definition
   addUnexpectedNodes(g, workflow);
 
   // Add edges
@@ -274,7 +274,7 @@ function workflowDefinitionGraph(definition, workflow) {
     }
     if(state.onFailure) {
       g.addEdge(null, state.name, state.onFailure,
-                createEdgeStyle(workflow, definition, state, transition, true));
+                createEdgeStyle(workflow, definition, state, state.onFailure, true));
 
     }
   }
@@ -288,11 +288,8 @@ function workflowDefinitionGraph(definition, workflow) {
     if(_.contains(state.transitions, errorStateName)) {
       return;
     }
-
-    // TODO make dashed lines here, needs DOM monipulation later
     g.addEdge(null, state.name, errorStateName,
              createEdgeStyle(workflow, definition, state, errorStateName, true));
-
   });
 
   // add edges that are not present in workflow definition
