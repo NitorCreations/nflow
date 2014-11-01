@@ -228,3 +228,7 @@ ul.listing {
 .x.axis path {
   display: none;
 }
+
+/* angular-ui-bootstrap */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+

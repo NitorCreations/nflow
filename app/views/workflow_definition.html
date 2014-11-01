@@ -5,65 +5,64 @@
         <a href="#/search?type={{definition.type}}">Search related workflow instances</a>
     </div>
 </p>
-<svg id="dagreSvg" width="650" height="680">
-</svg>
-<!--
-<canvas id="dagreCanvas" width="650" height="680"></canvas>
--->
+<svg id="dagreSvg" width="650" height="680"></svg>
 <p>
-
     <button ng-click="savePng()" class="btn">Save as PNG</button>
     <button ng-click="saveSvg()" class="btn">Save as SVG</button>
 </p>
 
-<h2>States</h2>
-
-<table id="state-list" class="table table-striped table-hover">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Executing</th>
-            <th>Queued</th>
-            <th>Sleeping</tg>
-            <th>Total&nbsp;active</th>
-            <th>Passive</th>
-        </tr>
-        <tr>
-            <th colspan="2">Total</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.executing}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.queued}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class="{{state.selected}}" ng-repeat="state in definition.states"
-            ng-click="nodeSelected(state.id)">
-            <td >{{state.name}}</td>
-            <td>{{state.description}}</td>
-            <td class="numeric">{{state.stateStatistics.executing}}</td>
-            <td class="numeric">{{state.stateStatistics.queued}}</td>
-            <td class="numeric">{{state.stateStatistics.sleeping}}</td>
-            <th class="numeric">{{state.stateStatistics.totalActive}}</th>
-            <td class="numeric">{{state.stateStatistics.nonScheduled}}</td>
-        </tr>
-    </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="2">Total</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.executing}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.queued}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
-            <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
-        </tr>
-    </tfoot>
-</table>
-
-
-<svg id="statisticsGraph"></svg>
+<h2>{{definition.type}} states</h2>
+<tabset>
+    <tab heading="Statistics">
+        <h3>Number of workflow instances in execution phases</h3>
+        <svg id="statisticsGraph"></svg>
+    </tab>
+    <tab heading="Details">
+        <table id="state-list" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Executing</th>
+                    <th>Queued</th>
+                    <th>Sleeping</tg>
+                    <th>Total&nbsp;active</th>
+                    <th>Passive</th>
+                </tr>
+                <tr>
+                    <th colspan="2">Total</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.executing}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.queued}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="{{state.selected}}" ng-repeat="state in definition.states"
+                    ng-click="nodeSelected(state.id)">
+                    <td >{{state.name}}</td>
+                    <td>{{state.description}}</td>
+                    <td class="numeric">{{state.stateStatistics.executing}}</td>
+                    <td class="numeric">{{state.stateStatistics.queued}}</td>
+                    <td class="numeric">{{state.stateStatistics.sleeping}}</td>
+                    <th class="numeric">{{state.stateStatistics.totalActive}}</th>
+                    <td class="numeric">{{state.stateStatistics.nonScheduled}}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2">Total</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.executing}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.queued}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
+                    <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </tab>
+</tabset>
 
 <h2>Settings</h2>
 <table class="table table-striped table-hover">

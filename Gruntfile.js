@@ -343,7 +343,7 @@ module.exports = function (grunt) {
             'images/{,*/}*.{webp}',
             'fonts/*',
             'config.js',
-            'external/dagre-d3/js/*.js'
+            'external/{,*/}*'
           ]
         }, {
           expand: true,
