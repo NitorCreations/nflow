@@ -16,11 +16,14 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
@@ -34,10 +37,12 @@ public class WorkflowDefinitionService {
 
   private final AbstractResource nonSpringWorkflowsListing;
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
+  private final WorkflowInstanceDao workflowInstanceDao;
 
   @Inject
-  public WorkflowDefinitionService(@Named("nflowNonSpringWorkflowsListing") AbstractResource nonSpringWorkflowsListing) {
+  public WorkflowDefinitionService(@Named("nflowNonSpringWorkflowsListing") AbstractResource nonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
     this.nonSpringWorkflowsListing = nonSpringWorkflowsListing;
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   /**
@@ -97,5 +102,19 @@ public class WorkflowDefinitionService {
           " define same workflow type: " + wd.getType());
     }
     logger.info("Added workflow type: {} ({})",  wd.getType(), wd.getClass().getName());
+  }
+
+  /**
+   * Return workflow definition statistics for a given type.
+   * @param type The workflow definition type.
+   * @param createdAfter If given, count only workflow instances created after this time.
+   * @param createdBefore If given, count only workflow instances created before this time.
+   * @param modifiedAfter If given, count only workflow instances modified after this time.
+   * @param modifiedBefore If given, count only workflow instances modified after this time.
+   * @return The statistics per workflow state.
+   */
+  public Map<String, StateExecutionStatistics> getStatistics(String type, DateTime createdAfter, DateTime createdBefore,
+      DateTime modifiedAfter, DateTime modifiedBefore) {
+    return workflowInstanceDao.getStateExecutionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore);
   }
 }

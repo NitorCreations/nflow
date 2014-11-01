@@ -2,6 +2,8 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
@@ -23,6 +25,7 @@ import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.joda.time.DateTime;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,6 +41,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -52,6 +56,7 @@ public class WorkflowInstanceDao {
 
   // TODO: fetch text field max sizes from database meta data
   private static final int STATE_TEXT_LENGTH = 128;
+  private static final String GET_STATISTICS_PREFIX = "select state, count(1) as amount from nflow_workflow where executor_group = ? and type = ?";
 
   private JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
@@ -395,5 +400,66 @@ public class WorkflowInstanceDao {
       }
       return actionStates;
     }
+  }
+
+  public Map<String, StateExecutionStatistics> getStateExecutionStatistics(String type, DateTime createdAfter,
+      DateTime createdBefore, DateTime modifiedAfter, DateTime modifiedBefore) {
+    final Map<String, StateExecutionStatistics> statistics = new LinkedHashMap<>();
+    String executorGroup = executorInfo.getExecutorGroup();
+    List<Object> argsList = new ArrayList<>();
+    argsList.addAll(asList(executorGroup, type));
+    StringBuilder queryBuilder = new StringBuilder(GET_STATISTICS_PREFIX);
+    if (createdAfter != null) {
+      queryBuilder.append(" and created >= ?");
+      argsList.add(createdAfter.toDate());
+    }
+    if (createdBefore != null) {
+      queryBuilder.append(" and created < ?");
+      argsList.add(createdBefore.toDate());
+    }
+    if (modifiedAfter != null) {
+      queryBuilder.append(" and modified >= ?");
+      argsList.add(modifiedAfter.toDate());
+    }
+    if (modifiedBefore != null) {
+      queryBuilder.append(" and modified < ?");
+      argsList.add(modifiedBefore.toDate());
+    }
+    String query = queryBuilder.append(" and %s").toString();
+    Object[] args = argsList.toArray(new Object[argsList.size()]);
+    jdbc.query(format(query, "executor_id is not null group by state"), args, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        String state = rs.getString("state");
+        getStatisticsForState(statistics, state).executing = rs.getLong("amount");
+      }});
+    jdbc.query(format(query, "next_activation > current_timestamp group by state"), args, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        String state = rs.getString("state");
+        getStatisticsForState(statistics, state).sleeping = rs.getLong("amount");
+      }});
+    jdbc.query(format(query, "executor_id is null and next_activation <= current_timestamp group by state"), args, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        String state = rs.getString("state");
+        getStatisticsForState(statistics, state).queued = rs.getLong("amount");
+      }});
+    jdbc.query(format(query, "next_activation is null group by state"), args, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        String state = rs.getString("state");
+        getStatisticsForState(statistics, state).nonScheduled = rs.getLong("amount");
+      }});
+    return statistics;
+  }
+
+  protected StateExecutionStatistics getStatisticsForState(Map<String, StateExecutionStatistics> statistics, String state) {
+    StateExecutionStatistics stats = statistics.get(state);
+    if (stats == null) {
+      stats = new StateExecutionStatistics();
+      statistics.put(state, stats);
+    }
+    return stats;
   }
 }
