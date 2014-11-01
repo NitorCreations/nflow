@@ -198,7 +198,7 @@ ul.listing {
 
 /* Table */
 .table {
-	margin-bottom: 30px;
+	margin-bottom: 40px;
 }
 
 .table > thead > tr > th, .table > thead > tr > td, .table > tbody > tr > th, .table > tbody > tr > td, .table > tfoot > tr > th, .table > tfoot > tr > td {
@@ -211,6 +211,19 @@ ul.listing {
 
 .table-hover > tbody > tr > td.success:hover, .table-hover > tbody > tr > th.success:hover, .table-hover > tbody > tr.success:hover > td, .table-hover > tbody > tr:hover > .success, .table-hover > tbody > tr.success:hover > th {
 	background-color: $color-light-green;
+}
+
+.table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+	background-color: $color-light-grey;
+}
+
+.table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
+	background-color: $color-light-grey;
+}
+
+/* dagre-d3 */
+#dagreSvg {
+	margin: 40px 0 40px 0;
 }
 
 /* barchart.js */
