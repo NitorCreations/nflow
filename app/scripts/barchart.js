@@ -1,6 +1,6 @@
 'use strict';
 
-function drawStateExecutionGraph(canvasId, stats) {
+function drawStateExecutionGraph(canvasId, stats, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
   /*
   var stats = {
@@ -67,6 +67,7 @@ function drawStateExecutionGraph(canvasId, stats) {
     .orient('left')
     .tickFormat(d3.format('.2s'));
 
+  // background
   var svg = d3.select('#' + canvasId)
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
@@ -121,6 +122,9 @@ function drawStateExecutionGraph(canvasId, stats) {
     .data(states)
     .enter().append('g')
     .attr('class', 'g')
+    .on('click', function(d) {
+      stateSelectedCallback(d.stateName)
+    })
     .attr('transform', function(d) { return 'translate(' + x(d.stateName) + ',0)'; });
 
   state.selectAll('rect')
