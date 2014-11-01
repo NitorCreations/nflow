@@ -184,10 +184,17 @@ function activeTransition(workflow, state, transition) {
   return _.last(workflow.actions).state === state.name && workflow.state === transition;
 }
 
-function createEdgeStyle(workflow, definition, state, transition) {
+function createEdgeStyle(workflow, definition, state, transition, genericError) {
+  // TODO when active, line should be thicker, but note also nodeSelected
   if(!workflow || activeTransition(workflow, state, transition)) {
+    if(genericError) {
+      return {style: 'stroke: black; fill: none; stroke-dasharray: 5,5'};
+    }
     return {style: 'stroke: black; fill: none;'};
   } else {
+    if(genericError) {
+      return {style: 'stroke: gray; fill: none; stroke-dasharray: 5,5'};
+    }
     return {style: 'stroke: gray; fill: none;'};
   }
 }
@@ -265,7 +272,28 @@ function workflowDefinitionGraph(definition, workflow) {
       g.addEdge(null, state.name, transition,
                 createEdgeStyle(workflow, definition, state, transition));
     }
+    if(state.onFailure) {
+      g.addEdge(null, state.name, state.onFailure,
+                createEdgeStyle(workflow, definition, state, transition, true));
+
+    }
   }
+
+  // Add edges to generic onError state
+  var errorStateName = definition.onError;
+  _.each(definition.states, function(state) {
+    if(state.name === errorStateName || state.onFailure || state.type === 'end') {
+      return;
+    }
+    if(_.contains(state.transitions, errorStateName)) {
+      return;
+    }
+
+    // TODO make dashed lines here, needs DOM monipulation later
+    g.addEdge(null, state.name, errorStateName,
+             createEdgeStyle(workflow, definition, state, errorStateName, true));
+
+  });
 
   // add edges that are not present in workflow definition
   addUnexpectedEdges(g, workflow);
