@@ -87,7 +87,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                               });
                             }
                             drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack);
-                            drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, nodeSelectedCallBack);
+                            drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, definition, nodeSelectedCallBack);
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );
                           });

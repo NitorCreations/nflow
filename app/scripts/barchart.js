@@ -1,6 +1,6 @@
 'use strict';
 
-function drawStateExecutionGraph(canvasId, stats, stateSelectedCallback) {
+function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
   /*
   var stats = {
@@ -37,6 +37,31 @@ function drawStateExecutionGraph(canvasId, stats, stateSelectedCallback) {
     },
   };
   */
+
+  function removeFinalStates() {
+    var copy = _.merge({}, statsData);
+    _.each(copy, function(state, stateName) {
+      console.log("sss", state, stateName);
+
+      var stateDef = _.first(_.filter(definition.states, function(e) {
+        return e.id === stateName;
+      }));
+
+      if(stateDef && stateDef.type === 'end') {
+        delete copy[stateName];
+      }
+      console.log("stateDef", stateDef);
+    });
+    return copy;
+  }
+
+  var stats = removeFinalStates(statsData);
+
+
+  // Remove final states
+
+
+
   function execTypeName(name) {
     if(name === 'nonScheduled') {
       return 'Passive';
