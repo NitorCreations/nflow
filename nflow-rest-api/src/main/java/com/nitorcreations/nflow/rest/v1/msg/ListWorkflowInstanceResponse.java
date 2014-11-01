@@ -41,6 +41,6 @@ public class ListWorkflowInstanceResponse {
   @ApiModelProperty(value = "State change attempts. One instance for each processing attempt.", required=false)
   public List<Action> actions;
 
-
-
+  @ApiModelProperty(value = "Workflow instance creation timestamp", required=true)
+  public DateTime created;
 }
