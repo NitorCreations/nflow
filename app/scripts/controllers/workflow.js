@@ -96,4 +96,14 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
     }
     return moment(lastAction.executionEndTime).fromNow();
   };
+
+  // TODO move to $rootScope
+  $scope.prettyPrintJson = function(value) {
+    try {
+      return JSON.stringify(value, undefined, 2);
+    } catch(e) {
+      return value;
+    }
+  };
+
 });

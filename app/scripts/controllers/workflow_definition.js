@@ -121,6 +121,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     nodeSelected(selectedNode);
   };
 
+  // TODO move to $rootScope
   $scope.prettyPrintJson = function(value) {
     try {
       return JSON.stringify(value, undefined, 2);
