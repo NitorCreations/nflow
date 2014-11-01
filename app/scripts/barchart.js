@@ -40,6 +40,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
 
   function removeFinalStates() {
     var copy = _.merge({}, statsData);
+    var removeNames = [];
     _.each(copy, function(state, stateName) {
 
       var stateDef = _.first(_.filter(definition.states, function(e) {
@@ -47,9 +48,11 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
       }));
 
       if(stateDef && stateDef.type === 'end') {
-        // TODO allowed to modify whiĺe iterating?
-        delete copy[stateName];
+        removeNames.push(stateName);
       }
+    });
+    _.each(removeNames, function(name) {
+      delete copy[name];
     });
     return copy;
   }
