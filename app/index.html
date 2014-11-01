@@ -26,7 +26,7 @@
     <div class="container-fluid">
      	<div class="row">
 	     	<div class="col-lg-4 col-lg-offset-1">
-	     		<img src="images/nflow-logo-no-borders.png" width="211" height="113" alt="nFlow">
+	     		<img src="images/nflow_logo.svg" width="211" height="113" alt="nFlow">
 	     	</div>
 	     	<div class="col-lg-5 menu-col">
 		        <ul class="nav nav-pills pull-right">
@@ -50,7 +50,7 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-lg-4 col-lg-offset-1">
-					<p><span class="glyphicon glyphicon-copyright-mark"></span> Nitor Creations</p>
+					<p><span class="glyphicon glyphicon-copyright-mark"></span> 2014 Nitor Creations</p>
 				</div>
 			</div>
 		</div>
@@ -86,13 +86,19 @@
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/d3/d3.js"></script>
-    <script src="bower_components/dagre-d3/js/dagre-d3.js"></script>
-    <script src="bower_components/dagre-d3/js/dagre-d3.min.js"></script>
     <script src="bower_components/momentjs/moment.js"></script>
     <script src="bower_components/lodash/dist/lodash.compat.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
+
+
+      <!--
+        See https://github.com/cpettitt/dagre-d3/issues/102
+        dagre-d3 0.2.9 repo is corrupted. Here is a local copy
+        <script src="external/dagre-d3/js/dagre-d3.js"></script>
+        -->
+    <script src="external/dagre-d3/js/dagre-d3.min.js"></script>
 
     <script src="config.js"></script>
     <!-- build:js({.tmp,app}) scripts/scripts.js -->

@@ -1,7 +1,7 @@
 <h2>{{definition.type}}</h2>
-<blockquote>{{definition.description}}</blockquote>
+<blockquote ng-show="definition.description">{{definition.description}}</blockquote>
 <p>
-       <div>
+    <div>
         <a href="#/search?type={{definition.type}}">Search related workflow instances</a>
     </div>
 </p>
