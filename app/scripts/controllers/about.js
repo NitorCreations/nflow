@@ -8,10 +8,12 @@
  * Controller of the nflowVisApp
  */
 angular.module('nflowVisApp')
-  .controller('AboutCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+.controller('AboutCtrl', function ($scope, config) {
+  $scope.nflowUrl = function() {
+    return config.nflowUrl;
+  };
+
+  $scope.nflowApiDocs = function() {
+    return config.nflowUrl + '/ui/';
+  };
+});
