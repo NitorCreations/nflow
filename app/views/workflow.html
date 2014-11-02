@@ -5,9 +5,9 @@
 <p>
     Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
     <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
-    since <strong>{{currentStateSince()}}</strong>
+    since <strong title="{{currentStateTime()}}">{{currentStateSince()}}</strong>
     <div>
-        Next activation: <strong>{{nextActivation()}}</strong>
+        Next activation: <strong title={{workflow.nextActivation}}>{{nextActivation()}}</strong>
     </div>
 </p>
 

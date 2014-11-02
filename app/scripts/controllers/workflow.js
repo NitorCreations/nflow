@@ -83,10 +83,10 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
     if(!$scope.workflow.nextActivation) {
       return 'never';
     }
-    return moment($scope.workflow.nextActivation).max(new Date()).fromNow();
+    return moment($scope.workflow.nextActivation).fromNow();
   };
 
-  $scope.currentStateSince = function currentStateSince() {
+  $scope.currentStateTime = function currentStateTime() {
     if(!$scope.workflow) {
       return '';
     }
@@ -94,7 +94,10 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
     if(!lastAction) {
       return '';
     }
-    return moment(lastAction.executionEndTime).fromNow();
+    return lastAction.executionEndTime;
+  }
+  $scope.currentStateSince = function currentStateSince() {
+    return moment($scope.currentStateTime()).fromNow();
   };
 
   // TODO move to $rootScope
