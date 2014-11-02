@@ -3,12 +3,16 @@
 <a href="#/workflow-definition/{{workflow.type}}">Go to workflow definition</a></li>
 <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
 <p>
-    Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
-    <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
-    since <strong title="{{currentStateTime()}}">{{currentStateSince()}}</strong>
+    <div>
+        Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
+        <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
+        since <strong title="{{currentStateTime()}}">{{currentStateSince()}}</strong>
+    </div>
     <div>
         Next activation: <strong title={{workflow.nextActivation}}>{{nextActivation()}}</strong>
     </div>
+    <div ng-show="workflow.businessKey">Business key: <code>{{workflow.businessKey}}</code></diV>
+    <div ng-show="workflow.externalId">External id: <code>{{workflow.externalId}}</code></diV>
 </p>
 
 <svg id="workflowSvg" width="650" height="680"/>
