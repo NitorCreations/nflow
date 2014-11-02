@@ -234,7 +234,7 @@ function addUnexpectedEdges(g, workflow) {
     sourceState = action.state;
   });
 
-  // handle last action -> currentACtion, do not include retries
+  // handle last action -> currentAction, do not include retries
   var lastAction = _.last(workflow.actions);
   if(lastAction && lastAction.state !== workflow.state) {
     activeEdges[lastAction.state][workflow.state] = true;
@@ -242,6 +242,7 @@ function addUnexpectedEdges(g, workflow) {
 
   _.each(activeEdges, function(targetObj, source) {
     var target = Object.keys(targetObj)[0];
+    if(!target) { return; }
     if(!g.inEdges(target, source).length) {
       g.addEdge(null, source, target,
                 {style: 'stroke: red; fill: none;'});
