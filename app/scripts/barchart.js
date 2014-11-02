@@ -161,7 +161,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     .attr('y', function(d) { return y(d.y1); })
     .attr('height', function(d) { return y(d.y0) - y(d.y1); })
     .style('fill', function(d) { return color(d.name); })
-    .append('title').text(function(d) { return execTypeName(d.name) + ' ' + (  y(d.y0) - y(d.y1) ); });
+    .append('title').text(function(d) { return execTypeName(d.name) + ' ' + ( d.y1 - d.y0 ); });
 
   // Legend
   var legend = svg.selectAll('.legend')

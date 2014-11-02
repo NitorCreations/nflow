@@ -11,8 +11,10 @@ app.factory('WorkflowDefinitions', function ($resource, config) {
                             method:  'GET'}
                    });
 });
-
-app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, $routeParams) {
+app.factory('WorkflowDefinitionStats', function($resource, config) {
+  return $resource(config.nflowUrl + '/v1/workflow-definition/:type/statistics',{type: '@type'});
+});
+app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
@@ -26,27 +28,8 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     $scope.selectedNode = nodeId;
   }
 
-  // TODO replace with actual fetch
-  function getStats(definition) {
-    var stateStatList = _.map(definition.states, function(state) {
-      var result = {};
-      result[state.name] = {
-        executing: state.name.length,
-        queued: Math.floor(Math.random() * (10  + 1)),
-        sleeping: 2,
-        nonScheduled: 10
-      };
-      return result;
-    });
-
-    var stateStatMap = _.reduce(stateStatList, function(a, b) {
-      return _.merge(a,b);
-    });
-    return {stateStatistics: stateStatMap};
-  }
-
-  function loadStats(definition) {
-    var stats = getStats(definition);
+  // TODO move to service
+  function processStats(definition, stats) {
     var totals = {executing: 0,
                   queued: 0,
                   sleeping: 0,
@@ -56,11 +39,12 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     _.each(definition.states, function(state) {
       var name = state.name;
 
-      state.stateStatistics = stats.stateStatistics[name];
+      state.stateStatistics = stats.stateStatistics[name] ? stats.stateStatistics[name] : {};
 
       state.stateStatistics.totalActive = _.reduce(_.values(state.stateStatistics), function(a,b) {
         return a+b;
       }, 0) - (state.stateStatistics.nonScheduled ? state.stateStatistics.nonScheduled : 0);
+
       _.each(['executing','queued','sleeping','nonScheduled', 'totalActive'], function(stat) {
         totals[stat] += state.stateStatistics[stat] ? state.stateStatistics[stat] : 0;
       });
@@ -69,16 +53,18 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     return stats;
   }
 
+
   $scope.nodeSelected = nodeSelected;
   $scope.stats = {};
+  // TODO handle errors
   WorkflowDefinitions.get({type: $routeParams.type},
                           function(data) {
                             var start = new Date().getTime();
                             var definition =  _.first(data);
                             $scope.definition = definition;
 
-                            var stats = loadStats(definition);
-                            console.info(stats);
+
+                            //var stats = loadStats(definition);
                             $scope.graph = workflowDefinitionGraph(definition);
                             // must use $apply() - event not managed by angular
                             function nodeSelectedCallBack(nodeId) {
@@ -87,7 +73,15 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                               });
                             }
                             drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack);
-                            drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, definition, nodeSelectedCallBack);
+
+                            // TODO handle errors
+                            WorkflowDefinitionStats.get({type: $routeParams.type},
+                                                       function(stats) {
+                                                         processStats(definition, stats);
+                                                         console.info(stats);
+                                                         drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, definition, nodeSelectedCallBack);
+                                                       });
+
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );
                           });
