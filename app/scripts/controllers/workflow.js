@@ -95,10 +95,15 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
       return '';
     }
     return lastAction.executionEndTime;
-  }
+  };
   $scope.currentStateSince = function currentStateSince() {
     return moment($scope.currentStateTime()).fromNow();
   };
+
+  $scope.createdAgo = function() {
+    if(!$scope.workflow) { return ''; }
+    return moment($scope.workflow.created).fromNow();
+  }
 
   // TODO move to $rootScope
   $scope.prettyPrintJson = function(value) {
