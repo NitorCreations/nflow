@@ -35,7 +35,9 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                   sleeping: 0,
                   nonScheduled: 0,
                   totalActive: 0};
-
+    if(!stats.stateStatistics) {
+      stats.stateStatistics = {};
+    }
     _.each(definition.states, function(state) {
       var name = state.name;
 
@@ -53,9 +55,9 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
     return stats;
   }
 
-
+  $scope.hasStatistics = false;
   $scope.nodeSelected = nodeSelected;
-  $scope.stats = {};
+
   // TODO handle errors
   WorkflowDefinitions.get({type: $routeParams.type},
                           function(data) {
@@ -79,7 +81,7 @@ app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, 
                                                        function(stats) {
                                                          processStats(definition, stats);
                                                          console.info(stats);
-                                                         drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, definition, nodeSelectedCallBack);
+                                                         $scope.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, definition, nodeSelectedCallBack);
                                                        });
 
                             console.debug('Rendering dagre graph took ' +

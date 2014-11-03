@@ -13,10 +13,18 @@
 
 <h2>{{definition.type}} states</h2>
 <tabset>
-    <tab heading="Statistics">
-        <h3>Number of workflow instances in execution phases</h3>
-        <p>Includes only non-final states.</p>
-        <svg id="statisticsGraph"></svg>
+    <tab heading="Statistics" >
+        <div ng-hide="hasStatistics">
+            No workflow instances in non-final states.
+        </div>
+        <div ng-show="hasStatistics">
+            <div>
+                <h3>Number of workflow instances in execution phases</h3>
+                <p>Includes only non-final states.</p>
+                <svg id="statisticsGraph"></svg>
+            </div>
+        </div>
+
     </tab>
     <tab heading="Details">
         <table id="state-list" class="table table-striped table-hover">
@@ -42,7 +50,7 @@
             <tbody>
                 <tr class="{{state.selected}}" ng-repeat="state in definition.states"
                     ng-click="nodeSelected(state.id)">
-                    <td >{{state.name}}</td>
+                    <td>{{state.name}}</td>
                     <td>{{state.description}}</td>
                     <td class="numeric">{{state.stateStatistics.executing}}</td>
                     <td class="numeric">{{state.stateStatistics.queued}}</td>

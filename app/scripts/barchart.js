@@ -2,41 +2,6 @@
 
 function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
-  /*
-  var stats = {
-    state1: {
-      executing: 27,
-      nonScheduled: 100,
-      queued: 10,
-      sleeping: 2,
-      totalActive: 39
-    },
-
-    state2: {
-      executing: 24,
-      nonScheduled: 30,
-      queued: 10,
-      sleeping: 2,
-      totalActive: 34
-    },
-
-    state3: {
-      executing: 24,
-      nonScheduled: 30,
-      queued: 10,
-      sleeping: 2,
-      totalActive: 34
-    },
-
-    state4: {
-      executing: 2,
-      nonScheduled: 3,
-      queued: 30,
-      sleeping: 22,
-      totalActive: 14
-    },
-  };
-  */
 
   function removeFinalStates() {
     var copy = _.merge({}, statsData);
@@ -58,12 +23,17 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   }
 
   var stats = removeFinalStates(statsData);
+  console.log('stats', stats, Object.keys(stats).length);
+
+  if(Object.keys(stats).length === 0 ) {
+    console.info('No data, skipping barchart drawing');
+    return false;
+  }
+
+    console.log('stats', stats);
 
 
   // Remove final states
-
-
-
   function execTypeName(name) {
     if(name === 'nonScheduled') {
       return 'Passive';
@@ -186,4 +156,5 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     .style('text-anchor', 'start')
     .text(execTypeName);
 
+  return true;
 }
