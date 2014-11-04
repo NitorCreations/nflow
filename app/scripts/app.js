@@ -70,4 +70,16 @@ angular
       }
       return items.slice().reverse();
     };
+  })
+  .filter('fromNow', function() {
+    return function(value) {
+      if(!value) {
+        return '';
+      }
+      try {
+        return moment(value).fromNow();
+      } catch(e){
+        return value;
+      }
+    }
   });
