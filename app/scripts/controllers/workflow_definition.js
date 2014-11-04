@@ -2,19 +2,8 @@
 /**
  * Display single workflow definition
  */
-var app = angular.module('nflowVisApp');
-
-app.factory('WorkflowDefinitions', function ($resource, config) {
-  return $resource(config.nflowUrl + '/v1/workflow-definition',
-                   {type: '@type'},
-                   {'get': {isArray: true,
-                            method:  'GET'}
-                   });
-});
-app.factory('WorkflowDefinitionStats', function($resource, config) {
-  return $resource(config.nflowUrl + '/v1/workflow-definition/:type/statistics',{type: '@type'});
-});
-app.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
+angular.module('nflowVisApp')
+.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {

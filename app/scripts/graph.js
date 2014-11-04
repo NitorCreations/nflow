@@ -396,7 +396,6 @@ function downloadDataUrl(dataurl, filename) {
   }
 }
 
-
 function downloadImage(dataurl, filename, contentType) {
   console.info('Downloading image', filename, contentType);
   var canvas = document.createElement('canvas');

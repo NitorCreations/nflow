@@ -10,9 +10,9 @@
  */
 angular
   .module('nflowVisApp', [
+    'nflowVisApp.services',
     'ngAnimate',
     'ngCookies',
-    'ngResource',
     'ngRoute',
     'ngSanitize',
     'ngTouch',

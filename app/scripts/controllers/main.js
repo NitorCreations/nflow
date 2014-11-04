@@ -1,9 +1,6 @@
 'use strict';
 
 var app = angular.module('nflowVisApp');
-app.factory('Executors', function($resource, config) {
-  return $resource(config.nflowUrl + '/v1/workflow-executor');
-});
 
 /**
  * @ngdoc function
@@ -13,7 +10,6 @@ app.factory('Executors', function($resource, config) {
  * Controller of the nflowVisApp
  */
 angular.module('nflowVisApp')
-.constant('config', new Config())
 .controller('MainCtrl', function ($scope, $rootScope, $interval, WorkflowDefinitions, Executors) {
   $scope.workflows = WorkflowDefinitions.query();
 

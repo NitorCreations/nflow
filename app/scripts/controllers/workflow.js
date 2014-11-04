@@ -3,16 +3,8 @@
  * Display single workflow instance
  */
 
-var app = angular.module('nflowVisApp');
-
-app.factory('Workflows', function ($resource, config) {
-  return $resource(config.nflowUrl + '/v1/workflow-instance/:id',
-                   {id: '@id', include: 'actions,currentStateVariables,actionStateVariables'},
-                   {'update': {method: 'PUT'},
-                   });
-});
-
-app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions, $routeParams) {
+angular.module('nflowVisApp')
+.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions, $routeParams) {
   /** called when node is clicked */
   function nodeSelected(nodeId) {
     console.debug('Selecting node ' + nodeId);
@@ -103,7 +95,7 @@ app.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions,
   $scope.createdAgo = function() {
     if(!$scope.workflow) { return ''; }
     return moment($scope.workflow.created).fromNow();
-  }
+  };
 
   // TODO move to $rootScope
   $scope.prettyPrintJson = function(value) {

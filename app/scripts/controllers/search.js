@@ -1,13 +1,7 @@
 'use strict';
 
-var app = angular.module('nflowVisApp');
-
-app.factory('WorkflowSearch', function ($resource, config) {
-  return $resource(config.nflowUrl + '/v1/workflow-instance'
-                  );
-});
-
-app.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefinitions, WorkflowSearch) {
+angular.module('nflowVisApp')
+.controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefinitions, WorkflowSearch) {
   $scope.results = [];
   $scope.crit = {};
   $scope.definitions = WorkflowDefinitions.query();
