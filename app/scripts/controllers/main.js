@@ -26,9 +26,8 @@ angular.module('nflowVisApp')
 
   updateExecutors();
 
-  if(!$rootScope.executorQueryRunning) {
-    $rootScope.executorQueryRunning = true;
-    $interval(updateExecutors, 15*1000);
+  if(!$rootScope.executorPollingTask) {
+    $rootScope.executorPollingTask = $interval(updateExecutors, 15*1000);
   }
 
 })
