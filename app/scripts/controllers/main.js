@@ -16,13 +16,15 @@ angular.module('nflowVisApp')
 .constant('config', new Config())
 .controller('MainCtrl', function ($scope, $rootScope, $interval, WorkflowDefinitions, Executors) {
   $scope.workflows = WorkflowDefinitions.query();
-  $scope.executors = Executors.query();
+
   function updateExecutors() {
     Executors.query(function(executors) {
       console.info("Fetch executors");
-      $scope.executors = executors;
+      $rootScope.executors = executors;
     });
   }
+
+  updateExecutors();
 
   if(!$rootScope.executorQueryRunning) {
     $rootScope.executorQueryRunning = true;
