@@ -106,13 +106,5 @@ angular.module('nflowVisApp')
     nodeSelected(selectedNode);
   };
 
-  // TODO move to $rootScope
-  $scope.prettyPrintJson = function(value) {
-    try {
-      return JSON.stringify(value, undefined, 2);
-    } catch(e) {
-      return value;
-    }
-  };
 });
 

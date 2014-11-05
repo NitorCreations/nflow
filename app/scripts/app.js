@@ -100,4 +100,13 @@ angular
         return value;
       }
     };
+  })
+  .filter('prettyPrintJson', function() {
+    return function(value) {
+      try {
+        return JSON.stringify(value, undefined, 2);
+      } catch(e) {
+        return value;
+      }
+    };
   });

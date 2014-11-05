@@ -27,7 +27,7 @@
         <tbody>
             <tr ng-repeat="(key, value) in workflow.stateVariables">
                 <td><pre>{{key}}</pre></td>
-                <td><pre>{{prettyPrintJson(value)}}</pre></td>
+                <td><pre>{{value | prettyPrintJson}}</pre></td>
             </tr>
         </tbody>
     </table>
