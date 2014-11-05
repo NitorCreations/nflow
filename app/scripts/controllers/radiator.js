@@ -5,10 +5,25 @@ angular.module('nflowVisApp.radiator', [])
   $scope.type=$routeParams.type;
 
   var itemCount = config.maxHistorySize;
-  if(!$rootScope.radiator) {
+
+  if(!$scope.graphs) { $scope.graphs = {}; }
+
+  function clearData() {
+    if($rootScope.radiator && $rootScope.radiator.radiatorStatsTask) {
+      $interval.cancel($rootScope.radiator.radiatorStatsTask);
+    }
     $rootScope.radiator = {};
+    $rootScope.radiator.type = $scope.type;
     $rootScope.radiator.stateChart = {};
     $rootScope.radiator.stateChart.data = [];
+    $scope.graphs = {};
+  };
+
+  if(!$rootScope.radiator) {
+    clearData();
+  } else if ($rootScope.radiator.type !== $scope.type) {
+    // workflow type was changed
+    clearData();
   }
 
   function getCurrentStateNames(data) {
@@ -29,11 +44,8 @@ angular.module('nflowVisApp.radiator', [])
   }
 
   ///////////////////////
-  function createStateData() {
+  function createStateData(currentStates) {
     var data = $rootScope.radiator.stateChart.data;
-
-    // TODO this loops over all data to get state names
-    var currentStates = getCurrentStateNames(data);
 
     var dataArray = _.map(data, function(row) {
       var time = row[0];
@@ -56,11 +68,9 @@ angular.module('nflowVisApp.radiator', [])
   }
 
   //
-  function createExecutionData() {
+  function createExecutionData(currentStates) {
     var data = $rootScope.radiator.stateChart.data;
-
     var executionPhases = ['executing', 'nonScheduled', 'queued', 'sleeping'];
-    var currentStates = getCurrentStateNames(data);
 
     var dataArray = _.map(data, function(row) {
       var time = row[0];
@@ -89,19 +99,24 @@ angular.module('nflowVisApp.radiator', [])
       return;
     }
 
-    var options = {
-      axisLabelFontSize: 13,
-      xAxisLabelWidth: 55,
-      showRoller: true,
-      responsive: true,
-      stackedGraph: true,
-      legend: 'always',
-      //showRangeSelector: true,
-      labelsDiv: canvasId + 'Legend',
-      labels: ['timestamp'].concat(data.labels)
-    };
+    var labels = ['timestamp'].concat(data.labels);
 
-    new Dygraph(canvas, data.dataArray, options);
+    if(!$scope.graphs[canvasId]) {
+      console.log('create')
+      var options = {
+        axisLabelFontSize: 13,
+        xAxisLabelWidth: 55,
+        responsive: true,
+        stackedGraph: true,
+        legend: 'always',
+        //showRangeSelector: true,
+        labelsDiv: canvasId + 'Legend',
+        labels: labels
+      };
+      $scope.graphs[canvasId] = new Dygraph(canvas, data.dataArray, options);
+    } else {
+      $scope.graphs[canvasId].updateOptions({file: data.dataArray, labels: labels});
+    }
   }
 
   //
@@ -113,26 +128,39 @@ angular.module('nflowVisApp.radiator', [])
     }
   }
 
+  function draw() {
+    // this loops over all data to get state names
+    var currentStates = getCurrentStateNames($rootScope.radiator.stateChart.data);
+    drawStackedLineChart('stateChart', createStateData(currentStates));
+    drawStackedLineChart('executionChart', createExecutionData(currentStates));
+  }
+
   function updateChart() {
     WorkflowDefinitionStats.get({type: $scope.type},
                                 function(stats) {
-                                  console.log('stats', stats);
+                                  console.info('Fetching statistics', stats);
                                   addStateData(new Date(), stats.stateStatistics);
-                                  drawStackedLineChart('stateChart', createStateData());
-                                  drawStackedLineChart('executionChart', createExecutionData());
+                                  draw();
                                 },
                                 function(error) {
-                                  console.log(error);
+                                  console.error(error);
                                   addStateData(new Date(), {});
-                                  drawStackedLineChart('stateChart', createStateData());
-                                  drawStackedLineChart('executionChart', createExecutionData());
+                                  draw();
                                 });
   }
+
+  // graphs with 1 datapoint look silly => update charts 2 times at page load
   updateChart();
   updateChart();
 
   if(!$rootScope.radiator.radiatorStatsTask) {
+    // start polling statistics
     $rootScope.radiator.radiatorStatsTask = $interval(updateChart, config.radiator.pollPeriod *1000);
   }
+
+  $scope.$on("$destroy", function(){
+    // clear references to graphs when page unloads
+    $scope.graphs = {};
+  });
 
 });
