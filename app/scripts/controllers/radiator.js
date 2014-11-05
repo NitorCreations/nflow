@@ -44,7 +44,7 @@ angular.module('nflowVisApp.radiator', [])
         }
         var stateStats = stats[stateName];
         if(!stateStats) {
-          return undefined;
+          return 0;
         }
         return sum(_.values(stateStats));
       });
@@ -94,6 +94,7 @@ angular.module('nflowVisApp.radiator', [])
       responsive: true,
       stackedGraph: true,
       legend: 'always',
+      showRangeSelector: true,
       labels: ['timestamp'].concat(data.labels)
     };
 
