@@ -82,4 +82,16 @@ angular
         return value;
       }
     }
-  });
+  })
+  .filter('fromNowOrNever', function() {
+    return function(value) {
+      if(!value) {
+        return 'never';
+      }
+      try {
+        return moment(value).fromNow();
+      } catch(e){
+        return value;
+      }
+    }
+  });;
