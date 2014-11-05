@@ -13,3 +13,10 @@ var guid = (function() {
   };
 })();
 
+
+function capitalize(value) {
+  if(!value || !value.length || value.length < 1) {
+    return value;
+  }
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};

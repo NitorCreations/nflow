@@ -30,15 +30,12 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     return false;
   }
 
-    console.log('stats', stats);
-
-
   // Remove final states
   function execTypeName(name) {
     if(name === 'nonScheduled') {
       return 'Passive';
     }
-    return name.charAt(0).toUpperCase() + name.slice(1);
+    return capitalize(name);
   }
 
   // Margins around image
