@@ -11,6 +11,7 @@
 angular
   .module('nflowVisApp', [
     'nflowVisApp.services',
+    'nflowVisApp.radiator',
     'ngAnimate',
     'ngCookies',
     'ngRoute',
@@ -34,6 +35,11 @@ angular
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl',
         activeTab: 'about'
+      })
+      .when('/radiator', {
+        templateUrl: 'views/radiator.html',
+        controller: 'RadiatorCtrl',
+        activeTab: 'radiator'
       })
       .when('/workflow-definition/:type', {
         templateUrl: 'views/workflow_definition.html',

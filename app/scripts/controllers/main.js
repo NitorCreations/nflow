@@ -1,7 +1,5 @@
 'use strict';
 
-var app = angular.module('nflowVisApp');
-
 /**
  * @ngdoc function
  * @name nflowVisApp.controller:MainCtrl
