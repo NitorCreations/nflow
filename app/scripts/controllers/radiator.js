@@ -126,6 +126,7 @@ angular.module('nflowVisApp.radiator', [])
                                 });
   }
   updateChart();
+  updateChart();
 
   if(!$rootScope.radiator.radiatorStatsTask) {
     $rootScope.radiator.radiatorStatsTask = $interval(updateChart, config.radiator.pollPeriod *1000);
