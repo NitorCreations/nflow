@@ -30,6 +30,43 @@ function disableZoomPan() {
   svg.on('MozMousePixelScroll.zoom', null);
 }
 
+function activeNode(workflow, state) {
+  if(!workflow) {
+    return true;
+  }
+  if(workflow.state === state.name) {
+    return true;
+  }
+  return !!_.find(workflow.actions, function(action) {
+    return action.state === state.name;
+  });
+}
+
+function activeTransition(workflow, state, transition) {
+  if(!workflow) {
+    return true;
+  }
+  if(workflow.actions.length < 2) {
+    return false;
+  }
+
+  var first = null;
+  var found =  _.find(workflow.actions, function(action) {
+    if(!first) {
+      first = action.state;
+      return false;
+    }
+    if(first === state.name && action.state === transition) {
+      return true;
+    }
+    first = action.state;
+  });
+  if(found) {
+    return found;
+  }
+  return _.last(workflow.actions).state === state.name && workflow.state === transition;
+}
+
 function nodeEdges(graph, nodeId) {
   var inEdges = _.flatten(_.map(graph._inEdges[nodeId], function(e) {
     return e.keys();
@@ -86,18 +123,6 @@ function calculateRetries(workflow, state) {
       }});
   }
   return retries;
-}
-
-function activeNode(workflow, state) {
-  if(!workflow) {
-    return true;
-  }
-  if(workflow.state === state.name) {
-    return true;
-  }
-  return !!_.find(workflow.actions, function(action) {
-    return action.state === state.name;
-  });
 }
 
 function createNodeStyle(state, workflow, unexpected) {
@@ -159,31 +184,6 @@ function createNodeStyle(state, workflow, unexpected) {
   nodeStyle.state = state;
   nodeStyle.label = state.name;
   return nodeStyle;
-}
-
-function activeTransition(workflow, state, transition) {
-  if(!workflow) {
-    return true;
-  }
-  if(workflow.actions.length < 2) {
-    return false;
-  }
-
-  var first = null;
-  var found =  _.find(workflow.actions, function(action) {
-    if(!first) {
-      first = action.state;
-      return false;
-    }
-    if(first === state.name && action.state === transition) {
-      return true;
-    }
-    first = action.state;
-  });
-  if(found) {
-    return found;
-  }
-  return _.last(workflow.actions).state === state.name && workflow.state === transition;
 }
 
 function createEdgeStyle(workflow, definition, state, transition, genericError) {
