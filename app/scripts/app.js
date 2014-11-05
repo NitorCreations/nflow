@@ -87,7 +87,7 @@ angular
       } catch(e){
         return value;
       }
-    }
+    };
   })
   .filter('fromNowOrNever', function() {
     return function(value) {
@@ -99,5 +99,5 @@ angular
       } catch(e){
         return value;
       }
-    }
-  });;
+    };
+  });

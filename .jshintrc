@@ -24,7 +24,8 @@
     "_": false,
     "d3": false,
     "dagreD3": false,
-    "moment": false
+    "moment": false,
+    "Dygraph": false
 
   }
 }

@@ -53,7 +53,7 @@ angular.module('nflowVisApp.radiator', [])
     });
 
     return {dataArray: dataArray, labels: currentStates};
-  };
+  }
 
   //
   function createExecutionData() {
@@ -81,7 +81,7 @@ angular.module('nflowVisApp.radiator', [])
     });
 
     return {dataArray: dataArray, labels: executionPhases};
-  };
+  }
 
   function drawStackedLineChart(canvasId, data) {
     var canvas = document.getElementById(canvasId);

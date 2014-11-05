@@ -90,10 +90,9 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     // stats may contain stateNames that are not part of definition
     var statStateNames = d3.keys(stats);
     return _.unique(defStateNames.concat(statStateNames));
-  };
+  }
 
   var stateNames = getStateNames(stats, definition);
-  console.log('stateNames', stateNames, _.map(definition.states, function(s){return s.name}));
   var statNames = d3.keys(d3.values(stats)[0]).filter(function(key) { return key !== 'totalActive'; });
   color.domain(statNames);
   _.each(states, function(state, stateName) {
@@ -137,7 +136,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     .enter().append('g')
     .attr('class', 'g')
     .on('click', function(d) {
-      stateSelectedCallback(d.stateName)
+      stateSelectedCallback(d.stateName);
     })
     .attr('transform', function(d) { return 'translate(' + x(d.stateName) + ',0)'; });
 

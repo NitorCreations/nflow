@@ -13,7 +13,7 @@ angular.module('nflowVisApp')
 
   function updateExecutors() {
     Executors.query(function(executors) {
-      console.info("Fetch executors");
+      console.info('Fetching executors');
       $rootScope.executors = executors;
     });
   }
