@@ -90,11 +90,14 @@ angular.module('nflowVisApp.radiator', [])
     }
 
     var options = {
+      axisLabelFontSize: 13,
+      xAxisLabelWidth: 55,
       showRoller: true,
       responsive: true,
       stackedGraph: true,
       legend: 'always',
-      showRangeSelector: true,
+      //showRangeSelector: true,
+      labelsDiv: canvasId + 'Legend',
       labels: ['timestamp'].concat(data.labels)
     };
 
