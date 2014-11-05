@@ -8,7 +8,8 @@
  * Controller of the nflowVisApp
  */
 angular.module('nflowVisApp')
-.controller('MainCtrl', function ($scope, $rootScope, $interval, WorkflowDefinitions, Executors) {
+.controller('MainCtrl', function ($scope, $rootScope, $interval, config,
+                                   WorkflowDefinitions, Executors) {
   $scope.workflows = WorkflowDefinitions.query();
 
   function updateExecutors() {
@@ -21,7 +22,7 @@ angular.module('nflowVisApp')
   updateExecutors();
 
   if(!$rootScope.executorPollingTask) {
-    $rootScope.executorPollingTask = $interval(updateExecutors, 15*1000);
+    $rootScope.executorPollingTask = $interval(updateExecutors, config.radiator.pollPeriod * 1000);
   }
 
 })

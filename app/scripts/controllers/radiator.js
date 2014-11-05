@@ -102,7 +102,6 @@ angular.module('nflowVisApp.radiator', [])
     var labels = ['timestamp'].concat(data.labels);
 
     if(!$scope.graphs[canvasId]) {
-      console.log('create')
       var options = {
         axisLabelFontSize: 13,
         xAxisLabelWidth: 55,
