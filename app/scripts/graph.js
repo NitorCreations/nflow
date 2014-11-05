@@ -78,15 +78,39 @@ function nodeEdges(graph, nodeId) {
   return _.flatten([inEdges, outEdges]);
 }
 
-function highlightEdges(graph, nodeId) {
-  _.each(nodeEdges(graph, nodeId), function(edgeId) {
-    $('#' + edgeDomId(edgeId)).css('stroke-width', '2px');
+function highlightEdges(graph, nodeId, workflow) {
+  function hilight(source,target) {
+    var strokeWidth = '2px';
+    if(workflow && activeTransition(workflow, {name: source}, target) ) {
+      strokeWidth = '3px';
+    }
+    _.each(graph.incidentEdges(source, target), function(edgeId) {
+      $('#' + edgeDomId(edgeId)).css('stroke-width', strokeWidth);
+    });
+  }
+  _.each(graph.predecessors(nodeId), function(prev) {
+    hilight(prev, nodeId);
+  });
+  _.each(graph.successors(nodeId), function(next) {
+    hilight(nodeId, next);
   });
 }
 
-function unhighlightEdges(graph, nodeId) {
-  _.each(nodeEdges(graph, nodeId), function(edgeId) {
-    $('#' + edgeDomId(edgeId)).css('stroke-width', '1px');
+function unhighlightEdges(graph, nodeId, workflow) {
+  function unhilight(source,target) {
+    var strokeWidth = '1px';
+    if(workflow && activeTransition(workflow, {name: source}, target) ) {
+      strokeWidth = '2px';
+    }
+    _.each(graph.incidentEdges(source, target), function(edgeId) {
+      $('#' + edgeDomId(edgeId)).css('stroke-width', strokeWidth);
+    });
+  }
+  _.each(graph.predecessors(nodeId), function(prev) {
+    unhilight(prev, nodeId);
+  });
+  _.each(graph.successors(nodeId), function(next) {
+    unhilight(nodeId, next);
   });
 }
 
@@ -95,7 +119,7 @@ function nodeRect(nodeId) {
 }
 
 function higlightNode(graph, definition, nodeId, workflow) {
-  highlightEdges(graph, nodeId);
+  highlightEdges(graph, nodeId, workflow);
   if(workflow && activeNode(workflow, {name: nodeId})) {
     nodeRect(nodeId).css('stroke-width', '5px');
   } else {
@@ -109,7 +133,7 @@ function higlightNode(graph, definition, nodeId, workflow) {
 }
 
 function unhiglightNode(graph, definition, nodeId, workflow) {
-  unhighlightEdges(graph, nodeId);
+  unhighlightEdges(graph, nodeId, workflow);
 
   if(workflow && activeNode(workflow, {name: nodeId})) {
     nodeRect(nodeId).css('stroke-width', '3px');
