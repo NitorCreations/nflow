@@ -115,6 +115,7 @@ function createNodeStyle(state, workflow, unexpected) {
   var normalNodeStyle = {labelStyle: 'font-size: 14px; ' + labelStroke +
                          'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                          stroke: boxStroke,
+                         fill: 'white',
                          style: 'stroke-width: 1.5px;',
                         };
 
@@ -155,6 +156,7 @@ function createNodeStyle(state, workflow, unexpected) {
   }
 
   nodeStyle.retries = calculateRetries(workflow, state);
+  nodeStyle.state = state;
   nodeStyle.label = state.name;
   return nodeStyle;
 }
@@ -310,6 +312,11 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
                  function(e) {
                    return 'opacity: 1;cursor: pointer;';
                  });
+      nodes.append('title').text(function(nodeId){
+        var node = g.node(nodeId);
+        return  capitalize(node.state.type) + ' state\n' +
+          node.state.description;
+      });
       // add id attr to nodes g elements
       nodes.attr('id', function(nodeId) {
                                   return nodeDomId(nodeId);
