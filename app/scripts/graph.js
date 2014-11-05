@@ -31,6 +31,7 @@ function disableZoomPan() {
 }
 
 function activeNode(workflow, state) {
+  console.log('activeNode', state, workflow)
   if(!workflow) {
     return true;
   }
@@ -95,7 +96,11 @@ function nodeRect(nodeId) {
 
 function higlightNode(graph, definition, nodeId, workflow) {
   highlightEdges(graph, nodeId);
-  nodeRect(nodeId).css('stroke-width', '3px');
+  if(workflow && activeNode(workflow, {name: nodeId})) {
+    nodeRect(nodeId).css('stroke-width', '5px');
+  } else {
+    nodeRect(nodeId).css('stroke-width', '3px');
+  }
   var state = _.find(definition.states,
                      function(state) {
                        return state.id === nodeId;
@@ -105,7 +110,12 @@ function higlightNode(graph, definition, nodeId, workflow) {
 
 function unhiglightNode(graph, definition, nodeId, workflow) {
   unhighlightEdges(graph, nodeId);
-  nodeRect(nodeId).css('stroke-width', '1.5px');
+
+  if(workflow && activeNode(workflow, {name: nodeId})) {
+    nodeRect(nodeId).css('stroke-width', '3px');
+  } else {
+    nodeRect(nodeId).css('stroke-width', '1.5px');
+  }
   _.each(definition.states, function(state) {
     state.selected = undefined;
   });
@@ -129,9 +139,14 @@ function createNodeStyle(state, workflow, unexpected) {
   var active = activeNode(workflow, state);
   var labelStroke = '';
   var boxStroke = 'black';
+  var strokeWidth = '3px';
   if(!active) {
     boxStroke = 'gray';
     labelStroke = 'fill: gray;';
+    strokeWidth = '1.5px';
+  }
+  if(!workflow) {
+    strokeWidth = '1.5px';
   }
   if(unexpected) {
     boxStroke = 'red';
@@ -141,14 +156,14 @@ function createNodeStyle(state, workflow, unexpected) {
                          'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                          stroke: boxStroke,
                          fill: 'white',
-                         style: 'stroke-width: 1.5px;',
+                         style: 'stroke-width: ' + strokeWidth
                         };
 
   var startNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
                         'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                         stroke: boxStroke,
                         fill: 'LightBlue',
-                        style: 'stroke-width: 1.5px;',
+                        style: 'stroke-width: ' + strokeWidth
                        };
 
 
@@ -156,14 +171,14 @@ function createNodeStyle(state, workflow, unexpected) {
                         'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                         stroke: boxStroke,
                         fill: 'yellow',
-                        style: 'stroke-width: 1.5px;',
+                        style: 'stroke-width: ' + strokeWidth
                        };
 
   var endNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
                       'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
                       stroke: boxStroke,
                       fill: 'LightGreen',
-                      style: 'stroke-width: 1.5px;',
+                      style: 'stroke-width: ' + strokeWidth
                      };
 
   var nodeStyle = normalNodeStyle;
@@ -188,11 +203,17 @@ function createNodeStyle(state, workflow, unexpected) {
 
 function createEdgeStyle(workflow, definition, state, transition, genericError) {
   // TODO when active, line should be thicker, but note also higlightNode()
-  if(!workflow || activeTransition(workflow, state, transition)) {
+  if(!workflow) {
     if(genericError) {
       return {style: 'stroke: black; fill: none; stroke-dasharray: 5,5'};
     }
     return {style: 'stroke: black; fill: none;'};
+  }
+  if(activeTransition(workflow, state, transition)) {
+    if(genericError) {
+      return {style: 'stroke: black; stroke-width: 2px; fill: none; stroke-dasharray: 5,5'};
+    }
+    return {style: 'stroke: black; stroke-width: 2px; fill: none;'};
   } else {
     if(genericError) {
       return {style: 'stroke: gray; fill: none; stroke-dasharray: 5,5'};
@@ -247,7 +268,7 @@ function addUnexpectedEdges(g, workflow) {
     if(!target) { return; }
     if(!g.inEdges(target, source).length) {
       g.addEdge(null, source, target,
-                {style: 'stroke: red; fill: none;'});
+                {style: 'stroke: red; stroke-width: 2px; fill: none;'});
     }
   });
 }
