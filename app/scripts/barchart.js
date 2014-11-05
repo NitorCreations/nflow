@@ -62,7 +62,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   var yAxis = d3.svg.axis()
     .scale(y)
     .orient('left')
-    .tickFormat(d3.format('.2s'));
+    .tickFormat(d3.format('d'));
 
   // background
   var svg = d3.select('#' + canvasId)
@@ -77,6 +77,23 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   });
 
   var stateNames = d3.keys(stats);
+
+  function getStateNames(stats, definition) {
+    var nonFinalStates = _.filter(definition.states, function(state) {
+      return state.type !=='end';
+    });
+
+    var defStateNames = _.map(nonFinalStates, function(state) {
+      return state.name;
+    });
+
+    // stats may contain stateNames that are not part of definition
+    var statStateNames = d3.keys(stats);
+    return _.unique(defStateNames.concat(statStateNames));
+  };
+
+  var stateNames = getStateNames(stats, definition);
+  console.log('stateNames', stateNames, _.map(definition.states, function(s){return s.name}));
   var statNames = d3.keys(d3.values(stats)[0]).filter(function(key) { return key !== 'totalActive'; });
   color.domain(statNames);
   _.each(states, function(state, stateName) {
