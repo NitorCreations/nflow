@@ -9,10 +9,10 @@ angular.module('nflowVisApp')
   function nodeSelected(nodeId) {
     console.debug('Selecting node ' + nodeId);
     if($scope.selectedNode) {
-      unhiglightNode($scope.graph, $scope.definition, $scope.selectedNode);
+      unhiglightNode($scope.graph, $scope.definition, $scope.selectedNode, $scope.workflow);
     }
     if(nodeId) {
-      higlightNode($scope.graph, $scope.definition, nodeId);
+      higlightNode($scope.graph, $scope.definition, nodeId, $scope.workflow);
     }
     $scope.selectedNode = nodeId;
   }

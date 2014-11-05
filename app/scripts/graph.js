@@ -56,20 +56,20 @@ function nodeRect(nodeId) {
   return $('#' + nodeDomId(nodeId) + ' rect');
 }
 
-function higlightNode(graph, workflow, nodeId) {
+function higlightNode(graph, definition, nodeId, workflow) {
   highlightEdges(graph, nodeId);
   nodeRect(nodeId).css('stroke-width', '3px');
-  var state = _.find(workflow.states,
+  var state = _.find(definition.states,
                      function(state) {
                        return state.id === nodeId;
                      });
   state.selected = 'highlight';
 }
 
-function unhiglightNode(graph, workflow, nodeId) {
+function unhiglightNode(graph, definition, nodeId, workflow) {
   unhighlightEdges(graph, nodeId);
   nodeRect(nodeId).css('stroke-width', '1.5px');
-  _.each(workflow.states, function(state) {
+  _.each(definition.states, function(state) {
     state.selected = undefined;
   });
 }
