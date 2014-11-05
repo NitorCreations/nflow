@@ -1,29 +1,39 @@
 'use strict';
 angular.module('nflowVisApp.radiator', [])
-.controller('RadiatorCtrl', function ($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
-  $scope.name=$routeParams.type;
+.controller('RadiatorCtrl', function ($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
+                                       $routeParams, config) {
+  $scope.type=$routeParams.type;
 
-  var itemCount = 10000;
+  var itemCount = config.maxHistorySize;
   if(!$rootScope.radiator) {
     $rootScope.radiator = {};
     $rootScope.radiator.stateChart = {};
     $rootScope.radiator.stateChart.data = [];
   }
 
+  function getCurrentStateNames(data) {
+    return _.reduce(data, function(acc, stats) {
+      return _.map(stats[1], function(stat, stateName) {
+        return stateName;
+      });
+    }, {}).sort();
+  }
 
+  function sum(list) {
+    return _.reduce(list, function(acc, value) {
+      if(!value) {
+        return acc;
+      }
+      return acc + value;
+    }, 0);
+  }
 
   ///////////////////////
   function createStateData() {
     var data = $rootScope.radiator.stateChart.data;
 
-    var chartData = {};
-    chartData.datasets = [];
-    var currentStates = _.reduce(data, function(acc, stats) {
-      return _.map(stats[1], function(stat, stateName) {
-        return stateName;
-      });
-    }, {}).sort();
-
+    // TODO this loops over all data to get state names
+    var currentStates = getCurrentStateNames(data);
 
     var dataArray = _.map(data, function(row) {
       var time = row[0];
@@ -36,17 +46,41 @@ angular.module('nflowVisApp.radiator', [])
         if(!stateStats) {
           return undefined;
         }
-        var nonZeroValues = _.compact(_.values(stateStats));
-        return _.reduce(nonZeroValues, function(acc, value){
-          return acc+value;
-        }, 0);
+        return sum(_.values(stateStats));
       });
 
       return [time].concat(values);
     });
 
     return {dataArray: dataArray, labels: currentStates};
+  };
 
+  //
+  function createExecutionData() {
+    var data = $rootScope.radiator.stateChart.data;
+
+    var executionPhases = ['executing', 'nonScheduled', 'queued', 'sleeping'];
+    var currentStates = getCurrentStateNames(data);
+
+    var dataArray = _.map(data, function(row) {
+      var time = row[0];
+      var stats = row[1];
+      var values = _.map(executionPhases, function(phase) {
+        return sum(_.map(currentStates, function(stateName) {
+          if(!stats) {
+            return undefined;
+          }
+          var stateStats = stats[stateName];
+          if(!stateStats) {
+            return 0;
+          }
+          return stateStats[phase];
+        }));
+      });
+      return [time].concat(values);
+    });
+
+    return {dataArray: dataArray, labels: executionPhases};
   };
 
   function drawStackedLineChart(canvasId, data) {
@@ -76,23 +110,24 @@ angular.module('nflowVisApp.radiator', [])
   }
 
   function updateChart() {
-    WorkflowDefinitionStats.get({type: $routeParams.type},
+    WorkflowDefinitionStats.get({type: $scope.type},
                                 function(stats) {
                                   console.log('stats', stats);
                                   addStateData(new Date(), stats.stateStatistics);
-                                  var stateData = createStateData();
-                                  drawStackedLineChart('stateChart', stateData);
+                                  drawStackedLineChart('stateChart', createStateData());
+                                  drawStackedLineChart('executionChart', createExecutionData());
                                 },
                                 function(error) {
                                   console.log(error);
                                   addStateData(new Date(), {});
-                                  drawStackedLineChart('stateChart');
+                                  drawStackedLineChart('stateChart', createStateData());
+                                  drawStackedLineChart('executionChart', createExecutionData());
                                 });
   }
   updateChart();
 
   if(!$rootScope.radiator.radiatorStatsTask) {
-    $rootScope.radiator.radiatorStatsTask = $interval(updateChart, 5000);
+    $rootScope.radiator.radiatorStatsTask = $interval(updateChart, config.radiator.pollPeriod *1000);
   }
 
 });

@@ -39,7 +39,7 @@ angular
       .when('/radiator', {
         templateUrl: 'views/radiator.html',
         controller: 'RadiatorCtrl',
-        activeTab: 'radiator'
+        activeTab: 'main'
       })
       .when('/workflow-definition/:type', {
         templateUrl: 'views/workflow_definition.html',
