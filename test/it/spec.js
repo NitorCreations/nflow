@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-describe('angularjs homepage', function() {
+describe('nflow-ui homepage', function() {
   var history = element.all(by.repeater('result in memory'));
 
   var mainPageLink = element(by.linkText('Workflow definitions'));
@@ -12,7 +12,7 @@ describe('angularjs homepage', function() {
   });
 
   function assertHeader(expected) {
-    var e = element(by.tagName('h2'));
+    var e = element.all(by.tagName('h2')).first();
     expect(e.getText()).toEqual(expected);
   };
 
@@ -28,5 +28,28 @@ describe('angularjs homepage', function() {
     mainPageLink.click();
     assertHeader('Workflows');
   });
+
+  it('should have list of workflow definitions', function() {
+    var link = element(by.linkText('creditDecision'));
+    link.click();
+    assertHeader('creditDecision');
+
+    var radiatorLink = element(by.linkText('Open radiator'));
+    radiatorLink.click();
+    assertHeader('Radiator creditDecision');
+
+    browser.navigate().back();
+    assertHeader('creditDecision');
+
+    var searchLink = element(by.linkText('Search related workflow instances'));
+    searchLink.click();
+    assertHeader('Search workflows');
+  });
+});
+
+describe('workflow definition page', function() {
+
+
+
 
 });
