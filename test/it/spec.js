@@ -20,7 +20,7 @@ describe('nflow-ui homepage', function() {
     assertHeader('Workflows');
 
     searchPageLink.click();
-    assertHeader('Search workflows');
+    assertHeader('Search workflows-TODO-intentinal-fail');
 
     aboutPageLink.click();
     assertHeader('nFlow UI');
