@@ -22,8 +22,7 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <!-- Add your site or application content here -->
-    <div class="container-fluid">
+    <header ng-controller="NaviCtrl" ng-hide="radiator" class="container-fluid">
      	<div class="row">
 	     	<div class="col-lg-4 col-lg-offset-1">
 	     		<a ng-href="#"><img src="images/nflow_logo.svg" width="211" height="113" alt="nFlow"></a>
@@ -39,14 +38,16 @@
       	<div class="row">
 	      	<hr>
       	</div>
-    </div>
+    </header>
 
-  	<div class="container">
-		<div ng-view=""></div>
+    <div class="container">
+		<div ng-view="">
+		        <!-- Add your site or application content here -->
+		</div>
 		<div id="canvas"></div>
   	</div>
 
-	<div class="footer">
+	<footer ng-controller="NaviCtrl" ng-hide="radiator" class="footer">
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-lg-4 col-lg-offset-1">
@@ -54,7 +55,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</footer>
 
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>

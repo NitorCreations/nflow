@@ -69,6 +69,10 @@ angular
       return $rootScope.activeTab === tab;
     };
   })
+  .controller('NaviCtrl', function($scope, $location) {
+    // nope, $routeParams.radiator wont work here
+    $scope.radiator = !!$location.search().radiator;
+  })
   .filter('reverse', function() {
     return function(items) {
       if(!items) {
