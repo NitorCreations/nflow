@@ -13,7 +13,7 @@ before_script:
   - 'npm install'
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
-  - 'node_modules/protractor/bin/webdriver-manager start'
+  - 'node_modules/protractor/bin/webdriver-manager start &'
 
 script: grunt itest
 
