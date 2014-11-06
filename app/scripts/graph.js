@@ -31,7 +31,6 @@ function disableZoomPan() {
 }
 
 function activeNode(workflow, state) {
-  console.log('activeNode', state, workflow)
   if(!workflow) {
     return true;
   }
