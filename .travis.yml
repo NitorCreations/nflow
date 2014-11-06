@@ -13,6 +13,6 @@ before_script:
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
   - 'node_modules/protractor/bin/webdriver-manager start &'
-
+  - 'sleep 60'
 script: grunt itest
 
