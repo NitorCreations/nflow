@@ -1,7 +1,9 @@
 {
   "name": "nflow-vis",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "~2.4.1"
+  },
   "devDependencies": {
     "grunt": "^0.4.1",
     "grunt-autoprefixer": "^0.7.3",
@@ -26,7 +28,9 @@
     "grunt-wiredep": "^1.7.0",
     "jshint-stylish": "^0.2.0",
     "load-grunt-tasks": "^0.4.0",
-    "time-grunt": "^0.3.1"
+    "time-grunt": "^0.3.1",
+    "protractor": "^1.4.0",
+    "grunt-protractor-runner": "^1.1.4"
   },
   "engines": {
     "node": ">=0.10.0"

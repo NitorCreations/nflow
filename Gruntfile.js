@@ -380,6 +380,18 @@ module.exports = function (grunt) {
         'svgmin'
       ]
     },
+    protractor: {
+      options: {
+        configFile: "test/protractor.conf.js", // Default config file
+        keepAlive: true, // If false, the grunt process stops when the test fails.
+        noColor: false, // If true, protractor will not use colors in its output.
+        args: {
+          // Arguments passed to the command
+        }
+      },
+      test: {}
+    },
+
 
     // Test settings
     karma: {
@@ -417,6 +429,15 @@ module.exports = function (grunt) {
     'autoprefixer',
     'connect:test',
     'karma'
+  ]);
+
+  // integration tests
+  grunt.registerTask('itest', [
+    'clean:server',
+    'concurrent:test',
+    'autoprefixer',
+    'connect:test',
+    'protractor'
   ]);
 
   grunt.registerTask('build', [
