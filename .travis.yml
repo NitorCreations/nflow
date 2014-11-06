@@ -10,7 +10,6 @@ node_js:
 
 before_script:
   - 'npm install -g bower grunt-cli'
-  - 'npm install'
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
   - 'node_modules/protractor/bin/webdriver-manager start &'
