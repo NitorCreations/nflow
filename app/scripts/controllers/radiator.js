@@ -1,6 +1,6 @@
 'use strict';
 angular.module('nflowVisApp.radiator', [])
-.controller('RadiatorCtrl', function ($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
+.controller('RadiatorCtrl', function RadiatorCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
                                        $routeParams, config) {
   $scope.type=$routeParams.type;
 

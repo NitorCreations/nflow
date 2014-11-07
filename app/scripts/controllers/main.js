@@ -8,7 +8,7 @@
  * Controller of the nflowVisApp
  */
 angular.module('nflowVisApp')
-.controller('MainCtrl', function ($scope, $rootScope, $interval, config,
+.controller('MainCtrl', function MainCtrl($scope, $rootScope, $interval, config,
                                    WorkflowDefinitions, Executors) {
   $scope.workflows = WorkflowDefinitions.query();
 

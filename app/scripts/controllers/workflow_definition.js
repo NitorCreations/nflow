@@ -3,7 +3,7 @@
  * Display single workflow definition
  */
 angular.module('nflowVisApp')
-.controller('WorkflowDefinitionCtrl', function ($scope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
+.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {

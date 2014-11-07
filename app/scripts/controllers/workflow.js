@@ -4,7 +4,7 @@
  */
 
 angular.module('nflowVisApp')
-.controller('WorkflowCtrl', function ($scope, Workflows, WorkflowDefinitions, $routeParams) {
+.controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, WorkflowDefinitions, $routeParams) {
   /** called when node is clicked */
   function nodeSelected(nodeId) {
     console.debug('Selecting node ' + nodeId);
