@@ -76,7 +76,8 @@ a {
 
 /* Custom page footer */
 .footer {
-  padding-top: 19px;
+  padding-top: 4px;
+  padding-top: 4px;
   color: #777;
   border-top: 1px solid #e5e5e5;
 }
@@ -132,6 +133,11 @@ a {
 
 .highlight {
    font-weight: bold;
+}
+
+.vertical-align {
+  display: flex;
+  align-items: center;
 }
 
 /* Navigation */

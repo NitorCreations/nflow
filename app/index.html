@@ -22,40 +22,42 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <header ng-controller="NaviCtrl" ng-hide="radiator" class="container-fluid">
-     	<div class="row">
-	     	<div class="col-lg-4 col-lg-offset-1">
-	     		<a ng-href="#"><img src="images/nflow_logo.svg" width="211" height="113" alt="nFlow"></a>
-	     	</div>
-	     	<div class="col-lg-5 menu-col">
-		        <ul class="nav nav-pills pull-right">
-		            <li ng-class="{active: isActiveTab('main')}"><a ng-href="#">Workflow definitions</a></li>
-		            <li ng-class="{active: isActiveTab('search')}"><a ng-href="#/search">Workflow instances</a></li>
-		            <li ng-class="{active: isActiveTab('about')}"><a ng-href="#/about">About</a></li>
-		        </ul>
-     		</div>
+    <header ng-controller="NaviCtrl" ng-hide="radiator">
+      <div class="container-fluid">
+        <div class="row vertical-align">
+          <div class="col-md-4">
+            <a ng-href="#" class="pull-left"><img src="images/nflow_logo.svg" alt="nFlow"></a>
+          </div>
+          <div class="col-md-6 col-md-offset-2">
+            <ul class="nav nav-pills">
+              <li class="pull-right" ng-class="{active: isActiveTab('main')}"><a ng-href="#">Workflow definitions</a></li>
+              <li class="pull-right" ng-class="{active: isActiveTab('search')}"><a ng-href="#/search">Workflow instances</a></li>
+              <li class="pull-right" ng-class="{active: isActiveTab('about')}"><a ng-href="#/about">About</a></li>
+            </ul>
+          </div>
       	</div>
       	<div class="row">
 	      	<hr>
       	</div>
+      </div>
     </header>
 
-    <div class="container">
+    <div class="container-fluid">
 		<div ng-view="">
 		        <!-- Add your site or application content here -->
 		</div>
 		<div id="canvas"></div>
   	</div>
 
-	<footer ng-controller="NaviCtrl" ng-hide="radiator" class="footer">
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-lg-4 col-lg-offset-1">
-					<p><span class="glyphicon glyphicon-copyright-mark"></span> 2014 Nitor Creations</p>
-				</div>
-			</div>
-		</div>
-	</footer>
+    <div class="navbar-default navbar-fixed-bottom">
+      <div class="container-fluid">
+        <div class="row footer">
+          <div class="col-md-12">
+            <p><span class="glyphicon glyphicon-copyright-mark"></span> 2014 Nitor Creations</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>

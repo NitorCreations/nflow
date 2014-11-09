@@ -110,6 +110,7 @@ angular.module('nflowVisApp.radiator', [])
         legend: 'always',
         //showRangeSelector: true,
         labelsDiv: canvasId + 'Legend',
+        labelsSeparateLines: true,
         labels: labels
       };
       $scope.graphs[canvasId] = new Dygraph(canvas, data.dataArray, options);
