@@ -7,8 +7,48 @@ workflow_definition.html / workflow.html
   pointer-events: all;
 }
 
-/*
-Edfge styles
+/**
+Node styles
+-----------
+
+*/
+.node-normal, .node-manual, .node-start, .node-final {
+  /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  */
+  stroke-width: 1.5px;
+}
+
+.node-normal {
+  fill: white;
+}
+.node-start {
+  fill: LightBlue;
+}
+.node-end {
+ fill: LightGreen;
+}
+.node-error {
+  fill: yellow;
+}
+.node-normal.selected, .node-manual.selected, .node-start.selected, .node-final.selected {
+  stroke-width: 3px;
+}
+
+.node-active {
+  stroke-width: 3px;
+}
+
+.node-active.selected {
+  stroke-width: 4px;
+}
+
+.node-passive {
+  fill: gray;
+}
+
+*/
+/**
+Edge styles
 ------------
 Basic edge types are
 - normal: normal transition
@@ -35,16 +75,20 @@ class="edge-error edge-passive selected"
 
 .edge-normal {
   stroke: black;
+  marker-end: url(#arrowhead);
+  fill: none;
 }
 
 .edge-error {
   stroke: black;
   stroke-dasharray: 5,5;
+  marker-end: url(#arrowhead);
   fill: none;
 }
 
 .edge-unexpected {
   stroke: red;
+  fill: none;
   marker-end: url(#arrowhead-red);
 }
 
@@ -65,9 +109,15 @@ class="edge-error edge-passive selected"
   stroke-width: 4px;
 }
 
+.edge-passive.selected {
+  stroke: gray;
+}
+
+
 // retries
 .retry-indicator {
   fill: orange;
   stroke: black;
   stroke-width: 1.5px
 }
+c
