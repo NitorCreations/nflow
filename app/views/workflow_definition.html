@@ -4,13 +4,11 @@
   </div>
   <div class="col-md-4">
     <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
-    <div class="row">
-      <ul class="listing">
-        <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
-      </ul>
-    </div>
+    <ul class="listing">
+      <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
+    </ul>
     <div class="svg-container">
-    <svg id="dagreSvg"></svg>
+      <svg id="dagreSvg"></svg>
     </div>
     <p>
       <button ng-click="savePng()" class="btn">Save as PNG</button>
