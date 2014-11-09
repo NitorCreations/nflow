@@ -149,18 +149,17 @@ angular.module('nflowVisApp.radiator', [])
                                 });
   }
 
-  // graphs with 1 datapoint look silly => update charts 2 times at page load
-  updateChart();
-  updateChart();
-
-  if(!$rootScope.radiator.radiatorStatsTask) {
-    // start polling statistics
-    $rootScope.radiator.radiatorStatsTask = $interval(updateChart, config.radiator.pollPeriod *1000);
-  }
-
   $scope.$on("$destroy", function(){
     // clear references to graphs when page unloads
     $scope.graphs = {};
+  });
+
+  $scope.$on('startRadiator', function (event) {
+    updateChart();
+    if(!$rootScope.radiator.radiatorStatsTask) {
+      // start polling statistics
+      $rootScope.radiator.radiatorStatsTask = $interval(updateChart, config.radiator.pollPeriod *1000);
+    }
   });
 
 });

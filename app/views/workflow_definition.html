@@ -2,11 +2,10 @@
   <div class="col-md-12">
     <h2>{{definition.type}}</h2>
   </div>
-  <div class="col-md-5">
+  <div class="col-md-4">
     <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
     <div class="row">
       <ul class="listing">
-        <li><a href="#/radiator?type={{definition.type}}">Open radiator</a></li>
         <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
       </ul>
     </div>
@@ -18,7 +17,7 @@
       <button ng-click="saveSvg()" class="btn">Save as SVG</button>
     </p>
   </div>
-  <div class="col-md-7">
+  <div class="col-md-8">
     <tabset>
       <tab heading="Active instances" >
         <div ng-hide="hasStatistics" class="alert alert-info">
@@ -89,6 +88,9 @@
             </tr>
           </tbody>
         </table>
+      </tab>
+      <tab heading="Radiator" select="startRadiator()">
+        <div data-ng-include data-src="'views/radiator.html'"></div>
       </tab>
     </tabset>
   </div>
