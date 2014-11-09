@@ -7,33 +7,65 @@ workflow_definition.html / workflow.html
   pointer-events: all;
 }
 
-.edge-passive {
+/*
+Edfge styles
+------------
+Basic edge types are
+- normal: normal transition
+- error: error transition
+- unexpected: any transition not part of workflow definition. Unexpected is always active.
 
+Edges may be one of:
+- <none>: with workflow definition
+- passive: when transition has not been used by workflow instance
+- active: when transition has been used by workflow instance
+
+Edge may be also be selected.
+
+So error edge, that has not been used and is selected is indicated like this
+
+class="edge-error edge-passive selected"
+*/
+.edge-normal, .edge-error, .edge-unexpected {
+  stroke-width: 1px;
+  fill: none;
+  stroke: black;
+  marker-end: url(#arrowhead);
 }
 
 .edge-normal {
+  stroke: black;
+}
 
+.edge-error {
+  stroke: black;
+  stroke-dasharray: 5,5;
+  fill: none;
 }
 
 .edge-unexpected {
-
+  stroke: red;
+  marker-end: url(#arrowhead-red);
 }
 
-
-.edge-normal-selected {
-
+.edge-normal.edge-active, .edge-error.edge-active, .edge-unexpected.edge-active {
+  stroke-width: 2px;
 }
 
-.edge-passive-selected {
-
+.edge-passive {
+  stroke: gray;
+  marker-end: url(#arrowhead-gray);
 }
 
-
-.edge-unexpected-selected {
-
+.edge-normal.selected, .edge-error.selected, .edge-unexpected.selected {
+  stroke-width: 2px;
 }
 
+.edge-active.selected {
+  stroke-width: 4px;
+}
 
+// retries
 .retry-indicator {
   fill: orange;
   stroke: black;

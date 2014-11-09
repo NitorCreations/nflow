@@ -77,6 +77,32 @@ function nodeEdges(graph, nodeId) {
   return _.flatten([inEdges, outEdges]);
 }
 
+function removeClass(node, className) {
+  // TODO not complete with all corner cases
+  var value = node.attr('class');
+  if(!value) {
+    return node;
+  }
+  node.attr('class', value.replace(new RegExp(className, 'g')));
+  return node;
+}
+
+// AngularJS's jqLite doesn't have removeClass/addClass
+function addClass(node, className) {
+  // TODO not complete with all corner cases
+  removeClass(node, className);
+  var value = node.attr('class');
+  if(!value) {
+    node.attr('class', className)
+    return node;
+  }
+  if(value.indexOf(className) > -1) {
+    return node;
+  }
+  node.attr('class', value + ' ' + className)
+  return node;
+}
+
 function highlightEdges(graph, nodeId, workflow) {
   function hilight(source,target) {
     var strokeWidth = '2px';
@@ -84,7 +110,7 @@ function highlightEdges(graph, nodeId, workflow) {
       strokeWidth = '3px';
     }
     _.each(graph.incidentEdges(source, target), function(edgeId) {
-      $('#' + edgeDomId(edgeId)).css('stroke-width', strokeWidth);
+      addClass($('#' + edgeDomId(edgeId)), 'selected');
     });
   }
   _.each(graph.predecessors(nodeId), function(prev) {
@@ -102,7 +128,7 @@ function unhighlightEdges(graph, nodeId, workflow) {
       strokeWidth = '2px';
     }
     _.each(graph.incidentEdges(source, target), function(edgeId) {
-      $('#' + edgeDomId(edgeId)).css('stroke-width', strokeWidth);
+      removeClass($('#' + edgeDomId(edgeId)), 'selected');
     });
   }
   _.each(graph.predecessors(nodeId), function(prev) {
@@ -228,20 +254,20 @@ function createEdgeStyle(workflow, definition, state, transition, genericError) 
   // TODO when active, line should be thicker, but note also higlightNode()
   if(!workflow) {
     if(genericError) {
-      return {style: 'stroke: black; fill: none; stroke-dasharray: 5,5'};
+      return {'class': 'edge-error'};
     }
-    return {style: 'stroke: black; fill: none;'};
+    return {'class': 'edge-normal'};
   }
   if(activeTransition(workflow, state, transition)) {
     if(genericError) {
-      return {style: 'stroke: black; stroke-width: 2px; fill: none; stroke-dasharray: 5,5'};
+      return {'class': 'edge-error edge-active'};
     }
-    return {style: 'stroke: black; stroke-width: 2px; fill: none;'};
+    return {'class': 'edge-normal edge-active'};
   } else {
     if(genericError) {
-      return {style: 'stroke: gray; fill: none; stroke-dasharray: 5,5'};
+      return {'class': 'edge-error edge-passive'};
     }
-    return {style: 'stroke: gray; fill: none;'};
+    return {'class': 'edge-normal edge-passive'};
   }
 }
 
@@ -291,7 +317,7 @@ function addUnexpectedEdges(g, workflow) {
     if(!target) { return; }
     if(!g.inEdges(target, source).length) {
       g.addEdge(null, source, target,
-                {style: 'stroke: red; stroke-width: 2px; fill: none;'});
+                {'class': 'edge-unexpected edge-active'});
     }
   });
 }
@@ -344,6 +370,22 @@ function workflowDefinitionGraph(definition, workflow) {
   return g;
 }
 
+function addArrowheadMarker(canvasId, id, color) {
+    d3.select('#' + canvasId).select('defs')
+        .append('marker')
+        .attr('id', id)
+        .attr('viewBox', '0 0 10 10')
+        .attr('refX', 8)
+        .attr('refY', '5')
+        .attr('markerUnits', 'strokeWidth')
+        .attr('markerWidth', '8')
+        .attr('markerHeight', '5')
+        .attr('orient', 'auto')
+        .attr('fill', color)
+        .append('path')
+          .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+}
+
 function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS) {
   var renderer = new dagreD3.Renderer();
   var oldDrawNodes = renderer.drawNodes();
@@ -387,7 +429,6 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
           .attr('cx', 10).attr('cy', -5)
           .attr('rx', 20).attr('ry', 10)
           .attr('class', 'retry-indicator');
-          //.attr('style', 'fill: orange; stroke: black; stroke-width: 1.5px');
 
           t.append('text')
           .append('tspan')
@@ -410,6 +451,10 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
       // add id to edges
       edges.selectAll('*').attr('id', function(edgeId) {
         return edgeDomId(edgeId);
+      })
+      .attr('class', function(edgeId) {
+        // see createEdgeStyle, class is not supported attribute
+        return g._edges[edgeId].value.class;
       });
       return edges;
     });
@@ -421,10 +466,13 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
         .text(embedCSS);
   var svgGroup = svgRoot.append('g');
 
-
+  // render svg
   var layout = renderer.run(graph, svgGroup);
+
+  addArrowheadMarker(canvasId, 'arrowhead-gray', 'gray');
+  addArrowheadMarker(canvasId, 'arrowhead-red', 'red');
+
   var svgBackground = svgRoot.select('rect.overlay');
-  //svgBackground.attr('style', 'fill: white; pointer-events: all;');
   svgBackground.attr('style', '');
   svgBackground.attr('class', 'graph-background');
   svgBackground.on('click', function() {
