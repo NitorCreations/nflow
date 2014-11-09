@@ -1,0 +1,41 @@
+/** Styling for workflow graphs
+workflow_definition.html / workflow.html
+*/
+
+.graph-background {
+  fill: white;
+  pointer-events: all;
+}
+
+.edge-passive {
+
+}
+
+.edge-normal {
+
+}
+
+.edge-unexpected {
+
+}
+
+
+.edge-normal-selected {
+
+}
+
+.edge-passive-selected {
+
+}
+
+
+.edge-unexpected-selected {
+
+}
+
+
+.retry-indicator {
+  fill: orange;
+  stroke: black;
+  stroke-width: 1.5px
+}

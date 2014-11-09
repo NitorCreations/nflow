@@ -3,7 +3,9 @@
  * Display single workflow definition
  */
 angular.module('nflowVisApp')
-.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
+.controller('WorkflowDefinitionCtrl',
+            function WorkflowDefinitionCtrl($scope, WorkflowDefinitions, WorkflowDefinitionStats,
+                                             $routeParams, $rootScope) {
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
@@ -63,7 +65,7 @@ angular.module('nflowVisApp')
                                 nodeSelected(nodeId);
                               });
                             }
-                            drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack);
+                            drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
 
                             // TODO handle errors
                             WorkflowDefinitionStats.get({type: $routeParams.type},

@@ -344,7 +344,7 @@ function workflowDefinitionGraph(definition, workflow) {
   return g;
 }
 
-function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
+function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS) {
   var renderer = new dagreD3.Renderer();
   var oldDrawNodes = renderer.drawNodes();
   renderer.drawNodes(
@@ -386,7 +386,8 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
           t.append('ellipse')
           .attr('cx', 10).attr('cy', -5)
           .attr('rx', 20).attr('ry', 10)
-          .attr('style', 'fill: orange; stroke: black; stroke-width: 1.5px');
+          .attr('class', 'retry-indicator');
+          //.attr('style', 'fill: orange; stroke: black; stroke-width: 1.5px');
 
           t.append('text')
           .append('tspan')
@@ -413,11 +414,19 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack) {
       return edges;
     });
 
-  var svgRoot = d3.select('#' + canvasId), svgGroup = svgRoot.append('g');
+  var svgRoot = d3.select('#' + canvasId);
+  // add embedded CSS
+  svgRoot.append('style')
+        .attr('type', 'text/css')
+        .text(embedCSS);
+  var svgGroup = svgRoot.append('g');
+
 
   var layout = renderer.run(graph, svgGroup);
   var svgBackground = svgRoot.select('rect.overlay');
-  svgBackground.attr('style', 'fill: white; pointer-events: all;');
+  //svgBackground.attr('style', 'fill: white; pointer-events: all;');
+  svgBackground.attr('style', '');
+  svgBackground.attr('class', 'graph-background');
   svgBackground.on('click', function() {
     // event handler for clicking outside nodes
     nodeSelectedCallBack(null);

@@ -4,7 +4,7 @@
  */
 
 angular.module('nflowVisApp')
-.controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, WorkflowDefinitions, $routeParams) {
+.controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, WorkflowDefinitions, $routeParams, $rootScope) {
   /** called when node is clicked */
   function nodeSelected(nodeId) {
     console.debug('Selecting node ' + nodeId);
@@ -35,7 +35,7 @@ angular.module('nflowVisApp')
                                                 nodeSelected(nodeId);
                                               });
                                             }
-                                            drawWorkflowDefinition($scope.graph, 'workflowSvg', nodeSelectedCallBack);
+                                            drawWorkflowDefinition($scope.graph, 'workflowSvg', nodeSelectedCallBack, $rootScope.graph.css);
 
                                           });
 

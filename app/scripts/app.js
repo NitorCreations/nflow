@@ -44,12 +44,29 @@ angular
       .when('/workflow-definition/:type', {
         templateUrl: 'views/workflow_definition.html',
         controller: 'WorkflowDefinitionCtrl',
-        activeTab: 'main'
+        activeTab: 'main',
+        resolve: {
+          'GraphService': [ '$q', 'GraphService', function($q, GraphService) {
+             // do not open UI before products are loaded i.e. the following promise resolved
+             var defer = $q.defer();
+             GraphService.getCss(defer);
+             return defer.promise;
+          }]
+        }
+
       })
       .when('/workflow/:id', {
         templateUrl: 'views/workflow.html',
         controller: 'WorkflowCtrl',
-        activeTab: 'search'
+        activeTab: 'search',
+        resolve: {
+          'GraphService': [ '$q', 'GraphService', function($q, GraphService) {
+            // do not open UI before products are loaded i.e. the following promise resolved
+            var defer = $q.defer();
+            GraphService.getCss(defer);
+            return defer.promise;
+          }]
+        }
       })
       .otherwise({
         redirectTo: '/'

@@ -23,4 +23,18 @@ angular.module('nflowVisApp.services',
 })
 .factory('WorkflowDefinitionStats', function WorkflowDefinitionStatsFactory($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-definition/:type/statistics',{type: '@type'});
+})
+.service('GraphService', function GraphServiceFactory($http, $rootScope, $q) {
+  this.getCss = function getCss(defer) {
+    $http.get('../styles/graph.css')
+    .success(function(data) {
+      $rootScope.graph = {};
+      $rootScope.graph.css=data;
+      defer.resolve();
+    })
+    .error(function(data) {
+      defer.cancel();
+    });
+  };
+
 });
