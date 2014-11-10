@@ -2,7 +2,7 @@
   <div class="col-md-12">
     <h2>{{definition.type}}</h2>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-6">
     <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
     <ul class="listing">
       <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
@@ -15,7 +15,7 @@
       <button ng-click="saveSvg()" class="btn">Save as SVG</button>
     </p>
   </div>
-  <div class="col-md-8">
+  <div class="col-md-6">
     <tabset>
       <tab heading="Active instances" >
         <div ng-hide="hasStatistics" class="alert alert-info">
