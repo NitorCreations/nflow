@@ -1,1 +1,1 @@
-alter table nflow_workflow_state executor_id int not null default -1;
+alter table nflow_workflow_action add executor_id int not null default -1;
