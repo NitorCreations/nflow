@@ -91,7 +91,7 @@ angular
     $scope.radiator = !!$location.search().radiator;
   })
   .filter('reverse', function() {
-    return function(items) {
+    return function reverse(items) {
       if(!items) {
         return [];
       }
@@ -99,7 +99,7 @@ angular
     };
   })
   .filter('fromNow', function() {
-    return function(value) {
+    return function fromNow(value) {
       if(!value) {
         return '';
       }
@@ -111,7 +111,7 @@ angular
     };
   })
   .filter('fromNowOrNever', function() {
-    return function(value) {
+    return function fromNowOrNever(value) {
       if(!value) {
         return 'never';
       }
@@ -123,11 +123,16 @@ angular
     };
   })
   .filter('prettyPrintJson', function() {
-    return function(value) {
+    return function prettyPrintJson(value) {
       try {
         return JSON.stringify(value, undefined, 2);
       } catch(e) {
         return value;
       }
+    };
+  })
+  .filter('nullToZero', function() {
+    return function nullToZero(value) {
+      return value ? value : 0;
     };
   });

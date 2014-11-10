@@ -55,11 +55,11 @@
                     ng-click="nodeSelected(state.id)">
                     <td>{{state.name}}</td>
                     <td>{{state.description}}</td>
-                    <td class="numeric">{{state.stateStatistics.executing}}</td>
-                    <td class="numeric">{{state.stateStatistics.queued}}</td>
-                    <td class="numeric">{{state.stateStatistics.sleeping}}</td>
-                    <th class="numeric">{{state.stateStatistics.totalActive}}</th>
-                    <td class="numeric">{{state.stateStatistics.nonScheduled}}</td>
+                    <td class="numeric">{{state.stateStatistics.executing | nullToZero}}</td>
+                    <td class="numeric">{{state.stateStatistics.queued | nullToZero}}</td>
+                    <td class="numeric">{{state.stateStatistics.sleeping | nullToZero}}</td>
+                    <th class="numeric">{{state.stateStatistics.totalActive | nullToZero}}</th>
+                    <td class="numeric">{{state.stateStatistics.nonScheduled | nullToZero}}</td>
                 </tr>
             </tbody>
             <tfoot>
