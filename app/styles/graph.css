@@ -1,5 +1,9 @@
-/** Styling for workflow graphs
+/** Styling for nFlow workflow graphs
 workflow_definition.html / workflow.html
+
+This file will be embedded inside generated SVG.
+
+See app.js how this file is loaded (resolve:).
 */
 
 .graph-background {
@@ -10,31 +14,58 @@ workflow_definition.html / workflow.html
 /**
 Node styles
 -----------
+Generated svg looks like this
 
+
+<g class="node-normal"  transform="translate(...)">
+  <rect><!--this is background for node--></rect>
+  <g transform="translate(-100,-9.5)">
+    <text text-anchor="left">
+     <tspan dy="1em" x="1"><!-- node text goes here --></tspan>
+    </text>
+  </g>
+  <title><!-- tooltip goes here --></title>
+</g>
 */
-.node-normal, .node-manual, .node-start, .node-final {
-  /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  */
-  stroke-width: 1.5px;
+/* changing font or font size may require code changes to have right size boxes */
+.node-normal, .node-manual, .node-start, .node-end {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  fill: black;
+  opacity: 1; cursor: pointer;
 }
 
-.node-normal {
+.node-start > rect, .node-manual > rect, .node-normal > rect, .node-end > rect, .node-error > rect {
+  stroke-width: 1.5px;
+  stroke: black;
   fill: white;
 }
-.node-start {
+.node-start > rect {
   fill: LightBlue;
 }
-.node-end {
- fill: LightGreen;
+
+.node-normal > rect {
+  fill: white;
 }
-.node-error {
+
+.node-manual > rect {
   fill: yellow;
 }
-.node-normal.selected, .node-manual.selected, .node-start.selected, .node-final.selected {
+
+.node-error > rect {
+  fill: pink;
+}
+
+.node-end > rect {
+  fill: LightGreen;
+}
+
+
+.node-normal.selected > rect, .node-manual.selected > rect, .node-error.selected > rect, .node-start.selected > rect, .node-end.selected > rect {
   stroke-width: 3px;
 }
 
-.node-active {
+.node-active > rect{
   stroke-width: 3px;
 }
 
@@ -42,11 +73,15 @@ Node styles
   stroke-width: 4px;
 }
 
-.node-passive {
+.node-passive{
   fill: gray;
 }
 
-*/
+.node-passive > rect{
+  stroke: gray;
+}
+
+
 /**
 Edge styles
 ------------
@@ -65,6 +100,8 @@ Edge may be also be selected.
 So error edge, that has not been used and is selected is indicated like this
 
 class="edge-error edge-passive selected"
+
+If you need new colors for arrowheads see graph.js, addArrowheadMarker()
 */
 .edge-normal, .edge-error, .edge-unexpected {
   stroke-width: 1px;
@@ -114,10 +151,9 @@ class="edge-error edge-passive selected"
 }
 
 
-// retries
+/* retries */
 .retry-indicator {
   fill: orange;
   stroke: black;
-  stroke-width: 1.5px
+  stroke-width: 1.5px;
 }
-c

@@ -7,15 +7,6 @@ function edgeDomId(edgeId) {
   return 'edge' + edgeId;
 }
 
-function nodeColors(nodeId, colors) {
-  var rect = $('#' + nodeDomId(nodeId) + ' rect');
-  rect.attr('fill', colors.background);
-  rect.css('stroke', colors.border);
-
-  var text = $('#' + nodeDomId(nodeId) + ' g text');
-  text.attr('fill', colors.text);
-}
-
 function disableZoomPan() {
   var svg =  d3.select('svg');
 
@@ -139,17 +130,10 @@ function unhighlightEdges(graph, nodeId, workflow) {
   });
 }
 
-function nodeRect(nodeId) {
-  return $('#' + nodeDomId(nodeId) + ' rect');
-}
-
 function higlightNode(graph, definition, nodeId, workflow) {
   highlightEdges(graph, nodeId, workflow);
-  if(workflow && activeNode(workflow, {name: nodeId})) {
-    nodeRect(nodeId).css('stroke-width', '5px');
-  } else {
-    nodeRect(nodeId).css('stroke-width', '3px');
-  }
+
+  addClass($('#' + nodeDomId(nodeId)), 'selected');
   var state = _.find(definition.states,
                      function(state) {
                        return state.id === nodeId;
@@ -159,12 +143,7 @@ function higlightNode(graph, definition, nodeId, workflow) {
 
 function unhiglightNode(graph, definition, nodeId, workflow) {
   unhighlightEdges(graph, nodeId, workflow);
-
-  if(workflow && activeNode(workflow, {name: nodeId})) {
-    nodeRect(nodeId).css('stroke-width', '3px');
-  } else {
-    nodeRect(nodeId).css('stroke-width', '1.5px');
-  }
+  removeClass($('#' + nodeDomId(nodeId)), 'selected');
   _.each(definition.states, function(state) {
     state.selected = undefined;
   });
@@ -201,47 +180,26 @@ function createNodeStyle(state, workflow, unexpected) {
     boxStroke = 'red';
     labelStroke = 'fill: red;';
   }
-  var normalNodeStyle = {labelStyle: 'font-size: 14px; ' + labelStroke +
-                         'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
-                         stroke: boxStroke,
-                         fill: 'white',
-                         style: 'stroke-width: ' + strokeWidth
-                        };
+  var normalNodeStyle = {'class': 'node-normal'};
+  var startNodeStyle ={'class': 'node-start'};
+  var errorNodeStyle = {'class': 'node-error'};
+  var endNodeStyle = {'class': 'node-end'};
 
-  var startNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
-                        'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
-                        stroke: boxStroke,
-                        fill: 'LightBlue',
-                        style: 'stroke-width: ' + strokeWidth
-                       };
-
-
-  var errorNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
-                        'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
-                        stroke: boxStroke,
-                        fill: 'yellow',
-                        style: 'stroke-width: ' + strokeWidth
-                       };
-
-  var endNodeStyle = {labelStyle: 'font-size: 14px;' + labelStroke +
-                      'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;',
-                      stroke: boxStroke,
-                      fill: 'LightGreen',
-                      style: 'stroke-width: ' + strokeWidth
-                     };
-
-  var nodeStyle = normalNodeStyle;
+  var nodeStyle = {'class': 'node-normal'};
   if(state.type === 'start') {
-    nodeStyle = startNodeStyle;
+    nodeStyle = {'class': 'node-start'};
   }
   if(state.type === 'manual') {
-    nodeStyle = errorNodeStyle;
+    nodeStyle = {'class': 'node-manual'};
   }
   if(state.type === 'end') {
-    nodeStyle = endNodeStyle;
+    nodeStyle = {'class': 'node-end'};
   }
   if(state.type === 'error') {
-    nodeStyle = errorNodeStyle;
+    nodeStyle = {'class': 'node-error'};
+  }
+  if(workflow && !active) {
+    nodeStyle['class'] += ' node-passive';
   }
 
   nodeStyle.retries = calculateRetries(workflow, state);
@@ -251,7 +209,6 @@ function createNodeStyle(state, workflow, unexpected) {
 }
 
 function createEdgeStyle(workflow, definition, state, transition, genericError) {
-  // TODO when active, line should be thicker, but note also higlightNode()
   if(!workflow) {
     if(genericError) {
       return {'class': 'edge-error'};
@@ -325,9 +282,6 @@ function addUnexpectedEdges(g, workflow) {
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges
-
-  // Exported SVG has silly defaults for some styles
-  // so they are overridden here.
   for(var i in definition.states) {
     var state = definition.states[i];
 
@@ -407,6 +361,10 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
       nodes.attr('id', function(nodeId) {
                                   return nodeDomId(nodeId);
                                 });
+      nodes.attr('class', function(nodeId) {
+        // see createEdgeStyle, class is not supported attribute
+        return g.node(nodeId)['class'];
+      });
 
       // draw retry indicator
       // fetch sizes for node rects => needed for calculating right edge for rect
