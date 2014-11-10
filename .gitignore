@@ -4,3 +4,6 @@ dist
 .sass-cache
 .DS_Store
 bower_components
+node
+rubygems-gem-maven-plugin
+rubygems/
