@@ -17,7 +17,7 @@ angular.module('nflowVisApp.radiator', [])
     $rootScope.radiator.stateChart = {};
     $rootScope.radiator.stateChart.data = [];
     $scope.graphs = {};
-  };
+  }
 
   if(!$rootScope.radiator) {
     clearData();
@@ -149,7 +149,7 @@ angular.module('nflowVisApp.radiator', [])
                                 });
   }
 
-  $scope.$on("$destroy", function(){
+  $scope.$on('$destroy', function(){
     // clear references to graphs when page unloads
     $scope.graphs = {};
   });

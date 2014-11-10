@@ -84,13 +84,13 @@ function addClass(node, className) {
   removeClass(node, className);
   var value = node.attr('class');
   if(!value) {
-    node.attr('class', className)
+    node.attr('class', className);
     return node;
   }
   if(value.indexOf(className) > -1) {
     return node;
   }
-  node.attr('class', value + ' ' + className)
+  node.attr('class', value + ' ' + className);
   return node;
 }
 
@@ -440,10 +440,10 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
 
 
   svgGroup.attr('transform', 'translate(20, 20)');
-  svgRoot.attr("preserveAspectRatio", "xMinYMin meet");
-  svgRoot.attr("viewBox", "0 0 " + (layout.graph().width+40) + " " + (layout.graph().height+40));
+  svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
+  svgRoot.attr('viewBox', '0 0 ' + (layout.graph().width+40) + ' ' + (layout.graph().height+40));
   //class to make it responsive
-  svgRoot.classed("svg-content-responsive", true);
+  svgRoot.classed('svg-content-responsive', true);
 
   disableZoomPan();
   return layout;

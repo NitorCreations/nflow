@@ -63,8 +63,8 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
 
   // background
   var svg = d3.select('#' + canvasId)
-    .attr("preserveAspectRatio", "xMinYMin meet")
-    .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom))
+    .attr('preserveAspectRatio', 'xMinYMin meet')
+    .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 

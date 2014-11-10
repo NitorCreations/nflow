@@ -19,7 +19,7 @@ angular.module('nflowVisApp')
 
   $scope.startRadiator = function() {
     $rootScope.$broadcast('startRadiator');
-  }
+  };
 
   // TODO move to service
   function processStats(definition, stats) {
