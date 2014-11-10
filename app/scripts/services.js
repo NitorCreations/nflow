@@ -33,7 +33,9 @@ angular.module('nflowVisApp.services',
       defer.resolve();
     })
     .error(function(data) {
-      defer.cancel();
+      console.warn('Failed to load graph.css');
+      $rootScope.graph = {};
+      defer.resolve();
     });
   };
 
