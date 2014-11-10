@@ -3,9 +3,7 @@
  * Display single workflow definition
  */
 angular.module('nflowVisApp')
-.controller('WorkflowDefinitionCtrl',
-            function WorkflowDefinitionCtrl($scope, WorkflowDefinitions, WorkflowDefinitionStats,
-                                             $routeParams, $rootScope) {
+.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
@@ -17,6 +15,10 @@ angular.module('nflowVisApp')
       higlightNode($scope.graph, $scope.definition, nodeId);
     }
     $scope.selectedNode = nodeId;
+  }
+
+  $scope.startRadiator = function() {
+    $rootScope.$broadcast('startRadiator');
   }
 
   // TODO move to service

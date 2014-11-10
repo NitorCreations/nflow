@@ -17,7 +17,7 @@ $color-dark-blue: #0093cc;
 $color-black: #000000;
 $color-grey: #636466;
 $color-mid-grey: #888888;
-$color-light-grey: #C7C7C7;
+$color-light-grey: #e7e7e7;
 $color-white: #ffffff;
 $color-green: #76e859;
 $color-dark-green: #bcf4ae;
@@ -76,7 +76,8 @@ a {
 
 /* Custom page footer */
 .footer {
-  padding-top: 19px;
+  padding-top: 4px;
+  padding-top: 4px;
   color: #777;
   border-top: 1px solid #e5e5e5;
 }
@@ -130,8 +131,29 @@ a {
 
 // my stuff
 
+/* for making svg images responsive */
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.svg-content {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .highlight {
    font-weight: bold;
+}
+
+.vertical-align {
+  display: flex;
+  align-items: center;
 }
 
 /* Navigation */
@@ -210,7 +232,7 @@ ul.listing {
 }
 
 .table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
-	background-color: $color-light-grey;
+	background-color: $color-white;
 }
 
 
@@ -233,13 +255,6 @@ ul.listing {
 }
 .table-hover > tbody > tr > td.danger:hover, .table-hover > tbody > tr > th.danger:hover, .table-hover > tbody > tr.danger:hover > td, .table-hover > tbody > tr:hover > .danger, .table-hover > tbody > tr.danger:hover > th {
 	background-color: #ebcccc;
-}
-
-
-
-/* dagre-d3 */
-#dagreSvg {
-	margin: 40px 0 40px 0;
 }
 
 /* barchart.js */

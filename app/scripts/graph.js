@@ -96,9 +96,9 @@ function addClass(node, className) {
 
 function highlightEdges(graph, nodeId, workflow) {
   function hilight(source,target) {
-    var strokeWidth = '2px';
+    var strokeWidth = '5px';
     if(workflow && activeTransition(workflow, {name: source}, target) ) {
-      strokeWidth = '3px';
+      strokeWidth = '7px';
     }
     _.each(graph.incidentEdges(source, target), function(edgeId) {
       addClass($('#' + edgeDomId(edgeId)), 'selected');
@@ -440,8 +440,11 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
 
 
   svgGroup.attr('transform', 'translate(20, 20)');
-  svgRoot.attr('height', layout.graph().height + 40);
-  svgRoot.attr('width', layout.graph().width + 40);
+  svgRoot.attr("preserveAspectRatio", "xMinYMin meet");
+  svgRoot.attr("viewBox", "0 0 " + (layout.graph().width+40) + " " + (layout.graph().height+40));
+  //class to make it responsive
+  svgRoot.classed("svg-content-responsive", true);
+
   disableZoomPan();
   return layout;
 }
