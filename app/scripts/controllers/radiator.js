@@ -5,6 +5,8 @@ angular.module('nflowVisApp.radiator', [])
   $scope.type=$routeParams.type;
 
   var itemCount = config.maxHistorySize;
+  $scope.definition = {};
+  $scope.definition.states = [];
 
   if(!$scope.graphs) { $scope.graphs = {}; }
 
@@ -128,25 +130,43 @@ angular.module('nflowVisApp.radiator', [])
     }
   }
 
+  function filterNonFinalStates(stateNames) {
+    return _.filter(stateNames, function(stateName) {
+      var state = _.first(_.filter($scope.definition.states, function(state) {
+        return state.name === stateName;
+      }));
+      if(!state) {
+        return true;
+      }
+      return state.type !== 'end';
+    });
+  }
   function draw() {
-    // this loops over all data to get state names
+    // this loops over all data to get state names. maybe slow
     var currentStates = getCurrentStateNames($rootScope.radiator.stateChart.data);
+    currentStates = filterNonFinalStates(currentStates);
     drawStackedLineChart('stateChart', createStateData(currentStates));
     drawStackedLineChart('executionChart', createExecutionData(currentStates));
   }
 
+  WorkflowDefinitions.get({type: $scope.type},
+                          function(data) {
+                            $scope.definition = _.first(data);
+                          });
+
+
   function updateChart() {
-    WorkflowDefinitionStats.get({type: $scope.type},
-                                function(stats) {
-                                  console.info('Fetching statistics', stats);
-                                  addStateData(new Date(), stats.stateStatistics);
-                                  draw();
-                                },
-                                function(error) {
-                                  console.error(error);
-                                  addStateData(new Date(), {});
-                                  draw();
-                                });
+      WorkflowDefinitionStats.get({type: $scope.type},
+                                  function(stats) {
+                                    console.info('Fetching statistics', stats);
+                                    addStateData(new Date(), stats.stateStatistics);
+                                    draw();
+                                  },
+                                  function(error) {
+                                    console.error(error);
+                                    addStateData(new Date(), {});
+                                    draw();
+                                  });
   }
 
   $scope.$on('$destroy', function(){
