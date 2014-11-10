@@ -26,7 +26,8 @@ angular.module('nflowVisApp.services',
 })
 .service('GraphService', function GraphServiceFactory($http, $rootScope, $q) {
   this.getCss = function getCss(defer) {
-    $http.get('../styles/graph.css')
+    // links are relative to displayed page
+    $http.get('styles/data/graph.css')
     .success(function(data) {
       $rootScope.graph = {};
       $rootScope.graph.css=data;
