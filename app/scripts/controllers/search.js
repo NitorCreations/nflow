@@ -4,9 +4,8 @@ angular.module('nflowVisApp')
 .controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefinitions, WorkflowSearch) {
   $scope.results = [];
   $scope.crit = {};
-  $scope.definitions = WorkflowDefinitions.query();
-  $scope.search = function search() {
 
+  $scope.search = function search() {
     var query = {};
     for (var i in $scope.crit) {
         query[i] = $scope.crit[i];
@@ -14,14 +13,29 @@ angular.module('nflowVisApp')
     if(query.type && typeof(query.type) !== 'string' ) {
       query.type = query.type.type;
     }
-    console.log('search:', query);
+    query = _.omit(query, function(value) {
+      return (value === undefined || value === null);
+    });
     $scope.results = WorkflowSearch.query(query);
   };
 
-  if($routeParams.type) {
-    $scope.crit.type = $routeParams.type;
-    $scope.search();
+  function handleParams() {
+    var paramType = _.first(_.filter($scope.definitions, function(def) {
+      return def.type === $routeParams.type;
+    }));
+    if(paramType) {
+      $scope.crit.type = paramType;
+    }
+    $scope.crit.state = $routeParams.state;
+    if(Object.keys($scope.crit).length > 0) {
+      $scope.search();
+    }
   }
+
+  WorkflowDefinitions.query(function(definitions) {
+    $scope.definitions = definitions;
+    handleParams();
+  });
 
   $scope.hasResults = function hasResults() {
     return !!_.first($scope.results);
