@@ -10,9 +10,24 @@ angular.module('nflowVisApp')
     for (var i in $scope.crit) {
         query[i] = $scope.crit[i];
     }
-    if(query.type && typeof(query.type) !== 'string' ) {
+
+    if(query.type) {
       query.type = query.type.type;
     }
+    if(query.state) {
+      query.state = query.state.name;
+    }
+
+    // set state to undef if it is not found in selected definition
+    if(query.type && query.state) {
+      var stateInDefinition = _.first(_.filter($scope.crit.type.states, function(state) {
+        return state.name == query.state;
+      }));
+      if(!stateInDefinition) {
+        query.state = undefined;
+      }
+    }
+
     query = _.omit(query, function(value) {
       return (value === undefined || value === null);
     });
@@ -25,8 +40,11 @@ angular.module('nflowVisApp')
     }));
     if(paramType) {
       $scope.crit.type = paramType;
+      var paramState = _.first(_.filter(paramType.states, function(state) {
+        return state.name === $routeParams.state;
+      }));
+      $scope.crit.state = paramState;
     }
-    $scope.crit.state = $routeParams.state;
     if(Object.keys($scope.crit).length > 0) {
       $scope.search();
     }

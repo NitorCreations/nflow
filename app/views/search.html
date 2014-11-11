@@ -6,13 +6,18 @@
             <div class="col-xs-3">
                 <label for="type">Workflow type</label>
                 <select class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
-                    <option value="">-- No type selected --</option>
+                    <option value="">-- All workflow types --</option>
                 </select>
             </div>
 
             <div class="col-xs-3">
                 <label for="state">Workflow state</label>
+                <!--
                 <input name="state" type="text" ng-model="crit.state" class="form-control"/>
+-->
+                <select class="form-control" ng-model="crit.state" ng-options="state.name for state in crit.type.states">
+                    <option value="">-- All states --</option>
+                </select>
             </div>
         </div>
         <div class="row">
