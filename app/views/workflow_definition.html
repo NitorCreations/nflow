@@ -35,11 +35,12 @@
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Executing</th>
-                    <th>Queued</th>
-                    <th>Sleeping</tg>
-                    <th>Total&nbsp;active</th>
-                    <th>Passive</th>
+                    <th class="numeric">Executing</th>
+                    <th class="numeric">Queued</th>
+                    <th class="numeric">Sleeping</tg>
+                    <th class="numeric">Total&nbsp;active</th>
+                    <th class="numeric">Passive</th>
+                    <th></th>
                 </tr>
                 <tr>
                     <th colspan="2">Total</th>
@@ -48,6 +49,7 @@
                     <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
                     <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
                     <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -60,6 +62,7 @@
                     <td class="numeric">{{state.stateStatistics.sleeping | nullToZero}}</td>
                     <th class="numeric">{{state.stateStatistics.totalActive | nullToZero}}</th>
                     <td class="numeric">{{state.stateStatistics.nonScheduled | nullToZero}}</td>
+                    <td><a href="#/search?type={{definition.type}}&state={{state.name}}">Search</a></td>
                 </tr>
             </tbody>
             <tfoot>
@@ -70,6 +73,7 @@
                     <th class="numeric">{{definition.stateStatisticsTotal.sleeping}}</th>
                     <th class="numeric">{{definition.stateStatisticsTotal.totalActive}}</th>
                     <th class="numeric">{{definition.stateStatisticsTotal.nonScheduled}}</th>
+                    <th></th>
                 </tr>
             </tfoot>
         </table>
