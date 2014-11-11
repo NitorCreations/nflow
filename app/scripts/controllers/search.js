@@ -21,7 +21,7 @@ angular.module('nflowVisApp')
     // set state to undef if it is not found in selected definition
     if(query.type && query.state) {
       var stateInDefinition = _.first(_.filter($scope.crit.type.states, function(state) {
-        return state.name == query.state;
+        return state.name === query.state;
       }));
       if(!stateInDefinition) {
         query.state = undefined;
