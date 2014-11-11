@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,9 @@ public class WorkflowDispatcher implements Runnable {
     this.stateProcessorFactory = stateProcessorFactory;
     this.executorRecovery = executorRecovery;
     this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
+    if (!executorRecovery.isTransactionSupportEnabled()) {
+      throw new BeanCreationException("Transaction support must be enabled");
+    }
   }
 
   @Override

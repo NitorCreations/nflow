@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -49,8 +50,15 @@ public class WorkflowDispatcherTest {
   public void setup() {
     when(env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
+    when(recovery.isTransactionSupportEnabled()).thenReturn(true);
     pool = dispatcherPoolExecutor();
     dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, recovery, env);
+  }
+
+  @Test(expected = BeanCreationException.class)
+  public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
+    when(recovery.isTransactionSupportEnabled()).thenReturn(false);
+    new WorkflowDispatcher(pool, workflowInstances, executorFactory, recovery, env);
   }
 
   @Test

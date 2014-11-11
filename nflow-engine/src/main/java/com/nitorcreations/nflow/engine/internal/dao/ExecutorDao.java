@@ -4,6 +4,7 @@ import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
+import static org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -27,6 +28,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
 import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
@@ -103,6 +105,11 @@ public class ExecutorDao {
 
   public DateTime getMaxWaitUntil() {
     return nextUpdate;
+  }
+
+  @Transactional
+  public boolean isTransactionSupportEnabled() {
+    return isActualTransactionActive();
   }
 
   private int allocateExecutorId() {
