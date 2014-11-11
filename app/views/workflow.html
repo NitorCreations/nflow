@@ -61,6 +61,7 @@
               <form class="form" role="form">
                   <label for="nextState">Set state to</label>
                   <select id="nextState" ng-model="manage.nextState" ng-options="state.name for state in definition.states" class="form-control">
+                      <option value="">-- Keep current state --</option>
                   </select>
                   <label for="duration">Next activation in</label>
                   <input id="duration" type="number" ng-model="manage.duration" class="form-control"/>
