@@ -41,16 +41,24 @@
 	<table id="search-result" class="table table-striped table-hover">
 	    <thead>
 	        <th>Id</th>
-	        <th>Workflow</th>
+	        <th>Workflow type</th>
 	        <th>State</th>
+            <th>State text</th>
+            <th>Business key</th>
+            <th>External id</th>
             <th>Created</th>
+            <th>Next activation</th>
 	    </thead>
 	    <tbody>
 	        <tr ng-repeat="result in results | reverse">
 	            <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
 	            <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
 	            <td class="{{getStateClass(result)}}">{{result.state}}</td>
-                <td class="{{getStateClass(result)}}" title="{{result.created}}">{{createdAgo(result)}}</td>
+	            <td class="{{getStateClass(result)}}">{{result.stateText}}</td>
+                <td class="{{getStateClass(result)}}">{{result.businessKey}}</td>
+                <td class="{{getStateClass(result)}}">{{result.externalId}}</td>
+                <td class="{{getStateClass(result)}}" title="{{result.created}}">{{result.created | fromNowOrNever}}</td>
+                <td class="{{getStateClass(result)}}" title="{{result.nextActivation}}">{{result.nextActivation | fromNowOrNever}}</td>
 	        </tr>
 	    </tbody>
 	</table>

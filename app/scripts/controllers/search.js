@@ -58,7 +58,4 @@ angular.module('nflowVisApp')
     return '';
   };
 
-  $scope.createdAgo = function(workflow) {
-    return moment(workflow.created).fromNow();
-  };
 });
