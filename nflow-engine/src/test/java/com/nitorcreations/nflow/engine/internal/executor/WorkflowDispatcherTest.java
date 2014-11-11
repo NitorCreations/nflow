@@ -49,6 +49,7 @@ public class WorkflowDispatcherTest {
   public void setup() {
     when(env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
+    when(recovery.isTransactionSupportEnabled()).thenReturn(true);
     pool = dispatcherPoolExecutor();
     dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, recovery, env);
   }
