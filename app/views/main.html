@@ -19,7 +19,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="executor in executors">
+        <tr ng-repeat="executor in executors | orderBy:'active':true">
             <td>{{executor.id}}</td>
             <td>{{executor.host}}</td>
             <td>{{executor.pid}}</td>
