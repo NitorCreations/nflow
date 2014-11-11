@@ -42,7 +42,7 @@ public class ListWorkflowInstanceConverterTest {
   @Test
   public void convertWithActionsWorks() throws IOException {
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
-        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
+        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).setExecutorId(999).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
@@ -71,7 +71,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.created, is(i.created));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.state, a.stateText, a.retryNo,
-        a.executionStart, a.executionEnd))));
+        a.executionStart, a.executionEnd, a.executorId))));
   }
 
   @Test
