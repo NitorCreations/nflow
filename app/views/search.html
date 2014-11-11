@@ -5,14 +5,14 @@
         <div class="row">
             <div class="col-xs-3">
                 <label for="type">Workflow type</label>
-                <select class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
+                <select id="type" class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
                     <option value="">-- All workflow types --</option>
                 </select>
             </div>
 
             <div class="col-xs-3">
                 <label for="state">Workflow state</label>
-                <select class="form-control" ng-model="crit.state" ng-options="state.name for state in crit.type.states">
+                <select id="state" class="form-control" ng-model="crit.state" ng-options="state.name for state in crit.type.states">
                     <option value="">-- All states --</option>
                 </select>
             </div>
