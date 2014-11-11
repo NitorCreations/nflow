@@ -3,33 +3,33 @@
 <form class="form" role="form">
     <div class="form-group">
         <div class="row">
-            <div class="col-xs-4">
-                <label for="id">id</label>
-                <input name="id" type="number" ng-model="crit.id" class="form-control"/>
-            </div>
-
-            <div class="col-xs-4">
-                <label for="businessKey">businessKey</label>
-                <input name="businessKey" type="text" ng-model="crit.businessKey" class="form-control"/>
-            </div>
-
-            <div class="col-xs-4">
-                <label for="externalId">externalId</label>
-                <input name="externalId" type="text" ng-model="crit.externalId" class="form-control"/>
-            </div>
-
-            <div class="col-xs-4">
+            <div class="col-xs-3">
                 <label for="type">Workflow type</label>
                 <select class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
                     <option value="">-- No type selected --</option>
                 </select>
             </div>
 
-            <div class="col-xs-4">
+            <div class="col-xs-3">
                 <label for="state">Workflow state</label>
                 <input name="state" type="text" ng-model="crit.state" class="form-control"/>
             </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-3">
+                <label for="id">Workflow instance id</label>
+                <input name="id" type="number" ng-model="crit.id" class="form-control"/>
+            </div>
 
+            <div class="col-xs-3">
+                <label for="businessKey">Business key</label>
+                <input name="businessKey" type="text" ng-model="crit.businessKey" class="form-control"/>
+            </div>
+
+            <div class="col-xs-3">
+                <label for="externalId">External id</label>
+                <input name="externalId" type="text" ng-model="crit.externalId" class="form-control"/>
+            </div>
         </div>
     </div>
     <button class="btn btn-default" ng-click="search()">Search</button>
