@@ -52,7 +52,6 @@ angular.module('nflowVisApp')
                                               defaultNextState(workflow.state);
 
                                               drawWorkflowDefinition($scope.graph, 'workflowSvg', nodeSelectedCallBack, $rootScope.graph.css);
-
                                             });
 
                   });
@@ -103,11 +102,17 @@ angular.module('nflowVisApp')
   $scope.updateWorkflow = function updateWorkflow(manage) {
     console.info('updateWorkflow()', manage);
     var now = moment(new Date());
-    var nextActivationTime = now.add(moment.duration(manage.duration, manage.timeUnit));
+    var time = undefined;
+    var request = {};
+    if(manage.nextState) {
+      request.state = manage.nextState.name;
+    }
+    if(manage.duration && manage.timeUnit) {
+      request.nextActivationTime = now.add(moment.duration(manage.duration, manage.timeUnit));
+    }
     Workflows.update({id: $routeParams.id},
-                     {state: manage.nextState.name,
-                      nextActivationTime: nextActivationTime.format()
-                     }, function() {
+                     request,
+                     function() {
                        readWorkflow();
                      });
   };
