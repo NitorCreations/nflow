@@ -57,6 +57,21 @@
           </tbody>
         </table>
       </tab>
+        <tab heading="Manage">
+
+            <form class="form" role="form">
+                <div class="input-group">
+                    <label for="nextState">Set state to</label>
+                    <select id="nextState" ng-model="manage.nextState" ng-options="state.name for state in definition.states" class="form-control"/>
+                </div>
+                <div class="input-group">
+                    <label for="duration">Next activation in </label>
+                    <input id="duration" type="number" ng-model="manage.duration" class="form-control"/>
+                    <select id="timeUnit" ng-model="manage.timeUnit" ng-options="timeUnit for timeUnit in manage.timeUnits" class="form-control"/>
+                </div>
+                <button class="btn btn-default" ng-click="updateWorkflow(manage)">Update workflow</button>
+            </form>
+        </tab>
     </tabset>
   </div>
 </div>'
