@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -79,15 +80,19 @@ public class WorkflowInstanceResource {
     // TODO: requires more work, e.g. concurrent check with engine, validation
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(id);
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
+    String msg = "";
     if (!isEmpty(req.state)) {
       builder.setState(req.state);
       builder.setRetries(0);
+      msg = "API changed state to " + req.state + ". ";
     }
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
+      msg += "API changed nextActivationTime to " + req.nextActivationTime + ".";
     }
-    workflowInstances.updateWorkflowInstance(builder.build(), new WorkflowInstanceAction.Builder(instance).setExecutionStart(instance.modified)
-        .setExecutionEnd(now()).build());
+    workflowInstances.updateWorkflowInstance(builder.build(),
+        new WorkflowInstanceAction.Builder(instance).setStateText(trimToNull(msg)).setExecutionStart(instance.modified)
+            .setExecutionEnd(now()).build());
   }
 
   @GET

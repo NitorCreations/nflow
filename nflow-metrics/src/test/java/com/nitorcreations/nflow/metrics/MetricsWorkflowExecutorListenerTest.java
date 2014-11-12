@@ -50,7 +50,6 @@ public class MetricsWorkflowExecutorListenerTest {
         return env;
       }
     };
-    System.out.println(ctx.getEnvironment());
     metricRegistry = ctx.getBean(MetricRegistry.class);
     listener = ctx.getBean(MetricsWorkflowExecutorListener.class);
     when(definition.getType()).thenReturn("myWorkflow");
