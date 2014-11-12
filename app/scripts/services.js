@@ -14,11 +14,15 @@ angular.module('nflowVisApp.services',
 .factory('Executors', function ExecutorsFactory($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-executor');
 })
-.factory('WorkflowDefinitions', function WorkflowDefinitionsFactory($resource, config) {
+.factory('WorkflowDefinitions', function WorkflowDefinitionsFactory($resource, config, $cacheFactory) {
   return $resource(config.nflowUrl + '/v1/workflow-definition',
                    {type: '@type'},
                    {'get': {isArray: true,
-                            method:  'GET'}
+                            method:  'GET',
+                            cache: $cacheFactory('workflow-definition')},
+                    'query': {isArray: true,
+                              method: 'GET',
+                              cache: $cacheFactory('workflow-definition-list')}
                    });
 })
 .factory('WorkflowDefinitionStats', function WorkflowDefinitionStatsFactory($resource, config) {
