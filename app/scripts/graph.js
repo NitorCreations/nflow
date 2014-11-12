@@ -270,12 +270,14 @@ function addUnexpectedEdges(g, workflow) {
   }
 
   _.each(activeEdges, function(targetObj, source) {
-    var target = Object.keys(targetObj)[0];
-    if(!target) { return; }
-    if(!g.inEdges(target, source).length) {
-      g.addEdge(null, source, target,
-                {'class': 'edge-unexpected edge-active'});
-    }
+    _.each(Object.keys(targetObj), function(target) {
+      if(!target) { return; }
+      if(!g.inEdges(target, source).length) {
+        g.addEdge(null, source, target,
+                  {'class': 'edge-unexpected edge-active'});
+      }
+
+    })
   });
 }
 
