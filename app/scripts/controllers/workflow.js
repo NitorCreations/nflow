@@ -107,7 +107,7 @@ angular.module('nflowVisApp')
     if(manage.nextState) {
       request.state = manage.nextState.name;
     }
-    if(manage.duration && manage.timeUnit) {
+    if((manage.duration !== undefined && manage.duration !== null) && manage.timeUnit) {
       request.nextActivationTime = now.add(moment.duration(manage.duration, manage.timeUnit));
     }
     Workflows.update({id: $routeParams.id},
