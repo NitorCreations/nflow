@@ -43,5 +43,24 @@ angular.module('nflowVisApp.services',
       defer.resolve();
     });
   };
+})
+.service('ExecutorPoller', function ExecutorPollerService($rootScope, config, Executors, $interval) {
+  this.task = undefined;
+
+  function updateExecutors() {
+    Executors.query(function(executors) {
+      console.info('Fetching executors');
+      $rootScope.executors = executors;
+    });
+  }
+  this.start = function() {
+    if(!this.task) {
+      console.info('Start executor poller with period ' + config.radiator.pollPeriod + ' seconds');
+      updateExecutors();
+      this.task = $interval(updateExecutors, config.radiator.pollPeriod * 1000);
+    }
+    return this.task;
+  };
 
 });
+

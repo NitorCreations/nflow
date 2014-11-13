@@ -8,22 +8,9 @@
  * Controller of the nflowVisApp
  */
 angular.module('nflowVisApp')
-.controller('MainCtrl', function MainCtrl($scope, $rootScope, $interval, config,
-                                   WorkflowDefinitions, Executors) {
+.controller('MainCtrl', function MainCtrl($scope, $rootScope,
+                                           WorkflowDefinitions, ExecutorPoller) {
   $scope.workflows = WorkflowDefinitions.query();
+  ExecutorPoller.start();
+});
 
-  function updateExecutors() {
-    Executors.query(function(executors) {
-      console.info('Fetching executors');
-      $rootScope.executors = executors;
-    });
-  }
-
-  updateExecutors();
-
-  if(!$rootScope.executorPollingTask) {
-    $rootScope.executorPollingTask = $interval(updateExecutors, config.radiator.pollPeriod * 1000);
-  }
-
-})
-;
