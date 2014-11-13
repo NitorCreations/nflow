@@ -62,7 +62,12 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     .tickFormat(d3.format('d'));
 
   // background
-  var svg = d3.select('#' + canvasId)
+  var svgRoot = d3.select('#' + canvasId);
+
+  // remove any previous charts
+  svgRoot.selectAll("*").remove();
+
+  var svg = svgRoot
     .attr('preserveAspectRatio', 'xMinYMin meet')
     .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
     .append('g')
