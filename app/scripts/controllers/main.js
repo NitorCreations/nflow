@@ -11,6 +11,5 @@ angular.module('nflowVisApp')
 .controller('MainCtrl', function MainCtrl($scope, $rootScope,
                                            WorkflowDefinitions, ExecutorPoller) {
   $scope.workflows = WorkflowDefinitions.query();
-  ExecutorPoller.start();
 });
 

@@ -86,6 +86,9 @@ angular
     return $rootScope.activeTab === tab;
   };
 })
+.run(function(ExecutorPoller) {
+  ExecutorPoller.start();
+})
 .controller('NaviCtrl', function($scope, $location) {
   // nope, $routeParams.radiator wont work here
   $scope.radiator = !!$location.search().radiator;
