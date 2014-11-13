@@ -45,22 +45,79 @@ angular.module('nflowVisApp.services',
   };
 })
 .service('ExecutorPoller', function ExecutorPollerService($rootScope, config, Executors, $interval) {
-  this.task = undefined;
+  var task = {};
+
+  function addStateData(type, time, stats) {
+    var data = tasks[type].data;
+    data.push([time, stats]);
+    while(d.length > itemCount) {
+      d.shift();
+    }
+  }
 
   function updateExecutors() {
     Executors.query(function(executors) {
       console.info('Fetching executors');
+      // TODO should store to this variable,
+      // then in controller $scope.executors = ExecutorPoller.getExecutors();
       $rootScope.executors = executors;
+      $rootScope.$broadcast('executorsUpdated');
     });
   }
   this.start = function() {
-    if(!this.task) {
+    if(!task.poller) {
       console.info('Start executor poller with period ' + config.radiator.pollPeriod + ' seconds');
       updateExecutors();
-      this.task = $interval(updateExecutors, config.radiator.pollPeriod * 1000);
+      task.poller = $interval(updateExecutors, config.radiator.pollPeriod * 1000);
+      return true;
     }
-    return this.task;
+    return false;
+  };
+})
+.service('WorkflowStatsPoller', function WorkflowStatsPoller($rootScope, config, $interval,
+                                                              WorkflowDefinitions, WorkflowDefinitionStats) {
+  var tasks = {};
+
+  function addStateData(type, time, stats) {
+    var data = tasks[type].data;
+    data.push([time, stats]);
+    while(data.length > config.maxHistorySize) {
+      data.shift();
+    }
+  }
+
+  function updateStats(type) {
+    WorkflowDefinitionStats.get({type: type},
+                                function(stats) {
+                                  console.info('Fetched statistics for ' + type);
+                                  addStateData(type, new Date(), stats);
+                                  tasks[type].latest = stats;
+                                  $rootScope.$broadcast('workflowStatsUpdated', type);
+                                },
+                                function(error) {
+                                  console.error('Fetching workflow ' + type + ' stats failed');
+                                  addStateData(type, new Date(), {});
+                                  $rootScope.$broadcast('workflowStatsUpdated', type);
+                                });
+  }
+
+  this.start = function(type) {
+    if(!tasks[type]) {
+      tasks[type] = {};
+      tasks[type].data = [];
+      console.info('Start stats poller for ' + type + ' with period ' + config.radiator.pollPeriod + ' seconds');
+      updateStats(type);
+      tasks[type].poller = $interval(function() { updateStats(type); },
+                                     config.radiator.pollPeriod * 1000);
+      return true;
+    }
+    return false;
   };
 
-});
+  this.getLatest = function(type, x) {
+    if(!tasks[type]) { return undefined };
+    return tasks[type].latest;
+  };
+})
+;
 

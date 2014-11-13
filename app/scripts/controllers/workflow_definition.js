@@ -3,7 +3,8 @@
  * Display single workflow definition
  */
 angular.module('nflowVisApp')
-.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, WorkflowDefinitions, WorkflowDefinitionStats, $routeParams) {
+.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
+                                                                       WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
@@ -51,36 +52,51 @@ angular.module('nflowVisApp')
   $scope.hasStatistics = false;
   $scope.nodeSelected = nodeSelected;
 
+  // must use $apply() - event not managed by angular
+  function nodeSelectedCallBack(nodeId) {
+    $scope.$apply(function() {
+      nodeSelected(nodeId);
+    });
+  }
+
+  function updateStateExecutionGraph(type) {
+    var stats = WorkflowStatsPoller.getLatest(type);
+    if(!$scope.definition) {
+      console.debug('Definition not loaded yet');
+      return;
+    }
+    if(stats) {
+      processStats($scope.definition, stats);
+      $scope.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, $scope.definition, nodeSelectedCallBack);
+    }
+  }
+
   // TODO handle errors
   WorkflowDefinitions.get({type: $routeParams.type},
                           function(data) {
                             var start = new Date().getTime();
                             var definition =  _.first(data);
                             $scope.definition = definition;
-
-
-                            //var stats = loadStats(definition);
                             $scope.graph = workflowDefinitionGraph(definition);
-                            // must use $apply() - event not managed by angular
-                            function nodeSelectedCallBack(nodeId) {
-                              $scope.$apply(function() {
-                                nodeSelected(nodeId);
-                              });
-                            }
                             drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
-
-                            // TODO handle errors
-                            WorkflowDefinitionStats.get({type: $routeParams.type},
-                                                       function(stats) {
-                                                         processStats(definition, stats);
-                                                         console.info(stats);
-                                                         $scope.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, definition, nodeSelectedCallBack);
-                                                       });
-
+                            updateStateExecutionGraph($routeParams.type);
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );
                           });
 
+  // poller polls stats with fixed period
+  WorkflowStatsPoller.start($routeParams.type);
+
+  // poller broadcasts when events change
+  $scope.$on('workflowStatsUpdated', function(scope, type) {
+    if(type !== $routeParams.type) {
+      return;
+    }
+    updateStateExecutionGraph(type);
+
+  });
+
+  // download buttons
   function svgDataUrl() {
     var html = d3.select('#dagreSvg')
       .attr('version', 1.1)
@@ -89,13 +105,12 @@ angular.module('nflowVisApp')
     return 'data:image/svg+xml;base64,'+ btoa(html);
   }
 
-
   function downloadSvg(filename) {
     downloadDataUrl(svgDataUrl(), filename);
   }
-
+  // TODO save as PNG doesn't work. due to css file?
   $scope.savePng = function savePng() {
-    console.log('Save PNG');
+    console.info('Save PNG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
     downloadImage(svgDataUrl(), $scope.definition.type + '.png', 'image/png');
@@ -103,7 +118,7 @@ angular.module('nflowVisApp')
   };
 
   $scope.saveSvg = function saveSvg() {
-    console.log('Save SVG');
+    console.info('Save SVG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
     downloadSvg($scope.definition.type + '.svg');
