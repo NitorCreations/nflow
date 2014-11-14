@@ -3,6 +3,8 @@ package com.nitorcreations.nflow.tests;
 import static com.nitorcreations.nflow.tests.demo.SlowWorkflow.WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -10,27 +12,24 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
-import org.junit.Rule;
 import org.junit.Test;
 
+import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.tests.demo.SlowWorkflow;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
-import com.nitorcreations.nflow.tests.runner.SkipNotPersistedDatabaseRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class ExecutorRecoveryTest extends AbstractNflowTest {
-
-  @Rule
-  public SkipNotPersistedDatabaseRule skipNotRealDatabaseRule = new SkipNotPersistedDatabaseRule();
 
   @ClassRule
   public static NflowServerRule server = new NflowServerRule.Builder()
     .prop("nflow.executor.timeout.seconds", 1)
     .prop("nflow.executor.keepalive.seconds", 5)
     .prop("nflow.dispatcher.await.termination.seconds", 1)
+    .prop("nflow.db.h2.url", "jdbc:h2:mem:executorrecoverytest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
     .build();
 
   private static CreateWorkflowInstanceResponse resp;
@@ -73,14 +72,29 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
 
   @Test
   public void t05_checkSlowWorkflowFinishes() throws Exception {
-    // TODO: expose executor_id of actions through rest api and check that
-    // start & process states are executed by different executors
     for (int i=0; i<30; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (wf != null && SlowWorkflow.State.done.name().equals(wf.state)) {
+        verifyStartAndProcessAreExecutedByDifferentExecutors(wf);
         return;
       }
       sleep(1000);
     }
+  }
+
+  private void verifyStartAndProcessAreExecutedByDifferentExecutors(ListWorkflowInstanceResponse wf) {
+    int startExecutor = 0;
+    int processExecutor = 0;
+    for (Action action : wf.actions) {
+      if ("start".equals(action.state)) {
+        startExecutor = action.executorId;
+      }
+      if ("process".equals(action.state)) {
+        processExecutor = action.executorId;
+      }
+     }
+    assertThat(startExecutor, is(not(0)));
+    assertThat(processExecutor, is(not(0)));
+    assertThat(startExecutor, is(not(processExecutor)));
   }
 }
