@@ -1,8 +1,9 @@
-<h2>Workflows</h2>
+<h2>Workflow definitions</h2>
 <div class="row marketing">
-    <ul class="listing" ng-repeat="workflow in workflows">
-        <li><a href="#/workflow-definition/{{workflow.type}}">{{workflow.type}} {{workflow.description}}</a></li>
-    </ul>
+    <dl ng-repeat="workflow in workflows">
+        <dt><a href="#/workflow-definition/{{workflow.type}}">{{workflow.type}}</a></dt>
+        <dd>{{workflow.description}}</dd>
+    </dl>
 </div>
 
 <h2>Workflow executors</h2>
@@ -24,9 +25,9 @@
             <td>{{executor.host}}</td>
             <td>{{executor.pid}}</td>
             <td>{{executor.executorGroup}}</td>
-            <td title="{{executor.started}}">{{executor.started | fromNow}}</td>
-            <td title="{{executor.active}}">{{executor.active | fromNow}}</td>
-            <td title="{{executor.expires}}">{{executor.expires | fromNow}}</td>
+            <td title="{{executor.started | date:'medium'}}">{{executor.started | fromNow}}</td>
+            <td title="{{executor.active | date:'medium'}}">{{executor.active | fromNow}}</td>
+            <td title="{{executor.expires | date:'medium'}}">{{executor.expires | fromNow}}</td>
         </tr>
     </tbody>
 </table>

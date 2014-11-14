@@ -23,8 +23,6 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   }
 
   var stats = removeFinalStates(statsData);
-  console.log('stats', stats, Object.keys(stats).length);
-
   if(Object.keys(stats).length === 0 ) {
     console.info('No data, skipping barchart drawing');
     return false;

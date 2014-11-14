@@ -1,5 +1,5 @@
 <div class="row">
-  <h2>Workflow {{definition.type}}</h2>
+  <h2>{{definition.type}} ({{workflow.id}})</h2>
 </div>
 <div class="row">
   <div class="col-md-6">
@@ -7,11 +7,12 @@
     <ul class="listing">
       <li><a href="#/workflow-definition/{{workflow.type}}">Go to workflow definition</a></li>
     </ul>
-    Created: <strong title="{{workflow.created}}">{{workflow.created | fromNow}}</strong><br/>
+    Created: <strong title="{{workflow.created | date:'medium' }}">{{workflow.created | fromNow}}</strong><br/>
     Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
     <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
-    since <strong title="{{currentStateTime()}}">{{currentStateSince()}}</strong><br/>
+    since <strong title="{{currentStateTime() | date:'medium' }}">{{currentStateSince()}}</strong><br/>
     Next activation: <strong title={{workflow.nextActivation}}>{{workflow.nextActivation | fromNowOrNever}}</strong>
+    <div>Workflow id:<strong>{{workflow.id}}</strong></div>
     <div ng-show="workflow.businessKey">Business key: <code>{{workflow.businessKey}}</code></diV>
     <div ng-show="workflow.externalId">External id: <code>{{workflow.externalId}}</code></diV>
     <div class="svg-container">
