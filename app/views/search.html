@@ -1,67 +1,67 @@
 <h2>Search workflow instances</h2>
 
 <form class="form" role="form">
-    <div class="form-group">
-        <div class="row">
-            <div class="col-xs-3">
-                <label for="type">Workflow type</label>
-                <select id="type" class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
-                    <option value="">-- All workflow types --</option>
-                </select>
-            </div>
+  <div class="form-group">
+    <div class="row">
+      <div class="col-xs-3">
+        <label for="type">Workflow type</label>
+        <select id="type" class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
+          <option value="">-- All workflow types --</option>
+        </select>
+      </div>
 
-            <div class="col-xs-3">
-                <label for="state">Workflow state</label>
-                <select id="state" class="form-control" ng-model="crit.state" ng-options="state.name for state in crit.type.states">
-                    <option value="">-- All states --</option>
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-3">
-                <label for="id">Workflow instance id</label>
-                <input name="id" type="number" ng-model="crit.id" class="form-control"/>
-            </div>
-
-            <div class="col-xs-3">
-                <label for="businessKey">Business key</label>
-                <input name="businessKey" type="text" ng-model="crit.businessKey" class="form-control"/>
-            </div>
-
-            <div class="col-xs-3">
-                <label for="externalId">External id</label>
-                <input name="externalId" type="text" ng-model="crit.externalId" class="form-control"/>
-            </div>
-        </div>
+      <div class="col-xs-3">
+        <label for="state">Workflow state</label>
+        <select id="state" class="form-control" ng-model="crit.state" ng-options="state.name for state in crit.type.states">
+          <option value="">-- All states --</option>
+        </select>
+      </div>
     </div>
-    <button class="btn btn-default" ng-click="search()">Search</button>
+    <div class="row">
+      <div class="col-xs-3">
+        <label for="id">Workflow instance id</label>
+        <input name="id" type="number" ng-model="crit.id" class="form-control"/>
+      </div>
+
+      <div class="col-xs-3">
+        <label for="businessKey">Business key</label>
+        <input name="businessKey" type="text" ng-model="crit.businessKey" class="form-control"/>
+      </div>
+
+      <div class="col-xs-3">
+        <label for="externalId">External id</label>
+        <input name="externalId" type="text" ng-model="crit.externalId" class="form-control"/>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-default" ng-click="search()">Search</button>
 </form>
 
 <div ng-show="hasResults()">
-    <h2>Workflows</h2>
+  <h2>Workflows</h2>
 
-    <table id="search-result" class="table table-striped table-hover">
-        <thead>
-            <th>Id</th>
-            <th>Workflow type</th>
-            <th>State</th>
-            <th>State text</th>
-            <th>Business key</th>
-            <th>External id</th>
-            <th>Created</th>
-            <th>Next activation</th>
-        </thead>
-        <tbody>
-            <tr ng-repeat="result in results | reverse">
-                <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
-                <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
-                <td class="{{getStateClass(result)}}">{{result.state}}</td>
-                <td class="{{getStateClass(result)}}">{{result.stateText}}</td>
-                <td class="{{getStateClass(result)}}">{{result.businessKey}}</td>
-                <td class="{{getStateClass(result)}}">{{result.externalId}}</td>
-                <td class="{{getStateClass(result)}}" title="{{result.created}}">{{result.created | fromNowOrNever}}</td>
-                <td class="{{getStateClass(result)}}" title="{{result.nextActivation}}">{{result.nextActivation | fromNowOrNever}}</td>
-            </tr>
-        </tbody>
-    </table>
+  <table id="search-result" class="table table-striped table-hover">
+    <thead>
+      <th>Id</th>
+      <th>Workflow type</th>
+      <th>State</th>
+      <th>State text</th>
+      <th>Business key</th>
+      <th>External id</th>
+      <th>Created</th>
+      <th>Next activation</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="result in results | reverse">
+        <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
+        <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
+        <td class="{{getStateClass(result)}}">{{result.state}}</td>
+        <td class="{{getStateClass(result)}}">{{result.stateText}}</td>
+        <td class="{{getStateClass(result)}}">{{result.businessKey}}</td>
+        <td class="{{getStateClass(result)}}">{{result.externalId}}</td>
+        <td class="{{getStateClass(result)}}" title="{{result.created}}">{{result.created | fromNowOrNever}}</td>
+        <td class="{{getStateClass(result)}}" title="{{result.nextActivation}}">{{result.nextActivation | fromNowOrNever}}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>

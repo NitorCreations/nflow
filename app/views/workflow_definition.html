@@ -1,99 +1,99 @@
 <div class="row">
-    <div class="col-md-12">
-        <h2>{{definition.type}}</h2>
+  <div class="col-md-12">
+    <h2>{{definition.type}}</h2>
+  </div>
+  <div class="col-md-6">
+    <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
+    <ul class="listing">
+      <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
+    </ul>
+    <div class="svg-container">
+      <svg id="dagreSvg"></svg>
     </div>
-    <div class="col-md-6">
-        <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
-        <ul class="listing">
-            <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
-        </ul>
-        <div class="svg-container">
-            <svg id="dagreSvg"></svg>
+    <p>
+      <button ng-click="savePng()" class="btn">Save as PNG</button>
+      <button ng-click="saveSvg()" class="btn">Save as SVG</button>
+    </p>
+  </div>
+  <div class="col-md-6">
+    <tabset>
+      <tab heading="Active instances" >
+        <div ng-hide="hasStatistics" class="alert alert-info">
+          No workflow instances in non-final states.
         </div>
-        <p>
-            <button ng-click="savePng()" class="btn">Save as PNG</button>
-            <button ng-click="saveSvg()" class="btn">Save as SVG</button>
-        </p>
-    </div>
-    <div class="col-md-6">
-        <tabset>
-            <tab heading="Active instances" >
-                <div ng-hide="hasStatistics" class="alert alert-info">
-                    No workflow instances in non-final states.
-                </div>
-                <div ng-show="hasStatistics">
-                    <div>
-                        <h3>Number of workflow instances in execution phases</h3>
-                        <p>Includes only non-final states.</p>
-                        <svg id="statisticsGraph"></svg>
-                    </div>
-                </div>
-            </tab>
-            <tab heading="All instances">
-                <table id="state-list" class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th class="numeric">Executing</th>
-                            <th class="numeric">Queued</th>
-                            <th class="numeric">Sleeping</tg>
-                        <th class="numeric">Total&nbsp;active</th>
-                        <th class="numeric">Passive</th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <th colspan="2">Total</th>
-                        <th class="numeric" title="Workflow instances currently executing">{{definition.stateStatisticsTotal.executing}}</th>
-                        <th class="numeric" title="Workflow instances ready for execution (next activation in the past)">{{definition.stateStatisticsTotal.queued}}</th>
-                        <th class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{definition.stateStatisticsTotal.sleeping}}</th>
-                        <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{definition.stateStatisticsTotal.totalActive}}</th>
-                        <th class="numeric" title="Unscheduled workflow instances (next activation: never)">{{definition.stateStatisticsTotal.nonScheduled}}</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="{{state.selected}}" ng-repeat="state in definition.states"
-                        ng-click="nodeSelected(state.id)">
-                        <td>{{state.name}}</td>
-                        <td>{{state.description}}</td>
-                        <td class="numeric" title="Workflow instances currently executing">{{state.stateStatistics.executing | nullToZero}}</td>
-                        <td class="numeric" title="Workflow instances ready for execution (next activation in the past)">{{state.stateStatistics.queued | nullToZero}}</td>
-                        <td class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{state.stateStatistics.sleeping | nullToZero}}</td>
-                        <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{state.stateStatistics.totalActive | nullToZero}}</th>
-                        <td class="numeric" title="Unscheduled workflow instances (next activation: never)">{{state.stateStatistics.nonScheduled | nullToZero}}</td>
-                        <td><a href="#/search?type={{definition.type}}&state={{state.name}}"><span class="glyphicon glyphicon-search"></span></a></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2">Total</th>
-                        <th class="numeric" title="Workflow instances currently executing">{{definition.stateStatisticsTotal.executing}}</th>
-                        <th class="numeric" title="Workflow instances ready for execution (next activation in the past)">{{definition.stateStatisticsTotal.queued}}</th>
-                        <th class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{definition.stateStatisticsTotal.sleeping}}</th>
-                        <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{definition.stateStatisticsTotal.totalActive}}</th>
-                        <th class="numeric" title="Unscheduled workflow instances (next activation: never)">{{definition.stateStatisticsTotal.nonScheduled}}</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
-        </tab>
-        <tab heading="Workflow settings">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr><th>Setting</th><th>Value</th></tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="(key, value) in definition.settings">
-                        <td>{{key}}</td>
-                        <td><pre>{{value | prettyPrintJson}}</pre></td>
-                    </tr>
-                </tbody>
-            </table>
-        </tab>
-        <tab heading="Radiator" select="startRadiator()">
-            <div data-ng-include data-src="'views/radiator.html'"></div>
-        </tab>
-    </tabset>
+        <div ng-show="hasStatistics">
+          <div>
+            <h3>Number of workflow instances in execution phases</h3>
+            <p>Includes only non-final states.</p>
+            <svg id="statisticsGraph"></svg>
+          </div>
+        </div>
+      </tab>
+      <tab heading="All instances">
+        <table id="state-list" class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th class="numeric">Executing</th>
+              <th class="numeric">Queued</th>
+              <th class="numeric">Sleeping</tg>
+            <th class="numeric">Total&nbsp;active</th>
+            <th class="numeric">Passive</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th colspan="2">Total</th>
+            <th class="numeric" title="Workflow instances currently executing">{{definition.stateStatisticsTotal.executing}}</th>
+            <th class="numeric" title="Workflow instances ready for execution (next activation in the past)">{{definition.stateStatisticsTotal.queued}}</th>
+            <th class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{definition.stateStatisticsTotal.sleeping}}</th>
+            <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{definition.stateStatisticsTotal.totalActive}}</th>
+            <th class="numeric" title="Unscheduled workflow instances (next activation: never)">{{definition.stateStatisticsTotal.nonScheduled}}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="{{state.selected}}" ng-repeat="state in definition.states"
+              ng-click="nodeSelected(state.id)">
+            <td>{{state.name}}</td>
+            <td>{{state.description}}</td>
+            <td class="numeric" title="Workflow instances currently executing">{{state.stateStatistics.executing | nullToZero}}</td>
+            <td class="numeric" title="Workflow instances ready for execution (next activation in the past)">{{state.stateStatistics.queued | nullToZero}}</td>
+            <td class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{state.stateStatistics.sleeping | nullToZero}}</td>
+            <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{state.stateStatistics.totalActive | nullToZero}}</th>
+            <td class="numeric" title="Unscheduled workflow instances (next activation: never)">{{state.stateStatistics.nonScheduled | nullToZero}}</td>
+            <td><a href="#/search?type={{definition.type}}&state={{state.name}}"><span class="glyphicon glyphicon-search"></span></a></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">Total</th>
+            <th class="numeric" title="Workflow instances currently executing">{{definition.stateStatisticsTotal.executing}}</th>
+            <th class="numeric" title="Workflow instances ready for execution (next activation in the past)">{{definition.stateStatisticsTotal.queued}}</th>
+            <th class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{definition.stateStatisticsTotal.sleeping}}</th>
+            <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{definition.stateStatisticsTotal.totalActive}}</th>
+            <th class="numeric" title="Unscheduled workflow instances (next activation: never)">{{definition.stateStatisticsTotal.nonScheduled}}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </tab>
+    <tab heading="Workflow settings">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr><th>Setting</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(key, value) in definition.settings">
+            <td>{{key}}</td>
+            <td><pre>{{value | prettyPrintJson}}</pre></td>
+          </tr>
+        </tbody>
+      </table>
+    </tab>
+    <tab heading="Radiator" select="startRadiator()">
+      <div data-ng-include data-src="'views/radiator.html'"></div>
+    </tab>
+  </tabset>
 </div>
 </div>
