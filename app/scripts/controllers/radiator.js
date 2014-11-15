@@ -1,7 +1,7 @@
 'use strict';
 angular.module('nflowVisApp.radiator', [])
 .controller('RadiatorCtrl', function RadiatorCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
-                                       $routeParams, config) {
+                                                   $routeParams, config) {
   $scope.type=$routeParams.type;
 
   var itemCount = config.maxHistorySize;
@@ -156,17 +156,17 @@ angular.module('nflowVisApp.radiator', [])
 
 
   function updateChart() {
-      WorkflowDefinitionStats.get({type: $scope.type},
-                                  function(stats) {
-                                    console.info('Fetching statistics', stats);
-                                    addStateData(new Date(), stats.stateStatistics);
-                                    draw();
-                                  },
-                                  function(error) {
-                                    console.error(error);
-                                    addStateData(new Date(), {});
-                                    draw();
-                                  });
+    WorkflowDefinitionStats.get({type: $scope.type},
+                                function(stats) {
+                                  console.info('Fetching statistics', stats);
+                                  addStateData(new Date(), stats.stateStatistics);
+                                  draw();
+                                },
+                                function(error) {
+                                  console.error(error);
+                                  addStateData(new Date(), {});
+                                  draw();
+                                });
   }
 
   $scope.$on('$destroy', function(){

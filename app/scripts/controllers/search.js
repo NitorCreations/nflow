@@ -8,7 +8,7 @@ angular.module('nflowVisApp')
   $scope.search = function search() {
     var query = {};
     for (var i in $scope.crit) {
-        query[i] = $scope.crit[i];
+      query[i] = $scope.crit[i];
     }
 
     if(query.type) {

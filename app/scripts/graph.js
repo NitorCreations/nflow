@@ -318,7 +318,7 @@ function workflowDefinitionGraph(definition, workflow) {
       return;
     }
     g.addEdge(null, state.name, errorStateName,
-             createEdgeStyle(workflow, definition, state, errorStateName, true));
+              createEdgeStyle(workflow, definition, state, errorStateName, true));
   });
 
   // add edges that are not present in workflow definition
@@ -327,19 +327,19 @@ function workflowDefinitionGraph(definition, workflow) {
 }
 
 function addArrowheadMarker(canvasId, id, color) {
-    d3.select('#' + canvasId).select('defs')
-        .append('marker')
-        .attr('id', id)
-        .attr('viewBox', '0 0 10 10')
-        .attr('refX', 8)
-        .attr('refY', '5')
-        .attr('markerUnits', 'strokeWidth')
-        .attr('markerWidth', '8')
-        .attr('markerHeight', '5')
-        .attr('orient', 'auto')
-        .attr('fill', color)
-        .append('path')
-          .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+  d3.select('#' + canvasId).select('defs')
+    .append('marker')
+    .attr('id', id)
+    .attr('viewBox', '0 0 10 10')
+    .attr('refX', 8)
+    .attr('refY', '5')
+    .attr('markerUnits', 'strokeWidth')
+    .attr('markerWidth', '8')
+    .attr('markerHeight', '5')
+    .attr('orient', 'auto')
+    .attr('fill', color)
+    .append('path')
+       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 }
 
 function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS) {

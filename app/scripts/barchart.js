@@ -128,7 +128,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     .attr('dy', '.35em')
     .style('text-anchor', 'end')
     .text('State Execution statistics');
-*/
+    */
 
   // Stacked bars
   var state = svg.selectAll('.state')
