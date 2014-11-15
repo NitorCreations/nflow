@@ -59,17 +59,26 @@
         </table>
       </tab>
       <tab heading="Manage">
-        <form class="form" role="form">
-          <label for="nextState">Set state to</label>
-          <select id="nextState" ng-model="manage.nextState" ng-options="state.name for state in definition.states" class="form-control">
-            <option value="">-- Keep current state --</option>
-          </select>
-          <label for="duration">Next activation in</label>
-          <input id="duration" type="number" ng-model="manage.duration" class="form-control"/>
-          <select id="timeUnit" ng-model="manage.timeUnit" ng-options="timeUnit for timeUnit in manage.timeUnits" class="form-control">
-          </select>
-
-          <button class="btn btn-default" ng-click="updateWorkflow(manage)">Update workflow</button>
+        <form class="form-horizontal with-padding" role="form">
+          <div class="form-group">
+            <label class="col-md-2 control-label" for="nextState">Set state to</label>
+            <div class="col-md-10">
+              <select class="selectwidthauto form-control" id="nextState" ng-model="manage.nextState" ng-options="state.name for state in definition.states">
+                <option value="">-- Keep current state --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-2 control-label" for="duration">Next activation in</label>
+            <div class="col-md-2">
+              <input class="form-control" id="duration" type="number" ng-model="manage.duration"/>
+            </div>
+            <div class="col-md-8">
+              <select class="selectwidthauto form-control" id="timeUnit" ng-model="manage.timeUnit" ng-options="timeUnit for timeUnit in manage.timeUnits">
+              </select>
+            </div>
+          </div>
+          <button class="selectwidthauto btn btn-default" ng-click="updateWorkflow(manage)">Update</button>
         </form>
       </tab>
     </tabset>
