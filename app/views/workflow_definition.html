@@ -4,9 +4,7 @@
   </div>
   <div class="col-md-6">
     <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
-    <ul class="listing">
-      <li><a href="#/search?type={{definition.type}}">Search related workflow instances</a></li>
-    </ul>
+    <div><a href="#/search?type={{definition.type}}"><span class="glyphicon glyphicon-search"></span> Search related workflow instances</a><div>
     <div class="svg-container">
       <svg id="dagreSvg"></svg>
     </div>
