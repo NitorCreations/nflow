@@ -1,8 +1,8 @@
 'use strict';
+
 /**
  * Display single workflow instance
  */
-
 angular.module('nflowVisApp')
 .controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, WorkflowDefinitions, $routeParams, $rootScope) {
   $scope.manage = {};
@@ -96,9 +96,6 @@ angular.module('nflowVisApp')
       return '';
     }
     return lastAction.executionEndTime;
-  };
-  $scope.currentStateSince = function currentStateSince() {
-    return moment($scope.currentStateTime()).fromNow();
   };
 
   $scope.updateWorkflow = function updateWorkflow(manage) {

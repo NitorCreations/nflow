@@ -10,7 +10,7 @@
     Created: <strong title="{{workflow.created | date:'medium' }}">{{workflow.created | fromNow}}</strong><br/>
     Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
     <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
-    since <strong title="{{currentStateTime() | date:'medium' }}">{{currentStateSince()}}</strong><br/>
+    since <strong title="{{currentStateTime() | date:'medium' }}">{{currentStateTime() | fromNowOrNever}}</strong><br/>
     Next activation: <strong title={{workflow.nextActivation}}>{{workflow.nextActivation | fromNowOrNever}}</strong>
     <div>Workflow id:<strong>{{workflow.id}}</strong></div>
     <div ng-show="workflow.businessKey">Business key: <code>{{workflow.businessKey}}</code></diV>
