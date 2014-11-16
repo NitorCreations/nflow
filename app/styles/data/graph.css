@@ -157,3 +157,9 @@ If you need new colors for arrowheads see graph.js, addArrowheadMarker()
   stroke: black;
   stroke-width: 1.5px;
 }
+
+
+/* */
+g.current-state > g > text {
+  text-decoration: underline;
+}

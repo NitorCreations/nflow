@@ -281,6 +281,11 @@ function addUnexpectedEdges(g, workflow) {
   });
 }
 
+function markCurrentState(workflow) {
+  addClass($('#' + nodeDomId(workflow.state)), 'current-state');
+}
+
+
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges

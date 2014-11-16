@@ -49,9 +49,11 @@ angular.module('nflowVisApp')
                                                   nodeSelected(nodeId);
                                                 });
                                               }
+
                                               defaultNextState(workflow.state);
 
                                               drawWorkflowDefinition($scope.graph, 'workflowSvg', nodeSelectedCallBack, $rootScope.graph.css);
+                                              markCurrentState(workflow);
                                             });
 
                   });
