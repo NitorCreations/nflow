@@ -1,8 +1,6 @@
 <div class="row">
-  <h2>{{definition.type}} ({{workflow.id}})</h2>
-</div>
-<div class="row">
   <div class="col-md-6">
+    <h2>{{definition.type}} ({{workflow.id}})</h2>
     <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
     <ul class="listing">
       <li><a href="#/workflow-definition/{{workflow.type}}">Go to workflow definition</a></li>
@@ -20,7 +18,6 @@
     </div>
   </div>
   <div class="col-md-6">
-<<<<<<< HEAD
     <tabset>
       <tab heading="Action history">
         <table id="action-history" class="table table-striped table-hover">
@@ -58,29 +55,6 @@
             </tr>
           </tbody>
         </table>
-      </tab>
-      <tab heading="Manage">
-        <form class="form-horizontal with-padding" role="form">
-          <div class="form-group">
-            <label class="col-md-2 control-label" for="nextState">Set state to</label>
-            <div class="col-md-10">
-              <select class="selectwidthauto form-control" id="nextState" ng-model="manage.nextState" ng-options="state.name for state in definition.states">
-                <option value="">-- Keep current state --</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-2 control-label" for="duration">Next activation in</label>
-            <div class="col-md-2">
-              <input class="form-control" id="duration" type="number" ng-model="manage.duration"/>
-            </div>
-            <div class="col-md-8">
-              <select class="selectwidthauto form-control" id="timeUnit" ng-model="manage.timeUnit" ng-options="timeUnit for timeUnit in manage.timeUnits">
-              </select>
-            </div>
-          </div>
-          <button class="selectwidthauto btn btn-default" ng-click="updateWorkflow(manage)">Update</button>
-        </form>
       </tab>
       <tab heading="Manage">
         <form class="form-horizontal with-padding" role="form">
