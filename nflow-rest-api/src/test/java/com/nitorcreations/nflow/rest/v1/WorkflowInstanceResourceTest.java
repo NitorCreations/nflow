@@ -21,6 +21,7 @@ import java.util.Collections;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -77,14 +78,25 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWorks() {
+  public void whenUpdatingStateUpdateWorkflowInstanceWorks() {
     when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
-        any(WorkflowInstanceAction.class));
+        (WorkflowInstanceAction)argThat(hasField("stateText", equalTo("API changed state to newState."))));
   }
+
+  @Test
+  public void whenUpdatingNextActivationTimeUpdateWorkflowInstanceWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.nextActivationTime = new DateTime(2014,11,12,17,55,0);
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(null))),
+        (WorkflowInstanceAction)argThat(hasField("stateText", equalTo("API changed nextActivationTime to " + req.nextActivationTime + "."))));
+  }
+
 
   @SuppressWarnings("unchecked")
   @Test
