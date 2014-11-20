@@ -345,7 +345,7 @@ module.exports = function (grunt) {
             'styles/{,*}*.png',
             'styles/data/graph.css',
             'config.js',
-            'external/{,*/}*'
+            'external/{,**/}*'
           ]
         }, {
           expand: true,
