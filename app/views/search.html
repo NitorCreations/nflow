@@ -48,19 +48,23 @@
       <th>State text</th>
       <th>Business key</th>
       <th>External id</th>
+      <th>Retries</th>
       <th>Created</th>
+      <th>Modified</th>
       <th>Next activation</th>
     </thead>
     <tbody>
-      <tr ng-repeat="result in results | reverse">
-        <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
-        <td class="{{getStateClass(result)}}"><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
-        <td class="{{getStateClass(result)}}">{{result.state}}</td>
-        <td class="{{getStateClass(result)}}">{{result.stateText}}</td>
-        <td class="{{getStateClass(result)}}">{{result.businessKey}}</td>
-        <td class="{{getStateClass(result)}}">{{result.externalId}}</td>
-        <td class="{{getStateClass(result)}}" title="{{result.created}}">{{result.created | fromNowOrNever}}</td>
-        <td class="{{getStateClass(result)}}" title="{{result.nextActivation}}">{{result.nextActivation | fromNowOrNever}}</td>
+      <tr ng-repeat="result in results | reverse" ng-class="getStateClass(result)">
+        <td><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
+        <td><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
+        <td>{{result.state}}</td>
+        <td>{{result.stateText}}</td>
+        <td>{{result.businessKey}}</td>
+        <td>{{result.externalId}}</td>
+        <td>{{result.retries}}</td>
+        <td title="{{result.created}}">{{result.created | fromNowOrNever}}</td>
+        <td title="{{result.modified}}">{{result.modified | fromNowOrNever}}</td>
+        <td title="{{result.nextActivation}}">{{result.nextActivation | fromNowOrNever}}</td>
       </tr>
     </tbody>
   </table>
