@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -50,6 +51,8 @@ public class ListWorkflowInstanceConverterTest {
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now()).
         setActions(Arrays.asList(a)).
+        setCreated(DateTime.now().minusHours(2)).
+        setCreated(DateTime.now().minusHours(1)).
         setRetries(42).
         setStateVariables(stateVariables).build();
 
@@ -71,6 +74,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.stateText, is(i.stateText));
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.created, is(i.created));
+    assertThat(resp.modified, is(i.modified));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId))));

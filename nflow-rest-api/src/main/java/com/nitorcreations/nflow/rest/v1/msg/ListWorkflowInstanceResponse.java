@@ -46,4 +46,7 @@ public class ListWorkflowInstanceResponse {
 
   @ApiModelProperty(value = "Workflow instance creation timestamp", required=true)
   public DateTime created;
+  
+  @ApiModelProperty(value = "Workflow instance latest modification timestamp", required=true)
+  public DateTime modified;
 }
