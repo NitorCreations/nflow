@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -30,6 +31,7 @@ import com.nitorcreations.nflow.tests.runner.SkipTestMethodsAfterFirstFailureRul
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
+  protected WebClient statisticsResource;
 
   @Rule
   public final SkipTestMethodsAfterFirstFailureRule failFastRule;
@@ -47,9 +49,20 @@ public abstract class AbstractNflowTest {
     this.workflowInstanceResource = fromClient(client, true).to(newUri, false);
   }
 
+  @Inject
+  public void setStatisticsResource(@Named("statistics") WebClient client) {
+    String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
+    this.statisticsResource = fromClient(client, true).to(newUri, false);
+  }
+
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
     WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
     return client.get(ListWorkflowInstanceResponse.class);
+  }
+
+  public Statistics getStatistics() {
+    WebClient client = fromClient(statisticsResource, true);
+    return client.get(Statistics.class);
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
