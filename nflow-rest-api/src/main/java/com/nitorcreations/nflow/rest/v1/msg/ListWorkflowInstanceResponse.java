@@ -38,9 +38,15 @@ public class ListWorkflowInstanceResponse {
   @ApiModelProperty(value = "State variables for current state.", required=false)
   public Map<String, Object> stateVariables;
 
+  @ApiModelProperty(value = "Number of times current state has been retried.", required=true)
+  public int retries;
+
   @ApiModelProperty(value = "State change attempts. One instance for each processing attempt.", required=false)
   public List<Action> actions;
 
   @ApiModelProperty(value = "Workflow instance creation timestamp", required=true)
   public DateTime created;
+  
+  @ApiModelProperty(value = "Workflow instance latest modification timestamp", required=true)
+  public DateTime modified;
 }
