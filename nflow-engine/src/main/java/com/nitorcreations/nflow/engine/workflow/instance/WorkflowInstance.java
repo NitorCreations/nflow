@@ -89,7 +89,8 @@ public class WorkflowInstance {
   public final DateTime modified;
 
   /**
-   * Time when workflow processing was started, that is, time when processing of first action started.
+   * Time when workflow processing was started, that is, time when processing of first
+   * action started.
    */
   public final DateTime started;
 
