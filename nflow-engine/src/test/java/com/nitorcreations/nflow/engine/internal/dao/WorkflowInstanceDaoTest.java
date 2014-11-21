@@ -53,7 +53,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(id).addTypes(i1.type).addStates(i1.state)
-        .setBusinessKey(i1.businessKey).setExternalId(i1.externalId).setIncludeActions(true).build();
+        .setBusinessKey(i1.businessKey).setExternalId(i1.externalId).setIncludeActions(true)
+        .setIncludeActionStateVariables(true).setIncludeCurrentStateVariables(true).build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
     checkSameWorkflowInfo(i1, l.get(0));
