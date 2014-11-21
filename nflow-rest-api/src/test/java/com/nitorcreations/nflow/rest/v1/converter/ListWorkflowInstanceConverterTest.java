@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.v1.converter;
 
 import static com.nitorcreations.Matchers.reflectEquals;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -15,7 +16,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -48,13 +48,10 @@ public class ListWorkflowInstanceConverterTest {
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
 
-    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
-        setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now()).
-        setActions(Arrays.asList(a)).
-        setCreated(DateTime.now().minusHours(2)).
-        setCreated(DateTime.now().minusHours(1)).
-        setRetries(42).
-        setStateVariables(stateVariables).build();
+    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey")
+        .setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
+        .setActions(asList(a)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
+        .setStateVariables(stateVariables).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
@@ -86,7 +83,7 @@ public class ListWorkflowInstanceConverterTest {
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
-        .setActions(Arrays.asList(a)).build();
+        .setActions(asList(a)).build();
 
     ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
     assertThat(resp.id, is(i.id));
