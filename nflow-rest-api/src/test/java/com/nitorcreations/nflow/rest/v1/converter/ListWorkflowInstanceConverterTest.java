@@ -50,7 +50,7 @@ public class ListWorkflowInstanceConverterTest {
 
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey")
         .setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
-        .setActions(asList(a)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
+        .setActions(asList(a)).setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
         .setStateVariables(stateVariables).build();
 
     JsonNode node1 = mock(JsonNode.class);
@@ -72,6 +72,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.created, is(i.created));
     assertThat(resp.modified, is(i.modified));
+    assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId))));
