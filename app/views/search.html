@@ -50,6 +50,7 @@
       <th>External id</th>
       <th>Retries</th>
       <th>Created</th>
+      <th>Started</th>
       <th>Modified</th>
       <th>Next activation</th>
     </thead>
@@ -62,9 +63,10 @@
         <td>{{result.businessKey}}</td>
         <td>{{result.externalId}}</td>
         <td>{{result.retries}}</td>
-        <td title="{{result.created}}">{{result.created | fromNowOrNever}}</td>
-        <td title="{{result.modified}}">{{result.modified | fromNowOrNever}}</td>
-        <td title="{{result.nextActivation}}">{{result.nextActivation | fromNowOrNever}}</td>
+        <td title="{{result.created | date:'medium'}}">{{result.created | fromNowOrNever}}</td>
+        <td title="{{result.started | date:'medium'}}">{{result.started | fromNowOrNever}}</td>
+        <td title="{{result.modified | date:'medium'}}">{{result.modified | fromNowOrNever}}</td>
+        <td title="{{result.nextActivation | date:'medium'}}">{{result.nextActivation | fromNowOrNever}}</td>
       </tr>
     </tbody>
   </table>

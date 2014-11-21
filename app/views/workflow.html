@@ -6,6 +6,7 @@
       <li><a href="#/workflow-definition/{{workflow.type}}">Go to workflow definition</a></li>
     </ul>
     Created: <strong title="{{workflow.created | date:'medium' }}">{{workflow.created | fromNow}}</strong><br/>
+    Started: <strong title="{{workflow.started | date:'medium' }}">{{workflow.started | fromNow}}</strong><br/>
     Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
     <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
     since <strong title="{{currentStateTime() | date:'medium' }}">{{currentStateTime() | fromNowOrNever}}</strong><br/>
