@@ -89,6 +89,11 @@ public class WorkflowInstance {
   public final DateTime modified;
 
   /**
+   * Time when workflow processing was started, that is, time when processing of first action started.
+   */
+  public final DateTime started;
+
+  /**
    * The name of the executor group for this workflow instance.
    * @deprecated Use executorGroup instead. Will be removed in 2.0.
    */
@@ -116,6 +121,7 @@ public class WorkflowInstance {
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
+    this.started = builder.started;
     this.owner = builder.executorGroup;
     this.executorGroup = builder.executorGroup;
   }
@@ -139,6 +145,7 @@ public class WorkflowInstance {
     List<WorkflowInstanceAction> actions;
     int retries;
     DateTime created;
+    DateTime started;
     DateTime modified;
     String executorGroup;
 
@@ -354,6 +361,16 @@ public class WorkflowInstance {
      */
     public Builder setModified(DateTime modified) {
       this.modified = modified;
+      return this;
+    }
+
+    /**
+     * Set the start timestamp.
+     * @param modified Start time.
+     * @return this.
+     */
+    public Builder setStarted(DateTime started) {
+      this.started= started;
       return this;
     }
 
