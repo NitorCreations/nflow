@@ -15,7 +15,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
 
@@ -23,13 +22,7 @@ import com.nitorcreations.nflow.engine.workflow.statistics.Statistics.QueueStati
 @DependsOn("nflowDatabaseInitializer")
 public class StatisticsDao {
   private JdbcTemplate jdbc;
-  private final SQLVariants sqlVariants;
   private ExecutorDao executorInfo;
-
-  @Inject
-  public StatisticsDao(SQLVariants sqlVariants) {
-    this.sqlVariants = sqlVariants;
-  }
 
   @Inject
   public void setExecutorDao(ExecutorDao executorDao) {

@@ -1,5 +1,8 @@
 package com.nitorcreations.nflow.engine.workflow.statistics;
 
+import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 public class Statistics {
 
   public final QueueStatistics queuedStatistics;
@@ -20,5 +23,14 @@ public class Statistics {
       this.maxAgeMsec = maxAgeMsec;
       this.minAgeMsec = minAgeMsec;
     }
+    @Override
+    public String toString() {
+      return reflectionToString(this, SHORT_PREFIX_STYLE);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return reflectionToString(this, SHORT_PREFIX_STYLE);
   }
 }

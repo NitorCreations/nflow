@@ -31,6 +31,11 @@ public class DaoTestConfiguration {
   }
 
   @Bean
+  public StatisticsDao statisticsDao() {
+    return new StatisticsDao();
+  }
+
+  @Bean
   public PlatformTransactionManager transactionManager(DataSource ds) {
     return new DataSourceTransactionManager(ds);
   }
