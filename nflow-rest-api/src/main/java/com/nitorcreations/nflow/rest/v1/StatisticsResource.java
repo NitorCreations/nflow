@@ -36,7 +36,6 @@ public class StatisticsResource {
   @GET
   @ApiOperation(value = "Query statistics", response = StatisticsResponse.class)
   public StatisticsResponse queryStatistics() {
-    logger.info("here");
     return statisticsConverter.convert(statisticsService.queryStatistics());
   }
 }

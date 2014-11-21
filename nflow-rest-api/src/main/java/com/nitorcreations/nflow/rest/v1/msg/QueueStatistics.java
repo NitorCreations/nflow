@@ -9,11 +9,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class QueueStatistics {
 
-  @ApiModelProperty(value = "Number for workflow instances", required=true)
+  @ApiModelProperty(value = "Number for workflow instances.", required=true)
   public int count;
-  @ApiModelProperty(value = "Maximum time currently queued workflow instances have been in queue. In msec.", required=false)
+  @ApiModelProperty(value = "Maximum time (ms) currently queued workflow instances have been in queue.", required=false)
   public Long maxAge;
-  @ApiModelProperty(value = "Min time currently queued workflow instances have been in queue. In msec.", required=false)
+  @ApiModelProperty(value = "Minimum time (ms) currently queued workflow instances have been in queue.", required=false)
   public Long minAge;
 
 }

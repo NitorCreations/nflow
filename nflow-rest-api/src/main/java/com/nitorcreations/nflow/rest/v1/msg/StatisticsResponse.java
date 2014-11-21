@@ -12,7 +12,7 @@ public class StatisticsResponse {
   @ApiModelProperty(value = "Statistics for queued workflows. Workflows waiting for free executors.", required=true)
   public QueueStatistics queueStatistics = new QueueStatistics();
 
-  @ApiModelProperty(value = "Statistics for workflows in execution. Workflows currently processed by an executor", required=true)
+  @ApiModelProperty(value = "Statistics for workflows in execution. Workflows currently processed by an executor.", required=true)
   public QueueStatistics executionStatistics = new QueueStatistics();
 
 }

@@ -8,8 +8,7 @@ import com.nitorcreations.nflow.engine.internal.dao.StatisticsDao;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 
 /**
- * TODO
- *
+ * Service for fetching statistics.
  */
 @Component
 public class StatisticsService {
