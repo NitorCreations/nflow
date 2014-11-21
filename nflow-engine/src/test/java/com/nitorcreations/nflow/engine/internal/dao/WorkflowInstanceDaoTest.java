@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -65,9 +66,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().build();
-    List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
-    assertThat(l.size(), is(1));
-    checkSameWorkflowInfo(i1, l.get(0));
+    List<WorkflowInstance> createdInstances = dao.queryWorkflowInstances(q);
+    assertThat(createdInstances.size(), is(1));
+    WorkflowInstance instance = createdInstances.get(0);
+    checkSameWorkflowInfo(i1, instance);
+    assertNull(instance.started);
   }
 
   @Test
@@ -97,12 +100,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
     int id = dao.insertWorkflowInstance(i1);
-    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(DateTime.now()).setExecutorId(42)
+    DateTime started = DateTime.now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
         .setWorkflowInstanceId(id).build();
     i1.stateVariables.put("b", "2");
     dao.insertWorkflowInstanceAction(i1, a1);
-    checkSameWorkflowInfo(i1, dao.getWorkflowInstance(id));
+    WorkflowInstance createdInstance = dao.getWorkflowInstance(id);
+    checkSameWorkflowInfo(i1, createdInstance);
   }
 
   @Test
