@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -179,21 +180,23 @@ public class WorkflowInstanceDao {
   @Transactional
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
     String sql =
-      "select id from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
+      "select id, modified from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
         + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize;
-    List<Integer> instanceIds = jdbc.query(sql, new RowMapper<Integer>() {
+    List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
       @Override
-      public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getInt("id");
+      public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new OptimisticLockKey(rs.getInt("id"), rs.getTimestamp("modified"));
       }
     });
-    Collections.sort(instanceIds);
-    List<Object[]> batchArgs = new ArrayList<>();
-    for (Integer instanceId : instanceIds) {
-      batchArgs.add(new Object[] { instanceId });
+    Collections.sort(instances);
+    List<Object[]> batchArgs = new ArrayList<>(instances.size());
+    List<Integer> ids = new ArrayList<>(instances.size());
+    for (OptimisticLockKey instance : instances) {
+      batchArgs.add(new Object[] { instance.id, instance.modified });
+      ids.add(instance.id);
     }
     int[] updateStatuses = jdbc.batchUpdate(
-      "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + " where id = ? and executor_id is null",
+      "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + " where id = ? and modified = ? and executor_id is null",
       batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
@@ -202,7 +205,20 @@ public class WorkflowInstanceDao {
             "Multiple pollers using same name (" + executorInfo.getExecutorGroup() +")");
       }
     }
-    return instanceIds;
+    return ids;
+  }
+
+  private static class OptimisticLockKey implements Comparable<OptimisticLockKey>{
+    public final int id;
+    public final Timestamp modified;
+    public OptimisticLockKey(int id, Timestamp modified) {
+      this.id = id;
+      this.modified = modified;
+    }
+    @Override
+    public int compareTo(OptimisticLockKey other) {
+      return this.id  - other.id;
+    }
   }
 
   public List<WorkflowInstance> queryWorkflowInstances(QueryWorkflowInstances query) {
