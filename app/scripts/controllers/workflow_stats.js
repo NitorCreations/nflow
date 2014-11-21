@@ -1,7 +1,7 @@
 'use strict';
-angular.module('nflowVisApp.radiator', [])
-.controller('RadiatorCtrl', function RadiatorCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
-                                                   $routeParams, config) {
+angular.module('nflowVisApp.workflow_stats', [])
+.controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
+                                                             $routeParams, config) {
   $scope.type=$routeParams.type;
 
   var itemCount = config.maxHistorySize;
