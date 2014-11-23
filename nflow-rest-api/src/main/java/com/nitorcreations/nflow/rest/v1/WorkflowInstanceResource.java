@@ -101,8 +101,8 @@ public class WorkflowInstanceResource {
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance")
       @PathParam("id") int id) {
-    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[]{id}, new String[0], new String[0], null, null,
-        actions + "," + currentStateVariables + "," + actionStateVariables);
+    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[] { id }, new String[0],
+        new String[0], null, null, actions + "," + currentStateVariables + "," + actionStateVariables, 1L);
     if(instances.isEmpty()) {
       throw new NotFoundException(format("Workflow instance %s not found", id));
     }
@@ -131,13 +131,16 @@ public class WorkflowInstanceResource {
       @ApiParam(value = "Data to include in response. currentStateVariables = current stateVariables for worfklow, actions = state transitions, actionStateVariables = state variable changes for actions",
         allowableValues = currentStateVariables + "," + actions + "," + actionStateVariables,
         allowMultiple = true)
-      String include) {
+      String include,
+      @QueryParam("maxResults")
+      @ApiParam(value = "Maximum number of workflow instances to be returned")
+      Long maxResults) {
     List<String> includes = parseIncludes(include);
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).setBusinessKey(businessKey)
-        .setExternalId(externalId)
-        .setIncludeCurrentStateVariables(includes.contains(currentStateVariables))
-        .setIncludeActions(includes.contains(actions))
-        .setIncludeActionStateVariables(includes.contains(actionStateVariables)).build();
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states)
+        .setBusinessKey(businessKey).setExternalId(externalId)
+        .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)).setIncludeActions(includes.contains(actions))
+        .setIncludeActionStateVariables(includes.contains(actionStateVariables))
+        .setMaxResults(maxResults == null ? Long.MAX_VALUE : maxResults.longValue()).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {

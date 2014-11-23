@@ -234,6 +234,10 @@ public class WorkflowInstanceDao {
     if (!isEmpty(conditions)) {
       sql += " where " + collectionToDelimitedString(conditions, " and ");
     }
+    if (query.maxResults < Long.MAX_VALUE) {
+      sql += " limit :limit";
+      params.addValue("limit", query.maxResults);
+    }
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     for (WorkflowInstance instance : ret) {
       fillState(instance);

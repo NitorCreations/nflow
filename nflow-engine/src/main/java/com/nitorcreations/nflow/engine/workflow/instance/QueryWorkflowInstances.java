@@ -50,6 +50,11 @@ public class QueryWorkflowInstances {
    */
   public final boolean includeActionStateVariables;
 
+  /**
+   * The maximum number of instances to be returned by the query.
+   */
+  public final long maxResults;
+
   QueryWorkflowInstances(Builder builder) {
     super();
     this.ids = new ArrayList<>(builder.ids);
@@ -60,6 +65,7 @@ public class QueryWorkflowInstances {
     this.includeActions = builder.includeActions;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
+    this.maxResults = builder.maxResults;
   }
 
   /**
@@ -74,6 +80,7 @@ public class QueryWorkflowInstances {
     boolean includeActions;
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
+    long maxResults = Long.MAX_VALUE;
 
     /**
      * Create a workflow instance query builder.
@@ -158,6 +165,16 @@ public class QueryWorkflowInstances {
      */
     public Builder setIncludeActionStateVariables(boolean includeActionStateVariables) {
       this.includeActionStateVariables = includeActionStateVariables;
+      return this;
+    }
+
+    /**
+     * Set the maximum number of instances to be returned.
+     * @param maxResults
+     * @return this.
+     */
+    public Builder setMaxResults(long maxResults) {
+      this.maxResults = maxResults;
       return this;
     }
 
