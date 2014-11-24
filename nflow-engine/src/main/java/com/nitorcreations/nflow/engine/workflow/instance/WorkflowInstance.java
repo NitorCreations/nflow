@@ -371,7 +371,7 @@ public class WorkflowInstance {
      * @return this.
      */
     public Builder setStarted(DateTime started) {
-      this.started= started;
+      this.started = started;
       return this;
     }
 
