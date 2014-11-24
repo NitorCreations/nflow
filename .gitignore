@@ -7,3 +7,4 @@ bower_components
 node
 rubygems-gem-maven-plugin
 rubygems/
+target
