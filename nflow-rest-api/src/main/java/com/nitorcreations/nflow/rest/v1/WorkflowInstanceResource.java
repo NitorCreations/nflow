@@ -140,7 +140,7 @@ public class WorkflowInstanceResource {
         .setBusinessKey(businessKey).setExternalId(externalId)
         .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)).setIncludeActions(includes.contains(actions))
         .setIncludeActionStateVariables(includes.contains(actionStateVariables))
-        .setMaxResults(maxResults == null ? Long.MAX_VALUE : maxResults.longValue()).build();
+        .setMaxResults(maxResults).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
