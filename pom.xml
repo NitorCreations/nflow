@@ -81,6 +81,7 @@
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>3.0.1</coveralls.version>
+    <dependency.plugin.version>2.9</dependency.plugin.version>
     <el.version>3.0.0</el.version>
     <findbugs-annotations.version>3.0.0</findbugs-annotations.version>
     <findbugs.version>3.0.0</findbugs.version>
@@ -229,6 +230,11 @@
           <artifactId>coveralls-maven-plugin</artifactId>
           <version>${coveralls.version}</version>
         </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <version>${dependency.plugin.version}</version>
+       </plugin>
       </plugins>
     </pluginManagement>
     <plugins>

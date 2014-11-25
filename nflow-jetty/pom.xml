@@ -13,6 +13,35 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  <build>
+     <plugins>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>unpack</id>
+             <phase>generate-resources</phase>
+             <goals>
+               <goal>unpack</goal>
+             </goals>
+             <configuration>
+               <artifactItems>
+                 <artifactItem>
+                   <groupId>com.nitorcreations</groupId>
+                   <artifactId>nflow-vis</artifactId>
+                   <version>1.0-SNAPSHOT</version>
+                   <type>tar.gz</type>
+                   <overWrite>true</overWrite>
+                   <outputDirectory>${project.build.outputDirectory}/static/viz</outputDirectory>
+                 </artifactItem>
+               </artifactItems>
+             </configuration>
+           </execution>
+         </executions>
+       </plugin>
+     </plugins>
+   </build>
   <dependencies>
     <dependency>
       <groupId>com.nitorcreations</groupId>

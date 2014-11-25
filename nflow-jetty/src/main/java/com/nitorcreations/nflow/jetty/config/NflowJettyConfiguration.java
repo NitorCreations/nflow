@@ -130,7 +130,7 @@ public class NflowJettyConfiguration {
           env.getProperty("swagger.basepath.protocol", "http"),
           env.getProperty("swagger.basepath.server", env.getProperty("host", DEFAULT_HOST)),
           env.getProperty("swagger.basepath.port", Integer.class, env.getProperty("port", Integer.class, DEFAULT_PORT)),
-          env.getProperty("swagger.basepath.context", ""));
+          env.getProperty("swagger.basepath.context", "/api"));
     }
     logger.debug("Swagger basepath: {}", basePath);
     config.setBasePath(basePath);

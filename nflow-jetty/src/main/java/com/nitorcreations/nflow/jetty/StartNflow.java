@@ -2,18 +2,22 @@ package com.nitorcreations.nflow.jetty;
 
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.Collections.list;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -29,6 +33,7 @@ import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,11 +86,12 @@ public class StartNflow
     ConfigurableEnvironment env = new NflowStandardEnvironment(properties);
     String host = env.getProperty("host", DEFAULT_HOST);
     int port = env.getProperty("port", Integer.class, DEFAULT_PORT);
-    KillProcess.killProcessUsingPort(port);
+    KillProcess.gracefullyTerminateOrKillProcessUsingPort(port, env.getProperty("terminate.timeout", Integer.class, 30), true);
     Server server = setupServer();
     setupJmx(server, env);
     setupServerConnector(server, host, port);
-    ServletContextHandler context = setupServletContextHandler();
+    ServletContextHandler context = setupServletContextHandler(env.getProperty("extra.resource.directories", String[].class,
+        new String[0]));
     setupHandlers(server, context);
     setupSpring(context, env);
     setupCxf(context);
@@ -94,8 +100,9 @@ public class StartNflow
     JettyServerContainer startedServer = new JettyServerContainer(server);
     port = startedServer.getPort();
     logger.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
-    logger.info("API available at http://{}:{}/", host, port);
-    logger.info("API doc available at http://{}:{}/ui", host, port);
+    logger.info("API available at http://{}:{}/api/", host, port);
+    logger.info("API doc available at http://{}:{}/doc/", host, port);
+    logger.info("Visualization available at http://{}:{}/viz/", host, port);
     return startedServer;
   }
 
@@ -110,11 +117,9 @@ public class StartNflow
   }
 
   protected void setupCxf(final ServletContextHandler context) {
-    ServletHolder servlet = context.addServlet(CXFServlet.class, "/*");
-    servlet.setDisplayName("cxf-services");
+    ServletHolder servlet = context.addServlet(CXFServlet.class, "/api/*");
+    servlet.setDisplayName("nflow-cxf-services");
     servlet.setInitOrder(1);
-    servlet.setInitParameter("redirects-list", "/favicon.ico");
-    servlet.setInitParameter("redirect-servlet-name", "default");
   }
 
   private Server setupServer() {
@@ -142,14 +147,42 @@ public class StartNflow
     server.addConnector(connector);
   }
 
-  private ServletContextHandler setupServletContextHandler() {
+  @SuppressWarnings("resource")
+  private ServletContextHandler setupServletContextHandler(String[] extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
-    context.setResourceBase(getClass().getClassLoader().getResource("static").toExternalForm());
-    context.setDisplayName("nflow-static");
-    context.setStopTimeout(SECONDS.toMillis(10));
-    //context.addFilter(new FilterHolder(new DelegatingFilterProxy("springSecurityFilterChain")), "/*", EnumSet.allOf(DispatcherType.class));
-    ServletHolder holder = new ServletHolder("default", DefaultServlet.class);
-    context.addServlet(holder, "/ui/*");
+
+    List<String> resources = new ArrayList<>();
+    for (String path : extraStaticResources) {
+      File f = new File(path);
+      if (f.isDirectory()) {
+        resources.add(f.getCanonicalFile().toURI().toURL().toString());
+      }
+    }
+    // add all resource roots locations from classpath
+    for (URL url : list(this.getClass().getClassLoader().getResources("static"))) {
+      resources.add(url.toString());
+    }
+
+    logger.info("Static resources served from {}", resources);
+    context.setBaseResource(new ResourceCollection(resources.toArray(new String[resources.size()])));
+
+    ServletHolder holder = new ServletHolder(new DefaultServlet());
+    holder.setInitParameter("dirAllowed", "false");
+    holder.setInitParameter("gzip", "true");
+    holder.setInitParameter("acceptRanges", "false");
+    holder.setDisplayName("nflow-static");
+    holder.setInitOrder(1);
+
+    context.addServlet(holder, "/*");
+
+    context.getMimeTypes().addMimeMapping("ttf", "application/font-sfnt");
+    context.getMimeTypes().addMimeMapping("otf", "application/font-sfnt");
+    context.getMimeTypes().addMimeMapping("woff", "application/font-woff");
+    context.getMimeTypes().addMimeMapping("eot", "application/vnd.ms-fontobject");
+    context.getMimeTypes().addMimeMapping("svg", "image/svg+xml");
+    context.getMimeTypes().addMimeMapping("html", "text/html; charset=utf-8");
+    context.getMimeTypes().addMimeMapping("css", "text/css; charset=utf-8");
+    context.getMimeTypes().addMimeMapping("js", "application/javascript; charset=utf-8");
     return context;
   }
 
