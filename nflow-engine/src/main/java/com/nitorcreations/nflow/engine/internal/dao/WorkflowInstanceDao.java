@@ -176,11 +176,10 @@ public class WorkflowInstanceDao {
     instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
-  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
+  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   @Transactional
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
-    String sql =
-      "select id, modified from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
+    String sql = "select id, modified from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
         + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize;
     List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
       @Override
@@ -195,29 +194,29 @@ public class WorkflowInstanceDao {
       batchArgs.add(new Object[] { instance.id, instance.modified });
       ids.add(instance.id);
     }
-    int[] updateStatuses = jdbc.batchUpdate(
-      "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + " where id = ? and modified = ? and executor_id is null",
-      batchArgs);
+    int[] updateStatuses = jdbc.batchUpdate("update nflow_workflow set executor_id = " + executorInfo.getExecutorId()
+        + " where id = ? and modified = ? and executor_id is null", batchArgs);
     for (int status : updateStatuses) {
       if (status != 1) {
-        throw new PollingRaceConditionException(
-            "Race condition in polling workflow instances detected. " +
-            "Multiple pollers using same name (" + executorInfo.getExecutorGroup() +")");
+        throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+            + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
       }
     }
     return ids;
   }
 
-  private static class OptimisticLockKey implements Comparable<OptimisticLockKey>{
+  private static class OptimisticLockKey implements Comparable<OptimisticLockKey> {
     public final int id;
     public final Timestamp modified;
+
     public OptimisticLockKey(int id, Timestamp modified) {
       this.id = id;
       this.modified = modified;
     }
+
     @Override
     public int compareTo(OptimisticLockKey other) {
-      return this.id  - other.id;
+      return this.id - other.id;
     }
   }
 
