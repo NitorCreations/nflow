@@ -33,7 +33,7 @@
                   <version>${nflow.vis.version}</version>
                   <type>tar.gz</type>
                   <overWrite>false</overWrite>
-                  <outputDirectory>${project.build.outputDirectory}/static/viz</outputDirectory>
+                  <outputDirectory>${project.build.outputDirectory}/static/vis</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
