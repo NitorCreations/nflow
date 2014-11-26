@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -61,6 +62,8 @@ public class WorkflowInstanceDao {
   private JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
   ExecutorDao executorInfo;
+  private long workflowInstanceQueryMaxResults;
+  private long workflowInstanceQueryMaxResultsDefault;
 
   /**
    * Use setter injection because having the dataSource in constructor may not work
@@ -76,6 +79,12 @@ public class WorkflowInstanceDao {
   @Inject
   public void setExecutorDao(ExecutorDao executorDao) {
     this.executorInfo = executorDao;
+  }
+
+  @Inject
+  public void setEnvironment(Environment env) {
+    workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
+    workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default", Long.class);
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -234,6 +243,8 @@ public class WorkflowInstanceDao {
     if (!isEmpty(conditions)) {
       sql += " where " + collectionToDelimitedString(conditions, " and ");
     }
+    sql += " limit :limit";
+    params.addValue("limit", getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     for (WorkflowInstance instance : ret) {
       fillState(instance);
@@ -244,6 +255,16 @@ public class WorkflowInstanceDao {
       }
     }
     return ret;
+  }
+
+  private long getMaxResults(Long maxResults) {
+    if (maxResults == null) {
+      return workflowInstanceQueryMaxResultsDefault;
+    }
+    if (maxResults.longValue() > workflowInstanceQueryMaxResults) {
+      return workflowInstanceQueryMaxResults;
+    }
+    return maxResults.longValue();
   }
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables) {
