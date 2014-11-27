@@ -1,6 +1,6 @@
 {
-  "name": "nflow-vis",
-  "version": "0.0.1",
+  "name": "nflow-explorer",
+  "version": "0.0.2",
   "dependencies": {
     "lodash": "~2.4.1"
   },

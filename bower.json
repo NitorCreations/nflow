@@ -1,6 +1,6 @@
 {
-  "name": "nflow-vis",
-  "version": "0.0.1",
+  "name": "nflow-explorer",
+  "version": "0.0.2",
   "dependencies": {
     "angular": "1.3.1",
     "json3": "3.3.1",
