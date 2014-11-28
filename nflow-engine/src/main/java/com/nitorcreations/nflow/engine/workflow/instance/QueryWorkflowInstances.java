@@ -171,7 +171,7 @@ public class QueryWorkflowInstances {
 
     /**
      * Set the maximum number of instances to be returned.
-     * @param maxResults
+     * @param maxResults The maximum number of instances to be returned.
      * @return this.
      */
     public Builder setMaxResults(Long maxResults) {
