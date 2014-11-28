@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <name>nflow</name>
+  <name>nflow-root</name>
   <groupId>com.nitorcreations</groupId>
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
   <version>1.1.1-SNAPSHOT</version>
-  <url>https://github.com/NitorCreations/nflow</url>
+  <url>http://nflow.io/</url>
   <licenses>
     <license>
       <name>European Union Public Licence V. 1.1</name>
@@ -31,8 +26,15 @@
   <scm>
     <developerConnection>scm:git:git@github.com:NitorCreations/nflow.git</developerConnection>
     <connection>scm:git:git@github.com:NitorCreations/nflow.git</connection>
+    <url>https://github.com/NitorCreations/nflow</url>
     <tag>HEAD</tag>
   </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
   <issueManagement>
     <system>Github</system>
     <url>https://github.com/NitorCreations/nflow/issues</url>
@@ -102,6 +104,7 @@
     <maven-deploy.version>2.8.2</maven-deploy.version>
     <maven-enforcer.version>1.3.1</maven-enforcer.version>
     <maven-findbugs.version>3.0.0</maven-findbugs.version>
+    <maven-gpg.version>1.5</maven-gpg.version>
     <maven-install.version>2.5.2</maven-install.version>
     <maven-jar.version>2.5</maven-jar.version>
     <maven-javadoc.version>2.10.1</maven-javadoc.version>
@@ -116,6 +119,8 @@
     <mockito.version>1.10.8</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>5.1.34</mysql.version>
+    <nexus-staging-maven.version>1.6.5</nexus-staging-maven.version>
+    <nflow.explorer.version>0.0.2</nflow.explorer.version>
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>9.3-1102-jdbc41</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -229,6 +234,21 @@
           <artifactId>coveralls-maven-plugin</artifactId>
           <version>${coveralls.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${dependency.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.googlecode.maven-download-plugin</groupId>
+          <artifactId>download-maven-plugin</artifactId>
+          <version>${maven-download.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -288,6 +308,17 @@
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>${nexus-staging-maven.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -595,4 +626,50 @@
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
