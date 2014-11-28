@@ -163,7 +163,9 @@ public class WorkflowInstanceDao {
   }
 
   public WorkflowInstance getWorkflowInstance(int id) {
-    String sql = "select * from nflow_workflow where id = ?";
+    String sql = "select w.*, "
+        + "(select min(execution_start) from nflow_workflow_action a where a.workflow_id = w.id) as started "
+        + "from nflow_workflow w where w.id = ?";
     WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
     fillState(instance);
     return instance;
@@ -215,29 +217,31 @@ public class WorkflowInstanceDao {
   }
 
   public List<WorkflowInstance> queryWorkflowInstances(QueryWorkflowInstances query) {
-    String sql = "select * from nflow_workflow";
+    String sql = "select w.*, "
+        + "(select min(execution_start) from nflow_workflow_action a where a.workflow_id = w.id) as started "
+        + "from nflow_workflow w ";
 
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
-      conditions.add("id in (:ids)");
+      conditions.add("w.id in (:ids)");
       params.addValue("ids", query.ids);
     }
     if (!isEmpty(query.types)) {
-      conditions.add("type in (:types)");
+      conditions.add("w.type in (:types)");
       params.addValue("types", query.types);
     }
     if (!isEmpty(query.states)) {
-      conditions.add("state in (:states)");
+      conditions.add("w.state in (:states)");
       params.addValue("states", query.states);
     }
     if (query.businessKey != null) {
-      conditions.add("business_key = :business_key");
+      conditions.add("w.business_key = :business_key");
       params.addValue("business_key", query.businessKey);
     }
     if (query.externalId != null) {
-      conditions.add("external_id = :external_id");
+      conditions.add("w.external_id = :external_id");
       params.addValue("external_id", query.externalId);
     }
     if (!isEmpty(conditions)) {
@@ -375,10 +379,10 @@ public class WorkflowInstanceDao {
         .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))
+        .setStarted(toDateTime(rs.getTimestamp("started")))
         .setExecutorGroup(rs.getString("executor_group"))
         .build();
     }
-
   }
 
   static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction> {
