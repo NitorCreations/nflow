@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 
-import org.joda.time.DateTime;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -68,7 +67,7 @@ public class StatisticsDao {
     public QueueStatistics extractData(ResultSet rs) throws SQLException, DataAccessException {
       rs.next();
       int items = rs.getInt("items");
-      if(itemsOnly) {
+      if (itemsOnly) {
         return new QueueStatistics(items, null, null);
       }
       Timestamp oldest = rs.getTimestamp("oldest");
@@ -78,11 +77,11 @@ public class StatisticsDao {
       return new QueueStatistics(items, toMillis(oldest, now), toMillis(newest, now));
     }
 
-    private long toMillis(Timestamp ts, Timestamp now) {
-      if(ts == null) {
+    private static long toMillis(Timestamp ts, Timestamp now) {
+      if (ts == null) {
         return 0;
       }
-      return new DateTime(now).getMillis() - new DateTime(ts).getMillis();
+      return now.getTime() - ts.getTime();
     }
   }
 }
