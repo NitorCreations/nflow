@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.tests.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 import java.util.Arrays;
 
@@ -13,6 +14,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 @Configuration
 public class RestClientConfiguration {
 
+  @Scope(value = SCOPE_PROTOTYPE)
   @Bean(name="baseWebclient")
   public WebClient baseWebClient(JacksonJsonProvider jsonProvider, Environment env) {
     JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
@@ -56,6 +59,11 @@ public class RestClientConfiguration {
   @Bean(name="workflowInstance")
   public WebClient workflowInstanceWebService(@Named("baseWebclient") WebClient client) {
     return client.path("v1").path("workflow-instance");
+  }
+
+  @Bean(name="statistics")
+  public WebClient statistics(@Named("baseWebclient") WebClient client) {
+    return client.path("v1").path("statistics");
   }
 
 }

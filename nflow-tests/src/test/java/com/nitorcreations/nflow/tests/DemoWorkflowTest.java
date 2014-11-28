@@ -2,9 +2,11 @@ package com.nitorcreations.nflow.tests;
 
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
@@ -12,6 +14,7 @@ import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
+import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
@@ -37,8 +40,13 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
+  public void t02_queryStatistics() {
+    Statistics statistics = getStatistics();
+    assertThat(statistics.executionStatistics.count + statistics.queuedStatistics.count, greaterThan(0));
+  }
+
   @Test(timeout = 5000)
-  public void t02_queryDemoWorkflowHistory() throws Exception {
+  public void t03_queryDemoWorkflowHistory() throws Exception {
     ListWorkflowInstanceResponse wf = null;
     do {
       sleep(200);
@@ -53,6 +61,12 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       }
     } while (wf == null);
     assertThat(wf.actions.size(), is(3));
+  }
+
+  public void t04_queryStatistics() {
+    Statistics statistics = getStatistics();
+    assertEquals(0, statistics.executionStatistics.count);
+    assertEquals(0, statistics.queuedStatistics.count);
   }
 
 }
