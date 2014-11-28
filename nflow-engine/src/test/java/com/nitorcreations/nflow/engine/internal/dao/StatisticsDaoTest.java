@@ -34,14 +34,14 @@ public class StatisticsDaoTest extends BaseDaoTest {
     Statistics stats = statisticsDao.getQueueStatistics();
     QueueStatistics exec = stats.executionStatistics;
     assertThat(exec.count, is(0));
-    assertThat(exec.maxAgeMsec, nullValue());
-    assertThat(exec.minAgeMsec, nullValue());
+    assertThat(exec.maxAgeMillis, nullValue());
+    assertThat(exec.minAgeMillis, nullValue());
 
     QueueStatistics queued = stats.queuedStatistics;
     assertThat(queued.count, is(2));
-    assertThat(queued.maxAgeMsec, greaterThanOrEqualTo(queued.minAgeMsec));
-    assertThat(queued.maxAgeMsec, greaterThanOrEqualTo(0l));
-    assertThat(queued.minAgeMsec, greaterThanOrEqualTo(0l));
+    assertThat(queued.maxAgeMillis, greaterThanOrEqualTo(queued.minAgeMillis));
+    assertThat(queued.maxAgeMillis, greaterThanOrEqualTo(0l));
+    assertThat(queued.minAgeMillis, greaterThanOrEqualTo(0l));
   }
 
   private int createInstance() {

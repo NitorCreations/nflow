@@ -75,10 +75,10 @@ public class StatisticsDao {
       Timestamp newest = rs.getTimestamp("newest");
 
       Timestamp now = rs.getTimestamp("dbtime");
-      return new QueueStatistics(items, toMsec(oldest, now),toMsec(newest, now));
+      return new QueueStatistics(items, toMillis(oldest, now),toMillis(newest, now));
     }
 
-    private long toMsec(Timestamp ts, Timestamp now) {
+    private long toMillis(Timestamp ts, Timestamp now) {
       if(ts == null) {
         return 0;
       }

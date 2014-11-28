@@ -15,13 +15,13 @@ public class Statistics {
 
   public static class QueueStatistics {
     public final int count;
-    public final Long maxAgeMsec;
-    public final Long minAgeMsec;
+    public final Long maxAgeMillis;
+    public final Long minAgeMillis;
 
-    public QueueStatistics(int count, Long maxAgeMsec, Long minAgeMsec) {
+    public QueueStatistics(int count, Long maxAgeMillis, Long minAgeMillis) {
       this.count = count;
-      this.maxAgeMsec = maxAgeMsec;
-      this.minAgeMsec = minAgeMsec;
+      this.maxAgeMillis = maxAgeMillis;
+      this.minAgeMillis = minAgeMillis;
     }
     @Override
     public String toString() {
