@@ -7,7 +7,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +51,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Before
   public void setup() {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
-    Mockito.doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
+    doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowDefinitions, workflowInstanceDao);
   }
 
@@ -112,11 +115,21 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void updateWorkflowInstanceWorks() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().build();
-    service.updateWorkflowInstance(i, a);
-    verify(workflowInstanceDao).updateWorkflowInstance(i);
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation)).thenReturn(true);
+    assertThat(service.updateWorkflowInstance(i, a), is(true));
     verify(workflowInstanceDao).insertWorkflowInstanceAction(i, a);
+  }
+
+  @Test
+  public void updateRunningWorkflowInstanceFails() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().build();
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation)).thenReturn(false);
+    assertThat(service.updateWorkflowInstance(i, a), is(false));
+    verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),
+        any(WorkflowInstanceAction.class));
   }
 
   @Test

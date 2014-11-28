@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.internal.dao;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -75,6 +76,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateWorkflowInstance() throws InterruptedException {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(i1);
+    List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setState("updateState")
         .setStateText("update text").setNextActivation(DateTime.now()).setProcessing(!i1.processing).build();
     final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
@@ -146,12 +149,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void doesNotWakeUpRunningWorkflow() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setExecutorGroup("junit").setNextActivation(null).build();
+    DateTime past = now().minusDays(1);
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setExecutorGroup("junit").setNextActivation(past).build();
     int id = dao.insertWorkflowInstance(i1);
-    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setId(id).setProcessing(true).build());
-    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, contains(id));
+    assertThat(dao.getWorkflowInstance(id).nextActivation, is(past));
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { i1.state });
-    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    assertThat(dao.getWorkflowInstance(id).nextActivation, is(past));
   }
 
   @Test

@@ -4,6 +4,7 @@ import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
@@ -145,6 +146,22 @@ public class WorkflowInstanceDao {
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo));
+  }
+
+  public boolean updateNotRunningWorkflowInstance(long id, String state, DateTime nextActivation) {
+    List<String> vars = new ArrayList<>();
+    List<Object> args = new ArrayList<>();
+    if (state != null) {
+      vars.add("state = ?, retries = 0");
+      args.add(state);
+    }
+    if (nextActivation != null) {
+      vars.add("next_activation = ?");
+      args.add(toTimestamp(nextActivation));
+    }
+    String sql = "update nflow_workflow set " + join(vars, ", ") + " where id = ? and executor_id is null";
+    args.add(id);
+    return jdbc.update(sql, args.toArray()) == 1;
   }
 
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String[] expectedStates) {
@@ -321,7 +338,7 @@ public class WorkflowInstanceDao {
 
     private final static String updateSql =
         "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
-        + "executor_id = ?, retries = ? where id = ?";
+        + "executor_id = ?, retries = ? where id = ? and executor_id = ?";
 
     public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, ExecutorDao executorInfo) {
       this.isInsert = isInsert;
@@ -352,6 +369,7 @@ public class WorkflowInstanceDao {
         ps.setObject(p++, instance.processing ? executorId : null);
         ps.setInt(p++, instance.retries);
         ps.setInt(p++, instance.id);
+        ps.setInt(p++, executorId);
       }
       return ps;
     }

@@ -3,6 +3,9 @@ package com.nitorcreations.nflow.rest.v1;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.noContent;
+import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -40,6 +43,8 @@ import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 @Path("/v1/workflow-instance")
 @Consumes(APPLICATION_JSON)
@@ -63,6 +68,7 @@ public class WorkflowInstanceResource {
 
   @PUT
   @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
+  @ApiResponse(code = 201, message = "Workflow was created")
   public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
     int id = workflowInstances.insertWorkflowInstance(instance);
@@ -73,26 +79,26 @@ public class WorkflowInstanceResource {
   @PUT
   @Path("/{id}")
   @ApiOperation(value = "Update workflow instance state")
-  public void updateWorkflowInstance(
+  @ApiResponses({ @ApiResponse(code = 204, message = "If update was sucessful"),
+      @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
+  public Response updateWorkflowInstance(
       @ApiParam("Internal id for workflow instance")
       @PathParam("id") int id,
       UpdateWorkflowInstanceRequest req) {
-    // TODO: requires more work, e.g. concurrent check with engine, validation
-    WorkflowInstance instance = workflowInstances.getWorkflowInstance(id);
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id);
     String msg = "";
     if (!isEmpty(req.state)) {
       builder.setState(req.state);
-      builder.setRetries(0);
       msg = "API changed state to " + req.state + ". ";
     }
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
       msg += "API changed nextActivationTime to " + req.nextActivationTime + ".";
     }
-    workflowInstances.updateWorkflowInstance(builder.build(),
-        new WorkflowInstanceAction.Builder(instance).setStateText(trimToNull(msg)).setExecutionStart(instance.modified)
-            .setExecutionEnd(now()).build());
+    WorkflowInstance instance = builder.build();
+    boolean updated = workflowInstances.updateWorkflowInstance(instance, new WorkflowInstanceAction.Builder(instance)
+        .setStateText(trimToNull(msg)).setExecutionEnd(now()).build());
+    return (updated ? noContent() : status(CONFLICT)).build();
   }
 
   @GET

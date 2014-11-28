@@ -107,7 +107,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.warn("Workflow type {} not configured to this nflow instance - unscheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
         .setStateText("Unsupported workflow type").build();
-    workflowInstances.updateWorkflowInstance(instance, null);
+    workflowInstances.updateWorkflowInstanceAfterExecution(instance, null);
     logger.debug("Exiting.");
   }
 
@@ -135,7 +135,7 @@ class WorkflowStateProcessor implements Runnable {
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
-    workflowInstances.updateWorkflowInstance(builder.build(), actionBuilder.build());
+    workflowInstances.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 

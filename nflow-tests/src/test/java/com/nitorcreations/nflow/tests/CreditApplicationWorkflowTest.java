@@ -77,7 +77,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
             new Action("createCreditApplication", "", 0, null, null, 0),
             new Action("acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
-            new Action("acceptCreditApplication", "", 0, null, null, 0),
+            new Action("grantLoan", "", 0, null, null, 0),
             new Action("grantLoan", "", 0, null, null, 0),
             new Action("grantLoan", "", 1, null, null, 0),
             new Action("grantLoan", "", 2, null, null, 0),
