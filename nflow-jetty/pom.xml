@@ -29,11 +29,11 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>com.nitorcreations</groupId>
-                  <artifactId>nflow-vis</artifactId>
-                  <version>${nflow.vis.version}</version>
+                  <artifactId>nflow-explorer</artifactId>
+                  <version>${nflow.explorer.version}</version>
                   <type>tar.gz</type>
                   <overWrite>false</overWrite>
-                  <outputDirectory>${project.build.outputDirectory}/static/vis</outputDirectory>
+                  <outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>

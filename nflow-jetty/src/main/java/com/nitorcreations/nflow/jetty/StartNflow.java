@@ -101,8 +101,8 @@ public class StartNflow
     port = startedServer.getPort();
     logger.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
     logger.info("API available at http://{}:{}/api/", host, port);
-    logger.info("API doc available at http://{}:{}/doc/", host, port);
-    logger.info("Visualization available at http://{}:{}/vis/", host, port);
+    logger.info("Swagger available at http://{}:{}/doc/", host, port);
+    logger.info("Explorer available at http://{}:{}/explorer/", host, port);
     return startedServer;
   }
 
