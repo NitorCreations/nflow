@@ -43,24 +43,24 @@
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
- 	  <name>Mikko Tiihonen</name>
- 	  <organization>Nitor Creations Oy</organization>
+      <name>Mikko Tiihonen</name>
+      <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
- 	  <name>Markku Rontu</name>
- 	  <organization>Nitor Creations Oy</organization>
-    </developer>  	
-    <developer>
- 	  <name>Juha Syrjälä</name>
- 	  <organization>Nitor Creations Oy</organization>
+      <name>Markku Rontu</name>
+      <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
- 	  <name>Isto Nikula</name>
- 	  <organization>Nitor Creations Oy</organization>
+      <name>Juha Syrjälä</name>
+      <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
- 	  <name>Edvard Fonsell</name>
- 	  <organization>Nitor Creations Oy</organization>
+      <name>Isto Nikula</name>
+      <organization>Nitor Creations Oy</organization>
+    </developer>
+    <developer>
+      <name>Edvard Fonsell</name>
+      <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Janne Sinivirta</name>
@@ -81,6 +81,7 @@
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>3.0.1</coveralls.version>
+    <dependency.plugin.version>2.9</dependency.plugin.version>
     <el.version>3.0.0</el.version>
     <findbugs-annotations.version>3.0.0</findbugs-annotations.version>
     <findbugs.version>3.0.0</findbugs.version>
@@ -100,6 +101,7 @@
     <maven-cobertura.version>2.6</maven-cobertura.version>
     <maven-compiler.version>3.2</maven-compiler.version>
     <maven-deploy.version>2.8.2</maven-deploy.version>
+    <maven-download.version>1.2.1</maven-download.version>
     <maven-enforcer.version>1.3.1</maven-enforcer.version>
     <maven-findbugs.version>3.0.0</maven-findbugs.version>
     <maven-install.version>2.5.2</maven-install.version>
@@ -116,6 +118,7 @@
     <mockito.version>1.10.8</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>5.1.34</mysql.version>
+    <nflow.explorer.version>0.0.2</nflow.explorer.version>
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>9.3-1102-jdbc41</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -123,6 +126,7 @@
     <slf4j.version>1.7.7</slf4j.version>
     <spring.version>4.1.2.RELEASE</spring.version>
     <swagger.version>1.3.10</swagger.version>
+    <swagger.ui.version>2.0.22</swagger.ui.version>
     <validation.api.version>1.1.0.Final</validation.api.version>
   </properties>
   <build>
@@ -144,10 +148,7 @@
             <includes>
               <include>**/*Test.java</include>
             </includes>
-            <!-- 
-            <runOrder>random</runOrder>
-            <forkCount>0.8C</forkCount>
-             -->
+            <!-- <runOrder>random</runOrder> <forkCount>0.8C</forkCount> -->
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
         </plugin>
@@ -229,6 +230,16 @@
           <artifactId>coveralls-maven-plugin</artifactId>
           <version>${coveralls.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${dependency.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.googlecode.maven-download-plugin</groupId>
+          <artifactId>download-maven-plugin</artifactId>
+          <version>${maven-download.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -267,13 +278,11 @@
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-        	<!-- maven-javadoc-plugin may hang for a long time if it can't access these links
-        		http://maven.apache.org/plugins-archives/maven-javadoc-plugin-2.9/apidocs/org/apache/maven/plugin/javadoc/JavadocUtil.html#DEFAULT_TIMEOUT
-        	 -->
-        	<links>
-        		<link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
-        	</links>
-        	<excludePackageNames>com.nitorcreations.nflow.engine.internal:com.nitorcreations.nflow.tests</excludePackageNames>
+          <!-- maven-javadoc-plugin may hang for a long time if it can't access these links http://maven.apache.org/plugins-archives/maven-javadoc-plugin-2.9/apidocs/org/apache/maven/plugin/javadoc/JavadocUtil.html#DEFAULT_TIMEOUT -->
+          <links>
+            <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
+          </links>
+          <excludePackageNames>com.nitorcreations.nflow.engine.internal:com.nitorcreations.nflow.tests</excludePackageNames>
         </configuration>
         <executions>
           <execution>

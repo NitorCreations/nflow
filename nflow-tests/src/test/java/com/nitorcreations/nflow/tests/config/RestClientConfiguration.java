@@ -58,7 +58,7 @@ public class RestClientConfiguration {
 
   @Bean(name="workflowInstance")
   public WebClient workflowInstanceWebService(@Named("baseWebclient") WebClient client) {
-    return client.path("v1").path("workflow-instance");
+    return client.path("api").path("v1").path("workflow-instance");
   }
 
   @Bean(name="statistics")
