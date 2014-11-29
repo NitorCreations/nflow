@@ -63,7 +63,7 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            <phase>generate-sources</phase>
+            <phase>process-resources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
