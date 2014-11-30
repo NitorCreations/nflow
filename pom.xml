@@ -206,6 +206,14 @@
               <format>xml</format>
               <format>html</format>
             </formats>
+            <instrumentation>
+              <ignores>
+                <ignore>com/nitorcreations/nflow/tests/**/*.class</ignore>
+              </ignores>
+              <excludes>
+                <exclude>com/nitorcreations/nflow/tests/**/*.class</exclude>
+              </excludes>
+            </instrumentation>
           </configuration>
         </plugin>
         <plugin>
