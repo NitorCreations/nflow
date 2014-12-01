@@ -93,6 +93,7 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
   }
 
   public void done(StateExecution execution) {
+    System.out.println("StateWorkflow done.");
   }
 
   public static class Variable {
@@ -103,5 +104,4 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
       return reflectionToString(this);
     }
   }
-
 }
