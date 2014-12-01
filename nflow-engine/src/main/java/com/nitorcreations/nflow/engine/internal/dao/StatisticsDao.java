@@ -1,12 +1,12 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.sql.DataSource;
 
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.dao.DataAccessException;
@@ -14,11 +14,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
 
+/**
+ * Use setter injection because constructor injection may not work when nFlow is
+ * used in some legacy systems.
+ */
 @Component
-@DependsOn("nflowDatabaseInitializer")
+@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class StatisticsDao {
   private JdbcTemplate jdbc;
   private ExecutorDao executorInfo;
@@ -28,14 +33,9 @@ public class StatisticsDao {
     this.executorInfo = executorDao;
   }
 
-  /**
-   * Use setter injection because having the dataSource in constructor may not work
-   * when nFlow is used in some legacy systems.
-   * @param dataSource The nFlow data source.
-   */
   @Inject
-  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
-    this.jdbc = new JdbcTemplate(dataSource);
+  public void setJdbcTemplate(@NFlow JdbcTemplate jdbcTemplate) {
+    this.jdbc = jdbcTemplate;
   }
 
   public Statistics getQueueStatistics() {
