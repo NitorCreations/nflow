@@ -40,15 +40,18 @@ public class ListWorkflowInstanceConverter {
     resp.stateText = instance.stateText;
     resp.nextActivation = instance.nextActivation;
     resp.created = instance.created;
+    resp.modified = instance.modified;
+    resp.started = instance.started;
+    resp.retries = instance.retries;
     if (query.includeActions) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
         if(query.includeActionStateVariables) {
           resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
-              action.executionStart, action.executionEnd, stateVariablesToJson(action.updatedStateVariables)));
+              action.executionStart, action.executionEnd, action.executorId, stateVariablesToJson(action.updatedStateVariables)));
         } else {
           resp.actions.add(new Action(action.state, action.stateText, action.retryNo,
-              action.executionStart, action.executionEnd));
+              action.executionStart, action.executionEnd, action.executorId));
         }
       }
     }

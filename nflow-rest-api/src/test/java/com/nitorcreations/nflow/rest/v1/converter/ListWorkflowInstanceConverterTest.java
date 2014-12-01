@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.v1.converter;
 
 import static com.nitorcreations.Matchers.reflectEquals;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -42,15 +43,15 @@ public class ListWorkflowInstanceConverterTest {
   @Test
   public void convertWithActionsWorks() throws IOException {
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
-        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
+        setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).setExecutorId(999).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
 
-    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
-        setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now()).
-        setActions(Arrays.asList(a)).
-        setStateVariables(stateVariables).build();
+    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey")
+        .setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
+        .setActions(asList(a)).setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
+        .setStateVariables(stateVariables).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
@@ -70,8 +71,11 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.stateText, is(i.stateText));
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.created, is(i.created));
+    assertThat(resp.modified, is(i.modified));
+    assertThat(resp.started, is(i.started));
+    assertThat(resp.retries, is(i.retries));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.state, a.stateText, a.retryNo,
-        a.executionStart, a.executionEnd))));
+        a.executionStart, a.executionEnd, a.executorId))));
   }
 
   @Test
@@ -80,7 +84,7 @@ public class ListWorkflowInstanceConverterTest {
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
-        .setActions(Arrays.asList(a)).build();
+        .setActions(asList(a)).build();
 
     ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
     assertThat(resp.id, is(i.id));

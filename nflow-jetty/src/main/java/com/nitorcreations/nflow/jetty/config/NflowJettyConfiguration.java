@@ -43,6 +43,7 @@ import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
 import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
 import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
+import com.nitorcreations.nflow.rest.v1.StatisticsResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
@@ -66,12 +67,13 @@ public class NflowJettyConfiguration {
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
-      @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
+      StatisticsResource statisticsResource, @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
         workflowDefinitionResource,
         workflowExecutorResource,
+        statisticsResource,
         apiListingResourceJson()));
     factory.setAddress('/' + factory.getAddress());
     factory.setProviders( Arrays.asList(
@@ -132,7 +134,7 @@ public class NflowJettyConfiguration {
           env.getProperty("swagger.basepath.protocol", "http"),
           env.getProperty("swagger.basepath.server", env.getProperty("host", DEFAULT_HOST)),
           env.getProperty("swagger.basepath.port", Integer.class, env.getProperty("port", Integer.class, DEFAULT_PORT)),
-          env.getProperty("swagger.basepath.context", ""));
+          env.getProperty("swagger.basepath.context", "/api"));
     }
     logger.debug("Swagger basepath: {}", basePath);
     config.setBasePath(basePath);

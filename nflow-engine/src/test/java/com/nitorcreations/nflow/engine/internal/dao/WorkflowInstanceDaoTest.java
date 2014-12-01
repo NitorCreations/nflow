@@ -3,11 +3,13 @@ package com.nitorcreations.nflow.engine.internal.dao;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -53,7 +55,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(id).addTypes(i1.type).addStates(i1.state)
-        .setBusinessKey(i1.businessKey).setExternalId(i1.externalId).setIncludeActions(true).build();
+        .setBusinessKey(i1.businessKey).setExternalId(i1.externalId).setIncludeActions(true)
+        .setIncludeActionStateVariables(true).setIncludeCurrentStateVariables(true).build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
     checkSameWorkflowInfo(i1, l.get(0));
@@ -65,15 +68,19 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().build();
-    List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
-    assertThat(l.size(), is(1));
-    checkSameWorkflowInfo(i1, l.get(0));
+    List<WorkflowInstance> createdInstances = dao.queryWorkflowInstances(q);
+    assertThat(createdInstances.size(), is(1));
+    WorkflowInstance instance = createdInstances.get(0);
+    checkSameWorkflowInfo(i1, instance);
+    assertNull(instance.started);
   }
 
   @Test
   public void updateWorkflowInstance() throws InterruptedException {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(i1);
+    List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setState("updateState")
         .setStateText("update text").setNextActivation(DateTime.now()).setProcessing(!i1.processing).build();
     final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
@@ -97,12 +104,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
     int id = dao.insertWorkflowInstance(i1);
-    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(DateTime.now()).setExecutorId(42)
+    DateTime started = DateTime.now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
         .setWorkflowInstanceId(id).build();
     i1.stateVariables.put("b", "2");
     dao.insertWorkflowInstanceAction(i1, a1);
-    checkSameWorkflowInfo(i1, dao.getWorkflowInstance(id));
+    WorkflowInstance createdInstance = dao.getWorkflowInstance(id);
+    checkSameWorkflowInfo(i1, createdInstance);
   }
 
   @Test
@@ -145,12 +154,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void doesNotWakeUpRunningWorkflow() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setExecutorGroup("junit").setNextActivation(null).build();
+    DateTime past = now().minusDays(1);
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setExecutorGroup("junit").setNextActivation(past).build();
     int id = dao.insertWorkflowInstance(i1);
-    dao.updateWorkflowInstance(new WorkflowInstance.Builder(i1).setId(id).setProcessing(true).build());
-    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, contains(id));
+    assertThat(dao.getWorkflowInstance(id).nextActivation, is(past));
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { i1.state });
-    assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
+    assertThat(dao.getWorkflowInstance(id).nextActivation, is(past));
   }
 
   @Test
