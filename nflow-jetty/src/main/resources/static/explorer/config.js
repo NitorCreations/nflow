@@ -1,6 +1,6 @@
 'use strict';
 var Config = function() {
-  this.nflowUrl = '/api';
+  this.nflowUrl = '../api';
 
   this.radiator = {
     // poll period in seconds
@@ -9,4 +9,3 @@ var Config = function() {
     maxHistorySize: 10000
   };
 };
-
