@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
@@ -39,7 +38,7 @@ import edu.umd.cs.mtc.TestFramework;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDispatcherTest {
   WorkflowDispatcher dispatcher;
-  ThresholdThreadPoolExecutor pool;
+  WorkflowInstanceExecutor executor;
 
   @Mock WorkflowInstanceDao workflowInstances;
   @Mock ExecutorDao recovery;
@@ -52,14 +51,14 @@ public class WorkflowDispatcherTest {
     when(env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l)).thenReturn(0l);
     when(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0)).thenReturn(0);
     when(recovery.isTransactionSupportEnabled()).thenReturn(true);
-    pool = dispatcherPoolExecutor();
-    dispatcher = new WorkflowDispatcher(pool, workflowInstances, executorFactory, recovery, env);
+    executor = new WorkflowInstanceExecutor(2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
+    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
   }
 
   @Test(expected = BeanCreationException.class)
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
     when(recovery.isTransactionSupportEnabled()).thenReturn(false);
-    new WorkflowDispatcher(pool, workflowInstances, executorFactory, recovery, env);
+    new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
   }
 
   @Test
@@ -201,11 +200,11 @@ public class WorkflowDispatcherTest {
   public void exceptionOnPoolShutdownIsNotPropagated() throws Throwable {
     @SuppressWarnings("unused")
     class ExceptionOnPoolShutdownIsNotPropagated extends MultithreadedTestCase {
-      private ThresholdThreadPoolExecutor poolSpy;
+      private WorkflowInstanceExecutor poolSpy;
 
       @Override
       public void initialize() {
-        poolSpy = Mockito.spy(pool);
+        poolSpy = Mockito.spy(executor);
         dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, recovery, env);
       }
 
@@ -252,15 +251,8 @@ public class WorkflowDispatcherTest {
     TestFramework.runOnce(new ShutdownCanBeCalledMultipleTimes());
   }
 
-  private static ThresholdThreadPoolExecutor dispatcherPoolExecutor() {
-    int threadCount = 2 * getRuntime().availableProcessors();
-    ThresholdThreadPoolExecutor executor = new ThresholdThreadPoolExecutor(threadCount, 0, 10, 0, new CustomizableThreadFactory(
-        "nflow-executor-"));
-    return executor;
-  }
-
   void assertPoolIsShutdown(boolean isTrue) {
-    assertEquals(isTrue, pool.executor.isShutdown());
+    assertEquals(isTrue, executor.executor.isShutdown());
   }
 
   Runnable noOpRunnable() {

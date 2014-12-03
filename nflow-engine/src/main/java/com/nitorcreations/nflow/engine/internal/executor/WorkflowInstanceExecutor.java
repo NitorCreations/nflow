@@ -11,14 +11,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 
-public class ThresholdThreadPoolExecutor {
-  private static final Logger logger = getLogger(ThresholdThreadPoolExecutor.class);
+public class WorkflowInstanceExecutor {
+  private static final Logger logger = getLogger(WorkflowInstanceExecutor.class);
 
   private final int awaitTerminationSeconds;
   final ThreadPoolExecutor executor;
   final ThresholdBlockingQueue<Runnable> queue;
 
-  public ThresholdThreadPoolExecutor(int threadCount, int notifyThreshold, int awaitTerminationSeconds, int keepAliveSeconds,
+  public WorkflowInstanceExecutor(int threadCount, int notifyThreshold, int awaitTerminationSeconds, int keepAliveSeconds,
       ThreadFactory threadFactory) {
     queue = new ThresholdBlockingQueue<>(MAX_VALUE, notifyThreshold);
     executor = new ThreadPoolExecutor(threadCount, threadCount, keepAliveSeconds, SECONDS, queue, threadFactory);

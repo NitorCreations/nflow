@@ -68,9 +68,6 @@ public class ExecutorDao {
     this.sqlVariants = sqlVariants;
   }
 
-  /**
-   * @param nflowJdbcTemplate The JDBC template for accessing the nFlow data source.
-   */
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
     this.jdbc = nflowJdbcTemplate;

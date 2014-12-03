@@ -15,19 +15,19 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolExecutor;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
 
   @Bean
-  public ThresholdThreadPoolExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
+  public WorkflowInstanceExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
     int threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * getRuntime().availableProcessors());
     int awaitTerminationSeconds = env.getProperty("nflow.dispatcher.await.termination.seconds", Integer.class, 60);
     int notifyThreshold = env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0);
     int keepAliveSeconds = env.getProperty("nflow.dispatcher.executor.thread.keepalive.seconds", Integer.class, 0);
-    return new ThresholdThreadPoolExecutor(threadCount, notifyThreshold, awaitTerminationSeconds, keepAliveSeconds,
+    return new WorkflowInstanceExecutor(threadCount, notifyThreshold, awaitTerminationSeconds, keepAliveSeconds,
         nflowThreadFactory);
   }
 

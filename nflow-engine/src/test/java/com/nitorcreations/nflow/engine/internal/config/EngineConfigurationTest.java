@@ -14,7 +14,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.env.MockEnvironment;
 
-import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolExecutor;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EngineConfigurationTest {
@@ -28,7 +28,7 @@ public class EngineConfigurationTest {
   private final EngineConfiguration configuration = new EngineConfiguration();
 
   public void dispatcherPoolExecutorInstantiation() {
-    ThresholdThreadPoolExecutor executor = configuration.nflowExecutor(threadFactory, environment);
+    WorkflowInstanceExecutor executor = configuration.nflowExecutor(threadFactory, environment);
     assertThat(executor.getMaximumPoolSize(), is(100));
   }
 

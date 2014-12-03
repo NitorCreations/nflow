@@ -26,7 +26,7 @@ public class WorkflowDispatcher implements Runnable {
   private volatile boolean shutdownRequested;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
-  private final ThresholdThreadPoolExecutor pool;
+  private final WorkflowInstanceExecutor executor;
   private final WorkflowInstanceDao workflowInstances;
   private final WorkflowStateProcessorFactory stateProcessorFactory;
   private final ExecutorDao executorRecovery;
@@ -34,9 +34,9 @@ public class WorkflowDispatcher implements Runnable {
   private final Random rand = new Random();
 
   @Inject
-  public WorkflowDispatcher(ThresholdThreadPoolExecutor nflowExecutor, WorkflowInstanceDao workflowInstances,
+  public WorkflowDispatcher(WorkflowInstanceExecutor executor, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
-    this.pool = nflowExecutor;
+    this.executor = executor;
     this.workflowInstances = workflowInstances;
     this.stateProcessorFactory = stateProcessorFactory;
     this.executorRecovery = executorRecovery;
@@ -52,7 +52,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          pool.waitUntilQueueSizeLowerThanThreshold(executorRecovery.getMaxWaitUntil());
+          executor.waitUntilQueueSizeLowerThanThreshold(executorRecovery.getMaxWaitUntil());
 
           if (!shutdownRequested) {
             executorRecovery.tick();
@@ -87,7 +87,7 @@ public class WorkflowDispatcher implements Runnable {
 
   private void shutdownPool() {
     try  {
-      pool.shutdown();
+      executor.shutdown();
     } catch (Exception e) {
       logger.error("Error in shutting down thread pool.", e);
     }
@@ -102,12 +102,12 @@ public class WorkflowDispatcher implements Runnable {
 
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Integer instanceId : nextInstanceIds) {
-      pool.execute(stateProcessorFactory.createProcessor(instanceId));
+      executor.execute(stateProcessorFactory.createProcessor(instanceId));
     }
   }
 
   private List<Integer> getNextInstanceIds() {
-    int nextBatchSize = max(0, 2 * pool.getMaximumPoolSize() - pool.getActiveCount());
+    int nextBatchSize = max(0, 2 * executor.getMaximumPoolSize() - executor.getActiveCount());
     logger.debug("Polling next {} workflow instances.", nextBatchSize);
     return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);
   }

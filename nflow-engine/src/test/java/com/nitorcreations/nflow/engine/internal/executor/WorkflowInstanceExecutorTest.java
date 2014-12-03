@@ -18,7 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ThresholdThreadPoolExecutorTest {
+public class WorkflowInstanceExecutorTest {
 
   @Mock
   ThreadFactory threadFactory;
@@ -27,7 +27,7 @@ public class ThresholdThreadPoolExecutorTest {
 
   @Test
   public void testThreadPoolCreateWithCorrectParameters() {
-    ThresholdThreadPoolExecutor t = new ThresholdThreadPoolExecutor(2, 1, 3, 4, threadFactory);
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, threadFactory);
     assertThat(t.executor.getCorePoolSize(), is(2));
     assertThat(t.executor.getMaximumPoolSize(), is(2));
     assertThat(t.executor.getKeepAliveTime(SECONDS), is(4L));
@@ -38,28 +38,29 @@ public class ThresholdThreadPoolExecutorTest {
 
   @Test
   public void testDummyGetters() {
-    ThresholdThreadPoolExecutor t = new ThresholdThreadPoolExecutor(2, 1, 3, 4, threadFactory);
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, threadFactory);
     assertThat(t.getActiveCount(), is(0));
     assertThat(t.getMaximumPoolSize(), is(2));
   }
 
   @Test
   public void testExecute() {
-    ThresholdThreadPoolExecutor t = new ThresholdThreadPoolExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
     t.execute(runnable);
     verify(runnable, timeout(1000)).run();
   }
 
   @Test
   public void testWait() throws InterruptedException {
-    ThresholdThreadPoolExecutor t = new ThresholdThreadPoolExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
     t.execute(runnable);
     t.waitUntilQueueSizeLowerThanThreshold(new DateTime().plusSeconds(5));
   }
 
   @Test
   public void testShutdown() {
-    ThresholdThreadPoolExecutor t = new ThresholdThreadPoolExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
     t.shutdown();
+    assertThat(t.executor.isShutdown(), is(true));
   }
 }
