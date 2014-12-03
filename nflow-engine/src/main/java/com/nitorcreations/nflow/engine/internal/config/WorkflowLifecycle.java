@@ -22,10 +22,10 @@ public class WorkflowLifecycle implements SmartLifecycle {
   @Inject
   public WorkflowLifecycle(WorkflowDispatcher dispatcher, @Named("nflowThreadFactory") ThreadFactory threadFactory, Environment env) {
     this.dispatcher = dispatcher;
-    this.autoStart = env.getProperty("nflow.autostart", Boolean.class, true);
-    this.dispatcherThread = threadFactory.newThread(dispatcher);
-    this.dispatcherThread.setName("nflow-dispatcher");
-    if (!this.autoStart) {
+    autoStart = env.getProperty("nflow.autostart", Boolean.class, true);
+    dispatcherThread = threadFactory.newThread(dispatcher);
+    dispatcherThread.setName("nflow-dispatcher");
+    if (!autoStart) {
       getLogger(WorkflowLifecycle.class).info("nFlow engine autostart disabled (system property nflow.autostart=false)");
     }
   }
@@ -42,7 +42,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
 
   @Override
   public void start() {
-    this.dispatcherThread.start();
+    dispatcherThread.start();
   }
 
   @Override
@@ -52,12 +52,12 @@ public class WorkflowLifecycle implements SmartLifecycle {
 
   @Override
   public void stop() {
-    throw new IllegalStateException("This method is never called by spring");
+    dispatcher.shutdown();
   }
 
   @Override
   public void stop(Runnable callback) {
-    this.dispatcher.shutdown();
+    stop();
     callback.run();
   }
 }
