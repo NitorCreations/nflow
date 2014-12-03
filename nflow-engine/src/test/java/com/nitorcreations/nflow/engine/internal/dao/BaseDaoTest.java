@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -23,6 +24,9 @@ public abstract class BaseDaoTest extends BaseNflowTest {
 
   @Inject
   protected DataSource ds;
+
+  @Inject
+  protected JdbcTemplate jdbc;
 
   @After
   public void truncateDb() {

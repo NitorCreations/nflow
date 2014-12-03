@@ -27,7 +27,10 @@ public class DaoTestConfiguration {
 
   @Bean
   public ExecutorDao executorDao(Environment env) {
-    return new ExecutorDao(env, new H2SQLVariants());
+    ExecutorDao dao = new ExecutorDao();
+    dao.setSQLVariants(new H2SQLVariants());
+    dao.setEnvironment(env);
+    return dao;
   }
 
   @Bean

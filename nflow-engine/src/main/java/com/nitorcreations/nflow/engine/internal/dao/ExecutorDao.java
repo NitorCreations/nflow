@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -15,8 +16,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.DependsOn;
@@ -30,44 +29,48 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
 import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+/**
+ * Use setter injection because constructor injection may not work when nFlow is
+ * used in some legacy systems.
+ */
 @Component
-@DependsOn("nflowDatabaseInitializer")
+@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class ExecutorDao {
   private JdbcTemplate jdbc;
-  final SQLVariants sqlVariants;
+  SQLVariants sqlVariants;
   private WorkflowInstanceDao workflowInstanceDao;
 
-  private final int keepaliveIntervalSeconds;
+  private int keepaliveIntervalSeconds;
   private DateTime nextUpdate = now();
 
-  final String executorGroup;
-  final String executorGroupCondition;
-  final int timeoutSeconds;
+  String executorGroup;
+  String executorGroupCondition;
+  int timeoutSeconds;
   int executorId = -1;
 
   @Inject
-  public ExecutorDao(Environment env, SQLVariants sqlVariants) {
-    this.sqlVariants = sqlVariants;
+  public void setEnvironment(Environment env) {
     this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
     keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
   }
 
-  /**
-   * Use setter injection because having the dataSource in constructor may not work
-   * when nFlow is used in some legacy systems.
-   * @param dataSource The nFlow data source.
-   */
   @Inject
-  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
-    this.jdbc = new JdbcTemplate(dataSource);
+  public void setSQLVariants(SQLVariants sqlVariants) {
+    this.sqlVariants = sqlVariants;
+  }
+
+  @Inject
+  public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
+    this.jdbc = nflowJdbcTemplate;
   }
 
   @Inject

@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.sql.DataSource;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
@@ -44,6 +42,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -68,14 +67,18 @@ public class WorkflowInstanceDao {
   private long workflowInstanceQueryMaxResultsDefault;
 
   /**
-   * Use setter injection because having the dataSource in constructor may not work
+   * Use setter injection because constructor injection may not work
    * when nFlow is used in some legacy systems.
-   * @param dataSource The nFlow data source.
+   * @param nflowJdbcTemplate The JDBC template for accessing the nFlow data source.
    */
   @Inject
-  public void setDataSource(@Named("nflowDatasource") DataSource dataSource) {
-    this.jdbc = new JdbcTemplate(dataSource);
-    this.namedJdbc = new NamedParameterJdbcTemplate(dataSource);
+  public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
+    this.jdbc = nflowJdbcTemplate;
+  }
+
+  @Inject
+  public void setNamedParameterJdbcTemplate(@NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
+    this.namedJdbc = nflowNamedParameterJdbcTemplate;
   }
 
   @Inject

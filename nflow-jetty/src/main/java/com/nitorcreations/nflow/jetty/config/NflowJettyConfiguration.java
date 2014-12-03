@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.jetty.config;
 
 import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_HOST;
 import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_PORT;
+import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.Arrays;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
 import com.nitorcreations.nflow.rest.config.BadRequestExceptionMapper;
 import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
@@ -65,7 +67,7 @@ public class NflowJettyConfiguration {
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
-      StatisticsResource statisticsResource, @Named("nflowRestObjectMapper") ObjectMapper mapper) {
+      StatisticsResource statisticsResource, @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
@@ -75,7 +77,7 @@ public class NflowJettyConfiguration {
         apiListingResourceJson()));
     factory.setAddress('/' + factory.getAddress());
     factory.setProviders( Arrays.asList(
-        jsonProvider(mapper),
+        jsonProvider(nflowRestObjectMapper),
         validationExceptionMapper(),
         resourceListingProvider(),
         apiDeclarationProvider(),
@@ -96,8 +98,8 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(@Named("nflowRestObjectMapper") ObjectMapper mapper) {
-    return new JacksonJsonProvider(mapper);
+  public JacksonJsonProvider jsonProvider(@Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
+    return new JacksonJsonProvider(nflowRestObjectMapper);
   }
 
   @Bean
@@ -159,7 +161,7 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public PlatformTransactionManager transactionManager(@Named("nflowDatasource") DataSource dataSource)  {
-    return new DataSourceTransactionManager(dataSource);
+  public PlatformTransactionManager transactionManager(@NFlow DataSource nflowDataSource)  {
+    return new DataSourceTransactionManager(nflowDataSource);
   }
 }
