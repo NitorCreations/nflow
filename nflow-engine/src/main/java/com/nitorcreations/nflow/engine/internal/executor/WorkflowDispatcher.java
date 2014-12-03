@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static java.lang.Math.max;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.PollingRaceConditionException;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -26,7 +26,7 @@ public class WorkflowDispatcher implements Runnable {
   private volatile boolean shutdownRequested;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
-  private final ThresholdThreadPoolTaskExecutor pool;
+  private final ThresholdThreadPoolExecutor pool;
   private final WorkflowInstanceDao workflowInstances;
   private final WorkflowStateProcessorFactory stateProcessorFactory;
   private final ExecutorDao executorRecovery;
@@ -34,7 +34,7 @@ public class WorkflowDispatcher implements Runnable {
   private final Random rand = new Random();
 
   @Inject
-  public WorkflowDispatcher(@NFlow ThresholdThreadPoolTaskExecutor nflowExecutor, WorkflowInstanceDao workflowInstances,
+  public WorkflowDispatcher(ThresholdThreadPoolExecutor nflowExecutor, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
     this.pool = nflowExecutor;
     this.workflowInstances = workflowInstances;
@@ -102,12 +102,12 @@ public class WorkflowDispatcher implements Runnable {
 
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Integer instanceId : nextInstanceIds) {
-      pool.submit(stateProcessorFactory.createProcessor(instanceId));
+      pool.execute(stateProcessorFactory.createProcessor(instanceId));
     }
   }
 
   private List<Integer> getNextInstanceIds() {
-    int nextBatchSize = Math.max(0, 2 * pool.getMaxPoolSize() - pool.getActiveCount());
+    int nextBatchSize = max(0, 2 * pool.getMaximumPoolSize() - pool.getActiveCount());
     logger.debug("Polling next {} workflow instances.", nextBatchSize);
     return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);
   }

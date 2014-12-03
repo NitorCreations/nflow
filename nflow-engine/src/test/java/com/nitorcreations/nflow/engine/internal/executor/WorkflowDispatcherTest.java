@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
@@ -38,7 +39,7 @@ import edu.umd.cs.mtc.TestFramework;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDispatcherTest {
   WorkflowDispatcher dispatcher;
-  ThresholdThreadPoolTaskExecutor pool;
+  ThresholdThreadPoolExecutor pool;
 
   @Mock WorkflowInstanceDao workflowInstances;
   @Mock ExecutorDao recovery;
@@ -200,7 +201,7 @@ public class WorkflowDispatcherTest {
   public void exceptionOnPoolShutdownIsNotPropagated() throws Throwable {
     @SuppressWarnings("unused")
     class ExceptionOnPoolShutdownIsNotPropagated extends MultithreadedTestCase {
-      private ThresholdThreadPoolTaskExecutor poolSpy;
+      private ThresholdThreadPoolExecutor poolSpy;
 
       @Override
       public void initialize() {
@@ -251,22 +252,15 @@ public class WorkflowDispatcherTest {
     TestFramework.runOnce(new ShutdownCanBeCalledMultipleTimes());
   }
 
-  private static ThresholdThreadPoolTaskExecutor dispatcherPoolExecutor() {
-    ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
-    Integer threadCount = 2 * Runtime.getRuntime().availableProcessors();
-    executor.setNotifyThreshold(0);
-    executor.setCorePoolSize(threadCount);
-    executor.setMaxPoolSize(threadCount);
-    executor.setKeepAliveSeconds(0);
-    executor.setAwaitTerminationSeconds(10);
-    executor.setWaitForTasksToCompleteOnShutdown(true);
-    executor.setThreadFactory(new CustomizableThreadFactory("nflow-executor-"));
-    executor.afterPropertiesSet();
+  private static ThresholdThreadPoolExecutor dispatcherPoolExecutor() {
+    int threadCount = 2 * getRuntime().availableProcessors();
+    ThresholdThreadPoolExecutor executor = new ThresholdThreadPoolExecutor(threadCount, 0, 10, 0, new CustomizableThreadFactory(
+        "nflow-executor-"));
     return executor;
   }
 
   void assertPoolIsShutdown(boolean isTrue) {
-    assertEquals(isTrue, pool.getThreadPoolExecutor().isShutdown());
+    assertEquals(isTrue, pool.executor.isShutdown());
   }
 
   Runnable noOpRunnable() {

@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static java.lang.Runtime.getRuntime;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -14,25 +15,20 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolTaskExecutor;
+import com.nitorcreations.nflow.engine.internal.executor.ThresholdThreadPoolExecutor;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.engine")
 public class EngineConfiguration {
 
   @Bean
-  @NFlow
-  public ThresholdThreadPoolTaskExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
-    ThresholdThreadPoolTaskExecutor executor = new ThresholdThreadPoolTaskExecutor();
-    Integer threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * Runtime.getRuntime().availableProcessors());
-    executor.setCorePoolSize(threadCount);
-    executor.setMaxPoolSize(threadCount);
-    executor.setKeepAliveSeconds(0);
-    executor.setAwaitTerminationSeconds(env.getProperty("nflow.dispatcher.await.termination.seconds", Integer.class, 60));
-    executor.setWaitForTasksToCompleteOnShutdown(true);
-    executor.setNotifyThreshold(env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0));
-    executor.setThreadFactory(nflowThreadFactory);
-    return executor;
+  public ThresholdThreadPoolExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
+    int threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * getRuntime().availableProcessors());
+    int awaitTerminationSeconds = env.getProperty("nflow.dispatcher.await.termination.seconds", Integer.class, 60);
+    int notifyThreshold = env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0);
+    int keepAliveSeconds = env.getProperty("nflow.dispatcher.executor.thread.keepalive.seconds", Integer.class, 0);
+    return new ThresholdThreadPoolExecutor(threadCount, notifyThreshold, awaitTerminationSeconds, keepAliveSeconds,
+        nflowThreadFactory);
   }
 
   @Bean
