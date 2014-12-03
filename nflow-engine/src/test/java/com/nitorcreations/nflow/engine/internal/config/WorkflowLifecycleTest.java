@@ -55,13 +55,14 @@ public class WorkflowLifecycleTest {
     verify(dispatcherThread).start();
   }
 
-  @Test(expected=IllegalStateException.class)
-  public void stopNoArgThrowsException() {
+  @Test
+  public void stopStopsDispatcherThread() {
     lifecycle.stop();
+    verify(dispatcher).shutdown();
   }
 
   @Test
-  public void stopArgStopsDispatcherThread() {
+  public void stopWithCallbackStopsDispatcherThreadAndRunsCallback() {
     Runnable callback = mock(Runnable.class);
     lifecycle.stop(callback);
     verify(dispatcher).shutdown();
