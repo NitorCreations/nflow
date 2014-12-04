@@ -50,6 +50,10 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+/**
+ * Use setter injection because constructor injection may not work when nFlow is
+ * used in some legacy systems.
+ */
 @Component
 public class WorkflowInstanceDao {
 
@@ -66,11 +70,6 @@ public class WorkflowInstanceDao {
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
 
-  /**
-   * Use setter injection because constructor injection may not work
-   * when nFlow is used in some legacy systems.
-   * @param nflowJdbcTemplate The JDBC template for accessing the nFlow data source.
-   */
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
     this.jdbc = nflowJdbcTemplate;
