@@ -125,7 +125,7 @@ public class NflowJettyConfiguration {
   @Bean
   public BeanConfig swaggerConfig() {
     final BeanConfig config = new BeanConfig();
-    config.setVersion("1.0.0");
+    config.setVersion("1.1.1-SNAPSHOT");
     config.setScan(true);
     config.setResourcePackage(WorkflowInstanceResource.class.getPackage().getName());
     String basePath = env.getProperty("swagger.basepath");
