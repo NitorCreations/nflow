@@ -96,6 +96,7 @@
     <jodatime.version>2.5</jodatime.version>
     <jetty.version>9.2.5.v20141112</jetty.version>
     <junit.version>4.11</junit.version>
+    <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.1.2</logback-classic.version>
     <maven-clean.version>2.6.1</maven-clean.version>
     <maven-cobertura.version>2.6</maven-cobertura.version>

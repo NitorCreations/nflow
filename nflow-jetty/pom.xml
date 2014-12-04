@@ -19,21 +19,6 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <additionalBuildcommands>
-            <buildCommand>
-              <name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-              <triggers>auto,full,incremental,</triggers>
-              <arguments>
-                <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/mvn-process-resources.launch</LaunchConfigHandle>
-              </arguments>
-            </buildCommand>
-          </additionalBuildcommands>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
@@ -101,9 +86,25 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <version>${maven-eclipse.version}</version>
+          <configuration>
+            <additionalBuildcommands>
+              <buildCommand>
+                <name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+                <triggers>auto,full,incremental,</triggers>
+                <arguments>
+                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/mvn-process-resources.launch</LaunchConfigHandle>
+                </arguments>
+              </buildCommand>
+            </additionalBuildcommands>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
+          <version>${lifecycle-mapping.version}</version>
           <configuration>
             <lifecycleMappingMetadata>
               <pluginExecutions>
