@@ -60,7 +60,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
         }
       }
     } while (wf == null);
-    assertThat(wf.actions.size(), is(3));
+    assertThat(wf.actions.size(), is(2));
   }
 
   public void t04_queryStatistics() {

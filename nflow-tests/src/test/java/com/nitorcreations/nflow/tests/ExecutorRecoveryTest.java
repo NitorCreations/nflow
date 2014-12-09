@@ -75,26 +75,26 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
     for (int i=0; i<30; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (wf != null && SlowWorkflow.State.done.name().equals(wf.state)) {
-        verifyStartAndProcessAreExecutedByDifferentExecutors(wf);
+        verifyBeginAndProcessAreExecutedByDifferentExecutors(wf);
         return;
       }
       sleep(1000);
     }
   }
 
-  private void verifyStartAndProcessAreExecutedByDifferentExecutors(ListWorkflowInstanceResponse wf) {
-    int startExecutor = 0;
+  private void verifyBeginAndProcessAreExecutedByDifferentExecutors(ListWorkflowInstanceResponse wf) {
+    int beginExecutor = 0;
     int processExecutor = 0;
     for (Action action : wf.actions) {
-      if ("start".equals(action.state)) {
-        startExecutor = action.executorId;
+      if ("begin".equals(action.state)) {
+        beginExecutor = action.executorId;
       }
       if ("process".equals(action.state)) {
         processExecutor = action.executorId;
       }
      }
-    assertThat(startExecutor, is(not(0)));
+    assertThat(beginExecutor, is(not(0)));
     assertThat(processExecutor, is(not(0)));
-    assertThat(startExecutor, is(not(processExecutor)));
+    assertThat(beginExecutor, is(not(processExecutor)));
   }
 }

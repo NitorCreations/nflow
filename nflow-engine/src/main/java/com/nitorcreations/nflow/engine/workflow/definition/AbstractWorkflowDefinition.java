@@ -1,7 +1,5 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static java.lang.String.format;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -43,7 +41,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
     Assert.notNull(initialState, "initialState must not be null");
+    Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
+    Assert.isTrue(errorState.getType().isFinal(), "errorState must be a final state");
     this.type = type;
     this.initialState = initialState;
     this.errorState = errorState;
@@ -174,15 +174,11 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     return settings;
   }
 
-  boolean isStateMethodObligatory(S state) {
-    return state.getType() != manual && state.getType() != end;
-  }
-
   void requireStateMethodExists(S state) {
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
-    if (stateMethod == null && isStateMethodObligatory(state)) {
+    if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(
-          "Class '%s' is missing state handling method 'public NextAction %s(StateExecution execution, ... args)'",
+          "Class '%s' is missing non-final state handling method 'public NextAction %s(StateExecution execution, ... args)'",
           this.getClass().getName(), state.name());
       throw new IllegalArgumentException(msg);
     }
