@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,10 +37,26 @@ public class WorkflowDefinitionTest {
   }
 
   @Test
+  public void initialStateMustBeStartState() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("initialState must be a start state");
+    new WorkflowDefinition<TestDefinition.TestState>("nonStartInitialState", TestState.done, TestState.error) {
+    };
+  }
+
+  @Test
   public void errorStateIsRequired() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("errorState must not be null");
-    new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState", TestState.start, null) {
+    new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState", TestState.start1, null) {
+    };
+  }
+
+  @Test
+  public void errorStateMustBeFinalState() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("errorState must be a final state");
+    new WorkflowDefinition<TestDefinition.TestState>("nonFinalErrorState", TestState.start1, TestState.start1) {
     };
   }
 
@@ -52,7 +70,7 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void handleRetryMaxRetriesExceededHaveFailureState() {
-    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.start);
+    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestState.start1);
     verify(execution).setNextState(TestState.failed);
     verify(execution).setNextStateReason(any(String.class));
     verify(execution).setNextActivation(any(DateTime.class));
@@ -77,7 +95,7 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void succeedsWhenInitialStateMethodExist() {
-    new TestDefinition("x", TestState.start);
+    new TestDefinition("x", TestState.start1);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -87,31 +105,31 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void succeedWhenPermittingExistingOriginAndTargetState() {
-    new TestDefinition("x", TestState.start).permit(TestState.start,
+    new TestDefinition("x", TestState.start1).permit(TestState.start1,
         TestState.done);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void failsWhenPermittingNonExistingOriginState() {
-    new TestDefinition("x", TestState.start).permit(TestState.notfound,
+    new TestDefinition("x", TestState.start1).permit(TestState.notfound,
         TestState.done);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void failsWhenPermittingNonExistingTargetState() {
-    new TestDefinition("x", TestState.start).permit(TestState.start,
+    new TestDefinition("x", TestState.start1).permit(TestState.start1,
         TestState.notfound);
   }
 
   @Test
   public void failsWhenFailureStateMethodDoesNotExist() {
-    TestDefinition workflow = new TestDefinition("x", TestState.start);
+    TestDefinition workflow = new TestDefinition("x", TestState.start1);
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Class '" + workflow.getClass().getName() +
-        "' is missing state handling method 'public NextAction notfound(StateExecution execution, ... args)'");
+        "' is missing non-final state handling method 'public NextAction notfound(StateExecution execution, ... args)'");
 
-    workflow.permit(TestState.start, TestState.done, TestState.notfound);
+    workflow.permit(TestState.start1, TestState.done, TestState.notfound);
   }
 
   @Test
@@ -134,19 +152,25 @@ public class WorkflowDefinitionTest {
     assertThat(workflow.isStartState("done"), equalTo(false));
   }
 
-  public static class TestDefinition extends
-      AbstractWorkflowDefinition<TestDefinition.TestState> {
+  public static class TestDefinition extends AbstractWorkflowDefinition<TestDefinition.TestState> {
+
     @Override
     public Set<TestState> getStates() {
-      return new HashSet<>(asList(TestState.start, TestState.start2, TestState.done, TestState.error, TestState.failed));
+      return new HashSet<>(asList(TestState.start1, TestState.start2, TestState.done, TestState.error, TestState.failed));
     }
 
     public static enum TestState implements WorkflowState {
-      start, start2, done, notfound, failed, error;
+      start1(start), start2(start), done(end), notfound(normal), failed(end), error(end);
+
+      private final WorkflowStateType type;
+
+      private TestState(WorkflowStateType type) {
+        this.type = type;
+      }
 
       @Override
       public WorkflowStateType getType() {
-        return normal;
+        return type;
       }
 
       @Override
@@ -162,16 +186,14 @@ public class WorkflowDefinitionTest {
 
     public TestDefinition(String type, TestState initialState) {
       super(type, initialState, TestState.error);
-      permit(TestState.start, TestState.done, TestState.failed);
+      permit(TestState.start1, TestState.done, TestState.failed);
       permit(TestState.start2, TestState.done);
     }
 
-    public NextAction start(StateExecution execution) { return null; }
+    public NextAction start1(StateExecution execution) { return null; }
     public NextAction start2(StateExecution execution) { return null; }
-    public NextAction done(StateExecution execution) { return null; }
-    public NextAction failed(StateExecution execution) { return null; }
-    public NextAction error(StateExecution execution) { return null; }
-
+    public void done(StateExecution execution) {}
+    public void failed(StateExecution execution) {}
+    public void error(StateExecution execution) {}
   }
-
 }

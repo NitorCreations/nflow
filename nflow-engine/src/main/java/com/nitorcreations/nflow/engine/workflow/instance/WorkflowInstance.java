@@ -367,7 +367,7 @@ public class WorkflowInstance {
 
     /**
      * Set the start timestamp.
-     * @param modified Start time.
+     * @param started Start time.
      * @return this.
      */
     public Builder setStarted(DateTime started) {

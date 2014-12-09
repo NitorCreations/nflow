@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Profile("nflow.db.mysql")
 @Configuration
@@ -27,11 +28,11 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     super("mysql");
   }
 
-  @Bean(name="nflowDatabaseInitializer")
+  @Bean
   @Override
-  public DatabaseInitializer nflowDatabaseInitializer(@Named("nflowDatasource") DataSource dataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     String dbType = "mysql";
-    try (Connection c = DataSourceUtils.getConnection(dataSource)) {
+    try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
       logger.info("MySQL {}.{}, product version {}", meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), databaseProductVersion);
@@ -49,9 +50,8 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain mysql version", e);
     }
-    return new DatabaseInitializer(dbType, dataSource, env);
+    return new DatabaseInitializer(dbType, nflowDataSource, env);
   }
-
 
   @Bean
   public SQLVariants sqlVariants() {

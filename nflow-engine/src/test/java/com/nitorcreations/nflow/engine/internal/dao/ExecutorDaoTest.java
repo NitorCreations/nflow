@@ -17,9 +17,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -33,13 +31,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
   @Inject
   ExecutorDao dao;
 
-  private JdbcTemplate jdbcTemplate;
   private final DateTime started = now().minusDays(1);
-
-  @Before
-  public void setup() {
-    jdbcTemplate = new JdbcTemplate(ds);
-  }
 
   @Test
   public void tickCausesDeadNodeRecoveryPeriodically() {
@@ -59,10 +51,10 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
     dao.recoverWorkflowInstancesFromDeadNodes();
 
-    Integer executorId = jdbcTemplate.queryForObject("select executor_id from nflow_workflow where id = ?", Integer.class, id);
+    Integer executorId = jdbc.queryForObject("select executor_id from nflow_workflow where id = ?", Integer.class, id);
     assertThat(executorId, is(nullValue()));
 
-    List<WorkflowInstanceAction> actions = jdbcTemplate.query("select * from nflow_workflow_action where workflow_id = ?",
+    List<WorkflowInstanceAction> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
         new WorkflowInstanceActionRowMapper(Collections.<Integer,Map<String, String>>emptyMap()), id);
     assertThat(actions.size(), is(1));
     WorkflowInstanceAction workflowInstanceAction = actions.get(0);
@@ -72,7 +64,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
   private int insertWorkflowInstance(final int crashedExecutorId) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbcTemplate.update(new PreparedStatementCreator() {
+    jdbc.update(new PreparedStatementCreator() {
       @Override
       public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(
@@ -90,7 +82,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
   }
 
   private void insertCrashedExecutor(int crashedExecutorId) {
-    jdbcTemplate.update(
+    jdbc.update(
         "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
         crashedExecutorId, "localhost", 666, dao.getExecutorGroup(), started.toDate(), started.plusSeconds(1).toDate(), started
             .plusHours(1).toDate());

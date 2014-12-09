@@ -11,11 +11,17 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestWorkflow.SpringDummyTestState> {
 
   public static enum SpringDummyTestState implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
-    start, end;
+    start(WorkflowStateType.start), end(WorkflowStateType.end);
+
+    private WorkflowStateType type;
+
+    private SpringDummyTestState(WorkflowStateType type) {
+      this.type = type;
+    }
 
     @Override
     public WorkflowStateType getType() {
-      return WorkflowStateType.normal;
+      return type;
     }
 
     @Override
@@ -27,7 +33,6 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
     public String getDescription() {
       return null;
     }
-
   }
 
   protected SpringDummyTestWorkflow() {

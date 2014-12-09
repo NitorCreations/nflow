@@ -81,7 +81,6 @@
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>3.0.1</coveralls.version>
-    <dependency.plugin.version>2.9</dependency.plugin.version>
     <el.version>3.0.0</el.version>
     <findbugs-annotations.version>3.0.0</findbugs-annotations.version>
     <findbugs.version>3.0.0</findbugs.version>
@@ -89,11 +88,11 @@
     <hamcrest.version>1.3</hamcrest.version>
     <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
     <hikaricp.version>2.2.5</hikaricp.version>
-    <jackson.version>2.4.3</jackson.version>
+    <jackson.version>2.4.4</jackson.version>
     <javassist.version>3.18.2-GA</javassist.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
-    <jodatime.version>2.5</jodatime.version>
+    <jodatime.version>2.6</jodatime.version>
     <jetty.version>9.2.5.v20141112</jetty.version>
     <junit.version>4.11</junit.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
@@ -101,6 +100,7 @@
     <maven-clean.version>2.6.1</maven-clean.version>
     <maven-cobertura.version>2.6</maven-cobertura.version>
     <maven-compiler.version>3.2</maven-compiler.version>
+    <maven-dependency.version>2.9</maven-dependency.version>
     <maven-deploy.version>2.8.2</maven-deploy.version>
     <maven-download.version>1.2.1</maven-download.version>
     <maven-eclipse.version>2.9</maven-eclipse.version>
@@ -110,7 +110,7 @@
     <maven-jar.version>2.5</maven-jar.version>
     <maven-javadoc.version>2.10.1</maven-javadoc.version>
     <maven-jxr.version>2.5</maven-jxr.version>
-    <maven-pmd.version>3.2</maven-pmd.version>
+    <maven-pmd.version>3.3</maven-pmd.version>
     <maven-project-info.version>2.7</maven-project-info.version>
     <maven-release.version>2.5.1</maven-release.version>
     <maven-resources.version>2.7</maven-resources.version>
@@ -126,7 +126,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <slf4j.version>1.7.7</slf4j.version>
     <spring.version>4.1.2.RELEASE</spring.version>
-    <swagger.version>1.3.10</swagger.version>
+    <swagger.version>1.3.11</swagger.version>
     <validation.api.version>1.1.0.Final</validation.api.version>
   </properties>
   <build>
@@ -245,7 +245,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>${dependency.plugin.version}</version>
+          <version>${maven-dependency.version}</version>
         </plugin>
         <plugin>
           <groupId>com.googlecode.maven-download-plugin</groupId>
