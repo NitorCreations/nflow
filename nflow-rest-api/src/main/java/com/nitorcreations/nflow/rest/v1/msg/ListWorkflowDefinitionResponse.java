@@ -7,7 +7,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @ApiModel(value = "Basic information of workflow definition")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
-public class ListWorkflowDefinitionResponse {
+public class ListWorkflowDefinitionResponse implements Comparable<ListWorkflowDefinitionResponse> {
 
   @ApiModelProperty(value = "Type of the workflow definition", required=true)
   public String type;
@@ -55,6 +55,11 @@ public class ListWorkflowDefinitionResponse {
     @ApiModelProperty(value = "Maximum delay between failure retries", required=true)
     public long maxErrorWait;
 
+  }
+
+  @Override
+  public int compareTo(ListWorkflowDefinitionResponse response) {
+    return type.compareTo(response.type);
   }
 
 }

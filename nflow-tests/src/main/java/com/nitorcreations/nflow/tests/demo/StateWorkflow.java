@@ -24,6 +24,8 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
 
+  public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
+
   public static enum State implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
     state1(start, "Set variable 1"),
     state2(normal, "Set variable 2"),
@@ -58,7 +60,7 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
   }
 
   public StateWorkflow() {
-    super("stateWorkflow", state1, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
+    super(STATE_WORKFLOW_TYPE, state1, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
         .setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
     permit(state1, state2);
     permit(state2, state3);

@@ -21,6 +21,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.StatisticsDao;
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -42,6 +43,11 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     public WorkflowInstanceDao workflowInstanceDao() {
       return mock(WorkflowInstanceDao.class);
+    }
+
+    @Bean
+    public WorkflowDefinitionDao workflowDefinitionDao() {
+      return mock(WorkflowDefinitionDao.class);
     }
 
     @Bean

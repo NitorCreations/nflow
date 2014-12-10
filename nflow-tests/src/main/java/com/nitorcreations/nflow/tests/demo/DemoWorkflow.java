@@ -17,6 +17,8 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 @Component
 public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
 
+  public static final String DEMO_WORKFLOW_TYPE = "demo";
+
   public static enum State implements WorkflowState {
     begin(start), process(normal), done(end), error(manual);
 
@@ -43,7 +45,7 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
   }
 
   public DemoWorkflow() {
-    super("demo", State.begin, State.error);
+    super(DEMO_WORKFLOW_TYPE, State.begin, State.error);
     permit(State.begin, State.process);
     permit(State.process, State.done);
   }

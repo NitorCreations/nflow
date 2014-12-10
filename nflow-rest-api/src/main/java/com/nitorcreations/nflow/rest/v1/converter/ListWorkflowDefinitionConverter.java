@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.rest.v1.converter;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -55,6 +57,22 @@ public class ListWorkflowDefinitionConverter {
     settings.maxRetries = workflowSettings.maxRetries;
     resp.settings = settings;
 
+    return resp;
+  }
+
+  public ListWorkflowDefinitionResponse convert(StoredWorkflowDefinition storedDefinition) {
+    ListWorkflowDefinitionResponse resp = new ListWorkflowDefinitionResponse();
+    resp.type = storedDefinition.type;
+    resp.description = storedDefinition.description;
+    resp.onError = storedDefinition.onError;
+    List<State> states = new ArrayList<>();
+    for (StoredWorkflowDefinition.State state : storedDefinition.states) {
+      State tmp = new State(state.id, state.type, state.description);
+      tmp.transitions.addAll(state.transitions);
+      tmp.onFailure = state.onFailure;
+      states.add(tmp);
+    }
+    resp.states = states.toArray(new State[states.size()]);
     return resp;
   }
 }

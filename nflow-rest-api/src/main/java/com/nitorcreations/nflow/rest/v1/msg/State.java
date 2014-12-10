@@ -12,6 +12,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class State {
 
+  public State() {
+    // default constructor for Jackson deserializer
+  }
+
   /**
    * Create a state.
    *
