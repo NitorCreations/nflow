@@ -22,6 +22,13 @@
           <include>nflow-jetty.properties</include>
         </includes>
       </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>nflow-jetty.properties</exclude>
+        </excludes>
+      </resource>
     </resources>
     <plugins>
       <plugin>
@@ -83,6 +90,9 @@
                 <resource>
                   <directory>${project.build.directory}/swagger/swagger-ui-${swagger.ui.version}/dist</directory>
                   <filtering>false</filtering>
+                  <excludes>
+                    <exclude>index.html</exclude>
+                  </excludes>
                 </resource>
               </resources>
             </configuration>
