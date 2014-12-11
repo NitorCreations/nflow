@@ -1,9 +1,7 @@
 package com.nitorcreations.nflow.jetty.config;
 
-import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_HOST;
-import static com.nitorcreations.nflow.jetty.StartNflow.DEFAULT_PORT;
 import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static java.util.Arrays.asList;
 
 import java.util.Arrays;
 
@@ -22,8 +20,6 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -47,10 +43,6 @@ import com.nitorcreations.nflow.rest.v1.StatisticsResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
-import com.wordnik.swagger.jaxrs.config.BeanConfig;
-import com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider;
-import com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON;
-import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 
 @Configuration
 @PropertySource("classpath:nflow-jetty.properties")
@@ -58,8 +50,6 @@ import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
 @Import(value = { RestConfiguration.class, JmxConfiguration.class})
 @EnableTransactionManagement
 public class NflowJettyConfiguration {
-
-  private static final Logger logger = LoggerFactory.getLogger(NflowJettyConfiguration.class);
 
   @Inject
   Environment env;
@@ -73,20 +63,18 @@ public class NflowJettyConfiguration {
         workflowInstanceResource,
         workflowDefinitionResource,
         workflowExecutorResource,
-        statisticsResource,
-        apiListingResourceJson()));
+        statisticsResource
+        ));
     factory.setAddress('/' + factory.getAddress());
-    factory.setProviders( Arrays.asList(
+    factory.setProviders(asList(
         jsonProvider(nflowRestObjectMapper),
         validationExceptionMapper(),
-        resourceListingProvider(),
-        apiDeclarationProvider(),
         corsHeadersProvider(),
         notFoundExceptionMapper(),
         new BadRequestExceptionMapper(),
         new DateTimeParamConverterProvider()
         ));
-    factory.setFeatures(Arrays.asList(new LoggingFeature()));
+    factory.setFeatures(asList(new LoggingFeature()));
     factory.setBus(cxf());
     factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationInInterceptor()));
     factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationOutInterceptor()));
@@ -120,40 +108,6 @@ public class NflowJettyConfiguration {
   @Bean
   public JaxRsApiApplication jaxRsApiApplication() {
       return new JaxRsApiApplication();
-  }
-
-  @Bean
-  public BeanConfig swaggerConfig() {
-    final BeanConfig config = new BeanConfig();
-    config.setVersion(env.getRequiredProperty("nflow.version"));
-    config.setScan(true);
-    config.setResourcePackage(WorkflowInstanceResource.class.getPackage().getName());
-    String basePath = env.getProperty("swagger.basepath");
-    if (isEmpty(basePath)) {
-      basePath = String.format("%s://%s:%d%s",
-          env.getProperty("swagger.basepath.protocol", "http"),
-          env.getProperty("swagger.basepath.server", env.getProperty("host", DEFAULT_HOST)),
-          env.getProperty("swagger.basepath.port", Integer.class, env.getProperty("port", Integer.class, DEFAULT_PORT)),
-          env.getProperty("swagger.basepath.context", "/api"));
-    }
-    logger.debug("Swagger basepath: {}", basePath);
-    config.setBasePath(basePath);
-    return config;
-  }
-
-  @Bean
-  public ApiDeclarationProvider apiDeclarationProvider() {
-   return new ApiDeclarationProvider();
-  }
-
-  @Bean
-  public ApiListingResourceJSON apiListingResourceJson() {
-   return new ApiListingResourceJSON();
-  }
-
-  @Bean
-  public ResourceListingProvider resourceListingProvider() {
-   return new ResourceListingProvider();
   }
 
   @ApplicationPath("/")

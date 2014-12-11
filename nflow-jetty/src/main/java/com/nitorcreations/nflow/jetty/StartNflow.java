@@ -165,6 +165,7 @@ public class StartNflow
 
     logger.info("Static resources served from {}", resources);
     context.setBaseResource(new ResourceCollection(resources.toArray(new String[resources.size()])));
+    context.setWelcomeFiles(new String[] { "index.html", "service.json" });
 
     ServletHolder holder = new ServletHolder(new DefaultServlet());
     holder.setInitParameter("dirAllowed", "false");
