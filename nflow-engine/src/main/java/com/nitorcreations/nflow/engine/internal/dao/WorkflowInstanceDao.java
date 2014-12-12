@@ -346,6 +346,10 @@ public class WorkflowInstanceDao {
     return keyHolder.getKey().intValue();
   }
 
+  public String getWorkflowInstanceState(int workflowInstanceId) {
+    return jdbc.queryForObject("select state from nflow_workflow where id = ?", String.class, workflowInstanceId);
+  }
+
   static class WorkflowInstancePreparedStatementCreator implements PreparedStatementCreator {
 
     private final WorkflowInstance instance;

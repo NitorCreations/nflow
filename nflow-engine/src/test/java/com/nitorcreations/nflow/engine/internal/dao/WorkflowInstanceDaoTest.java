@@ -225,6 +225,16 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(statsMap.size(), is(1));
   }
 
+  @Test
+  public void getWorkflowInstanceStateWorks() {
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
+    int workflowInstanceId = dao.insertWorkflowInstance(instance);
+
+    String state = dao.getWorkflowInstanceState(workflowInstanceId);
+
+    assertThat(state, is("CreateLoan"));
+  }
+
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
     assertThat(i1.type, equalTo(i2.type));
     assertThat(i1.executorId, equalTo(i2.executorId));

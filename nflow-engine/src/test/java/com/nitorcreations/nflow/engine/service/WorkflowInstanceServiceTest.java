@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -83,8 +84,6 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test(expected = RuntimeException.class)
   public void insertWorkflowInstanceWithWrongStartState() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
-
-//    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     service.insertWorkflowInstance(i);
   }
 
@@ -116,10 +115,12 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void updateWorkflowInstanceWorks() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().build();
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(i.id).build();
+    when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation)).thenReturn(true);
     assertThat(service.updateWorkflowInstance(i, a), is(true));
-    verify(workflowInstanceDao).insertWorkflowInstanceAction(i, a);
+    verify(workflowInstanceDao).insertWorkflowInstanceAction(eq(i), storedAction.capture());
+    assertThat(storedAction.getValue().state, is("currentState"));
   }
 
   @Test

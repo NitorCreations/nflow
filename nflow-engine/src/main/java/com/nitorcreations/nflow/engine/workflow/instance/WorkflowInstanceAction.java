@@ -93,6 +93,21 @@ public class WorkflowInstanceAction {
     }
 
     /**
+     * Create a builder for a workflow instance action based on an existing workflow instance action.
+     * @param action The workflow instance action to be copied.
+     */
+    public Builder(WorkflowInstanceAction action) {
+      this.executionEnd = action.executionEnd;
+      this.executionStart = action.executionStart;
+      this.executorId = action.executorId;
+      this.retryNo = action.retryNo;
+      this.state = action.state;
+      this.stateText = action.stateText;
+      this.updatedStateVariables.putAll(action.updatedStateVariables);
+      this.workflowInstanceId = action.workflowInstanceId;
+    }
+
+    /**
      * Create a builder for a workflow instance action based on an existing workflow instance.
      * @param instance The workflow instance for which the action is created.
      */
