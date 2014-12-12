@@ -14,6 +14,6 @@ angular.module('nflowVisApp')
   };
 
   $scope.nflowApiDocs = function() {
-    return config.nflowUrl + '/ui/';
+    return config.nflowApiDocs;
   };
 });
