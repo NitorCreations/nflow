@@ -1,8 +1,8 @@
 package com.nitorcreations.nflow.tests.runner;
 
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.right;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.junit.Assert.assertTrue;
 
