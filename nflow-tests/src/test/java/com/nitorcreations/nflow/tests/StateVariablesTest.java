@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.springframework.context.annotation.Bean;
 
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -26,12 +27,19 @@ import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 @FixMethodOrder(NAME_ASCENDING)
 public class StateVariablesTest extends AbstractNflowTest {
   @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().build();
+  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(TestConfiguration.class).build();
   private static CreateWorkflowInstanceRequest createRequest;
   private static CreateWorkflowInstanceResponse createResponse;
 
   public StateVariablesTest() {
     super(server);
+  }
+
+  static class TestConfiguration {
+    @Bean
+    public StateWorkflow stateWorkflow() {
+      return new StateWorkflow();
+    }
   }
 
   @Test(timeout = 5000)

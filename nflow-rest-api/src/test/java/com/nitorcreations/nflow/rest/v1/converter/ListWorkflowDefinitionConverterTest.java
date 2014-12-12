@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import com.nitorcreations.nflow.rest.v1.DummyTestWorkflow;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v1.msg.State;
@@ -60,4 +61,20 @@ public class ListWorkflowDefinitionConverterTest {
     return state;
   }
 
+  @Test
+  public void convertStoredDefinitionWorks() {
+    StoredWorkflowDefinition stored = new StoredWorkflowDefinition();
+    stored.description = "desc";
+    stored.onError = "errorState";
+    stored.type = "storedDefinition";
+    StoredWorkflowDefinition.State storedState = new StoredWorkflowDefinition.State("first", "normal", "first state desc");
+    stored.states = asList(storedState);
+    ListWorkflowDefinitionResponse resp = converter.convert(stored);
+    assertThat(resp.description, is(stored.description));
+    assertThat(resp.onError, is(stored.onError));
+    assertThat(resp.states.length, is(1));
+    assertThat(resp.states[0].description, is(storedState.description));
+    assertThat(resp.states[0].type, is(storedState.type));
+    assertThat(resp.states[0].id, is(storedState.id));
+  }
 }

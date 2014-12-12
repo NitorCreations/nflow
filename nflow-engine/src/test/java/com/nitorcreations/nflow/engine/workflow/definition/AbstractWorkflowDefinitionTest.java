@@ -1,6 +1,10 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
@@ -13,7 +17,9 @@ import static org.mockito.Mockito.when;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 
@@ -22,6 +28,9 @@ public class AbstractWorkflowDefinitionTest {
   private final TestWorkflow workflow = new TestWorkflow();
   private final DateTime activation = now().plusDays(1);
   private final StateExecutionImpl execution = mock(StateExecutionImpl.class);
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setup() {
@@ -46,7 +55,7 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.start.name());
+    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
 
     workflow.handleRetryAfter(execution, activation);
 
@@ -76,7 +85,7 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.start.name());
+    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
     when(execution.getRetries()).thenReturn(0);
 
     workflow.handleRetryAfter(execution, activation);
@@ -85,16 +94,42 @@ public class AbstractWorkflowDefinitionTest {
     verify(execution).setNextActivation(activation);
   }
 
+  @Test()
+  public void sameFailureStateCanBePermittedAgain() {
+    new TestWorkflow2().permitSameFailure();
+  }
+
+  @Test()
+  public void onlyOneFailureStateCanBeDefined() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Different failureState 'failed' already defined for originState 'process'");
+    new TestWorkflow2().permitDifferentFailure();
+  }
+
+  static class TestWorkflow2 extends TestWorkflow {
+    public void permitDifferentFailure() {
+      permit(State.process, State.done);
+      permit(State.process, State.done, State.failed);
+      permit(State.process, State.error, State.error);
+    }
+
+    public void permitSameFailure() {
+      permit(State.process, State.done);
+      permit(State.process, State.done, State.failed);
+      permit(State.process, State.error, State.failed);
+    }
+  }
+
   static class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
 
     protected TestWorkflow() {
-      super("test", State.start, State.error);
-      permit(State.start, State.done, State.failed);
+      super("test", State.begin, State.error);
+      permit(State.begin, State.done, State.failed);
       permit(State.startWithoutFailure, State.done);
     }
 
     public static enum State implements WorkflowState {
-      start(WorkflowStateType.start), startWithoutFailure(WorkflowStateType.start), done(WorkflowStateType.end), failed(WorkflowStateType.end), error(WorkflowStateType.manual);
+      begin(start), startWithoutFailure(start), process(normal), done(end), failed(end), error(manual);
 
       private WorkflowStateType stateType;
 
@@ -118,7 +153,11 @@ public class AbstractWorkflowDefinitionTest {
       }
     }
 
-    public NextAction start(StateExecution execution) {
+    public NextAction begin(StateExecution execution) {
+      return stopInState(State.done, "Done");
+    }
+
+    public NextAction process(StateExecution execution) {
       return stopInState(State.done, "Done");
     }
 

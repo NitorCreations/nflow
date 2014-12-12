@@ -1,6 +1,4 @@
-com.nitorcreations.nflow.tests.demo.DemoWorkflow
 com.nitorcreations.nflow.tests.demo.WordGeneratorWorkflow
 com.nitorcreations.nflow.tests.demo.WordGeneratorErrorsWorkflow
 com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow
 com.nitorcreations.nflow.tests.demo.SlowWorkflow
-com.nitorcreations.nflow.tests.demo.StateWorkflow

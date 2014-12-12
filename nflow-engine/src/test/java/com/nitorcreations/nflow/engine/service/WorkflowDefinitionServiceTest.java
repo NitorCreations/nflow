@@ -5,10 +5,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -18,6 +19,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -31,6 +33,8 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   private ClassPathResource nonSpringWorkflowListing;
   @Mock
   private WorkflowInstanceDao workflowInstanceDao;
+  @Mock
+  private WorkflowDefinitionDao workflowDefinitionDao;
   private WorkflowDefinitionService service;
 
   @Before
@@ -38,10 +42,11 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream(dummyTestClassname.getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    service = new WorkflowDefinitionService(nonSpringWorkflowListing, workflowInstanceDao);
+    service = new WorkflowDefinitionService(nonSpringWorkflowListing, workflowInstanceDao, workflowDefinitionDao);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(0)));
-    service.initNonSpringWorkflowDefinitions();
+    service.postProcessWorkflowDefinitions();
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+    verify(workflowDefinitionDao).storeWorkflowDefinition(eq(service.getWorkflowDefinitions().get(0)));
   }
 
   @Test
@@ -51,16 +56,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream((dummyTestClassname + "\n" + dummyTestClassname).getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    service.initNonSpringWorkflowDefinitions();
-  }
-
-  @Test
-  public void springWorkflowsWork() {
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
-    List<WorkflowDefinition<? extends WorkflowState>> list = new ArrayList<>();
-    list.add(new SpringDummyTestWorkflow());
-    service.setWorkflowDefinitions(list);
-    assertThat(definitions.size(), is(equalTo(1)));
+    service.postProcessWorkflowDefinitions();
   }
 
   @Test
@@ -71,8 +67,8 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void nonSpringWorkflowsAreOptional() throws Exception {
-    service = new WorkflowDefinitionService(null, workflowInstanceDao);
-    service.initNonSpringWorkflowDefinitions();
+    service = new WorkflowDefinitionService(null, workflowInstanceDao, workflowDefinitionDao);
+    service.postProcessWorkflowDefinitions();
     assertEquals(0, service.getWorkflowDefinitions().size());
   }
 

@@ -1,11 +1,11 @@
 package com.nitorcreations.nflow.rest.v1;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +20,8 @@ import javax.ws.rs.QueryParam;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
+import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -40,27 +42,40 @@ public class WorkflowDefinitionResource {
   private final WorkflowDefinitionService workflowDefinitions;
   private final ListWorkflowDefinitionConverter converter;
   private final WorkflowDefinitionStatisticsConverter statisticsConverter;
+  private final WorkflowDefinitionDao workflowDefinitionDao;
 
   @Inject
   public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter,
-      WorkflowDefinitionStatisticsConverter statisticsConverter) {
+      WorkflowDefinitionStatisticsConverter statisticsConverter, WorkflowDefinitionDao workflowDefinitionDao) {
     this.workflowDefinitions = workflowDefinitions;
     this.converter = converter;
     this.statisticsConverter = statisticsConverter;
+    this.workflowDefinitionDao = workflowDefinitionDao;
   }
 
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowDefinitionResponse> listWorkflowInstances(@QueryParam("type") String[] types) {
+  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(@QueryParam("type") String[] types) {
     List<WorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
-    Set<String> reqTypes = new LinkedHashSet<>(Arrays.asList(types));
-    Collection<ListWorkflowDefinitionResponse> response = new ArrayList<>();
+    Set<String> reqTypes = new HashSet<>(asList(types));
+    Set<String> foundTypes = new HashSet<>();
+    List<ListWorkflowDefinitionResponse> response = new ArrayList<>();
     for (WorkflowDefinition<? extends WorkflowState> definition : definitions) {
-      if (!reqTypes.isEmpty() && !reqTypes.contains(definition.getType())) {
-        continue;
+      if (reqTypes.isEmpty() || reqTypes.contains(definition.getType())) {
+        foundTypes.add(definition.getType());
+        response.add(converter.convert(definition));
       }
-      response.add(converter.convert(definition));
     }
+    if (reqTypes.isEmpty() || foundTypes.size() < reqTypes.size()) {
+      reqTypes.removeAll(foundTypes);
+      List<StoredWorkflowDefinition> storedDefinitions = workflowDefinitionDao.queryStoredWorkflowDefinitions(reqTypes);
+      for (StoredWorkflowDefinition storedDefinition : storedDefinitions) {
+        if (!foundTypes.contains(storedDefinition.type)) {
+          response.add(converter.convert(storedDefinition));
+        }
+      }
+    }
+    sort(response);
     return response;
   }
 

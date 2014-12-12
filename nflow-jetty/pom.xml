@@ -16,15 +16,6 @@
     <swagger.ui.version>2.0.24</swagger.ui.version>
   </properties>
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>nflow-jetty.properties</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -47,6 +38,7 @@
                   <outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
                 </artifactItem>
               </artifactItems>
+              <excludes>config.js</excludes>
             </configuration>
           </execution>
         </executions>
@@ -85,6 +77,9 @@
                 <resource>
                   <directory>${project.build.directory}/swagger/swagger-ui-${swagger.ui.version}/dist</directory>
                   <filtering>false</filtering>
+                  <excludes>
+                    <exclude>index.html</exclude>
+                  </excludes>
                 </resource>
               </resources>
             </configuration>
@@ -190,10 +185,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-jaxrs_2.10</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

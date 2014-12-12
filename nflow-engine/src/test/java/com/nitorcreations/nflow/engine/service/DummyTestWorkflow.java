@@ -35,8 +35,10 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
 
   }
 
-  protected DummyTestWorkflow() {
+  public DummyTestWorkflow() {
     super("dummy", DummyTestState.start, DummyTestState.end);
+    permit(DummyTestState.start, DummyTestState.end, DummyTestState.end);
+    permit(DummyTestState.alternativeStart, DummyTestState.end);
   }
 
   public NextAction start(StateExecution execution) {

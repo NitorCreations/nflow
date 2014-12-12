@@ -22,6 +22,7 @@ import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -38,11 +39,14 @@ public class WorkflowDefinitionService {
   private final AbstractResource nonSpringWorkflowsListing;
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
   private final WorkflowInstanceDao workflowInstanceDao;
+  private final WorkflowDefinitionDao workflowDefinitionDao;
 
   @Inject
-  public WorkflowDefinitionService(@NFlow AbstractResource nflowNonSpringWorkflowsListing, WorkflowInstanceDao workflowInstanceDao) {
+  public WorkflowDefinitionService(@NFlow AbstractResource nflowNonSpringWorkflowsListing,
+      WorkflowInstanceDao workflowInstanceDao, WorkflowDefinitionDao workflowDefinitionDao) {
     this.nonSpringWorkflowsListing = nflowNonSpringWorkflowsListing;
     this.workflowInstanceDao = workflowInstanceDao;
+    this.workflowDefinitionDao = workflowDefinitionDao;
   }
 
   /**
@@ -74,16 +78,24 @@ public class WorkflowDefinitionService {
   }
 
   /**
-   * Add workflow definitions from the nflowNonSpringWorkflowsListing resource.
+   * Add workflow definitions from the nflowNonSpringWorkflowsListing resource and persist
+   * all loaded workflow definitions.
    * @throws IOException when workflow definitions can not be read from the resource.
    * @throws ReflectiveOperationException when the workflow definition can not be instantiated.
    */
   @PostConstruct
-  public void initNonSpringWorkflowDefinitions() throws IOException, ReflectiveOperationException {
+  public void postProcessWorkflowDefinitions() throws IOException, ReflectiveOperationException {
     if (nonSpringWorkflowsListing == null) {
       logger.info("No non-Spring workflow definitions");
-      return;
+    } else {
+      initNonSpringWorkflowDefinitions();
     }
+    for (WorkflowDefinition<?> definition : workflowDefitions.values()) {
+      workflowDefinitionDao.storeWorkflowDefinition(definition);
+    }
+  }
+
+  private void initNonSpringWorkflowDefinitions() throws IOException, ReflectiveOperationException {
     try (BufferedReader br = new BufferedReader(new InputStreamReader(nonSpringWorkflowsListing.getInputStream(), UTF_8))) {
       String row;
       while ((row = br.readLine()) != null) {

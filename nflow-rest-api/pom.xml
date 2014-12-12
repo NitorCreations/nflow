@@ -9,6 +9,9 @@
     <groupId>com.nitorcreations</groupId>
     <version>1.1.1-SNAPSHOT</version>
   </parent>
+  <properties>
+    <EMPTY></EMPTY>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>com.nitorcreations</groupId>
@@ -26,7 +29,7 @@
     <dependency>
       <groupId>com.wordnik</groupId>
       <artifactId>swagger-annotations</artifactId>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
@@ -65,4 +68,67 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.kongchen</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <version>${maven-swagger.version}</version>
+        <configuration>
+          <apiSources>
+            <apiSource>
+              <locations>com.nitorcreations.nflow.rest</locations>
+              <apiVersion>${project.version}</apiVersion>
+              <swaggerDirectory>${project.build.outputDirectory}/swagger-docs</swaggerDirectory>
+              <basePath>api</basePath>
+              <swaggerUIDocBasePath>@EMPTY@</swaggerUIDocBasePath>
+              <swaggerApiReader>com.wordnik.swagger.jersey.JerseyApiReader</swaggerApiReader>
+            </apiSource>
+          </apiSources>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.wordnik</groupId>
+            <artifactId>swagger-jersey-jaxrs_2.10</artifactId>
+            <version>${swagger.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.wordnik</groupId>
+            <artifactId>swagger-jaxrs_2.10</artifactId>
+            <version>${swagger.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/static/api-docs</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>${project.build.outputDirectory}/swagger-docs</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
