@@ -22,7 +22,7 @@ public class NflowServerRule extends ExternalResource {
   private final String env;
   private final String profiles;
   private final AtomicReference<Integer> port;
-  private final Class<?> springContextClass;
+  private Class<?> springContextClass;
   private JettyServerContainer nflowJetty;
 
   NflowServerRule(Builder b) {
@@ -97,6 +97,10 @@ public class NflowServerRule extends ExternalResource {
       props.put("nflow.executor.group", processName);
     }
     return super.apply(base, description);
+  }
+
+  public void setSpringContextClass(Class<?> springContextClass) {
+    this.springContextClass = springContextClass;
   }
 
   @Override

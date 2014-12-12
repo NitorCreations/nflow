@@ -21,6 +21,7 @@ import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
@@ -31,6 +32,7 @@ import com.nitorcreations.nflow.tests.runner.SkipTestMethodsAfterFirstFailureRul
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
+  protected WebClient workflowDefinitionResource;
   protected WebClient statisticsResource;
 
   @Rule
@@ -50,6 +52,12 @@ public abstract class AbstractNflowTest {
   }
 
   @Inject
+  public void setWorkflowDefinitionResource(@Named("workflowDefinition") WebClient client) {
+    String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
+    this.workflowDefinitionResource = fromClient(client, true).to(newUri, false);
+  }
+
+  @Inject
   public void setStatisticsResource(@Named("statistics") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.statisticsResource = fromClient(client, true).to(newUri, false);
@@ -58,6 +66,11 @@ public abstract class AbstractNflowTest {
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
     WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
     return client.get(ListWorkflowInstanceResponse.class);
+  }
+
+  protected ListWorkflowDefinitionResponse[] getWorkflowDefinitions() {
+    WebClient client = fromClient(workflowDefinitionResource, true);
+    return client.get(ListWorkflowDefinitionResponse[].class);
   }
 
   public Statistics getStatistics() {

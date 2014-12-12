@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration.H2SQLVariants;
 
@@ -23,6 +28,11 @@ public class DaoTestConfiguration {
   @Bean
   public WorkflowInstanceDao workflowInstanceDao() {
     return new WorkflowInstanceDao();
+  }
+
+  @Bean
+  public WorkflowDefinitionDao workflowDefinitionDao() {
+    return new WorkflowDefinitionDao();
   }
 
   @Bean
@@ -43,5 +53,13 @@ public class DaoTestConfiguration {
     return new DataSourceTransactionManager(ds);
   }
 
+  @Bean
+  @NFlow
+  public ObjectMapper objectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.registerModule(new JodaModule());
+    return mapper;
+  }
 }
 
