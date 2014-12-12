@@ -145,8 +145,6 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
   /**
    * Add a state and failure state transitions to the allowed transitions.
-   * If this method is called multiple times for the same origin state,
-   * the last failure state will be effective.
    * @param originState The origin state.
    * @param targetState The target state.
    * @param failureState The failure state.
@@ -155,7 +153,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   protected AbstractWorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
     Assert.notNull(failureState, "Failure state can not be null");
     requireStateMethodExists(failureState);
-    failureTransitions.put(originState.name(), failureState);
+    WorkflowState existingFailure = failureTransitions.put(originState.name(), failureState);
+    Assert.isTrue(existingFailure == null || existingFailure.equals(failureState), "Different failureState '" + existingFailure
+        + "' already defined for originState '" + originState.name() + "'");
     return permit(originState, targetState);
   }
 
