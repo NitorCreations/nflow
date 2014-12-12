@@ -14,22 +14,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>nflow-jetty.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <excludes>
-          <exclude>nflow-jetty.properties</exclude>
-        </excludes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -52,6 +36,7 @@
                   <outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
                 </artifactItem>
               </artifactItems>
+              <excludes>config.js</excludes>
             </configuration>
           </execution>
         </executions>
