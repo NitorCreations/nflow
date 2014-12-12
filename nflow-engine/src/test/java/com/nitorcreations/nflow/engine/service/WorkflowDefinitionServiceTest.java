@@ -8,7 +8,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -52,15 +51,6 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     ByteArrayInputStream bis = new ByteArrayInputStream((dummyTestClassname + "\n" + dummyTestClassname).getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
     service.initNonSpringWorkflowDefinitions();
-  }
-
-  @Test
-  public void springWorkflowsWork() {
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
-    List<WorkflowDefinition<? extends WorkflowState>> list = new ArrayList<>();
-    list.add(new SpringDummyTestWorkflow());
-    service.setWorkflowDefinitions(list);
-    assertThat(definitions.size(), is(equalTo(1)));
   }
 
   @Test
