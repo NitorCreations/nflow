@@ -13,22 +13,29 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.springframework.context.annotation.ComponentScan;
 
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.tests.demo.DemoWorkflow;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class DemoWorkflowTest extends AbstractNflowTest {
   @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().build();
+  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(DemoConfiguration.class).build();
 
   private static CreateWorkflowInstanceResponse resp;
 
   public DemoWorkflowTest() {
     super(server);
+  }
+
+  @ComponentScan(basePackageClasses = DemoWorkflow.class)
+  static class DemoConfiguration {
+    // for component scanning only
   }
 
   @Test

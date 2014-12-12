@@ -6,12 +6,15 @@ import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateT
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 
+import org.springframework.stereotype.Component;
+
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
+@Component
 public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
 
   public static enum State implements WorkflowState {

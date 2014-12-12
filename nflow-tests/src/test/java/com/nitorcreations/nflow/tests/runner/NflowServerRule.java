@@ -22,6 +22,7 @@ public class NflowServerRule extends ExternalResource {
   private final String env;
   private final String profiles;
   private final AtomicReference<Integer> port;
+  private final Class<?> springContextClass;
   private JettyServerContainer nflowJetty;
 
   NflowServerRule(Builder b) {
@@ -29,12 +30,14 @@ public class NflowServerRule extends ExternalResource {
     env = b.env;
     profiles = b.profiles;
     port = new AtomicReference<>(b.port);
+    springContextClass = b.springContextClass;
   }
 
   public static class Builder {
     int port = 0;
     String env = "local";
     String profiles = "";
+    Class<?> springContextClass;
     final Map<String, Object> props = new LinkedHashMap<>();
     {
       props.put("nflow.db.h2.tcp.port", "");
@@ -58,6 +61,11 @@ public class NflowServerRule extends ExternalResource {
 
     public Builder prop(String key, Object val) {
       props.put(key, val);
+      return this;
+    }
+
+    public Builder springContextClass(Class<?> newSpringContextClass) {
+      this.springContextClass = newSpringContextClass;
       return this;
     }
 
@@ -102,7 +110,11 @@ public class NflowServerRule extends ExternalResource {
   }
 
   private void startJetty() throws Exception {
-    nflowJetty = new StartNflow().startJetty(port.get(), env, profiles, props);
+    StartNflow startNflow = new StartNflow();
+    if (springContextClass != null) {
+      startNflow.registerSpringContext(springContextClass);
+    }
+    nflowJetty = startNflow.startJetty(port.get(), env, profiles, props);
     assertTrue("Jetty did not start", nflowJetty.isStarted());
     port.set(nflowJetty.getPort());
   }
