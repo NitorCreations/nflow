@@ -84,7 +84,7 @@
     <el.version>3.0.0</el.version>
     <findbugs-annotations.version>3.0.0</findbugs-annotations.version>
     <findbugs.version>3.0.0</findbugs.version>
-    <h2.version>1.4.182</h2.version>
+    <h2.version>1.4.183</h2.version>
     <hamcrest.version>1.3</hamcrest.version>
     <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
     <hikaricp.version>2.2.5</hikaricp.version>
@@ -115,8 +115,8 @@
     <maven-site.version>3.4</maven-site.version>
     <maven-source.version>2.4</maven-source.version>
     <maven-surefire.version>2.18</maven-surefire.version>
-    <maven-swagger.version>2.3.1</maven-swagger.version>
-    <mockito.version>1.10.8</mockito.version>
+    <maven-swagger.version>2.3.2</maven-swagger.version>
+    <mockito.version>1.10.17</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>5.1.34</mysql.version>
     <nflow.explorer.version>0.0.2</nflow.explorer.version>
@@ -124,7 +124,7 @@
     <postgresql.version>9.3-1102-jdbc41</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <slf4j.version>1.7.7</slf4j.version>
+    <slf4j.version>1.7.8</slf4j.version>
     <spring.version>4.1.3.RELEASE</spring.version>
     <swagger.version>1.3.11</swagger.version>
     <swagger.ui.version>2.0.24</swagger.ui.version>
