@@ -79,7 +79,7 @@
             <apiSource>
               <locations>com.nitorcreations.nflow.rest</locations>
               <apiVersion>${project.version}</apiVersion>
-              <swaggerDirectory>${project.build.outputDirectory}/swagger-docs</swaggerDirectory>
+              <swaggerDirectory>${project.build.directory}/swagger-docs</swaggerDirectory>
               <basePath>api</basePath>
               <swaggerUIDocBasePath>@EMPTY@</swaggerUIDocBasePath>
               <swaggerApiReader>com.wordnik.swagger.jersey.JerseyApiReader</swaggerApiReader>
@@ -121,7 +121,7 @@
               <overwrite>true</overwrite>
               <resources>
                 <resource>
-                  <directory>${project.build.outputDirectory}/swagger-docs</directory>
+                  <directory>${project.build.directory}/swagger-docs</directory>
                   <filtering>true</filtering>
                 </resource>
               </resources>
@@ -130,5 +130,51 @@
         </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <version>${maven-eclipse.version}</version>
+          <configuration>
+            <additionalBuildcommands>
+              <buildCommand>
+                <name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+                <triggers>auto,full,incremental,</triggers>
+                <arguments>
+                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/mvn-process-classes.launch</LaunchConfigHandle>
+                </arguments>
+              </buildCommand>
+            </additionalBuildcommands>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>${lifecycle-mapping.version}</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>com.github.kongchen</groupId>
+                    <artifactId>swagger-maven-plugin</artifactId>
+                    <versionRange>[1.0.0,)</versionRange>
+                    <goals>
+                      <goal>generate</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <execute>
+                      <runOnIncremental>false</runOnIncremental>
+                    </execute>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>
