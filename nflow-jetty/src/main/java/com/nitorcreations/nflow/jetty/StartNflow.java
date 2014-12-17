@@ -152,8 +152,7 @@ public class StartNflow
   private ServletContextHandler setupServletContextHandler(String[] extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
 
-    // workaround for a jetty bug that occasionally fails to serve static
-    // resources from a jar file
+    // workaround for a jetty bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=364936
     Resource.setDefaultUseCaches(false);
 
     List<String> resources = new ArrayList<>();
