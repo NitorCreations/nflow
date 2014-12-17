@@ -33,6 +33,7 @@ import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
@@ -150,6 +151,10 @@ public class StartNflow
   @SuppressWarnings("resource")
   private ServletContextHandler setupServletContextHandler(String[] extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
+
+    // workaround for a jetty bug that occasionally fails to serve static
+    // resources from a jar file
+    Resource.setDefaultUseCaches(false);
 
     List<String> resources = new ArrayList<>();
     for (String path : extraStaticResources) {
