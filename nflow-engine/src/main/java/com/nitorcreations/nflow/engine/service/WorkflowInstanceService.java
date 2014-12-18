@@ -89,6 +89,8 @@ public class WorkflowInstanceService {
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(instance.id, instance.state, instance.nextActivation);
     if (updated && action != null) {
+      String currentState = workflowInstanceDao.getWorkflowInstanceState(action.workflowInstanceId);
+      action = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
       workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
     }
     return updated;
