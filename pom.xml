@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
   <name>nflow</name>
   <groupId>com.nitorcreations</groupId>
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <url>https://github.com/NitorCreations/nflow</url>
   <licenses>
     <license>
@@ -21,7 +16,7 @@
     </license>
   </licenses>
   <prerequisites>
-    <maven>3.1</maven>
+    <maven>3.2</maven>
   </prerequisites>
   <organization>
     <name>Nitor Creations Oy</name>
@@ -31,8 +26,15 @@
   <scm>
     <developerConnection>scm:git:git@github.com:NitorCreations/nflow.git</developerConnection>
     <connection>scm:git:git@github.com:NitorCreations/nflow.git</connection>
+    <url>https://github.com/NitorCreations/nflow</url>
     <tag>HEAD</tag>
   </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
   <issueManagement>
     <system>Github</system>
     <url>https://github.com/NitorCreations/nflow/issues</url>
@@ -40,30 +42,37 @@
   <developers>
     <developer>
       <name>Esa Puttonen</name>
+      <email>esa.puttonen@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Mikko Tiihonen</name>
+      <email>mikko.tiihonen@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Markku Rontu</name>
+      <email>markku.rontu@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Juha Syrjälä</name>
+      <email>juha.syrjala@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Isto Nikula</name>
+      <email>isto.nikula@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Edvard Fonsell</name>
+      <email>edvard.fonsell@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
     <developer>
       <name>Janne Sinivirta</name>
+      <email>janne.sinivirta@nitorcreations.com</email>
       <organization>Nitor Creations Oy</organization>
     </developer>
   </developers>
@@ -106,6 +115,7 @@
     <maven-eclipse.version>2.9</maven-eclipse.version>
     <maven-enforcer.version>1.3.1</maven-enforcer.version>
     <maven-findbugs.version>3.0.0</maven-findbugs.version>
+    <maven-gpg.version>1.5</maven-gpg.version>
     <maven-install.version>2.5.2</maven-install.version>
     <maven-jar.version>2.5</maven-jar.version>
     <maven-javadoc.version>2.10.1</maven-javadoc.version>
@@ -121,6 +131,7 @@
     <mockito.version>1.10.17</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>5.1.34</mysql.version>
+    <nexus-staging-maven.version>1.6.5</nexus-staging-maven.version>
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>9.3-1102-jdbc41</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -200,6 +211,10 @@
         <plugin>
           <artifactId>maven-eclipse-plugin</artifactId>
           <version>${maven-eclipse.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg.version}</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -311,8 +326,62 @@
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>${nexus-staging-maven.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <dependencyManagement>
     <dependencies>
       <!-- nitor -->
