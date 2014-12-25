@@ -1,3 +1,47 @@
+## 1.2.0 (2014-12-23)
+
+**Highlights**
+- nFlow explorer (user interface) beta-version added
+- workflow definitions are persisted, and persisted undeployed definitions are returned by REST API
+- services for querying executor group and workflow definition statistics
+
+**Details**
+- nflow-engine:
+  - workflow initial state must be of type "start"
+  - workflow error state must be of final ("end" or "manual")
+  - workflow instance cannot be externally updated (WorkflowInstanceService.updateWorkflowInstance), when being processed by nFlow executor
+  - persists workflow definitions to database during startup (nflow_workflow_definition-table required)
+  - internal components annotated by @NFlow (required e.g. for injecting application datasource to nflow)
+  - does not start anymore, if transactions are not enabled
+  - defining contradictory failure transitions using permit() no longer allowed
+  - bug fixes: 
+    - theoretical problem in optimistic locking of instance polling
+    - binary backoff integer overflow when calculating next activation after 15 retries 
+- nflow-rest-api:
+  - return http code 404, when the requested object is not found
+  - /v1/workflow-definition (GET)
+    - returns persisted workflow definition, if the definition exists (or has existed) within the executor group, but is not deployed to the queried nFlow installation
+  - /v1/workflow-definition/{type}/statistics (GET)
+    - new resource for retrieving counts of workflow instances in different states
+  - /v1/workflow-instance, /v1/workflow-instance/{type} (GET)
+    - returns new workflow instance fields: started, created, modified, retries and actions[n].executor_id
+    - added query parameter limit search result size (maxResults)
+  - /v1/workflow-instance (PUT)
+    - returns http code 409, if the instance is currently being processed by nFlow executor
+    - bug fix: updating only next activation without state change works now
+  - /v1/statistics (GET)
+    - new resource for retrieving workflow instance queue size and lag from target activation times
+- nflow-jetty:
+  - added nflow-explorer user interface beta-version
+    - search, manage and visualize workflow instances
+    - visualize workflow definitions
+    - visualize and monitor instance statistics per definition
+  - Swagger runtime dependency removed: service descriptions are generated in compile time to nflow-rest-api -module and served by nflow-jetty
+  - tuned web contexts
+    - /api/v1/: nFlow REST API version 1
+    - /doc/: nFlow REST API Swagger descriptions
+    - /explorer/: nflow-explorer user interface
+
 ## 1.1.0 (2014-10-16)
 - nflow-engine
   - added executor_id to table nflow_workflow_action and exposed executor_ids in WorkflowInstanceService
