@@ -17,12 +17,13 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
+import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
@@ -64,8 +65,12 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
+    return getInstanceResource(instanceId).get(ListWorkflowInstanceResponse.class);
+  }
+
+  private WebClient getInstanceResource(int instanceId) {
     WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
-    return client.get(ListWorkflowInstanceResponse.class);
+    return client;
   }
 
   protected ListWorkflowDefinitionResponse[] getWorkflowDefinitions() {
@@ -73,9 +78,9 @@ public abstract class AbstractNflowTest {
     return client.get(ListWorkflowDefinitionResponse[].class);
   }
 
-  public Statistics getStatistics() {
+  public StatisticsResponse getStatistics() {
     WebClient client = fromClient(statisticsResource, true);
-    return client.get(Statistics.class);
+    return client.get(StatisticsResponse.class);
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
@@ -110,6 +115,10 @@ public abstract class AbstractNflowTest {
 
   protected CreateWorkflowInstanceResponse createWorkflowInstance(CreateWorkflowInstanceRequest request) {
     return makeWorkflowInstanceQuery(request, CreateWorkflowInstanceResponse.class);
+  }
+
+  protected String updateWorkflowInstance(int instanceId, UpdateWorkflowInstanceRequest request) {
+    return getInstanceResource(instanceId).put(request, String.class);
   }
 
   private <T> T makeWorkflowInstanceQuery(CreateWorkflowInstanceRequest request, Class<T> responseClass) {

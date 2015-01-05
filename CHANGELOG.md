@@ -1,3 +1,9 @@
+## next version
+
+**Details**
+- nflow-engine:
+  - Use more optimal SQL when polling workflows when database supports update returning syntax
+
 ## 1.2.0 (2014-12-23)
 
 **Highlights**

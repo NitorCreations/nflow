@@ -95,6 +95,9 @@ public class WorkflowInstanceResource {
       builder.setNextActivation(req.nextActivationTime);
       msg += "API changed nextActivationTime to " + req.nextActivationTime + ".";
     }
+    if (msg.isEmpty()) {
+      return noContent().build();
+    }
     WorkflowInstance instance = builder.build();
     boolean updated = workflowInstances.updateWorkflowInstance(instance, new WorkflowInstanceAction.Builder(instance)
         .setStateText(trimToNull(msg)).setExecutionEnd(now()).build());

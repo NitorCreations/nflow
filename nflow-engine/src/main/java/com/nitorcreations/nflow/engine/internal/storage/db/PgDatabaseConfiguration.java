@@ -22,5 +22,10 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     public String currentTimePlusSeconds(int seconds) {
       return "current_timestamp + interval '" + seconds + " second'";
     }
+
+    @Override
+    public boolean hasUpdateReturning() {
+      return true;
+    }
   }
 }

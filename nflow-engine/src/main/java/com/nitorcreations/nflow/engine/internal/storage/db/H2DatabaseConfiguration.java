@@ -45,5 +45,10 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     public String currentTimePlusSeconds(int seconds) {
       return "dateadd('second', " + seconds + ", current_timestamp)";
     }
+
+    @Override
+    public boolean hasUpdateReturning() {
+      return false;
+    }
   }
 }
