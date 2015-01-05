@@ -128,7 +128,7 @@
     <maven-source.version>2.4</maven-source.version>
     <maven-surefire.version>2.18.1</maven-surefire.version>
     <maven-swagger.version>2.3.2</maven-swagger.version>
-    <mockito.version>1.10.17</mockito.version>
+    <mockito.version>1.10.19</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>5.1.34</mysql.version>
     <nexus-staging-maven.version>1.6.5</nexus-staging-maven.version>
