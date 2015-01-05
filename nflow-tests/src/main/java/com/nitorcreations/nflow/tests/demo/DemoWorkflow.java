@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.tests.demo;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
@@ -55,6 +56,6 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
   }
 
   public NextAction process(StateExecution execution) {
-    return moveToState(State.done, "Go to done state");
+    return stopInState(State.done, "Go to done state");
   }
 }
