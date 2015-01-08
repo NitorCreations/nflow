@@ -7,19 +7,34 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.joda.time.DateTime.now;
 
+import java.math.BigInteger;
+
 import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
-
-import java.math.BigInteger;
 
 /**
  * Configuration for the workflow execution.
  */
 public class WorkflowSettings {
+  /**
+   * Minimum delay on execution retry after an error. Unit is milliseconds.
+   */
   public final int minErrorTransitionDelay;
+  /**
+   * Maximum delay on execution retry after an error. Unit is milliseconds.
+   */
   public final int maxErrorTransitionDelay;
+  /**
+   * Length of forced delay to break execution of a step that is considered to be busy looping. Unit is milliseconds.
+   */
   public final int shortTransitionDelay;
+  /**
+   * Immediate transition delay.
+   */
   public final int immediateTransitionDelay;
+  /**
+   * Maximum retry attempts.
+   */
   public final int maxRetries;
 
   WorkflowSettings(Builder builder) {
@@ -63,7 +78,7 @@ public class WorkflowSettings {
     }
 
     /**
-     * Set maximum error transition delay.
+     * Set the maximum delay on execution retry after an error.
      *
      * @param maxErrorTransitionDelay
      *          Delay in milliseconds.
@@ -75,7 +90,7 @@ public class WorkflowSettings {
     }
 
     /**
-     * Set minimum error transition delay.
+     * Set the minimum delay on execution retry after an error.
      *
      * @param minErrorTransitionDelay
      *          Delay in milliseconds.
@@ -87,7 +102,7 @@ public class WorkflowSettings {
     }
 
     /**
-     * Set short transition delay.
+     * Set the length of forced delay to break execution of a step that is considered to be busy looping.
      *
      * @param shortTransitionDelay
      *          Delay in milliseconds.
