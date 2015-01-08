@@ -3,10 +3,10 @@ package com.nitorcreations.nflow.metrics;
 import static java.lang.String.format;
 
 import org.joda.time.DateTime;
-import org.springframework.core.env.Environment;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
+import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 
 /**
@@ -23,11 +23,12 @@ public class MetricsWorkflowExecutorListener implements
   private static final String EXECUTION_KEY = "nflow-metrics-execution";
   private final MetricRegistry metricRegistry;
   private final String nflowExecutorGroup;
+  private final int nflowExecutorId;
 
-  public MetricsWorkflowExecutorListener(MetricRegistry metricRegistry,
-      Environment env) {
+  public MetricsWorkflowExecutorListener(MetricRegistry metricRegistry, ExecutorDao executors) {
     this.metricRegistry = metricRegistry;
-    this.nflowExecutorGroup = env.getRequiredProperty("nflow.executor.group");
+    this.nflowExecutorGroup = executors.getExecutorGroup();
+    this.nflowExecutorId = executors.getExecutorId();
   }
 
   @Override
@@ -72,12 +73,12 @@ public class MetricsWorkflowExecutorListener implements
   private String stateMetricKey(ListenerContext context, String type) {
     String workflowName = context.definition.getType();
     String stateName = context.originalState;
-    return format("%s.%s.%s.%s", nflowExecutorGroup, workflowName,
+    return format("%s.%s.%s.%s.%s", nflowExecutorGroup, nflowExecutorId, workflowName,
         stateName, type);
   }
 
   private String groupNameMetricKey(String type) {
-    return format("%s.%s", nflowExecutorGroup, type);
+    return format("%s.%s.%s", nflowExecutorGroup, nflowExecutorId, type);
   }
 
   private Context executionTimer(ListenerContext context) {
