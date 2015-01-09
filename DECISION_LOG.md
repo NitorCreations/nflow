@@ -2,6 +2,11 @@
 
 (newest first)
 
+2014-12-10 eputtone
+-------------------
+Internal nFlow functionalities can access DAO layer (package com.nitorcreations.nflow.engine.internal.dao) directly instead of going through service layer (package com.nitorcreations.nflow.engine.service). Rationale: service layer is currently part of public API that we wish to keep as simple as possible. Example: WorkflowDefinitionResource in nflow-rest-api uses WorkflowDefinitionDao directly for retrieving StoredWorkflowDefinitions, because we don't want to confuse public API users with multiple workflow definition representations.
+
+
 2014-11-26 jsyrjala
 -------------------
 WorkflowInstance.started value (time when processing of the workflow is first started) is fetched from the earliest nflow_workflow_action.start_execution value. This way no changes to database is needed. If needed because of performance, the value may be later added as nflow_workflow.started. 

@@ -3,6 +3,7 @@
 **Details**
 - nflow-engine:
   - Use more optimal SQL when polling workflows when database supports update returning syntax
+  - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
 
 ## 1.2.0 (2014-12-23)
 

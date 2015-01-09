@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Math.min;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -127,7 +129,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void pollNextWorkflowInstancesWithRaceCondition() throws InterruptedException {
+  public void pollNextWorkflowInstancesWithPartialRaceCondition() throws InterruptedException {
     int batchSize = 100;
     for (int i = 0; i < batchSize; i++) {
       WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1))
@@ -140,7 +142,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     threads[1].start();
     threads[0].join();
     threads[1].join();
-    assertTrue("Race condition should happen", pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition);
+    assertThat(pollers[0].returnSize + pollers[1].returnSize, is(batchSize));
+    assertTrue("Race condition should happen", pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition
+        || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize));
   }
 
   @Test
@@ -251,9 +255,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   static class Poller implements Runnable {
-    WorkflowInstanceDao dao;
+    final WorkflowInstanceDao dao;
+    final int batchSize;
     boolean detectedRaceCondition = false;
-    int batchSize;
+    int returnSize = MAX_VALUE;
 
     public Poller(WorkflowInstanceDao dao, int batchSize) {
       this.dao = dao;
@@ -263,9 +268,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     @Override
     public void run() {
       try {
-        dao.pollNextWorkflowInstanceIds(batchSize);
+        returnSize = min(returnSize, dao.pollNextWorkflowInstanceIds(batchSize).size());
       } catch (PollingRaceConditionException ex) {
         ex.printStackTrace();
+        returnSize = 0;
         detectedRaceCondition = ex.getMessage().startsWith("Race condition");
       }
     }

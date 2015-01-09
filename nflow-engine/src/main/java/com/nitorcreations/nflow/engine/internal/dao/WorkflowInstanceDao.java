@@ -246,7 +246,17 @@ public class WorkflowInstanceDao {
     }
     int[] updateStatuses = jdbc.batchUpdate("update nflow_workflow set executor_id = " + executorInfo.getExecutorId()
         + " where id = ? and modified = ? and executor_id is null", batchArgs);
+    Iterator<Integer> idIt = ids.iterator();
     for (int status : updateStatuses) {
+      idIt.next();
+      if (status == 0) {
+        idIt.remove();
+        if (ids.isEmpty()) {
+          throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+              + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+        }
+        continue;
+      }
       if (status != 1) {
         throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
             + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
