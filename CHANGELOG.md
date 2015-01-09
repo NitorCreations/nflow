@@ -4,6 +4,7 @@
 
 **Details**
 - nflow-engine:
+  - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
   - nflow.transition.delay.waiterror.ms parameter was splitted to nflow.transition.delay.error.min.ms and nflow.transition.delay.error.max.ms
   - added missing configuration options with default values
 - nflow-jetty:
