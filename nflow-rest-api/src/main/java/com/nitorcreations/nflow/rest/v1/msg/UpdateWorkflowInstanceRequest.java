@@ -17,4 +17,6 @@ public class UpdateWorkflowInstanceRequest {
   @ApiModelProperty(value = "New next activation time for next workflow instance processing", required=false)
   public DateTime nextActivationTime;
 
+  @ApiModelProperty(value = "Description of the action", required = false)
+  public String actionDescription;
 }
