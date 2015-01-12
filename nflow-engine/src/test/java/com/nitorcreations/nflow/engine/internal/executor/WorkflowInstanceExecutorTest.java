@@ -27,7 +27,7 @@ public class WorkflowInstanceExecutorTest {
 
   @Test
   public void testThreadPoolCreateWithCorrectParameters() {
-    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, threadFactory);
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 2, 1, 3, 4, threadFactory);
     assertThat(t.executor.getCorePoolSize(), is(2));
     assertThat(t.executor.getMaximumPoolSize(), is(2));
     assertThat(t.executor.getKeepAliveTime(SECONDS), is(4L));
@@ -38,28 +38,27 @@ public class WorkflowInstanceExecutorTest {
 
   @Test
   public void testDummyGetters() {
-    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, threadFactory);
-    assertThat(t.getActiveCount(), is(0));
-    assertThat(t.getMaximumPoolSize(), is(2));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 2, 1, 3, 4, threadFactory);
+    assertThat(t.getQueueRemainingCapacity(), is(3));
   }
 
   @Test
   public void testExecute() {
-    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 2, 1, 3, 4, new CustomizableThreadFactory("test"));
     t.execute(runnable);
     verify(runnable, timeout(1000)).run();
   }
 
   @Test
   public void testWait() throws InterruptedException {
-    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 2, 1, 3, 4, new CustomizableThreadFactory("test"));
     t.execute(runnable);
     t.waitUntilQueueSizeLowerThanThreshold(new DateTime().plusSeconds(5));
   }
 
   @Test
   public void testShutdown() {
-    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(2, 1, 3, 4, new CustomizableThreadFactory("test"));
+    WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 2, 1, 3, 4, new CustomizableThreadFactory("test"));
     t.shutdown();
     assertThat(t.executor.isShutdown(), is(true));
   }

@@ -27,9 +27,17 @@ public class EngineConfigurationTest {
   @InjectMocks
   private final EngineConfiguration configuration = new EngineConfiguration();
 
-  public void dispatcherPoolExecutorInstantiation() {
+  @Test
+  public void dispatcherPoolExecutorInstantiationFromThreads() {
     WorkflowInstanceExecutor executor = configuration.nflowExecutor(threadFactory, environment);
-    assertThat(executor.getMaximumPoolSize(), is(100));
+    assertThat(executor.getQueueRemainingCapacity(), is(200));
+  }
+
+  @Test
+  public void dispatcherPoolExecutorInstantiationFromQueueSize() {
+    environment.setProperty("nflow.dispatcher.executor.queue.size", "10");
+    WorkflowInstanceExecutor executor = configuration.nflowExecutor(threadFactory, environment);
+    assertThat(executor.getQueueRemainingCapacity(), is(10));
   }
 
   @Test
