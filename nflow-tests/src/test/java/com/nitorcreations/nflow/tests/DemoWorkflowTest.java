@@ -15,10 +15,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
 import com.nitorcreations.nflow.tests.demo.DemoWorkflow;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
@@ -48,8 +48,8 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   }
 
   public void t02_queryStatistics() {
-    Statistics statistics = getStatistics();
-    assertThat(statistics.executionStatistics.count + statistics.queuedStatistics.count, greaterThan(0));
+    StatisticsResponse statistics = getStatistics();
+    assertThat(statistics.executionStatistics.count + statistics.queueStatistics.count, greaterThan(0));
   }
 
   @Test(timeout = 5000)
@@ -71,9 +71,9 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   }
 
   public void t04_queryStatistics() {
-    Statistics statistics = getStatistics();
+    StatisticsResponse statistics = getStatistics();
     assertEquals(0, statistics.executionStatistics.count);
-    assertEquals(0, statistics.queuedStatistics.count);
+    assertEquals(0, statistics.queueStatistics.count);
   }
 
 }
