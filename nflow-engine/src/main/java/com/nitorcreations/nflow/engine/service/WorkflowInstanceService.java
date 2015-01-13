@@ -54,7 +54,6 @@ public class WorkflowInstanceService {
    * @return The id of the inserted or existing workflow instance.
    */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
-  @Transactional
   public int insertWorkflowInstance(WorkflowInstance instance) {
     WorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {

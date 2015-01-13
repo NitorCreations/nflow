@@ -157,6 +157,7 @@ public class ExecutorDao {
           }
         }, getExecutorId());
     for (InstanceInfo instance : instances) {
+      // TODO: move this block to WorkflowInstanceDao and add transaction
       int updated = jdbc.update("update nflow_workflow set executor_id = null where id = ? and executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
           instance.id, getExecutorId());
       if (updated > 0) {

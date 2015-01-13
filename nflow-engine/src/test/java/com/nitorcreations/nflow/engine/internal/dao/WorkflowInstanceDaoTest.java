@@ -9,6 +9,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.contains;
@@ -197,24 +198,61 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     d.updateWorkflowInstanceAfterExecution(i2, a1);
     assertEquals(
-        "with wf as (update nflow_workflow set state = ?, state_text = ?, next_activation = ?, executor_id = ?,retries = ? where id = ? and executor_id = ? returning id), act as (insert into nflow_workflow_action(workflow_id,executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
+        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = ?, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
         sql.getValue());
-    assertThat(args.getAllValues().get(0), is((Object) i2.state));
-    assertThat(args.getAllValues().get(1), is((Object) i2.stateText));
-    assertThat(args.getAllValues().get(2), is((Object) new Timestamp(i2.nextActivation.getMillis())));
-    assertThat(args.getAllValues().get(3), is((Object) 42));
-    assertThat(args.getAllValues().get(4), is((Object) i2.retries));
-    assertThat(args.getAllValues().get(5), is((Object) i2.id));
-    assertThat(args.getAllValues().get(6), is((Object) 42));
-    assertThat(args.getAllValues().get(7), is((Object) 42));
-    assertThat(args.getAllValues().get(8), is((Object) a1.type.name()));
-    assertThat(args.getAllValues().get(9), is((Object) a1.state));
-    assertThat(args.getAllValues().get(10), is((Object) a1.stateText));
-    assertThat(args.getAllValues().get(11), is((Object) a1.retryNo));
-    assertThat(args.getAllValues().get(12), is((Object) new Timestamp(a1.executionStart.getMillis())));
-    assertThat(args.getAllValues().get(13), is((Object) new Timestamp(a1.executionEnd.getMillis())));
-    assertThat(args.getAllValues().get(14), is((Object) "A"));
-    assertThat(args.getAllValues().get(15), is((Object) "B"));
+    assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
+
+    int i = 0;
+    assertThat(args.getAllValues().get(i++), is((Object) i2.status.name()));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.state));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.stateText));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) 42));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.retries));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.id));
+    assertThat(args.getAllValues().get(i++), is((Object) 42));
+    assertThat(args.getAllValues().get(i++), is((Object) a1.type.name()));
+    assertThat(args.getAllValues().get(i++), is((Object) a1.state));
+    assertThat(args.getAllValues().get(i++), is((Object) a1.stateText));
+    assertThat(args.getAllValues().get(i++), is((Object) a1.retryNo));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionStart.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionEnd.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) "A"));
+    assertThat(args.getAllValues().get(i++), is((Object) "B"));
+  }
+
+  @Test
+  public void fakePostgreSQLinsertWorkflowInstance() {
+    JdbcTemplate j = mock(JdbcTemplate.class);
+    WorkflowInstanceDao d = preparePostgreSQLDao(j);
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Object> args = ArgumentCaptor.forClass(Object.class);
+    when(j.queryForObject(sql.capture(), eq(Integer.class), args.capture())).thenReturn(42);
+
+    DateTime started = DateTime.now();
+    WorkflowInstance wf = new WorkflowInstance.Builder().setState("updateState").setStateText("update text")
+        .setNextActivation(started.plusSeconds(1)).setProcessing(true).setRetries(3).setId(43).putStateVariable("A", "B")
+        .putStateVariable("C", "D").build();
+
+    d.insertWorkflowInstance(wf);
+    assertEquals(
+        "with wf as (insert into nflow_workflow(type, business_key, external_id, executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?::workflow_status, ?, ?, ?) returning id), ins8 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), ins10 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf) select wf.id from wf",
+        sql.getValue());
+    assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
+
+    int i = 0;
+    assertThat(args.getAllValues().get(i++), is((Object) wf.type));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.businessKey));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.externalId));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.executorGroup));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.status.name()));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.state));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.stateText));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(wf.nextActivation.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) "A"));
+    assertThat(args.getAllValues().get(i++), is((Object) "B"));
+    assertThat(args.getAllValues().get(i++), is((Object) "C"));
+    assertThat(args.getAllValues().get(i++), is((Object) "D"));
   }
 
   @Test

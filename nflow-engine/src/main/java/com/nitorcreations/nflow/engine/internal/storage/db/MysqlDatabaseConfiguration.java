@@ -75,7 +75,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-      public boolean hasUpdateableCTE() {
+    public boolean hasUpdateableCTE() {
       return false;
     }
   }

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.springframework.context.annotation.Bean;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -43,10 +46,11 @@ public class StateVariablesTest extends AbstractNflowTest {
   }
 
   @Test(timeout = 5000)
-  public void t01_createStateWorkflow() {
+  public void t01_createStateWorkflow() throws JsonProcessingException, IOException {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
+    createRequest.requestData = new ObjectMapper().readTree("{\"test\":5}");
     createResponse = createWorkflowInstance(createRequest);
     assertThat(createResponse.id, notNullValue());
   }
@@ -57,7 +61,8 @@ public class StateVariablesTest extends AbstractNflowTest {
     do {
       listResponse = getWorkflowInstance(createResponse.id, "done");
     } while (listResponse.nextActivation != null);
-    assertEquals(2, listResponse.stateVariables.size());
+    assertEquals(3, listResponse.stateVariables.size());
+    assertEquals(singletonMap("test", 5), listResponse.stateVariables.get("requestData"));
     assertEquals(singletonMap("value", "foo1"), listResponse.stateVariables.get("variable1"));
     assertEquals(singletonMap("value", "bar3"), listResponse.stateVariables.get("variable2"));
 
