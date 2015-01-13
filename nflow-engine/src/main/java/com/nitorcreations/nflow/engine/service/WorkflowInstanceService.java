@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
@@ -92,6 +93,26 @@ public class WorkflowInstanceService {
       String currentState = workflowInstanceDao.getWorkflowInstanceState(action.workflowInstanceId);
       action = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
       workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
+    }
+    return updated;
+  }
+
+  /**
+   * Stop executing the workflow instance in the database if it is currently not running, and insert the workflow instance action
+   * if the actionDescription is not null.
+   *
+   * @param id The identifier of the workflow instance to be stopped.
+   * @param actionDescription The action description. Can be null.
+   * @return True if the workflow instance was stopped, false otherwise.
+   */
+  @Transactional
+  public boolean stopWorkflowInstance(int id, String actionDescription) {
+    boolean updated = workflowInstanceDao.stopNotRunningWorkflowInstance(id);
+    if (updated && actionDescription != null) {
+      String currentState = workflowInstanceDao.getWorkflowInstanceState(id);
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(id).setState(currentState)
+          .setStateText(actionDescription).setExecutionStart(now()).setExecutionEnd(now()).build();
+      workflowInstanceDao.insertWorkflowInstanceAction(action);
     }
     return updated;
   }
