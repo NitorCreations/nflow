@@ -27,5 +27,10 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     public boolean hasUpdateReturning() {
       return true;
     }
+
+    @Override
+    public boolean hasUpdateableCTE() {
+      return true;
+    }
   }
 }
