@@ -97,6 +97,19 @@ public class WorkflowInstanceResourceTest {
         (WorkflowInstanceAction)argThat(hasField("stateText", equalTo("API changed nextActivationTime to " + req.nextActivationTime + "."))));
   }
 
+  @Test
+  public void stoppingWorkflowInstanceWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    resource.stopWorkflowInstance(3, "test");
+    verify(workflowInstances).stopWorkflowInstance(3, "test");
+  }
+
+  @Test
+  public void stoppingWorkflowInstanceWithEmptyActionDescriptionWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    resource.stopWorkflowInstance(3, null);
+    verify(workflowInstances).stopWorkflowInstance(3, "Workflow stopped via API");
+  }
 
   @SuppressWarnings("unchecked")
   @Test
