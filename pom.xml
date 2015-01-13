@@ -60,8 +60,21 @@
     <nexus-staging-maven.version>1.6.5</nexus-staging-maven.version>
     <node.version>v0.11.14</node.version>
     <npm.version>2.1.10</npm.version>
+    <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
   </properties>
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${versions-maven-plugin.version}</version>
+          <configuration>
+            <generateBackupPoms>false</generateBackupPoms>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.github.eirslett</groupId>
