@@ -7,6 +7,7 @@
   - Allow configuring executor queue length with _nflow.dispatcher.executor.queue.size_
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
+  - Added service to stop the execution of the workflow instance
 
 ## 1.2.0 (2014-12-23)
 

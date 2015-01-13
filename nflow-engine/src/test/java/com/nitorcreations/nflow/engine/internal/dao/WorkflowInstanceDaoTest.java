@@ -102,6 +102,26 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void stopWorkflowInstanceWorks() {
+    final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
+    int id = dao.insertWorkflowInstance(instance);
+    final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
+    boolean updated = dao.stopNotRunningWorkflowInstance(id);
+    assertThat(updated, is(true));
+    JdbcTemplate template = new JdbcTemplate(ds);
+    template.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        assertThat(rs.getString("state"), equalTo(instance.state));
+        assertThat(rs.getString("state_text"), equalTo(instance.stateText));
+        assertThat(rs.getTimestamp("next_activation"), is(nullValue()));
+        assertThat(rs.getInt("executor_id") != 0, equalTo(instance.processing));
+        assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
+      }
+    });
+  }
+
+  @Test
   public void insertWorkflowInstanceActionWorks() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
