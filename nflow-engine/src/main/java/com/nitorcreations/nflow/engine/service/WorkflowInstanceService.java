@@ -80,29 +80,43 @@ public class WorkflowInstanceService {
   }
 
   /**
-   * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action if not null.
+   * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action. If
+   * action is null, it will be automatically created.
    * @param instance The instance to be updated.
-   * @param action The action to be inserted.
+   * @param action The action to be inserted. Can be null.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(instance.id, instance.state, instance.nextActivation);
     if (updated) {
-      String currentState = workflowInstanceDao.getWorkflowInstanceState(action.workflowInstanceId);
-      action = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
+      WorkflowInstanceAction.Builder actionBuilder;
+      if (action == null) {
+        actionBuilder = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(instance.id).setStateText("N/A");
+      } else {
+        actionBuilder = new WorkflowInstanceAction.Builder(action);
+      }
+      String currentState = workflowInstanceDao.getWorkflowInstanceState(instance.id);
+      action = actionBuilder.setState(currentState).build();
       workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
     }
     return updated;
   }
 
   /**
-   * Update the workflow instance in the database, and insert the workflow instance action if not null.
+   * Update the workflow instance in the database, and insert the workflow instance action. If action is null, it will be
+   * automatically created.
    * @param instance The instance to be updated.
    * @param action The action to be inserted. Can be null.
+   * @deprecated This will be removed in 2.0.0. Use updateWorkflowInstance instead.
    */
   @Transactional
+  @Deprecated
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action) {
+    if (action == null) {
+      action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(instance.id).setState(instance.state)
+          .setStateText(instance.stateText).build();
+    }
     workflowInstanceDao.updateWorkflowInstanceAfterExecution(instance, action);
   }
 

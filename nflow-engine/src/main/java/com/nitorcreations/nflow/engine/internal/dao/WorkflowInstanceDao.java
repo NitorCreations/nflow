@@ -169,8 +169,12 @@ public class WorkflowInstanceDao {
     }
   }
 
-  private void transactionalUpdate(WorkflowInstance instance, WorkflowInstanceAction action) {
+  public void updateWorkflowInstance(WorkflowInstance instance) {
     jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo));
+  }
+
+  private void transactionalUpdate(WorkflowInstance instance, WorkflowInstanceAction action) {
+    updateWorkflowInstance(instance);
     insertWorkflowInstanceAction(instance, action);
   }
 
