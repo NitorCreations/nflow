@@ -82,13 +82,13 @@ public class WorkflowInstanceService {
   /**
    * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action if not null.
    * @param instance The instance to be updated.
-   * @param action The action to be inserted. Can be null.
+   * @param action The action to be inserted.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(instance.id, instance.state, instance.nextActivation);
-    if (updated && action != null) {
+    if (updated) {
       String currentState = workflowInstanceDao.getWorkflowInstanceState(action.workflowInstanceId);
       action = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
       workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
@@ -103,10 +103,7 @@ public class WorkflowInstanceService {
    */
   @Transactional
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action) {
-    workflowInstanceDao.updateWorkflowInstance(instance);
-    if (action != null) {
-      workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
-    }
+    workflowInstanceDao.updateWorkflowInstanceAfterExecution(instance, action);
   }
 
   /**

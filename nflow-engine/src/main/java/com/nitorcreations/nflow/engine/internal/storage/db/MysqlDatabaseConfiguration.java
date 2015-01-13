@@ -68,5 +68,10 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     public boolean hasUpdateReturning() {
       return false;
     }
+
+    @Override
+    public boolean hasUpdateableCTE() {
+      return false;
+    }
   }
 }
