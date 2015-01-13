@@ -2,8 +2,8 @@ package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
-import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -12,6 +12,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
@@ -38,14 +39,17 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final ObjectStringMapper objectMapper;
+  private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowExecutorListener... executorListeners) {
+      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
+      WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
+    this.workflowInstanceDao = workflowInstanceDao;
     this.executorListeners = executorListeners;
   }
 
@@ -110,7 +114,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.warn("Workflow type {} not configured to this nflow instance - unscheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
         .setStateText("Unsupported workflow type").build();
-    workflowInstances.updateWorkflowInstanceAfterExecution(instance, null);
+    workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Exiting.");
   }
 
@@ -140,7 +144,7 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowActionType actionType = execution.isFailed() || execution.isRetryCountExceeded() ? stateExecutionFailed
         : stateExecution;
     actionBuilder.setExecutionEnd(now()).setType(actionType).setStateText(execution.getNextStateReason());
-    workflowInstances.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
+    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 

@@ -32,5 +32,10 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     public String castToEnumType(String variable, String type) {
       return variable + "::" + type;
     }
+
+    @Override
+    public boolean hasUpdateableCTE() {
+      return true;
+    }
   }
 }

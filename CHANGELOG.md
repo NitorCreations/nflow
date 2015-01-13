@@ -11,6 +11,7 @@
     - *stateExecutionFailed* - for actions where execution failed due thrown exception or retry count was exceeded.
     - *externalChange* - for changes created externally via API.
     - *recovery* - to indicate that the workflow instance was recovered after some executor died.
+  - Use more optimal SQL when updating workflows when database supports updateable cte syntax
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
   - added missing configuration options with default values
