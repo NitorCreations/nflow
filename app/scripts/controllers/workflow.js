@@ -4,7 +4,7 @@
  * Display single workflow instance
  */
 angular.module('nflowVisApp')
-.controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, WorkflowDefinitions, $routeParams, $rootScope) {
+.controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, StopWorkflow, WorkflowDefinitions, $routeParams, $rootScope) {
   $scope.manage = {};
   $scope.manage.timeUnits = ['minutes','hours','days'];
   $scope.manage.timeUnit = $scope.manage.timeUnits[0];
@@ -101,7 +101,6 @@ angular.module('nflowVisApp')
   $scope.updateWorkflow = function updateWorkflow(manage) {
     console.info('updateWorkflow()', manage);
     var now = moment(new Date());
-    var time = undefined;
     var request = {};
     if(manage.nextState) {
       request.state = manage.nextState.name;
@@ -118,5 +117,13 @@ angular.module('nflowVisApp')
                        readWorkflow();
                      });
   };
+
+  $scope.stopWorkflow = function stopWorkflow(manage) {
+	    console.info('stopWorkflow()', manage);
+	    StopWorkflow.stop({id: $routeParams.id, actionDescription: manage.actionDescription},
+	                      function() {
+	                        readWorkflow();
+	                      });
+	  };
 
 });

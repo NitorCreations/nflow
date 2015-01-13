@@ -8,6 +8,12 @@ angular.module('nflowVisApp.services',
                    {'update': {method: 'PUT'},
                    });
 })
+.factory('StopWorkflow', function WorkflowsFactory($resource, config) {
+  return $resource(config.nflowUrl + '/v1/workflow-instance/:id/stop',
+                   {id: '@id', actionDescription: '@actionDescription'},
+                   {'stop': {method: 'PUT'},
+                   });
+})
 .factory('WorkflowSearch', function WorkflowSearchFactory($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-instance');
 })
