@@ -25,9 +25,10 @@ public class EngineConfiguration {
   public WorkflowInstanceExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
     int threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * getRuntime().availableProcessors());
     int awaitTerminationSeconds = env.getProperty("nflow.dispatcher.await.termination.seconds", Integer.class, 60);
-    int notifyThreshold = env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, 0);
+    int queueSize = env.getProperty("nflow.dispatcher.executor.queue.size", Integer.class, 2 * threadCount);
+    int notifyThreshold = env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, queueSize / 2);
     int keepAliveSeconds = env.getProperty("nflow.dispatcher.executor.thread.keepalive.seconds", Integer.class, 0);
-    return new WorkflowInstanceExecutor(threadCount, notifyThreshold, awaitTerminationSeconds, keepAliveSeconds,
+    return new WorkflowInstanceExecutor(queueSize, threadCount, notifyThreshold, awaitTerminationSeconds, keepAliveSeconds,
         nflowThreadFactory);
   }
 

@@ -13,7 +13,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -43,6 +42,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -67,8 +67,14 @@ public class WorkflowInstanceDao {
   private JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
   ExecutorDao executorInfo;
+  private SQLVariants sqlVariants;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
+
+  @Inject
+  public void setSQLVariants(SQLVariants sqlVariants) {
+    this.sqlVariants = sqlVariants;
+  }
 
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
@@ -209,12 +215,26 @@ public class WorkflowInstanceDao {
   @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   @Transactional
   public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
+    if (sqlVariants.hasUpdateReturning()) {
+      return pollNextWorkflowInstanceIdsUsingUpdateReturning(batchSize);
+    }
+    return pollNextWorkflowInstanceIdsUsingSelectUpdate(batchSize);
+  }
+
+  private List<Integer> pollNextWorkflowInstanceIdsUsingUpdateReturning(int batchSize) {
+    return jdbc.queryForList("update nflow_workflow set executor_id = " + executorInfo.getExecutorId()
+        + " where id in (select id from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
+        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize
+        + ") and executor_id is null returning id", Integer.class);
+  }
+
+  private List<Integer> pollNextWorkflowInstanceIdsUsingSelectUpdate(int batchSize) {
     String sql = "select id, modified from nflow_workflow where executor_id is null and next_activation < current_timestamp and "
         + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize;
     List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
       @Override
       public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new OptimisticLockKey(rs.getInt("id"), rs.getTimestamp("modified"));
+        return new OptimisticLockKey(rs.getInt("id"), rs.getString("modified"));
       }
     });
     Collections.sort(instances);
@@ -247,11 +267,11 @@ public class WorkflowInstanceDao {
 
   private static class OptimisticLockKey implements Comparable<OptimisticLockKey> {
     public final int id;
-    public final Timestamp modified;
+    public final String modified;
 
-    public OptimisticLockKey(int id, Timestamp modified) {
+    public OptimisticLockKey(int id, String string) {
       this.id = id;
-      this.modified = modified;
+      this.modified = string;
     }
 
     @Override

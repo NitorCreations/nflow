@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static java.lang.Math.max;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -107,7 +106,7 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   private List<Integer> getNextInstanceIds() {
-    int nextBatchSize = max(0, 2 * executor.getMaximumPoolSize() - executor.getActiveCount());
+    int nextBatchSize = executor.getQueueRemainingCapacity();
     logger.debug("Polling next {} workflow instances.", nextBatchSize);
     return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);
   }
