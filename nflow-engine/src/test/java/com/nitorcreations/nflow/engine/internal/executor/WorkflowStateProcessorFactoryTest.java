@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
@@ -19,6 +20,8 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   @Mock
   ObjectStringMapper objectMapper;
   @Mock
+  WorkflowInstanceDao workflowInstanceDao;
+  @Mock
   WorkflowExecutorListener listener1;
   @Mock
   WorkflowExecutorListener listener2;
@@ -28,7 +31,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
 
   @Before
   public void setup() {
-    factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper);
+    factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao);
   }
 
   @Test

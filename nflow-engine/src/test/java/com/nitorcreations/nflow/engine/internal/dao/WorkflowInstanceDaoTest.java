@@ -87,7 +87,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .setStateText("update text").setNextActivation(DateTime.now()).setProcessing(!i1.processing).build();
     final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
     sleep(1);
-    dao.updateWorkflowInstance(i2);
+    DateTime started = DateTime.now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+        .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+        .setWorkflowInstanceId(id).build();
+    dao.updateWorkflowInstanceAfterExecution(i2, a1);
     JdbcTemplate template = new JdbcTemplate(ds);
     template.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
