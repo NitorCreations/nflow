@@ -150,6 +150,27 @@ public class WorkflowInstanceResourceTest {
             hasField("type", equalTo(externalChange)))));
   }
 
+  @Test
+  public void stoppingWorkflowInstanceWorks() {
+    when(workflowInstances.stopWorkflowInstance(3, "test", externalChange)).thenReturn(true);
+    Response response = resource.stopWorkflowInstance(3, "test");
+    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+  }
+
+  @Test
+  public void stoppingWorkflowInstanceWithEmptyActionDescriptionWorks() {
+    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API", externalChange)).thenReturn(true);
+    Response response = resource.stopWorkflowInstance(3, null);
+    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+  }
+
+  @Test
+  public void stopWorkflowInstanceReturnsErrorWhenStoppingFails() {
+    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API", externalChange)).thenReturn(false);
+    Response response = resource.stopWorkflowInstance(3, null);
+    assertThat(response.getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {

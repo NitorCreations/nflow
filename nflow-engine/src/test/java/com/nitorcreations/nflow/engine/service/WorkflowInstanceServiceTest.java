@@ -7,6 +7,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
+import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -19,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,6 +61,12 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
     doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowDefinitions, workflowInstanceDao);
+    setCurrentMillisFixed(currentTimeMillis());
+  }
+
+  @After
+  public void reset() {
+    setCurrentMillisSystem();
   }
 
   @Test
@@ -135,6 +146,31 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     assertThat(service.updateWorkflowInstance(i, a), is(false));
     verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),
         any(WorkflowInstanceAction.class));
+  }
+
+  @Test
+  public void stopWorkflowInstanceWorks() {
+    int id = 42;
+    when(workflowInstanceDao.getWorkflowInstanceState(id)).thenReturn("currentState");
+    when(workflowInstanceDao.stopNotRunningWorkflowInstance(id, "test")).thenReturn(true);
+    assertThat(service.stopWorkflowInstance(id, "test", externalChange), is(true));
+    verify(workflowInstanceDao).stopNotRunningWorkflowInstance(id, "test");
+    verify(workflowInstanceDao).insertWorkflowInstanceAction(storedAction.capture());
+    WorkflowInstanceAction action = storedAction.getValue();
+    assertThat(action.workflowInstanceId, is(42));
+    assertThat(action.state, is("currentState"));
+    assertThat(action.stateText, is("test"));
+    assertThat(action.executionStart, is(now()));
+    assertThat(action.executionEnd, is(now()));
+  }
+
+  @Test
+  public void stopRunningWorkflowInstanceFails() {
+    int id = 42;
+    when(workflowInstanceDao.stopNotRunningWorkflowInstance(id, "test")).thenReturn(false);
+    assertThat(service.stopWorkflowInstance(id, "test", externalChange), is(false));
+    verify(workflowInstanceDao).stopNotRunningWorkflowInstance(id, "test");
+    verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstanceAction.class));
   }
 
   @Test

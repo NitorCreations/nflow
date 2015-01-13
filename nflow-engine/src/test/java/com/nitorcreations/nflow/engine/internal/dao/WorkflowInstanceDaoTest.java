@@ -41,6 +41,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
@@ -52,6 +55,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Inject
   WorkflowInstanceDao dao;
+  @Inject
+  TransactionTemplate transaction;
 
   @Test
   public void roundTripTest() {
@@ -134,6 +139,26 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("status"), is(manual.name()));
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
+      }
+    });
+  }
+
+  @Test
+  public void stopWorkflowInstanceWorks() {
+    final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
+    int id = dao.insertWorkflowInstance(instance);
+    final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
+    boolean updated = dao.stopNotRunningWorkflowInstance(id, "reason");
+    assertThat(updated, is(true));
+    JdbcTemplate template = new JdbcTemplate(ds);
+    template.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        assertThat(rs.getString("state"), equalTo(instance.state));
+        assertThat(rs.getString("state_text"), equalTo("reason"));
+        assertThat(rs.getTimestamp("next_activation"), is(nullValue()));
+        assertThat(rs.getInt("executor_id"), equalTo(0));
+        assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
       }
     });
   }
@@ -258,16 +283,22 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void insertWorkflowInstanceActionWorks() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    final WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
     int id = dao.insertWorkflowInstance(i1);
     DateTime started = DateTime.now();
-    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+    final WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setType(stateExecution).setState("test")
         .setStateText("state text")
         .setWorkflowInstanceId(id).build();
     i1.stateVariables.put("b", "2");
-    dao.insertWorkflowInstanceAction(i1, a1);
+    transaction.execute(new TransactionCallback<Void>() {
+      @Override
+      public Void doInTransaction(TransactionStatus status) {
+        dao.insertWorkflowInstanceAction(i1, a1);
+        return null;
+      }
+    });
     WorkflowInstance createdInstance = dao.getWorkflowInstance(id);
     checkSameWorkflowInfo(i1, createdInstance);
   }
