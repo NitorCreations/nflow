@@ -6,6 +6,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -86,14 +88,18 @@ public class WorkflowInstanceResource {
       @PathParam("id") int id,
       UpdateWorkflowInstanceRequest req) {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id);
-    String msg = "";
+    String msg = defaultIfBlank(req.actionDescription, "");
     if (!isEmpty(req.state)) {
       builder.setState(req.state);
-      msg = "API changed state to " + req.state + ". ";
+      if (isBlank(req.actionDescription)) {
+        msg = "API changed state to " + req.state + ". ";
+      }
     }
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
-      msg += "API changed nextActivationTime to " + req.nextActivationTime + ".";
+      if (isBlank(req.actionDescription)) {
+        msg += "API changed nextActivationTime to " + req.nextActivationTime + ".";
+      }
     }
     if (msg.isEmpty()) {
       return noContent().build();

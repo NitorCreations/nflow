@@ -84,7 +84,18 @@ public class WorkflowInstanceResourceTest {
     req.state = "newState";
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
-        (WorkflowInstanceAction)argThat(hasField("stateText", equalTo("API changed state to newState."))));
+        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API changed state to newState."))));
+  }
+
+  @Test
+  public void whenUpdatingStateWithDescriptionUpdateWorkflowInstanceWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.state = "newState";
+    req.actionDescription = "description";
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
+        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("description"))));
   }
 
   @Test
@@ -93,10 +104,22 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014,11,12,17,55,0);
     resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(null))),
-        (WorkflowInstanceAction)argThat(hasField("stateText", equalTo("API changed nextActivationTime to " + req.nextActivationTime + "."))));
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("state", equalTo(null))),
+        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API changed nextActivationTime to "
+            + req.nextActivationTime + "."))));
   }
 
+  @Test
+  public void whenUpdatingNextActivationTimeWithDescriptionUpdateWorkflowInstanceWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
+    req.actionDescription = "description";
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(null))),
+        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("description"))));
+  }
 
   @SuppressWarnings("unchecked")
   @Test
