@@ -255,7 +255,7 @@ public class WorkflowInstanceAction {
      */
     public WorkflowInstanceAction build() {
       if (type == null) {
-        throw new NullPointerException("Missing type");
+        throw new IllegalStateException("Missing type");
       }
       return new WorkflowInstanceAction(this);
     }
