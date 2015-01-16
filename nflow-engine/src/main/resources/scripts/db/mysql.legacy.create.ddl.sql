@@ -53,6 +53,7 @@ create table if not exists nflow_executor (
 
 create table if not exists nflow_workflow_definition (
   type varchar(64) not null,
+  definition_sha1 varchar(40) not null default 'n/a',
   definition text not null,
   modified timestamp not null default current_timestamp on update current_timestamp,
   modified_by int not null,
