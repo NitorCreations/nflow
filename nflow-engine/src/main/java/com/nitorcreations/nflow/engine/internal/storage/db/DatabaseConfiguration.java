@@ -33,8 +33,8 @@ public abstract class DatabaseConfiguration {
     HikariConfig config = new HikariConfig();
     config.setDataSourceClassName(property(env, "driver"));
     config.addDataSourceProperty("url", url);
-    config.addDataSourceProperty("user", property(env, "user"));
-    config.addDataSourceProperty("password", property(env, "password"));
+    config.setUsername(property(env, "user"));
+    config.setPassword(property(env, "password"));
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
     return new HikariDataSource(config);
   }
