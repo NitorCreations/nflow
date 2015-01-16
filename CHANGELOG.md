@@ -1,9 +1,15 @@
-## next version
+## next release
+
+**Highlights**
 
 **Details**
 - nflow-engine:
   - Use more optimal SQL when polling workflows when database supports update returning syntax
   - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
+  - nflow.transition.delay.waiterror.ms parameter was splitted to nflow.transition.delay.error.min.ms and nflow.transition.delay.error.max.ms
+  - added missing configuration options with default values
+- nflow-jetty:
+  - added missing configuration options with default values
   - Allow configuring executor queue length with _nflow.dispatcher.executor.queue.size_
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
@@ -24,9 +30,9 @@
   - internal components annotated by @NFlow (required e.g. for injecting application datasource to nflow)
   - does not start anymore, if transactions are not enabled
   - defining contradictory failure transitions using permit() no longer allowed
-  - bug fixes: 
+  - bug fixes:
     - theoretical problem in optimistic locking of instance polling
-    - binary backoff integer overflow when calculating next activation after 15 retries 
+    - binary backoff integer overflow when calculating next activation after 15 retries
 - nflow-rest-api:
   - return http code 404, when the requested object is not found
   - /v1/workflow-definition (GET)
@@ -67,7 +73,7 @@
     - WorkflowState.getName() (use name() instead)
     - workflow instance "owner" (new term: "executor group")
     - WorkflowInstanceAction.workflowId (new field: workflowInstanceId)
-  - internal: 
+  - internal:
     - renamed WorkflowExecutor->WorkflowStateProcessor, WorkflowExecutorFactory->WorkflowStateProcessorFactory
     - use configured value for workflow dispatcher awaitTermination
 - nflow-rest-api
@@ -106,12 +112,12 @@
 - Do not log exception, when "Race condition in polling workflow instances detected" happens
 - Make dispatcher wait "random(0,1) * short wait time" after race condition (so that probability for race condition lowers in the next poll)
 - Sort workflow instances by id before trying to reserve them in dispatcher (otherwise deadlocks may occur)
-- Removed pollNextWorkflowInstanceIds from nflow-engine public API 
+- Removed pollNextWorkflowInstanceIds from nflow-engine public API
 
 ## 0.3.0 (2014-08-14)
 - Spring 3.2.x compatibility (previously only 4.0.x)
 - Divided nflow-engine API to internal and public java packages
-- Added 'executor group' concept: nFlow engines update heartbeat in database; workflow instances reserved for dead engines are auto-recovered 
+- Added 'executor group' concept: nFlow engines update heartbeat in database; workflow instances reserved for dead engines are auto-recovered
 - integration to metrics library http://metrics.codahale.com/
 - Starting nFlow engine through Spring lifecycle listener
 - Allow custom ThreadFactory for creating nFlow threads
