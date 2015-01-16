@@ -173,6 +173,10 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql, args.toArray()) == 1;
   }
 
+  public boolean stopNotRunningWorkflowInstance(long id) {
+    return jdbc.update("update nflow_workflow set next_activation = null where id = ? and executor_id is null", id) == 1;
+  }
+
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String[] expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and (next_activation is null or next_activation > current_timestamp)");
     Object[] args = new Object[1 + expectedStates.length];
