@@ -111,6 +111,27 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
+  public void stoppingWorkflowInstanceWorks() {
+    when(workflowInstances.stopWorkflowInstance(3, "test")).thenReturn(true);
+    Response response = resource.stopWorkflowInstance(3, "test");
+    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+  }
+
+  @Test
+  public void stoppingWorkflowInstanceWithEmptyActionDescriptionWorks() {
+    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API")).thenReturn(true);
+    Response response = resource.stopWorkflowInstance(3, null);
+    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+  }
+
+  @Test
+  public void stopWorkflowInstanceReturnsErrorWhenStoppingFails() {
+    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API")).thenReturn(false);
+    Response response = resource.stopWorkflowInstance(3, null);
+    assertThat(response.getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
+  }
+
+  @Test
   public void whenUpdatingNextActivationTimeWithDescriptionUpdateWorkflowInstanceWorks() {
     when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
