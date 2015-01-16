@@ -2,10 +2,12 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Locale.US;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
-import static org.apache.commons.lang3.StringUtils.left;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 
@@ -28,6 +30,7 @@ import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -60,8 +63,6 @@ public class WorkflowInstanceDao {
   static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
 
-  // TODO: fetch text field max sizes from database meta data
-  private static final int STATE_TEXT_LENGTH = 128;
   private static final String GET_STATISTICS_PREFIX = "select state, count(1) as amount from nflow_workflow where executor_group = ? and type = ?";
 
   private JdbcTemplate jdbc;
@@ -70,6 +71,7 @@ public class WorkflowInstanceDao {
   private SQLVariants sqlVariants;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
+  int stateTextLength;
 
   @Inject
   public void setSQLVariants(SQLVariants sqlVariants) {
@@ -79,6 +81,7 @@ public class WorkflowInstanceDao {
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
     this.jdbc = nflowJdbcTemplate;
+    findColumnMaxLengths();
   }
 
   @Inject
@@ -89,12 +92,39 @@ public class WorkflowInstanceDao {
   @Inject
   public void setExecutorDao(ExecutorDao executorDao) {
     this.executorInfo = executorDao;
+    findColumnMaxLengths();
   }
 
   @Inject
   public void setEnvironment(Environment env) {
     workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
-    workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default", Long.class);
+    workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
+        Long.class);
+  }
+
+  private void findColumnMaxLengths() {
+    if (jdbc == null || executorInfo == null) {
+      return;
+    }
+    stateTextLength = jdbc.execute(new ConnectionCallback<Integer>() {
+      @Override
+      public Integer doInConnection(Connection con) throws SQLException, DataAccessException {
+        int len;
+        boolean upper = con.getMetaData().storesUpperCaseIdentifiers();
+        try (ResultSet rs = con.getMetaData().getColumns(null, null, dbName("nflow_workflow", upper), dbName("state_text", upper))) {
+          rs.next();
+          len = rs.getInt("COLUMN_SIZE");
+        }
+        try (ResultSet rs = con.getMetaData().getColumns(null, null, dbName("nflow_workflow_action", upper), dbName("state_text", upper))) {
+          rs.next();
+          return min(len, rs.getInt("COLUMN_SIZE"));
+        }
+      }
+
+      private String dbName(String string, boolean upper) {
+        return upper ? string.toUpperCase(US) : string;
+      }
+    });
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -107,7 +137,7 @@ public class WorkflowInstanceDao {
 
   private int insertWorkflowInstanceImpl(WorkflowInstance instance) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorInfo), keyHolder);
+    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, true, executorInfo, stateTextLength), keyHolder);
     int id = keyHolder.getKey().intValue();
     insertVariables(id, 0, instance.stateVariables, EMPTY_STATE_MAP);
     return id;
@@ -154,7 +184,7 @@ public class WorkflowInstanceDao {
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
-    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo));
+    jdbc.update(new WorkflowInstancePreparedStatementCreator(instance, false, executorInfo, stateTextLength));
   }
 
   public boolean updateNotRunningWorkflowInstance(long id, String state, DateTime nextActivation) {
@@ -366,7 +396,7 @@ public class WorkflowInstanceDao {
         p.setInt(1, action.workflowInstanceId);
         p.setInt(2, executorInfo.getExecutorId());
         p.setString(3, action.state);
-        p.setString(4, left(action.stateText, STATE_TEXT_LENGTH));
+        p.setString(4, abbreviate(action.stateText, stateTextLength));
         p.setInt(5, action.retryNo);
         p.setTimestamp(6, toTimestamp(action.executionStart));
         p.setTimestamp(7, toTimestamp(action.executionEnd));
@@ -386,6 +416,7 @@ public class WorkflowInstanceDao {
     private final boolean isInsert;
     private final String executorGroup;
     private final int executorId;
+    private final int stateTextLength;
 
     private final static String insertSql =
         "insert into nflow_workflow(type, business_key, external_id, executor_group, state, state_text, "
@@ -395,9 +426,11 @@ public class WorkflowInstanceDao {
         "update nflow_workflow set state = ?, state_text = ?, next_activation = ?, "
         + "executor_id = ?, retries = ? where id = ? and executor_id = ?";
 
-    public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, ExecutorDao executorInfo) {
+    public WorkflowInstancePreparedStatementCreator(WorkflowInstance instance, boolean isInsert, ExecutorDao executorInfo,
+        int stateTextLength) {
       this.isInsert = isInsert;
       this.instance = instance;
+      this.stateTextLength = stateTextLength;
       this.executorGroup = executorInfo.getExecutorGroup();
       this.executorId = executorInfo.getExecutorId();
     }
@@ -418,7 +451,7 @@ public class WorkflowInstanceDao {
         ps = connection.prepareStatement(updateSql);
       }
       ps.setString(p++, instance.state);
-      ps.setString(p++, left(instance.stateText, STATE_TEXT_LENGTH));
+      ps.setString(p++, abbreviate(instance.stateText, stateTextLength));
       ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
       if (!isInsert) {
         ps.setObject(p++, instance.processing ? executorId : null);
