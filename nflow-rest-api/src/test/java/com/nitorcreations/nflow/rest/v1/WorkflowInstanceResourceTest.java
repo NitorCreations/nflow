@@ -112,16 +112,23 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void stoppingWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
-    resource.stopWorkflowInstance(3, "test");
-    verify(workflowInstances).stopWorkflowInstance(3, "test");
+    when(workflowInstances.stopWorkflowInstance(3, "test")).thenReturn(true);
+    Response response = resource.stopWorkflowInstance(3, "test");
+    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
   }
 
   @Test
   public void stoppingWorkflowInstanceWithEmptyActionDescriptionWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
-    resource.stopWorkflowInstance(3, null);
-    verify(workflowInstances).stopWorkflowInstance(3, "Workflow stopped via API");
+    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API")).thenReturn(true);
+    Response response = resource.stopWorkflowInstance(3, null);
+    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+  }
+
+  @Test
+  public void stopWorkflowInstanceReturnsErrorWhenStoppingFails() {
+    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API")).thenReturn(false);
+    Response response = resource.stopWorkflowInstance(3, null);
+    assertThat(response.getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
   }
 
   @Test
