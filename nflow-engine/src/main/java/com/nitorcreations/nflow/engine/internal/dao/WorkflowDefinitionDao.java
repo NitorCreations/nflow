@@ -1,10 +1,15 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.sort;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,21 +62,34 @@ public class WorkflowDefinitionDao {
     StoredWorkflowDefinition storedDefinition = convert(definition);
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("type", definition.getType());
-    params.addValue("definition", serializeDefinition(storedDefinition));
+    String serializedDefinition = serializeDefinition(storedDefinition);
+    params.addValue("definition_sha1", sha1(serializedDefinition));
+    params.addValue("definition", serializedDefinition);
     params.addValue("modified_by", executorInfo.getExecutorId());
     params.addValue("executor_group", executorInfo.getExecutorGroup());
+
     String sql = "update nflow_workflow_definition "
-        + "set definition = :definition, modified_by = :modified_by "
-        + "where type = :type and executor_group = :executor_group and definition <> :definition";
+        + "set definition = :definition, modified_by = :modified_by, definition_sha1 = :definition_sha1 "
+        + "where type = :type and executor_group = :executor_group and definition_sha1 <> :definition_sha1";
     int updatedRows = namedJdbc.update(sql, params);
     if (updatedRows == 0) {
-      sql = "insert into nflow_workflow_definition(type, definition, modified_by, executor_group) "
-          + "values (:type, :definition, :modified_by, :executor_group)";
+      sql = "insert into nflow_workflow_definition(type, definition_sha1, definition, modified_by, executor_group) "
+          + "values (:type, :definition_sha1, :definition, :modified_by, :executor_group)";
       try {
         namedJdbc.update(sql, params);
       } catch (DataIntegrityViolationException dex) {
         logger.debug("Another executor already stored the definition.", dex);
       }
+    }
+  }
+
+  private String sha1(String serializedDefinition) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      digest.update(serializedDefinition.getBytes(UTF_8));
+      return format("%040x", new BigInteger(1, digest.digest()));
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA1 not supported");
     }
   }
 
