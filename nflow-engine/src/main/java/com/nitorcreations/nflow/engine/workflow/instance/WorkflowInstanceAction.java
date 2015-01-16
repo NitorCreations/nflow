@@ -12,6 +12,27 @@ import org.joda.time.DateTime;
  * An execution of a workflow instance state.
  */
 public class WorkflowInstanceAction {
+  /**
+   * Describes the trigger for the action.
+   */
+  public enum WorkflowActionType {
+    /**
+     * Normal state execution.
+     */
+    stateExecution,
+    /**
+     * Normal state execution that resulted in failure.
+     */
+    stateExecutionFailed,
+    /**
+     * External change to the workflow instance.
+     */
+    externalChange,
+    /**
+     * Dead executor recovery.
+     */
+    recovery
+  }
 
   /**
    * The workflow instance identifier.
@@ -29,6 +50,11 @@ public class WorkflowInstanceAction {
    * The id for executor that processed this state.
    */
   public final int executorId;
+
+  /**
+   * The type of action.
+   */
+  public final WorkflowActionType type;
 
   /**
    * The workflow state before the execution.
@@ -64,6 +90,7 @@ public class WorkflowInstanceAction {
     this.workflowId = builder.workflowInstanceId;
     this.workflowInstanceId = builder.workflowInstanceId;
     this.executorId = builder.executorId;
+    this.type = builder.type;
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.updatedStateVariables = unmodifiableMap(builder.updatedStateVariables);
@@ -79,6 +106,7 @@ public class WorkflowInstanceAction {
 
     int workflowInstanceId;
     int executorId;
+    WorkflowActionType type;
     String state;
     String stateText;
     int retryNo;
@@ -101,6 +129,7 @@ public class WorkflowInstanceAction {
       this.executionStart = action.executionStart;
       this.executorId = action.executorId;
       this.retryNo = action.retryNo;
+      this.type = action.type;
       this.state = action.state;
       this.stateText = action.stateText;
       this.updatedStateVariables.putAll(action.updatedStateVariables);
@@ -149,6 +178,17 @@ public class WorkflowInstanceAction {
       this.executorId = executorId;
       return this;
     }
+
+    /**
+     * Set the trigger type of the action.
+     * @param actionType The action type.
+     * @return this
+     */
+    public Builder setType(WorkflowActionType actionType) {
+      this.type = actionType;
+      return this;
+    }
+
     /**
      * Set the state.
      * @param state The name of the state.
@@ -214,6 +254,9 @@ public class WorkflowInstanceAction {
      * @return The workflow instance action.
      */
     public WorkflowInstanceAction build() {
+      if (type == null) {
+        throw new IllegalStateException("Missing type");
+      }
       return new WorkflowInstanceAction(this);
     }
   }

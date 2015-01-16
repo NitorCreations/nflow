@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.v1;
 
 import static com.nitorcreations.Matchers.hasField;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyCollectionOf;
@@ -94,8 +95,9 @@ public class WorkflowInstanceResourceTest {
     req.state = "newState";
     req.actionDescription = "description";
     resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
-        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("description"))));
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
+        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
   }
 
   @Test
@@ -106,8 +108,8 @@ public class WorkflowInstanceResourceTest {
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(hasField("state", equalTo(null))),
-        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API changed nextActivationTime to "
-            + req.nextActivationTime + "."))));
+        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("API changed nextActivationTime to "
+            + req.nextActivationTime + ".")), hasField("type", equalTo(externalChange)))));
   }
 
   @Test
@@ -117,8 +119,9 @@ public class WorkflowInstanceResourceTest {
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
     resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(null))),
-        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("description"))));
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("state", equalTo(null))),
+        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
   }
 
   @SuppressWarnings("unchecked")
