@@ -303,6 +303,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(eDao.getExecutorId()).thenReturn(42);
     d.setExecutorDao(eDao);
     d.setJdbcTemplate(j);
+    d.stateTextLength = 128;
     return d;
   }
 
