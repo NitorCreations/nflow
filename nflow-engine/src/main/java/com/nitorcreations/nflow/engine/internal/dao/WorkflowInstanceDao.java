@@ -47,6 +47,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatist
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -67,7 +68,7 @@ public class WorkflowInstanceDao {
   private JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
   ExecutorDao executorInfo;
-  private SQLVariants sqlVariants;
+  SQLVariants sqlVariants;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
 
@@ -361,15 +362,18 @@ public class WorkflowInstanceDao {
       public PreparedStatement createPreparedStatement(Connection con)
           throws SQLException {
         PreparedStatement p = con.prepareStatement(
-            "insert into nflow_workflow_action(workflow_id, executor_id, state, state_text, retry_no, execution_start, execution_end) values (?,?,?,?,?,?,?)",
+                "insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) values (?,?,"
+                    + sqlVariants.castToEnumType("?", "action_type") + ",?,?,?,?,?)",
             new String[] { "id" });
-        p.setInt(1, action.workflowInstanceId);
-        p.setInt(2, executorInfo.getExecutorId());
-        p.setString(3, action.state);
-        p.setString(4, left(action.stateText, STATE_TEXT_LENGTH));
-        p.setInt(5, action.retryNo);
-        p.setTimestamp(6, toTimestamp(action.executionStart));
-        p.setTimestamp(7, toTimestamp(action.executionEnd));
+        int field = 1;
+        p.setInt(field++, action.workflowInstanceId);
+        p.setInt(field++, executorInfo.getExecutorId());
+        p.setString(field++, action.type.name());
+        p.setString(field++, action.state);
+        p.setString(field++, left(action.stateText, STATE_TEXT_LENGTH));
+        p.setInt(field++, action.retryNo);
+        p.setTimestamp(field++, toTimestamp(action.executionStart));
+        p.setTimestamp(field++, toTimestamp(action.executionEnd));
         return p;
       }
     }, keyHolder);
@@ -467,6 +471,7 @@ public class WorkflowInstanceDao {
       return new WorkflowInstanceAction.Builder()
         .setWorkflowInstanceId(rs.getInt("workflow_id"))
         .setExecutorId(rs.getInt("executor_id"))
+        .setType(WorkflowActionType.valueOf(rs.getString("type")))
         .setState(rs.getString("state"))
         .setStateText(rs.getString("state_text"))
         .setUpdatedStateVariables(actionState)

@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.tests;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
@@ -75,14 +76,14 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
   @Test
   public void t05_checkWorkflowInstanceActions() {
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
-            new Action("createCreditApplication", "", 0, null, null, 0),
-            new Action("acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
-            new Action("grantLoan", "", 0, null, null, 0),
-            new Action("grantLoan", "", 0, null, null, 0),
-            new Action("grantLoan", "", 1, null, null, 0),
-            new Action("grantLoan", "", 2, null, null, 0),
-            new Action("grantLoan", "", 3, null, null, 0),
-            new Action("error", "", 0, null, null, 0))));
+            new Action(stateExecution.name(), "createCreditApplication", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
+            new Action(stateExecution.name(), "grantLoan", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "grantLoan", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "grantLoan", "", 1, null, null, 0),
+            new Action(stateExecution.name(), "grantLoan", "", 2, null, null, 0),
+            new Action(stateExecution.name(), "grantLoan", "", 3, null, null, 0),
+            new Action(stateExecution.name(), "error", "", 0, null, null, 0))));
   }
 
 }

@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.tests;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
@@ -78,12 +79,12 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
   @Test
   public void t05_checkWorkflowInstanceActions() {
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
-            new Action("previewCreditApplication", "", 0, null, null, 0),
-            new Action("acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
-            new Action("grantLoan", "", 0, null, null, 0),
-            new Action("grantLoan", "", 0, null, null, 0),
-            new Action("finishCreditApplication", "", 0, null, null, 0),
-            new Action("done", "", 0, null, null, 0))));
+            new Action(stateExecution.name(), "previewCreditApplication", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
+            new Action(stateExecution.name(), "grantLoan", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "grantLoan", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "finishCreditApplication", "", 0, null, null, 0),
+            new Action(stateExecution.name(), "done", "", 0, null, null, 0))));
   }
 
 }

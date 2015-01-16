@@ -227,6 +227,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   public void handleRetryAfter(StateExecutionImpl execution, DateTime activation) {
     if (execution.getRetries() >= getSettings().maxRetries) {
       execution.setRetry(false);
+      execution.setRetryCountExceeded();
       WorkflowState failureState = failureTransitions.get(execution.getCurrentStateName());
       WorkflowState currentState = getState(execution.getCurrentStateName());
       if (failureState != null) {

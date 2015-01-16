@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.v1.converter;
 
 import static com.nitorcreations.Matchers.reflectEquals;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
@@ -42,7 +43,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithActionsWorks() throws IOException {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).setExecutorId(999).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
@@ -74,13 +75,13 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.modified, is(i.modified));
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
-    assertThat(resp.actions, contains(reflectEquals(new Action(a.state, a.stateText, a.retryNo,
+    assertThat(resp.actions, contains(reflectEquals(new Action(a.type.name(), a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId))));
   }
 
   @Test
   public void convertWithoutActionsWorks() {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
@@ -100,7 +101,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithoutStateVariablesWorks() {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
@@ -121,7 +122,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithEmptyStateVariablesWorks() {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setType("dummy").setBusinessKey("businessKey").
         setExternalId("externalId").setState("cState").setStateText("cState desc").setNextActivation(now())
@@ -142,7 +143,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithMalformedStateVariablesWorks() throws JsonProcessingException, IOException {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
     String value1 = "{\"a\":1";
