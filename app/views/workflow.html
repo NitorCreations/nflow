@@ -33,13 +33,13 @@
           </thead>
           <tbody>
             <tr ng-repeat="action in workflow.actions | reverse" >
-              <td>{{workflow.actions.length - $index}}</td>
-              <td ng-click="selectAction(action)">{{action.state}}</td>
+              <td class="{{getClass(action)}}">{{workflow.actions.length - $index}}</td>
+              <td class="{{getClass(action)}}" ng-click="selectAction(action)">{{action.state}}</td>
               <td class="{{getClass(action)}}" ng-click="selectAction(action)">{{action.stateText}}</td>
-              <td>{{action.retryNo}}</td>
-              <td>{{action.executionStartTime | date:'medium'}}</td>
-              <td>{{action.executionEndTime | date:'medium'}}</td>
-              <td>{{duration(action)}}</td>
+              <td class="{{getClass(action)}}">{{action.retryNo}}</td>
+              <td class="{{getClass(action)}}">{{action.executionStartTime | date:'medium'}}</td>
+              <td class="{{getClass(action)}}">{{action.executionEndTime | date:'medium'}}</td>
+              <td class="{{getClass(action)}}">{{duration(action)}}</td>
             </tr>
           </tbody>
         </table>
