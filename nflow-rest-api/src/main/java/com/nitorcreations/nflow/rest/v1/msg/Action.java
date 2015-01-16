@@ -13,6 +13,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class Action {
 
+  @ApiModelProperty(value = "Type of state: 'stateExecution', 'stateExecutionFailed', 'externalChange' or 'recovery'.")
+  public String type;
   @ApiModelProperty(value = "Name of state")
   public String state;
   @ApiModelProperty(value = "Description of state")
@@ -31,13 +33,14 @@ public class Action {
   public Action() {
   }
 
-  public Action(String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+  public Action(String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
       int executorId) {
-    this(state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
+    this(type, state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
   }
 
-  public Action(String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+  public Action(String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
       int executorId, Map<String, Object> updatedStateVariables) {
+    this.type = type;
     this.state = state;
     this.stateText = stateText;
     this.retryNo = retryNo;

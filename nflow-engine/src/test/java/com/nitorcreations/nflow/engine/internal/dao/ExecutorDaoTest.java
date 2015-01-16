@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
@@ -59,6 +60,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(actions.size(), is(1));
     WorkflowInstanceAction workflowInstanceAction = actions.get(0);
     assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));
+    assertThat(workflowInstanceAction.type, is(recovery));
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
   }
 

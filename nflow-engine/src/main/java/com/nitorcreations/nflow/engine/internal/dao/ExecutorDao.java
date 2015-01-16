@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -160,7 +161,8 @@ public class ExecutorDao {
           instance.id, getExecutorId());
       if (updated > 0) {
         WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
-            .setExecutorId(getExecutorId()).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
+            .setExecutorId(getExecutorId()).setType(recovery).setState(instance.state).setStateText("Recovered")
+            .setWorkflowInstanceId(instance.id).build();
         workflowInstanceDao.insertWorkflowInstanceAction(action);
       }
     }

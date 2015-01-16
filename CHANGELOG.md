@@ -5,8 +5,14 @@
   - Use more optimal SQL when polling workflows when database supports update returning syntax
   - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
   - Allow configuring executor queue length with _nflow.dispatcher.executor.queue.size_
+  - Add field `nflow_instance_action.type` that contains type of action:
+    - *stateExecution* - for actions created with normal execution. This is also set for old actions created before this feature.
+    - *stateExecutionFailed* - for actions where execution failed due thrown exception or retry count was exceeded.
+    - *externalChange* - for changes created externally via API.
+    - *recovery* - to indicate that the workflow instance was recovered after some executor died.
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
+  - Add support for Action.type
 
 ## 1.2.0 (2014-12-23)
 

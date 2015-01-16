@@ -4,4 +4,6 @@ public interface SQLVariants {
   String currentTimePlusSeconds(int seconds);
 
   boolean hasUpdateReturning();
+
+  String castToEnumType(String variable, String type);
 }
