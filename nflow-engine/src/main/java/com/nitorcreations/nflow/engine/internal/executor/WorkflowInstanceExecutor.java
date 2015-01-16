@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -18,9 +17,10 @@ public class WorkflowInstanceExecutor {
   final ThreadPoolExecutor executor;
   final ThresholdBlockingQueue<Runnable> queue;
 
-  public WorkflowInstanceExecutor(int threadCount, int notifyThreshold, int awaitTerminationSeconds, int keepAliveSeconds,
+  public WorkflowInstanceExecutor(int maxQueueSize, int threadCount, int notifyThreshold, int awaitTerminationSeconds,
+      int keepAliveSeconds,
       ThreadFactory threadFactory) {
-    queue = new ThresholdBlockingQueue<>(MAX_VALUE, notifyThreshold);
+    queue = new ThresholdBlockingQueue<>(maxQueueSize, notifyThreshold);
     executor = new ThreadPoolExecutor(threadCount, threadCount, keepAliveSeconds, SECONDS, queue, threadFactory);
     executor.allowCoreThreadTimeOut(keepAliveSeconds > 0);
     this.awaitTerminationSeconds = awaitTerminationSeconds;
@@ -34,12 +34,8 @@ public class WorkflowInstanceExecutor {
     executor.execute(runnable);
   }
 
-  public int getMaximumPoolSize() {
-    return executor.getMaximumPoolSize();
-  }
-
-  public int getActiveCount() {
-    return executor.getActiveCount();
+  public int getQueueRemainingCapacity() {
+    return queue.remainingCapacity();
   }
 
   public void shutdown() {

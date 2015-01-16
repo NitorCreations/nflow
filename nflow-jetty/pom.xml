@@ -12,7 +12,7 @@
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <nflow.explorer.version>0.0.3</nflow.explorer.version>
+    <nflow.explorer.version>0.0.4</nflow.explorer.version>
     <swagger.ui.version>2.0.24</swagger.ui.version>
   </properties>
   <build>
@@ -34,11 +34,10 @@
                   <artifactId>nflow-explorer</artifactId>
                   <version>${nflow.explorer.version}</version>
                   <type>tar.gz</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/explorer</outputDirectory>
                 </artifactItem>
               </artifactItems>
-              <excludes>config.js</excludes>
             </configuration>
           </execution>
         </executions>
@@ -65,7 +64,7 @@
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy-resources</id>
+            <id>copy-swagger-resources</id>
             <phase>process-resources</phase>
             <goals>
               <goal>copy-resources</goal>
@@ -79,6 +78,26 @@
                   <filtering>false</filtering>
                   <excludes>
                     <exclude>index.html</exclude>
+                  </excludes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-explorer-resources</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
+              <overwrite>false</overwrite>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/explorer</directory>
+                  <filtering>false</filtering>
+                  <excludes>
+                    <exclude>config.js</exclude>
                   </excludes>
                 </resource>
               </resources>

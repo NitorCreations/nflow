@@ -63,5 +63,10 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     public String currentTimePlusSeconds(int seconds) {
       return "date_add(current_timestamp, interval " + seconds + " second)";
     }
+
+    @Override
+    public boolean hasUpdateReturning() {
+      return false;
+    }
   }
 }

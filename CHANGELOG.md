@@ -4,11 +4,15 @@
 
 **Details**
 - nflow-engine:
+  - Use more optimal SQL when polling workflows when database supports update returning syntax
   - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
   - nflow.transition.delay.waiterror.ms parameter was splitted to nflow.transition.delay.error.min.ms and nflow.transition.delay.error.max.ms
   - added missing configuration options with default values
 - nflow-jetty:
   - added missing configuration options with default values
+  - Allow configuring executor queue length with _nflow.dispatcher.executor.queue.size_
+- nflow-rest:
+  - Add support for user-provided action description when updating a workflow instance
 
 ## 1.2.0 (2014-12-23)
 
