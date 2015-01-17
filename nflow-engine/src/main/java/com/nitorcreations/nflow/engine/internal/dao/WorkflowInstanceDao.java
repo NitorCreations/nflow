@@ -184,13 +184,14 @@ public class WorkflowInstanceDao {
     StringBuilder sqlb = new StringBuilder(256);
     sqlb.append("with wf as (update nflow_workflow set state = ?, state_text = ?, next_activation = ?, executor_id = ?,"
         + "retries = ? where id = ? and executor_id = ? returning id), act as (insert into nflow_workflow_action(workflow_id,"
-        + "executor_id, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?,?,?,?,? from wf returning id)");
+        + "executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,"
+        + sqlVariants.castToEnumType("?", "action_type") + ",?,?,?,?,? from wf returning id)");
     Map<String, String> changedStateVariables = changedStateVariables(instance.stateVariables, instance.originalStateVariables);
-    int pos = 13;
+    int pos = 14;
     Object[] args = Arrays.copyOf(new Object[] { instance.state, left(instance.stateText, STATE_TEXT_LENGTH),
         toTimestamp(instance.nextActivation), instance.processing ? executorId : null, instance.retries, instance.id, executorId,
-        executorId, action.state, left(action.stateText, STATE_TEXT_LENGTH), action.retryNo, toTimestamp(action.executionStart),
-        toTimestamp(action.executionEnd) }, pos + changedStateVariables.size() * 2);
+        executorId, action.type.name(), action.state, left(action.stateText, STATE_TEXT_LENGTH), action.retryNo,
+        toTimestamp(action.executionStart), toTimestamp(action.executionEnd) }, pos + changedStateVariables.size() * 2);
     for (Entry<String, String> var : changedStateVariables.entrySet()) {
       sqlb.append(", ins").append(pos).append(
         " as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act)");
