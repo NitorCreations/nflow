@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.rest.v1;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -106,7 +107,7 @@ public class WorkflowInstanceResource {
     }
     WorkflowInstance instance = builder.build();
     boolean updated = workflowInstances.updateWorkflowInstance(instance, new WorkflowInstanceAction.Builder(instance)
-        .setStateText(trimToNull(msg)).setExecutionEnd(now()).build());
+        .setType(externalChange).setStateText(trimToNull(msg)).setExecutionEnd(now()).build());
     return (updated ? noContent() : status(CONFLICT)).build();
   }
 

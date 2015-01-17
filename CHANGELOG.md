@@ -6,9 +6,15 @@
   - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
   - Allow configuring executor queue length with _nflow.dispatcher.executor.queue.size_
   - nflow.transition.delay.waiterror.ms parameter was splitted to nflow.transition.delay.error.min.ms and nflow.transition.delay.error.max.ms
+  - Add field `nflow_instance_action.type` that contains type of action:
+    - *stateExecution* - for actions created with normal execution. This is also set for old actions created before this feature.
+    - *stateExecutionFailed* - for actions where execution failed due thrown exception or retry count was exceeded.
+    - *externalChange* - for changes created externally via API.
+    - *recovery* - to indicate that the workflow instance was recovered after some executor died.
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
   - added missing configuration options with default values
+  - Add support for Action.type
 - nflow-jetty:
   - added missing configuration options with default values
 

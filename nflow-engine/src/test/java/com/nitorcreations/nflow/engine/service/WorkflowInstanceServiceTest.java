@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.service;
 
 import static com.nitorcreations.Matchers.containsElementsInAnyOrder;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
@@ -115,7 +116,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void updateWorkflowInstanceWorks() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(i.id).build();
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
     when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation)).thenReturn(true);
     assertThat(service.updateWorkflowInstance(i, a), is(true));
@@ -126,7 +127,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void updateRunningWorkflowInstanceFails() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().build();
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).build();
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation)).thenReturn(false);
     assertThat(service.updateWorkflowInstance(i, a), is(false));
     verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),

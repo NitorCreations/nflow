@@ -18,6 +18,7 @@ public class StateExecutionImpl implements StateExecution {
   private boolean saveTrace = true;
   private Throwable thrown;
   private boolean isFailed;
+  private boolean isRetryCountExceeded;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
     this.instance = instance;
@@ -133,6 +134,14 @@ public class StateExecutionImpl implements StateExecution {
   public void setFailed(Throwable t) {
     isFailed = true;
     thrown = t;
+  }
+
+  public boolean isRetryCountExceeded() {
+    return isRetryCountExceeded;
+  }
+
+  public void setRetryCountExceeded() {
+    isRetryCountExceeded = true;
   }
 
 }
