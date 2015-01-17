@@ -2,6 +2,8 @@ package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -23,6 +25,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 class WorkflowStateProcessor implements Runnable {
 
@@ -134,7 +137,9 @@ class WorkflowStateProcessor implements Runnable {
       .setStateText(execution.isRetry() ? execution.getNextStateReason() : null)
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
-    actionBuilder.setExecutionEnd(now()).setStateText(execution.getNextStateReason());
+    WorkflowActionType actionType = execution.isFailed() || execution.isRetryCountExceeded() ? stateExecutionFailed
+        : stateExecution;
+    actionBuilder.setExecutionEnd(now()).setType(actionType).setStateText(execution.getNextStateReason());
     workflowInstances.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
