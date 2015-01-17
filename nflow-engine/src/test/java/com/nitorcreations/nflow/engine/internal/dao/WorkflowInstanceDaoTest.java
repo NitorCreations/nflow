@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
@@ -126,12 +127,12 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i2 = new WorkflowInstance.Builder().setState("updateState").setStateText("update text")
         .setNextActivation(started.plusSeconds(1)).setProcessing(true).setRetries(3).setId(43).putStateVariable("A", "B").build();
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(4)
-        .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
-        .setWorkflowInstanceId(43).setType(stateExecution).build();
+        .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setType(externalChange).setState("test")
+        .setStateText("state text").setWorkflowInstanceId(43).build();
 
     d.updateWorkflowInstanceAfterExecution(i2, a1);
     assertEquals(
-        "with wf as (update nflow_workflow set state = ?, state_text = ?, next_activation = ?, executor_id = ?,retries = ? where id = ? and executor_id = ? returning id), act as (insert into nflow_workflow_action(workflow_id,executor_id, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?,?,?,?,? from wf returning id), ins13 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
+        "with wf as (update nflow_workflow set state = ?, state_text = ?, next_activation = ?, executor_id = ?,retries = ? where id = ? and executor_id = ? returning id), act as (insert into nflow_workflow_action(workflow_id,executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
         sql.getValue());
     assertThat(args.getAllValues().get(0), is((Object) i2.state));
     assertThat(args.getAllValues().get(1), is((Object) i2.stateText));
@@ -141,13 +142,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(5), is((Object) i2.id));
     assertThat(args.getAllValues().get(6), is((Object) 42));
     assertThat(args.getAllValues().get(7), is((Object) 42));
-    assertThat(args.getAllValues().get(8), is((Object) a1.state));
-    assertThat(args.getAllValues().get(9), is((Object) a1.stateText));
-    assertThat(args.getAllValues().get(10), is((Object) a1.retryNo));
-    assertThat(args.getAllValues().get(11), is((Object) new Timestamp(a1.executionStart.getMillis())));
-    assertThat(args.getAllValues().get(12), is((Object) new Timestamp(a1.executionEnd.getMillis())));
-    assertThat(args.getAllValues().get(13), is((Object) "A"));
-    assertThat(args.getAllValues().get(14), is((Object) "B"));
+    assertThat(args.getAllValues().get(8), is((Object) a1.type.name()));
+    assertThat(args.getAllValues().get(9), is((Object) a1.state));
+    assertThat(args.getAllValues().get(10), is((Object) a1.stateText));
+    assertThat(args.getAllValues().get(11), is((Object) a1.retryNo));
+    assertThat(args.getAllValues().get(12), is((Object) new Timestamp(a1.executionStart.getMillis())));
+    assertThat(args.getAllValues().get(13), is((Object) new Timestamp(a1.executionEnd.getMillis())));
+    assertThat(args.getAllValues().get(14), is((Object) "A"));
+    assertThat(args.getAllValues().get(15), is((Object) "B"));
   }
 
   @Test
