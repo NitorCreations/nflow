@@ -6,4 +6,6 @@ public interface SQLVariants {
   boolean hasUpdateReturning();
 
   String castToEnumType(String variable, String type);
+
+  boolean hasUpdateableCTE();
 }

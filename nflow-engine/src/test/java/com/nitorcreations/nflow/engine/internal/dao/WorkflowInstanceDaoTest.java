@@ -4,6 +4,7 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
 import static java.lang.Thread.sleep;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.contains;
@@ -12,12 +13,17 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +32,11 @@ import javax.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
+import com.nitorcreations.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -88,7 +96,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .setStateText("update text").setNextActivation(DateTime.now()).setProcessing(!i1.processing).build();
     final DateTime originalModifiedTime = dao.getWorkflowInstance(id).modified;
     sleep(1);
-    dao.updateWorkflowInstance(i2);
+    DateTime started = DateTime.now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+        .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+        .setWorkflowInstanceId(id).setType(stateExecution).build();
+    dao.updateWorkflowInstanceAfterExecution(i2, a1);
     JdbcTemplate template = new JdbcTemplate(ds);
     template.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
@@ -100,6 +112,42 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
       }
     });
+  }
+
+  @Test
+  public void fakePostgreSQLupdateWorkflowInstance() {
+    JdbcTemplate j = mock(JdbcTemplate.class);
+    WorkflowInstanceDao d = preparePostgreSQLDao(j);
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Object> args = ArgumentCaptor.forClass(Object.class);
+    when(j.queryForObject(sql.capture(), eq(Integer.class), args.capture())).thenReturn(42);
+
+    DateTime started = DateTime.now();
+    WorkflowInstance i2 = new WorkflowInstance.Builder().setState("updateState").setStateText("update text")
+        .setNextActivation(started.plusSeconds(1)).setProcessing(true).setRetries(3).setId(43).putStateVariable("A", "B").build();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(4)
+        .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+        .setWorkflowInstanceId(43).setType(stateExecution).build();
+
+    d.updateWorkflowInstanceAfterExecution(i2, a1);
+    assertEquals(
+        "with wf as (update nflow_workflow set state = ?, state_text = ?, next_activation = ?, executor_id = ?,retries = ? where id = ? and executor_id = ? returning id), act as (insert into nflow_workflow_action(workflow_id,executor_id, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?,?,?,?,? from wf returning id), ins13 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
+        sql.getValue());
+    assertThat(args.getAllValues().get(0), is((Object) i2.state));
+    assertThat(args.getAllValues().get(1), is((Object) i2.stateText));
+    assertThat(args.getAllValues().get(2), is((Object) new Timestamp(i2.nextActivation.getMillis())));
+    assertThat(args.getAllValues().get(3), is((Object) 42));
+    assertThat(args.getAllValues().get(4), is((Object) i2.retries));
+    assertThat(args.getAllValues().get(5), is((Object) i2.id));
+    assertThat(args.getAllValues().get(6), is((Object) 42));
+    assertThat(args.getAllValues().get(7), is((Object) 42));
+    assertThat(args.getAllValues().get(8), is((Object) a1.state));
+    assertThat(args.getAllValues().get(9), is((Object) a1.stateText));
+    assertThat(args.getAllValues().get(10), is((Object) a1.retryNo));
+    assertThat(args.getAllValues().get(11), is((Object) new Timestamp(a1.executionStart.getMillis())));
+    assertThat(args.getAllValues().get(12), is((Object) new Timestamp(a1.executionEnd.getMillis())));
+    assertThat(args.getAllValues().get(13), is((Object) "A"));
+    assertThat(args.getAllValues().get(14), is((Object) "B"));
   }
 
   @Test
@@ -128,6 +176,29 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(firstBatch.size(), equalTo(1));
     assertThat(firstBatch.get(0), equalTo(id));
     assertThat(secondBatch.size(), equalTo(0));
+  }
+
+  @Test
+  public void fakePostgreSQLpollNextWorkflowInstances() {
+    JdbcTemplate j = mock(JdbcTemplate.class);
+    WorkflowInstanceDao d = preparePostgreSQLDao(j);
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    when(j.queryForList(sql.capture(), eq(Integer.class))).thenReturn(asList(1, 2, 3));
+    assertThat(d.pollNextWorkflowInstanceIds(5), is(asList(1, 2, 3)));
+    assertEquals(
+        "update nflow_workflow set executor_id = 42 where id in (select id from nflow_workflow where executor_id is null and next_activation < current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
+        sql.getValue());
+  }
+
+  private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate j) {
+    WorkflowInstanceDao d = new WorkflowInstanceDao();
+    d.setSQLVariants(new PostgreSQLVariants());
+    ExecutorDao eDao = mock(ExecutorDao.class);
+    when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
+    when(eDao.getExecutorId()).thenReturn(42);
+    d.setExecutorDao(eDao);
+    d.setJdbcTemplate(j);
+    return d;
   }
 
   @Test

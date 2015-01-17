@@ -73,5 +73,10 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     public String castToEnumType(String variable, String type) {
       return variable;
     }
+
+    @Override
+      public boolean hasUpdateableCTE() {
+      return false;
+    }
   }
 }
