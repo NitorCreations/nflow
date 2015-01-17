@@ -5,6 +5,7 @@
   - Use more optimal SQL when polling workflows when database supports update returning syntax
   - Only rollback poll operation when no workflows could be allocated for executing (when multiple pollers compete for same workflows)
   - Allow configuring executor queue length with _nflow.dispatcher.executor.queue.size_
+  - Automatically abbreviate state text for workflow instance and workflow instance action based on field size in database
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
 

@@ -5,6 +5,7 @@ import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 import static java.util.Locale.US;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -81,7 +83,6 @@ public class WorkflowInstanceDao {
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
     this.jdbc = nflowJdbcTemplate;
-    findColumnMaxLengths();
   }
 
   @Inject
@@ -92,7 +93,6 @@ public class WorkflowInstanceDao {
   @Inject
   public void setExecutorDao(ExecutorDao executorDao) {
     this.executorInfo = executorDao;
-    findColumnMaxLengths();
   }
 
   @Inject
@@ -102,10 +102,8 @@ public class WorkflowInstanceDao {
         Long.class);
   }
 
-  private void findColumnMaxLengths() {
-    if (jdbc == null || executorInfo == null) {
-      return;
-    }
+  @PostConstruct
+  public void findColumnMaxLengths() {
     stateTextLength = jdbc.execute(new ConnectionCallback<Integer>() {
       @Override
       public Integer doInConnection(Connection con) throws SQLException, DataAccessException {
@@ -267,7 +265,7 @@ public class WorkflowInstanceDao {
         return new OptimisticLockKey(rs.getInt("id"), rs.getString("modified"));
       }
     });
-    Collections.sort(instances);
+    sort(instances);
     List<Object[]> batchArgs = new ArrayList<>(instances.size());
     List<Integer> ids = new ArrayList<>(instances.size());
     for (OptimisticLockKey instance : instances) {
