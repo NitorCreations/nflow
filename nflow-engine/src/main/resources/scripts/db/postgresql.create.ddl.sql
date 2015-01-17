@@ -32,7 +32,7 @@ create table if not exists nflow_workflow_action (
   id serial primary key,
   workflow_id int not null,
   executor_id int not null default -1,
-  type action_type not null default 'stateExecution',
+  type action_type not null,
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,
