@@ -62,7 +62,13 @@ angular.module('nflowVisApp')
 
   $scope.getClass = function getClass(action) {
     // See http://getbootstrap.com/css/#tables
-    return '';
+    if(!action.type) {
+      return '';
+    }
+    return {'stateExecution' : 'success',
+            'stateExecutionFailed' :'danger',
+            'externalChange' : 'info',
+            'recovery': 'warning'}[action.type];
   };
 
   $scope.selectAction = function selectAction(action) {
