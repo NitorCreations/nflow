@@ -34,6 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
@@ -122,6 +123,31 @@ public class WorkflowInstanceResourceTest {
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(hasField("state", equalTo(null))),
         (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+  }
+
+  @Test
+  public void whenUpdatingStatusUpdateWorkflowInstanceWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.status = "finished";
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("status", equalTo(WorkflowInstanceStatus.finished))),
+        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("API changed status to finished.")),
+            hasField("type", equalTo(externalChange)))));
+  }
+
+  @Test
+  public void whenUpdatingStatusWithDescriptionUpdateWorkflowInstanceWorks() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.status = "finished";
+    req.actionDescription = "description";
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("status", equalTo(WorkflowInstanceStatus.finished))),
+        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")),
+            hasField("type", equalTo(externalChange)))));
   }
 
   @SuppressWarnings("unchecked")

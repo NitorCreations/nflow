@@ -33,6 +33,7 @@ public class ListWorkflowInstanceConverter {
   public ListWorkflowInstanceResponse convert(WorkflowInstance instance, QueryWorkflowInstances query) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
+    resp.status = instance.status.name();
     resp.type = instance.type;
     resp.businessKey = instance.businessKey;
     resp.externalId = instance.externalId;

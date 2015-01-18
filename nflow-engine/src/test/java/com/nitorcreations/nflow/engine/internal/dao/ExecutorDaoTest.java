@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -8,9 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,18 +17,18 @@ import javax.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
 import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class ExecutorDaoTest extends BaseDaoTest {
 
   @Inject
   ExecutorDao dao;
+  @Inject
+  WorkflowInstanceDao workflowInstanceDao;
 
   private final DateTime started = now().minusDays(1);
 
@@ -48,7 +46,10 @@ public class ExecutorDaoTest extends BaseDaoTest {
   public void recoverWorkflowInstancesFromDeadNodesSetsExecutorIdToNullAndInsertsAction() {
     int crashedExecutorId = 999;
     insertCrashedExecutor(crashedExecutorId);
-    int id = insertWorkflowInstance(crashedExecutorId);
+    int id = workflowInstanceDao.insertWorkflowInstance(new WorkflowInstance.Builder().setType("test").setExternalId("extId")
+        .setExecutorGroup(dao.getExecutorGroup()).setStatus(inProgress).setState("processing").build());
+    int updated = jdbc.update("update nflow_workflow set executor_id = ? where id = ?", crashedExecutorId, id);
+    assertThat(updated, is(1));
 
     dao.recoverWorkflowInstancesFromDeadNodes();
 
@@ -62,25 +63,6 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
-  }
-
-  private int insertWorkflowInstance(final int crashedExecutorId) {
-    KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new PreparedStatementCreator() {
-      @Override
-      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement(
-            "insert into nflow_workflow (type, external_id, executor_group, state, executor_id) values (?, ?, ?, ?, ?)",
-            new String[] { "id" });
-        ps.setString(1, "test");
-        ps.setString(2, "extId");
-        ps.setString(3, dao.getExecutorGroup());
-        ps.setString(4, "processing");
-        ps.setInt(5, crashedExecutorId);
-        return ps;
-      }
-    }, keyHolder);
-    return keyHolder.getKey().intValue();
   }
 
   private void insertCrashedExecutor(int crashedExecutorId) {

@@ -2,6 +2,9 @@ package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static org.joda.time.DateTime.now;
@@ -25,6 +28,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
@@ -135,9 +139,11 @@ class WorkflowStateProcessor implements Runnable {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
+    WorkflowInstanceStatus status = getStatus(execution, definition.getState(execution.getNextState()));
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setProcessing(isNextActivationImmediately(execution))
+      .setStatus(status)
       .setStateText(execution.isRetry() ? execution.getNextStateReason() : null)
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
@@ -146,6 +152,16 @@ class WorkflowStateProcessor implements Runnable {
     actionBuilder.setExecutionEnd(now()).setType(actionType).setStateText(execution.getNextStateReason());
     workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
+  }
+
+  private WorkflowInstanceStatus getStatus(StateExecutionImpl execution, WorkflowState nextState) {
+    if (nextState.getType() == manual) {
+      return WorkflowInstanceStatus.manual;
+    }
+    if (nextState.getType().isFinal()) {
+      return finished;
+    }
+    return inProgress;
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
