@@ -6,7 +6,6 @@
     <artifactId>nflow-root</artifactId>
     <version>1.2.1-SNAPSHOT</version>
   </parent>
-  <packaging>pom</packaging>
   <artifactId>nflow-tests</artifactId>
   <name>nflow-tests</name>
   <url>http://maven.apache.org</url>
