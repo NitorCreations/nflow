@@ -19,4 +19,7 @@ public class UpdateWorkflowInstanceRequest {
 
   @ApiModelProperty(value = "Description of the action", required = false)
   public String actionDescription;
+
+  @ApiModelProperty(value = "New status of the workflow instance", required = false, allowableValues = "created,inProgress,finished,manual")
+  public String status;
 }

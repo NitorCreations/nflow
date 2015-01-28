@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
@@ -99,7 +100,13 @@ public class WorkflowInstanceResource {
     if (req.nextActivationTime != null) {
       builder.setNextActivation(req.nextActivationTime);
       if (isBlank(req.actionDescription)) {
-        msg += "API changed nextActivationTime to " + req.nextActivationTime + ".";
+        msg += "API changed nextActivationTime to " + req.nextActivationTime + ". ";
+      }
+    }
+    if (req.status != null) {
+      builder.setStatus(WorkflowInstanceStatus.valueOf(req.status));
+      if (isBlank(req.actionDescription)) {
+        msg += "API changed status to " + req.status + ".";
       }
     }
     if (msg.isEmpty()) {

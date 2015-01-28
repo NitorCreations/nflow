@@ -1,5 +1,6 @@
 create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
+  status varchar(32) not null check status in ('created', 'inProgress', 'finished', 'manual'),
   type varchar(64) not null,
   business_key varchar(64),
   external_id varchar(64) not null,

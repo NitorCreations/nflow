@@ -14,6 +14,20 @@ import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 public class WorkflowInstance {
 
   /**
+   * Describes the status for workflow instance.
+   */
+  public static enum WorkflowInstanceStatus {
+    /** Workflow instance has been created but the processing has not been started yet */
+    created,
+    /** Workflow instance processing has been started */
+    inProgress,
+    /** Workflow instance has reached an end state */
+    finished,
+    /** Workflow instance is waiting for manual action */
+    manual,
+  }
+
+  /**
    * The workflow instance identifier.
    */
   public final Integer id;
@@ -22,6 +36,11 @@ public class WorkflowInstance {
    * The id of executor that is currently processing this workflow. May be null.
    */
   public final Integer executorId;
+
+  /**
+   * The current status of the workflow instance.
+   */
+  public final WorkflowInstanceStatus status;
 
   /**
    * The type of the workflow definition.
@@ -109,6 +128,7 @@ public class WorkflowInstance {
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.executorId = builder.executorId;
+    this.status = builder.status;
     this.type = builder.type;
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
@@ -134,6 +154,7 @@ public class WorkflowInstance {
 
     Integer id;
     Integer executorId;
+    WorkflowInstanceStatus status = WorkflowInstanceStatus.created;
     String type;
     String businessKey;
     String externalId;
@@ -173,6 +194,7 @@ public class WorkflowInstance {
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
       this.executorId = copy.executorId;
+      this.status = copy.status;
       this.type = copy.type;
       this.businessKey = copy.businessKey;
       this.externalId = copy.externalId;
@@ -205,6 +227,16 @@ public class WorkflowInstance {
      */
     public Builder setExecutorId(Integer executorId) {
       this.executorId = executorId;
+      return this;
+    }
+
+    /**
+     * Set the status.
+     * @param status The status.
+     * @return this.
+     */
+    public Builder setStatus(WorkflowInstanceStatus status) {
+      this.status = status;
       return this;
     }
 

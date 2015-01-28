@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.tests;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
@@ -11,6 +12,9 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
 
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -65,7 +69,9 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "grantLoan";
-    fromClient(workflowInstanceResource, true).path(resp.id).put(ureq);
+    ureq.status = "inProgress";
+    Response response = fromClient(workflowInstanceResource, true).path(resp.id).put(ureq);
+    assertThat(response.getStatusInfo().getFamily(), is(Family.SUCCESSFUL));
   }
 
   @Test(timeout = 5000)

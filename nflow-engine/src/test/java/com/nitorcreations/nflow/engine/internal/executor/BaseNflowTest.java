@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("serial")
@@ -17,6 +18,7 @@ public abstract class BaseNflowTest {
 
   protected WorkflowInstance.Builder constructWorkflowInstanceBuilder() {
     return new WorkflowInstance.Builder()
+      .setStatus(WorkflowInstanceStatus.inProgress)
       .setType("dummy")
       .setState("CreateLoan")
       .setStateText(null)
