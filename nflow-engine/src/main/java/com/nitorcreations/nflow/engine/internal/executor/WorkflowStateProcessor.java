@@ -3,6 +3,7 @@ package com.nitorcreations.nflow.engine.internal.executor;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
@@ -83,7 +84,7 @@ class WorkflowStateProcessor implements Runnable {
     }
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
-    while (instance.processing) {
+    while (instance.status == executing) {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
       ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
@@ -116,7 +117,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private void unscheduleUnknownWorkflowInstance(WorkflowInstance instance) {
     logger.warn("Workflow type {} not configured to this nflow instance - unscheduling workflow instance", instance.type);
-    instance = new WorkflowInstance.Builder(instance).setNextActivation(null)
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusHours(1)).setStatus(inProgress)
         .setStateText("Unsupported workflow type").build();
     workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Exiting.");
@@ -139,22 +140,21 @@ class WorkflowStateProcessor implements Runnable {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
-    WorkflowInstanceStatus status = getStatus(execution, definition.getState(execution.getNextState()));
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
-      .setProcessing(isNextActivationImmediately(execution))
-      .setStatus(status)
+      .setStatus(getStatus(execution, definition.getState(execution.getNextState())))
       .setStateText(execution.isRetry() ? execution.getNextStateReason() : null)
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
-    WorkflowActionType actionType = execution.isFailed() || execution.isRetryCountExceeded() ? stateExecutionFailed
-        : stateExecution;
-    actionBuilder.setExecutionEnd(now()).setType(actionType).setStateText(execution.getNextStateReason());
+    actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
     workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 
   private WorkflowInstanceStatus getStatus(StateExecutionImpl execution, WorkflowState nextState) {
+    if (isNextActivationImmediately(execution)) {
+      return executing;
+    }
     if (nextState.getType() == manual) {
       return WorkflowInstanceStatus.manual;
     }
@@ -162,6 +162,10 @@ class WorkflowStateProcessor implements Runnable {
       return finished;
     }
     return inProgress;
+  }
+
+  private WorkflowActionType getActionType(StateExecutionImpl execution) {
+    return execution.isFailed() || execution.isRetryCountExceeded() ? stateExecutionFailed : stateExecution;
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {

@@ -1,7 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
-import static java.lang.Boolean.FALSE;
-
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
@@ -24,7 +22,6 @@ public abstract class BaseNflowTest {
       .setStateText(null)
       .setNextActivation(new DateTime())
       .setExternalId(UUID.randomUUID().toString())
-      .setProcessing(FALSE)
       .setRetries(0)
       .setExecutorGroup("flowInstance1")
       .setStateVariables(new LinkedHashMap<String,String>() {{put("requestData", "{ \"parameter\": \"abc\" }"); }});

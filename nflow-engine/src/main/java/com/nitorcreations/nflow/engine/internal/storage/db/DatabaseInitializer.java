@@ -21,7 +21,7 @@ public class DatabaseInitializer {
       return;
     }
 
-    populate(createPopulator(resolveScript(env)), ds);
+    populate(createPopulator(resolveScript()), ds);
   }
 
   private void populate(ResourceDatabasePopulator populator, DataSource ds) {
@@ -40,7 +40,7 @@ public class DatabaseInitializer {
     return populator;
   }
 
-  private ClassPathResource resolveScript(Environment env) {
+  private ClassPathResource resolveScript() {
     ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
     if (!script.exists()) {
       throw new IllegalArgumentException("No ddl script found: " + script.toString());

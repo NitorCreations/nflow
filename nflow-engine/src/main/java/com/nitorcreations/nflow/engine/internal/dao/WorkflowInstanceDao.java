@@ -2,14 +2,14 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao.FirstColumnLengthExtractor.firstColumnLengthExtractor;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
-import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
-import static java.util.Locale.US;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -37,7 +37,6 @@ import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -84,7 +83,8 @@ public class WorkflowInstanceDao {
   SQLVariants sqlVariants;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
-  int stateTextLength;
+  int instanceStateTextLength;
+  int actionStateTextLength;
 
   @Inject
   public void setSQLVariants(SQLVariants sqlVariants) {
@@ -120,25 +120,8 @@ public class WorkflowInstanceDao {
 
   @PostConstruct
   public void findColumnMaxLengths() {
-    stateTextLength = jdbc.execute(new ConnectionCallback<Integer>() {
-      @Override
-      public Integer doInConnection(Connection con) throws SQLException, DataAccessException {
-        int len;
-        boolean upper = con.getMetaData().storesUpperCaseIdentifiers();
-        try (ResultSet rs = con.getMetaData().getColumns(null, null, dbName("nflow_workflow", upper), dbName("state_text", upper))) {
-          rs.next();
-          len = rs.getInt("COLUMN_SIZE");
-        }
-        try (ResultSet rs = con.getMetaData().getColumns(null, null, dbName("nflow_workflow_action", upper), dbName("state_text", upper))) {
-          rs.next();
-          return min(len, rs.getInt("COLUMN_SIZE"));
-        }
-      }
-
-      private String dbName(String string, boolean upper) {
-        return upper ? string.toUpperCase(US) : string;
-      }
-    });
+    instanceStateTextLength = jdbc.query("select state_text from nflow_workflow where 1 = 0", firstColumnLengthExtractor);
+    actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -158,7 +141,7 @@ public class WorkflowInstanceDao {
     int pos = 8;
     Object[] args = Arrays.copyOf(
         new Object[] { instance.type, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
-            instance.status.name(), instance.state, abbreviate(instance.stateText, stateTextLength),
+            instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
             toTimestamp(instance.nextActivation) },
         pos + instance.stateVariables.size() * 2);
     for (Entry<String, String> var : instance.stateVariables.entrySet()) {
@@ -198,7 +181,7 @@ public class WorkflowInstanceDao {
             ps.setString(p++, executorInfo.getExecutorGroup());
             ps.setString(p++, instance.status.name());
             ps.setString(p++, instance.state);
-            ps.setString(p++, abbreviate(instance.stateText, stateTextLength));
+            ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
             ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
             return ps;
           }
@@ -265,8 +248,8 @@ public class WorkflowInstanceDao {
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
     jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
-        abbreviate(instance.stateText, stateTextLength),
-        toTimestamp(instance.nextActivation), instance.processing ? executorInfo.getExecutorId() : null, instance.retries,
+        abbreviate(instance.stateText, instanceStateTextLength), toTimestamp(instance.nextActivation),
+        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries,
         instance.id);
   }
 
@@ -289,9 +272,9 @@ public class WorkflowInstanceDao {
     Map<String, String> changedStateVariables = changedStateVariables(instance.stateVariables, instance.originalStateVariables);
     int pos = 14;
     Object[] args = Arrays.copyOf(
-        new Object[] { instance.status.name(), instance.state, abbreviate(instance.stateText, stateTextLength),
-            toTimestamp(instance.nextActivation), instance.processing ? executorId : null, instance.retries, instance.id,
-            executorId, action.type.name(), action.state, abbreviate(action.stateText, stateTextLength), action.retryNo,
+        new Object[] { instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
+            toTimestamp(instance.nextActivation), instance.status == executing ? executorId : null, instance.retries, instance.id,
+            executorId, action.type.name(), action.state, abbreviate(action.stateText, actionStateTextLength), action.retryNo,
             toTimestamp(action.executionStart), toTimestamp(action.executionEnd) }, pos + changedStateVariables.size() * 2);
     for (Entry<String, String> var : changedStateVariables.entrySet()) {
       sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
@@ -381,7 +364,7 @@ public class WorkflowInstanceDao {
   }
 
   String updateInstanceForExecutionQuery() {
-    return "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + ", status = '" + inProgress.name() + "'";
+    return "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + ", status = '" + executing.name() + "'";
   }
 
   String whereConditionForInstanceUpdate(int batchSize) {
@@ -434,6 +417,15 @@ public class WorkflowInstanceDao {
         return ids;
       }
     });
+  }
+
+  static final class FirstColumnLengthExtractor implements org.springframework.jdbc.core.ResultSetExtractor<Integer> {
+    static final FirstColumnLengthExtractor firstColumnLengthExtractor = new FirstColumnLengthExtractor();
+
+    @Override
+    public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+      return rs.getMetaData().getColumnDisplaySize(1);
+    }
   }
 
   private static class OptimisticLockKey implements Comparable<OptimisticLockKey> {
@@ -540,7 +532,7 @@ public class WorkflowInstanceDao {
         p.setInt(field++, executorInfo.getExecutorId());
         p.setString(field++, action.type.name());
         p.setString(field++, action.state);
-        p.setString(field++, abbreviate(action.stateText, stateTextLength));
+        p.setString(field++, abbreviate(action.stateText, actionStateTextLength));
         p.setInt(field++, action.retryNo);
         p.setTimestamp(field++, toTimestamp(action.executionStart));
         p.setTimestamp(field++, toTimestamp(action.executionEnd));
@@ -569,7 +561,6 @@ public class WorkflowInstanceDao {
         .setStateText(rs.getString("state_text"))
         .setActions(new ArrayList<WorkflowInstanceAction>())
         .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
-        .setProcessing(executorId != null)
         .setRetries(rs.getInt("retries"))
         .setCreated(toDateTime(rs.getTimestamp("created")))
         .setModified(toDateTime(rs.getTimestamp("modified")))
