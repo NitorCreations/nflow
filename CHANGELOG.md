@@ -12,6 +12,7 @@
     - *externalChange* - for changes created externally via API.
     - *recovery* - to indicate that the workflow instance was recovered after some executor died.
   - Use more optimal SQL when updating workflows when database supports updateable cte syntax
+  - Automatically abbreviate state text for workflow instance and workflow instance action based on field size in database
 - nflow-rest:
   - Add support for user-provided action description when updating a workflow instance
   - added missing configuration options with default values
