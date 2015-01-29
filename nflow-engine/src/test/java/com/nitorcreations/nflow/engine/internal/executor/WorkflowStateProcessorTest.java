@@ -268,8 +268,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress,
-            FailingTestWorkflow.State.retryingState, 1, false, "Retrying")), any(WorkflowInstanceAction.class));
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, false, "Retrying")),
+        any(WorkflowInstanceAction.class));
   }
 
   @Test
@@ -288,8 +288,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress,
-            FailingTestWorkflow.State.start, 1, false)), any(WorkflowInstanceAction.class));
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, false)),
+        any(WorkflowInstanceAction.class));
   }
 
   @Test
@@ -304,8 +304,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(finished,
-            FailingTestWorkflow.State.noMethodEndState, 0, false,
+        argThat(matchesWorkflowInstance(finished, FailingTestWorkflow.State.noMethodEndState, 0, false,
             is(nullValue(DateTime.class)))), any(WorkflowInstanceAction.class));
   }
 
@@ -321,8 +320,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress,
-            FailingTestWorkflow.State.retryingState, 1, false,
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, false,
             is(notNullValue(DateTime.class)))), any(WorkflowInstanceAction.class));
   }
 

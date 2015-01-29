@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.zaxxer.hikari.HikariConfig;
@@ -31,11 +33,14 @@ public abstract class DatabaseConfiguration {
     String url = property(env, "url");
     logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
+    config.setPoolName("nflow");
     config.setDataSourceClassName(property(env, "driver"));
     config.addDataSourceProperty("url", url);
     config.setUsername(property(env, "user"));
     config.setPassword(property(env, "password"));
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
+    config.setIdleTimeout(property(env, "idle_timeout_seconds", Integer.class) * 1000);
+    config.setAutoCommit(true);
     return new HikariDataSource(config);
   }
 
@@ -51,6 +56,12 @@ public abstract class DatabaseConfiguration {
   @Scope(SCOPE_PROTOTYPE)
   public NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate(@NFlow DataSource nflowDataSource) {
     return new NamedParameterJdbcTemplate(nflowDataSource);
+  }
+
+  @Bean
+  @NFlow
+  public TransactionTemplate nflowTransactionTemplate(PlatformTransactionManager platformTransactionManager) {
+    return new TransactionTemplate(platformTransactionManager);
   }
 
   protected String property(Environment env, String key) {

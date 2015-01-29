@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,7 +45,10 @@ import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedS
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
@@ -71,8 +75,9 @@ public class WorkflowInstanceDao {
   private static final int STATE_TEXT_LENGTH = 128;
   private static final String GET_STATISTICS_PREFIX = "select state, count(1) as amount from nflow_workflow where executor_group = ? and type = ?";
 
-  private JdbcTemplate jdbc;
+  JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
+  private TransactionTemplate transaction;
   ExecutorDao executorInfo;
   SQLVariants sqlVariants;
   private long workflowInstanceQueryMaxResults;
@@ -86,6 +91,11 @@ public class WorkflowInstanceDao {
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
     this.jdbc = nflowJdbcTemplate;
+  }
+
+  @Inject
+  public void setTransactionTemplate(@NFlow TransactionTemplate transactionTemplate) {
+    this.transaction = transactionTemplate;
   }
 
   @Inject
@@ -106,38 +116,71 @@ public class WorkflowInstanceDao {
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
     try {
-      return insertWorkflowInstanceImpl(instance);
+      if (sqlVariants.hasUpdateableCTE()) {
+        return insertWorkflowInstanceWithCte(instance);
+      }
+      return insertWorkflowInstanceWithTransaction(instance);
     } catch (DuplicateKeyException ex) {
       return -1;
     }
   }
 
-  private int insertWorkflowInstanceImpl(final WorkflowInstance instance) {
-    KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new PreparedStatementCreator() {
+  private int insertWorkflowInstanceWithCte(WorkflowInstance instance) {
+    StringBuilder sqlb = new StringBuilder(256);
+    sqlb.append("with wf as (" + insertWorkflowInstanceSql() + " returning id)");
+    int pos = 8;
+    Object[] args = Arrays.copyOf(
+        new Object[] { instance.type, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
+            instance.status.name(), instance.state, left(instance.stateText, STATE_TEXT_LENGTH),
+            toTimestamp(instance.nextActivation) },
+        pos + instance.stateVariables.size() * 2);
+    for (Entry<String, String> var : instance.stateVariables.entrySet()) {
+      sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
+          .append(" select wf.id,0,?,? from wf)");
+      args[pos++] = var.getKey();
+      args[pos++] = var.getValue();
+    }
+    sqlb.append(" select wf.id from wf");
+    return jdbc.queryForObject(sqlb.toString(), Integer.class, args);
+  }
+
+  String insertWorkflowInstanceSql() {
+    return "insert into nflow_workflow(type, business_key, external_id, executor_group, status, state, state_text, "
+        + "next_activation) values (?, ?, ?, ?, " + sqlVariants.castToEnumType("?", "workflow_status") + ", ?, ?, ?)";
+  }
+
+  String insertWorkflowInstanceStateSql() {
+    return "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value)";
+  }
+
+  private int insertWorkflowInstanceWithTransaction(final WorkflowInstance instance) {
+    return transaction.execute(new TransactionCallback<Integer>() {
       @Override
-      @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
-      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-        PreparedStatement ps;
-        int p = 1;
-        ps = connection.prepareStatement(
-            "insert into nflow_workflow(type, business_key, external_id, executor_group, status, state, state_text, "
-                + "next_activation) values (?, ?, ?, ?, " + sqlVariants.castToEnumType("?", "workflow_status") + ", ?, ?, ?)",
-            new String[] { "id" });
-        ps.setString(p++, instance.type);
-        ps.setString(p++, instance.businessKey);
-        ps.setString(p++, instance.externalId);
-        ps.setString(p++, executorInfo.getExecutorGroup());
-        ps.setString(p++, instance.status.name());
-        ps.setString(p++, instance.state);
-        ps.setString(p++, left(instance.stateText, STATE_TEXT_LENGTH));
-        ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-        return ps;
+      public Integer doInTransaction(TransactionStatus status) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(new PreparedStatementCreator() {
+          @Override
+          @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+          public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+            PreparedStatement ps;
+            int p = 1;
+            ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
+            ps.setString(p++, instance.type);
+            ps.setString(p++, instance.businessKey);
+            ps.setString(p++, instance.externalId);
+            ps.setString(p++, executorInfo.getExecutorGroup());
+            ps.setString(p++, instance.status.name());
+            ps.setString(p++, instance.state);
+            ps.setString(p++, left(instance.stateText, STATE_TEXT_LENGTH));
+            ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+            return ps;
+          }
+        }, keyHolder);
+        int id = keyHolder.getKey().intValue();
+        insertVariables(id, 0, instance.stateVariables, EMPTY_STATE_MAP);
+        return id;
       }
-    }, keyHolder);
-    int id = keyHolder.getKey().intValue();
-    insertVariables(id, 0, instance.stateVariables, EMPTY_STATE_MAP);
-    return id;
+    });
   }
 
   private Map<String, String> changedStateVariables(Map<String, String> stateVariables, Map<String, String> originalStateVariables) {
@@ -154,15 +197,14 @@ public class WorkflowInstanceDao {
     return changedVariables;
   }
 
-  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
-  private void insertVariables(final int id, final int actionId, Map<String, String> stateVariables,
-      Map<String, String> originalStateVariables) {
+  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
+  void insertVariables(final int id, final int actionId, Map<String, String> stateVariables, Map<String, String> originalStateVariables) {
     Map<String, String> changedStateVariables = changedStateVariables(stateVariables, originalStateVariables);
     if (changedStateVariables.isEmpty()) {
       return;
     }
     final Iterator<Entry<String, String>> variables = changedStateVariables.entrySet().iterator();
-    int[] updateStatus = jdbc.batchUpdate("insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?,?,?,?)",
+    int[] updateStatus = jdbc.batchUpdate(insertWorkflowInstanceStateSql() + " values (?,?,?,?)",
         new AbstractInterruptibleBatchPreparedStatementSetter() {
       @Override
       protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
@@ -186,48 +228,61 @@ public class WorkflowInstanceDao {
     }
   }
 
-  public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, final WorkflowInstanceAction action) {
+  public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action) {
     if (sqlVariants.hasUpdateableCTE()) {
-      withUpdate(instance, action);
+      updateWorkflowInstanceWithCte(instance, action);
     } else {
-      transactionalUpdate(instance, action);
+      updateWorkflowInstanceWithTransaction(instance, action);
     }
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
-    jdbc.update("update nflow_workflow set status = " + sqlVariants.castToEnumType("?", "workflow_status")
-        + ", state = ?, state_text = ?, next_activation = ?, executor_id = ?, retries = ? where id = ? and executor_id = "
-        + executorInfo.getExecutorId(), instance.status.name(), instance.state, left(instance.stateText, STATE_TEXT_LENGTH),
+    jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state, left(instance.stateText, STATE_TEXT_LENGTH),
         toTimestamp(instance.nextActivation), instance.processing ? executorInfo.getExecutorId() : null, instance.retries,
         instance.id);
   }
 
-  private void transactionalUpdate(WorkflowInstance instance, WorkflowInstanceAction action) {
-    updateWorkflowInstance(instance);
-    insertWorkflowInstanceAction(instance, action);
+  private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
+    transaction.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        updateWorkflowInstance(instance);
+        insertWorkflowInstanceAction(instance, action);
+      }
+    });
   }
 
-  private void withUpdate(WorkflowInstance instance, final WorkflowInstanceAction action) {
+  private void updateWorkflowInstanceWithCte(WorkflowInstance instance, final WorkflowInstanceAction action) {
     int executorId = executorInfo.getExecutorId();
     StringBuilder sqlb = new StringBuilder(256);
-    sqlb.append("with wf as (update nflow_workflow set state = ?, state_text = ?, next_activation = ?, executor_id = ?,"
-        + "retries = ? where id = ? and executor_id = ? returning id), act as (insert into nflow_workflow_action(workflow_id,"
-        + "executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,"
-        + sqlVariants.castToEnumType("?", "action_type") + ",?,?,?,?,? from wf returning id)");
+    sqlb.append("with wf as (").append(updateWorkflowInstanceSql()).append(" returning id), ");
+    sqlb.append("act as (").append(insertWorkflowActionSql()).append(" select wf.id,?,")
+        .append(sqlVariants.castToEnumType("?", "action_type")).append(",?,?,?,?,? from wf returning id)");
     Map<String, String> changedStateVariables = changedStateVariables(instance.stateVariables, instance.originalStateVariables);
     int pos = 14;
-    Object[] args = Arrays.copyOf(new Object[] { instance.state, left(instance.stateText, STATE_TEXT_LENGTH),
-        toTimestamp(instance.nextActivation), instance.processing ? executorId : null, instance.retries, instance.id, executorId,
-        executorId, action.type.name(), action.state, left(action.stateText, STATE_TEXT_LENGTH), action.retryNo,
-        toTimestamp(action.executionStart), toTimestamp(action.executionEnd) }, pos + changedStateVariables.size() * 2);
+    Object[] args = Arrays.copyOf(
+        new Object[] { instance.status.name(), instance.state, left(instance.stateText, STATE_TEXT_LENGTH),
+            toTimestamp(instance.nextActivation), instance.processing ? executorId : null, instance.retries, instance.id,
+            executorId, action.type.name(), action.state, left(action.stateText, STATE_TEXT_LENGTH), action.retryNo,
+            toTimestamp(action.executionStart), toTimestamp(action.executionEnd) }, pos + changedStateVariables.size() * 2);
     for (Entry<String, String> var : changedStateVariables.entrySet()) {
-      sqlb.append(", ins").append(pos).append(
-        " as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act)");
+      sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
+          .append(" select wf.id,act.id,?,? from wf,act)");
       args[pos++] = var.getKey();
       args[pos++] = var.getValue();
     }
     sqlb.append(" select act.id from act");
     jdbc.queryForObject(sqlb.toString(), Integer.class, args);
+  }
+
+  String insertWorkflowActionSql() {
+    return "insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end)";
+  }
+
+  private String updateWorkflowInstanceSql() {
+    return "update nflow_workflow set status = " + sqlVariants.castToEnumType("?", "workflow_status")
+        + ", state = ?, state_text = ?, next_activation = ?, executor_id = ?, retries = ? where id = ? and executor_id = "
+        + executorInfo.getExecutorId();
   }
 
   public boolean updateNotRunningWorkflowInstance(long id, String state, DateTime nextActivation, WorkflowInstanceStatus status) {
@@ -290,72 +345,76 @@ public class WorkflowInstanceDao {
   }
 
   @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
-  @Transactional
-  public List<Integer> pollNextWorkflowInstanceIds(int batchSize) {
+  public List<Integer> pollNextWorkflowInstanceIds(final int batchSize) {
     if (sqlVariants.hasUpdateReturning()) {
-      return pollNextWorkflowInstanceIdsUsingUpdateReturning(batchSize);
+      return pollNextWorkflowInstanceIdsWithUpdateReturning(batchSize);
     }
-    return pollNextWorkflowInstanceIdsUsingSelectUpdate(batchSize);
+    return pollNextWorkflowInstanceIdsWithTransaction(batchSize);
   }
 
-  private String updateInstanceForExecutionQuery() {
+  String updateInstanceForExecutionQuery() {
     return "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + ", status = '" + inProgress.name() + "'";
   }
 
-  private String whereConditionForInstanceUpdate(int batchSize) {
+  String whereConditionForInstanceUpdate(int batchSize) {
     return "where executor_id is null and status in ('" + created.name() + "', '" + inProgress.name()
         + "') and next_activation < current_timestamp and " + executorInfo.getExecutorGroupCondition()
         + " order by next_activation asc limit " + batchSize;
   }
 
-  private List<Integer> pollNextWorkflowInstanceIdsUsingUpdateReturning(int batchSize) {
+  private List<Integer> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
     return jdbc.queryForList(updateInstanceForExecutionQuery() + " where id in (select id from nflow_workflow "
         + whereConditionForInstanceUpdate(batchSize) + ") and executor_id is null returning id", Integer.class);
   }
 
-  private List<Integer> pollNextWorkflowInstanceIdsUsingSelectUpdate(int batchSize) {
-    String sql = "select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(batchSize);
-    List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
+  private List<Integer> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
+    return transaction.execute(new TransactionCallback<List<Integer>>() {
       @Override
-      public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new OptimisticLockKey(rs.getInt("id"), rs.getString("modified"));
+      public List<Integer> doInTransaction(TransactionStatus transactionStatus) {
+        String sql = "select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(batchSize);
+        List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
+          @Override
+          public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new OptimisticLockKey(rs.getInt("id"), rs.getTimestamp("modified"));
+          }
+        });
+        sort(instances);
+        List<Object[]> batchArgs = new ArrayList<>(instances.size());
+        List<Integer> ids = new ArrayList<>(instances.size());
+        for (OptimisticLockKey instance : instances) {
+          batchArgs.add(new Object[] { instance.id, instance.modified });
+          ids.add(instance.id);
+        }
+        int[] updateStatuses = jdbc.batchUpdate(updateInstanceForExecutionQuery()
+            + " where id = ? and modified = ? and executor_id is null", batchArgs);
+        Iterator<Integer> idIt = ids.iterator();
+        for (int status : updateStatuses) {
+          idIt.next();
+          if (status == 0) {
+            idIt.remove();
+            if (ids.isEmpty()) {
+              throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+                  + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+            }
+            continue;
+          }
+          if (status != 1) {
+            throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+                + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+          }
+        }
+        return ids;
       }
     });
-    sort(instances);
-    List<Object[]> batchArgs = new ArrayList<>(instances.size());
-    List<Integer> ids = new ArrayList<>(instances.size());
-    for (OptimisticLockKey instance : instances) {
-      batchArgs.add(new Object[] { instance.id, instance.modified });
-      ids.add(instance.id);
-    }
-    int[] updateStatuses = jdbc.batchUpdate(updateInstanceForExecutionQuery()
-        + " where id = ? and modified = ? and executor_id is null", batchArgs);
-    Iterator<Integer> idIt = ids.iterator();
-    for (int status : updateStatuses) {
-      idIt.next();
-      if (status == 0) {
-        idIt.remove();
-        if (ids.isEmpty()) {
-          throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-              + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
-        }
-        continue;
-      }
-      if (status != 1) {
-        throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-            + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
-      }
-    }
-    return ids;
   }
 
   private static class OptimisticLockKey implements Comparable<OptimisticLockKey> {
     public final int id;
-    public final String modified;
+    public final Timestamp modified;
 
-    public OptimisticLockKey(int id, String string) {
+    public OptimisticLockKey(int id, Timestamp modified) {
       this.id = id;
-      this.modified = string;
+      this.modified = modified;
     }
 
     @Override
@@ -445,8 +504,7 @@ public class WorkflowInstanceDao {
       public PreparedStatement createPreparedStatement(Connection con)
           throws SQLException {
         PreparedStatement p = con.prepareStatement(
-                "insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) values (?,?,"
-                    + sqlVariants.castToEnumType("?", "action_type") + ",?,?,?,?,?)",
+            insertWorkflowActionSql() + " values (?,?," + sqlVariants.castToEnumType("?", "action_type") + ",?,?,?,?,?)",
             new String[] { "id" });
         int field = 1;
         // when adding fields here, also add to withUpdate()
