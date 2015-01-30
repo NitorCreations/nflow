@@ -49,7 +49,7 @@ class WorkflowStateProcessor implements Runnable {
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
-  private DateTime lastLogged = now();
+  DateTime lastLogged = now();
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
@@ -116,7 +116,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Finished.");
   }
 
-  private void logIfLagging(WorkflowInstance instance) {
+  void logIfLagging(WorkflowInstance instance) {
     DateTime now = now();
     Duration executionLag = new Duration(instance.nextActivation, now);
     if (executionLag.isLongerThan(standardMinutes(1))) {
