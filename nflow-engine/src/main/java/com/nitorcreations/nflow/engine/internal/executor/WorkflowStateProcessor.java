@@ -9,9 +9,12 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardMinutes;
+import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -46,6 +49,7 @@ class WorkflowStateProcessor implements Runnable {
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
+  DateTime lastLogged = now();
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
@@ -73,10 +77,7 @@ class WorkflowStateProcessor implements Runnable {
   private void runImpl() {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId);
-    Duration executionLag = new Duration(instance.nextActivation, null);
-    if (executionLag.isLongerThan(Duration.standardMinutes(1))) {
-      logger.warn("Execution lagging {} seconds.", executionLag.getStandardSeconds());
-    }
+    logIfLagging(instance);
     WorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
       unscheduleUnknownWorkflowInstance(instance);
@@ -113,6 +114,18 @@ class WorkflowStateProcessor implements Runnable {
       }
     }
     logger.debug("Finished.");
+  }
+
+  void logIfLagging(WorkflowInstance instance) {
+    DateTime now = now();
+    Duration executionLag = new Duration(instance.nextActivation, now);
+    if (executionLag.isLongerThan(standardMinutes(1))) {
+      Duration logInterval = new Duration(lastLogged, now);
+      if (logInterval.isLongerThan(standardSeconds(30))) {
+        logger.warn("Execution lagging {} seconds.", executionLag.getStandardSeconds());
+        lastLogged = now;
+      }
+    }
   }
 
   private void unscheduleUnknownWorkflowInstance(WorkflowInstance instance) {

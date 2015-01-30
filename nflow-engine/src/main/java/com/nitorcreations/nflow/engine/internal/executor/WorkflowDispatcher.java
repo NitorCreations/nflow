@@ -98,7 +98,6 @@ public class WorkflowDispatcher implements Runnable {
       sleep(false);
       return;
     }
-
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Integer instanceId : nextInstanceIds) {
       executor.execute(stateProcessorFactory.createProcessor(instanceId));

@@ -17,6 +17,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.not;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
+import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -37,6 +40,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -97,6 +101,12 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void setup() {
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         listener1, listener2);
+    setCurrentMillisFixed(currentTimeMillis());
+  }
+
+  @After
+  public void cleanUp() {
+    setCurrentMillisSystem();
   }
 
   @Test
@@ -465,6 +475,30 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterFailure(any(ListenerContext.class),  argThat(new IsTestFailException()));
     verify(listener2).afterFailure(any(ListenerContext.class), argThat(new IsTestFailException()));
     verifyNoMoreInteractions(listener1, listener2);
+  }
+
+  @Test
+  public void logIfLaggingUpdatesLastLoggedWhenLogIsLagging() {
+    executor.lastLogged = now().minusDays(1);
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(2)).build();
+    executor.logIfLagging(instance);
+    assertThat(executor.lastLogged, is(now()));
+  }
+
+  @Test
+  public void logIfLaggingDoesNotUpdateLastLoggedWhenInstanceIsNotLagging() {
+    executor.lastLogged = now().minusDays(1);
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusSeconds(59)).build();
+    executor.logIfLagging(instance);
+    assertThat(executor.lastLogged, is(now().minusDays(1)));
+  }
+
+  @Test
+  public void logIfLaggingDoesNotUpdateLastLoggedWhenLaggingIsRecentlyLogged() {
+    executor.lastLogged = now().minusSeconds(29);
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(2)).build();
+    executor.logIfLagging(instance);
+    assertThat(executor.lastLogged, is(now().minusSeconds(29)));
   }
 
   static final class IsTestFailException extends ArgumentMatcher<Throwable> {
