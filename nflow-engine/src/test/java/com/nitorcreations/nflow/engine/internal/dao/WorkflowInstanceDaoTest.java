@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
@@ -98,10 +99,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress)
-        .setState("updateState").setStateText("update text").setNextActivation(DateTime.now()).setProcessing(!i1.processing)
-        .build();
+        .setState("updateState").setStateText("update text").setNextActivation(DateTime.now()).build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id);
-    assertThat(polledInstance.status, equalTo(inProgress));
+    assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
     sleep(1);
     DateTime started = DateTime.now();
@@ -116,7 +116,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), equalTo(i2.state));
         assertThat(rs.getString("state_text"), equalTo(i2.stateText));
         assertThat(rs.getTimestamp("next_activation").getTime(), equalTo(i2.nextActivation.toDate().getTime()));
-        assertThat(rs.getInt("executor_id") != 0, equalTo(i2.processing));
+        assertThat(rs.getInt("executor_id") != 0, equalTo(i2.status == executing));
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
       }
     });
@@ -191,7 +191,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = DateTime.now();
     WorkflowInstance i2 = new WorkflowInstance.Builder().setState("updateState").setStateText("update text")
-        .setNextActivation(started.plusSeconds(1)).setProcessing(true).setRetries(3).setId(43).putStateVariable("A", "B").build();
+        .setNextActivation(started.plusSeconds(1)).setStatus(executing).setRetries(3).setId(43).putStateVariable("A", "B")
+        .build();
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(4)
         .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setType(externalChange).setState("test")
         .setStateText("state text").setWorkflowInstanceId(43).build();
@@ -231,7 +232,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = DateTime.now();
     WorkflowInstance wf = new WorkflowInstance.Builder().setState("updateState").setStateText("update text")
-        .setNextActivation(started.plusSeconds(1)).setProcessing(true).setRetries(3).setId(43).putStateVariable("A", "B")
+        .setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43).putStateVariable("A", "B")
         .putStateVariable("C", "D").build();
 
     d.insertWorkflowInstance(wf);
@@ -291,7 +292,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(j.queryForList(sql.capture(), eq(Integer.class))).thenReturn(asList(1, 2, 3));
     assertThat(d.pollNextWorkflowInstanceIds(5), is(asList(1, 2, 3)));
     assertEquals(
-        "update nflow_workflow set executor_id = 42, status = 'inProgress' where id in (select id from nflow_workflow where executor_id is null and status in ('created', 'inProgress') and next_activation < current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
+        "update nflow_workflow set executor_id = 42, status = 'executing' where id in (select id from nflow_workflow where executor_id is null and status in ('created', 'inProgress') and next_activation < current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
         sql.getValue());
   }
 
@@ -303,7 +304,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(eDao.getExecutorId()).thenReturn(42);
     d.setExecutorDao(eDao);
     d.setJdbcTemplate(j);
-    d.stateTextLength = 128;
+    d.instanceStateTextLength = 128;
+    d.actionStateTextLength = 128;
     return d;
   }
 
@@ -424,7 +426,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i1.state, equalTo(i2.state));
     assertThat(i1.stateText, equalTo(i2.stateText));
     assertThat(i1.nextActivation, equalTo(i2.nextActivation));
-    assertThat(i1.processing, equalTo(i2.processing));
     assertThat(i1.stateVariables.size(), equalTo(i2.stateVariables.size()));
     Map<String, String> tmpVars = new LinkedHashMap<>(i1.stateVariables);
     for (Map.Entry<String, String> entry : tmpVars.entrySet()) {

@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,8 @@ public class WorkflowInstance {
     finished,
     /** Workflow instance is waiting for manual action */
     manual,
+    /** A workflow state method is executing */
+    executing
   }
 
   /**
@@ -74,7 +78,9 @@ public class WorkflowInstance {
 
   /**
    * True when the workflow instance is being processed by an executor, false otherwise.
+   * @deprecated Use {@link WorkflowInstance#workflowInstanceStatus} == {@link WorkflowInstanceStatus#executing} instead.
    */
+  @Deprecated
   public final boolean processing;
 
   /**
@@ -135,7 +141,7 @@ public class WorkflowInstance {
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
-    this.processing = builder.processing;
+    this.processing = builder.status == executing;
     this.originalStateVariables = builder.originalStateVariables;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
@@ -161,7 +167,6 @@ public class WorkflowInstance {
     String state;
     String stateText;
     DateTime nextActivation;
-    boolean processing;
     final Map<String, String> originalStateVariables = new LinkedHashMap<>();
     final Map<String, String> stateVariables = new LinkedHashMap<>();
     List<WorkflowInstanceAction> actions;
@@ -201,7 +206,6 @@ public class WorkflowInstance {
       this.state = copy.state;
       this.stateText = copy.stateText;
       this.nextActivation = copy.nextActivation;
-      this.processing = copy.processing;
       this.originalStateVariables.putAll(copy.originalStateVariables);
       this.stateVariables.putAll(copy.stateVariables);
       this.retries = copy.retries;
@@ -301,12 +305,12 @@ public class WorkflowInstance {
     }
 
     /**
-     * Set the flag that indicates whether a thread is processing this workflow or not.
-     * @param processing True if the workflow is being processed, false otherwise.
+     * Ignored.
      * @return this.
+     * @deprecated Use setStatus(WorkflowInstanceStatus) instead.
      */
+    @Deprecated
     public Builder setProcessing(boolean processing) {
-      this.processing = processing;
       return this;
     }
 
