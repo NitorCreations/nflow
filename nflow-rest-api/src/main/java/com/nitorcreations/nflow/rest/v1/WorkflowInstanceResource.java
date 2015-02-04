@@ -62,9 +62,10 @@ public class WorkflowInstanceResource {
   public static final String currentStateVariables = "currentStateVariables";
   public static final String actions = "actions";
   public static final String actionStateVariables = "actionStateVariables";
+
   @Inject
-  public WorkflowInstanceResource(
-      WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter, ListWorkflowInstanceConverter listWorkflowConverter) {
+  public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
+      ListWorkflowInstanceConverter listWorkflowConverter) {
     this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
@@ -83,11 +84,9 @@ public class WorkflowInstanceResource {
   @PUT
   @Path("/{id}")
   @ApiOperation(value = "Update workflow instance state")
-  @ApiResponses({ @ApiResponse(code = 204, message = "If update was sucessful"),
+  @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
-  public Response updateWorkflowInstance(
-      @ApiParam("Internal id for workflow instance")
-      @PathParam("id") int id,
+  public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       UpdateWorkflowInstanceRequest req) {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id);
     String msg = defaultIfBlank(req.actionDescription, "");
@@ -118,15 +117,25 @@ public class WorkflowInstanceResource {
     return (updated ? noContent() : status(CONFLICT)).build();
   }
 
+  @PUT
+  @Path("/{id}/stop")
+  @ApiOperation(value = "Stop workflow instance")
+  @ApiResponses({ @ApiResponse(code = 204, message = "If the workflow instance was stopped successfully"),
+      @ApiResponse(code = 409, message = "If the workflow instance was executing and it was not stopped") })
+  public Response stopWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+      @ApiParam("Description of the action") @QueryParam("actionDescription") String actionDescription) {
+    String description = defaultIfBlank(actionDescription, "Workflow stopped via API");
+    boolean updated = workflowInstances.stopWorkflowInstance(id, description, externalChange);
+    return (updated ? noContent() : status(CONFLICT)).build();
+  }
+
   @GET
   @Path("/{id}")
   @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(
-      @ApiParam("Internal id for workflow instance")
-      @PathParam("id") int id) {
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id) {
     Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[] { id }, new String[0],
         new String[0], null, null, actions + "," + currentStateVariables + "," + actionStateVariables, 1L);
-    if(instances.isEmpty()) {
+    if (instances.isEmpty()) {
       throw new NotFoundException(format("Workflow instance %s not found", id));
     }
     return instances.iterator().next();
@@ -135,35 +144,19 @@ public class WorkflowInstanceResource {
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
-      @QueryParam("id")
-      @ApiParam(value = "Internal id of workflow instance")
-      Integer[] ids,
-      @QueryParam("type")
-      @ApiParam(value = "Type of workflow instance")
-      String[] types,
-      @QueryParam("state")
-      @ApiParam(value = "Current state of workflow instance")
-      String[] states,
-      @QueryParam("businessKey")
-      @ApiParam(value = "Business key for workflow instance")
-      String businessKey,
-      @QueryParam("externalId")
-      @ApiParam(value = "External id for workflow instance")
-      String externalId,
-      @QueryParam("include")
-      @ApiParam(value = "Data to include in response. currentStateVariables = current stateVariables for worfklow, actions = state transitions, actionStateVariables = state variable changes for actions",
-        allowableValues = currentStateVariables + "," + actions + "," + actionStateVariables,
-        allowMultiple = true)
-      String include,
-      @QueryParam("maxResults")
-      @ApiParam(value = "Maximum number of workflow instances to be returned")
-      Long maxResults) {
+      @QueryParam("id") @ApiParam(value = "Internal id of workflow instance") Integer[] ids,
+      @QueryParam("type") @ApiParam(value = "Type of workflow instance") String[] types,
+      @QueryParam("state") @ApiParam(value = "Current state of workflow instance") String[] states,
+      @QueryParam("businessKey") @ApiParam(value = "Business key for workflow instance") String businessKey,
+      @QueryParam("externalId") @ApiParam(value = "External id for workflow instance") String externalId,
+      @QueryParam("include") @ApiParam(value = "Data to include in response. currentStateVariables = current stateVariables for worfklow, actions = state transitions, actionStateVariables = state variable changes for actions", allowableValues = currentStateVariables
+          + "," + actions + "," + actionStateVariables, allowMultiple = true) String include,
+      @QueryParam("maxResults") @ApiParam(value = "Maximum number of workflow instances to be returned") Long maxResults) {
     List<String> includes = parseIncludes(include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states)
         .setBusinessKey(businessKey).setExternalId(externalId)
         .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)).setIncludeActions(includes.contains(actions))
-        .setIncludeActionStateVariables(includes.contains(actionStateVariables))
-        .setMaxResults(maxResults).build();
+        .setIncludeActionStateVariables(includes.contains(actionStateVariables)).setMaxResults(maxResults).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {

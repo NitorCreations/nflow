@@ -6,12 +6,14 @@ import static com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao.F
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.stopped;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 
@@ -49,6 +51,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -316,6 +319,11 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql, args.toArray()) == 1;
   }
 
+  public boolean stopNotRunningWorkflowInstance(long id, String stateText) {
+    return jdbc.update("update nflow_workflow set next_activation = null, status = '" + stopped
+        + "', state_text = ? where id = ? and executor_id is null and next_activation is not null", stateText, id) == 1;
+  }
+
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String[] expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and (next_activation is null or next_activation > current_timestamp)");
     Object[] args = new Object[1 + expectedStates.length];
@@ -510,13 +518,14 @@ public class WorkflowInstanceDao {
         new WorkflowActionStateRowMapper(), instance.id);
   }
 
+  @Transactional(propagation = MANDATORY)
   public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
     int actionId = insertWorkflowInstanceAction(action);
     insertVariables(action.workflowInstanceId, actionId, instance.stateVariables, instance.originalStateVariables);
   }
 
   @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
-  int insertWorkflowInstanceAction(final WorkflowInstanceAction action) {
+  public int insertWorkflowInstanceAction(final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
@@ -527,7 +536,6 @@ public class WorkflowInstanceDao {
             insertWorkflowActionSql() + " values (?,?," + sqlVariants.castToEnumType("?", "action_type") + ",?,?,?,?,?)",
             new String[] { "id" });
         int field = 1;
-        // when adding fields here, also add to withUpdate()
         p.setInt(field++, action.workflowInstanceId);
         p.setInt(field++, executorInfo.getExecutorId());
         p.setString(field++, action.type.name());

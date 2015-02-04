@@ -14,9 +14,10 @@
   - Use more optimal SQL when updating workflows when database supports updateable cte syntax
   - Automatically abbreviate state text for workflow instance and workflow instance action based on field size in database
 - nflow-rest:
-  - Add support for user-provided action description when updating a workflow instance
-  - added missing configuration options with default values
-  - Add support for Action.type
+  - Added support for user-provided action description when updating a workflow instance
+  - Added missing configuration options with default values
+  - Added support for Action.type
+  - Added service to stop the execution of the workflow instance
 - nflow-jetty:
   - added missing configuration options with default values
 

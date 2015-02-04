@@ -68,7 +68,7 @@ class WorkflowStateProcessor implements Runnable {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
       runImpl();
     } catch (Throwable ex) {
-      logger.error("Unexpected failure occurred (" + ex.getMessage() + ")", ex);
+      logger.error("Unexpected failure occurred", ex);
     } finally {
       MDC.remove(MDC_KEY);
     }
@@ -187,9 +187,13 @@ class WorkflowStateProcessor implements Runnable {
 
   private NextAction processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
-    Object[] args = objectMapper.createArguments(execution, method);
-    NextAction nextAction;
     WorkflowState currentState = definition.getState(instance.state);
+    if (method == null) {
+      execution.setNextState(currentState);
+      return stopInState(currentState, "Execution finished.");
+    }
+    NextAction nextAction;
+    Object[] args = objectMapper.createArguments(execution, method);
     if (currentState.getType().isFinal()) {
       invokeMethod(method.method, definition, args);
       nextAction = stopInState(currentState, "Stopped in final state");
