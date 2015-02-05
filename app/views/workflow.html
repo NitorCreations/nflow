@@ -10,6 +10,7 @@
     Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
     <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
     since <strong title="{{currentStateTime() | date:'medium' }}">{{currentStateTime() | fromNowOrNever}}</strong><br/>
+    Current status: <strong>{{workflow.status}}</strong><br/>
     Next activation: <strong title={{workflow.nextActivation}}>{{workflow.nextActivation | fromNowOrNever}}</strong>
     <div>Workflow id:<strong>{{workflow.id}}</strong></div>
     <div ng-show="workflow.businessKey">Business key: <code>{{workflow.businessKey}}</code></diV>
@@ -86,10 +87,8 @@
           <div class="form-group">
             <div class="col-md-offset-3 col-md-9">
               <button class="selectwidthauto btn btn-default" ng-click="updateWorkflow(manage)">Update</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="col-md-offset-3 col-md-9">
+              <button class="selectwidthauto btn" ng-click="pauseWorkflow(manage)" ng-disabled="workflow.nextActivation === undefined || workflow.status === 'paused'">Pause</button>
+              <button class="selectwidthauto btn" ng-click="resumeWorkflow(manage)" ng-disabled="workflow.status != 'paused'">Resume</button>
               <button class="selectwidthauto btn" ng-click="stopWorkflow(manage)" ng-disabled="workflow.nextActivation === undefined">Stop</button>
             </div>
           </div>
