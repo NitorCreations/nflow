@@ -113,13 +113,12 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void runWorkflowThroughOneSuccessfulState() {
     WorkflowDefinition<ExecuteTestWorkflow.State> wf = new ExecuteTestWorkflow();
     Mockito.doReturn(wf).when(workflowDefinitions).getWorkflowDefinition(eq("test"));
-    WorkflowInstance instance = constructWorkflowInstanceBuilder()
-.setType("test").setId(Integer.valueOf(1)).setStatus(executing)
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setType("test").setId(Integer.valueOf(1)).setStatus(executing)
         .setState("start").setStateText("stateText").build();
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, false, (String) null)),
+        argThat(matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, false, "Process after delay")),
         argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, 0, stateExecution)));
   }
 

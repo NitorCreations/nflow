@@ -111,7 +111,7 @@ public class WorkflowInstanceResource {
     if (msg.isEmpty()) {
       return noContent().build();
     }
-    WorkflowInstance instance = builder.build();
+    WorkflowInstance instance = builder.setStateText(msg).build();
     boolean updated = workflowInstances.updateWorkflowInstance(instance, new WorkflowInstanceAction.Builder(instance)
         .setType(externalChange).setStateText(trimToNull(msg)).setExecutionEnd(now()).build());
     return (updated ? noContent() : status(CONFLICT)).build();

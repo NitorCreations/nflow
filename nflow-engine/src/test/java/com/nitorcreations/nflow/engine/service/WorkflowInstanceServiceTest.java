@@ -132,7 +132,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
     when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
-    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation, i.status)).thenReturn(true);
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i)).thenReturn(true);
     assertThat(service.updateWorkflowInstance(i, a), is(true));
     verify(workflowInstanceDao).insertWorkflowInstanceAction(eq(i), storedAction.capture());
     assertThat(storedAction.getValue().state, is("currentState"));
@@ -142,7 +142,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void updateRunningWorkflowInstanceFails() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).build();
-    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i.id, i.state, i.nextActivation, i.status)).thenReturn(false);
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i)).thenReturn(false);
     assertThat(service.updateWorkflowInstance(i, a), is(false));
     verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),
         any(WorkflowInstanceAction.class));

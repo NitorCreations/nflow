@@ -299,23 +299,27 @@ public class WorkflowInstanceDao {
         + executorInfo.getExecutorId();
   }
 
-  public boolean updateNotRunningWorkflowInstance(long id, String state, DateTime nextActivation, WorkflowInstanceStatus status) {
+  public boolean updateNotRunningWorkflowInstance(WorkflowInstance instance) {
     List<String> vars = new ArrayList<>();
     List<Object> args = new ArrayList<>();
-    if (state != null) {
+    if (instance.state != null) {
       vars.add("state = ?, retries = 0");
-      args.add(state);
+      args.add(instance.state);
     }
-    if (nextActivation != null) {
+    if (instance.stateText != null) {
+      vars.add("state_text = ?");
+      args.add(instance.stateText);
+    }
+    if (instance.nextActivation != null) {
       vars.add("next_activation = ?");
-      args.add(toTimestamp(nextActivation));
+      args.add(toTimestamp(instance.nextActivation));
     }
-    if (status != null) {
+    if (instance.status != null) {
       vars.add("status = " + sqlVariants.castToEnumType("?", "workflow_status"));
-      args.add(status.name());
+      args.add(instance.status.name());
     }
     String sql = "update nflow_workflow set " + join(vars, ", ") + " where id = ? and executor_id is null";
-    args.add(id);
+    args.add(instance.id);
     return jdbc.update(sql, args.toArray()) == 1;
   }
 
