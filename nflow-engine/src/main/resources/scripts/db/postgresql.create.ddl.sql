@@ -1,4 +1,4 @@
-create type workflow_status as enum ('created', 'executing', 'inProgress', 'finished', 'manual', 'stopped');
+create type workflow_status as enum ('created', 'executing', 'inProgress', 'finished', 'manual', 'stopped', 'paused');
 create table if not exists nflow_workflow (
   id serial primary key,
   status workflow_status not null,
