@@ -276,8 +276,7 @@ function addUnexpectedEdges(g, workflow) {
         g.addEdge(null, source, target,
                   {'class': 'edge-unexpected edge-active'});
       }
-
-    })
+    });
   });
 }
 

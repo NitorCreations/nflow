@@ -135,9 +135,10 @@ angular.module('nflowVisApp.services',
   };
 
   this.getLatest = function(type, x) {
-    if(!tasks[type]) { return undefined };
+    if(!tasks[type]) {
+      return undefined;
+    }
     return tasks[type].latest;
   };
 })
 ;
-
