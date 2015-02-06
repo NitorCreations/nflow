@@ -180,10 +180,6 @@ function createNodeStyle(state, workflow, unexpected) {
     boxStroke = 'red';
     labelStroke = 'fill: red;';
   }
-  var normalNodeStyle = {'class': 'node-normal'};
-  var startNodeStyle ={'class': 'node-start'};
-  var errorNodeStyle = {'class': 'node-error'};
-  var endNodeStyle = {'class': 'node-end'};
 
   var nodeStyle = {'class': 'node-normal'};
   if(state.type === 'start') {
@@ -355,7 +351,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
 
       // use hand mouse cursor for nodes
       nodes.attr('style',
-                 function(e) {
+                 function() {
                    return 'opacity: 1;cursor: pointer;';
                  });
       nodes.append('title').text(function(nodeId){

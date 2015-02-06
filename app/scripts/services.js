@@ -48,7 +48,7 @@ angular.module('nflowVisApp.services',
 .factory('WorkflowDefinitionStats', function WorkflowDefinitionStatsFactory($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-definition/:type/statistics',{type: '@type'});
 })
-.service('GraphService', function GraphServiceFactory($http, $rootScope, $q) {
+.service('GraphService', function GraphServiceFactory($http, $rootScope) {
   this.getCss = function getCss(defer) {
     // links are relative to displayed page
     $http.get('styles/data/graph.css')
@@ -57,7 +57,7 @@ angular.module('nflowVisApp.services',
       $rootScope.graph.css=data;
       defer.resolve();
     })
-    .error(function(data) {
+    .error(function() {
       console.warn('Failed to load graph.css');
       $rootScope.graph = {};
       defer.resolve();
@@ -66,14 +66,6 @@ angular.module('nflowVisApp.services',
 })
 .service('ExecutorPoller', function ExecutorPollerService($rootScope, config, Executors, $interval) {
   var task = {};
-
-  function addStateData(type, time, stats) {
-    var data = tasks[type].data;
-    data.push([time, stats]);
-    while(d.length > itemCount) {
-      d.shift();
-    }
-  }
 
   function updateExecutors() {
     Executors.query(function(executors) {
@@ -114,7 +106,7 @@ angular.module('nflowVisApp.services',
                                   tasks[type].latest = stats;
                                   $rootScope.$broadcast('workflowStatsUpdated', type);
                                 },
-                                function(error) {
+                                function() {
                                   console.error('Fetching workflow ' + type + ' stats failed');
                                   addStateData(type, new Date(), {});
                                   $rootScope.$broadcast('workflowStatsUpdated', type);
@@ -134,7 +126,7 @@ angular.module('nflowVisApp.services',
     return false;
   };
 
-  this.getLatest = function(type, x) {
+  this.getLatest = function(type) {
     if(!tasks[type]) {
       return undefined;
     }
