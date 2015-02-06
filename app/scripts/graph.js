@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO remove jshint exception
+// jshint unused:false
 function nodeDomId(nodeId) {
   return 'node_' + nodeId;
 }

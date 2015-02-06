@@ -1,5 +1,6 @@
 'use strict';
 
+// jshint unused:false
 function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
 
