@@ -285,10 +285,10 @@ function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges
   for(var i in definition.states) {
-    var state = definition.states[i];
+    var stateNode = definition.states[i];
 
-    var nodeStyle = createNodeStyle(state, workflow);
-    g.addNode(state.name, nodeStyle);
+    var nodeStyle = createNodeStyle(stateNode, workflow);
+    g.addNode(stateNode.name, nodeStyle);
   }
   // Add nodes not in workflow definition
   addUnexpectedNodes(g, workflow);
