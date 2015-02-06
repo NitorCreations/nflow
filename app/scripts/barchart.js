@@ -63,7 +63,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   var svgRoot = d3.select('#' + canvasId);
 
   // remove any previous charts
-  svgRoot.selectAll("*").remove();
+  svgRoot.selectAll('*').remove();
 
   var svg = svgRoot
     .attr('preserveAspectRatio', 'xMinYMin meet')

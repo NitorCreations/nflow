@@ -426,7 +426,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
 
   var svgRoot = d3.select('#' + canvasId);
   // remove any existing graphs
-  svgRoot.selectAll("*").remove();
+  svgRoot.selectAll('*').remove();
   // add embedded CSS
   svgRoot.append('style')
         .attr('type', 'text/css')
