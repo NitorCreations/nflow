@@ -10,7 +10,12 @@
  */
 angular
 .module('nflowVisApp', [
+  'nflowVisApp.about',
+  'nflowVisApp.main',
+  'nflowVisApp.search',
   'nflowVisApp.services',
+  'nflowVisApp.workflow',
+  'nflowVisApp.workflow_definition',
   'nflowVisApp.workflow_stats',
   'ngAnimate',
   'ngCookies',
@@ -22,27 +27,27 @@ angular
 .config(function ($routeProvider) {
   $routeProvider
   .when('/', {
-    templateUrl: 'views/main.html',
+    templateUrl: 'scripts/main/main.html',
     controller: 'MainCtrl',
     activeTab: 'main'
   })
   .when('/search', {
-    templateUrl: 'views/search.html',
+    templateUrl: 'scripts/search/search.html',
     controller: 'WorkflowSearchCtrl',
     activeTab: 'search'
   })
   .when('/about', {
-    templateUrl: 'views/about.html',
+    templateUrl: 'scripts/about/about.html',
     controller: 'AboutCtrl',
     activeTab: 'about'
   })
   .when('/workflow-stats', {
-    templateUrl: 'views/workflow_stats.html',
+    templateUrl: 'scripts/workflow_stats/workflow_stats.html',
     controller: 'RadiatorCtrl',
     activeTab: 'main'
   })
   .when('/workflow-definition/:type', {
-    templateUrl: 'views/workflow_definition.html',
+    templateUrl: 'scripts/workflow_definition/workflow_definition.html',
     controller: 'WorkflowDefinitionCtrl',
     activeTab: 'main',
     resolve: {
@@ -56,7 +61,7 @@ angular
 
   })
   .when('/workflow/:id', {
-    templateUrl: 'views/workflow.html',
+    templateUrl: 'scripts/workflow/workflow.html',
     controller: 'WorkflowCtrl',
     activeTab: 'search',
     resolve: {

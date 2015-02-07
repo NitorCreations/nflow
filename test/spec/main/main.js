@@ -3,7 +3,7 @@
 describe('Controller: MainCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('nflowVisApp'));
+  beforeEach(module('nflowVisApp.main'));
 
   var MainCtrl,
     scope;
@@ -12,7 +12,8 @@ describe('Controller: MainCtrl', function () {
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
     MainCtrl = $controller('MainCtrl', {
-      $scope: scope
+      $scope: scope,
+      WorkflowDefinitions: { query: function(){} }
     });
   }));
 

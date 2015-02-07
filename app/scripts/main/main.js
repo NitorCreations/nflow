@@ -7,7 +7,7 @@
  * # MainCtrl
  * Controller of the nflowVisApp
  */
-angular.module('nflowVisApp')
+angular.module('nflowVisApp.main', [])
 .controller('MainCtrl', function MainCtrl($scope, $rootScope, WorkflowDefinitions) {
   $scope.workflows = WorkflowDefinitions.query();
 

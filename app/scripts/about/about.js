@@ -7,7 +7,7 @@
  * # AboutCtrl
  * Controller of the nflowVisApp
  */
-angular.module('nflowVisApp')
+angular.module('nflowVisApp.about', [])
 .controller('AboutCtrl', function AboutCtrl($scope, config) {
   $scope.nflowUrl = function() {
     return config.nflowUrl;
