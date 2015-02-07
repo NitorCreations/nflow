@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO remove jshint exception
+// jshint unused:false
 function nodeDomId(nodeId) {
   return 'node_' + nodeId;
 }
@@ -180,10 +182,6 @@ function createNodeStyle(state, workflow, unexpected) {
     boxStroke = 'red';
     labelStroke = 'fill: red;';
   }
-  var normalNodeStyle = {'class': 'node-normal'};
-  var startNodeStyle ={'class': 'node-start'};
-  var errorNodeStyle = {'class': 'node-error'};
-  var endNodeStyle = {'class': 'node-end'};
 
   var nodeStyle = {'class': 'node-normal'};
   if(state.type === 'start') {
@@ -276,8 +274,7 @@ function addUnexpectedEdges(g, workflow) {
         g.addEdge(null, source, target,
                   {'class': 'edge-unexpected edge-active'});
       }
-
-    })
+    });
   });
 }
 
@@ -290,10 +287,10 @@ function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // All nodes must be added to graph before edges
   for(var i in definition.states) {
-    var state = definition.states[i];
+    var stateNode = definition.states[i];
 
-    var nodeStyle = createNodeStyle(state, workflow);
-    g.addNode(state.name, nodeStyle);
+    var nodeStyle = createNodeStyle(stateNode, workflow);
+    g.addNode(stateNode.name, nodeStyle);
   }
   // Add nodes not in workflow definition
   addUnexpectedNodes(g, workflow);
@@ -356,7 +353,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
 
       // use hand mouse cursor for nodes
       nodes.attr('style',
-                 function(e) {
+                 function() {
                    return 'opacity: 1;cursor: pointer;';
                  });
       nodes.append('title').text(function(nodeId){
@@ -426,7 +423,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
 
   var svgRoot = d3.select('#' + canvasId);
   // remove any existing graphs
-  svgRoot.selectAll("*").remove();
+  svgRoot.selectAll('*').remove();
   // add embedded CSS
   svgRoot.append('style')
         .attr('type', 'text/css')

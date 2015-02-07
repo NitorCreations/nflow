@@ -25,7 +25,19 @@
     "d3": false,
     "dagreD3": false,
     "moment": false,
-    "Dygraph": false
+    "Dygraph": false,
+    "Config": false,
+
+    "higlightNode": false,
+    "unhiglightNode": false,
+    "workflowDefinitionGraph": false,
+    "markCurrentState": false,
+    "workflowDefinitionGraph": false,
+    "drawWorkflowDefinition": false,
+    "downloadImage": false,
+    "capitalize": false,
+    "downloadDataUrl": false,
+    "drawStateExecutionGraph": false
 
   }
 }

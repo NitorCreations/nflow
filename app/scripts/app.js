@@ -79,7 +79,7 @@ angular
     }
     return '';
   };
-  $rootScope.$watch(path, function(newVal, oldVal){
+  $rootScope.$watch(path, function(newVal){
     $rootScope.activeTab = newVal;
   });
   $rootScope.isActiveTab = function(tab) {

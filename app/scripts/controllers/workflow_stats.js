@@ -174,7 +174,7 @@ angular.module('nflowVisApp.workflow_stats', [])
     $scope.graphs = {};
   });
 
-  $scope.$on('startRadiator', function (event) {
+  $scope.$on('startRadiator', function () {
     updateChart();
     if(!$rootScope.radiator.radiatorStatsTask) {
       // start polling statistics

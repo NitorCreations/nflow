@@ -1,5 +1,6 @@
 'use strict';
 
+// jshint unused:false
 function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
 
@@ -63,7 +64,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   var svgRoot = d3.select('#' + canvasId);
 
   // remove any previous charts
-  svgRoot.selectAll("*").remove();
+  svgRoot.selectAll('*').remove();
 
   var svg = svgRoot
     .attr('preserveAspectRatio', 'xMinYMin meet')
@@ -75,8 +76,6 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     var r = _.merge({}, state);
     return _.merge(r, {stateName: stateName});
   });
-
-  var stateNames = d3.keys(stats);
 
   function getStateNames(stats, definition) {
     var nonFinalStates = _.filter(definition.states, function(state) {
@@ -95,7 +94,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
   var stateNames = getStateNames(stats, definition);
   var statNames = d3.keys(d3.values(stats)[0]).filter(function(key) { return key !== 'totalActive'; });
   color.domain(statNames);
-  _.each(states, function(state, stateName) {
+  _.each(states, function(state) {
     var y0 = 0;
     state.execTypes = color.domain().map(function(name) {
       return {name: name, y0: y0, y1: y0 += state[name]};

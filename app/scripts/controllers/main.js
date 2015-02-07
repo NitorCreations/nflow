@@ -8,8 +8,7 @@
  * Controller of the nflowVisApp
  */
 angular.module('nflowVisApp')
-.controller('MainCtrl', function MainCtrl($scope, $rootScope,
-                                           WorkflowDefinitions, ExecutorPoller) {
+.controller('MainCtrl', function MainCtrl($scope, $rootScope, WorkflowDefinitions) {
   $scope.workflows = WorkflowDefinitions.query();
 
   $scope.executorClass = function(executor) {
@@ -24,4 +23,3 @@ angular.module('nflowVisApp')
     return 'success';
   };
 });
-
