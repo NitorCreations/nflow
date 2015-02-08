@@ -2,7 +2,7 @@
 /**
  * Display single workflow definition
  */
-angular.module('nflowVisApp.workflow_definition', [])
+angular.module('nflowVisApp.workflowDefinition', [])
 .controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
                                                                        WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
 

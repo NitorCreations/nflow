@@ -11,12 +11,12 @@
 angular
 .module('nflowVisApp', [
   'nflowVisApp.about',
-  'nflowVisApp.frontpage',
+  'nflowVisApp.frontPage',
   'nflowVisApp.search',
   'nflowVisApp.services',
   'nflowVisApp.workflow',
-  'nflowVisApp.workflow_definition',
-  'nflowVisApp.workflow_stats',
+  'nflowVisApp.workflowDefinition',
+  'nflowVisApp.workflowStats',
   'ngAnimate',
   'ngCookies',
   'ngRoute',
@@ -27,9 +27,9 @@ angular
 .config(function ($routeProvider) {
   $routeProvider
   .when('/', {
-    templateUrl: 'app/frontpage/frontpage.html',
-    controller: 'FrontpageCtrl',
-    activeTab: 'frontpage'
+    templateUrl: 'app/front-page/frontPage.html',
+    controller: 'FrontPageCtrl',
+    activeTab: 'frontPage'
   })
   .when('/search', {
     templateUrl: 'app/search/search.html',
@@ -42,14 +42,14 @@ angular
     activeTab: 'about'
   })
   .when('/workflow-stats', {
-    templateUrl: 'app/workflow_stats/workflow_stats.html',
+    templateUrl: 'app/workflow-stats/workflowStats.html',
     controller: 'RadiatorCtrl',
-    activeTab: 'frontpage'
+    activeTab: 'frontPage'
   })
   .when('/workflow-definition/:type', {
-    templateUrl: 'app/workflow_definition/workflow_definition.html',
+    templateUrl: 'app/workflow-definition/workflowDefinition.html',
     controller: 'WorkflowDefinitionCtrl',
-    activeTab: 'frontpage',
+    activeTab: 'frontPage',
     resolve: {
       'GraphService': [ '$q', 'GraphService', function($q, GraphService) {
         // do not open UI before products are loaded i.e. the following promise resolved
