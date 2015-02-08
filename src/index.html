@@ -30,7 +30,7 @@
           </div>
           <div class="col-md-6 col-md-offset-2">
             <ul class="nav nav-pills pull-right">
-              <li ng-class="{active: isActiveTab('main')}"><a ng-href="#/">Workflow definitions</a></li>
+              <li ng-class="{active: isActiveTab('frontPage')}"><a ng-href="#/">Workflow definitions</a></li>
               <li ng-class="{active: isActiveTab('search')}"><a ng-href="#/search">Workflow instances</a></li>
               <li ng-class="{active: isActiveTab('about')}"><a ng-href="#/about">About</a></li>
             </ul>
@@ -106,17 +106,17 @@ See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrup
 
     <script src="config.js"></script>
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
-    <script src="scripts/services.js"></script>
-    <script src="scripts/util.js"></script>
-    <script src="scripts/graph.js"></script>
-    <script src="scripts/barchart.js"></script>
-    <script src="scripts/app.js"></script>
-    <script src="scripts/controllers/main.js"></script>
-    <script src="scripts/controllers/about.js"></script>
-    <script src="scripts/controllers/search.js"></script>
-    <script src="scripts/controllers/workflow.js"></script>
-    <script src="scripts/controllers/workflow_definition.js"></script>
-    <script src="scripts/controllers/workflow_stats.js"></script>
+    <script src="app/services.js"></script>
+    <script src="app/util.js"></script>
+    <script src="app/graph.js"></script>
+    <script src="app/barchart.js"></script>
+    <script src="app/app.js"></script>
+    <script src="app/front-page/frontPage.js"></script>
+    <script src="app/about/about.js"></script>
+    <script src="app/search/search.js"></script>
+    <script src="app/workflow/workflow.js"></script>
+    <script src="app/workflow-definition/workflowDefinition.js"></script>
+    <script src="app/workflow-stats/workflowStats.js"></script>
 
     <!-- endbuild -->
   </body>

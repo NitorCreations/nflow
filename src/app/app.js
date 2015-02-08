@@ -10,8 +10,13 @@
  */
 angular
 .module('nflowVisApp', [
+  'nflowVisApp.about',
+  'nflowVisApp.frontPage',
+  'nflowVisApp.search',
   'nflowVisApp.services',
-  'nflowVisApp.workflow_stats',
+  'nflowVisApp.workflow',
+  'nflowVisApp.workflowDefinition',
+  'nflowVisApp.workflowStats',
   'ngAnimate',
   'ngCookies',
   'ngRoute',
@@ -22,29 +27,29 @@ angular
 .config(function ($routeProvider) {
   $routeProvider
   .when('/', {
-    templateUrl: 'views/main.html',
-    controller: 'MainCtrl',
-    activeTab: 'main'
+    templateUrl: 'app/front-page/frontPage.html',
+    controller: 'FrontPageCtrl',
+    activeTab: 'frontPage'
   })
   .when('/search', {
-    templateUrl: 'views/search.html',
+    templateUrl: 'app/search/search.html',
     controller: 'WorkflowSearchCtrl',
     activeTab: 'search'
   })
   .when('/about', {
-    templateUrl: 'views/about.html',
+    templateUrl: 'app/about/about.html',
     controller: 'AboutCtrl',
     activeTab: 'about'
   })
   .when('/workflow-stats', {
-    templateUrl: 'views/workflow_stats.html',
+    templateUrl: 'app/workflow-stats/workflowStats.html',
     controller: 'RadiatorCtrl',
-    activeTab: 'main'
+    activeTab: 'frontPage'
   })
   .when('/workflow-definition/:type', {
-    templateUrl: 'views/workflow_definition.html',
+    templateUrl: 'app/workflow-definition/workflowDefinition.html',
     controller: 'WorkflowDefinitionCtrl',
-    activeTab: 'main',
+    activeTab: 'frontPage',
     resolve: {
       'GraphService': [ '$q', 'GraphService', function($q, GraphService) {
         // do not open UI before products are loaded i.e. the following promise resolved
@@ -56,7 +61,7 @@ angular
 
   })
   .when('/workflow/:id', {
-    templateUrl: 'views/workflow.html',
+    templateUrl: 'app/workflow/workflow.html',
     controller: 'WorkflowCtrl',
     activeTab: 'search',
     resolve: {

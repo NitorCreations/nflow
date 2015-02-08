@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('nflowVisApp')
+angular.module('nflowVisApp.search', [])
 .controller('WorkflowSearchCtrl', function($scope, $routeParams, WorkflowDefinitions, WorkflowSearch) {
   $scope.results = [];
   $scope.crit = {};

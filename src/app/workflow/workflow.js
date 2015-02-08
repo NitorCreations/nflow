@@ -3,7 +3,7 @@
 /**
  * Display single workflow instance
  */
-angular.module('nflowVisApp')
+angular.module('nflowVisApp.workflow', [])
 .controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, ManageWorkflow, WorkflowDefinitions, $routeParams, $rootScope) {
   $scope.manage = {};
   $scope.manage.timeUnits = ['minutes','hours','days'];

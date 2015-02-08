@@ -7,8 +7,8 @@
  * # MainCtrl
  * Controller of the nflowVisApp
  */
-angular.module('nflowVisApp')
-.controller('MainCtrl', function MainCtrl($scope, $rootScope, WorkflowDefinitions) {
+angular.module('nflowVisApp.frontPage', [])
+.controller('FrontPageCtrl', function FrontPageCtrl($scope, $rootScope, WorkflowDefinitions) {
   $scope.workflows = WorkflowDefinitions.query();
 
   $scope.executorClass = function(executor) {

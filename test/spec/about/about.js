@@ -1,18 +1,20 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('Controller: AboutCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('nflowVisApp'));
+  beforeEach(module('nflowVisApp.about'));
 
-  var MainCtrl,
+  var AboutCtrl,
     scope;
 
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
-      $scope: scope
+
+    AboutCtrl = $controller('AboutCtrl', {
+      $scope: scope,
+      config: {}
     });
   }));
 

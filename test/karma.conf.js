@@ -49,12 +49,12 @@ module.exports = function(config) {
       'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js',
       'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js',
 
-      'app/external/dagre-d3/js/dagre-d3.min.js',
-      'app/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
-      'app/external/dygraphs/dygraph-combined.js',
+      'src/external/dagre-d3/js/dagre-d3.min.js',
+      'src/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
+      'src/external/dygraphs/dygraph-combined.js',
       'bower_components/d3/d3.js',
-      'app/config.js',
-      'app/scripts/**/*.js',
+      'src/config.js',
+      'src/app/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
