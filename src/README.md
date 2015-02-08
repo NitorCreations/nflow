@@ -27,6 +27,7 @@ src/
 - `src/images/` - static images. 
 - `src/external/` - third-party libraries that have been customized, see reasons above.
 - `src/styles/` - (s)css.
+- `src/config.js` - environment config file. See below.
 - `src/index.html` - this is the HTML document of the single-page application. See below.
 
 See each directory for a detailed explanation (if any).
@@ -40,3 +41,9 @@ specifies the topmost `NaviCtrl` controller, and contains the `ngView` directive
 into which route templates are placed.
 
 When adding third-party libraries or application modules, they need to be added to index.html to be picked up by the build system.
+
+## `config.js`
+
+The `config.js` file is environment configuration file in the form of vanilla javascript, 
+e.g. it is does not require angular, is not uglified and can be edited directly in the web server. 
+Build scripts may apply environment specific values into this file.
