@@ -1,6 +1,6 @@
 # nflow-explorer
 
-User Interface for nFlow
+User Interface for nFlow.
 ***
 
 ## Quick Start
@@ -29,7 +29,7 @@ angular service|PascalCase|angular.factory('ManageWorkflow', ...
 ## Overall Directory Structure
 
 ```
-ng-boilerplate/
+nflow-explorer/
   |- dist/
   |- src/
   |  |- app/
@@ -41,7 +41,7 @@ ng-boilerplate/
   |  |- styles/
   |  |  |- main.scss
   |- test/
-  |- bower_components
+  |- bower_components/
   |- .bowerrc
   |- bower.json
   |- Gruntfile.js
