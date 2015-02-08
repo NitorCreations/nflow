@@ -27,27 +27,27 @@ angular
 .config(function ($routeProvider) {
   $routeProvider
   .when('/', {
-    templateUrl: 'scripts/frontpage/frontpage.html',
+    templateUrl: 'app/frontpage/frontpage.html',
     controller: 'FrontpageCtrl',
     activeTab: 'frontpage'
   })
   .when('/search', {
-    templateUrl: 'scripts/search/search.html',
+    templateUrl: 'app/search/search.html',
     controller: 'WorkflowSearchCtrl',
     activeTab: 'search'
   })
   .when('/about', {
-    templateUrl: 'scripts/about/about.html',
+    templateUrl: 'app/about/about.html',
     controller: 'AboutCtrl',
     activeTab: 'about'
   })
   .when('/workflow-stats', {
-    templateUrl: 'scripts/workflow_stats/workflow_stats.html',
+    templateUrl: 'app/workflow_stats/workflow_stats.html',
     controller: 'RadiatorCtrl',
     activeTab: 'frontpage'
   })
   .when('/workflow-definition/:type', {
-    templateUrl: 'scripts/workflow_definition/workflow_definition.html',
+    templateUrl: 'app/workflow_definition/workflow_definition.html',
     controller: 'WorkflowDefinitionCtrl',
     activeTab: 'frontpage',
     resolve: {
@@ -61,7 +61,7 @@ angular
 
   })
   .when('/workflow/:id', {
-    templateUrl: 'scripts/workflow/workflow.html',
+    templateUrl: 'app/workflow/workflow.html',
     controller: 'WorkflowCtrl',
     activeTab: 'search',
     resolve: {

@@ -34,7 +34,7 @@ module.exports = function (grunt) {
         tasks: ['wiredep']
       },
       js: {
-        files: ['<%= yeoman.src %>/scripts/**/*.js'],
+        files: ['<%= yeoman.src %>/app/**/*.js'],
         tasks: ['newer:jshint:all'],
         options: {
           livereload: '<%= connect.options.livereload %>'
@@ -119,7 +119,7 @@ module.exports = function (grunt) {
       all: {
         src: [
           'Gruntfile.js',
-          '<%= yeoman.src %>/scripts/**/*.js'
+          '<%= yeoman.src %>/app/**/*.js'
         ]
       },
       test: {
@@ -190,7 +190,7 @@ module.exports = function (grunt) {
     filerev: {
       dist: {
         src: [
-          '<%= yeoman.dist %>/scripts/**/*.js',
+          '<%= yeoman.dist %>/app/**/*.js',
           '<%= yeoman.dist %>/styles/*.css',
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '<%= yeoman.dist %>/styles/fonts/*'
@@ -242,8 +242,8 @@ module.exports = function (grunt) {
     // uglify: {
     //   dist: {
     //     files: {
-    //       '<%= yeoman.dist %>/scripts/scripts.js': [
-    //         '<%= yeoman.dist %>/scripts/scripts.js'
+    //       '<%= yeoman.dist %>/app/scripts.js': [
+    //         '<%= yeoman.dist %>/app/scripts.js'
     //       ]
     //     }
     //   }
@@ -286,7 +286,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>',
-          src: ['*.html', 'scripts/**/*.html'],
+          src: ['*.html', 'app/**/*.html'],
           dest: '<%= yeoman.dist %>'
         }]
       }
@@ -298,9 +298,9 @@ module.exports = function (grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: '.tmp/concat/scripts',
+          cwd: '.tmp/concat/app',
           src: ['*.js', '!oldieshim.js'],
-          dest: '.tmp/concat/scripts'
+          dest: '.tmp/concat/app'
         }]
       }
     },
@@ -324,7 +324,7 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             '*.html',
-            'scripts/**/*.html',
+            'app/**/*.html',
             'images/*',
             'fonts/*',
             'styles/{,*}*.png',

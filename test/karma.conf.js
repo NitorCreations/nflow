@@ -54,7 +54,7 @@ module.exports = function(config) {
       'src/external/dygraphs/dygraph-combined.js',
       'bower_components/d3/d3.js',
       'src/config.js',
-      'src/scripts/**/*.js',
+      'src/app/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
