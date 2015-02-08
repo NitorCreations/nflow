@@ -1,17 +1,17 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('Controller: FrontpageCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('nflowVisApp.main'));
+  beforeEach(module('nflowVisApp.frontpage'));
 
-  var MainCtrl,
+  var FrontpageCtrl,
     scope;
 
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
+    FrontpageCtrl = $controller('FrontpageCtrl', {
       $scope: scope,
       WorkflowDefinitions: { query: function(){} }
     });
