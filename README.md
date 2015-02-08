@@ -35,7 +35,7 @@ nflow-explorer/
   |  |- app/
   |  |  |- <app logic>
   |  |- external/
-  |  |  |- <why not load these with bower?>
+  |  |  |- <customized third-party libraries>
   |  |- images/
   |  |  |- <static image files>
   |  |- styles/
