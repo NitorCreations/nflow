@@ -25,7 +25,7 @@ src/
 
 - `src/app/` - application-specific code, i.e. code not likely to be reused in another application. [Read more &raquo;](app/README.md)
 - `src/images/` - static images. 
-- `src/external/` - third-party libraries that have been customized, see reasons above.
+- `src/external/` - third-party libraries: customized or not available on Bower.
 - `src/styles/` - (s)css.
 - `src/config.js` - environment config file. See below.
 - `src/index.html` - this is the HTML document of the single-page application. See below.

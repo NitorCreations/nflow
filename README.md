@@ -19,7 +19,7 @@ $ grunt serve
 
 Category|Convention|Example
 --------|----------|-------
-folder name|words-separated-by-dash|src/app/front-page
+folder name|lisp-case|  src/app/front-page
 file name|camelCase|frontPage.js
 angular module|camelCase|angular.module('nflowVisApp.frontPage', ...
 angular controller|PascalCase|.controller('FrontPageCtrl', ...
@@ -35,7 +35,7 @@ nflow-explorer/
   |  |- app/
   |  |  |- <app logic>
   |  |- external/
-  |  |  |- <customized third-party libraries>
+  |  |  |- <third-party libraries: customized or not available on Bower>
   |  |- images/
   |  |  |- <static image files>
   |  |- styles/
