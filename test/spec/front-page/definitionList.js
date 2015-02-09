@@ -3,9 +3,9 @@
 describe('Directive: definitionList', function () {
 
   beforeEach(module('nflowVisApp.frontPage.definitionList'));
+  beforeEach(module('nflowVisApp.karma.templates'));
 
-  it('sets definitions into view model', inject(function ($rootScope, $compile, $templateCache) {
-    $templateCache.put('app/front-page/definitionList.html', '');
+  it('sets definitions into view model', inject(function ($rootScope, $compile) {
 
     var elem = $compile('<definition-list definitions="expected"></definition-list>')($rootScope);
     $rootScope.$apply(function() { $rootScope.expected = ['foo', 'bar']; });

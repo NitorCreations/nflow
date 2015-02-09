@@ -56,8 +56,19 @@ module.exports = function(config) {
       'src/config.js',
       'src/app/**/*.js',
       'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      'test/spec/**/*.js',
+
+      'src/app/**/*.html'
     ],
+
+    preprocessors: {
+      'src/app/**/*.html': 'ng-html2js'
+    },
+
+    ngHtml2JsPreprocessor: {
+      stripPrefix: 'src/',
+      moduleName: 'nflowVisApp.karma.templates'
+    },
 
     // list of files / patterns to exclude
     exclude: [],
@@ -81,7 +92,8 @@ module.exports = function(config) {
     plugins: [
       'karma-phantomjs-launcher',
       'karma-jasmine',
-      'karma-sinon'
+      'karma-sinon',
+      'karma-ng-html2js-preprocessor'
     ],
 
     // Continuous Integration mode

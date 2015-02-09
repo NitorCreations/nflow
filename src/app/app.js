@@ -11,6 +11,7 @@
 angular
 .module('nflowVisApp', [
   'nflowVisApp.about',
+  'nflowVisApp.filters',
   'nflowVisApp.frontPage',
   'nflowVisApp.search',
   'nflowVisApp.services',
@@ -98,50 +99,4 @@ angular
 .controller('NaviCtrl', function($scope, $location) {
   // nope, $routeParams.radiator wont work here
   $scope.radiator = !!$location.search().radiator;
-})
-.filter('reverse', function() {
-  return function reverse(items) {
-    if(!items) {
-      return [];
-    }
-    return items.slice().reverse();
-  };
-})
-.filter('fromNow', function() {
-  return function fromNow(value) {
-    if(!value) {
-      return '';
-    }
-    try {
-      return moment(value).fromNow();
-    } catch(e){
-      return value;
-    }
-  };
-})
-.filter('fromNowOrNever', function() {
-  return function fromNowOrNever(value) {
-    if(!value) {
-      return 'never';
-    }
-    try {
-      return moment(value).fromNow();
-    } catch(e){
-      return value;
-    }
-  };
-})
-.filter('prettyPrintJson', function() {
-  return function prettyPrintJson(value) {
-    try {
-      return JSON.stringify(value, undefined, 2);
-    } catch(e) {
-      return value;
-    }
-  };
-})
-.filter('nullToZero', function() {
-  return function nullToZero(value) {
-    return value ? value : 0;
-  };
 });
