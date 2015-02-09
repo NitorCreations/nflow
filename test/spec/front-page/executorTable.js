@@ -4,15 +4,14 @@ describe('Directive: executorTable', function () {
 
   beforeEach(module('nflowVisApp.frontPage.executorTable'));
 
-  it('initializes executors', inject(function ($rootScope, $compile, $templateCache) {
+  it('sets executors into view model', inject(function ($rootScope, $compile, $templateCache) {
     $templateCache.put('app/front-page/executorTable.html', '');
 
-    $rootScope.expected = ['foo', 'bar'];
     var elem = $compile('<executor-table executors="expected"></executor-table>')($rootScope);
-    $rootScope.$apply();
+    $rootScope.$apply(function() { $rootScope.expected = ['foo', 'bar']; });
 
-    var directiveScope = elem.isolateScope();
-    expect(directiveScope.ctrl.executors).toEqual(['foo', 'bar']);
+    var ctrl = elem.isolateScope().ctrl;
+    expect(ctrl.executors).toEqual(['foo', 'bar']);
   }));
 
   describe('ExecutorTableCtrl: executorClass', function () {

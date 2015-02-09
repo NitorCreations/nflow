@@ -1,10 +1,9 @@
 'use strict';
 
 describe('Controller: FrontPageCtrl', function () {
+  var ctrl;
 
   beforeEach(module('nflowVisApp.frontPage'));
-
-  var ctrl;
 
   beforeEach(inject(function ($controller, WorkflowDefinitions) {
     sinon.stub(WorkflowDefinitions, 'query', function(){  return ['definition' ]; });
@@ -14,11 +13,11 @@ describe('Controller: FrontPageCtrl', function () {
       ExecutorPoller: { executors: ['executor'] } });
   }));
 
-  it('initializes definitions', function () {
+  it('sets definitions into view model', function () {
     expect(ctrl.definitions).toEqual(['definition']);
   });
 
-  it('initializes executors', function () {
+  it('sets executors into view model', function () {
     expect(ctrl.executors).toEqual(['executor']);
   });
 });
