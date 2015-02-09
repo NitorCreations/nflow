@@ -31,7 +31,8 @@
     "it": false,
     "jasmine": false,
     "spyOn": false,
-    "sinon": false
+    "sinon": false,
+    "moment": false
   }
 }
 

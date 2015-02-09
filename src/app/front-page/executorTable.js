@@ -19,13 +19,14 @@
     var vm = this;
     vm.executorClass = executorClass;
 
-    function executorClass(executor) {
+    function executorClass(executor, now) {
+      now = now || moment();
       var expires = moment(executor.expires);
       var active = moment(executor.active);
-      if (active.add(1, 'days').isBefore(new Date())) {
+      if (active.add(1, 'days').isBefore(now)) {
         return;
       }
-      if (expires.isBefore(new Date())) {
+      if (expires.isBefore(now)) {
         return 'warning';
       }
       return 'success';
