@@ -1,0 +1,25 @@
+<h2>Workflow executors</h2>
+<table id="executors" class="table table-striped table-hover">
+  <thead>
+  <tr>
+    <th>Id</th>
+    <th>Host</th>
+    <th>Process ID</th>
+    <th>Executor group</th>
+    <th>Started</th>
+    <th>Activity heartbeat</th>
+    <th>Heartbeat expires</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="executor in ctrl.executors | orderBy:'active':true" ng-class="ctrl.executorClass(executor)">
+    <td>{{executor.id}}</td>
+    <td>{{executor.host}}</td>
+    <td>{{executor.pid}}</td>
+    <td>{{executor.executorGroup}}</td>
+    <td title="{{executor.started | date:'medium'}}">{{executor.started | fromNow}}</td>
+    <td title="{{executor.active | date:'medium'}}">{{executor.active | fromNow}}</td>
+    <td title="{{executor.expires | date:'medium'}}">{{executor.expires | fromNow}}</td>
+  </tr>
+  </tbody>
+</table>
