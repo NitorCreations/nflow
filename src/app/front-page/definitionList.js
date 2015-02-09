@@ -6,6 +6,7 @@
   m.directive('definitionList', function() {
     return {
       restrict: 'E',
+      replace: true,
       scope: {
         definitions: '='
       },

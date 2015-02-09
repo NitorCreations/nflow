@@ -1,7 +1,9 @@
-<h2>Workflow definitions</h2>
-<div class="row marketing">
-  <dl ng-repeat="definition in ctrl.definitions">
-    <dt><a href="#/workflow-definition/{{definition.type}}">{{definition.type}}</a></dt>
-    <dd>{{definition.description}}</dd>
-  </dl>
+<div>
+  <h2>Workflow definitions</h2>
+  <div class="row marketing">
+    <dl ng-repeat="definition in ctrl.definitions">
+      <dt><a href="#/workflow-definition/{{definition.type}}">{{definition.type}}</a></dt>
+      <dd>{{definition.description}}</dd>
+    </dl>
+  </div>
 </div>

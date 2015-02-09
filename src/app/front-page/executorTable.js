@@ -8,6 +8,7 @@
   m.directive('executorTable', function () {
     return {
       restrict: 'E',
+      replace: true,
       scope: {
         executors: '='
       },
@@ -18,8 +19,8 @@
   });
 
   m.controller('ExecutorTableCtrl', function () {
-    var vm = this;
-    vm.executorClass = executorClass;
+    var self = this;
+    self.executorClass = executorClass;
 
     function executorClass(executor, now) {
       now = now || moment();
