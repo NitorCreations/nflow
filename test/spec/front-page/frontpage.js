@@ -2,22 +2,23 @@
 
 describe('Controller: FrontPageCtrl', function () {
 
-  // load the controller's module
   beforeEach(module('nflowVisApp.frontPage'));
 
-  var FrontPageCtrl,
-    scope;
+  var ctrl;
 
-  // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $rootScope) {
-    scope = $rootScope.$new();
-    FrontPageCtrl = $controller('FrontPageCtrl', {
-      $scope: scope,
-      WorkflowDefinitions: { query: function(){} }
-    });
+  beforeEach(inject(function ($controller, WorkflowDefinitions) {
+    sinon.stub(WorkflowDefinitions, 'query', function(){  return ['definition' ]; });
+
+    ctrl = $controller('FrontPageCtrl', {
+      WorkflowDefinitions: WorkflowDefinitions,
+      ExecutorPoller: { executors: ['executor'] } });
   }));
 
-  it('should compile', function () {
-    expect(true).toBe(true);
+  it('initializes definitions', function () {
+    expect(ctrl.definitions).toEqual(['definition']);
+  });
+
+  it('initializes executors', function () {
+    expect(ctrl.executors).toEqual(['executor']);
   });
 });
