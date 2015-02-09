@@ -14,6 +14,7 @@ angular
   'nflowVisApp.frontPage',
   'nflowVisApp.search',
   'nflowVisApp.services',
+  'nflowVisApp.services.executorPoller',
   'nflowVisApp.workflow',
   'nflowVisApp.workflowDefinition',
   'nflowVisApp.workflowStats',

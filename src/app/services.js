@@ -64,28 +64,6 @@ angular.module('nflowVisApp.services',
     });
   };
 })
-.service('ExecutorPoller', function ExecutorPollerService($rootScope, config, Executors, $interval) {
-  var task = {};
-
-  function updateExecutors() {
-    Executors.query(function(executors) {
-      console.info('Fetching executors');
-      // TODO should store to this variable,
-      // then in controller $scope.executors = ExecutorPoller.getExecutors();
-      $rootScope.executors = executors;
-      $rootScope.$broadcast('executorsUpdated');
-    });
-  }
-  this.start = function() {
-    if(!task.poller) {
-      console.info('Start executor poller with period ' + config.radiator.pollPeriod + ' seconds');
-      updateExecutors();
-      task.poller = $interval(updateExecutors, config.radiator.pollPeriod * 1000);
-      return true;
-    }
-    return false;
-  };
-})
 .service('WorkflowStatsPoller', function WorkflowStatsPoller($rootScope, config, $interval,
                                                               WorkflowDefinitions, WorkflowDefinitionStats) {
   var tasks = {};
