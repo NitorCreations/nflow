@@ -28,7 +28,7 @@ angular
   $routeProvider
   .when('/', {
     templateUrl: 'app/front-page/frontPage.html',
-    controller: 'FrontPageCtrl',
+    controller: 'FrontPageCtrl as ctrl',
     activeTab: 'frontPage'
   })
   .when('/search', {
