@@ -13,6 +13,10 @@ describe('Controller: FrontPageCtrl', function () {
       ExecutorPoller: { executors: ['executor'] } });
   }));
 
+  afterEach(inject(function(WorkflowDefinitions) {
+    WorkflowDefinitions.query.restore();
+  }));
+
   it('sets definitions into view model', function () {
     expect(ctrl.definitions).toEqual(['definition']);
   });
