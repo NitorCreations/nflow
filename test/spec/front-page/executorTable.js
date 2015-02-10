@@ -16,10 +16,10 @@ describe('Directive: executorTable', function () {
   describe('ExecutorTableCtrl: executorClass', function () {
     var ctrl;
 
-    var dayBeforeYesterday = moment().subtract(2, 'days');
-    var yesterday = moment().subtract(1, 'days');
     var today = moment();
-    var tomorrow = moment().add(1, 'days');
+    var yesterday = today.clone().subtract(1, 'days');
+    var dayBeforeYesterday = today.clone().subtract(2, 'days');
+    var tomorrow = today.clone().add(1, 'days');
 
     beforeEach(inject(function ($controller) {
       ctrl = $controller('ExecutorTableCtrl');
