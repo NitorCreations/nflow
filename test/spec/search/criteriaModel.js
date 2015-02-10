@@ -105,7 +105,6 @@ describe('Service: CriteriaModel', function () {
       actualModel.state = { name: 'not in definition states'};
       CriteriaModel.onTypeChange();
       expect(actualModel).toEqual({ type: definitions[0], state: null});
-
     });
 
     it('state is maintained if is included in definitions states', function () {
@@ -114,5 +113,13 @@ describe('Service: CriteriaModel', function () {
       CriteriaModel.onTypeChange();
       expect(actualModel).toEqual({ type: definitions[0], state: definitions[0].states[0]});
     });
+
+    it('null state is handled', function () {
+      actualModel.type = definitions[0];
+      actualModel.state = null;
+      CriteriaModel.onTypeChange();
+      expect(actualModel).toEqual({ type: definitions[0], state: null});
+    });
+
   });
 });

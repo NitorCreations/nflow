@@ -34,7 +34,7 @@
     }
 
     function onTypeChange() {
-      self.model.state = ensureStateNameInTypeStates(_.property('name')(self.model.state), self.model.type);
+      self.model.state = ensureStateNameInTypeStates(_.result(self.model.state, 'name'), self.model.type);
     }
 
     function ensureTypeInDefinitions(type, definitions) {
