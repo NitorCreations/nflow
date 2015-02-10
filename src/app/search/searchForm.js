@@ -21,9 +21,10 @@
     };
   });
 
-  m.controller('SearchFormCtrl', function(WorkflowSearch) {
+  m.controller('SearchFormCtrl', function(SearchFormService) {
     var self = this;
     self.search = search;
+    self.results = SearchFormService.results;
 
     initialize();
 
@@ -34,9 +35,21 @@
     }
 
     function search() {
+      return SearchFormService.search(self.criteria);
+    }
+
+  });
+
+  m.factory('SearchFormService', function(WorkflowSearch){
+    var api = {};
+    api.results = [];
+    api.search = search;
+    return api;
+
+    function search(criteria) {
       var query = {};
-      for (var i in self.criteria) {
-        query[i] = self.criteria[i];
+      for (var i in criteria) {
+        query[i] = criteria[i];
       }
 
       if (query.type) {
@@ -48,7 +61,7 @@
 
       // set state to undef if it is not found in selected definition
       if (query.type && query.state) {
-        var stateInDefinition = _.first(_.filter(self.criteria.type.states, function (state) {
+        var stateInDefinition = _.first(_.filter(criteria.type.states, function (state) {
           return state.name === query.state;
         }));
         if (!stateInDefinition) {
@@ -59,7 +72,10 @@
       query = _.omit(query, function (value) {
         return (value === undefined || value === null);
       });
-      self.results = WorkflowSearch.query(query);
+
+      WorkflowSearch.query(query, function(results) {
+        angular.copy(results, api.results);
+      });
     }
 
   });
