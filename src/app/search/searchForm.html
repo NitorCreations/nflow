@@ -19,17 +19,17 @@
       <div class="row">
         <div class="col-xs-3">
           <label for="id">Workflow instance id</label>
-          <input name="id" type="number" ng-model="ctrl.criteria.id" class="form-control"/>
+          <input name="id" type="number" ng-model="ctrl.criteria.id" empty-to-null class="form-control" />
         </div>
 
         <div class="col-xs-3">
           <label for="businessKey">Business key</label>
-          <input name="businessKey" type="text" ng-model="ctrl.criteria.businessKey" class="form-control"/>
+          <input name="businessKey" type="text" ng-model="ctrl.criteria.businessKey" empty-to-null class="form-control"/>
         </div>
 
         <div class="col-xs-3">
           <label for="externalId">External id</label>
-          <input name="externalId" type="text" ng-model="ctrl.criteria.externalId" class="form-control"/>
+          <input name="externalId" type="text" ng-model="ctrl.criteria.externalId" empty-to-null class="form-control" />
         </div>
       </div>
     </div>

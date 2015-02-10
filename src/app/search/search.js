@@ -16,15 +16,17 @@
     initialize();
 
     function initialize() {
-      var paramType = _.first(_.filter(self.definitions, function (def) {
-        return def.type === $routeParams.type;
-      }));
-      if (paramType) {
-        self.criteria.type = paramType;
-        var paramState = _.first(_.filter(paramType.states, function (state) {
-          return state.name === $routeParams.state;
-        }));
-        self.criteria.state = paramState;
+      var type = self.criteria.type = definitionTypeFromRoute(self.definitions);
+      if (type) {
+        self.criteria.state = typeStateFromRoute(type);
+      }
+
+      function definitionTypeFromRoute(definitions) {
+        return _.find(definitions, function (d) { return d.type === $routeParams.type; });
+      }
+
+      function typeStateFromRoute(type) {
+          return _.find(type.states, function (s) { return s.name === $routeParams.state; });
       }
     }
 
