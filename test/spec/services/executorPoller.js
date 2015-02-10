@@ -29,22 +29,26 @@ describe('Service: ExecutorPoller', function () {
   it('when started, executors are set and poll is started', function () {
     var backend = $httpBackend.whenGET(url).respond(200, [ 'expected' ]);
 
+    // important: reference to executors must not be overwritten on poll update
+    var actual = ExecutorPoller.executors;
+    expect(actual).toEqual([]);
+
     $httpBackend.expectGET(url);
     ExecutorPoller.start();
     $httpBackend.flush();
-    expect(ExecutorPoller.executors).toEqual([ 'expected']);
+    expect(actual).toEqual([ 'expected']);
 
     backend.respond(200, [ 'expected 2' ]);
     $httpBackend.expectGET(url);
     $interval.flush(pollInterval);
     $httpBackend.flush();
-    expect(ExecutorPoller.executors).toEqual([ 'expected 2']);
+    expect(actual).toEqual([ 'expected 2']);
 
     backend.respond(200, [ 'expected 3' ]);
     $httpBackend.expectGET(url);
     $interval.flush(pollInterval);
     $httpBackend.flush();
-    expect(ExecutorPoller.executors).toEqual([ 'expected 3']);
+    expect(actual).toEqual([ 'expected 3']);
   });
 
   it('after start subsequent calls to start do not start multiple pollers', inject(function (Executors) {
