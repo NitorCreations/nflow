@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.search', []);
+  var m = angular.module('nflowVisApp.search', [
+    'nflowVisApp.search.searchResult'
+  ]);
 
   m.controller('WorkflowSearchCtrl', function ($routeParams, WorkflowDefinitions, WorkflowSearch) {
     var self = this;
@@ -9,7 +11,6 @@
     self.hasResults = hasResults;
     self.crit = {};
     self.search = search;
-    self.getStateClass = getStateClass;
     self.definitions = [];
 
     initialize();
@@ -70,36 +71,5 @@
       return !!_.first(self.results);
     }
 
-    function getDefinition(type) {
-      return _.find(self.definitions, function (def) {
-        return def.type === type;
-      });
-    }
-
-    function getStateClass(result) {
-      if (!result) {
-        return '';
-      }
-      var def = getDefinition(result.type);
-      if (!def) {
-        return '';
-      }
-      var state = _.find(def.states, function (s) {
-        return s.id === result.state;
-      });
-      if (state.id === def.onError) {
-        return 'danger';
-      }
-      if (state.type === 'normal') {
-        return 'info';
-      } else if (state.type === 'manual') {
-        return 'warning';
-      } else if (state.type === 'end') {
-        return 'success';
-      } else if (state.type === 'error') {
-        return 'danger';
-      }
-      return '';
-    }
   });
 })();

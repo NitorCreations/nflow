@@ -1,0 +1,34 @@
+<div>
+  <h2>Workflows</h2>
+
+  <table id="search-result" class="table table-striped table-hover">
+    <thead>
+    <th>Id</th>
+    <th>Workflow type</th>
+    <th>State</th>
+    <th>State text</th>
+    <th>Business key</th>
+    <th>External id</th>
+    <th>Retries</th>
+    <th>Created</th>
+    <th>Started</th>
+    <th>Modified</th>
+    <th>Next activation</th>
+    </thead>
+    <tbody>
+    <tr ng-repeat="result in ctrl.results | reverse" ng-class="ctrl.getStateClass(result)">
+      <td><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
+      <td><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
+      <td>{{result.state}}</td>
+      <td>{{result.stateText}}</td>
+      <td>{{result.businessKey}}</td>
+      <td>{{result.externalId}}</td>
+      <td>{{result.retries}}</td>
+      <td title="{{result.created | date:'medium'}}">{{result.created | fromNowOrNever}}</td>
+      <td title="{{result.started | date:'medium'}}">{{result.started | fromNowOrNever}}</td>
+      <td title="{{result.modified | date:'medium'}}">{{result.modified | fromNowOrNever}}</td>
+      <td title="{{result.nextActivation | date:'medium'}}">{{result.nextActivation | fromNowOrNever}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
