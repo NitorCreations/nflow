@@ -4,14 +4,14 @@
       <div class="row">
         <div class="col-xs-3">
           <label for="type">Workflow type</label>
-          <select id="type" class="form-control" ng-model="ctrl.criteria.type" ng-options="def.type for def in ctrl.definitions">
+          <select id="type" class="form-control" ng-model="ctrl.model.type" ng-options="def.type for def in ctrl.definitions" ng-change="ctrl.onTypeChange()">
             <option value="">-- All workflow types --</option>
           </select>
         </div>
 
         <div class="col-xs-3">
           <label for="state">Workflow state</label>
-          <select id="state" class="form-control" ng-model="ctrl.criteria.state" ng-options="state.name for state in ctrl.criteria.type.states">
+          <select id="state" class="form-control" ng-model="ctrl.model.state" ng-options="state.name for state in ctrl.model.type.states">
             <option value="">-- All states --</option>
           </select>
         </div>
@@ -19,17 +19,17 @@
       <div class="row">
         <div class="col-xs-3">
           <label for="id">Workflow instance id</label>
-          <input name="id" type="number" ng-model="ctrl.criteria.id" empty-to-null class="form-control" />
+          <input name="id" type="number" ng-model="ctrl.model.id" empty-to-null class="form-control" />
         </div>
 
         <div class="col-xs-3">
           <label for="businessKey">Business key</label>
-          <input name="businessKey" type="text" ng-model="ctrl.criteria.businessKey" empty-to-null class="form-control"/>
+          <input name="businessKey" type="text" ng-model="ctrl.model.businessKey" empty-to-null class="form-control"/>
         </div>
 
         <div class="col-xs-3">
           <label for="externalId">External id</label>
-          <input name="externalId" type="text" ng-model="ctrl.criteria.externalId" empty-to-null class="form-control" />
+          <input name="externalId" type="text" ng-model="ctrl.model.externalId" empty-to-null class="form-control" />
         </div>
       </div>
     </div>

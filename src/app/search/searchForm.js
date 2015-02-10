@@ -2,6 +2,7 @@
   'use strict';
 
   var m = angular.module('nflowVisApp.search.searchForm', [
+    'nflowVisApp.search.criteriaModel',
     'nflowVisApp.services',
     'nflowVisApp.util'
   ]);
@@ -12,8 +13,7 @@
       replace: true,
       scope: {
         results: '=',
-        definitions: '=',
-        criteria: '='
+        definitions: '='
       },
       bindToController: true,
       controller: 'SearchFormCtrl',
@@ -22,63 +22,24 @@
     };
   });
 
-  m.controller('SearchFormCtrl', function(SearchFormService) {
+  m.controller('SearchFormCtrl', function(CriteriaModel, WorkflowSearch) {
     var self = this;
+    self.model = CriteriaModel.model;
+    self.results = [];
     self.search = search;
-    self.results = SearchFormService.results;
+    self.onTypeChange = CriteriaModel.onTypeChange;
 
     initialize();
 
     function initialize() {
-      if (_.keys(self.criteria).length > 0) {
+      if (!CriteriaModel.isEmpty()) {
         search();
       }
     }
 
     function search() {
-      return SearchFormService.search(self.criteria);
+      self.results = WorkflowSearch.query(CriteriaModel.toQuery());
     }
-
-  });
-
-  m.factory('SearchFormService', function(WorkflowSearch){
-    var api = {};
-    api.results = [];
-    api.search = search;
-    return api;
-
-    function search(criteria) {
-      var query = {};
-      for (var i in criteria) {
-        query[i] = criteria[i];
-      }
-
-      if (query.type) {
-        query.type = query.type.type;
-      }
-      if (query.state) {
-        query.state = query.state.name;
-      }
-
-      // set state to undef if it is not found in selected definition
-      if (query.type && query.state) {
-        var stateInDefinition = _.first(_.filter(criteria.type.states, function (state) {
-          return state.name === query.state;
-        }));
-        if (!stateInDefinition) {
-          query.state = undefined;
-        }
-      }
-
-      query = _.omit(query, function (value) {
-        return (value === undefined || value === null);
-      });
-
-      WorkflowSearch.query(query, function(results) {
-        angular.copy(results, api.results);
-      });
-    }
-
   });
 
 })();
