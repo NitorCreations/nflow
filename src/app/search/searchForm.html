@@ -1,0 +1,38 @@
+<div>
+  <form class="form" role="form">
+    <div class="form-group">
+      <div class="row">
+        <div class="col-xs-3">
+          <label for="type">Workflow type</label>
+          <select id="type" class="form-control" ng-model="ctrl.criteria.type" ng-options="def.type for def in ctrl.definitions">
+            <option value="">-- All workflow types --</option>
+          </select>
+        </div>
+
+        <div class="col-xs-3">
+          <label for="state">Workflow state</label>
+          <select id="state" class="form-control" ng-model="ctrl.criteria.state" ng-options="state.name for state in ctrl.criteria.type.states">
+            <option value="">-- All states --</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-3">
+          <label for="id">Workflow instance id</label>
+          <input name="id" type="number" ng-model="ctrl.criteria.id" class="form-control"/>
+        </div>
+
+        <div class="col-xs-3">
+          <label for="businessKey">Business key</label>
+          <input name="businessKey" type="text" ng-model="ctrl.criteria.businessKey" class="form-control"/>
+        </div>
+
+        <div class="col-xs-3">
+          <label for="externalId">External id</label>
+          <input name="externalId" type="text" ng-model="ctrl.criteria.externalId" class="form-control"/>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-default" ng-click="ctrl.search()">Search</button>
+  </form>
+</div>

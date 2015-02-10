@@ -36,6 +36,11 @@ angular
   .when('/search', {
     templateUrl: 'app/search/search.html',
     controller: 'WorkflowSearchCtrl as ctrl',
+    resolve: {
+      definitions: function(WorkflowDefinitions) {
+        return WorkflowDefinitions.query();
+      }
+    },
     activeTab: 'search'
   })
   .when('/about', {
