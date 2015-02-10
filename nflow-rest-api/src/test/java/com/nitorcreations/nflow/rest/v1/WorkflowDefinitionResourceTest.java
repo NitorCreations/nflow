@@ -2,7 +2,6 @@ package com.nitorcreations.nflow.rest.v1;
 
 import static com.nitorcreations.Matchers.containsElements;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -16,7 +15,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,13 +27,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
-import com.nitorcreations.nflow.rest.v1.converter.WorkflowDefinitionStatisticsConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDefinitionResourceTest {
@@ -46,8 +41,6 @@ public class WorkflowDefinitionResourceTest {
   private WorkflowDefinitionDao workflowDefinitionDao;
   @Mock
   private ListWorkflowDefinitionConverter converter;
-  @Mock
-  private WorkflowDefinitionStatisticsConverter statisticsConverter;
   @Captor
   private ArgumentCaptor<Collection<String>> stringList;
   @Mock
@@ -63,10 +56,7 @@ public class WorkflowDefinitionResourceTest {
     doReturn(asList(dummyDefinition)).when(workflowDefinitions).getWorkflowDefinitions();
     when(converter.convert(dummyDefinition)).thenReturn(dummyResponse);
     dummyResponse.type = "dummy";
-    Map<String, StateExecutionStatistics> stats = emptyMap();
-    when(workflowDefinitions.getStatistics("dummy", null, null, null, null)).thenReturn(stats);
-    when(statisticsConverter.convert(stats)).thenReturn(new WorkflowDefinitionStatisticsResponse());
-    resource = new WorkflowDefinitionResource(workflowDefinitions, converter, statisticsConverter, workflowDefinitionDao);
+    resource = new WorkflowDefinitionResource(workflowDefinitions, converter, workflowDefinitionDao);
   }
 
   @Test
@@ -119,11 +109,5 @@ public class WorkflowDefinitionResourceTest {
     storedDefinitionNew.type = "new";
     Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(new String[] { "new" });
     assertThat(ret, hasItems(storedResponseNew));
-  }
-
-  @Test
-  public void getWorkflowDefinitionStatistics() {
-    WorkflowDefinitionStatisticsResponse statistics = resource.getStatistics("dummy", null, null, null, null);
-    assertThat(statistics.stateStatistics.size(), is(0));
   }
 }

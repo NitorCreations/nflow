@@ -24,6 +24,7 @@ import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
 import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import com.nitorcreations.nflow.tests.config.PropertiesConfiguration;
 import com.nitorcreations.nflow.tests.config.RestClientConfiguration;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
@@ -81,6 +82,11 @@ public abstract class AbstractNflowTest {
   public StatisticsResponse getStatistics() {
     WebClient client = fromClient(statisticsResource, true);
     return client.get(StatisticsResponse.class);
+  }
+
+  public WorkflowDefinitionStatisticsResponse getDefinitionStatistics(String definitionType) {
+    WebClient client = fromClient(statisticsResource, true).path(definitionType).path("statistics");
+    return client.get(WorkflowDefinitionStatisticsResponse.class);
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {

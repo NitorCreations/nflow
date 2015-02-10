@@ -47,7 +47,6 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.nitorcreations.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVariants;
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -504,58 +503,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
     dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { "otherState", i1.state });
     assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
-  }
-
-  @Test
-  public void getStatisticsWorks() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
-    int id = dao.insertWorkflowInstance(i1);
-
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, null, null, null, null);
-    StateExecutionStatistics stats = statsMap.get("CreateLoan");
-    assertThat(stats.executing, is(0L));
-    assertThat(stats.queued, is(0L));
-    assertThat(stats.sleeping, is(0L));
-    assertThat(stats.nonScheduled, is(1L));
-
-    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { "otherState", i1.state });
-
-    statsMap = dao.getStateExecutionStatistics(i1.type, null, null, null, null);
-    stats = statsMap.get("CreateLoan");
-    assertThat(stats.executing, is(0L));
-    assertThat(stats.queued, is(1L));
-    assertThat(stats.sleeping, is(0L));
-    assertThat(stats.nonScheduled, is(0L));
-  }
-
-  @Test
-  public void getStatisticsWorksWithCreatedLimits() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
-    dao.insertWorkflowInstance(i1);
-
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, now().plusDays(1), now().plusDays(2), null, null);
-
-    assertThat(statsMap.size(), is(0));
-  }
-
-  @Test
-  public void getStatisticsWorksWithModifiedLimits() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
-    dao.insertWorkflowInstance(i1);
-
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, null, null, now().plusDays(1), now().plusDays(2));
-
-    assertThat(statsMap.size(), is(0));
-  }
-
-  @Test
-  public void getStatisticsWorksWithCreatedAndModifiedLimits() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
-    dao.insertWorkflowInstance(i1);
-
-    Map<String, StateExecutionStatistics> statsMap = dao.getStateExecutionStatistics(i1.type, now().minusDays(1), now().plusDays(1), now().minusDays(1), now().plusDays(1));
-
-    assertThat(statsMap.size(), is(1));
   }
 
   @Test

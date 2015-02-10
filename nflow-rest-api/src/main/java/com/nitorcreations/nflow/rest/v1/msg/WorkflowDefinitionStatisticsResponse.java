@@ -13,5 +13,5 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class WorkflowDefinitionStatisticsResponse {
 
   @ApiModelProperty(value = "Statistics per state", required=true)
-  public Map<String, Map<String, Long>> stateStatistics = new LinkedHashMap<>();
+  public Map<String, Map<String, DefinitionStatisticsResponse>> stateStatistics = new LinkedHashMap<>();
 }
