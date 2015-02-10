@@ -25,7 +25,7 @@ public class CorsHeaderContainerResponseFilter implements ContainerResponseFilte
 
   @Override
   public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) {
-    String origin = env.getProperty("nflow.rest.allow.origin", "*");
+    String origin = env.getRequiredProperty("nflow.rest.allow.origin");
     responseContext.getHeaders().add("Access-Control-Allow-Origin", origin);
     responseContext.getHeaders().add("Access-Control-Allow-Headers",
         "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept");

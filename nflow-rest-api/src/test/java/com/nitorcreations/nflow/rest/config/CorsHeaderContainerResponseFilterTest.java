@@ -37,7 +37,7 @@ public class CorsHeaderContainerResponseFilterTest {
   @Test
   public void addsHeaders() {
     String host="example.com";
-    when(env.getProperty("nflow.rest.allow.origin", "*")).thenReturn(host);
+    when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(host);
 
     filter.filter(requestContext, responseContext);
 

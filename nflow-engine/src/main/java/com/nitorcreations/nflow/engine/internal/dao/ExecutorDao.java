@@ -3,7 +3,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive;
@@ -60,8 +59,8 @@ public class ExecutorDao {
   public void setEnvironment(Environment env) {
     this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
-    timeoutSeconds = env.getProperty("nflow.executor.timeout.seconds", Integer.class, (int) MINUTES.toSeconds(15));
-    keepaliveIntervalSeconds = env.getProperty("nflow.executor.keepalive.seconds", Integer.class, (int) MINUTES.toSeconds(1));
+    timeoutSeconds = env.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
+    keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
   }
 
   @Inject
