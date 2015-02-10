@@ -2,6 +2,7 @@
   'use strict';
 
   var m = angular.module('nflowVisApp.search.searchForm', [
+    'nflowVisApp.services',
     'nflowVisApp.util'
   ]);
 
