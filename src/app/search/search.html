@@ -5,14 +5,14 @@
     <div class="row">
       <div class="col-xs-3">
         <label for="type">Workflow type</label>
-        <select id="type" class="form-control" ng-model="crit.type" ng-options="def.type for def in definitions">
+        <select id="type" class="form-control" ng-model="ctrl.crit.type" ng-options="def.type for def in ctrl.definitions">
           <option value="">-- All workflow types --</option>
         </select>
       </div>
 
       <div class="col-xs-3">
         <label for="state">Workflow state</label>
-        <select id="state" class="form-control" ng-model="crit.state" ng-options="state.name for state in crit.type.states">
+        <select id="state" class="form-control" ng-model="ctrl.crit.state" ng-options="state.name for state in ctrl.crit.type.states">
           <option value="">-- All states --</option>
         </select>
       </div>
@@ -20,24 +20,24 @@
     <div class="row">
       <div class="col-xs-3">
         <label for="id">Workflow instance id</label>
-        <input name="id" type="number" ng-model="crit.id" class="form-control"/>
+        <input name="id" type="number" ng-model="ctrl.crit.id" class="form-control"/>
       </div>
 
       <div class="col-xs-3">
         <label for="businessKey">Business key</label>
-        <input name="businessKey" type="text" ng-model="crit.businessKey" class="form-control"/>
+        <input name="businessKey" type="text" ng-model="ctrl.crit.businessKey" class="form-control"/>
       </div>
 
       <div class="col-xs-3">
         <label for="externalId">External id</label>
-        <input name="externalId" type="text" ng-model="crit.externalId" class="form-control"/>
+        <input name="externalId" type="text" ng-model="ctrl.crit.externalId" class="form-control"/>
       </div>
     </div>
   </div>
-  <button class="btn btn-default" ng-click="search()">Search</button>
+  <button class="btn btn-default" ng-click="ctrl.search()">Search</button>
 </form>
 
-<div ng-show="hasResults()">
+<div ng-show="ctrl.hasResults()">
   <h2>Workflows</h2>
 
   <table id="search-result" class="table table-striped table-hover">
@@ -55,7 +55,7 @@
       <th>Next activation</th>
     </thead>
     <tbody>
-      <tr ng-repeat="result in results | reverse" ng-class="getStateClass(result)">
+      <tr ng-repeat="result in ctrl.results | reverse" ng-class="ctrl.getStateClass(result)">
         <td><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
         <td><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
         <td>{{result.state}}</td>

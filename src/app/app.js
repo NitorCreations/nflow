@@ -35,7 +35,7 @@ angular
   })
   .when('/search', {
     templateUrl: 'app/search/search.html',
-    controller: 'WorkflowSearchCtrl',
+    controller: 'WorkflowSearchCtrl as ctrl',
     activeTab: 'search'
   })
   .when('/about', {
