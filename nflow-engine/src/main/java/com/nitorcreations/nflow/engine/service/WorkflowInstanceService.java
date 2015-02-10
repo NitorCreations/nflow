@@ -144,6 +144,48 @@ public class WorkflowInstanceService {
   }
 
   /**
+   * Update workflow instance status in the database to paused if the instance is not currently executing or unscheduled, and
+   * insert the workflow instance action if the actionDescription is not null.
+   *
+   * @param id The identifier of the workflow instance to be paused.
+   * @param actionDescription The action description. Can be null.
+   * @param actionType The type of action.
+   * @return True if the workflow instance was paused, false otherwise.
+   */
+  @Transactional
+  public boolean pauseWorkflowInstance(int id, String actionDescription, WorkflowActionType actionType) {
+    boolean updated = workflowInstanceDao.pauseNotRunningWorkflowInstance(id, actionDescription);
+    if (updated && actionDescription != null) {
+      String currentState = workflowInstanceDao.getWorkflowInstanceState(id);
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(id).setState(currentState)
+          .setStateText(actionDescription).setExecutionStart(now()).setExecutionEnd(now()).setType(actionType).build();
+      workflowInstanceDao.insertWorkflowInstanceAction(action);
+    }
+    return updated;
+  }
+
+  /**
+   * Resume workflow instance in the database if it is paused, and insert the workflow instance action if the actionDescription
+   * is not null.
+   *
+   * @param id The identifier of the workflow instance to be resumed.
+   * @param actionDescription The action description. Can be null.
+   * @param actionType The type of action.
+   * @return True if the workflow instance was resumed, false otherwise.
+   */
+  @Transactional
+  public boolean resumeWorkflowInstance(int id, String actionDescription, WorkflowActionType actionType) {
+    boolean updated = workflowInstanceDao.resumePausedWorkflowInstance(id, actionDescription);
+    if (updated && actionDescription != null) {
+      String currentState = workflowInstanceDao.getWorkflowInstanceState(id);
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(id).setState(currentState)
+          .setStateText(actionDescription).setExecutionStart(now()).setExecutionEnd(now()).setType(actionType).build();
+      workflowInstanceDao.insertWorkflowInstanceAction(action);
+    }
+    return updated;
+  }
+
+  /**
    * Wake up the workflow instance matching the given id if it is in one of the expected states.
    * @param id Workflow instance id.
    * @param expectedStates The expected states.

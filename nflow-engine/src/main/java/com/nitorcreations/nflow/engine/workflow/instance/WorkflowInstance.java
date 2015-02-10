@@ -30,7 +30,9 @@ public class WorkflowInstance {
     /** A workflow state method is executing */
     executing,
     /** Workflow instance processing has been aborted */
-    stopped
+    stopped,
+    /** Workflow instance processing has been paused */
+    paused
   }
 
   /**

@@ -6,6 +6,7 @@ import static com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao.F
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.paused;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.stopped;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -322,6 +323,16 @@ public class WorkflowInstanceDao {
   public boolean stopNotRunningWorkflowInstance(long id, String stateText) {
     return jdbc.update("update nflow_workflow set next_activation = null, status = '" + stopped
         + "', state_text = ? where id = ? and executor_id is null and next_activation is not null", stateText, id) == 1;
+  }
+
+  public boolean pauseNotRunningWorkflowInstance(long id, String stateText) {
+    return jdbc.update("update nflow_workflow set status = '" + paused
+        + "', state_text = ? where id = ? and executor_id is null and next_activation is not null", stateText, id) == 1;
+  }
+
+  public boolean resumePausedWorkflowInstance(long id, String stateText) {
+    return jdbc.update("update nflow_workflow set status = '" + inProgress + "', state_text = ? where id = ? and status = '"
+        + paused + "'", stateText, id) == 1;
   }
 
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String[] expectedStates) {
