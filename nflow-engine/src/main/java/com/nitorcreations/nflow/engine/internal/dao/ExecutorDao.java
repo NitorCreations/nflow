@@ -147,25 +147,20 @@ public class ExecutorDao {
   public void recoverWorkflowInstancesFromDeadNodes() {
     List<InstanceInfo> instances = jdbc.query(
         "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
-            + executorGroupCondition + " and id <> ? and expires < current_timestamp)", new RowMapper<InstanceInfo>() {
+            + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)",
+        new RowMapper<InstanceInfo>() {
           @Override
           public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
             InstanceInfo instance = new InstanceInfo();
-            instance.id = rs.getInt(1);
-            instance.state = rs.getString(2);
+            instance.id = rs.getInt("id");
+            instance.state = rs.getString("state");
             return instance;
           }
-        }, getExecutorId());
+        });
     for (InstanceInfo instance : instances) {
-      // TODO: move this block to WorkflowInstanceDao and add transaction
-      int updated = jdbc.update("update nflow_workflow set executor_id = null where id = ? and executor_id in (select id from nflow_executor where " + executorGroupCondition + " and id <> ? and expires < current_timestamp)",
-          instance.id, getExecutorId());
-      if (updated > 0) {
-        WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
-            .setExecutorId(getExecutorId()).setType(recovery).setState(instance.state).setStateText("Recovered")
-            .setWorkflowInstanceId(instance.id).build();
-        workflowInstanceDao.insertWorkflowInstanceAction(action);
-      }
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
+          .setType(recovery).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
+      workflowInstanceDao.recoverWorkflowInstance(instance.id, action);
     }
   }
 
