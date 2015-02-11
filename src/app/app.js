@@ -35,7 +35,7 @@ angular
   })
   .when('/search', {
     templateUrl: 'app/search/search.html',
-    controller: 'WorkflowSearchCtrl as ctrl',
+    controller: 'SearchCtrl as ctrl',
     resolve: {
       definitions: function(WorkflowDefinitions) {
         return WorkflowDefinitions.query();

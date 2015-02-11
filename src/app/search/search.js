@@ -7,7 +7,7 @@
     'nflowVisApp.search.searchResult'
   ]);
 
-  m.controller('WorkflowSearchCtrl', function ($routeParams, definitions, CriteriaModel) {
+  m.controller('SearchCtrl', function ($routeParams, definitions, CriteriaModel) {
     var self = this;
     self.definitions = definitions;
     self.results = [];

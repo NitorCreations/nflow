@@ -25,7 +25,6 @@
   m.controller('SearchFormCtrl', function(CriteriaModel, WorkflowSearch) {
     var self = this;
     self.model = CriteriaModel.model;
-    self.results = [];
     self.search = search;
     self.onTypeChange = CriteriaModel.onDefinitionChange;
 
