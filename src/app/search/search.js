@@ -13,7 +13,7 @@
     self.results = [];
     self.hasResults = hasResults;
 
-    CriteriaModel.initialize($routeParams, definitions);
+    CriteriaModel.initialize({ type: $routeParams.type, stateName: $routeParams.state }, definitions);
 
     function hasResults() {
       return !_.isEmpty(self.results);

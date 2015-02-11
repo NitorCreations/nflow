@@ -17,46 +17,59 @@ describe('Service: CriteriaModel', function () {
   }));
 
   describe('initialize', function () {
-    it('sets type and state as nulls with empty input', function () {
+    it('sets definition and state as nulls with empty input', function () {
       CriteriaModel.initialize({}, definitions);
-      expect(actualModel).toEqual({ type: null, state: null });
+      expect(actualModel).toEqual({ definition: null, state: null });
     });
 
     it('sets definition matching to type', function () {
       CriteriaModel.initialize({ type: 'foo'}, definitions);
-      expect(actualModel).toEqual({ type: definitions[0], state: null });
+      expect(actualModel).toEqual({ definition: definitions[0], state: null });
     });
 
-    it('sets unknown type as null', function () {
+    it('sets unknown definition as null', function () {
       CriteriaModel.initialize({ type: 'not in definitions'}, definitions);
-      expect(actualModel).toEqual({ type: null, state: null });
+      expect(actualModel).toEqual({ definition: null, state: null });
     });
 
-    it('sets definition state matching to input definition and state', function () {
-      CriteriaModel.initialize({ type: 'foo', state: 'bar'}, definitions);
-      expect(actualModel).toEqual({ type: definitions[0], state: definitions[0].states[0] });
+    it('sets known definition state', function () {
+      CriteriaModel.initialize({ type: 'foo', stateName: 'bar'}, definitions);
+      expect(actualModel).toEqual({ definition: definitions[0], state: definitions[0].states[0] });
     });
 
     it('sets unknown state to null', function () {
-      CriteriaModel.initialize({ type: 'foo', state: 'not in foo states'}, definitions);
-      expect(actualModel).toEqual({ type: definitions[0], state: null });
+      CriteriaModel.initialize({ type: 'foo', stateName: 'not in foo states'}, definitions);
+      expect(actualModel).toEqual({ definition: definitions[0], state: null });
     });
 
-    it('properties other than type and state are ignored', function () {
+    it('input properties other than type and state are ignored', function () {
       CriteriaModel.initialize({ foo: 'bar'}, definitions);
-      expect(actualModel).toEqual({ type: null, state: null });
+      expect(actualModel).toEqual({ definition: null, state: null });
     });
   });
 
   describe('toQuery', function () {
-    it('type is included if set', function () {
-      actualModel.type = definitions[0];
+    it('sets definition type when available', function () {
+      actualModel.definition = definitions[0];
       expect(CriteriaModel.toQuery()).toEqual({type: 'foo'});
+
+      delete actualModel.definition.type;
+      expect(CriteriaModel.toQuery()).toEqual({});
+
+      delete actualModel.definition;
+      expect(CriteriaModel.toQuery()).toEqual({});
+
     });
 
-    it('state is included if set', function () {
+    it('sets state name', function () {
       actualModel.state = definitions[0].states[0];
       expect(CriteriaModel.toQuery()).toEqual({state: 'bar'});
+
+      delete actualModel.state.name;
+      expect(CriteriaModel.toQuery()).toEqual({});
+
+      delete actualModel.state;
+      expect(CriteriaModel.toQuery()).toEqual({});
     });
 
     it('null values are omitted', function () {
@@ -91,34 +104,34 @@ describe('Service: CriteriaModel', function () {
     });
   });
 
-  describe('onTypeChange', function () {
-    it('when type is unset, state is unset', function () {
-      actualModel.type = null;
+  describe('onDefinitionChange', function () {
+    it('when definition is unset, state is unset', function () {
+      actualModel.definition = null;
       actualModel.state = definitions[0].states[0];
       actualModel.foo = 'bar';
-      CriteriaModel.onTypeChange();
-      expect(actualModel).toEqual({ type: null, state: null, foo: 'bar' });
+      CriteriaModel.onDefinitionChange();
+      expect(actualModel).toEqual({ definition: null, state: null, foo: 'bar' });
     });
 
     it('state is unset if it is not included in definition states', function () {
-      actualModel.type = definitions[0];
+      actualModel.definition = definitions[0];
       actualModel.state = { name: 'not in definition states'};
-      CriteriaModel.onTypeChange();
-      expect(actualModel).toEqual({ type: definitions[0], state: null});
+      CriteriaModel.onDefinitionChange();
+      expect(actualModel).toEqual({ definition: definitions[0], state: null});
     });
 
     it('state is maintained if is included in definitions states', function () {
-      actualModel.type = definitions[0];
+      actualModel.definition = definitions[0];
       actualModel.state = definitions[0].states[0];
-      CriteriaModel.onTypeChange();
-      expect(actualModel).toEqual({ type: definitions[0], state: definitions[0].states[0]});
+      CriteriaModel.onDefinitionChange();
+      expect(actualModel).toEqual({ definition: definitions[0], state: definitions[0].states[0]});
     });
 
     it('null state is handled', function () {
-      actualModel.type = definitions[0];
+      actualModel.definition = definitions[0];
       actualModel.state = null;
-      CriteriaModel.onTypeChange();
-      expect(actualModel).toEqual({ type: definitions[0], state: null});
+      CriteriaModel.onDefinitionChange();
+      expect(actualModel).toEqual({ definition: definitions[0], state: null});
     });
 
   });

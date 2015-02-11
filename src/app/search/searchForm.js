@@ -27,7 +27,7 @@
     self.model = CriteriaModel.model;
     self.results = [];
     self.search = search;
-    self.onTypeChange = CriteriaModel.onTypeChange;
+    self.onTypeChange = CriteriaModel.onDefinitionChange;
 
     initialize();
 
