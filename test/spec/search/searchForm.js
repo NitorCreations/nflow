@@ -49,7 +49,7 @@ describe('Directive: searchForm', function () {
       WorkflowSearch.query.restore();
     });
 
-    it('with non-empty criteria does not triggers search', function () {
+    it('with non-empty criteria does not trigger search', function () {
       CriteriaModel.model = { foo: 'bar' };
       var spy = sinon.spy(WorkflowSearch, 'query');
 
@@ -59,15 +59,18 @@ describe('Directive: searchForm', function () {
       WorkflowSearch.query.restore();
     });
 
-    it('sets result into view model', function () {
-      sinon.stub(WorkflowSearch, 'query', function() { return [ 'result' ]; });
+    describe('search', function () {
+      it('sets result into view model', function () {
+        sinon.stub(WorkflowSearch, 'query', function() { return [ 'result' ]; });
 
-      CriteriaModel.model = { foo: 'bar' };
-      var ctrl = getCtrl(WorkflowSearch);
-      expect(ctrl.results).toEqual([ 'result' ]);
+        CriteriaModel.model = { foo: 'bar' };
+        var ctrl = getCtrl(WorkflowSearch);
+        expect(ctrl.results).toEqual([ 'result' ]);
 
-      WorkflowSearch.query.restore();
+        WorkflowSearch.query.restore();
+      });
     });
+
   });
 
 });
