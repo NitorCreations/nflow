@@ -65,7 +65,7 @@ describe('Directive: searchResult', function () {
     });
 
     it('start state -> ""', function () {
-      expect(ctrl.getStateClass(inProgress)).toEqual('info');
+      expect(ctrl.getStateClass(backlog)).toEqual('');
     });
 
     it('normal state -> info', function () {
