@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.contants', []);
+  var m = angular.module('nflowVisApp.constants', []);
 
   m.constant('WorkflowStateType', {
     START: 'start',

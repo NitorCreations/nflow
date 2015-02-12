@@ -2,7 +2,7 @@
   'use strict';
 
   var m = angular.module('nflowVisApp.search.searchResult', [
-    'nflowVisApp.contants',
+    'nflowVisApp.constants',
     'nflowVisApp.filters'
   ]);
 
