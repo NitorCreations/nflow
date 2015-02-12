@@ -64,6 +64,10 @@ describe('Directive: searchResult', function () {
       expect(ctrl.getStateClass(blocked)).toEqual('danger');
     });
 
+    it('start state -> ""', function () {
+      expect(ctrl.getStateClass(inProgress)).toEqual('info');
+    });
+
     it('normal state -> info', function () {
       expect(ctrl.getStateClass(inProgress)).toEqual('info');
     });
