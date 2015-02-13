@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
@@ -40,13 +41,15 @@ public class WorkflowDefinitionService {
   private final Map<String, WorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowDefinitionDao workflowDefinitionDao;
+  private final boolean persistWorkflowDefinitions;
 
   @Inject
   public WorkflowDefinitionService(@NFlow AbstractResource nflowNonSpringWorkflowsListing,
-      WorkflowInstanceDao workflowInstanceDao, WorkflowDefinitionDao workflowDefinitionDao) {
+      WorkflowInstanceDao workflowInstanceDao, WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
     this.nonSpringWorkflowsListing = nflowNonSpringWorkflowsListing;
     this.workflowInstanceDao = workflowInstanceDao;
     this.workflowDefinitionDao = workflowDefinitionDao;
+    this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
   }
 
   /**
@@ -90,8 +93,10 @@ public class WorkflowDefinitionService {
     } else {
       initNonSpringWorkflowDefinitions();
     }
-    for (WorkflowDefinition<?> definition : workflowDefitions.values()) {
-      workflowDefinitionDao.storeWorkflowDefinition(definition);
+    if (persistWorkflowDefinitions) {
+      for (WorkflowDefinition<?> definition : workflowDefitions.values()) {
+        workflowDefinitionDao.storeWorkflowDefinition(definition);
+      }
     }
   }
 

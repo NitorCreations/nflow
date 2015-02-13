@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -33,6 +35,10 @@ public class WorkflowDefinitionServiceWithSpringTest {
   @Configuration
   @ComponentScan(basePackageClasses = SpringDummyTestWorkflow.class)
   static class ContextConfiguration {
+    @Bean
+    public Environment env() {
+      return new MockEnvironment().withProperty("nflow.definition.persist", "true");
+    }
 
     @Bean
     @NFlow
