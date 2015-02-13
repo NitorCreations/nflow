@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
@@ -35,14 +36,17 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   private WorkflowInstanceDao workflowInstanceDao;
   @Mock
   private WorkflowDefinitionDao workflowDefinitionDao;
+  @Mock
+  private Environment env;
   private WorkflowDefinitionService service;
 
   @Before
   public void setup() throws Exception {
+    when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(true);
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream(dummyTestClassname.getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    service = new WorkflowDefinitionService(nonSpringWorkflowListing, workflowInstanceDao, workflowDefinitionDao);
+    service = new WorkflowDefinitionService(nonSpringWorkflowListing, workflowInstanceDao, workflowDefinitionDao, env);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(0)));
     service.postProcessWorkflowDefinitions();
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
@@ -67,7 +71,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void nonSpringWorkflowsAreOptional() throws Exception {
-    service = new WorkflowDefinitionService(null, workflowInstanceDao, workflowDefinitionDao);
+    service = new WorkflowDefinitionService(null, workflowInstanceDao, workflowDefinitionDao, env);
     service.postProcessWorkflowDefinitions();
     assertEquals(0, service.getWorkflowDefinitions().size());
   }
