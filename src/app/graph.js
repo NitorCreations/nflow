@@ -471,18 +471,19 @@ function downloadDataUrl(dataurl, filename) {
   }
 }
 
-function downloadImage(dataurl, filename, contentType) {
+function downloadImage(size, dataurl, filename, contentType) {
   console.info('Downloading image', filename, contentType);
   var canvas = document.createElement('canvas');
 
   var context = canvas.getContext('2d');
-  var svg = $('svg');
-  canvas.height = svg.attr('height');
-  canvas.width = svg.attr('width');
+  canvas.width = size[0];
+  canvas.height = size[1];
   var image = new Image();
+  image.width = canvas.width;
+  image.height = canvas.height;
   image.onload = function() {
     // image load is async, must use callback
-    context.drawImage(image, 0, 0);
+    context.drawImage(image, 0, 0, this.width, this.height);
     var canvasdata = canvas.toDataURL(contentType);
     downloadDataUrl(canvasdata, filename);
   };

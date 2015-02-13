@@ -108,12 +108,15 @@ angular.module('nflowVisApp.workflowDefinition', [])
   function downloadSvg(filename) {
     downloadDataUrl(svgDataUrl(), filename);
   }
-  // TODO save as PNG doesn't work. due to css file?
+
+  // TODO created PNG file looks bit funny
   $scope.savePng = function savePng() {
     console.info('Save PNG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
-    downloadImage(svgDataUrl(), $scope.definition.type + '.png', 'image/png');
+    var svgElement = $('svg#dagreSvg')[0];
+    var size = [svgElement.offsetWidth, svgElement.offsetHeight];
+    downloadImage(size, svgDataUrl(), $scope.definition.type + '.png', 'image/png');
     nodeSelected(selectedNode);
   };
 
@@ -126,4 +129,3 @@ angular.module('nflowVisApp.workflowDefinition', [])
   };
 
 });
-
