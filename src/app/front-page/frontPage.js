@@ -1,25 +1,17 @@
-'use strict';
+(function () {
+  'use strict';
 
-/**
- * @ngdoc function
- * @name nflowVisApp.controller:MainCtrl
- * @description
- * # MainCtrl
- * Controller of the nflowVisApp
- */
-angular.module('nflowVisApp.frontPage', [])
-.controller('FrontPageCtrl', function FrontPageCtrl($scope, $rootScope, WorkflowDefinitions) {
-  $scope.workflows = WorkflowDefinitions.query();
+  var m = angular.module('nflowVisApp.frontPage', [
+    'nflowVisApp.frontPage.definitionList',
+    'nflowVisApp.frontPage.executorTable',
+    'nflowVisApp.services',
+    'nflowVisApp.services.executorPoller'
+  ]);
 
-  $scope.executorClass = function(executor) {
-    var expires = moment(executor.expires);
-    var active = moment(executor.active);
-    if(active.add(1, 'days').isBefore(new Date())) {
-      return;
-    }
-    if(expires.isBefore(new Date())) {
-      return 'warning';
-    }
-    return 'success';
-  };
-});
+  m.controller('FrontPageCtrl', function FrontPageCtrl(WorkflowDefinitions, ExecutorPoller) {
+    var self = this;
+    self.definitions = WorkflowDefinitions.query();
+    self.executors = ExecutorPoller.executors;
+  });
+
+})();

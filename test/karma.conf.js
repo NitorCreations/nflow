@@ -14,7 +14,7 @@ module.exports = function(config) {
     basePath: '../',
 
     // testing framework to use (jasmine/mocha/qunit/...)
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'sinon'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -35,19 +35,8 @@ module.exports = function(config) {
       'bower_components/angular-touch/angular-touch.js',
       'bower_components/angular-route/angular-route.js',
       'bower_components/momentjs/moment.js',
-      'bower_components/lodash/dist/lodash.compat.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/carousel.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/collapse.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/dropdown.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tab.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/transition.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/scrollspy.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js',
-      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js',
+      'bower_components/lodash/lodash.js',
+      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js',
 
       'src/external/dagre-d3/js/dagre-d3.min.js',
       'src/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
@@ -56,8 +45,19 @@ module.exports = function(config) {
       'src/config.js',
       'src/app/**/*.js',
       'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      'test/spec/**/*.js',
+
+      'src/app/**/*.html'
     ],
+
+    preprocessors: {
+      'src/app/**/*.html': 'ng-html2js'
+    },
+
+    ngHtml2JsPreprocessor: {
+      stripPrefix: 'src/',
+      moduleName: 'nflowVisApp.karma.templates'
+    },
 
     // list of files / patterns to exclude
     exclude: [],
@@ -80,7 +80,9 @@ module.exports = function(config) {
     // Which plugins to enable
     plugins: [
       'karma-phantomjs-launcher',
-      'karma-jasmine'
+      'karma-jasmine',
+      'karma-sinon',
+      'karma-ng-html2js-preprocessor'
     ],
 
     // Continuous Integration mode

@@ -36,6 +36,8 @@
     "karma-jasmine": "0.3.5",
     "karma-junit-reporter": "0.2.2",
     "karma-phantomjs-launcher": "0.1.4",
+    "karma-sinon": "1.0.4",
+    "karma-ng-html2js-preprocessor": "0.1.2",
 
     "moment": "2.9.0",
     "phantomjs": "1.9.15",
