@@ -116,7 +116,7 @@ angular.module('nflowVisApp.workflowDefinition', [])
     console.info('Save PNG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
-    var h = $('#dagreSvg')[0].offsetHeight;
+    var h = $('#dagreSvg').height();
     var size = [h * aspectRatio, h];
     downloadImage(size, svgDataUrl(), $scope.definition.type + '.png', 'image/png');
     nodeSelected(selectedNode);
