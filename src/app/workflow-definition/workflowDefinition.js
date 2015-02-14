@@ -1,55 +1,31 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflowDefinition', []);
+  var m = angular.module('nflowVisApp.workflowDefinition', [
+    'nflowVisApp.workflowDefinition.graph'
+  ]);
 
   m.controller('WorkflowDefinitionCtrl', function (
-    $scope, $rootScope, definition, WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
-
-    // store initial graph aspect ratio
-    var dagreSvgSelector = '#dagreSvg';
-    var aspectRatio = $(dagreSvgSelector).width() / $(dagreSvgSelector).height();
+    $scope, $rootScope, definition, WorkflowDefinitionStats, WorkflowStatsPoller, SelectedNodeNotifier) {
 
     var self = this;
     self.hasStatistics = false;
     self.definition = definition;
-    self.graph = undefined; // TODO no need to expose in view model?
-    self.selectedNode = undefined; // TODO no need to expose in view model?
-
-    self.nodeSelected = nodeSelected;
     self.startRadiator = startRadiator;
-    self.savePng = savePng;
-    self.saveSvg = saveSvg;
 
     initialize();
 
     function initialize() {
-      self.graph = workflowDefinitionGraph(definition);
+      SelectedNodeNotifier.initialize();
 
-      var start = new Date().getTime();
-      drawWorkflowDefinition(self.graph, dagreSvgSelector, nodeSelectedCallBack, $rootScope.graph.css);
       updateStateExecutionGraph(self.definition.type);
-      console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
 
       // poller polls stats with fixed period
       WorkflowStatsPoller.start(self.definition.type);
-
       // poller broadcasts when events change
       $scope.$on('workflowStatsUpdated', function (scope, type) {
         if (type === self.definition.type) { updateStateExecutionGraph(type); }
       });
-    }
-
-    /** called when node is clicked */
-    function nodeSelected(nodeId) {
-      console.debug('Selecting node ' + nodeId);
-      if (self.selectedNode) {
-        unhiglightNode(self.graph, self.definition, self.selectedNode);
-      }
-      if (nodeId) {
-        higlightNode(self.graph, self.definition, nodeId);
-      }
-      self.selectedNode = nodeId;
     }
 
     function startRadiator() {
@@ -85,13 +61,6 @@
       return stats;
     }
 
-    // must use $apply() - event not managed by angular
-    function nodeSelectedCallBack(nodeId) {
-      $scope.$apply(function () {
-        nodeSelected(nodeId);
-      });
-    }
-
     function updateStateExecutionGraph(type) {
       var stats = WorkflowStatsPoller.getLatest(type);
       if (!self.definition) {
@@ -100,40 +69,35 @@
       }
       if (stats) {
         processStats(self.definition, stats);
-        self.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, nodeSelectedCallBack);
+        self.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, SelectedNodeNotifier.onSelectNode);
       }
     }
 
-    // download buttons
-    function svgDataUrl() {
-      var html = d3.select(dagreSvgSelector)
-        .attr('version', 1.1)
-        .attr('xmlns', 'http://www.w3.org/2000/svg')
-        .node().outerHTML;
-      return 'data:image/svg+xml;base64,' + btoa(html);
+  });
+
+  m.factory('SelectedNodeNotifier', function () {
+    var listeners = [];
+
+    var api = {};
+    api.initialize = initialize;
+    api.onSelectNode = onSelectNode;
+    api.addListener = addListener;
+
+    return api;
+
+    function initialize() {
+      listeners = [];
     }
 
-    function downloadSvg(filename) {
-      downloadDataUrl(svgDataUrl(), filename);
+    function onSelectNode(id) {
+      _.forEach(listeners, function(o) { o.onSelectNode(id); });
     }
 
-    // TODO save as PNG doesn't work. due to css file?
-    function savePng() {
-      console.info('Save PNG');
-      var selectedNode = self.selectedNode;
-      nodeSelected(null);
-      var h = $(dagreSvgSelector).height();
-      var size = [h * aspectRatio, h];
-      downloadImage(size, svgDataUrl(), self.definition.type + '.png', 'image/png');
-      nodeSelected(selectedNode);
-    }
-
-    function saveSvg() {
-      console.info('Save SVG');
-      var selectedNode = self.selectedNode;
-      nodeSelected(null);
-      downloadSvg(self.definition.type + '.svg');
-      nodeSelected(selectedNode);
+    function addListener(o) {
+      if (!_.isFunction(o.onSelectNode)) {
+        throw 'addListener: listener has no onNodeSelect function';
+      }
+      listeners.push(o);
     }
 
   });
