@@ -63,7 +63,11 @@ angular
         var defer = $q.defer();
         GraphService.getCss(defer);
         return defer.promise;
-      }]
+      }],
+      definition: function($routeParams, WorkflowDefinitions) {
+        // TODO handle not found
+        return WorkflowDefinitions.get({type: $routeParams.type}).$promise.then(_.first);
+      }
     }
 
   })

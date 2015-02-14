@@ -3,12 +3,12 @@
 
   var m = angular.module('nflowVisApp.workflowDefinition', []);
 
-  m.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
-                                                                         WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
+  m.controller('WorkflowDefinitionCtrl', function (
+    $scope, $rootScope, definition, WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
 
     var self = this;
     self.hasStatistics = false;
-    self.definition = undefined;
+    self.definition = definition;
     self.graph = undefined; // TODO no need to expose in view model?
     self.selectedNode = undefined; // TODO no need to expose in view model?
 
@@ -20,29 +20,19 @@
     initialize();
 
     function initialize() {
-      // TODO handle errors
-      WorkflowDefinitions.get({type: $routeParams.type},
-        function (data) {
-          var start = new Date().getTime();
-          var definition = _.first(data);
-          self.definition = definition;
-          self.graph = workflowDefinitionGraph(definition);
-          drawWorkflowDefinition(self.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
-          updateStateExecutionGraph($routeParams.type);
-          console.debug('Rendering dagre graph took ' +
-          (new Date().getTime() - start) + ' msec');
-        });
+      self.graph = workflowDefinitionGraph(definition);
+
+      var start = new Date().getTime();
+      drawWorkflowDefinition(self.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
+      updateStateExecutionGraph(self.definition.type);
+      console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
 
       // poller polls stats with fixed period
-      WorkflowStatsPoller.start($routeParams.type);
+      WorkflowStatsPoller.start(self.definition.type);
 
       // poller broadcasts when events change
       $scope.$on('workflowStatsUpdated', function (scope, type) {
-        if (type !== $routeParams.type) {
-          return;
-        }
-        updateStateExecutionGraph(type);
-
+        if (type === self.definition.type) { updateStateExecutionGraph(type); }
       });
     }
 
