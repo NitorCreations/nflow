@@ -95,7 +95,7 @@
 
     function addListener(o) {
       if (!_.isFunction(o.onSelectNode)) {
-        throw 'addListener: listener has no onNodeSelect function';
+        throw 'addListener: listener has no onSelectNode function';
       }
       listeners.push(o);
     }
