@@ -6,6 +6,10 @@
   m.controller('WorkflowDefinitionCtrl', function (
     $scope, $rootScope, definition, WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
 
+    // store initial graph aspect ratio
+    var dagreSvgSelector = '#dagreSvg';
+    var aspectRatio = $(dagreSvgSelector).width() / $(dagreSvgSelector).height();
+
     var self = this;
     self.hasStatistics = false;
     self.definition = definition;
@@ -23,7 +27,7 @@
       self.graph = workflowDefinitionGraph(definition);
 
       var start = new Date().getTime();
-      drawWorkflowDefinition(self.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
+      drawWorkflowDefinition(self.graph, dagreSvgSelector, nodeSelectedCallBack, $rootScope.graph.css);
       updateStateExecutionGraph(self.definition.type);
       console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
 
@@ -96,13 +100,13 @@
       }
       if (stats) {
         processStats(self.definition, stats);
-        self.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, self.definition, nodeSelectedCallBack);
+        self.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, nodeSelectedCallBack);
       }
     }
 
     // download buttons
     function svgDataUrl() {
-      var html = d3.select('#dagreSvg')
+      var html = d3.select(dagreSvgSelector)
         .attr('version', 1.1)
         .attr('xmlns', 'http://www.w3.org/2000/svg')
         .node().outerHTML;
@@ -118,7 +122,9 @@
       console.info('Save PNG');
       var selectedNode = self.selectedNode;
       nodeSelected(null);
-      downloadImage(svgDataUrl(), self.definition.type + '.png', 'image/png');
+      var h = $(dagreSvgSelector).height();
+      var size = [h * aspectRatio, h];
+      downloadImage(size, svgDataUrl(), self.definition.type + '.png', 'image/png');
       nodeSelected(selectedNode);
     }
 

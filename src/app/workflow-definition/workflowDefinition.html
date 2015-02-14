@@ -6,7 +6,7 @@
     <div class="svg-container">
       <svg id="dagreSvg"></svg>
     </div>
-    <p>
+    <p ng-if="ctrl.definition">
       <button ng-click="ctrl.savePng()" class="btn">Save as PNG</button>
       <button ng-click="ctrl.saveSvg()" class="btn">Save as SVG</button>
     </p>
