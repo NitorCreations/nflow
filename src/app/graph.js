@@ -328,8 +328,8 @@ function workflowDefinitionGraph(definition, workflow) {
   return g;
 }
 
-function addArrowheadMarker(canvasId, id, color) {
-  d3.select('#' + canvasId).select('defs')
+function addArrowheadMarker(canvasSelector, id, color) {
+  d3.select(canvasSelector).select('defs')
     .append('marker')
     .attr('id', id)
     .attr('viewBox', '0 0 10 10')
@@ -344,7 +344,7 @@ function addArrowheadMarker(canvasId, id, color) {
        .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 }
 
-function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS) {
+function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, embedCSS) {
   var renderer = new dagreD3.Renderer();
   var oldDrawNodes = renderer.drawNodes();
   renderer.drawNodes(
@@ -421,7 +421,7 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
       return edges;
     });
 
-  var svgRoot = d3.select('#' + canvasId);
+  var svgRoot = d3.select(canvasSelector);
   // remove any existing graphs
   svgRoot.selectAll('*').remove();
   // add embedded CSS
@@ -433,8 +433,8 @@ function drawWorkflowDefinition(graph, canvasId, nodeSelectedCallBack, embedCSS)
   // render svg
   var layout = renderer.run(graph, svgGroup);
 
-  addArrowheadMarker(canvasId, 'arrowhead-gray', 'gray');
-  addArrowheadMarker(canvasId, 'arrowhead-red', 'red');
+  addArrowheadMarker(canvasSelector, 'arrowhead-gray', 'gray');
+  addArrowheadMarker(canvasSelector, 'arrowhead-red', 'red');
 
   var svgBackground = svgRoot.select('rect.overlay');
   svgBackground.attr('style', '');

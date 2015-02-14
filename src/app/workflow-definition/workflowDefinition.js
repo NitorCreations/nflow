@@ -6,7 +6,8 @@ angular.module('nflowVisApp.workflowDefinition', [])
 .controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
                                                                        WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
   // store initial graph aspect ratio
-  var aspectRatio = $('#dagreSvg').width() / $('svg#dagreSvg').height();
+  var dagreSvgSelector = '#dagreSvg';
+  var aspectRatio = $(dagreSvgSelector).width() / $(dagreSvgSelector).height();
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
@@ -69,7 +70,7 @@ angular.module('nflowVisApp.workflowDefinition', [])
     }
     if(stats) {
       processStats($scope.definition, stats);
-      $scope.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, $scope.definition, nodeSelectedCallBack);
+      $scope.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, $scope.definition, nodeSelectedCallBack);
     }
   }
 
@@ -80,7 +81,7 @@ angular.module('nflowVisApp.workflowDefinition', [])
                             var definition =  _.first(data);
                             $scope.definition = definition;
                             $scope.graph = workflowDefinitionGraph(definition);
-                            drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
+                            drawWorkflowDefinition($scope.graph, dagreSvgSelector, nodeSelectedCallBack, $rootScope.graph.css);
                             updateStateExecutionGraph($routeParams.type);
                             console.debug('Rendering dagre graph took ' +
                                           (new Date().getTime() - start) + ' msec' );
@@ -100,7 +101,7 @@ angular.module('nflowVisApp.workflowDefinition', [])
 
   // download buttons
   function svgDataUrl() {
-    var html = d3.select('#dagreSvg')
+    var html = d3.select(dagreSvgSelector)
       .attr('version', 1.1)
       .attr('xmlns', 'http://www.w3.org/2000/svg')
       .node().outerHTML;
@@ -116,7 +117,7 @@ angular.module('nflowVisApp.workflowDefinition', [])
     console.info('Save PNG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
-    var h = $('#dagreSvg').height();
+    var h = $(dagreSvgSelector).height();
     var size = [h * aspectRatio, h];
     downloadImage(size, svgDataUrl(), $scope.definition.type + '.png', 'image/png');
     nodeSelected(selectedNode);
