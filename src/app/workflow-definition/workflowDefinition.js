@@ -6,15 +6,16 @@
   m.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
                                                                          WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
 
-    $scope.hasStatistics = false;
-    $scope.definition = undefined;
-    $scope.graph = undefined;
-    $scope.selectedNode = undefined;
+    var self = this;
+    self.hasStatistics = false;
+    self.definition = undefined;
+    self.graph = undefined; // TODO no need to expose in view model?
+    self.selectedNode = undefined; // TODO no need to expose in view model?
 
-    $scope.nodeSelected = nodeSelected;
-    $scope.startRadiator = startRadiator;
-    $scope.savePng = savePng;
-    $scope.saveSvg = saveSvg;
+    self.nodeSelected = nodeSelected;
+    self.startRadiator = startRadiator;
+    self.savePng = savePng;
+    self.saveSvg = saveSvg;
 
     initialize();
 
@@ -24,9 +25,9 @@
         function (data) {
           var start = new Date().getTime();
           var definition = _.first(data);
-          $scope.definition = definition;
-          $scope.graph = workflowDefinitionGraph(definition);
-          drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
+          self.definition = definition;
+          self.graph = workflowDefinitionGraph(definition);
+          drawWorkflowDefinition(self.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
           updateStateExecutionGraph($routeParams.type);
           console.debug('Rendering dagre graph took ' +
           (new Date().getTime() - start) + ' msec');
@@ -48,13 +49,13 @@
     /** called when node is clicked */
     function nodeSelected(nodeId) {
       console.debug('Selecting node ' + nodeId);
-      if ($scope.selectedNode) {
-        unhiglightNode($scope.graph, $scope.definition, $scope.selectedNode);
+      if (self.selectedNode) {
+        unhiglightNode(self.graph, self.definition, self.selectedNode);
       }
       if (nodeId) {
-        higlightNode($scope.graph, $scope.definition, nodeId);
+        higlightNode(self.graph, self.definition, nodeId);
       }
-      $scope.selectedNode = nodeId;
+      self.selectedNode = nodeId;
     }
 
     function startRadiator() {
@@ -99,13 +100,13 @@
 
     function updateStateExecutionGraph(type) {
       var stats = WorkflowStatsPoller.getLatest(type);
-      if (!$scope.definition) {
+      if (!self.definition) {
         console.debug('Definition not loaded yet');
         return;
       }
       if (stats) {
-        processStats($scope.definition, stats);
-        $scope.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, $scope.definition, nodeSelectedCallBack);
+        processStats(self.definition, stats);
+        self.hasStatistics = drawStateExecutionGraph('statisticsGraph', stats.stateStatistics, self.definition, nodeSelectedCallBack);
       }
     }
 
@@ -125,17 +126,17 @@
     // TODO save as PNG doesn't work. due to css file?
     function savePng() {
       console.info('Save PNG');
-      var selectedNode = $scope.selectedNode;
+      var selectedNode = self.selectedNode;
       nodeSelected(null);
-      downloadImage(svgDataUrl(), $scope.definition.type + '.png', 'image/png');
+      downloadImage(svgDataUrl(), self.definition.type + '.png', 'image/png');
       nodeSelected(selectedNode);
     }
 
     function saveSvg() {
       console.info('Save SVG');
-      var selectedNode = $scope.selectedNode;
+      var selectedNode = self.selectedNode;
       nodeSelected(null);
-      downloadSvg($scope.definition.type + '.svg');
+      downloadSvg(self.definition.type + '.svg');
       nodeSelected(selectedNode);
     }
 

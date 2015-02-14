@@ -55,7 +55,7 @@ angular
   })
   .when('/workflow-definition/:type', {
     templateUrl: 'app/workflow-definition/workflowDefinition.html',
-    controller: 'WorkflowDefinitionCtrl',
+    controller: 'WorkflowDefinitionCtrl as ctrl',
     activeTab: 'frontPage',
     resolve: {
       'GraphService': [ '$q', 'GraphService', function($q, GraphService) {
