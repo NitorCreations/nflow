@@ -5,6 +5,46 @@
 
   m.controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
                                                                          WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
+
+    $scope.hasStatistics = false;
+    $scope.definition = undefined;
+    $scope.graph = undefined;
+    $scope.selectedNode = undefined;
+
+    $scope.nodeSelected = nodeSelected;
+    $scope.startRadiator = startRadiator;
+    $scope.savePng = savePng;
+    $scope.saveSvg = saveSvg;
+
+    initialize();
+
+    function initialize() {
+      // TODO handle errors
+      WorkflowDefinitions.get({type: $routeParams.type},
+        function (data) {
+          var start = new Date().getTime();
+          var definition = _.first(data);
+          $scope.definition = definition;
+          $scope.graph = workflowDefinitionGraph(definition);
+          drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
+          updateStateExecutionGraph($routeParams.type);
+          console.debug('Rendering dagre graph took ' +
+          (new Date().getTime() - start) + ' msec');
+        });
+
+      // poller polls stats with fixed period
+      WorkflowStatsPoller.start($routeParams.type);
+
+      // poller broadcasts when events change
+      $scope.$on('workflowStatsUpdated', function (scope, type) {
+        if (type !== $routeParams.type) {
+          return;
+        }
+        updateStateExecutionGraph(type);
+
+      });
+    }
+
     /** called when node is clicked */
     function nodeSelected(nodeId) {
       console.debug('Selecting node ' + nodeId);
@@ -17,9 +57,9 @@
       $scope.selectedNode = nodeId;
     }
 
-    $scope.startRadiator = function () {
+    function startRadiator() {
       $rootScope.$broadcast('startRadiator');
-    };
+    }
 
     // TODO move to service
     function processStats(definition, stats) {
@@ -50,9 +90,6 @@
       return stats;
     }
 
-    $scope.hasStatistics = false;
-    $scope.nodeSelected = nodeSelected;
-
     // must use $apply() - event not managed by angular
     function nodeSelectedCallBack(nodeId) {
       $scope.$apply(function () {
@@ -72,31 +109,6 @@
       }
     }
 
-    // TODO handle errors
-    WorkflowDefinitions.get({type: $routeParams.type},
-      function (data) {
-        var start = new Date().getTime();
-        var definition = _.first(data);
-        $scope.definition = definition;
-        $scope.graph = workflowDefinitionGraph(definition);
-        drawWorkflowDefinition($scope.graph, 'dagreSvg', nodeSelectedCallBack, $rootScope.graph.css);
-        updateStateExecutionGraph($routeParams.type);
-        console.debug('Rendering dagre graph took ' +
-        (new Date().getTime() - start) + ' msec');
-      });
-
-    // poller polls stats with fixed period
-    WorkflowStatsPoller.start($routeParams.type);
-
-    // poller broadcasts when events change
-    $scope.$on('workflowStatsUpdated', function (scope, type) {
-      if (type !== $routeParams.type) {
-        return;
-      }
-      updateStateExecutionGraph(type);
-
-    });
-
     // download buttons
     function svgDataUrl() {
       var html = d3.select('#dagreSvg')
@@ -111,21 +123,21 @@
     }
 
     // TODO save as PNG doesn't work. due to css file?
-    $scope.savePng = function savePng() {
+    function savePng() {
       console.info('Save PNG');
       var selectedNode = $scope.selectedNode;
       nodeSelected(null);
       downloadImage(svgDataUrl(), $scope.definition.type + '.png', 'image/png');
       nodeSelected(selectedNode);
-    };
+    }
 
-    $scope.saveSvg = function saveSvg() {
+    function saveSvg() {
       console.info('Save SVG');
       var selectedNode = $scope.selectedNode;
       nodeSelected(null);
       downloadSvg($scope.definition.type + '.svg');
       nodeSelected(selectedNode);
-    };
+    }
 
   });
 
