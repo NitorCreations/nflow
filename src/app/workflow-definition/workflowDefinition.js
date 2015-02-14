@@ -5,6 +5,8 @@
 angular.module('nflowVisApp.workflowDefinition', [])
 .controller('WorkflowDefinitionCtrl', function WorkflowDefinitionCtrl($scope, $rootScope, $routeParams,
                                                                        WorkflowDefinitions, WorkflowDefinitionStats, WorkflowStatsPoller) {
+  // store initial graph aspect ratio
+  var aspectRatio = $('#dagreSvg').width() / $('svg#dagreSvg').height();
 
   /** called when node is clicked */
   function nodeSelected(nodeId) {
@@ -114,8 +116,8 @@ angular.module('nflowVisApp.workflowDefinition', [])
     console.info('Save PNG');
     var selectedNode = $scope.selectedNode;
     nodeSelected(null);
-    var svgElement = $('svg#dagreSvg')[0];
-    var size = [svgElement.offsetWidth, svgElement.offsetHeight];
+    var h = $('#dagreSvg')[0].offsetHeight;
+    var size = [h * aspectRatio, h];
     downloadImage(size, svgDataUrl(), $scope.definition.type + '.png', 'image/png');
     nodeSelected(selectedNode);
   };
@@ -127,5 +129,4 @@ angular.module('nflowVisApp.workflowDefinition', [])
     downloadSvg($scope.definition.type + '.svg');
     nodeSelected(selectedNode);
   };
-
 });
