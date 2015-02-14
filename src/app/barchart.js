@@ -1,7 +1,7 @@
 'use strict';
 
 // jshint unused:false
-function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedCallback) {
+function drawStateExecutionGraph(canvasSelector, statsData, definition, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
 
   function removeFinalStates() {
@@ -61,7 +61,7 @@ function drawStateExecutionGraph(canvasId, statsData, definition, stateSelectedC
     .tickFormat(d3.format('d'));
 
   // background
-  var svgRoot = d3.select('#' + canvasId);
+  var svgRoot = d3.select(canvasSelector);
 
   // remove any previous charts
   svgRoot.selectAll('*').remove();
