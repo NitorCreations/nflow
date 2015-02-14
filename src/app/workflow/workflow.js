@@ -52,7 +52,7 @@ angular.module('nflowVisApp.workflow', [])
 
                                               defaultNextState(workflow.state);
 
-                                              drawWorkflowDefinition($scope.graph, 'workflowSvg', nodeSelectedCallBack, $rootScope.graph.css);
+                                              drawWorkflowDefinition($scope.graph, '#workflowSvg', nodeSelectedCallBack, $rootScope.graph.css);
                                               markCurrentState(workflow);
                                             });
 
