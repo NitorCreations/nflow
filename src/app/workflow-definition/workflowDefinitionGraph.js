@@ -40,12 +40,12 @@
 
     function savePng() {
       $log.info('Save PNG');
-      graph.doDownload(function() { downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
+      graph.save(function() { downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
     }
 
     function saveSvg() {
       $log.info('Save SVG');
-      graph.doDownload(function() { downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
+      graph.save(function() { downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
     }
 
     function initSvg() {
@@ -89,10 +89,10 @@
         selectedNode = nodeId;
       };
 
-      self.doDownload = function(downloadFn) {
+      self.save = function(saveFn) {
         var nodeToRestore = selectedNode;
         self.nodeSelected(null);
-        downloadFn();
+        saveFn();
         self.nodeSelected(nodeToRestore);
       };
 
