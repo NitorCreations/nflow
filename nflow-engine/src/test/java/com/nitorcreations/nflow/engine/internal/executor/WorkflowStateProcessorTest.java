@@ -118,7 +118,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(eq(instance.id))).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, false, "Process after delay")),
+        argThat(matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, false,
+            "Scheduled by previous state start")),
         argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, 0, stateExecution)));
   }
 

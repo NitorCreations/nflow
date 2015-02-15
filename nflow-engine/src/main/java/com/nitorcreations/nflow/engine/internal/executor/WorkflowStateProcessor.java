@@ -156,12 +156,19 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setStatus(getStatus(execution, definition.getState(execution.getNextState())))
-      .setStateText(execution.getNextStateReason())
+      .setStateText(getStateText(instance, execution))
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
     workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
+  }
+
+  private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {
+    if (execution.isRetry()) {
+      return execution.getNextStateReason();
+    }
+    return "Scheduled by previous state " + instance.state;
   }
 
   private WorkflowInstanceStatus getStatus(StateExecutionImpl execution, WorkflowState nextState) {
