@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
+
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
@@ -27,4 +29,7 @@ public abstract class BaseNflowTest {
       .setStateVariables(new LinkedHashMap<String,String>() {{put("requestData", "{ \"parameter\": \"abc\" }"); }});
   }
 
+  protected WorkflowInstance.Builder executingInstanceBuilder() {
+    return constructWorkflowInstanceBuilder().setId(1).setStatus(executing);
+  }
 }
