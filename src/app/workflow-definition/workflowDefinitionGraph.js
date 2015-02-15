@@ -18,71 +18,85 @@
   });
 
   m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi) {
-
-    // store initial graph aspect ratio
-    var dagreSvgSelector = '#dagreSvg';
-    var aspectRatio = $(dagreSvgSelector).width() / $(dagreSvgSelector).height();
+    var svg;
+    var graph;
+    var selectedNode;
 
     var self = this;
-    self.graph = undefined; // TODO no need to expose in view model?
-    self.selectedNode = undefined; // TODO no need to expose in view model?
     self.savePng = savePng;
     self.saveSvg = saveSvg;
 
     initialize();
 
     function initialize() {
-      WorkflowDefinitionGraphApi.initialize(nodeSelected);
+      svg = initSvg();
+      graph = initGraph(self.definition);
 
-      self.graph = workflowDefinitionGraph(self.definition);
+      WorkflowDefinitionGraphApi.initialize(graph.nodeSelected);
 
       var start = new Date().getTime();
-      drawWorkflowDefinition(self.graph, dagreSvgSelector, nodeSelected, $rootScope.graph.css);
+      graph.drawWorkflowDefinition();
       console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
-    }
-
-    /** called when node is clicked or by WorkflowDefinitionGraphApi */
-    function nodeSelected(nodeId) {
-      console.debug('Selecting node ' + nodeId);
-      if (self.selectedNode) {
-        unhiglightNode(self.graph, self.definition, self.selectedNode);
-      }
-      if (nodeId) {
-        higlightNode(self.graph, self.definition, nodeId);
-      }
-      self.selectedNode = nodeId;
-    }
-
-    // download buttons
-    function svgDataUrl() {
-      var html = d3.select(dagreSvgSelector)
-        .attr('version', 1.1)
-        .attr('xmlns', 'http://www.w3.org/2000/svg')
-        .node().outerHTML;
-      return 'data:image/svg+xml;base64,' + btoa(html);
-    }
-
-    function downloadSvg(filename) {
-      downloadDataUrl(svgDataUrl(), filename);
     }
 
     // TODO save as PNG doesn't work. due to css file?
     function savePng() {
       console.info('Save PNG');
-      var selectedNode = self.selectedNode;
-      nodeSelected(null);
-      var h = $(dagreSvgSelector).height();
-      var size = [h * aspectRatio, h];
-      downloadImage(size, svgDataUrl(), self.definition.type + '.png', 'image/png');
-      nodeSelected(selectedNode);
+      var nodeToRestore = selectedNode;
+      graph.nodeSelected(null);
+      downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png');
+      graph.nodeSelected(nodeToRestore);
     }
 
     function saveSvg() {
       console.info('Save SVG');
-      var selectedNode = self.selectedNode;
-      nodeSelected(null);
-      downloadSvg(self.definition.type + '.svg');
-      nodeSelected(selectedNode);
+      var nodeToRestore = selectedNode;
+      graph.nodeSelected(null);
+      downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg');
+      graph.nodeSelected(nodeToRestore);
+    }
+
+    function initSvg() {
+      var selector = '#dagreSvg';
+      var aspectRatio = $(selector).width() / $(selector).height();
+
+      var self = {};
+      self.selector = selector;
+
+      self.dataUrl = function() {
+        var html = d3.select(selector)
+          .attr('version', 1.1)
+          .attr('xmlns', 'http://www.w3.org/2000/svg')
+          .node().outerHTML;
+        return 'data:image/svg+xml;base64,' + btoa(html);
+      };
+
+      self.size = function() {
+        var h = $(selector).height();
+        return [h * aspectRatio, h];
+      };
+
+      return self;
+    }
+
+    function initGraph(definition) {
+      var d = definition;
+      var g = workflowDefinitionGraph(d);
+
+      var self = {};
+
+      self.drawWorkflowDefinition = function() {
+        drawWorkflowDefinition(g, svg.selector, self.nodeSelected, $rootScope.graph.css);
+      };
+
+      self.nodeSelected = function(nodeId) {
+        console.debug('Selecting node ' + nodeId);
+        if (selectedNode) { unhiglightNode(g, d, selectedNode); }
+        if (nodeId) { higlightNode(g, d, nodeId); }
+        selectedNode = nodeId;
+      };
+
+      return self;
     }
 
   });
