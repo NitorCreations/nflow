@@ -17,10 +17,9 @@
     };
   });
 
-  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi) {
+  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, $log, WorkflowDefinitionGraphApi) {
     var svg;
     var graph;
-    var selectedNode;
 
     var self = this;
     self.savePng = savePng;
@@ -36,24 +35,17 @@
 
       var start = new Date().getTime();
       graph.drawWorkflowDefinition();
-      console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
+      $log.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
     }
 
-    // TODO save as PNG doesn't work. due to css file?
     function savePng() {
-      console.info('Save PNG');
-      var nodeToRestore = selectedNode;
-      graph.nodeSelected(null);
-      downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png');
-      graph.nodeSelected(nodeToRestore);
+      $log.info('Save PNG');
+      graph.doDownload(function() { downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
     }
 
     function saveSvg() {
-      console.info('Save SVG');
-      var nodeToRestore = selectedNode;
-      graph.nodeSelected(null);
-      downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg');
-      graph.nodeSelected(nodeToRestore);
+      $log.info('Save SVG');
+      graph.doDownload(function() { downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
     }
 
     function initSvg() {
@@ -82,6 +74,7 @@
     function initGraph(definition) {
       var d = definition;
       var g = workflowDefinitionGraph(d);
+      var selectedNode;
 
       var self = {};
 
@@ -90,10 +83,17 @@
       };
 
       self.nodeSelected = function(nodeId) {
-        console.debug('Selecting node ' + nodeId);
+        $log.debug('Selecting node ' + nodeId);
         if (selectedNode) { unhiglightNode(g, d, selectedNode); }
         if (nodeId) { higlightNode(g, d, nodeId); }
         selectedNode = nodeId;
+      };
+
+      self.doDownload = function(downloadFn) {
+        var nodeToRestore = selectedNode;
+        self.nodeSelected(null);
+        downloadFn();
+        self.nodeSelected(nodeToRestore);
       };
 
       return self;
