@@ -6,18 +6,17 @@
   ]);
 
   m.controller('WorkflowDefinitionCtrl', function (
-    $scope, $rootScope, definition, WorkflowDefinitionStats, WorkflowStatsPoller, SelectedNodeNotifier) {
+    $scope, $rootScope, definition, WorkflowDefinitionStats, WorkflowStatsPoller, WorkflowDefinitionGraphApi) {
 
     var self = this;
     self.hasStatistics = false;
     self.definition = definition;
+    self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.startRadiator = startRadiator;
 
     initialize();
 
     function initialize() {
-      SelectedNodeNotifier.initialize();
-
       updateStateExecutionGraph(self.definition.type);
 
       // poller polls stats with fixed period
@@ -69,35 +68,8 @@
       }
       if (stats) {
         processStats(self.definition, stats);
-        self.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, SelectedNodeNotifier.onSelectNode);
+        self.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, WorkflowDefinitionGraphApi.onSelectNode);
       }
-    }
-
-  });
-
-  m.factory('SelectedNodeNotifier', function () {
-    var listeners = [];
-
-    var api = {};
-    api.initialize = initialize;
-    api.onSelectNode = onSelectNode;
-    api.addListener = addListener;
-
-    return api;
-
-    function initialize() {
-      listeners = [];
-    }
-
-    function onSelectNode(id) {
-      _.forEach(listeners, function(o) { o.onSelectNode(id); });
-    }
-
-    function addListener(o) {
-      if (!_.isFunction(o.onSelectNode)) {
-        throw 'addListener: listener has no onSelectNode function';
-      }
-      listeners.push(o);
     }
 
   });

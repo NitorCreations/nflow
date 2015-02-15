@@ -17,7 +17,7 @@
     };
   });
 
-  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, SelectedNodeNotifier) {
+  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi) {
 
     // store initial graph aspect ratio
     var dagreSvgSelector = '#dagreSvg';
@@ -26,23 +26,22 @@
     var self = this;
     self.graph = undefined; // TODO no need to expose in view model?
     self.selectedNode = undefined; // TODO no need to expose in view model?
-    self.nodeSelected = nodeSelected;
     self.savePng = savePng;
     self.saveSvg = saveSvg;
 
     initialize();
 
     function initialize() {
+      WorkflowDefinitionGraphApi.initialize(nodeSelected);
+
       self.graph = workflowDefinitionGraph(self.definition);
 
       var start = new Date().getTime();
-      drawWorkflowDefinition(self.graph, dagreSvgSelector, nodeSelectedCallBack, $rootScope.graph.css);
+      drawWorkflowDefinition(self.graph, dagreSvgSelector, nodeSelected, $rootScope.graph.css);
       console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
-
-      SelectedNodeNotifier.addListener({ onSelectNode: nodeSelectedCallBack });
     }
 
-    /** called when node is clicked or by SelectedNodeNotifier */
+    /** called when node is clicked or by WorkflowDefinitionGraphApi */
     function nodeSelected(nodeId) {
       console.debug('Selecting node ' + nodeId);
       if (self.selectedNode) {
@@ -52,13 +51,6 @@
         higlightNode(self.graph, self.definition, nodeId);
       }
       self.selectedNode = nodeId;
-    }
-
-    // must use $apply() - event not managed by angular
-    function nodeSelectedCallBack(nodeId) {
-      $scope.$apply(function () {
-        nodeSelected(nodeId);
-      });
     }
 
     // download buttons
@@ -93,6 +85,18 @@
       nodeSelected(selectedNode);
     }
 
+  });
+
+  m.factory('WorkflowDefinitionGraphApi', function() {
+    var onSelectNodeFn = _.noop;
+
+    var api = {};
+    api.initialize = initialize;
+    api.onSelectNode = onSelectNode;
+    return api;
+
+    function initialize(onSelectNodeFnToBind) { onSelectNodeFn = onSelectNodeFnToBind; }
+    function onSelectNode(nodeId) { onSelectNodeFn(nodeId); }
   });
 
 })();

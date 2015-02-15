@@ -43,8 +43,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="{{state.selected}}" ng-repeat="state in ctrl.definition.states"
-                ng-click="ctrl.nodeSelected(state.id)">
+            <tr class="{{state.selected}}" ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
               <td>{{state.name}}</td>
               <td>{{state.description}}</td>
               <td class="numeric" title="Workflow instances currently executing">{{state.stateStatistics.executing | nullToZero}}</td>
