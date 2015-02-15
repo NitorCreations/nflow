@@ -166,8 +166,11 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {
-    if (execution.isRetry()) {
+    if (execution.isRetry() || execution.isRetryCountExceeded()) {
       return execution.getNextStateReason();
+    }
+    if (execution.getNextActivation() == null) {
+      return "Stopped in state " + execution.getNextState();
     }
     return "Scheduled by previous state " + instance.state;
   }
