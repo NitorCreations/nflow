@@ -82,7 +82,7 @@ public class WorkflowInstance {
 
   /**
    * True when the workflow instance is being processed by an executor, false otherwise.
-   * @deprecated Use {@link WorkflowInstance#workflowInstanceStatus} == {@link WorkflowInstanceStatus#executing} instead.
+   * @deprecated Use {@link WorkflowInstance#status} == {@link WorkflowInstanceStatus#executing} instead.
    */
   @Deprecated
   public final boolean processing;
