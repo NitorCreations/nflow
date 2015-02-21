@@ -11,6 +11,7 @@
 angular
 .module('nflowVisApp', [
   'nflowVisApp.about',
+  'nflowVisApp.config.console',
   'nflowVisApp.filters',
   'nflowVisApp.frontPage',
   'nflowVisApp.search',

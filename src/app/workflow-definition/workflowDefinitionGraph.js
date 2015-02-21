@@ -17,7 +17,7 @@
     };
   });
 
-  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, $log, WorkflowDefinitionGraphApi) {
+  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi) {
     var svg;
     var graph;
 
@@ -35,16 +35,16 @@
 
       var start = new Date().getTime();
       graph.drawWorkflowDefinition();
-      $log.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
+      console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
     }
 
     function savePng() {
-      $log.info('Save PNG');
+      console.info('Save PNG');
       graph.save(function() { downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
     }
 
     function saveSvg() {
-      $log.info('Save SVG');
+      console.info('Save SVG');
       graph.save(function() { downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
     }
 
@@ -83,7 +83,7 @@
       };
 
       self.nodeSelected = function(nodeId) {
-        $log.debug('Selecting node ' + nodeId);
+        console.debug('Selecting node ' + nodeId);
         if (selectedNode) { unhiglightNode(g, d, selectedNode); }
         if (nodeId) { higlightNode(g, d, nodeId); }
         selectedNode = nodeId;
