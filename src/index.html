@@ -59,14 +59,14 @@
       </div>
     </div>
 
-    <!-- build:js(.) scripts/oldieshim.js -->
+    <!-- build:js(.) app/oldieshim.js -->
     <!--[if lt IE 9]>
         <script src="bower_components/es5-shim/es5-shim.js"></script>
         <script src="bower_components/json3/lib/json3.js"></script>
         <![endif]-->
     <!-- endbuild -->
 
-    <!-- build:js(.) scripts/vendor.js -->
+    <!-- build:js(.) app/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
@@ -93,7 +93,7 @@ See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrup
     <script src="external/dygraphs/dygraph-combined.js"></script>
 
     <script src="config.js"></script>
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <!-- build:js({.tmp,src}) app/app.js -->
     <script src="app/services.js"></script>
     <script src="app/services/executorPoller.js"></script>
     <script src="app/util.js"></script>
