@@ -38,7 +38,7 @@ angular
     controller: 'SearchCtrl as ctrl',
     resolve: {
       definitions: function(WorkflowDefinitions) {
-        return WorkflowDefinitions.query();
+        return WorkflowDefinitions.query().$promise;
       }
     },
     activeTab: 'search'
