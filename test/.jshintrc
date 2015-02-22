@@ -33,7 +33,9 @@
     "spyOn": false,
     "sinon": false,
     "moment": false,
-    "_": false
+    "_": false,
+    "element": false,
+    "by": false
   }
 }
 

@@ -11,6 +11,7 @@
 angular
 .module('nflowVisApp', [
   'nflowVisApp.about',
+  'nflowVisApp.config.console',
   'nflowVisApp.filters',
   'nflowVisApp.frontPage',
   'nflowVisApp.search',
@@ -55,7 +56,7 @@ angular
   })
   .when('/workflow-definition/:type', {
     templateUrl: 'app/workflow-definition/workflowDefinition.html',
-    controller: 'WorkflowDefinitionCtrl',
+    controller: 'WorkflowDefinitionCtrl as ctrl',
     activeTab: 'frontPage',
     resolve: {
       'GraphService': [ '$q', 'GraphService', function($q, GraphService) {
@@ -63,7 +64,11 @@ angular
         var defer = $q.defer();
         GraphService.getCss(defer);
         return defer.promise;
-      }]
+      }],
+      definition: function($routeParams, WorkflowDefinitions) {
+        // TODO handle not found
+        return WorkflowDefinitions.get({type: $routeParams.type}).$promise.then(_.first);
+      }
     }
 
   })
