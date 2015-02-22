@@ -1,7 +1,11 @@
-var _ = require('lodash');
+'use strict';
+
+function assertHeader(expected) {
+  var e = element.all(by.tagName('h2')).first();
+  expect(e.getText()).toEqual(expected);
+}
 
 describe('nflow-ui homepage', function() {
-  var history = element.all(by.repeater('result in memory'));
 
   var mainPageLink = element(by.linkText('Workflow definitions'));
   var searchPageLink = element(by.linkText('Workflow instances'));
@@ -11,45 +15,41 @@ describe('nflow-ui homepage', function() {
     browser.get('http://localhost:9001');
   });
 
-  function assertHeader(expected) {
-    var e = element.all(by.tagName('h2')).first();
-    expect(e.getText()).toEqual(expected);
-  };
-
-  it('should have navi', function() {
-    assertHeader('Workflows');
+  it('has navi', function() {
+    assertHeader('Workflow definitions');
 
     searchPageLink.click();
-    assertHeader('Search workflows');
+    assertHeader('Search workflow instances');
 
     aboutPageLink.click();
-    assertHeader('nFlow UI');
+    assertHeader('nFlow Explorer');
 
     mainPageLink.click();
-    assertHeader('Workflows');
+    assertHeader('Workflow definitions');
   });
 
-  it('should have list of workflow definitions', function() {
-    var link = element(by.linkText('creditDecision'));
-    link.click();
+  it('has list of workflow definitions', function() {
+    expect(element(by.linkText('creditDecision')).isDisplayed()).toBeTruthy();
+    expect(element(by.linkText('processCreditApplication')).isDisplayed()).toBeTruthy();
+    expect(element(by.linkText('withdrawLoan')).isDisplayed()).toBeTruthy();
+  });
+
+  it('provides navigation to workflow definitions', function() {
+    element(by.linkText('creditDecision')).click();
     assertHeader('creditDecision');
 
-    var radiatorLink = element(by.linkText('Open radiator'));
-    radiatorLink.click();
-    assertHeader('Radiator creditDecision');
-
-    browser.navigate().back();
-    assertHeader('creditDecision');
-
-    var searchLink = element(by.linkText('Search related workflow instances'));
-    searchLink.click();
-    assertHeader('Search workflows');
+    element(by.linkText('Search related workflow instances')).click();
+    assertHeader('Search workflow instances');
   });
 });
 
 describe('workflow definition page', function() {
+  beforeEach(function() {
+    browser.get('http://localhost:9000/#/workflow-definition/creditDecision');
+  });
 
-
-
-
+  it('provides navigation to instance search', function () {
+    element(by.linkText('Search related workflow instances')).click();
+    assertHeader('Search workflow instances');
+  });
 });
