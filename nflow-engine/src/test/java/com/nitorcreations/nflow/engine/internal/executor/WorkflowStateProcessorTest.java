@@ -44,6 +44,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -76,6 +77,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   WorkflowInstanceDao workflowInstanceDao;
 
   @Mock
+  Environment env;
+
+  @Mock
   WorkflowExecutorListener listener1;
 
   @Mock
@@ -99,8 +103,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Before
   public void setup() {
+    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("fail");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        listener1, listener2);
+        env, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
@@ -481,6 +486,75 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"))));
   }
 
+  @Test
+  public void illegalStateChangeGoesToErrorState() {
+    WorkflowDefinition<SimpleTestWorkflow.State> wf = new SimpleTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition("simple");
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple").setState("illegalStateChange").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture());
+    assertThat(
+        update.getAllValues().get(0),
+        matchesWorkflowInstance(executing, SimpleTestWorkflow.State.error, 0,
+            is("Scheduled by previous state illegalStateChange")));
+    assertThat(action.getAllValues().get(0),
+        matchesWorkflowInstanceAction(SimpleTestWorkflow.State.illegalStateChange,
+            is("Illegal state transition from illegalStateChange to start, proceeding to error state error"), 0,
+            stateExecutionFailed));
+    assertThat(update.getAllValues().get(1),
+        matchesWorkflowInstance(finished, SimpleTestWorkflow.State.error, 0, is("Stopped in state error"),
+            nullValue(DateTime.class)));
+    assertThat(action.getAllValues().get(1),
+        matchesWorkflowInstanceAction(SimpleTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
+  }
+
+  @Test
+  public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
+    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("log");
+    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
+        listener1, listener2);
+
+    WorkflowDefinition<SimpleTestWorkflow.State> wf = new SimpleTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition("simple");
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple").setState("illegalStateChange").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture());
+    assertThat(
+        update.getAllValues().get(0),
+        matchesWorkflowInstance(executing, SimpleTestWorkflow.State.start, 0,
+            is("Scheduled by previous state illegalStateChange")));
+    assertThat(action.getAllValues().get(0),
+        matchesWorkflowInstanceAction(SimpleTestWorkflow.State.illegalStateChange, is("illegal state change"), 0, stateExecution));
+  }
+
+  @Test
+  public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
+    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("ignore");
+    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
+        listener1, listener2);
+
+    WorkflowDefinition<SimpleTestWorkflow.State> wf = new SimpleTestWorkflow();
+    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition("simple");
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple").setState("illegalStateChange").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture());
+    assertThat(
+        update.getAllValues().get(0),
+        matchesWorkflowInstance(executing, SimpleTestWorkflow.State.start, 0,
+            is("Scheduled by previous state illegalStateChange")));
+    assertThat(action.getAllValues().get(0),
+        matchesWorkflowInstanceAction(SimpleTestWorkflow.State.illegalStateChange, is("illegal state change"), 0, stateExecution));
+  }
+
   public static class Pojo {
     public String field;
     public boolean test;
@@ -549,6 +623,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     protected FailingTestWorkflow() {
       super("failing", State.start, State.error);
       permit(State.start, State.process, State.failure);
+      permit(State.nextStateNoMethod, State.noMethodEndState);
     }
 
     public static enum State implements WorkflowState {
@@ -619,12 +694,15 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     protected SimpleTestWorkflow() {
       super("simple", State.start, State.error);
-      permit(State.start, State.end);
+      permit(State.start, State.processing);
+      permit(State.processing, State.end);
+      permit(State.beforeManual, State.manualState);
     }
 
     public static enum State implements WorkflowState {
       start(WorkflowStateType.start), beforeManual(WorkflowStateType.normal), end(WorkflowStateType.end), manualState(
-          WorkflowStateType.manual), error(WorkflowStateType.end), processing(WorkflowStateType.normal);
+          WorkflowStateType.manual), error(WorkflowStateType.end), processing(WorkflowStateType.normal), illegalStateChange(
+          WorkflowStateType.normal);
 
       private final WorkflowStateType stateType;
 
@@ -660,6 +738,12 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       return stopInState(State.end, "Finished.");
     }
 
-    public void error(StateExecution execution) {}
+    public NextAction illegalStateChange(StateExecution execution) {
+      return moveToState(State.start, "illegal state change");
+    }
+
+    public void error(StateExecution execution) {
+      System.err.println("Executing error state");
+    }
   }
 }

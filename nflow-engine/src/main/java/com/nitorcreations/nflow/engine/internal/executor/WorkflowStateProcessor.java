@@ -19,6 +19,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -50,10 +51,11 @@ class WorkflowStateProcessor implements Runnable {
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
+  private final String illegalStateChangeAction;
   DateTime lastLogged = now();
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
+      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, Environment env,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
@@ -61,6 +63,7 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
     this.executorListeners = executorListeners;
+    illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
   }
 
   @Override
@@ -211,6 +214,20 @@ class WorkflowStateProcessor implements Runnable {
     } else {
       try {
         nextAction = (NextAction) invokeMethod(method.method, definition, args);
+        if (nextAction == null) {
+          logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, definition
+              .getErrorState().name());
+          nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+          execution.setFailed();
+        } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
+          logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
+              nextAction.getNextState());
+          if ("fail".equals(illegalStateChangeAction)) {
+            nextAction = moveToState(definition.getErrorState(), "Illegal state transition from " + instance.state + " to "
+                + nextAction.getNextState().name() + ", proceeding to error state " + definition.getErrorState().name());
+            execution.setFailed();
+          }
+        }
       } catch (InvalidNextActionException e) {
         logger.error("State '" + instance.state
             + "' handler method failed to create valid next action, proceeding to error state '"
@@ -218,17 +235,11 @@ class WorkflowStateProcessor implements Runnable {
         nextAction = moveToState(definition.getErrorState(), e.getMessage());
         execution.setFailed(e);
       }
-      if (nextAction == null) {
-        logger.error("State '{}' handler method returned null, proceeding to error state '{}'",
-            instance.state, definition.getErrorState().name());
-        nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
-        execution.setFailed();
-      }
     }
     execution.setNextActivation(nextAction.getActivation());
     execution.setNextStateReason(nextAction.getReason());
     execution.setSaveTrace(nextAction.isSaveTrace());
-    if (nextAction.getNextState() == null) {
+    if (nextAction.isRetry()) {
       execution.setNextState(currentState);
       execution.setRetry(true);
       definition.handleRetryAfter(execution, nextAction.getActivation());

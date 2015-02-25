@@ -1,11 +1,16 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.retryAfter;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -34,6 +39,18 @@ public class NextActionTest {
   public void stopInEndStateSetsActivationToNull() {
     NextAction nextAction = NextAction.stopInState(TestState.done, "stop reason");
     assertThat(nextAction.getActivation(), is(nullValue()));
+  }
+
+  @Test
+  public void isRetryReturnsTrueForRetry() {
+    assertThat(retryAfter(now(), "reason").isRetry(), is(true));
+  }
+
+  @Test
+  public void isRetryReturnsFalseForOtherActions() {
+    assertThat(moveToState(TestState.done, "reason").isRetry(), is(false));
+    assertThat(moveToStateAfter(TestState.done, now(), "reason").isRetry(), is(false));
+    assertThat(stopInState(TestState.done, "reason").isRetry(), is(false));
   }
 
   static enum TestState implements WorkflowState {
