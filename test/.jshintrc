@@ -25,17 +25,21 @@
     "before": false,
     "beforeEach": false,
     "browser": false,
+    "by": false,
     "describe": false,
+    "element": false,
     "expect": false,
     "inject": false,
     "it": false,
     "jasmine": false,
-    "spyOn": false,
-    "sinon": false,
     "moment": false,
+    "sinon": false,
+    "spyOn": false,
+    "xdescribe": false,
+    "xit": false,
     "_": false,
-    "element": false,
-    "by": false
+    "$": false,
+    "$$": false
   }
 }
 
