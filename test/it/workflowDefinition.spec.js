@@ -82,15 +82,14 @@ describe('workflow definition page', function () {
       });
     });
 
-    xdescribe('workflow settings', function() {
-      beforeEach(function () {
-        page.tabs.workflowSettings.activate();
-      });
-    });
-
-    xdescribe('radiator', function() {
+    describe('radiator', function() {
       beforeEach(function () {
         page.tabs.radiator.activate();
+      });
+
+      it('has state and execution charts', function () {
+        expect(page.tabs.radiator.isStateChartDisplayed()).toBeTruthy();
+        expect(page.tabs.radiator.isExecutionChartDisplayed()).toBeTruthy();
       });
     });
   });

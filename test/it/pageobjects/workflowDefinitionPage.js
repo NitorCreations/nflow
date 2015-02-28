@@ -50,6 +50,8 @@ function tabs(spec) {
   that.workflowSettings = tabBase({ linkText: 'Workflow settings'} );
 
   that.radiator = tabBase({ linkText: 'Radiator'} );
+  that.radiator.isStateChartDisplayed = function() { return spec.isDisplayed($('#stateChart')); };
+  that.radiator.isExecutionChartDisplayed = function() { return spec.isDisplayed($('#executionChart'));};
 
   return that;
 }
