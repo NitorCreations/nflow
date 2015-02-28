@@ -4,14 +4,14 @@
       <div class="row">
         <div class="col-xs-3">
           <label for="type">Workflow type</label>
-          <select id="type" class="form-control" ng-model="ctrl.model.definition" ng-options="def.type for def in ctrl.definitions" ng-change="ctrl.onTypeChange()">
+          <select id="type" class="form-control" ng-model="ctrl.model.definition" ng-options="def.type for def in ctrl.definitions track by def.type" ng-change="ctrl.onTypeChange()">
             <option value="">-- All workflow types --</option>
           </select>
         </div>
 
         <div class="col-xs-3">
           <label for="state">Workflow state</label>
-          <select id="state" class="form-control" ng-model="ctrl.model.state" ng-options="state.name for state in ctrl.model.definition.states">
+          <select id="state" class="form-control" ng-model="ctrl.model.state" ng-options="state.name for state in ctrl.model.definition.states track by state.name">
             <option value="">-- All states --</option>
           </select>
         </div>

@@ -19,6 +19,11 @@ module.exports = function (spec) {
     return element.then(function(e) { return e.isDisplayed(); }, function() { return false; } );
   };
 
+  spec.getValue = function(element) {
+    var value = element.getAttribute('value');
+    return value || element.getText();
+  };
+
   var that = {};
 
   that.isDisplayed = function() {

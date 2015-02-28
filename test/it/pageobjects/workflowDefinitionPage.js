@@ -43,6 +43,9 @@ function tabs(spec) {
   that.allInstances.select = function(state){
     $('tr.wd-state-' + state).click();
   };
+  that.allInstances.toInstanceSearch = function(state) {
+    $('tr.wd-state-' + state + ' a').click();
+  };
 
   that.workflowSettings = tabBase({ linkText: 'Workflow settings'} );
 

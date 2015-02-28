@@ -1,8 +1,5 @@
 'use strict';
 
-// definition, graph: verify clicks
-// definition, tab:all instances: verify list
-
 var po = require('./pageobjects/pageobjects');
 
 describe('workflow definition page', function () {
@@ -15,7 +12,14 @@ describe('workflow definition page', function () {
   it('provides navigation to instance search by type', function () {
     page.toInstanceSearchByType();
     expect(searchPage.isDisplayed()).toBeTruthy();
-    // TODO verify search is populated
+
+    expect(searchPage.getType()).toBe('creditDecision');
+    expect(searchPage.getState()).toBe('');
+    expect(searchPage.getInstanceId()).toBe('');
+    expect(searchPage.getBusinessKey()).toBe('');
+    expect(searchPage.getExternalId()).toBe('');
+
+    expect(searchPage.hasResults()).toBeTruthy();
   });
 
   it('selecting node in graph hi-lights node', function() {
@@ -64,9 +68,17 @@ describe('workflow definition page', function () {
         expect(page.graph.isSelected(state)).toBeTruthy();
       });
 
-      xit('provides navigation to instance search by type and state', function() {
-        page.tabs.allInstances.toInstanceSearch();
-        // TODO verify search is prepopulated
+      it('provides navigation to instance search by type and state', function() {
+        page.tabs.allInstances.toInstanceSearch('approved');
+        expect(searchPage.isDisplayed()).toBeTruthy();
+
+        expect(searchPage.getType()).toBe('creditDecision');
+        expect(searchPage.getState()).toBe('approved');
+        expect(searchPage.getInstanceId()).toBe('');
+        expect(searchPage.getBusinessKey()).toBe('');
+        expect(searchPage.getExternalId()).toBe('');
+
+        expect(searchPage.hasResults()).toBeTruthy();
       });
     });
 
@@ -74,7 +86,6 @@ describe('workflow definition page', function () {
       beforeEach(function () {
         page.tabs.workflowSettings.activate();
       });
-
     });
 
     xdescribe('radiator', function() {
