@@ -24,18 +24,56 @@ describe('workflow definition page', function () {
     expect(page.graph.isSelected(nodeId)).toBeTruthy();
   });
 
-  xdescribe('tabs', function() {
-    describe('active instances', function() {});
+  describe('tabs', function() {
+    describe('active', function() {
+      function assertActiveTab(isActiveInstancesActive, isAllInstancesActive, isWorkflowSettingsActive,
+                               isRadiatorActive) {
+        expect(page.tabs.isActiveInstancesActive()).toBe(isActiveInstancesActive);
+        expect(page.tabs.isAllInstancesActive()).toBe(isAllInstancesActive);
+        expect(page.tabs.isWorkflowSettingsActive()).toBe(isWorkflowSettingsActive);
+        expect(page.tabs.isRadiatorActive()).toBe(isRadiatorActive);
+      }
 
-    describe('all instances', function() {
+      it('all instances is active by default, rest can be activated by clicking', function () {
+        assertActiveTab(true, false, false, false);
+
+        page.tabs.activateAllInstances();
+        assertActiveTab(false, true, false, false);
+
+        page.tabs.activateWorkflowSettings();
+        assertActiveTab(false, false, true, false);
+
+        page.tabs.activateRadiator();
+        assertActiveTab(false, false, false, true);
+
+        page.tabs.activateActiveInstances();
+        assertActiveTab(true, false, false, false);
+      });
+    });
+
+    xdescribe('all instances', function() {
+      beforeEach(function () {
+        page.tabs.activateAllInstances();
+      });
+
       it('clicking instance hi-lights corresponding node in graph', function() {});
 
       it('provides navigation to instance search by type and state', function() {});
     });
 
-    describe('workflow settings', function() {});
+    xdescribe('workflow settings', function() {
+      beforeEach(function () {
+        page.tabs.activeWorkflowSettings();
+      });
 
-    describe('radiator', function() {});
+    });
+
+    xdescribe('radiator', function() {
+      beforeEach(function () {
+        page.tabs.activeRadiator();
+      });
+
+    });
   });
 
 });
