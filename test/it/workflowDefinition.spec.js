@@ -10,11 +10,10 @@ describe('workflow definition page', function () {
   var page = po.workflowDefinitionPage({});
   var searchPage = po.searchPage({});
 
-  beforeEach(function() { page.get(); });
+  beforeEach(function() { page.get('creditApplication'); });
 
   it('provides navigation to instance search by type', function () {
-    // TODO to page object
-    element(by.linkText('Search related workflow instances')).click();
+    page.toInstanceSearchByType();
     expect(searchPage.isDisplayed()).toBeTruthy();
   });
 
