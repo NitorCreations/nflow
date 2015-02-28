@@ -15,64 +15,72 @@ describe('workflow definition page', function () {
   it('provides navigation to instance search by type', function () {
     page.toInstanceSearchByType();
     expect(searchPage.isDisplayed()).toBeTruthy();
+    // TODO verify search is populated
   });
 
   it('selecting node in graph hi-lights node', function() {
-    var nodeId = 'decisionEngine';
-    expect(page.graph.isSelected(nodeId)).toBeFalsy();
-    page.graph.select(nodeId);
-    expect(page.graph.isSelected(nodeId)).toBeTruthy();
+    var state = 'decisionEngine';
+    expect(page.graph.isSelected(state)).toBeFalsy();
+    page.graph.select(state);
+    expect(page.graph.isSelected(state)).toBeTruthy();
   });
 
   describe('tabs', function() {
     describe('active', function() {
       function assertActiveTab(isActiveInstancesActive, isAllInstancesActive, isWorkflowSettingsActive,
                                isRadiatorActive) {
-        expect(page.tabs.isActiveInstancesActive()).toBe(isActiveInstancesActive);
-        expect(page.tabs.isAllInstancesActive()).toBe(isAllInstancesActive);
-        expect(page.tabs.isWorkflowSettingsActive()).toBe(isWorkflowSettingsActive);
-        expect(page.tabs.isRadiatorActive()).toBe(isRadiatorActive);
+        expect(page.tabs.activeInstances.isActive()).toBe(isActiveInstancesActive);
+        expect(page.tabs.allInstances.isActive()).toBe(isAllInstancesActive);
+        expect(page.tabs.workflowSettings.isActive()).toBe(isWorkflowSettingsActive);
+        expect(page.tabs.radiator.isActive()).toBe(isRadiatorActive);
       }
 
       it('all instances is active by default, rest can be activated by clicking', function () {
         assertActiveTab(true, false, false, false);
 
-        page.tabs.activateAllInstances();
+        page.tabs.allInstances.activate();
         assertActiveTab(false, true, false, false);
 
-        page.tabs.activateWorkflowSettings();
+        page.tabs.workflowSettings.activate();
         assertActiveTab(false, false, true, false);
 
-        page.tabs.activateRadiator();
+        page.tabs.radiator.activate();
         assertActiveTab(false, false, false, true);
 
-        page.tabs.activateActiveInstances();
+        page.tabs.activeInstances.activate();
         assertActiveTab(true, false, false, false);
       });
     });
 
-    xdescribe('all instances', function() {
+    describe('all instances', function() {
       beforeEach(function () {
-        page.tabs.activateAllInstances();
+        page.tabs.allInstances.activate();
       });
 
-      it('clicking instance hi-lights corresponding node in graph', function() {});
+      it('clicking instance hi-lights corresponding node in graph', function() {
+        var state = 'satQuery';
+        expect(page.graph.isSelected(state)).toBeFalsy();
+        page.tabs.allInstances.select(state);
+        expect(page.graph.isSelected(state)).toBeTruthy();
+      });
 
-      it('provides navigation to instance search by type and state', function() {});
+      xit('provides navigation to instance search by type and state', function() {
+        page.tabs.allInstances.toInstanceSearch();
+        // TODO verify search is prepopulated
+      });
     });
 
     xdescribe('workflow settings', function() {
       beforeEach(function () {
-        page.tabs.activeWorkflowSettings();
+        page.tabs.workflowSettings.activate();
       });
 
     });
 
     xdescribe('radiator', function() {
       beforeEach(function () {
-        page.tabs.activeRadiator();
+        page.tabs.radiator.activate();
       });
-
     });
   });
 

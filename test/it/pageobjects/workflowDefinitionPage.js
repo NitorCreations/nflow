@@ -7,8 +7,8 @@ function graph(spec) {
     return spec.hasClasses(nodeIdSelector(nodeId), ['selected']);
   };
 
-  that.select = function(nodeId) {
-    nodeIdSelector(nodeId).click();
+  that.select = function(state) {
+    nodeIdSelector(state).click();
   };
 
   return that;
@@ -18,27 +18,37 @@ function graph(spec) {
   }
 }
 
+function tabBase(spec) {
+  spec.link = element(by.linkText(spec.linkText));
+
+  var that = require('./base')(spec);
+
+  that.isActive = function() {
+    return spec.hasClasses(spec.parent(spec.link), ['active']);
+  };
+
+  that.activate = function() {
+    spec.link.click();
+  };
+
+  return that;
+}
+
 function tabs(spec) {
   var that = require('./base')(spec);
 
-  spec.activeInstances = element(by.linkText('Active instances'));
-  spec.allInstances = element(by.linkText('All instances'));
-  spec.workflowSettings = element(by.linkText('Workflow settings'));
-  spec.radiator = element(by.linkText('Radiator'));
+  that.activeInstances = tabBase({ linkText: 'Active instances'} );
 
-  that.activateActiveInstances = function() { spec.activeInstances.click(); };
-  that.activateAllInstances = function() { spec.allInstances.click(); };
-  that.activateWorkflowSettings = function() { spec.workflowSettings.click(); };
-  that.activateRadiator = function() { spec.radiator.click(); };
+  that.allInstances = tabBase({linkText: 'All instances' });
+  that.allInstances.select = function(state){
+    $('tr.wd-state-' + state).click();
+  };
 
-  that.isActiveInstancesActive = function() { return isActive(spec.activeInstances); };
-  that.isAllInstancesActive = function() { return isActive(spec.allInstances); };
-  that.isWorkflowSettingsActive = function() { return isActive(spec.workflowSettings); };
-  that.isRadiatorActive = function() { return isActive(spec.radiator); };
+  that.workflowSettings = tabBase({ linkText: 'Workflow settings'} );
+
+  that.radiator = tabBase({ linkText: 'Radiator'} );
 
   return that;
-
-  function isActive(link) { return spec.hasClasses(spec.parent(link), ['active']); }
 }
 
 module.exports = function (spec) {

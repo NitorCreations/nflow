@@ -14,5 +14,9 @@ exports.config = {
     showColors: false,
     includeStackTrace: true,
     showTiming: true
+  },
+
+  onPrepare: function(){
+    browser.driver.manage().window().setSize(1280, 1024);
   }
 };
