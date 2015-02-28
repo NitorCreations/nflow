@@ -17,7 +17,12 @@ describe('workflow definition page', function () {
     expect(searchPage.isDisplayed()).toBeTruthy();
   });
 
-  xit('clicking node in graph hi-lights node', function() {});
+  it('selecting node in graph hi-lights node', function() {
+    var nodeId = 'decisionEngine';
+    expect(page.graph.isSelected(nodeId)).toBeFalsy();
+    page.graph.select(nodeId);
+    expect(page.graph.isSelected(nodeId)).toBeTruthy();
+  });
 
   xdescribe('tabs', function() {
     describe('active instances', function() {});
