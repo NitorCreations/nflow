@@ -74,7 +74,7 @@ angular
   })
   .when('/workflow/:id', {
     templateUrl: 'app/workflow/workflow.html',
-    controller: 'WorkflowCtrl',
+    controller: 'WorkflowCtrl as ctrl',
     activeTab: 'search',
     resolve: {
       'GraphService': [ '$q', 'GraphService', function($q, GraphService) {

@@ -2,61 +2,56 @@
   'use strict';
 
 var m = angular.module('nflowVisApp.workflow', []);
-  m.controller('WorkflowCtrl', function WorkflowCtrl($scope, Workflows, ManageWorkflow, WorkflowDefinitions, $routeParams, $rootScope) {
-    $scope.manage = {};
-    $scope.manage.timeUnits = ['minutes','hours','days'];
-    $scope.manage.timeUnit = $scope.manage.timeUnits[0];
-    $scope.manage.duration = 0;
+  m.controller('WorkflowCtrl', function WorkflowCtrl(Workflows, ManageWorkflow, WorkflowDefinitions, $routeParams, $rootScope) {
+    var self = this;
+    self.manage = {};
+    self.manage.timeUnits = ['minutes','hours','days'];
+    self.manage.timeUnit = self.manage.timeUnits[0];
+    self.manage.duration = 0;
 
-    $scope.getClass = getClass;
-    $scope.selectAction = selectAction;
-    $scope.duration = duration;
-    $scope.currentStateTime= currentStateTime;
-    $scope.updateWorkflow = updateWorkflow;
-    $scope.stopWorkflow = stopWorkflow;
-    $scope.pauseWorkflow = pauseWorkflow;
-    $scope.resumeWorkflow = resumeWorkflow;
+    self.getClass = getClass;
+    self.selectAction = selectAction;
+    self.duration = duration;
+    self.currentStateTime= currentStateTime;
+    self.updateWorkflow = updateWorkflow;
+    self.stopWorkflow = stopWorkflow;
+    self.pauseWorkflow = pauseWorkflow;
+    self.resumeWorkflow = resumeWorkflow;
 
     function defaultNextState(stateName) {
-      $scope.manage.nextState = _.first(_.filter($scope.definition.states, function(state) {
+      self.manage.nextState = _.first(_.filter(self.definition.states, function(state) {
         return state.name === stateName;
       }));
     }
 
     function nodeSelected(nodeId) {
       console.debug('Selecting node ' + nodeId);
-      if($scope.selectedNode) {
-        unhiglightNode($scope.graph, $scope.definition, $scope.selectedNode, $scope.workflow);
+      if(self.selectedNode) {
+        unhiglightNode(self.graph, self.definition, self.selectedNode, self.workflow);
       }
       if(nodeId) {
-        higlightNode($scope.graph, $scope.definition, nodeId, $scope.workflow);
+        higlightNode(self.graph, self.definition, nodeId, self.workflow);
       }
-      $scope.selectedNode = nodeId;
+      self.selectedNode = nodeId;
       defaultNextState(nodeId);
     }
 
     function readWorkflow() {
       Workflows.get({id: $routeParams.id},
                     function(workflow) {
-                      $scope.workflow = workflow;
+                      self.workflow = workflow;
                       console.debug('Workflow', workflow);
 
                       WorkflowDefinitions.get({type: workflow.type},
                                               function(data) {
-                                                $scope.definition = _.first(data);
-                                                console.debug('Definition', $scope.definition);
+                                                self.definition = _.first(data);
+                                                console.debug('Definition', self.definition);
 
-                                                $scope.graph = workflowDefinitionGraph($scope.definition, $scope.workflow);
-                                                // must use $apply() - event not managed by angular
-                                                function nodeSelectedCallBack(nodeId) {
-                                                  $scope.$apply(function() {
-                                                    nodeSelected(nodeId);
-                                                  });
-                                                }
+                                                self.graph = workflowDefinitionGraph(self.definition, self.workflow);
 
                                                 defaultNextState(workflow.state);
 
-                                                drawWorkflowDefinition($scope.graph, '#workflowSvg', nodeSelectedCallBack, $rootScope.graph.css);
+                                                drawWorkflowDefinition(self.graph, '#workflowSvg', nodeSelected, $rootScope.graph.css);
                                                 markCurrentState(workflow);
                                               });
 
@@ -98,10 +93,10 @@ var m = angular.module('nflowVisApp.workflow', []);
     }
 
     function currentStateTime() {
-      if(!$scope.workflow) {
+      if(!self.workflow) {
         return '';
       }
-      var lastAction = _.last($scope.workflow.actions);
+      var lastAction = _.last(self.workflow.actions);
       if(!lastAction) {
         return '';
       }

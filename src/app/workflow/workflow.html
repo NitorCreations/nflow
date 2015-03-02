@@ -1,21 +1,21 @@
 <section class="wd-workflow">
   <div class="row">
     <div class="col-md-6">
-      <h2>{{definition.type}} ({{workflow.id}})</h2>
-      <blockquote ng-show="definition.description">{{definition.description}}</blockquote>
+      <h2>{{ctrl.definition.type}} ({{ctrl.workflow.id}})</h2>
+      <blockquote ng-show="ctrl.definition.description">{{ctrl.definition.description}}</blockquote>
       <ul class="listing">
-        <li><a href="#/workflow-definition/{{workflow.type}}">Go to workflow definition</a></li>
+        <li><a href="#/workflow-definition/{{ctrl.workflow.type}}">Go to workflow definition</a></li>
       </ul>
-      Created: <strong title="{{workflow.created | date:'medium' }}">{{workflow.created | fromNow}}</strong><br/>
-      Started: <strong title="{{workflow.started | date:'medium' }}">{{workflow.started | fromNow}}</strong><br/>
-      Current state: <strong ng-click="selectAction(workflow.state)">{{workflow.state}}</strong>
-      <span ng-show="workflow.stateText">({{workflow.stateText}})</span>
-      since <strong title="{{currentStateTime() | date:'medium' }}">{{currentStateTime() | fromNowOrNever}}</strong><br/>
-      Current status: <strong>{{workflow.status}}</strong><br/>
-      Next activation: <strong title={{workflow.nextActivation}}>{{workflow.nextActivation | fromNowOrNever}}</strong>
-      <div>Workflow id:<strong>{{workflow.id}}</strong></div>
-      <div ng-show="workflow.businessKey">Business key: <code>{{workflow.businessKey}}</code></diV>
-      <div ng-show="workflow.externalId">External id: <code>{{workflow.externalId}}</code></diV>
+      Created: <strong title="{{ctrl.workflow.created | date:'medium' }}">{{ctrl.workflow.created | fromNow}}</strong><br/>
+      Started: <strong title="{{ctrl.workflow.started | date:'medium' }}">{{ctrl.workflow.started | fromNow}}</strong><br/>
+      Current state: <strong ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
+      <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span>
+      since <strong title="{{ctrl.currentStateTime() | date:'medium' }}">{{ctrl.currentStateTime() | fromNowOrNever}}</strong><br/>
+      Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
+      Next activation: <strong title={{ctrl.workflow.nextActivation}}>{{ctrl.workflow.nextActivation | fromNowOrNever}}</strong>
+      <div>Workflow id:<strong>{{ctrl.workflow.id}}</strong></div>
+      <div ng-show="ctrl.workflow.businessKey">Business key: <code>{{ctrl.workflow.businessKey}}</code></diV>
+      <div ng-show="ctrl.workflow.externalId">External id: <code>{{ctrl.workflow.externalId}}</code></diV>
       <div class="svg-container">
         <svg id="workflowSvg"/>
       </div>
@@ -34,14 +34,14 @@
               <th>Duration</th>
             </thead>
             <tbody>
-              <tr class="wd-action-{{workflow.actions.length - $index}}" ng-repeat="action in workflow.actions | reverse" ng-click="selectAction(action)">
-                <td class="{{getClass(action)}}">{{workflow.actions.length - $index}}</td>
+              <tr class="wd-action-{{ctrl.workflow.actions.length - $index}}" ng-repeat="action in ctrl.workflow.actions | reverse" ng-click="ctrl.selectAction(action)">
+                <td class="{{getClass(action)}}">{{ctrl.workflow.actions.length - $index}}</td>
                 <td class="{{getClass(action)}}">{{action.state}}</td>
                 <td class="{{getClass(action)}}">{{action.stateText}}</td>
                 <td class="{{getClass(action)}}">{{action.retryNo}}</td>
                 <td class="{{getClass(action)}}">{{action.executionStartTime | date:'medium'}}</td>
                 <td class="{{getClass(action)}}">{{action.executionEndTime | date:'medium'}}</td>
-                <td class="{{getClass(action)}}">{{duration(action)}}</td>
+                <td class="{{getClass(action)}}">{{ctrl.duration(action)}}</td>
               </tr>
             </tbody>
           </table>
@@ -52,7 +52,7 @@
               <tr><th>Variable</th><th>Value</th></tr>
             </thead>
             <tbody>
-              <tr ng-repeat="(key, value) in workflow.stateVariables">
+              <tr ng-repeat="(key, value) in ctrl.workflow.stateVariables">
                 <td>{{key}}</td>
                 <td><pre>{{value | prettyPrintJson}}</pre></td>
               </tr>
@@ -64,7 +64,7 @@
             <div class="form-group">
               <label class="col-md-3 control-label" for="nextState">Set state to</label>
               <div class="col-md-9">
-                <select class="selectwidthauto form-control" id="nextState" ng-model="manage.nextState" ng-options="state.name for state in definition.states">
+                <select class="selectwidthauto form-control" id="nextState" ng-model="ctrl.manage.nextState" ng-options="state.name for state in ctrl.definition.states">
                   <option value="">-- Keep current state --</option>
                 </select>
               </div>
@@ -72,25 +72,25 @@
             <div class="form-group">
               <label class="col-md-3 control-label" for="duration">Next activation in</label>
               <div class="col-md-3">
-                <input class="form-control" id="duration" type="number" ng-model="manage.duration"/>
+                <input class="form-control" id="duration" type="number" ng-model="ctrl.manage.duration"/>
               </div>
               <div class="col-md-6">
-                <select class="selectwidthauto form-control" id="timeUnit" ng-model="manage.timeUnit" ng-options="timeUnit for timeUnit in manage.timeUnits">
+                <select class="selectwidthauto form-control" id="timeUnit" ng-model="ctrl.manage.timeUnit" ng-options="timeUnit for timeUnit in ctrl.manage.timeUnits">
                 </select>
               </div>
             </div>
             <div class="form-group">
               <label class="col-md-3 control-label" for="actionDescription">Action description</label>
               <div class="col-md-9">
-                <input class="form-control" id="actionDescription" ng-model="manage.actionDescription"/>
+                <input class="form-control" id="actionDescription" ng-model="ctrl.manage.actionDescription"/>
               </div>
             </div>
             <div class="form-group">
               <div class="col-md-offset-3 col-md-9">
-                <button class="selectwidthauto btn btn-default" ng-click="updateWorkflow(manage)">Update</button>
-                <button class="selectwidthauto btn" ng-click="pauseWorkflow(manage)" ng-disabled="workflow.nextActivation === undefined || workflow.status === 'paused'">Pause</button>
-                <button class="selectwidthauto btn" ng-click="resumeWorkflow(manage)" ng-disabled="workflow.status != 'paused'">Resume</button>
-                <button class="selectwidthauto btn" ng-click="stopWorkflow(manage)" ng-disabled="workflow.nextActivation === undefined">Stop</button>
+                <button class="selectwidthauto btn btn-default" ng-click="ctrl.updateWorkflow(manage)">Update</button>
+                <button class="selectwidthauto btn" ng-click="ctrl.pauseWorkflow(manage)" ng-disabled="ctrl.workflow.nextActivation === undefined || ctrl.workflow.status === 'paused'">Pause</button>
+                <button class="selectwidthauto btn" ng-click="ctrl.resumeWorkflow(manage)" ng-disabled="ctrl.workflow.status != 'paused'">Resume</button>
+                <button class="selectwidthauto btn" ng-click="ctrl.stopWorkflow(manage)" ng-disabled="ctrl.workflow.nextActivation === undefined">Stop</button>
               </div>
             </div>
           </form>
