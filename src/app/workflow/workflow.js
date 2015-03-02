@@ -8,13 +8,21 @@ var m = angular.module('nflowVisApp.workflow', []);
     $scope.manage.timeUnit = $scope.manage.timeUnits[0];
     $scope.manage.duration = 0;
 
+    $scope.getClass = getClass;
+    $scope.selectAction = selectAction;
+    $scope.duration = duration;
+    $scope.currentStateTime= currentStateTime;
+    $scope.updateWorkflow = updateWorkflow;
+    $scope.stopWorkflow = stopWorkflow;
+    $scope.pauseWorkflow = pauseWorkflow;
+    $scope.resumeWorkflow = resumeWorkflow;
+
     function defaultNextState(stateName) {
       $scope.manage.nextState = _.first(_.filter($scope.definition.states, function(state) {
         return state.name === stateName;
       }));
     }
 
-    /** called when node is clicked */
     function nodeSelected(nodeId) {
       console.debug('Selecting node ' + nodeId);
       if($scope.selectedNode) {
@@ -26,8 +34,6 @@ var m = angular.module('nflowVisApp.workflow', []);
       $scope.selectedNode = nodeId;
       defaultNextState(nodeId);
     }
-
-    $scope.nodeSelected = nodeSelected;
 
     function readWorkflow() {
       Workflows.get({id: $routeParams.id},
@@ -58,7 +64,7 @@ var m = angular.module('nflowVisApp.workflow', []);
     }
     readWorkflow();
 
-    $scope.getClass = function getClass(action) {
+    function getClass(action) {
       // See http://getbootstrap.com/css/#tables
       if(!action.type) {
         return '';
@@ -67,18 +73,18 @@ var m = angular.module('nflowVisApp.workflow', []);
               'stateExecutionFailed' :'danger',
               'externalChange' : 'info',
               'recovery': 'warning'}[action.type];
-    };
+    }
 
-    $scope.selectAction = function selectAction(action) {
+    function selectAction(action) {
       var state = action;
       if(typeof(action) !== 'string') {
         state = action.state;
       }
       console.log('Action selected', state);
       nodeSelected(state);
-    };
+    }
 
-    $scope.duration = function duration(action) {
+    function duration(action) {
       var start = moment(action.executionStartTime);
       var end = moment(action.executionEndTime);
       if(!start || !end) {
@@ -89,9 +95,9 @@ var m = angular.module('nflowVisApp.workflow', []);
         return d + ' msec';
       }
       return d.humanize();
-    };
+    }
 
-    $scope.currentStateTime = function currentStateTime() {
+    function currentStateTime() {
       if(!$scope.workflow) {
         return '';
       }
@@ -100,9 +106,9 @@ var m = angular.module('nflowVisApp.workflow', []);
         return '';
       }
       return lastAction.executionEndTime;
-    };
+    }
 
-    $scope.updateWorkflow = function updateWorkflow(manage) {
+    function updateWorkflow(manage) {
       console.info('updateWorkflow()', manage);
       var now = moment(new Date());
       var request = {};
@@ -120,22 +126,21 @@ var m = angular.module('nflowVisApp.workflow', []);
                        function() {
                          readWorkflow();
                        });
-    };
+    }
 
-    $scope.stopWorkflow = function stopWorkflow(manage) {
+    function stopWorkflow(manage) {
       console.info('stopWorkflow()', manage);
       ManageWorkflow.stop($routeParams.id, manage.actionDescription).then(readWorkflow);
-    };
+    }
 
-    $scope.pauseWorkflow = function pauseWorkflow(manage) {
+    function pauseWorkflow(manage) {
       console.info('pauseWorkflow()', manage);
       ManageWorkflow.pause($routeParams.id, manage.actionDescription).then(readWorkflow);
-    };
+    }
 
-    $scope.resumeWorkflow = function resumeWorkflow(manage) {
+    function resumeWorkflow(manage) {
       console.info('resumeWorkflow()', manage);
       ManageWorkflow.resume($routeParams.id, manage.actionDescription).then(readWorkflow);
-    };
+    }
   });
-
 })();
