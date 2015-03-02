@@ -8,6 +8,7 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardMinutes;
 import static org.joda.time.Duration.standardSeconds;
@@ -98,10 +99,10 @@ class WorkflowStateProcessor implements Runnable {
         }
       } catch (Throwable t) {
         execution.setFailed(t);
-        logger.error("Handler threw exception, trying again later (" + t.getMessage() + ")", t);
+        logger.error("Handler threw exception, trying again later.", t);
         execution.setRetry(true);
         execution.setNextState(state);
-        execution.setNextStateReason(t.toString());
+        execution.setNextStateReason(getStackTrace(t));
         definition.handleRetry(execution);
       } finally {
         if (execution.isFailed()) {
@@ -156,12 +157,22 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setStatus(getStatus(execution, definition.getState(execution.getNextState())))
-      .setStateText(execution.isRetry() ? execution.getNextStateReason() : null)
+      .setStateText(getStateText(instance, execution))
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
     workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
+  }
+
+  private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {
+    if (execution.isRetry() || execution.isRetryCountExceeded()) {
+      return execution.getNextStateReason();
+    }
+    if (execution.getNextActivation() == null) {
+      return "Stopped in state " + execution.getNextState();
+    }
+    return "Scheduled by previous state " + instance.state;
   }
 
   private WorkflowInstanceStatus getStatus(StateExecutionImpl execution, WorkflowState nextState) {

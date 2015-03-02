@@ -89,8 +89,7 @@ public class WorkflowInstanceService {
    */
   @Transactional
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
-    boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(instance.id, instance.state, instance.nextActivation,
-        instance.status);
+    boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(instance);
     if (updated) {
       WorkflowInstanceAction.Builder actionBuilder;
       if (action == null) {

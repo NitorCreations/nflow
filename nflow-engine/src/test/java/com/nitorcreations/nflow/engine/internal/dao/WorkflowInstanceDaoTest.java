@@ -132,7 +132,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateNotRunningWorkflowInstanceUpdatesStatusForNotRunningInstance() {
     final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(instance);
-    boolean updated = dao.updateNotRunningWorkflowInstance(id, null, null, manual);
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState(null).setNextActivation(null)
+        .setStatus(manual).setStateText("modified").build();
+    boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
     assertThat(updated, is(true));
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
@@ -140,6 +142,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("status"), is(manual.name()));
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
+        assertThat(rs.getString("state_text"), is("modified"));
       }
     });
   }
@@ -273,7 +276,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateNotRunningWorkflowInstanceUpdatesStateForNotRunningInstance() {
     final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(instance);
-    boolean updated = dao.updateNotRunningWorkflowInstance(id, "manualState", null, null);
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState("manualState")
+        .setNextActivation(null).setStatus(null).setStateText("modified").build();
+    boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
     assertThat(updated, is(true));
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
@@ -281,6 +286,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("status"), is(instance.status.name()));
         assertThat(rs.getString("state"), is("manualState"));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
+        assertThat(rs.getString("state_text"), is("modified"));
       }
     });
   }
@@ -290,7 +296,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
     int id = dao.insertWorkflowInstance(instance);
     final DateTime tomorrow = now().plusDays(1);
-    boolean updated = dao.updateNotRunningWorkflowInstance(id, null, tomorrow, null);
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState(null)
+        .setNextActivation(tomorrow).setStatus(null).setStateText("modified").build();
+    boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
     assertThat(updated, is(true));
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
@@ -298,6 +306,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("status"), is(instance.status.name()));
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(tomorrow.getMillis()));
+        assertThat(rs.getString("state_text"), is("modified"));
       }
     });
   }
@@ -308,7 +317,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int id = dao.insertWorkflowInstance(instance);
     assertThat(jdbc.update("update nflow_workflow set executor_id = 1 where id = ?", id), is(1));
     final DateTime tomorrow = now().plusDays(1);
-    boolean updated = dao.updateNotRunningWorkflowInstance(id, "manualState", tomorrow, manual);
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState("manualState")
+        .setNextActivation(tomorrow).setStatus(manual).build();
+    boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
     assertThat(updated, is(false));
   }
 
