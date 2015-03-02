@@ -33,6 +33,7 @@
     "it": false,
     "jasmine": false,
     "moment": false,
+    "protractor": false,
     "sinon": false,
     "spyOn": false,
     "xdescribe": false,

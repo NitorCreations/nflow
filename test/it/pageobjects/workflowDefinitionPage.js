@@ -60,7 +60,7 @@ module.exports = function (spec) {
   var that = require('./base')(spec);
 
   spec.view = $('section.wd-workflow-definition');
-  spec.instanceSearchByTypeLink = by.linkText('Search related workflow instances');
+  spec.instanceSearchByTypeLink = element(by.linkText('Search related workflow instances'));
 
   that.get = function (type) {
     browser.get('/#/workflow-definition/' + type);
@@ -68,7 +68,7 @@ module.exports = function (spec) {
   };
 
   that.toInstanceSearchByType = function() {
-    element(spec.instanceSearchByTypeLink).click();
+    spec.instanceSearchByTypeLink.click();
   };
 
   that.graph = graph({});
