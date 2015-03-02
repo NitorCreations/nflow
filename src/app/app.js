@@ -104,6 +104,12 @@ angular
           var defer = $q.defer();
           GraphService.getCss(defer);
           return defer.promise;
+        },
+        workflow: function($stateParams, Workflows) {
+          return Workflows.get({id: $stateParams.id}).$promise;
+        },
+        definition: function(WorkflowDefinitions, workflow) {
+          return WorkflowDefinitions.get({type: workflow.type}).$promise.then(_.first);
         }
       }
     });

@@ -2,8 +2,13 @@
   'use strict';
 
 var m = angular.module('nflowVisApp.workflow', []);
-  m.controller('WorkflowCtrl', function WorkflowCtrl(Workflows, ManageWorkflow, WorkflowDefinitions, $stateParams, $rootScope) {
+  m.controller('WorkflowCtrl', function WorkflowCtrl(Workflows, ManageWorkflow, $state, $rootScope, workflow, definition) {
     var self = this;
+    var graph;
+
+    self.workflow = workflow;
+    self.definition = definition;
+
     self.manage = {};
     self.manage.timeUnits = ['minutes','hours','days'];
     self.manage.timeUnit = self.manage.timeUnits[0];
@@ -18,6 +23,15 @@ var m = angular.module('nflowVisApp.workflow', []);
     self.pauseWorkflow = pauseWorkflow;
     self.resumeWorkflow = resumeWorkflow;
 
+    initialize();
+
+    function initialize() {
+      graph = workflowDefinitionGraph(self.definition, self.workflow);
+      defaultNextState(self.workflow.state);
+      drawWorkflowDefinition(graph, '#workflowSvg', nodeSelected, $rootScope.graph.css);
+      markCurrentState(self.workflow);
+    }
+
     function defaultNextState(stateName) {
       self.manage.nextState = _.first(_.filter(self.definition.states, function(state) {
         return state.name === stateName;
@@ -27,37 +41,14 @@ var m = angular.module('nflowVisApp.workflow', []);
     function nodeSelected(nodeId) {
       console.debug('Selecting node ' + nodeId);
       if(self.selectedNode) {
-        unhiglightNode(self.graph, self.definition, self.selectedNode, self.workflow);
+        unhiglightNode(graph, self.definition, self.selectedNode, self.workflow);
       }
       if(nodeId) {
-        higlightNode(self.graph, self.definition, nodeId, self.workflow);
+        higlightNode(graph, self.definition, nodeId, self.workflow);
       }
       self.selectedNode = nodeId;
       defaultNextState(nodeId);
     }
-
-    function readWorkflow() {
-      Workflows.get({id: $stateParams.id},
-                    function(workflow) {
-                      self.workflow = workflow;
-                      console.debug('Workflow', workflow);
-
-                      WorkflowDefinitions.get({type: workflow.type},
-                                              function(data) {
-                                                self.definition = _.first(data);
-                                                console.debug('Definition', self.definition);
-
-                                                self.graph = workflowDefinitionGraph(self.definition, self.workflow);
-
-                                                defaultNextState(workflow.state);
-
-                                                drawWorkflowDefinition(self.graph, '#workflowSvg', nodeSelected, $rootScope.graph.css);
-                                                markCurrentState(workflow);
-                                              });
-
-                    });
-    }
-    readWorkflow();
 
     function getClass(action) {
       // See http://getbootstrap.com/css/#tables
@@ -116,26 +107,27 @@ var m = angular.module('nflowVisApp.workflow', []);
       if(manage.actionDescription) {
         request.actionDescription = manage.actionDescription;
       }
-      Workflows.update({id: $stateParams.id},
-                       request,
-                       function() {
-                         readWorkflow();
-                       });
+
+      Workflows.update({id: workflow.id}, request, refresh);
     }
 
     function stopWorkflow(manage) {
       console.info('stopWorkflow()', manage);
-      ManageWorkflow.stop($stateParams.id, manage.actionDescription).then(readWorkflow);
+      ManageWorkflow.stop(workflow.id, manage.actionDescription).then(refresh);
     }
 
     function pauseWorkflow(manage) {
       console.info('pauseWorkflow()', manage);
-      ManageWorkflow.pause($stateParams.id, manage.actionDescription).then(readWorkflow);
+      ManageWorkflow.pause(workflow.id, manage.actionDescription).then(refresh);
     }
 
     function resumeWorkflow(manage) {
       console.info('resumeWorkflow()', manage);
-      ManageWorkflow.resume($stateParams.id, manage.actionDescription).then(readWorkflow);
+      ManageWorkflow.resume(workflow.id, manage.actionDescription).then(refresh);
+    }
+
+    function refresh() {
+      $state.reload();
     }
   });
 })();
