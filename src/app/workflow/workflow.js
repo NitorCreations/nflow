@@ -2,7 +2,8 @@
   'use strict';
 
 var m = angular.module('nflowVisApp.workflow', [
-  'nflowVisApp.workflow.graph'
+  'nflowVisApp.workflow.graph',
+  'nflowVisApp.workflow.info'
 ]);
   m.controller('WorkflowCtrl', function WorkflowCtrl(Workflows, ManageWorkflow, $state, $rootScope, workflow, definition, WorkflowGraphApi) {
     var self = this;
@@ -16,9 +17,8 @@ var m = angular.module('nflowVisApp.workflow', [
     self.manage.duration = 0;
 
     self.getClass = getClass;
-    self.selectAction = selectAction;
+    self.selectAction = WorkflowGraphApi.onSelectNode;
     self.duration = duration;
-    self.currentStateTime= currentStateTime;
     self.updateWorkflow = updateWorkflow;
     self.stopWorkflow = stopWorkflow;
     self.pauseWorkflow = pauseWorkflow;
@@ -52,15 +52,6 @@ var m = angular.module('nflowVisApp.workflow', [
               'recovery': 'warning'}[action.type];
     }
 
-    function selectAction(action) {
-      var state = action;
-      if(typeof(action) !== 'string') {
-        state = action.state;
-      }
-      console.log('Action selected', state);
-      WorkflowGraphApi.onSelectNode(state);
-    }
-
     function duration(action) {
       var start = moment(action.executionStartTime);
       var end = moment(action.executionEndTime);
@@ -72,17 +63,6 @@ var m = angular.module('nflowVisApp.workflow', [
         return d + ' msec';
       }
       return d.humanize();
-    }
-
-    function currentStateTime() {
-      if(!self.workflow) {
-        return '';
-      }
-      var lastAction = _.last(self.workflow.actions);
-      if(!lastAction) {
-        return '';
-      }
-      return lastAction.executionEndTime;
     }
 
     function updateWorkflow(manage) {
