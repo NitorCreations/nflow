@@ -1,47 +1,49 @@
 'use strict';
 
-function graph(spec) {
-  var that = require('./base')(spec);
+  var baseFn = require('./base');
+  var po = require('./pageobjects');
 
-  that.isSelected = function(nodeId) {
-    return spec.hasClasses(nodeIdSelector(nodeId), ['selected']);
+module.exports = function (spec) {
+  var that = baseFn(spec);
+
+  spec.view = $('section.wd-workflow');
+  spec.definitionLink = element(by.linkText('Go to workflow definition'));
+
+  that.get = function (id) {
+    browser.get('/#/workflow/' + id);
+    expect(that.isDisplayed()).toBeTruthy();
   };
 
-  that.select = function(state) {
-    nodeIdSelector(state).click();
+  that.toDefinition = function() {
+    spec.definitionLink.click();
   };
+
+  that.graph = po.graph({});
+  that.tabs = tabs({});
 
   return that;
-
-  function nodeIdSelector(nodeId) {
-    return $('#node_' + nodeId);
-  }
-}
-
-function tabBase(spec) {
-  spec.link = element(by.linkText(spec.linkText));
-
-  var that = require('./base')(spec);
-
-  that.isActive = function() {
-    return spec.hasClasses(spec.parent(spec.link), ['active']);
-  };
-
-  that.activate = function() {
-    spec.link.click();
-  };
-
-  return that;
-}
+};
 
 function tabs(spec) {
-  var that = require('./base')(spec);
+  var that = baseFn(spec);
 
-  that.actionHistory = tabBase({ linkText: 'Action history'} );
-  that.actionHistory.getActions = function() {
+  that.actionHistory = actionHistory();
+  that.stateVariables = po.tab({ linkText: 'State variables'} );
+  that.manage = po.tab({ linkText: 'Manage'} );
+
+  return that;
+}
+
+function actionHistory() {
+  var spec = {linkText: 'Action history'};
+  spec.actions = $$('table#action-history tbody tr');
+
+  var that = po.tab(spec);
+
+  that.getActions = function() {
     function colText(action, idx) { return action.$$('td').get(idx).getText(); }
 
-    return $$('table#action-history tbody tr').then(function(actions) {
+    return spec.actions.then(function(actions) {
       var results = [];
       for (var i=0; i < actions.length; i++) {
         var action = actions[i];
@@ -57,33 +59,9 @@ function tabs(spec) {
     });
   };
 
-  that.actionHistory.select = function(id){
-    $('tr.wd-action-' + id).click();
+  that.select = function(id){
+    return $('tr.wd-action-' + id).click();
   };
-
-  that.stateVariables = tabBase({ linkText: 'State variables'} );
-  that.manage = tabBase({ linkText: 'Manage'} );
 
   return that;
 }
-
-module.exports = function (spec) {
-  var that = require('./base')(spec);
-
-  spec.view = $('section.wd-workflow');
-  spec.definitionLink = element(by.linkText('Go to workflow definition'));
-
-  that.get = function (id) {
-    browser.get('/#/workflow/' + id);
-    expect(that.isDisplayed()).toBeTruthy();
-  };
-
-  that.toDefinition = function() {
-    spec.definitionLink.click();
-  };
-
-  that.graph = graph({});
-  that.tabs = tabs({});
-
-  return that;
-};
