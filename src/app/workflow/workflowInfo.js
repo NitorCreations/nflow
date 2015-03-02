@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflow.info', []);
+  var m = angular.module('nflowVisApp.workflow.info', [
+    'nflowVisApp.workflow.graph'
+  ]);
 
   m.directive('workflowInfo', function() {
     return {
