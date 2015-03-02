@@ -1,8 +1,8 @@
 'use strict';
 angular.module('nflowVisApp.workflowStats', [])
 .controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
-                                                             $routeParams, config) {
-  $scope.type=$routeParams.type;
+                                                             $stateParams, config) {
+  $scope.type=$stateParams.type;
 
   var itemCount = config.maxHistorySize;
   $scope.definition = {};

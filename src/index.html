@@ -30,9 +30,9 @@
           </div>
           <div class="col-md-6 col-md-offset-2">
             <ul class="nav nav-pills pull-right">
-              <li ng-class="{active: isActiveTab('frontPage')}"><a ng-href="#/">Workflow definitions</a></li>
-              <li ng-class="{active: isActiveTab('search')}"><a ng-href="#/search">Workflow instances</a></li>
-              <li ng-class="{active: isActiveTab('about')}"><a ng-href="#/about">About</a></li>
+              <li ng-class="{active: $state.includes('frontPageTab')}"><a ng-href="#/">Workflow definitions</a></li>
+              <li ng-class="{active: $state.includes('searchTab')}"><a ng-href="#/search">Workflow instances</a></li>
+              <li ng-class="{active: $state.includes('aboutTab')}"><a ng-href="#/about">About</a></li>
             </ul>
           </div>
         </div>
@@ -43,7 +43,7 @@
     </header>
 
     <div class="container-fluid">
-      <div ng-view="">
+      <div ui-view>
         <!-- Add your site or application content here -->
       </div>
       <div id="canvas"></div>
@@ -76,7 +76,7 @@
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/momentjs/moment.js"></script>
     <script src="bower_components/lodash/lodash.js"></script>
     <script src="bower_components/d3/d3.js"></script>

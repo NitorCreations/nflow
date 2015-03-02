@@ -2,7 +2,7 @@
   'use strict';
 
 var m = angular.module('nflowVisApp.workflow', []);
-  m.controller('WorkflowCtrl', function WorkflowCtrl(Workflows, ManageWorkflow, WorkflowDefinitions, $routeParams, $rootScope) {
+  m.controller('WorkflowCtrl', function WorkflowCtrl(Workflows, ManageWorkflow, WorkflowDefinitions, $stateParams, $rootScope) {
     var self = this;
     self.manage = {};
     self.manage.timeUnits = ['minutes','hours','days'];
@@ -37,7 +37,7 @@ var m = angular.module('nflowVisApp.workflow', []);
     }
 
     function readWorkflow() {
-      Workflows.get({id: $routeParams.id},
+      Workflows.get({id: $stateParams.id},
                     function(workflow) {
                       self.workflow = workflow;
                       console.debug('Workflow', workflow);
@@ -116,7 +116,7 @@ var m = angular.module('nflowVisApp.workflow', []);
       if(manage.actionDescription) {
         request.actionDescription = manage.actionDescription;
       }
-      Workflows.update({id: $routeParams.id},
+      Workflows.update({id: $stateParams.id},
                        request,
                        function() {
                          readWorkflow();
@@ -125,17 +125,17 @@ var m = angular.module('nflowVisApp.workflow', []);
 
     function stopWorkflow(manage) {
       console.info('stopWorkflow()', manage);
-      ManageWorkflow.stop($routeParams.id, manage.actionDescription).then(readWorkflow);
+      ManageWorkflow.stop($stateParams.id, manage.actionDescription).then(readWorkflow);
     }
 
     function pauseWorkflow(manage) {
       console.info('pauseWorkflow()', manage);
-      ManageWorkflow.pause($routeParams.id, manage.actionDescription).then(readWorkflow);
+      ManageWorkflow.pause($stateParams.id, manage.actionDescription).then(readWorkflow);
     }
 
     function resumeWorkflow(manage) {
       console.info('resumeWorkflow()', manage);
-      ManageWorkflow.resume($routeParams.id, manage.actionDescription).then(readWorkflow);
+      ManageWorkflow.resume($stateParams.id, manage.actionDescription).then(readWorkflow);
     }
   });
 })();

@@ -7,13 +7,13 @@
     'nflowVisApp.search.searchResult'
   ]);
 
-  m.controller('SearchCtrl', function ($routeParams, definitions, CriteriaModel) {
+  m.controller('SearchCtrl', function ($stateParams, definitions, CriteriaModel) {
     var self = this;
     self.definitions = definitions;
     self.results = [];
     self.hasResults = hasResults;
 
-    CriteriaModel.initialize({ type: $routeParams.type, stateName: $routeParams.state }, definitions);
+    CriteriaModel.initialize({ type: $stateParams.type, stateName: $stateParams.state }, definitions);
 
     function hasResults() {
       return !_.isEmpty(self.results);
