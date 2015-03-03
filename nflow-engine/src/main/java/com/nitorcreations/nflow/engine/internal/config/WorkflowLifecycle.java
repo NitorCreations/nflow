@@ -21,7 +21,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
   @Inject
   public WorkflowLifecycle(WorkflowDispatcher dispatcher, @NFlow ThreadFactory nflowThreadFactory, Environment env) {
     this.dispatcher = dispatcher;
-    autoStart = env.getProperty("nflow.autostart", Boolean.class, true);
+    autoStart = env.getRequiredProperty("nflow.autostart", Boolean.class);
     dispatcherThread = nflowThreadFactory.newThread(dispatcher);
     dispatcherThread.setName("nflow-dispatcher");
     if (!autoStart) {

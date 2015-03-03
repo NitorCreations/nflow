@@ -39,7 +39,7 @@ public class WorkflowDispatcher implements Runnable {
     this.workflowInstances = workflowInstances;
     this.stateProcessorFactory = stateProcessorFactory;
     this.executorRecovery = executorRecovery;
-    this.sleepTime = env.getProperty("nflow.dispatcher.sleep.ms", Long.class, 5000l);
+    this.sleepTime = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     if (!executorRecovery.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
     }

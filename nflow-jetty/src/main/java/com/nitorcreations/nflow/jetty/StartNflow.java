@@ -56,9 +56,6 @@ public class StartNflow
 
   private final Set<Class<?>> annotatedContextClasses = new LinkedHashSet<>();
 
-  public static final String DEFAULT_HOST = "localhost";
-  public static final int DEFAULT_PORT = 7500;
-
   public static void main(final String... args) throws Exception {
     new StartNflow().startJetty(Collections.<String, Object>emptyMap());
   }
@@ -85,14 +82,13 @@ public class StartNflow
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
     ConfigurableEnvironment env = new NflowStandardEnvironment(properties);
-    String host = env.getProperty("host", DEFAULT_HOST);
-    int port = env.getProperty("port", Integer.class, DEFAULT_PORT);
-    KillProcess.gracefullyTerminateOrKillProcessUsingPort(port, env.getProperty("terminate.timeout", Integer.class, 30), true);
+    String host = env.getRequiredProperty("host");
+    int port = env.getRequiredProperty("port", Integer.class);
+    KillProcess.gracefullyTerminateOrKillProcessUsingPort(port, env.getRequiredProperty("terminate.timeout", Integer.class), true);
     Server server = setupServer();
     setupJmx(server, env);
     setupServerConnector(server, host, port);
-    ServletContextHandler context = setupServletContextHandler(env.getProperty("extra.resource.directories", String[].class,
-        new String[0]));
+    ServletContextHandler context = setupServletContextHandler(env.getRequiredProperty("extra.resource.directories", String[].class));
     setupHandlers(server, context);
     setupSpring(context, env);
     setupCxf(context);

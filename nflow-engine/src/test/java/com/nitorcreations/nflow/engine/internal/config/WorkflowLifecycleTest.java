@@ -34,7 +34,7 @@ public class WorkflowLifecycleTest {
 
   @Before
   public void setup() {
-    when(env.getProperty("nflow.autostart", Boolean.class, true)).thenReturn(TRUE);
+    when(env.getRequiredProperty("nflow.autostart", Boolean.class)).thenReturn(TRUE);
     when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
     lifecycle = new WorkflowLifecycle(dispatcher, threadFactory, env);
   }

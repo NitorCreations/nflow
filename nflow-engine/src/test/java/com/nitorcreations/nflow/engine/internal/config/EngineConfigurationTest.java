@@ -20,7 +20,9 @@ import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecuto
 public class EngineConfigurationTest {
 
   @Spy
-  private final MockEnvironment environment = new MockEnvironment().withProperty("nflow.executor.thread.count", "100");
+  private final MockEnvironment environment = new MockEnvironment().withProperty("nflow.executor.thread.count", "100")
+      .withProperty("nflow.dispatcher.await.termination.seconds", "60")
+      .withProperty("nflow.dispatcher.executor.thread.keepalive.seconds", "0");
   @Mock
   private ThreadFactory threadFactory;
 

@@ -10,7 +10,6 @@ import static org.joda.time.DateTime.now;
 import java.math.BigInteger;
 
 import org.joda.time.DateTime;
-import org.springframework.core.env.Environment;
 
 /**
  * Configuration for the workflow execution.
@@ -50,32 +49,11 @@ public class WorkflowSettings {
    */
   public static class Builder {
 
-    int maxErrorTransitionDelay;
-    int minErrorTransitionDelay;
-    int shortTransitionDelay;
-    int immediateTransitionDelay;
-    int maxRetries;
-
-    /**
-     * Create builder for workflow settings using default values.
-     */
-    public Builder() {
-      this(null);
-    }
-
-    /**
-     * Create builder for workflow settings using configured default values.
-     *
-     * @param env
-     *          Spring environment.
-     */
-    public Builder(Environment env) {
-      minErrorTransitionDelay = getIntegerProperty(env, "nflow.transition.delay.error.min.ms", (int) MINUTES.toMillis(1));
-      maxErrorTransitionDelay = getIntegerProperty(env, "nflow.transition.delay.error.max.ms", (int) DAYS.toMillis(1));
-      shortTransitionDelay = getIntegerProperty(env, "nflow.transition.delay.waitshort.ms", (int) SECONDS.toMillis(30));
-      immediateTransitionDelay = getIntegerProperty(env, "nflow.transition.delay.immediate.ms", 0);
-      maxRetries = getIntegerProperty(env, "nflow.max.state.retries", 17);
-    }
+    int maxErrorTransitionDelay = (int) DAYS.toMillis(1);
+    int minErrorTransitionDelay = (int) MINUTES.toMillis(1);
+    int shortTransitionDelay = (int) SECONDS.toMillis(30);
+    int immediateTransitionDelay = 0;
+    int maxRetries = 17;
 
     /**
      * Set the maximum delay on execution retry after an error.
@@ -135,13 +113,6 @@ public class WorkflowSettings {
     public Builder setMaxRetries(int maxRetries) {
       this.maxRetries = maxRetries;
       return this;
-    }
-
-    private int getIntegerProperty(Environment env, String key, int defaultValue) {
-      if (env != null) {
-        return env.getProperty(key, Integer.class, defaultValue);
-      }
-      return defaultValue;
     }
 
     /**
