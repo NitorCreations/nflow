@@ -12,14 +12,22 @@
         <th>Duration</th>
         </thead>
         <tbody>
-        <tr class="wd-action-{{ctrl.workflow.actions.length - $index}}" ng-repeat="action in ctrl.workflow.actions | reverse" ng-click="ctrl.selectAction(action.state)">
-          <td class="{{getClass(action)}}">{{ctrl.workflow.actions.length - $index}}</td>
-          <td class="{{getClass(action)}}">{{action.state}}</td>
-          <td class="{{getClass(action)}}">{{action.stateText}}</td>
-          <td class="{{getClass(action)}}">{{action.retryNo}}</td>
-          <td class="{{getClass(action)}}">{{action.executionStartTime | date:'medium'}}</td>
-          <td class="{{getClass(action)}}">{{action.executionEndTime | date:'medium'}}</td>
-          <td class="{{getClass(action)}}">{{ctrl.duration(action)}}</td>
+        <tr class="wd-action-{{ctrl.workflow.actions.length - $index}}"
+            ng-class="{
+              success: action.type === 'stateExecution',
+              danger: action.type === 'stateExecutionFailed',
+              info: action.type === 'externalChange',
+              warning: action.type === 'recovery'
+              }"
+            ng-repeat="action in ctrl.workflow.actions | reverse"
+            ng-click="ctrl.selectAction(action.state)">
+          <td>{{ctrl.workflow.actions.length - $index}}</td>
+          <td>{{action.state}} {{action.type}}</td>
+          <td>{{action.stateText}}</td>
+          <td>{{action.retryNo}}</td>
+          <td>{{action.executionStartTime | date:'medium'}}</td>
+          <td>{{action.executionEndTime | date:'medium'}}</td>
+          <td>{{ctrl.duration(action)}}</td>
         </tr>
         </tbody>
       </table>

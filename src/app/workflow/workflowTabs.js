@@ -28,7 +28,6 @@
     self.manage.timeUnit = self.manage.timeUnits[0];
     self.manage.duration = 0;
 
-    self.getClass = getClass;
     self.selectAction = WorkflowGraphApi.onSelectNode;
     self.duration = duration;
     self.updateWorkflow = updateWorkflow;
@@ -50,17 +49,6 @@
       self.manage.nextState = _.first(_.filter(self.definition.states, function(state) {
         return state.name === stateName;
       }));
-    }
-
-    function getClass(action) {
-      // See http://getbootstrap.com/css/#tables
-      if(!action.type) {
-        return '';
-      }
-      return {'stateExecution' : 'success',
-        'stateExecutionFailed' :'danger',
-        'externalChange' : 'info',
-        'recovery': 'warning'}[action.type];
     }
 
     function duration(action) {
