@@ -18,11 +18,27 @@ module.exports = function (spec) {
     spec.definitionLink.click();
   };
 
+  that.info = info({});
   that.graph = po.graph({});
   that.tabs = tabs({});
 
   return that;
 };
+
+function info(spec) {
+  var that = baseFn(spec);
+  spec.activeState = $('.wd-workflow-info .wd-active-state');
+
+  that.getActiveState = function() {
+    return spec.activeState.getText();
+  };
+
+  that.clickActiveState = function() {
+    spec.activeState.click();
+  };
+
+  return that;
+}
 
 function tabs(spec) {
   var that = baseFn(spec);

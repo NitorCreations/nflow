@@ -6,7 +6,7 @@ describe('workflow instance page', function () {
 
   var page = po.workflowPage({});
   var definitionPage = po.workflowDefinitionPage({});
-  
+
   beforeEach(function () {
     page.get(2); // TODO this is not robust, currently expected creditDecision (approved)
   });
@@ -21,6 +21,14 @@ describe('workflow instance page', function () {
     expect(page.graph.isSelected(state)).toBeFalsy();
     page.graph.select(state);
     expect(page.graph.isSelected(state)).toBeTruthy();
+  });
+
+  it('clicking active state in info hi-lights node', function() {
+    page.info.getActiveState().then(function(activeState) {
+      expect(page.graph.isSelected(activeState)).toBeFalsy();
+      page.info.clickActiveState();
+      expect(page.graph.isSelected(activeState)).toBeTruthy();
+    });
   });
 
   describe('tabs', function() {
