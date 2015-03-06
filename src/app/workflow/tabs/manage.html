@@ -27,9 +27,9 @@
     <div class="form-group">
       <div class="col-md-offset-3 col-md-9">
         <button class="selectwidthauto btn btn-default" ng-click="ctrl.updateWorkflow()">Update</button>
-        <button class="selectwidthauto btn" ng-click="ctrl.pauseWorkflow()" ng-disabled="ctrl.workflow.nextActivation === undefined || ctrl.workflow.status === 'paused'">Pause</button>
-        <button class="selectwidthauto btn" ng-click="ctrl.resumeWorkflow()" ng-disabled="ctrl.workflow.status != 'paused'">Resume</button>
-        <button class="selectwidthauto btn" ng-click="ctrl.stopWorkflow()" ng-disabled="ctrl.workflow.nextActivation === undefined">Stop</button>
+        <button class="selectwidthauto btn" ng-click="ctrl.pauseWorkflow()" ng-disabled="ctrl.isPauseDisabled()">Pause</button>
+        <button class="selectwidthauto btn" ng-click="ctrl.resumeWorkflow()" ng-disabled="ctrl.isResumeDisabled()">Resume</button>
+        <button class="selectwidthauto btn" ng-click="ctrl.stopWorkflow()" ng-disabled="ctrl.isStopDisabled()">Stop</button>
       </div>
     </div>
   </form>

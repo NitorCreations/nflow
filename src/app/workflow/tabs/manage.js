@@ -36,6 +36,10 @@
     self.pauseWorkflow = pauseWorkflow;
     self.resumeWorkflow = resumeWorkflow;
 
+    self.isPauseDisabled = isPauseDisabled;
+    self.isResumeDisabled = isResumeDisabled;
+    self.isStopDisabled = isStopDisabled;
+
     initialize();
 
     function initialize() {
@@ -59,7 +63,7 @@
       if(model.nextState) {
         request.state = model.nextState.name;
       }
-      if((model.duration !== undefined && model.duration !== null) && model.timeUnit) {
+      if(_.isNumber(model.duration) && model.timeUnit) {
         request.nextActivationTime = now.add(moment.duration(model.duration, model.timeUnit));
       }
       if(model.actionDescription) {
@@ -84,8 +88,14 @@
       ManageWorkflow.resume(self.workflow.id, model.actionDescription).then(refresh);
     }
 
-    function refresh() {
-      $state.reload();
-    }
+    function isPauseDisabled() { return _.isUndefined(self.workflow.nextActivation) || isPaused(); }
+
+    function isResumeDisabled() { return !isPaused(); }
+
+    function isStopDisabled() { return _.isUndefined(self.workflow.nextActivation); }
+
+    function isPaused() { return self.workflow.status === 'paused'; }
+
+    function refresh() { $state.reload(); }
   });
 })();
