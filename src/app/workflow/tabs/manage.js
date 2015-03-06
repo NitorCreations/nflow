@@ -23,12 +23,13 @@
   });
 
   m.controller('WorkflowManageCtrl', function($state, Workflows, ManageWorkflow, WorkflowGraphApi) {
-    var self = this;
+    var model = {};
+    model.timeUnits = ['minutes', 'hours', 'days'];
+    model.timeUnit = model.timeUnits[0];
+    model.duration = 0;
 
-    self.manage = {};
-    self.manage.timeUnits = ['minutes', 'hours', 'days'];
-    self.manage.timeUnit = self.manage.timeUnits[0];
-    self.manage.duration = 0;
+    var self = this;
+    self.model = model;
 
     self.updateWorkflow = updateWorkflow;
     self.stopWorkflow = stopWorkflow;
@@ -46,41 +47,41 @@
     }
 
     function defaultNextState(stateName) {
-      self.manage.nextState = _.first(_.filter(self.definition.states, function(state) {
+      model.nextState = _.first(_.filter(self.definition.states, function(state) {
         return state.name === stateName;
       }));
     }
 
-    function updateWorkflow(manage) {
-      console.info('updateWorkflow()', manage);
+    function updateWorkflow() {
+      console.info('updateWorkflow()', model);
       var now = moment(new Date());
       var request = {};
-      if(manage.nextState) {
-        request.state = manage.nextState.name;
+      if(model.nextState) {
+        request.state = model.nextState.name;
       }
-      if((manage.duration !== undefined && manage.duration !== null) && manage.timeUnit) {
-        request.nextActivationTime = now.add(moment.duration(manage.duration, manage.timeUnit));
+      if((model.duration !== undefined && model.duration !== null) && model.timeUnit) {
+        request.nextActivationTime = now.add(moment.duration(model.duration, model.timeUnit));
       }
-      if(manage.actionDescription) {
-        request.actionDescription = manage.actionDescription;
+      if(model.actionDescription) {
+        request.actionDescription = model.actionDescription;
       }
 
       Workflows.update({id: self.workflow.id}, request, refresh);
     }
 
-    function stopWorkflow(manage) {
-      console.info('stopWorkflow()', manage);
-      ManageWorkflow.stop(self.workflow.id, manage.actionDescription).then(refresh);
+    function stopWorkflow() {
+      console.info('stopWorkflow()', model);
+      ManageWorkflow.stop(self.workflow.id, model.actionDescription).then(refresh);
     }
 
-    function pauseWorkflow(manage) {
-      console.info('pauseWorkflow()', manage);
-      ManageWorkflow.pause(self.workflow.id, manage.actionDescription).then(refresh);
+    function pauseWorkflow() {
+      console.info('pauseWorkflow()', model);
+      ManageWorkflow.pause(self.workflow.id, model.actionDescription).then(refresh);
     }
 
-    function resumeWorkflow(manage) {
-      console.info('resumeWorkflow()', manage);
-      ManageWorkflow.resume(self.workflow.id, manage.actionDescription).then(refresh);
+    function resumeWorkflow() {
+      console.info('resumeWorkflow()', model);
+      ManageWorkflow.resume(self.workflow.id, model.actionDescription).then(refresh);
     }
 
     function refresh() {
