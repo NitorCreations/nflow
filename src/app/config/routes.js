@@ -60,11 +60,9 @@
         templateUrl: 'app/workflow-definition/workflowDefinition.html',
         controller: 'WorkflowDefinitionCtrl as ctrl',
         resolve: {
-          loadCss: function (GraphService) {
-            return GraphService.loadCss();
-          },
-          definition: function ($stateParams, WorkflowDefinitions) {
-            return WorkflowDefinitions.get({type: $stateParams.type}).$promise.then(_.first);
+          loadCss: loadCss,
+          definition: function (WorkflowDefinitions, $stateParams) {
+            return getDefinition(WorkflowDefinitions, $stateParams.type);
           }
         }
       })
@@ -74,17 +72,24 @@
         templateUrl: 'app/workflow/workflow.html',
         controller: 'WorkflowCtrl as ctrl',
         resolve: {
-          loadCss: function (GraphService) {
-            return GraphService.loadCss();
-          },
+          loadCss: loadCss,
           workflow: function ($stateParams, Workflows) {
             return Workflows.get({id: $stateParams.id}).$promise;
           },
           definition: function (WorkflowDefinitions, workflow) {
-            return WorkflowDefinitions.get({type: workflow.type}).$promise.then(_.first);
+            return getDefinition(WorkflowDefinitions, workflow.type);
           }
         }
       });
+
+    function getDefinition(WorkflowDefinitions, type) {
+      return WorkflowDefinitions.get({type: type}).$promise.then(_.first);
+    }
+
+    function loadCss(GraphService) {
+      return GraphService.loadCss();
+    }
+
   });
 
   m.run(function ($rootScope, $state) {
