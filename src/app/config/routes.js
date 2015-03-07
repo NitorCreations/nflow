@@ -60,11 +60,8 @@
         templateUrl: 'app/workflow-definition/workflowDefinition.html',
         controller: 'WorkflowDefinitionCtrl as ctrl',
         resolve: {
-          'GraphService': function ($q, GraphService) {
-            // do not open UI before products are loaded i.e. the following promise resolved
-            var defer = $q.defer();
-            GraphService.getCss(defer);
-            return defer.promise;
+          loadCss: function (GraphService) {
+            return GraphService.loadCss();
           },
           definition: function ($stateParams, WorkflowDefinitions) {
             return WorkflowDefinitions.get({type: $stateParams.type}).$promise.then(_.first);
@@ -77,11 +74,8 @@
         templateUrl: 'app/workflow/workflow.html',
         controller: 'WorkflowCtrl as ctrl',
         resolve: {
-          'GraphService': function ($q, GraphService) {
-            // do not open UI before products are loaded i.e. the following promise resolved
-            var defer = $q.defer();
-            GraphService.getCss(defer);
-            return defer.promise;
+          loadCss: function (GraphService) {
+            return GraphService.loadCss();
           },
           workflow: function ($stateParams, Workflows) {
             return Workflows.get({id: $stateParams.id}).$promise;
