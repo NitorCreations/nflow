@@ -1,6 +1,6 @@
 # nflow-explorer
 
-User Interface for nFlow.
+User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 ***
 
 ## Quick Start
