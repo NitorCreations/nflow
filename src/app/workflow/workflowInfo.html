@@ -1,0 +1,12 @@
+<section class="wd-workflow-info">
+  Created: <strong title="{{ctrl.workflow.created | date:'medium' }}">{{ctrl.workflow.created | fromNow}}</strong><br/>
+  Started: <strong title="{{ctrl.workflow.started | date:'medium' }}">{{ctrl.workflow.started | fromNow}}</strong><br/>
+  Current state: <strong class="wd-active-state" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
+  <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span>
+  since <strong title="{{ctrl.currentStateTime() | date:'medium' }}">{{ctrl.currentStateTime() | fromNowOrNever}}</strong><br/>
+  Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
+  Next activation: <strong title={{ctrl.workflow.nextActivation}}>{{ctrl.workflow.nextActivation | fromNowOrNever}}</strong>
+  <div>Workflow id: <strong>{{ctrl.workflow.id}}</strong></div>
+  <div ng-show="ctrl.workflow.businessKey">Business key: <code>{{ctrl.workflow.businessKey}}</code></div>
+  <div ng-show="ctrl.workflow.externalId">External id: <code>{{ctrl.workflow.externalId}}</code></diV>
+</section>

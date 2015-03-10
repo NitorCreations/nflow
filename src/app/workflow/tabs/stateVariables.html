@@ -1,0 +1,13 @@
+<section>
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr><th>Variable</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="(key, value) in ctrl.workflow.stateVariables">
+      <td>{{key}}</td>
+      <td><pre>{{value | prettyPrintJson}}</pre></td>
+    </tr>
+    </tbody>
+  </table>
+</section>

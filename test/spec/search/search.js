@@ -13,7 +13,7 @@ describe('Controller: SearchCtrl', function () {
 
   function getCtrl(CriteriaModel) {
     return $controller('SearchCtrl', {
-      $routeParams: {type: 'expected type', state: 'expected state name'},
+      $stateParams: {type: 'expected type', state: 'expected state name'},
       definitions: ['expected definition'],
       CriteriaModel: CriteriaModel
     });

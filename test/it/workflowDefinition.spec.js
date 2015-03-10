@@ -7,7 +7,7 @@ describe('workflow definition page', function () {
   var page = po.workflowDefinitionPage({});
   var searchPage = po.searchPage({});
 
-  beforeEach(function() { page.get('creditApplication'); });
+  beforeEach(function() { page.get('creditDecision'); });
 
   it('provides navigation to instance search by type', function () {
     page.toInstanceSearchByType();
