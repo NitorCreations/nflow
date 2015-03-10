@@ -4,7 +4,7 @@
       <h2>{{ctrl.definition.type}} ({{ctrl.workflow.id}})</h2>
       <blockquote ng-show="ctrl.definition.description">{{ctrl.definition.description}}</blockquote>
       <ul class="listing">
-        <li><a href="#/workflow-definition/{{ctrl.workflow.type}}">Go to workflow definition</a></li>
+        <li><a ui-sref="workflow-definition({type: ctrl.workflow.type})">Go to workflow definition</a></li>
       </ul>
 
       <workflow-info workflow="ctrl.workflow"></workflow-info>

@@ -26,13 +26,13 @@
       <div class="container-fluid">
         <div class="row vertical-align">
           <div class="col-md-4">
-            <a ng-href="#/" class="pull-left"><img src="images/nflow_logo.svg" alt="nFlow"></a>
+            <a ui-sref="frontPage" class="pull-left"><img src="images/nflow_logo.svg" alt="nFlow"></a>
           </div>
           <div class="col-md-6 col-md-offset-2">
             <ul class="nav nav-pills pull-right">
-              <li ng-class="{active: $state.includes('frontPageTab')}"><a ng-href="#/">Workflow definitions</a></li>
-              <li ng-class="{active: $state.includes('searchTab')}"><a ng-href="#/search">Workflow instances</a></li>
-              <li ng-class="{active: $state.includes('aboutTab')}"><a ng-href="#/about">About</a></li>
+              <li ng-class="{active: $state.includes('frontPageTab')}"><a ui-sref="frontPage">Workflow definitions</a></li>
+              <li ng-class="{active: $state.includes('searchTab')}"><a ui-sref="search">Workflow instances</a></li>
+              <li ng-class="{active: $state.includes('aboutTab')}"><a ui-sref="about">About</a></li>
             </ul>
           </div>
         </div>

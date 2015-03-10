@@ -44,7 +44,7 @@
           <td class="numeric" title="Workflow instances scheduled into the future (next activation in the future)">{{state.stateStatistics.sleeping | nullToZero}}</td>
           <th class="numeric" title="Sum of executing, queued and sleeping workflow instances">{{state.stateStatistics.totalActive | nullToZero}}</th>
           <td class="numeric" title="Unscheduled workflow instances (next activation: never)">{{state.stateStatistics.nonScheduled | nullToZero}}</td>
-          <td><a href="#/search?type={{ctrl.definition.type}}&state={{state.name}}"><span class="glyphicon glyphicon-search"></span></a></td>
+          <td><a ui-sref="search({type: ctrl.definition.type, state: state.name})"><span class="glyphicon glyphicon-search"></span></a></td>
         </tr>
         </tbody>
         <tfoot>
