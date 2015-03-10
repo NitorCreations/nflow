@@ -102,6 +102,12 @@ module.exports = function (grunt) {
           }
         }
       },
+      testdist: {
+        options: {
+          port: 9001,
+          base: '<%= yeoman.dist %>'
+        }
+      },
       dist: {
         options: {
           open: true,
@@ -426,13 +432,19 @@ module.exports = function (grunt) {
   ]);
 
   // integration tests
-  grunt.registerTask('itest', [
-    'clean:server',
-    'concurrent:test',
-    'autoprefixer',
-    'connect:test',
-    'protractor'
-  ]);
+  grunt.registerTask('itest', function(target){
+    if (target === 'dist') {
+      return grunt.task.run(['build', 'connect:testdist', 'protractor']);
+    }
+
+    grunt.task.run([
+      'clean:server',
+      'concurrent:test',
+      'autoprefixer',
+      'connect:test',
+      'protractor'
+    ]);
+  });
 
   grunt.registerTask('build', [
     'clean:dist',
