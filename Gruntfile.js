@@ -352,6 +352,14 @@ module.exports = function (grunt) {
       }
     },
 
+    targethtml: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/index.html': '<%= yeoman.dist %>/index.html'
+        }
+      }
+    },
+
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
@@ -435,12 +443,13 @@ module.exports = function (grunt) {
     'concat',
     'ngAnnotate',
     'copy:dist',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    'filerev',
-    'usemin',
-    'htmlmin'
+    'targethtml:dist',
+    //'cdnify',
+    //'cssmin',
+    //'uglify',
+    //'filerev',
+    //'usemin',
+    //'htmlmin'
   ]);
 
   grunt.registerTask('default', [
