@@ -7,7 +7,7 @@ env:
   - SPRING_PROFILES_ACTIVE=nflow.db.postgresql
   - SPRING_PROFILES_ACTIVE=nflow.db.mysql
 addons:
-  postgresql: "9.3"
+  postgresql: "9.4"
 before_script:
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c "create user nflow with password 'nflow';" -U postgres; fi
   - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c "create database nflow owner nflow;" -U postgres; fi
