@@ -444,12 +444,12 @@ module.exports = function (grunt) {
     'ngAnnotate',
     'copy:dist',
     'targethtml:dist',
-    //'cdnify',
-    //'cssmin',
-    //'uglify',
-    //'filerev',
-    //'usemin',
-    //'htmlmin'
+    'cdnify',
+    'cssmin',
+    'uglify',
+    'filerev',
+    'usemin',
+    'htmlmin'
   ]);
 
   grunt.registerTask('default', [
