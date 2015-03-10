@@ -1,11 +1,13 @@
-<div class="row">
-  <div class="col-md-6">
-    <h2>{{ctrl.definition.type}}</h2>
-    <blockquote ng-show="ctrl.definition.description">{{ctrl.definition.description}}</blockquote>
-    <div><a href="#/search?type={{ctrl.definition.type}}"><span class="glyphicon glyphicon-search"></span> Search related workflow instances</a></div>
-    <workflow-definition-graph definition="ctrl.definition"></workflow-definition-graph>
+<section class="wd-workflow-definition">
+  <div class="row ">
+    <div class="col-md-6">
+      <h2>{{ctrl.definition.type}}</h2>
+      <blockquote ng-show="ctrl.definition.description">{{ctrl.definition.description}}</blockquote>
+      <div><a class="wd-search-by-type" href="#/search?type={{ctrl.definition.type}}"><span class="glyphicon glyphicon-search"></span> Search related workflow instances</a></div>
+      <workflow-definition-graph definition="ctrl.definition"></workflow-definition-graph>
+    </div>
+    <div class="col-md-6">
+      <workflow-definition-tabs definition="ctrl.definition"></workflow-definition-tabs>
+    </div>
   </div>
-  <div class="col-md-6">
-    <workflow-definition-tabs definition="ctrl.definition"></workflow-definition-tabs>
-  </div>
-</div>
+</section>

@@ -1,15 +1,22 @@
 // conf.js
 exports.config = {
-  seleniumAddress: 'http://localhost:4444/wd/hub',
-  specs: ['it/spec.js'],
+  baseUrl: 'http://localhost:9001',
+  directConnect: true,
+  specs: ['it/**/*.spec.js'],
+
   capabilities: {
-    browserName: 'firefox'
-  }
-  /*
-  multiCapabilities: [{
-    browserName: 'firefox'
-  }, {
     browserName: 'chrome'
-  }]
-  */
-}
+  },
+
+  jasmineNodeOpts: {
+    onComplete: null,
+    isVerbose: true,
+    showColors: false,
+    includeStackTrace: true,
+    showTiming: true
+  },
+
+  onPrepare: function(){
+    browser.driver.manage().window().setSize(1280, 1024);
+  }
+};

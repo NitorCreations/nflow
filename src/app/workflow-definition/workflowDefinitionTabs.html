@@ -36,7 +36,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr class="{{state.selected}}" ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
+        <tr class="{{state.selected}} wd-state-{{state.name}}" ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
           <td>{{state.name}}</td>
           <td>{{state.description}}</td>
           <td class="numeric" title="Workflow instances currently executing">{{state.stateStatistics.executing | nullToZero}}</td>
@@ -74,7 +74,7 @@
       </table>
     </tab>
     <tab heading="Radiator" select="ctrl.startRadiator()">
-      <div data-ng-include data-src="'app/workflow-stats/workflowStats.html'"></div>
+      <div ng-include="'app/workflow-stats/workflowStats.html'"></div>
     </tab>
   </tabset>
 </div>
