@@ -17,8 +17,8 @@
     </thead>
     <tbody>
     <tr ng-repeat="result in ctrl.results | reverse" ng-class="ctrl.getStateClass(result)">
-      <td><a href="#/workflow/{{result.id}}">{{result.id}}</a></td>
-      <td><a href="#/workflow/{{result.id}}">{{result.type}}</a></td>
+      <td><a ui-sref="workflow({id: result.id})">{{result.id}}</a></td>
+      <td><a ui-sref="workflow({id: result.id})">{{result.type}}</a></td>
       <td>{{result.state}}</td>
       <td>{{result.stateText}}</td>
       <td>{{result.businessKey}}</td>

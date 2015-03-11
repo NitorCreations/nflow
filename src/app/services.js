@@ -48,8 +48,9 @@ angular.module('nflowVisApp.services',
 .factory('WorkflowDefinitionStats', function WorkflowDefinitionStatsFactory($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-definition/:type/statistics',{type: '@type'});
 })
-.service('GraphService', function GraphServiceFactory($http, $rootScope) {
-  this.getCss = function getCss(defer) {
+.service('GraphService', function GraphServiceFactory($q, $http, $rootScope) {
+  this.loadCss = function getCss() {
+    var defer = $q.defer();
     // links are relative to displayed page
     $http.get('styles/data/graph.css')
     .success(function(data) {
@@ -62,6 +63,7 @@ angular.module('nflowVisApp.services',
       $rootScope.graph = {};
       defer.resolve();
     });
+    return defer.promise;
   };
 })
 .service('WorkflowStatsPoller', function WorkflowStatsPoller($rootScope, config, $interval,
