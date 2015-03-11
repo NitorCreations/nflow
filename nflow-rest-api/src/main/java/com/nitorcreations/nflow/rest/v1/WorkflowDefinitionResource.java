@@ -13,11 +13,9 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
@@ -26,9 +24,7 @@ import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
-import com.nitorcreations.nflow.rest.v1.converter.WorkflowDefinitionStatisticsConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -41,15 +37,13 @@ public class WorkflowDefinitionResource {
 
   private final WorkflowDefinitionService workflowDefinitions;
   private final ListWorkflowDefinitionConverter converter;
-  private final WorkflowDefinitionStatisticsConverter statisticsConverter;
   private final WorkflowDefinitionDao workflowDefinitionDao;
 
   @Inject
   public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter,
-      WorkflowDefinitionStatisticsConverter statisticsConverter, WorkflowDefinitionDao workflowDefinitionDao) {
+      WorkflowDefinitionDao workflowDefinitionDao) {
     this.workflowDefinitions = workflowDefinitions;
     this.converter = converter;
-    this.statisticsConverter = statisticsConverter;
     this.workflowDefinitionDao = workflowDefinitionDao;
   }
 
@@ -77,15 +71,5 @@ public class WorkflowDefinitionResource {
     }
     sort(response);
     return response;
-  }
-
-  @GET
-  @Path("/{type}/statistics")
-  @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
-  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type,
-      @QueryParam("createdAfter") DateTime createdAfter, @QueryParam("createdBefore") DateTime createdBefore,
-      @QueryParam("modifiedAfter") DateTime modifiedAfter, @QueryParam("modifiedBefore") DateTime modifiedBefore) {
-    return statisticsConverter.convert(workflowDefinitions.getStatistics(type, createdAfter, createdBefore, modifiedAfter,
-        modifiedBefore));
   }
 }

@@ -8,8 +8,6 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.paused;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.stopped;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
@@ -36,7 +34,6 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -59,7 +56,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -77,8 +73,6 @@ public class WorkflowInstanceDao {
 
   static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
-
-  private static final String GET_STATISTICS_PREFIX = "select state, count(1) as amount from nflow_workflow where executor_group = ? and type = ?";
 
   JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
@@ -352,7 +346,9 @@ public class WorkflowInstanceDao {
   }
 
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String[] expectedStates) {
-    StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = current_timestamp where id = ? and executor_id is null and (next_activation is null or next_activation > current_timestamp)");
+    StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = current_timestamp")
+        .append(" where id = ? and executor_id is null and status in ('").append(inProgress.name()).append("', '")
+        .append(created.name()).append("') and (next_activation is null or next_activation > current_timestamp)");
     Object[] args = new Object[1 + expectedStates.length];
     args[0] = id;
     if (expectedStates.length > 0) {
@@ -646,66 +642,5 @@ public class WorkflowInstanceDao {
       }
       return actionStates;
     }
-  }
-
-  public Map<String, StateExecutionStatistics> getStateExecutionStatistics(String type, DateTime createdAfter,
-      DateTime createdBefore, DateTime modifiedAfter, DateTime modifiedBefore) {
-    final Map<String, StateExecutionStatistics> statistics = new LinkedHashMap<>();
-    String executorGroup = executorInfo.getExecutorGroup();
-    List<Object> argsList = new ArrayList<>();
-    argsList.addAll(asList(executorGroup, type));
-    StringBuilder queryBuilder = new StringBuilder(GET_STATISTICS_PREFIX);
-    if (createdAfter != null) {
-      queryBuilder.append(" and created >= ?");
-      argsList.add(createdAfter.toDate());
-    }
-    if (createdBefore != null) {
-      queryBuilder.append(" and created < ?");
-      argsList.add(createdBefore.toDate());
-    }
-    if (modifiedAfter != null) {
-      queryBuilder.append(" and modified >= ?");
-      argsList.add(modifiedAfter.toDate());
-    }
-    if (modifiedBefore != null) {
-      queryBuilder.append(" and modified < ?");
-      argsList.add(modifiedBefore.toDate());
-    }
-    String query = queryBuilder.append(" and %s").toString();
-    Object[] args = argsList.toArray(new Object[argsList.size()]);
-    jdbc.query(format(query, "executor_id is not null group by state"), args, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        String state = rs.getString("state");
-        getStatisticsForState(statistics, state).executing = rs.getLong("amount");
-      }});
-    jdbc.query(format(query, "next_activation > current_timestamp group by state"), args, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        String state = rs.getString("state");
-        getStatisticsForState(statistics, state).sleeping = rs.getLong("amount");
-      }});
-    jdbc.query(format(query, "executor_id is null and next_activation <= current_timestamp group by state"), args, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        String state = rs.getString("state");
-        getStatisticsForState(statistics, state).queued = rs.getLong("amount");
-      }});
-    jdbc.query(format(query, "next_activation is null group by state"), args, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        String state = rs.getString("state");
-        getStatisticsForState(statistics, state).nonScheduled = rs.getLong("amount");
-      }});
-    return statistics;
-  }
-
-  protected StateExecutionStatistics getStatisticsForState(Map<String, StateExecutionStatistics> statistics, String state) {
-    StateExecutionStatistics stats = statistics.get(state);
-    if (stats == null) {
-      stats = new StateExecutionStatistics();
-      statistics.put(state, stats);
-    }
-    return stats;
   }
 }
