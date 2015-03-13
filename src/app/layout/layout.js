@@ -28,10 +28,13 @@
     };
   });
 
-  m.controller('PageHeaderCtrl', function($location) {
+  m.controller('PageHeaderCtrl', function($location, $state) {
     var self = this;
     // nope, $stateParams.radiator wont work here
     self.radiator = !!$location.search().radiator;
+    self.isFrontPageTabActive = function() { return $state.includes('frontPageTab'); };
+    self.isSearchTabActive = function() { return $state.includes('searchTab'); };
+    self.isAboutTabActive = function() { return $state.includes('aboutTab'); };
   });
 
 })();

@@ -6,9 +6,9 @@
       </div>
       <div class="col-md-6 col-md-offset-2">
         <ul class="nav nav-pills pull-right">
-          <li ng-class="{active: $state.includes('frontPageTab')}"><a ui-sref="frontPage">Workflow definitions</a></li>
-          <li ng-class="{active: $state.includes('searchTab')}"><a ui-sref="search">Workflow instances</a></li>
-          <li ng-class="{active: $state.includes('aboutTab')}"><a ui-sref="about">About</a></li>
+          <li ng-class="{active: ctrl.isFrontPageTabActive()}"><a ui-sref="frontPage">Workflow definitions</a></li>
+          <li ng-class="{active: ctrl.isSearchTabActive()}"><a ui-sref="search">Workflow instances</a></li>
+          <li ng-class="{active: ctrl.isAboutTabActive()}"><a ui-sref="about">About</a></li>
         </ul>
       </div>
     </div>
