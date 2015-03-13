@@ -5,6 +5,7 @@
 
   m.directive('layout', function() {
     return {
+      restrict: 'E',
       replace: 'true',
       templateUrl: 'app/layout/layout.html'
     };
@@ -12,6 +13,7 @@
 
   m.directive('pageHeader', function() {
     return {
+      restrict: 'E',
       replace: 'true',
       templateUrl: 'app/layout/header.html',
       controller: 'PageHeaderCtrl as ctrl'
@@ -20,6 +22,7 @@
 
   m.directive('pageFooter', function() {
     return {
+      restrict: 'E',
       replace: 'true',
       templateUrl: 'app/layout/footer.html'
     };
