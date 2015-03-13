@@ -1,0 +1,19 @@
+<header ng-hide="ctrl.radiator">
+  <div class="container-fluid">
+    <div class="row vertical-align">
+      <div class="col-md-4">
+        <a ui-sref="frontPage" class="pull-left"><img src="images/nflow_logo.svg" alt="nFlow"></a>
+      </div>
+      <div class="col-md-6 col-md-offset-2">
+        <ul class="nav nav-pills pull-right">
+          <li ng-class="{active: ctrl.isFrontPageTabActive()}"><a ui-sref="frontPage">Workflow definitions</a></li>
+          <li ng-class="{active: ctrl.isSearchTabActive()}"><a ui-sref="search">Workflow instances</a></li>
+          <li ng-class="{active: ctrl.isAboutTabActive()}"><a ui-sref="about">About</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <hr>
+    </div>
+  </div>
+</header>

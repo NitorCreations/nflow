@@ -7,6 +7,7 @@
     'nflowVisApp.config.routes',
     'nflowVisApp.filters',
     'nflowVisApp.frontPage',
+    'nflowVisApp.layout',
     'nflowVisApp.search',
     'nflowVisApp.services',
     'nflowVisApp.services.executorPoller',
@@ -24,10 +25,6 @@
     ExecutorPoller.start();
   });
 
-  m.controller('NaviCtrl', function ($scope, $location) {
-    // nope, $stateParams.radiator wont work here
-    $scope.radiator = !!$location.search().radiator;
-  });
 })();
 
 
