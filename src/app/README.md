@@ -8,9 +8,10 @@ src/
   |  |- main/         (startup configs, routes)
   |  |- about/        (about page)
   |  |- front-page/   (front page)
+  |  |- layout/       (overall application layout, e.g. header, content, footer)
   |  |- search/       (search page)
   |  ...
-  |  |- components/   (reusable components, e.g. footers)
+  |  |- components/   (reusable components)
   |  |- services/     (angular services [and resources?])
   |  |- app.js
 ```

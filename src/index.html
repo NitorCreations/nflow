@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html class="no-js">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,48 +29,13 @@
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <header ng-controller="NaviCtrl" ng-hide="radiator">
-      <div class="container-fluid">
-        <div class="row vertical-align">
-          <div class="col-md-4">
-            <a ui-sref="frontPage" class="pull-left"><img src="images/nflow_logo.svg" alt="nFlow"></a>
-          </div>
-          <div class="col-md-6 col-md-offset-2">
-            <ul class="nav nav-pills pull-right">
-              <li ng-class="{active: $state.includes('frontPageTab')}"><a ui-sref="frontPage">Workflow definitions</a></li>
-              <li ng-class="{active: $state.includes('searchTab')}"><a ui-sref="search">Workflow instances</a></li>
-              <li ng-class="{active: $state.includes('aboutTab')}"><a ui-sref="about">About</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="row">
-          <hr>
-        </div>
-      </div>
-    </header>
-
-    <div class="container-fluid">
-      <div ui-view>
-        <!-- Add your site or application content here -->
-      </div>
-      <div id="canvas"></div>
-    </div>
-
-    <div class="navbar-default navbar-fixed-bottom">
-      <div class="container-fluid">
-        <div class="row footer">
-          <div class="col-md-12">
-            <p><span class="glyphicon glyphicon-copyright-mark"></span> 2014, 2015 Nitor Creations</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <layout></layout>
 
     <!-- build:js(.) app/oldieshim.js -->
     <!--[if lt IE 9]>
-        <script src="bower_components/es5-shim/es5-shim.js"></script>
-        <script src="bower_components/json3/lib/json3.js"></script>
-        <![endif]-->
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.js"></script>
+    <![endif]-->
     <!-- endbuild -->
 
     <!-- build:js(.) app/vendor.js -->
@@ -90,11 +55,10 @@
     <!-- endbower -->
     <!-- endbuild -->
 
-
     <!--
-See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrupted. Here is a local copy
-<script src="external/dagre-d3/js/dagre-d3.js"></script>
--->
+      See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrupted. Here is a local copy
+      <script src="external/dagre-d3/js/dagre-d3.js"></script>
+    -->
     <script src="external/dagre-d3/js/dagre-d3.min.js"></script>
     <script src="external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js"></script>
     <script src="external/dygraphs/dygraph-combined.js"></script>
@@ -115,6 +79,7 @@ See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrup
     <script src="app/front-page/frontPage.js"></script>
     <script src="app/front-page/definitionList.js"></script>
     <script src="app/front-page/executorTable.js"></script>
+    <script src="app/layout/layout.js"></script>
     <script src="app/search/criteriaModel.js"></script>
     <script src="app/search/search.js"></script>
     <script src="app/search/searchForm.js"></script>
@@ -132,7 +97,6 @@ See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrup
     <script src="app/workflow-definition/workflowDefinitionGraph.js"></script>
     <script src="app/workflow-definition/workflowDefinitionTabs.js"></script>
     <script src="app/workflow-stats/workflowStats.js"></script>
-
     <!-- endbuild -->
   </body>
 </html>
