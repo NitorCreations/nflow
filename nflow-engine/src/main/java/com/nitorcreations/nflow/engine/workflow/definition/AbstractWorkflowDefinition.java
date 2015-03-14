@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowDefinitionScanner;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 /**
  * The base class for all workflow definitions.
@@ -287,5 +288,25 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
    */
   public boolean isStartState(String state) {
     return getState(state).getType() == WorkflowStateType.start;
+  }
+
+  /**
+   * Return true if the given nextAction is permitted for given instance.
+   * @param instance The workflow instance for which the action is checked.
+   * @param nextAction The action to be checked.
+   * @return True if the nextAction is permitted, false otherwise.
+   */
+  public boolean isAllowedNextAction(WorkflowInstance instance, NextAction nextAction) {
+    if (nextAction.isRetry()) {
+      return true;
+    }
+    List<String> allowedNextStates = allowedTransitions.get(instance.state);
+    if (allowedNextStates != null && allowedNextStates.contains(nextAction.getNextState().name())) {
+      return true;
+    }
+    if (nextAction.getNextState() == failureTransitions.get(instance.state)) {
+      return true;
+    }
+    return nextAction.getNextState() == getErrorState();
   }
 }

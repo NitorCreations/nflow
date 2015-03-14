@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -22,6 +23,8 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   @Mock
   WorkflowInstanceDao workflowInstanceDao;
   @Mock
+  Environment env;
+  @Mock
   WorkflowExecutorListener listener1;
   @Mock
   WorkflowExecutorListener listener2;
@@ -31,7 +34,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
 
   @Before
   public void setup() {
-    factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao);
+    factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao, env);
   }
 
   @Test

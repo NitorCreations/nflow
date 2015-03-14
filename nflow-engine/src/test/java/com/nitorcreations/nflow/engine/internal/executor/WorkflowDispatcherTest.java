@@ -50,6 +50,7 @@ public class WorkflowDispatcherTest {
   public void setup() {
     when(env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class)).thenReturn(0l);
     when(env.getRequiredProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class)).thenReturn(0);
+    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("ignore");
     when(recovery.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
@@ -70,8 +71,10 @@ public class WorkflowDispatcherTest {
             .thenReturn(ids(1))
             .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
             .thenAnswer(waitForTickAndAnswer(2, ids(2), this));
-        when(executorFactory.createProcessor(1)).thenReturn(fakeWorkflowExecutor(1, noOpRunnable()));
-        when(executorFactory.createProcessor(2)).thenReturn(fakeWorkflowExecutor(2, noOpRunnable()));
+        WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, noOpRunnable());
+        when(executorFactory.createProcessor(1)).thenReturn(fakeWorkflowExecutor);
+        WorkflowStateProcessor fakeWorkflowExecutor2 = fakeWorkflowExecutor(2, noOpRunnable());
+        when(executorFactory.createProcessor(2)).thenReturn(fakeWorkflowExecutor2);
 
         dispatcher.run();
       }
@@ -151,8 +154,8 @@ public class WorkflowDispatcherTest {
       public void threadDispatcher() {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
             .thenAnswer(waitForTickAndAnswer(2, ids(1), this));
-        when(executorFactory.createProcessor(anyInt()))
-            .thenReturn(fakeWorkflowExecutor(1, waitForTickRunnable(3, this)));
+        WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
+        when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
 
         dispatcher.run();
       }
@@ -179,8 +182,8 @@ public class WorkflowDispatcherTest {
             return ids(1);
           }
         });
-        when(executorFactory.createProcessor(anyInt()))
-            .thenReturn(fakeWorkflowExecutor(1, waitForTickRunnable(3, this)));
+        WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
+        when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
 
         dispatcher.run();
       }
@@ -273,7 +276,7 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowStateProcessor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
-    return new WorkflowStateProcessor(instanceId, null, null, null, null, (WorkflowExecutorListener) null) {
+    return new WorkflowStateProcessor(instanceId, null, null, null, null, env, (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();

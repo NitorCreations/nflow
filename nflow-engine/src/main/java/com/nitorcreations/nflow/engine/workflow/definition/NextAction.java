@@ -117,4 +117,12 @@ public class NextAction {
       throw new InvalidNextActionException(message);
     }
   }
+
+  /**
+   * Return true if this action is a retry of the current state.
+   * @return True if action is a retry, false otherwise.
+   */
+  public boolean isRetry() {
+    return nextState == null;
+  }
 }
