@@ -192,6 +192,18 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
+  public void unknownStateIsRetried() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("invalid").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstanceDao).updateWorkflowInstance(update.capture());
+    assertThat(update.getValue(),
+        matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state")));
+  }
+
+  @Test
   public void workflowStatusIsSetToManualForManualStates() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("beforeManual")
         .setRetries(simpleWf.getSettings().maxRetries).build();
@@ -488,9 +500,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void illegalStateChangeGoesToErrorState() {
-    WorkflowDefinition<SimpleTestWorkflow.State> wf = new SimpleTestWorkflow();
-    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition("simple");
-    WorkflowInstance instance = executingInstanceBuilder().setType("simple").setState("illegalStateChange").build();
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
 
     executor.run();
@@ -517,9 +527,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
         listener1, listener2);
 
-    WorkflowDefinition<SimpleTestWorkflow.State> wf = new SimpleTestWorkflow();
-    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition("simple");
-    WorkflowInstance instance = executingInstanceBuilder().setType("simple").setState("illegalStateChange").build();
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
 
     executor.run();
@@ -539,9 +547,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
         listener1, listener2);
 
-    WorkflowDefinition<SimpleTestWorkflow.State> wf = new SimpleTestWorkflow();
-    doReturn(wf).when(workflowDefinitions).getWorkflowDefinition("simple");
-    WorkflowInstance instance = executingInstanceBuilder().setType("simple").setState("illegalStateChange").build();
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
 
     executor.run();
@@ -630,7 +636,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       start(WorkflowStateType.start), process(WorkflowStateType.normal), error(WorkflowStateType.end),
       processReturnNull(WorkflowStateType.normal), processReturnNullNextState(WorkflowStateType.normal),
       nextStateNoMethod(WorkflowStateType.normal), noMethodEndState(WorkflowStateType.end),
-      retryingState(WorkflowStateType.normal), failure(WorkflowStateType.manual);
+      retryingState(WorkflowStateType.normal), failure(WorkflowStateType.manual),
+      invalid(WorkflowStateType.manual);
 
       private WorkflowStateType stateType;
 
