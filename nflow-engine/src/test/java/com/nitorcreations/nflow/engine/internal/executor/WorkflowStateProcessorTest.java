@@ -192,15 +192,14 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void unknownStateIsRetried() {
+  public void instanceWithUnsupportedStateIsRescheduled() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("invalid").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
 
     executor.run();
 
-    verify(workflowInstanceDao).updateWorkflowInstance(update.capture());
-    assertThat(update.getValue(),
-        matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state")));
+    verify(workflowInstanceDao).updateWorkflowInstance(
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"))));
   }
 
   @Test
@@ -285,6 +284,35 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
             stateExecutionFailed));
 
     assertThat(update.getAllValues().get(1),
+        matchesWorkflowInstance(finished, FailingTestWorkflow.State.error, 0, is("Stopped in state error"),
+            is(nullValue(DateTime.class))));
+    assertThat(action.getAllValues().get(1),
+        matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
+  }
+
+  @Test
+  public void goToErrorStateWhenNextStateIsInvalid() {
+    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("ignore");
+    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
+        listener1, listener2);
+
+    WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture());
+    assertThat(
+        update.getAllValues().get(0),
+        matchesWorkflowInstance(executing, FailingTestWorkflow.State.error, 0, is("Scheduled by previous state invalidNextState")));
+    assertThat(
+        action.getAllValues().get(0),
+        matchesWorkflowInstanceAction(FailingTestWorkflow.State.invalidNextState,
+            is("State 'invalidNextState' handler method returned invalid next state 'illegalStateChange'"), 0,
+            stateExecutionFailed));
+
+    assertThat(
+        update.getAllValues().get(1),
         matchesWorkflowInstance(finished, FailingTestWorkflow.State.error, 0, is("Stopped in state error"),
             is(nullValue(DateTime.class))));
     assertThat(action.getAllValues().get(1),
@@ -489,11 +517,13 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void runUnsupportedWorkflow() {
+  public void instanceWithUnsupportedTypeIsRescheduled() {
     WorkflowInstance instance = executingInstanceBuilder().setType("test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     when(workflowDefinitions.getWorkflowDefinition("test")).thenReturn(null);
+
     executor.run();
+
     verify(workflowInstanceDao).updateWorkflowInstance(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"))));
   }
@@ -637,7 +667,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       processReturnNull(WorkflowStateType.normal), processReturnNullNextState(WorkflowStateType.normal),
       nextStateNoMethod(WorkflowStateType.normal), noMethodEndState(WorkflowStateType.end),
       retryingState(WorkflowStateType.normal), failure(WorkflowStateType.manual),
-      invalid(WorkflowStateType.manual);
+      invalid(WorkflowStateType.manual), invalidNextState(WorkflowStateType.normal);
 
       private WorkflowStateType stateType;
 
@@ -691,6 +721,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction nextStateNoMethod(StateExecution execution) {
       return moveToState(State.noMethodEndState, "Go to end state that has no method");
+    }
+
+    public NextAction invalidNextState(StateExecution execution) {
+      return moveToState(SimpleTestWorkflow.State.illegalStateChange, "illegal next state");
     }
 
     public void error(StateExecution execution) {}

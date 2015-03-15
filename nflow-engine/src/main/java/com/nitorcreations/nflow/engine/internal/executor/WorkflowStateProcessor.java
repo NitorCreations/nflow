@@ -234,6 +234,12 @@ class WorkflowStateProcessor implements Runnable {
               .getErrorState().name());
           nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
           execution.setFailed();
+        } else if (nextAction.getNextState() != null && !definition.getStates().contains(nextAction.getNextState())) {
+          logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'",
+              nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
+          nextAction = moveToState(definition.getErrorState(), "State '" + instance.state
+              + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
+          execution.setFailed();
         } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
           logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
               nextAction.getNextState());
