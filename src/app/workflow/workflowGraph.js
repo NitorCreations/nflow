@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflow.graph', []);
+  var m = angular.module('nflowVisApp.workflow.graph', [
+    'nflowVisApp.graph'
+  ]);
 
   m.directive('workflowGraph', function() {
     return {
@@ -18,7 +20,7 @@
     };
   });
 
-  m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi) {
+  m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi, Graph) {
     var graph;
     var self = this;
 
@@ -30,25 +32,25 @@
       WorkflowGraphApi.registerOnSelectNodeListener(graph.nodeSelected);
 
       graph.drawWorkflowDefinition();
-      markCurrentState(self.workflow);
+      Graph.markCurrentState(self.workflow);
     }
 
     function initGraph(definition, workflow) {
       var d = definition;
       var w = workflow;
-      var g = workflowDefinitionGraph(d, w);
+      var g = Graph.workflowDefinitionGraph(d, w);
       var selectedNode;
 
       var self = {};
 
       self.drawWorkflowDefinition = function() {
-        drawWorkflowDefinition(g, '#workflowSvg', WorkflowGraphApi.onSelectNode, $rootScope.graph.css);
+        Graph.drawWorkflowDefinition(g, '#workflowSvg', WorkflowGraphApi.onSelectNode, $rootScope.graph.css);
       };
 
       self.nodeSelected = function(nodeId) {
         console.debug('Selecting node ' + nodeId);
-        if (selectedNode) { unhiglightNode(g, d, selectedNode, w); }
-        if (nodeId) { higlightNode(g, d, nodeId, w); }
+        if (selectedNode) { Graph.unhighlightNode(g, d, selectedNode, w); }
+        if (nodeId) { Graph.highlightNode(g, d, nodeId, w); }
         selectedNode = nodeId;
       };
 

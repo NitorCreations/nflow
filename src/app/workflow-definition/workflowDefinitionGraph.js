@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflowDefinition.graph', []);
+  var m = angular.module('nflowVisApp.workflowDefinition.graph', [
+    'nflowVisApp.graph'
+  ]);
 
   m.directive('workflowDefinitionGraph', function() {
     return {
@@ -17,7 +19,7 @@
     };
   });
 
-  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi) {
+  m.controller('WorkflowDefinitionGraphCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, Graph) {
     var svg;
     var graph;
 
@@ -40,12 +42,12 @@
 
     function savePng() {
       console.info('Save PNG');
-      graph.save(function() { downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
+      graph.save(function() { Graph.downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
     }
 
     function saveSvg() {
       console.info('Save SVG');
-      graph.save(function() { downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
+      graph.save(function() { Graph.downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
     }
 
     function initSvg() {
@@ -73,19 +75,19 @@
 
     function initGraph(definition) {
       var d = definition;
-      var g = workflowDefinitionGraph(d);
+      var g = Graph.workflowDefinitionGraph(d);
       var selectedNode;
 
       var self = {};
 
       self.drawWorkflowDefinition = function() {
-        drawWorkflowDefinition(g, svg.selector, self.nodeSelected, $rootScope.graph.css);
+        Graph.drawWorkflowDefinition(g, svg.selector, self.nodeSelected, $rootScope.graph.css);
       };
 
       self.nodeSelected = function(nodeId) {
         console.debug('Selecting node ' + nodeId);
-        if (selectedNode) { unhiglightNode(g, d, selectedNode); }
-        if (nodeId) { higlightNode(g, d, nodeId); }
+        if (selectedNode) { Graph.unhighlightNode(g, d, selectedNode); }
+        if (nodeId) { Graph.highlightNode(g, d, nodeId); }
         selectedNode = nodeId;
       };
 

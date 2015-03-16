@@ -1,4 +1,19 @@
-'use strict';
+(function () {
+  'use strict';
+
+  var m = angular.module('nflowVisApp.graph', []);
+
+  m.factory('Graph', function() {
+    return {
+      highlightNode: highlightNode,
+      unhighlightNode: unhighlightNode,
+      markCurrentState: markCurrentState,
+      workflowDefinitionGraph: workflowDefinitionGraph,
+      drawWorkflowDefinition: drawWorkflowDefinition,
+      downloadDataUrl: downloadDataUrl,
+      downloadImage: downloadImage
+    };
+  });
 
 // TODO remove jshint exception
 // jshint unused:false
@@ -132,7 +147,7 @@ function unhighlightEdges(graph, nodeId, workflow) {
   });
 }
 
-function higlightNode(graph, definition, nodeId, workflow) {
+function highlightNode(graph, definition, nodeId, workflow) {
   highlightEdges(graph, nodeId, workflow);
 
   addClass($('#' + nodeDomId(nodeId)), 'selected');
@@ -143,7 +158,7 @@ function higlightNode(graph, definition, nodeId, workflow) {
   state.selected = 'highlight';
 }
 
-function unhiglightNode(graph, definition, nodeId, workflow) {
+function unhighlightNode(graph, definition, nodeId, workflow) {
   unhighlightEdges(graph, nodeId, workflow);
   removeClass($('#' + nodeDomId(nodeId)), 'selected');
   _.each(definition.states, function(state) {
@@ -492,3 +507,4 @@ function downloadImage(size, dataurl, filename, contentType) {
   };
   image.src = dataurl;
 }
+})();
