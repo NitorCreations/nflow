@@ -21,18 +21,14 @@
   });
 
   m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi, Graph) {
-    var graph;
     var self = this;
 
     initialize();
 
     function initialize() {
-      graph = initGraph(self.definition, self.workflow);
-
+      var graph = initGraph(self.definition, self.workflow);
       WorkflowGraphApi.registerOnSelectNodeListener(graph.nodeSelected);
-
       graph.drawWorkflowDefinition();
-      Graph.markCurrentState(self.workflow);
     }
 
     function initGraph(definition, workflow) {
@@ -45,6 +41,7 @@
 
       self.drawWorkflowDefinition = function() {
         Graph.drawWorkflowDefinition(g, '#workflowSvg', WorkflowGraphApi.onSelectNode, $rootScope.graph.css);
+        Graph.markCurrentState(w);
       };
 
       self.nodeSelected = function(nodeId) {
