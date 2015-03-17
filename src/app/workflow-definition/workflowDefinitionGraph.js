@@ -76,23 +76,22 @@
     function initGraph(definition) {
       var d = definition;
       var g = Graph.workflowDefinitionGraph(d);
-      var selectedNode;
 
       var self = {};
 
       self.drawWorkflowDefinition = function() {
-        Graph.drawWorkflowDefinition(g, svg.selector, self.nodeSelected, $rootScope.graph.css);
+        Graph.drawWorkflowDefinition(g, svg.selector, WorkflowDefinitionGraphApi.onSelectNode, $rootScope.graph.css);
       };
 
       self.nodeSelected = function(nodeId) {
+        var previouslySelectedNode = WorkflowDefinitionGraphApi.selectedNode;
         console.debug('Selecting node ' + nodeId);
-        if (selectedNode) { Graph.unhighlightNode(g, d, selectedNode); }
+        if (previouslySelectedNode) { Graph.unhighlightNode(g, d, previouslySelectedNode); }
         if (nodeId) { Graph.highlightNode(g, d, nodeId); }
-        selectedNode = nodeId;
       };
 
       self.save = function(saveFn) {
-        var nodeToRestore = selectedNode;
+        var nodeToRestore = WorkflowDefinitionGraphApi.selectedNode;
         self.nodeSelected(null);
         saveFn();
         self.nodeSelected(nodeToRestore);
@@ -103,16 +102,24 @@
 
   });
 
-  m.factory('WorkflowDefinitionGraphApi', function() {
+  m.factory('WorkflowDefinitionGraphApi', function($timeout) {
     var onSelectNodeFn = _.noop;
 
     var api = {};
     api.initialize = initialize;
     api.onSelectNode = onSelectNode;
+    api.selectedNode = undefined;
     return api;
 
     function initialize(onSelectNodeFnToBind) { onSelectNodeFn = onSelectNodeFnToBind; }
-    function onSelectNode(nodeId) { onSelectNodeFn(nodeId); }
+    function onSelectNode(nodeId) {
+      // TODO Graph.drawWorkflowDefinition should encapsulate handling on non-angular events, remove $timeout
+      // from here when Graph has been refactored.
+      $timeout(function() {
+        onSelectNodeFn(nodeId);
+        api.selectedNode = nodeId;
+      });
+    }
   });
 
 })();

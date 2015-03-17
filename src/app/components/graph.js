@@ -123,21 +123,12 @@ function unhighlightEdges(graph, nodeId, workflow) {
 
 function highlightNode(graph, definition, nodeId, workflow) {
   highlightEdges(graph, nodeId, workflow);
-
   d3.select('#' + nodeDomId(nodeId)).classed('selected', true);
-  var state = _.find(definition.states,
-                     function(state) {
-                       return state.id === nodeId;
-                     });
-  state.selected = 'highlight';
 }
 
 function unhighlightNode(graph, definition, nodeId, workflow) {
   unhighlightEdges(graph, nodeId, workflow);
   d3.select('#' + nodeDomId(nodeId)).classed('selected', false);
-  _.each(definition.states, function(state) {
-    state.selected = undefined;
-  });
 }
 
 /**

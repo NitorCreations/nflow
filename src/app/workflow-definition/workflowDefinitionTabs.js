@@ -21,6 +21,7 @@
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
+    self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
 
     initialize();
@@ -34,6 +35,10 @@
       $scope.$on('workflowStatsUpdated', function (scope, type) {
         if (type === self.definition.type) { updateStateExecutionGraph(type); }
       });
+    }
+
+    function isStateSelected(state) {
+      return state.name === WorkflowDefinitionGraphApi.selectedNode;
     }
 
     function updateStateExecutionGraph(type) {

@@ -61,11 +61,18 @@ describe('workflow definition page', function () {
         page.tabs.allInstances.activate();
       });
 
-      it('clicking instance hi-lights corresponding node in graph', function() {
+      it('clicking state hi-lights corresponding node in graph', function() {
         var state = 'satQuery';
         expect(page.graph.isSelected(state)).toBeFalsy();
         page.tabs.allInstances.select(state);
         expect(page.graph.isSelected(state)).toBeTruthy();
+      });
+
+      it('clicking node hi-lights corresponding state in list', function () {
+        var state = 'rejected';
+        expect(page.tabs.allInstances.isSelected(state)).toBeFalsy();
+        page.graph.select(state);
+        expect(page.tabs.allInstances.isSelected(state)).toBeTruthy();
       });
 
       it('provides navigation to instance search by type and state', function() {

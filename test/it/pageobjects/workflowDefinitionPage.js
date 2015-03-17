@@ -36,10 +36,15 @@ function tabs(spec) {
 }
 
 function allInstances() {
-  var that = po.tab({ linkText: 'All instances' });
+  var spec = { linkText: 'All instances' };
+  var that = po.tab(spec);
 
   that.select = function(state) {
     $('tr.wd-state-' + state).click();
+  };
+
+  that.isSelected = function(state) {
+    return spec.hasClasses($('tr.wd-state-' + state), ['highlight']);
   };
 
   that.toInstanceSearch = function(state) {
