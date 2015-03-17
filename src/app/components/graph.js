@@ -85,32 +85,6 @@ function nodeEdges(graph, nodeId) {
   return _.flatten([inEdges, outEdges]);
 }
 
-function removeClass(node, className) {
-  // TODO not complete with all corner cases
-  var value = node.attr('class');
-  if(!value) {
-    return node;
-  }
-  node.attr('class', value.replace(new RegExp(className, 'g')));
-  return node;
-}
-
-// AngularJS's jqLite doesn't have removeClass/addClass
-function addClass(node, className) {
-  // TODO not complete with all corner cases
-  removeClass(node, className);
-  var value = node.attr('class');
-  if(!value) {
-    node.attr('class', className);
-    return node;
-  }
-  if(value.indexOf(className) > -1) {
-    return node;
-  }
-  node.attr('class', value + ' ' + className);
-  return node;
-}
-
 function highlightEdges(graph, nodeId, workflow) {
   function hilight(source,target) {
     var strokeWidth = '5px';
@@ -118,7 +92,7 @@ function highlightEdges(graph, nodeId, workflow) {
       strokeWidth = '7px';
     }
     _.each(graph.incidentEdges(source, target), function(edgeId) {
-      addClass($('#' + edgeDomId(edgeId)), 'selected');
+      d3.select('#' + edgeDomId(edgeId)).classed('selected', true);
     });
   }
   _.each(graph.predecessors(nodeId), function(prev) {
@@ -136,7 +110,7 @@ function unhighlightEdges(graph, nodeId, workflow) {
       strokeWidth = '2px';
     }
     _.each(graph.incidentEdges(source, target), function(edgeId) {
-      removeClass($('#' + edgeDomId(edgeId)), 'selected');
+      d3.select('#' + edgeDomId(edgeId)).classed('selected', false);
     });
   }
   _.each(graph.predecessors(nodeId), function(prev) {
@@ -150,7 +124,7 @@ function unhighlightEdges(graph, nodeId, workflow) {
 function highlightNode(graph, definition, nodeId, workflow) {
   highlightEdges(graph, nodeId, workflow);
 
-  addClass($('#' + nodeDomId(nodeId)), 'selected');
+  d3.select('#' + nodeDomId(nodeId)).classed('selected', true);
   var state = _.find(definition.states,
                      function(state) {
                        return state.id === nodeId;
@@ -160,7 +134,7 @@ function highlightNode(graph, definition, nodeId, workflow) {
 
 function unhighlightNode(graph, definition, nodeId, workflow) {
   unhighlightEdges(graph, nodeId, workflow);
-  removeClass($('#' + nodeDomId(nodeId)), 'selected');
+  d3.select('#' + nodeDomId(nodeId)).classed('selected', false);
   _.each(definition.states, function(state) {
     state.selected = undefined;
   });
@@ -294,7 +268,7 @@ function addUnexpectedEdges(g, workflow) {
 }
 
 function markCurrentState(workflow) {
-  addClass($('#' + nodeDomId(workflow.state)), 'current-state');
+  d3.select('#' + nodeDomId(workflow.state)).classed('current-state', true);
 }
 
 
