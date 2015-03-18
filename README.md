@@ -3,6 +3,10 @@
 User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 ***
 
+## Demo
+
+http://nbank.dynalias.com/nflow/explorer/
+
 ## Quick Start
 
 Install Node.js and then:
