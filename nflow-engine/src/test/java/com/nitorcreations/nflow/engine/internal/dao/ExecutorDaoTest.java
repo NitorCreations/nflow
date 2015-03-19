@@ -63,6 +63,18 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
+
+    dao.recoverWorkflowInstancesFromDeadNodes();
+
+    executorId = jdbc.queryForObject("select executor_id from nflow_workflow where id = ?", Integer.class, id);
+    assertThat(executorId, is(nullValue()));
+
+    actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?", new WorkflowInstanceActionRowMapper(
+        Collections.<Integer, Map<String, String>> emptyMap()), id);
+    assertThat(actions.size(), is(1));
+    assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));
+    assertThat(workflowInstanceAction.type, is(recovery));
+    assertThat(workflowInstanceAction.stateText, is("Recovered"));
   }
 
   private void insertCrashedExecutor(int crashedExecutorId) {
