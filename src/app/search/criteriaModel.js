@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.search.criteriaModel', []);
+  var m = angular.module('nflowExplorer.search.criteriaModel', []);
 
   m.factory('CriteriaModel', function() {
     var self  = {};

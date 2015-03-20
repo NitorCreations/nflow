@@ -3,7 +3,7 @@
 describe('Controller: AboutCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('nflowVisApp.about'));
+  beforeEach(module('nflowExplorer.about'));
 
   var AboutCtrl,
     scope;

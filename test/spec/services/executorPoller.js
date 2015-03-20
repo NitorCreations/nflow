@@ -7,7 +7,7 @@ describe('Service: ExecutorPoller', function () {
     url,
     pollInterval;
 
-  beforeEach(module('nflowVisApp.services.executorPoller'));
+  beforeEach(module('nflowExplorer.services.executorPoller'));
   beforeEach(inject(function (_$httpBackend_, _$interval_, _ExecutorPoller_, config) {
     $httpBackend = _$httpBackend_;
     $interval = _$interval_;

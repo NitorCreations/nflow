@@ -2,8 +2,8 @@
 
 describe('Directive: definitionList', function () {
 
-  beforeEach(module('nflowVisApp.frontPage.definitionList'));
-  beforeEach(module('nflowVisApp.karma.templates'));
+  beforeEach(module('nflowExplorer.frontPage.definitionList'));
+  beforeEach(module('nflowExplorer.karma.templates'));
 
   it('sets definitions into view model', inject(function ($rootScope, $compile) {
 

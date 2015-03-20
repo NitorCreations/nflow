@@ -1,5 +1,5 @@
 'use strict';
-angular.module('nflowVisApp.workflowStats', [])
+angular.module('nflowExplorer.workflowStats', [])
 .controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
                                                              $stateParams, config) {
   $scope.type=$stateParams.type;

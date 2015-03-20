@@ -1,5 +1,5 @@
 'use strict';
-angular.module('nflowVisApp.services',
+angular.module('nflowExplorer.services',
                ['ngResource'])
 .constant('config', new Config())
 .factory('Workflows', function WorkflowsFactory($resource, config) {

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.layout', []);
+  var m = angular.module('nflowExplorer.layout', []);
 
   m.directive('layout', function() {
     return {

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.frontPage.definitionList', []);
+  var m = angular.module('nflowExplorer.frontPage.definitionList', []);
 
   m.directive('definitionList', function() {
     return {

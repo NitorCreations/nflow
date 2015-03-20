@@ -12,8 +12,8 @@ describe('Directive: searchResult', function () {
     testFailed = { type: 'foo', state: 'testFailed' },
     sapReady = { type: 'foo', state: 'sapReady' };
 
-  beforeEach(module('nflowVisApp.search.searchResult'));
-  beforeEach(module('nflowVisApp.karma.templates'));
+  beforeEach(module('nflowExplorer.search.searchResult'));
+  beforeEach(module('nflowExplorer.karma.templates'));
 
   beforeEach(function () {
     results = [ backlog, inProgress, blocked, review, done, testFailed, sapReady ];

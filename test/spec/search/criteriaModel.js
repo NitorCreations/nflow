@@ -5,7 +5,7 @@ describe('Service: CriteriaModel', function () {
     definitions,
     actualModel;
 
-  beforeEach(module('nflowVisApp.search.criteriaModel'));
+  beforeEach(module('nflowExplorer.search.criteriaModel'));
   beforeEach(inject(function (_CriteriaModel_) {
     CriteriaModel = _CriteriaModel_;
     definitions = [

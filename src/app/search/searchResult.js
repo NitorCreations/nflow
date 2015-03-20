@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.search.searchResult', [
-    'nflowVisApp.constants',
-    'nflowVisApp.filters'
+  var m = angular.module('nflowExplorer.search.searchResult', [
+    'nflowExplorer.constants',
+    'nflowExplorer.filters'
   ]);
 
   m.directive('searchResult', function() {

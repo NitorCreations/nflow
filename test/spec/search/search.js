@@ -4,7 +4,7 @@ describe('Controller: SearchCtrl', function () {
   var $controller,
     CriteriaModel;
 
-  beforeEach(module('nflowVisApp.search'));
+  beforeEach(module('nflowExplorer.search'));
 
   beforeEach(inject(function (_$controller_, _CriteriaModel_) {
     $controller = _$controller_;

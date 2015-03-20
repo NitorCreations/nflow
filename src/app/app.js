@@ -1,19 +1,19 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp', [
-    'nflowVisApp.about',
-    'nflowVisApp.config.console',
-    'nflowVisApp.config.routes',
-    'nflowVisApp.filters',
-    'nflowVisApp.frontPage',
-    'nflowVisApp.layout',
-    'nflowVisApp.search',
-    'nflowVisApp.services',
-    'nflowVisApp.services.executorPoller',
-    'nflowVisApp.workflow',
-    'nflowVisApp.workflowDefinition',
-    'nflowVisApp.workflowStats',
+  var m = angular.module('nflowExplorer', [
+    'nflowExplorer.about',
+    'nflowExplorer.config.console',
+    'nflowExplorer.config.routes',
+    'nflowExplorer.filters',
+    'nflowExplorer.frontPage',
+    'nflowExplorer.layout',
+    'nflowExplorer.search',
+    'nflowExplorer.services',
+    'nflowExplorer.services.executorPoller',
+    'nflowExplorer.workflow',
+    'nflowExplorer.workflowDefinition',
+    'nflowExplorer.workflowStats',
     'ngAnimate',
     'ngCookies',
     'ngSanitize',

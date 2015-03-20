@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.search.searchForm', [
-    'nflowVisApp.search.criteriaModel',
-    'nflowVisApp.services',
-    'nflowVisApp.util'
+  var m = angular.module('nflowExplorer.search.searchForm', [
+    'nflowExplorer.search.criteriaModel',
+    'nflowExplorer.services',
+    'nflowExplorer.util'
   ]);
 
   m.directive('searchForm', function() {

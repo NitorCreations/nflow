@@ -2,8 +2,8 @@
 
 describe('Directive: executorTable', function () {
 
-  beforeEach(module('nflowVisApp.frontPage.executorTable'));
-  beforeEach(module('nflowVisApp.karma.templates'));
+  beforeEach(module('nflowExplorer.frontPage.executorTable'));
+  beforeEach(module('nflowExplorer.karma.templates'));
 
   it('sets executors into view model', inject(function ($rootScope, $compile) {
     var elem = $compile('<executor-table executors="expected"></executor-table>')($rootScope);

@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.config.routes', [
-    'nflowVisApp.services',
+  var m = angular.module('nflowExplorer.config.routes', [
+    'nflowExplorer.services',
     'ui.router'
   ]);
 

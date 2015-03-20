@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflowDefinition.tabs', []);
+  var m = angular.module('nflowExplorer.workflowDefinition.tabs', []);
 
   m.directive('workflowDefinitionTabs', function() {
     return {

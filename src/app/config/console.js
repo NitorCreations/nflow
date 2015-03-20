@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  angular.module('nflowVisApp.config.console', []).config(function(){
+  angular.module('nflowExplorer.config.console', []).config(function(){
     // adapted from
     // http://stackoverflow.com/questions/3326650/console-is-undefined-error-for-internet-explorer/16916941#16916941
 
