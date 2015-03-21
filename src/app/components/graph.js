@@ -38,18 +38,6 @@ function disableZoomPan() {
   svg.on('MozMousePixelScroll.zoom', null);
 }
 
-function activeNode(workflow, state) {
-  if(!workflow) {
-    return true;
-  }
-  if(workflow.state === state.name) {
-    return true;
-  }
-  return !!_.find(workflow.actions, function(action) {
-    return action.state === state.name;
-  });
-}
-
 function activeTransition(workflow, state, transition) {
   if(!workflow) {
     return true;
@@ -131,181 +119,206 @@ function unhighlightNode(graph, definition, nodeId, workflow) {
   d3.select('#' + nodeDomId(nodeId)).classed('selected', false);
 }
 
-/**
- * Count how many times this state has been retried. Including non-consecutive retries.
- */
-function calculateRetries(workflow, state) {
-  var retries = 0;
-  if(workflow) {
-    _.each(workflow.actions, function(action) {
-      if(action.state === state.id && action.retryNo > 0)  {
-        retries ++;
-      }});
-  }
-  return retries;
-}
-
-function createNodeStyle(state, workflow, unexpected) {
-  var active = activeNode(workflow, state);
-  var labelStroke = '';
-  var boxStroke = 'black';
-  var strokeWidth = '3px';
-  if(!active) {
-    boxStroke = 'gray';
-    labelStroke = 'fill: gray;';
-    strokeWidth = '1.5px';
-  }
-  if(!workflow) {
-    strokeWidth = '1.5px';
-  }
-  if(unexpected) {
-    boxStroke = 'red';
-    labelStroke = 'fill: red;';
-  }
-
-  var nodeStyle = {'class': 'node-normal'};
-  if(state.type === 'start') {
-    nodeStyle = {'class': 'node-start'};
-  }
-  if(state.type === 'manual') {
-    nodeStyle = {'class': 'node-manual'};
-  }
-  if(state.type === 'end') {
-    nodeStyle = {'class': 'node-end'};
-  }
-  if(state.type === 'error') {
-    nodeStyle = {'class': 'node-error'};
-  }
-  if(workflow && !active) {
-    nodeStyle['class'] += ' node-passive';
-  }
-
-  nodeStyle.retries = calculateRetries(workflow, state);
-  nodeStyle.state = state;
-  nodeStyle.label = state.name;
-  return nodeStyle;
-}
-
-function createEdgeStyle(workflow, definition, state, transition, genericError) {
-  if(!workflow) {
-    if(genericError) {
-      return {'class': 'edge-error'};
-    }
-    return {'class': 'edge-normal'};
-  }
-  if(activeTransition(workflow, state, transition)) {
-    if(genericError) {
-      return {'class': 'edge-error edge-active'};
-    }
-    return {'class': 'edge-normal edge-active'};
-  } else {
-    if(genericError) {
-      return {'class': 'edge-error edge-passive'};
-    }
-    return {'class': 'edge-normal edge-passive'};
-  }
-}
-
-function addUnexpectedNodes(g, workflow) {
-  if(!workflow) {
-    return;
-  }
-  _.each(workflow.actions, function(action) {
-    if(g._nodes[action.state]) {
-      return;
-    }
-    var nodeStyle = createNodeStyle({name: action.state}, workflow, true);
-    g.addNode(action.state, nodeStyle);
-  });
-}
-
-function addUnexpectedEdges(g, workflow) {
-  if(!workflow) {
-    return;
-  }
-  var activeEdges = {};
-  var sourceState = null;
-  _.each(workflow.actions, function(action) {
-    if(!activeEdges[action.state]) {
-      activeEdges[action.state] = {};
-    }
-    if(!sourceState) {
-      sourceState = action.state;
-      return;
-    }
-
-    // do not include retries
-    if(sourceState !== action.state) {
-      activeEdges[sourceState][action.state] = true;
-    }
-    sourceState = action.state;
-  });
-
-  // handle last action -> currentAction, do not include retries
-  var lastAction = _.last(workflow.actions);
-  if(lastAction && lastAction.state !== workflow.state) {
-    activeEdges[lastAction.state][workflow.state] = true;
-  }
-
-  _.each(activeEdges, function(targetObj, source) {
-    _.each(Object.keys(targetObj), function(target) {
-      if(!target) { return; }
-      if(!g.inEdges(target, source).length) {
-        g.addEdge(null, source, target,
-                  {'class': 'edge-unexpected edge-active'});
-      }
-    });
-  });
-}
-
 function markCurrentState(workflow) {
   d3.select('#' + nodeDomId(workflow.state)).classed('current-state', true);
 }
 
-
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
-  // All nodes must be added to graph before edges
-  for(var i in definition.states) {
-    var stateNode = definition.states[i];
-
-    var nodeStyle = createNodeStyle(stateNode, workflow);
-    g.addNode(stateNode.name, nodeStyle);
-  }
-  // Add nodes not in workflow definition
-  addUnexpectedNodes(g, workflow);
-
-  // Add edges
-  for(var edgeIndex in definition.states) {
-    var state = definition.states[edgeIndex];
-    for(var k in state.transitions){
-      var transition = state.transitions[k];
-      g.addEdge(null, state.name, transition,
-                createEdgeStyle(workflow, definition, state, transition));
-    }
-    if(state.onFailure) {
-      g.addEdge(null, state.name, state.onFailure,
-                createEdgeStyle(workflow, definition, state, state.onFailure, true));
-
-    }
-  }
-
-  // Add edges to generic onError state
-  var errorStateName = definition.onError;
-  _.each(definition.states, function(state) {
-    if(state.name === errorStateName || state.onFailure || state.type === 'end') {
-      return;
-    }
-    if(_.contains(state.transitions, errorStateName)) {
-      return;
-    }
-    g.addEdge(null, state.name, errorStateName,
-              createEdgeStyle(workflow, definition, state, errorStateName, true));
-  });
-
-  // add edges that are not present in workflow definition
-  addUnexpectedEdges(g, workflow);
+  // NOTE: all nodes must be added to graph before edges
+  addNodes();
+  addEdges();
   return g;
+
+  function addNodes() {
+    addNodesThatArePresentInWorkflowDefinition();
+    addNodesThatAreNotPresentInWorkflowDefinition();
+    return;
+
+    function addNodesThatArePresentInWorkflowDefinition() {
+      for(var i in definition.states) {
+        var stateNode = definition.states[i];
+
+        var nodeStyle = createNodeStyle(stateNode, workflow);
+        g.addNode(stateNode.name, nodeStyle);
+      }
+    }
+
+    function addNodesThatAreNotPresentInWorkflowDefinition() {
+      if(!workflow) {
+        return;
+      }
+      _.each(workflow.actions, function(action) {
+        if(g._nodes[action.state]) {
+          return;
+        }
+        var nodeStyle = createNodeStyle({name: action.state}, workflow, true);
+        g.addNode(action.state, nodeStyle);
+      });
+    }
+
+    function createNodeStyle(state, workflow, unexpected) {
+      var active = activeNode(workflow, state);
+      var labelStroke = '';
+      var boxStroke = 'black';
+      var strokeWidth = '3px';
+      if(!active) {
+        boxStroke = 'gray';
+        labelStroke = 'fill: gray;';
+        strokeWidth = '1.5px';
+      }
+      if(!workflow) {
+        strokeWidth = '1.5px';
+      }
+      if(unexpected) {
+        boxStroke = 'red';
+        labelStroke = 'fill: red;';
+      }
+
+      var nodeStyle = {'class': 'node-normal'};
+      if(state.type === 'start') {
+        nodeStyle = {'class': 'node-start'};
+      }
+      if(state.type === 'manual') {
+        nodeStyle = {'class': 'node-manual'};
+      }
+      if(state.type === 'end') {
+        nodeStyle = {'class': 'node-end'};
+      }
+      if(state.type === 'error') {
+        nodeStyle = {'class': 'node-error'};
+      }
+      if(workflow && !active) {
+        nodeStyle['class'] += ' node-passive';
+      }
+
+      nodeStyle.retries = calculateRetries(workflow, state);
+      nodeStyle.state = state;
+      nodeStyle.label = state.name;
+      return nodeStyle;
+    }
+
+    /**
+     * Count how many times this state has been retried. Including non-consecutive retries.
+     */
+    function calculateRetries(workflow, state) {
+      var retries = 0;
+      if(workflow) {
+        _.each(workflow.actions, function(action) {
+          if(action.state === state.id && action.retryNo > 0)  {
+            retries ++;
+          }});
+      }
+      return retries;
+    }
+
+    function activeNode(workflow, state) {
+      if(!workflow) {
+        return true;
+      }
+      if(workflow.state === state.name) {
+        return true;
+      }
+      return !!_.find(workflow.actions, function(action) {
+        return action.state === state.name;
+      });
+    }
+  }
+
+  function addEdges() {
+    addEdgesThatArePresentInWorkflowDefinition();
+    addEdgesToGenericOnErrorState();
+    addEdgesThatAreNotPresentInWorkflowDefinition();
+    return;
+
+    function addEdgesThatArePresentInWorkflowDefinition() {
+      for(var edgeIndex in definition.states) {
+        var state = definition.states[edgeIndex];
+        for(var k in state.transitions){
+          var transition = state.transitions[k];
+          g.addEdge(null, state.name, transition,
+            createEdgeStyle(workflow, definition, state, transition));
+        }
+        if(state.onFailure) {
+          g.addEdge(null, state.name, state.onFailure,
+            createEdgeStyle(workflow, definition, state, state.onFailure, true));
+        }
+      }
+    }
+
+    function addEdgesToGenericOnErrorState() {
+      var errorStateName = definition.onError;
+      _.each(definition.states, function(state) {
+        if(state.name === errorStateName || state.onFailure || state.type === 'end') {
+          return;
+        }
+        if(_.contains(state.transitions, errorStateName)) {
+          return;
+        }
+        g.addEdge(null, state.name, errorStateName,
+          createEdgeStyle(workflow, definition, state, errorStateName, true));
+      });
+    }
+
+    function addEdgesThatAreNotPresentInWorkflowDefinition() {
+      if(!workflow) {
+        return;
+      }
+      var activeEdges = {};
+      var sourceState = null;
+      _.each(workflow.actions, function(action) {
+        if(!activeEdges[action.state]) {
+          activeEdges[action.state] = {};
+        }
+        if(!sourceState) {
+          sourceState = action.state;
+          return;
+        }
+
+        // do not include retries
+        if(sourceState !== action.state) {
+          activeEdges[sourceState][action.state] = true;
+        }
+        sourceState = action.state;
+      });
+
+      // handle last action -> currentAction, do not include retries
+      var lastAction = _.last(workflow.actions);
+      if(lastAction && lastAction.state !== workflow.state) {
+        activeEdges[lastAction.state][workflow.state] = true;
+      }
+
+      _.each(activeEdges, function(targetObj, source) {
+        _.each(Object.keys(targetObj), function(target) {
+          if(!target) { return; }
+          if(!g.inEdges(target, source).length) {
+            g.addEdge(null, source, target,
+              {'class': 'edge-unexpected edge-active'});
+          }
+        });
+      });
+    }
+
+    function createEdgeStyle(workflow, definition, state, transition, genericError) {
+      if(!workflow) {
+        if(genericError) {
+          return {'class': 'edge-error'};
+        }
+        return {'class': 'edge-normal'};
+      }
+      if(activeTransition(workflow, state, transition)) {
+        if(genericError) {
+          return {'class': 'edge-error edge-active'};
+        }
+        return {'class': 'edge-normal edge-active'};
+      } else {
+        if(genericError) {
+          return {'class': 'edge-error edge-passive'};
+        }
+        return {'class': 'edge-normal edge-passive'};
+      }
+    }
+  }
 }
 
 function addArrowheadMarker(canvasSelector, id, color) {
