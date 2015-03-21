@@ -2,8 +2,8 @@
 
 describe('Directive: searchForm', function () {
 
-  beforeEach(module('nflowVisApp.search.searchForm'));
-  beforeEach(module('nflowVisApp.karma.templates'));
+  beforeEach(module('nflowExplorer.search.searchForm'));
+  beforeEach(module('nflowExplorer.karma.templates'));
 
   it('sets results and definitions into view model', inject(function ($rootScope, $compile) {
     var elem = $compile('<search-form results="results" definitions="definitions"></search-form>')($rootScope);

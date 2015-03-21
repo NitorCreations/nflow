@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflow.tabs.manage', [
-    'nflowVisApp.workflow.graph',
-    'nflowVisApp.services',
+  var m = angular.module('nflowExplorer.workflow.tabs.manage', [
+    'nflowExplorer.workflow.graph',
+    'nflowExplorer.services',
     'ui.router'
   ]);
 

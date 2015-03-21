@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  angular.module('nflowVisApp.filters', [])
+  angular.module('nflowExplorer.filters', [])
     .filter('reverse', function () {
       return function reverse(items) {
         if (!items) {

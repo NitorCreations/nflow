@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.search', [
-    'nflowVisApp.search.criteriaModel',
-    'nflowVisApp.search.searchForm',
-    'nflowVisApp.search.searchResult'
+  var m = angular.module('nflowExplorer.search', [
+    'nflowExplorer.search.criteriaModel',
+    'nflowExplorer.search.searchForm',
+    'nflowExplorer.search.searchResult'
   ]);
 
   m.controller('SearchCtrl', function ($stateParams, definitions, CriteriaModel) {

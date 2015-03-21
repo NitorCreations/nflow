@@ -50,7 +50,7 @@ module.exports = function(config) {
 
     ngHtml2JsPreprocessor: {
       stripPrefix: 'src/',
-      moduleName: 'nflowVisApp.karma.templates'
+      moduleName: 'nflowExplorer.karma.templates'
     },
 
     // list of files / patterns to exclude

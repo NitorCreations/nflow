@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflow.tabs.actionHistory', [
-    'nflowVisApp.workflow.graph'
+  var m = angular.module('nflowExplorer.workflow.tabs.actionHistory', [
+    'nflowExplorer.workflow.graph'
   ]);
 
   m.directive('workflowTabActionHistory', function() {

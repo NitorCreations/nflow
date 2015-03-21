@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.frontPage.executorTable', [
-    'nflowVisApp.filters'
+  var m = angular.module('nflowExplorer.frontPage.executorTable', [
+    'nflowExplorer.filters'
   ]);
 
   m.directive('executorTable', function () {

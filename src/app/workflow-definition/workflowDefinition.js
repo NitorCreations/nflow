@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflowDefinition', [
-    'nflowVisApp.workflowDefinition.graph',
-    'nflowVisApp.workflowDefinition.tabs'
+  var m = angular.module('nflowExplorer.workflowDefinition', [
+    'nflowExplorer.workflowDefinition.graph',
+    'nflowExplorer.workflowDefinition.tabs'
   ]);
 
   m.controller('WorkflowDefinitionCtrl', function (definition) {

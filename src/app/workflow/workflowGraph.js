@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflow.graph', [
-    'nflowVisApp.graph'
+  var m = angular.module('nflowExplorer.workflow.graph', [
+    'nflowExplorer.graph'
   ]);
 
   m.directive('workflowGraph', function() {

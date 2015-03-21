@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowVisApp.workflow.tabs.stateVariables', []);
+  var m = angular.module('nflowExplorer.workflow.tabs.stateVariables', []);
 
   m.directive('workflowTabStateVariables', function() {
     return {

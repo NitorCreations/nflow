@@ -3,7 +3,7 @@
 describe('Controller: FrontPageCtrl', function () {
   var ctrl;
 
-  beforeEach(module('nflowVisApp.frontPage'));
+  beforeEach(module('nflowExplorer.frontPage'));
 
   beforeEach(inject(function ($controller, WorkflowDefinitions) {
     sinon.stub(WorkflowDefinitions, 'query', function(){  return ['definition' ]; });

@@ -36,7 +36,7 @@ See each directory for a detailed explanation (if any).
 
 The `index.html` file is the HTML document of the single-page application (SPA)
 that should contain all markup that applies to everything in the app, such as
-the header and footer. It declares with `ngApp` that this is `nflowVisApp`,
+the header and footer. It declares with `ngApp` that this is `nflowExplorer`,
 specifies the topmost `NaviCtrl` controller, and contains the `ngView` directive
 into which route templates are placed.
 
