@@ -63,16 +63,6 @@ function activeTransition(workflow, state, transition) {
   return _.last(workflow.actions).state === state.name && workflow.state === transition;
 }
 
-function nodeEdges(graph, nodeId) {
-  var inEdges = _.flatten(_.map(graph._inEdges[nodeId], function(e) {
-    return e.keys();
-  }));
-  var outEdges = _.flatten(_.map(graph._outEdges[nodeId], function(e) {
-    return e.keys();
-  }));
-  return _.flatten([inEdges, outEdges]);
-}
-
 function highlightEdges(graph, nodeId, workflow) {
   function hilight(source,target) {
     var strokeWidth = '5px';
