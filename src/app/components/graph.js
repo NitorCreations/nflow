@@ -85,14 +85,9 @@ function workflowDefinitionGraph(definition, workflow) {
      * Count how many times this state has been retried. Including non-consecutive retries.
      */
     function calculateRetries(workflow, state) {
-      var retries = 0;
-      if(workflow) {
-        _.each(workflow.actions, function(action) {
-          if(action.state === state.id && action.retryNo > 0)  {
-            retries ++;
-          }});
-      }
-      return retries;
+      return _.reduce(_.result(workflow, 'actions'), function(acc, action) {
+        return action.state === state.id && action.retryNo > 0 ? acc+1 : acc;
+      }, 0);
     }
 
     function activeNode(workflow, state) {
