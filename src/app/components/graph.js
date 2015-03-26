@@ -320,17 +320,36 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
   }
 
   function configureSvg(nodeSelectedCallBack, svgRoot) {
-    var svgBackground = svgRoot.select('rect.overlay');
-    svgBackground.attr('style', '');
-    svgBackground.attr('class', 'graph-background');
-    svgBackground.on('click', function() {
-      // event handler for clicking outside nodes
-      nodeSelectedCallBack(null);
-    });
-    disableZoomPan(svgRoot);
+    configureOverlay();
+    disableZoomPan();
+    configureSize();
 
-    svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
-    svgRoot.attr('viewBox', '0 0 ' + (layout.graph().width+40) + ' ' + (layout.graph().height+40));
+    function configureOverlay() {
+      var svgBackground = svgRoot.select('rect.overlay');
+      svgBackground.attr('style', '');
+      svgBackground.attr('class', 'graph-background');
+      svgBackground.on('click', function() {
+        // event handler for clicking outside nodes
+        nodeSelectedCallBack(null);
+      });
+    }
+
+    function disableZoomPan() {
+      // panning off
+      svgRoot.on('mousedown.zoom', null);
+      svgRoot.on('mousemove.zoom', null);
+      // zooming off
+      svgRoot.on('dblclick.zoom', null);
+      svgRoot.on('touchstart.zoom', null);
+      svgRoot.on('wheel.zoom', null);
+      svgRoot.on('mousewheel.zoom', null);
+      svgRoot.on('MozMousePixelScroll.zoom', null);
+    }
+
+    function configureSize() {
+      svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
+      svgRoot.attr('viewBox', '0 0 ' + (layout.graph().width+40) + ' ' + (layout.graph().height+40));
+    }
   }
 
   function initLayout(renderer, graph, svgRoot) {
@@ -437,18 +456,6 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
       .attr('fill', color)
       .append('path')
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
-  }
-
-  function disableZoomPan(svg) {
-    // panning off
-    svg.on('mousedown.zoom', null);
-    svg.on('mousemove.zoom', null);
-    // zooming off
-    svg.on('dblclick.zoom', null);
-    svg.on('touchstart.zoom', null);
-    svg.on('wheel.zoom', null);
-    svg.on('mousewheel.zoom', null);
-    svg.on('MozMousePixelScroll.zoom', null);
   }
 }
 
