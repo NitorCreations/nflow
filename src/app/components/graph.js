@@ -60,49 +60,25 @@ function workflowDefinitionGraph(definition, workflow) {
     function addNodesThatAreNotPresentInWorkflowDefinition() {
       _.chain(_.result(workflow, 'actions'))
         .filter(function(action) { return !g._nodes(action.state); })
-        .forEach(function(action) { g.addNode(action.state, createNodeStyle({name: action.state}, workflow, true)); })
+        .forEach(function(action) { g.addNode(action.state, createNodeStyle({name: action.state}, workflow)); })
       ;
     }
 
-    function createNodeStyle(state, workflow, unexpected) {
+    function createNodeStyle(state, workflow) {
       var active = activeNode(workflow, state);
-      var labelStroke = '';
-      var boxStroke = 'black';
-      var strokeWidth = '3px';
-      if(!active) {
-        boxStroke = 'gray';
-        labelStroke = 'fill: gray;';
-        strokeWidth = '1.5px';
-      }
-      if(!workflow) {
-        strokeWidth = '1.5px';
-      }
-      if(unexpected) {
-        boxStroke = 'red';
-        labelStroke = 'fill: red;';
-      }
-
-      var nodeStyle = {'class': 'node-normal'};
-      if(state.type === 'start') {
-        nodeStyle = {'class': 'node-start'};
-      }
-      if(state.type === 'manual') {
-        nodeStyle = {'class': 'node-manual'};
-      }
-      if(state.type === 'end') {
-        nodeStyle = {'class': 'node-end'};
-      }
-      if(state.type === 'error') {
-        nodeStyle = {'class': 'node-error'};
-      }
-      if(workflow && !active) {
-        nodeStyle['class'] += ' node-passive';
-      }
-
+      var nodeStyle = {};
+      nodeStyle['class'] = resolveStyleClass();
+      console.log('class', nodeStyle['class']);
       nodeStyle.retries = calculateRetries(workflow, state);
       nodeStyle.state = state;
       nodeStyle.label = state.name;
       return nodeStyle;
+
+      function resolveStyleClass() {
+        var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
+        if(workflow && !active) { cssClass += ' node-passive'; }
+        return cssClass;
+      }
     }
 
     /**
