@@ -54,25 +54,14 @@ function workflowDefinitionGraph(definition, workflow) {
     return;
 
     function addNodesThatArePresentInWorkflowDefinition() {
-      for(var i in definition.states) {
-        var stateNode = definition.states[i];
-
-        var nodeStyle = createNodeStyle(stateNode, workflow);
-        g.addNode(stateNode.name, nodeStyle);
-      }
+      _.forEach(definition.states, function(state) { g.addNode(state.name, createNodeStyle(state, workflow)); });
     }
 
     function addNodesThatAreNotPresentInWorkflowDefinition() {
-      if(!workflow) {
-        return;
-      }
-      _.each(workflow.actions, function(action) {
-        if(g._nodes[action.state]) {
-          return;
-        }
-        var nodeStyle = createNodeStyle({name: action.state}, workflow, true);
-        g.addNode(action.state, nodeStyle);
-      });
+      _.chain(_.result(workflow, 'actions'))
+        .filter(function(action) { return !g._nodes(action.state); })
+        .forEach(function(action) { g.addNode(action.state, createNodeStyle({name: action.state}, workflow, true)); })
+      ;
     }
 
     function createNodeStyle(state, workflow, unexpected) {
