@@ -29,7 +29,6 @@
     "Config": false,
 
     "workflowDefinitionGraph": false,
-    "markCurrentState": false,
     "workflowDefinitionGraph": false,
     "drawWorkflowDefinition": false,
     "downloadImage": false,

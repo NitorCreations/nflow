@@ -24,6 +24,10 @@
 
       function setSelected(selector) { d3.select(selector).classed('selected', isTrue); }
     }
+
+    function markCurrentState(workflow) {
+      d3.select('#' + nodeDomId(workflow.state)).classed('current-state', true);
+    }
   });
 
 // TODO remove jshint exception
@@ -60,10 +64,6 @@ function activeTransition(workflow, state, transition) {
     return found;
   }
   return _.last(workflow.actions).state === state.name && workflow.state === transition;
-}
-
-function markCurrentState(workflow) {
-  d3.select('#' + nodeDomId(workflow.state)).classed('current-state', true);
 }
 
 function workflowDefinitionGraph(definition, workflow) {
