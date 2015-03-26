@@ -74,8 +74,7 @@
     }
 
     function initGraph(definition) {
-      var d = definition;
-      var g = Graph.workflowDefinitionGraph(d);
+      var g = Graph.workflowDefinitionGraph(definition);
 
       var self = {};
 
@@ -86,8 +85,8 @@
       self.nodeSelected = function(nodeId) {
         var previouslySelectedNode = WorkflowDefinitionGraphApi.selectedNode;
         console.debug('Selecting node ' + nodeId);
-        if (previouslySelectedNode) { Graph.unhighlightNode(g, d, previouslySelectedNode); }
-        if (nodeId) { Graph.highlightNode(g, d, nodeId); }
+        if (previouslySelectedNode) { Graph.setNodeSelected(g, previouslySelectedNode, false); }
+        if (nodeId) { Graph.setNodeSelected(g, nodeId, true); }
       };
 
       self.save = function(saveFn) {

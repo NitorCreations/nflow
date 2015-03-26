@@ -46,8 +46,8 @@
 
       self.nodeSelected = function(nodeId) {
         console.debug('Selecting node ' + nodeId);
-        if (selectedNode) { Graph.unhighlightNode(g, d, selectedNode, w); }
-        if (nodeId) { Graph.highlightNode(g, d, nodeId, w); }
+        if (selectedNode) { Graph.setNodeSelected(g, selectedNode, false); }
+        if (nodeId) { Graph.setNodeSelected(g, nodeId, true); }
         selectedNode = nodeId;
       };
 

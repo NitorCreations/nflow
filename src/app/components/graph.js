@@ -5,18 +5,31 @@
 
   m.factory('Graph', function() {
     return {
-      highlightNode: highlightNode,
-      unhighlightNode: unhighlightNode,
+      setNodeSelected: setNodeSelected,
       markCurrentState: markCurrentState,
       workflowDefinitionGraph: workflowDefinitionGraph,
       drawWorkflowDefinition: drawWorkflowDefinition,
       downloadDataUrl: downloadDataUrl,
       downloadImage: downloadImage
     };
+
+    function setNodeSelected(graph, nodeId, isTrue) {
+      _.each(graph.predecessors(nodeId), function(prev) { setEdgeSelected(prev, nodeId); });
+      _.each(graph.successors(nodeId), function(next) { setEdgeSelected(nodeId, next); });
+      setSelected('#' + nodeDomId(nodeId));
+
+      function setEdgeSelected(source, target) {
+        _.each(graph.incidentEdges(source, target), function(edgeId) { setSelected('#' + edgeDomId(edgeId)); });
+      }
+
+      function setSelected(selector) { d3.select(selector).classed('selected', isTrue); }
+    }
   });
 
 // TODO remove jshint exception
 // jshint unused:false
+
+
 function nodeDomId(nodeId) {
   return 'node_' + nodeId;
 }
@@ -47,52 +60,6 @@ function activeTransition(workflow, state, transition) {
     return found;
   }
   return _.last(workflow.actions).state === state.name && workflow.state === transition;
-}
-
-function highlightEdges(graph, nodeId, workflow) {
-  function hilight(source,target) {
-    var strokeWidth = '5px';
-    if(workflow && activeTransition(workflow, {name: source}, target) ) {
-      strokeWidth = '7px';
-    }
-    _.each(graph.incidentEdges(source, target), function(edgeId) {
-      d3.select('#' + edgeDomId(edgeId)).classed('selected', true);
-    });
-  }
-  _.each(graph.predecessors(nodeId), function(prev) {
-    hilight(prev, nodeId);
-  });
-  _.each(graph.successors(nodeId), function(next) {
-    hilight(nodeId, next);
-  });
-}
-
-function unhighlightEdges(graph, nodeId, workflow) {
-  function unhilight(source,target) {
-    var strokeWidth = '1px';
-    if(workflow && activeTransition(workflow, {name: source}, target) ) {
-      strokeWidth = '2px';
-    }
-    _.each(graph.incidentEdges(source, target), function(edgeId) {
-      d3.select('#' + edgeDomId(edgeId)).classed('selected', false);
-    });
-  }
-  _.each(graph.predecessors(nodeId), function(prev) {
-    unhilight(prev, nodeId);
-  });
-  _.each(graph.successors(nodeId), function(next) {
-    unhilight(nodeId, next);
-  });
-}
-
-function highlightNode(graph, definition, nodeId, workflow) {
-  highlightEdges(graph, nodeId, workflow);
-  d3.select('#' + nodeDomId(nodeId)).classed('selected', true);
-}
-
-function unhighlightNode(graph, definition, nodeId, workflow) {
-  unhighlightEdges(graph, nodeId, workflow);
-  d3.select('#' + nodeDomId(nodeId)).classed('selected', false);
 }
 
 function markCurrentState(workflow) {
