@@ -274,7 +274,7 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
   var layout = initLayout(renderer, graph, svgRoot);
   drawArrows(canvasSelector);
 
-  configureSvg(nodeSelectedCallBack, svgRoot);
+  configureSvg(nodeSelectedCallBack, svgRoot, layout);
 
   return layout;
 
@@ -286,7 +286,7 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
     return svgRoot;
   }
 
-  function configureSvg(nodeSelectedCallBack, svgRoot) {
+  function configureSvg(nodeSelectedCallBack, svgRoot, layout) {
     configureOverlay();
     disableZoomPan();
     configureSize();
