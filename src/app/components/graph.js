@@ -41,31 +41,6 @@ function edgeDomId(edgeId) {
   return 'edge' + edgeId;
 }
 
-function activeTransition(workflow, state, transition) {
-  if(!workflow) {
-    return true;
-  }
-  if(workflow.actions.length < 2) {
-    return false;
-  }
-
-  var first = null;
-  var found =  _.find(workflow.actions, function(action) {
-    if(!first) {
-      first = action.state;
-      return false;
-    }
-    if(first === state.name && action.state === transition) {
-      return true;
-    }
-    first = action.state;
-  });
-  if(found) {
-    return found;
-  }
-  return _.last(workflow.actions).state === state.name && workflow.state === transition;
-}
-
 function workflowDefinitionGraph(definition, workflow) {
   var g = new dagreD3.Digraph();
   // NOTE: all nodes must be added to graph before edges
@@ -180,11 +155,11 @@ function workflowDefinitionGraph(definition, workflow) {
         for(var k in state.transitions){
           var transition = state.transitions[k];
           g.addEdge(null, state.name, transition,
-            createEdgeStyle(workflow, definition, state, transition));
+            createEdgeStyle(workflow, state, transition));
         }
         if(state.onFailure) {
           g.addEdge(null, state.name, state.onFailure,
-            createEdgeStyle(workflow, definition, state, state.onFailure, true));
+            createEdgeStyle(workflow, state, state.onFailure, true));
         }
       }
     }
@@ -199,7 +174,7 @@ function workflowDefinitionGraph(definition, workflow) {
           return;
         }
         g.addEdge(null, state.name, errorStateName,
-          createEdgeStyle(workflow, definition, state, errorStateName, true));
+          createEdgeStyle(workflow, state, errorStateName, true));
       });
     }
 
@@ -242,14 +217,14 @@ function workflowDefinitionGraph(definition, workflow) {
       });
     }
 
-    function createEdgeStyle(workflow, definition, state, transition, genericError) {
+    function createEdgeStyle(workflow, state, transition, genericError) {
       if(!workflow) {
         if(genericError) {
           return {'class': 'edge-error'};
         }
         return {'class': 'edge-normal'};
       }
-      if(activeTransition(workflow, state, transition)) {
+      if(activeTransition(state, transition)) {
         if(genericError) {
           return {'class': 'edge-error edge-active'};
         }
@@ -259,6 +234,28 @@ function workflowDefinitionGraph(definition, workflow) {
           return {'class': 'edge-error edge-passive'};
         }
         return {'class': 'edge-normal edge-passive'};
+      }
+
+      function activeTransition(state, transition) {
+        if(workflow.actions.length < 2) {
+          return false;
+        }
+
+        var first = null;
+        var found =  _.find(workflow.actions, function(action) {
+          if(!first) {
+            first = action.state;
+            return false;
+          }
+          if(first === state.name && action.state === transition) {
+            return true;
+          }
+          first = action.state;
+        });
+        if(found) {
+          return found;
+        }
+        return _.last(workflow.actions).state === state.name && workflow.state === transition;
       }
     }
   }
