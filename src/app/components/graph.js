@@ -331,19 +331,13 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
 
   function drawEdges(renderer) {
     var oldDrawEdgePaths = renderer.drawEdgePaths();
-    renderer.drawEdgePaths(
-      function(g, root) {
-        var edges = oldDrawEdgePaths(g, root);
-        // add id to edges
-        edges.selectAll('*').attr('id', function(edgeId) {
-          return edgeDomId(edgeId);
-        })
-          .attr('class', function(edgeId) {
-            // see createEdgeStyle, class is not supported attribute
-            return g._edges[edgeId].value.class;
-          });
-        return edges;
-      });
+    renderer.drawEdgePaths(function(g, root) {
+      var edges = oldDrawEdgePaths(g, root);
+      edges.selectAll('*')
+        .attr('id', function(edgeId) { return edgeDomId(edgeId); })
+        .attr('class', function(edgeId) { return g._edges[edgeId].value.class; });
+      return edges;
+    });
   }
 
   function drawArrows(canvasSelector) {
