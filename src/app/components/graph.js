@@ -138,31 +138,24 @@ function workflowDefinitionGraph(definition, workflow) {
     return;
 
     function addEdgesThatArePresentInWorkflowDefinition() {
-      for(var edgeIndex in definition.states) {
-        var state = definition.states[edgeIndex];
-        for(var k in state.transitions){
-          var transition = state.transitions[k];
-          g.addEdge(null, state.name, transition,
-            createEdgeStyle(workflow, state, transition));
+      _.forEach(definition.states, function(state) {
+        _.forEach(state.transitions, function(transition) {
+          g.addEdge(null, state.name, transition, createEdgeStyle(workflow, state, transition));
+        });
+
+        if (state.onFailure) {
+          g.addEdge(null, state.name, state.onFailure, createEdgeStyle(workflow, state, state.onFailure, true));
         }
-        if(state.onFailure) {
-          g.addEdge(null, state.name, state.onFailure,
-            createEdgeStyle(workflow, state, state.onFailure, true));
-        }
-      }
+      });
     }
 
     function addEdgesToGenericOnErrorState() {
       var errorStateName = definition.onError;
-      _.each(definition.states, function(state) {
-        if(state.name === errorStateName || state.onFailure || state.type === 'end') {
-          return;
+      _.forEach(definition.states, function(state) {
+        if (state.name !== errorStateName && !state.onFailure && state.type !== 'end' &&
+          !_.contains(state.transitions, errorStateName)) {
+          g.addEdge(null, state.name, errorStateName, createEdgeStyle(workflow, state, errorStateName, true));
         }
-        if(_.contains(state.transitions, errorStateName)) {
-          return;
-        }
-        g.addEdge(null, state.name, errorStateName,
-          createEdgeStyle(workflow, state, errorStateName, true));
       });
     }
 
