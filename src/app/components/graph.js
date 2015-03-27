@@ -211,6 +211,144 @@
         }
       }
     }
+
+    function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, embedCSS) {
+      var renderer = new dagreD3.Renderer();
+
+      drawNodes(renderer, graph, nodeSelectedCallBack);
+      drawEdges(renderer);
+
+      var svgRoot = initSvg(canvasSelector, embedCSS);
+      var layout = initLayout(renderer, graph, svgRoot);
+      drawArrows(canvasSelector);
+
+      configureSvg(nodeSelectedCallBack, svgRoot, layout);
+
+      return layout;
+
+      function initSvg(canvasSelector, embedCSS) {
+        var svgRoot = d3.select(canvasSelector);
+        svgRoot.selectAll('*').remove();
+        svgRoot.append('style').attr('type', 'text/css').text(embedCSS);
+        svgRoot.classed('svg-content-responsive', true);
+        return svgRoot;
+      }
+
+      function configureSvg(nodeSelectedCallBack, svgRoot, layout) {
+        configureOverlay();
+        disableZoomPan();
+        configureSize();
+
+        function configureOverlay() {
+          var svgBackground = svgRoot.select('rect.overlay');
+          svgBackground.attr('style', '');
+          svgBackground.attr('class', 'graph-background');
+          svgBackground.on('click', function() {
+            // event handler for clicking outside nodes
+            nodeSelectedCallBack(null);
+          });
+        }
+
+        function disableZoomPan() {
+          // panning off
+          svgRoot.on('mousedown.zoom', null);
+          svgRoot.on('mousemove.zoom', null);
+          // zooming off
+          svgRoot.on('dblclick.zoom', null);
+          svgRoot.on('touchstart.zoom', null);
+          svgRoot.on('wheel.zoom', null);
+          svgRoot.on('mousewheel.zoom', null);
+          svgRoot.on('MozMousePixelScroll.zoom', null);
+        }
+
+        function configureSize() {
+          svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
+          svgRoot.attr('viewBox', '0 0 ' + (layout.graph().width+40) + ' ' + (layout.graph().height+40));
+        }
+      }
+
+      function initLayout(renderer, graph, svgRoot) {
+        var svgGroup = svgRoot.append('g');
+        svgGroup.attr('transform', 'translate(20, 20)');
+        return  renderer.run(graph, svgGroup);
+      }
+
+      function drawNodes(renderer, graph, nodeSelectedCallBack) {
+        var oldDrawNodes = renderer.drawNodes();
+        renderer.drawNodes(function(g, root) {
+          var nodes = oldDrawNodes(graph, root);
+          nodes.attr('style', function() { return 'opacity: 1; cursor: pointer;'; });
+          nodes.append('title').text(function(nodeId){ return buildTitle(g.node(nodeId).state); });
+          nodes.attr('id', function(nodeId) { return nodeDomId(nodeId); });
+          nodes.attr('class', function(nodeId) { return g.node(nodeId)['class']; });
+          nodes.on('click', function(nodeId) { nodeSelectedCallBack(nodeId); });
+          drawRetryIndicator();
+          return nodes;
+
+          function drawRetryIndicator() {
+            // fetch sizes for node rects => needed for calculating right edge for rect
+            var nodeCoords = {};
+            nodes.selectAll('rect').each(function (nodeName) {
+              var t = d3.select(this);
+              nodeCoords[nodeName] = {x: t.attr('x'), y: t.attr('y')};
+            });
+
+            // orange ellipse with retry count
+            var retryGroup = nodes.append('g');
+            retryGroup.each(function(nodeId) {
+              var node = g.node(nodeId);
+              if (node.retries > 0) {
+                var c = nodeCoords[nodeId];
+                var t = d3.select(this);
+                t.attr('transform', 'translate(' + (- c.x) + ',-4)');
+
+                t.append('ellipse')
+                  .attr('cx', 10).attr('cy', -5)
+                  .attr('rx', 20).attr('ry', 10)
+                  .attr('class', 'retry-indicator');
+
+                t.append('text').append('tspan').text(node.retries);
+                t.append('title').text('State was retried ' + node.retries + ' times.');
+              }
+            });
+          }
+
+          function buildTitle(state) { return _.capitalize(state.type) + ' state\n' + state.description; }
+        });
+      }
+
+      function drawEdges(renderer) {
+        var oldDrawEdgePaths = renderer.drawEdgePaths();
+        renderer.drawEdgePaths(function(g, root) {
+          var edges = oldDrawEdgePaths(g, root);
+          edges.selectAll('*')
+            .attr('id', function(edgeId) { return edgeDomId(edgeId); })
+            .attr('class', function(edgeId) { return g._edges[edgeId].value.class; });
+          return edges;
+        });
+      }
+
+      function drawArrows(canvasSelector) {
+        addArrowheadMarker(canvasSelector, 'arrowhead-gray', 'gray');
+        addArrowheadMarker(canvasSelector, 'arrowhead-red', 'red');
+      }
+
+      function addArrowheadMarker(canvasSelector, id, color) {
+        d3.select(canvasSelector).select('defs')
+          .append('marker')
+          .attr('id', id)
+          .attr('viewBox', '0 0 10 10')
+          .attr('refX', 8)
+          .attr('refY', '5')
+          .attr('markerUnits', 'strokeWidth')
+          .attr('markerWidth', '8')
+          .attr('markerHeight', '5')
+          .attr('orient', 'auto')
+          .attr('fill', color)
+          .append('path')
+          .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+      }
+    }
   });
 
 // TODO remove jshint exception
@@ -222,144 +360,6 @@ function nodeDomId(nodeId) {
 }
 function edgeDomId(edgeId) {
   return 'edge' + edgeId;
-}
-
-function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, embedCSS) {
-  var renderer = new dagreD3.Renderer();
-
-  drawNodes(renderer, graph, nodeSelectedCallBack);
-  drawEdges(renderer);
-
-  var svgRoot = initSvg(canvasSelector, embedCSS);
-  var layout = initLayout(renderer, graph, svgRoot);
-  drawArrows(canvasSelector);
-
-  configureSvg(nodeSelectedCallBack, svgRoot, layout);
-
-  return layout;
-
-  function initSvg(canvasSelector, embedCSS) {
-    var svgRoot = d3.select(canvasSelector);
-    svgRoot.selectAll('*').remove();
-    svgRoot.append('style').attr('type', 'text/css').text(embedCSS);
-    svgRoot.classed('svg-content-responsive', true);
-    return svgRoot;
-  }
-
-  function configureSvg(nodeSelectedCallBack, svgRoot, layout) {
-    configureOverlay();
-    disableZoomPan();
-    configureSize();
-
-    function configureOverlay() {
-      var svgBackground = svgRoot.select('rect.overlay');
-      svgBackground.attr('style', '');
-      svgBackground.attr('class', 'graph-background');
-      svgBackground.on('click', function() {
-        // event handler for clicking outside nodes
-        nodeSelectedCallBack(null);
-      });
-    }
-
-    function disableZoomPan() {
-      // panning off
-      svgRoot.on('mousedown.zoom', null);
-      svgRoot.on('mousemove.zoom', null);
-      // zooming off
-      svgRoot.on('dblclick.zoom', null);
-      svgRoot.on('touchstart.zoom', null);
-      svgRoot.on('wheel.zoom', null);
-      svgRoot.on('mousewheel.zoom', null);
-      svgRoot.on('MozMousePixelScroll.zoom', null);
-    }
-
-    function configureSize() {
-      svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
-      svgRoot.attr('viewBox', '0 0 ' + (layout.graph().width+40) + ' ' + (layout.graph().height+40));
-    }
-  }
-
-  function initLayout(renderer, graph, svgRoot) {
-    var svgGroup = svgRoot.append('g');
-    svgGroup.attr('transform', 'translate(20, 20)');
-    return  renderer.run(graph, svgGroup);
-  }
-
-  function drawNodes(renderer, graph, nodeSelectedCallBack) {
-    var oldDrawNodes = renderer.drawNodes();
-    renderer.drawNodes(function(g, root) {
-      var nodes = oldDrawNodes(graph, root);
-      nodes.attr('style', function() { return 'opacity: 1; cursor: pointer;'; });
-      nodes.append('title').text(function(nodeId){ return buildTitle(g.node(nodeId).state); });
-      nodes.attr('id', function(nodeId) { return nodeDomId(nodeId); });
-      nodes.attr('class', function(nodeId) { return g.node(nodeId)['class']; });
-      nodes.on('click', function(nodeId) { nodeSelectedCallBack(nodeId); });
-      drawRetryIndicator();
-      return nodes;
-
-      function drawRetryIndicator() {
-        // fetch sizes for node rects => needed for calculating right edge for rect
-        var nodeCoords = {};
-        nodes.selectAll('rect').each(function (nodeName) {
-          var t = d3.select(this);
-          nodeCoords[nodeName] = {x: t.attr('x'), y: t.attr('y')};
-        });
-
-        // orange ellipse with retry count
-        var retryGroup = nodes.append('g');
-        retryGroup.each(function(nodeId) {
-          var node = g.node(nodeId);
-          if (node.retries > 0) {
-            var c = nodeCoords[nodeId];
-            var t = d3.select(this);
-            t.attr('transform', 'translate(' + (- c.x) + ',-4)');
-
-            t.append('ellipse')
-              .attr('cx', 10).attr('cy', -5)
-              .attr('rx', 20).attr('ry', 10)
-              .attr('class', 'retry-indicator');
-
-            t.append('text').append('tspan').text(node.retries);
-            t.append('title').text('State was retried ' + node.retries + ' times.');
-          }
-        });
-      }
-
-      function buildTitle(state) { return capitalize(state.type) + ' state\n' + state.description; }
-    });
-  }
-
-  function drawEdges(renderer) {
-    var oldDrawEdgePaths = renderer.drawEdgePaths();
-    renderer.drawEdgePaths(function(g, root) {
-      var edges = oldDrawEdgePaths(g, root);
-      edges.selectAll('*')
-        .attr('id', function(edgeId) { return edgeDomId(edgeId); })
-        .attr('class', function(edgeId) { return g._edges[edgeId].value.class; });
-      return edges;
-    });
-  }
-
-  function drawArrows(canvasSelector) {
-    addArrowheadMarker(canvasSelector, 'arrowhead-gray', 'gray');
-    addArrowheadMarker(canvasSelector, 'arrowhead-red', 'red');
-  }
-
-  function addArrowheadMarker(canvasSelector, id, color) {
-    d3.select(canvasSelector).select('defs')
-      .append('marker')
-      .attr('id', id)
-      .attr('viewBox', '0 0 10 10')
-      .attr('refX', 8)
-      .attr('refY', '5')
-      .attr('markerUnits', 'strokeWidth')
-      .attr('markerWidth', '8')
-      .attr('markerHeight', '5')
-      .attr('orient', 'auto')
-      .attr('fill', color)
-      .append('path')
-      .attr('d', 'M 0 0 L 10 5 L 0 10 z');
-  }
 }
 
 })();
