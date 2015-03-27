@@ -65,41 +65,31 @@ function workflowDefinitionGraph(definition, workflow) {
     }
 
     function createNodeStyle(state, workflow) {
-      var active = activeNode(workflow, state);
       var nodeStyle = {};
       nodeStyle['class'] = resolveStyleClass();
-      console.log('class', nodeStyle['class']);
-      nodeStyle.retries = calculateRetries(workflow, state);
+      nodeStyle.retries = calculateRetries();
       nodeStyle.state = state;
       nodeStyle.label = state.name;
       return nodeStyle;
 
       function resolveStyleClass() {
         var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
-        if(workflow && !active) { cssClass += ' node-passive'; }
+        if(workflow && !isActiveNode()) { cssClass += ' node-passive'; }
         return cssClass;
-      }
-    }
 
-    /**
-     * Count how many times this state has been retried. Including non-consecutive retries.
-     */
-    function calculateRetries(workflow, state) {
-      return _.reduce(_.result(workflow, 'actions'), function(acc, action) {
-        return action.state === state.id && action.retryNo > 0 ? acc+1 : acc;
-      }, 0);
-    }
+        function isActiveNode() {
+          return workflow.state === state.name || !_.isUndefined(_.find(workflow.actions, 'state', state.name));
+        }
+      }
 
-    function activeNode(workflow, state) {
-      if(!workflow) {
-        return true;
+      /**
+       * Count how many times this state has been retried. Including non-consecutive retries.
+       */
+      function calculateRetries() {
+        return _.reduce(_.result(workflow, 'actions'), function(acc, action) {
+          return action.state === state.id && action.retryNo > 0 ? acc+1 : acc;
+        }, 0);
       }
-      if(workflow.state === state.name) {
-        return true;
-      }
-      return !!_.find(workflow.actions, function(action) {
-        return action.state === state.name;
-      });
     }
   }
 
