@@ -206,44 +206,26 @@ function workflowDefinitionGraph(definition, workflow) {
     }
 
     function createEdgeStyle(workflow, state, transition, genericError) {
-      if(!workflow) {
-        if(genericError) {
-          return {'class': 'edge-error'};
-        }
-        return {'class': 'edge-normal'};
-      }
-      if(activeTransition(state, transition)) {
-        if(genericError) {
-          return {'class': 'edge-error edge-active'};
-        }
-        return {'class': 'edge-normal edge-active'};
-      } else {
-        if(genericError) {
-          return {'class': 'edge-error edge-passive'};
-        }
-        return {'class': 'edge-normal edge-passive'};
-      }
+      return { 'class': resolveStyleClass() };
 
-      function activeTransition(state, transition) {
-        if(workflow.actions.length < 2) {
-          return false;
+      function resolveStyleClass() {
+        var cssStyle = 'edge-' + (genericError ? 'error' : 'normal');
+        if (workflow) {
+          cssStyle += ' edge-' + (activeTransition(state, transition) ? 'active' : 'passive');
         }
+        return cssStyle;
 
-        var first = null;
-        var found =  _.find(workflow.actions, function(action) {
-          if(!first) {
-            first = action.state;
-            return false;
-          }
-          if(first === state.name && action.state === transition) {
-            return true;
-          }
-          first = action.state;
-        });
-        if(found) {
-          return found;
+        function activeTransition(state, transition) {
+          if(_.size(workflow.actions) < 2) { return false; }
+
+          var prevState = _.first(workflow.actions).state;
+          var found =  _.find(_.rest(workflow.actions), function(action) {
+            if (prevState === state.name && action.state === transition) { return true; }
+            prevState = action.state;
+          });
+
+          return found || _.last(workflow.actions).state === state.name && workflow.state === transition;
         }
-        return _.last(workflow.actions).state === state.name && workflow.state === transition;
       }
     }
   }
