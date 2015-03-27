@@ -1,6 +1,14 @@
-'use strict';
+(function () {
+  'use strict';
 
-// jshint unused:false
+  var m = angular.module('nflowExplorer.barchart', []);
+
+  m.factory('Barchart', function () {
+    return {
+      drawStateExecutionGraph: drawStateExecutionGraph
+    };
+  });
+
 function drawStateExecutionGraph(canvasSelector, statsData, definition, stateSelectedCallback) {
   // adapted from http://bl.ocks.org/mbostock/3886208
 
@@ -173,3 +181,6 @@ function drawStateExecutionGraph(canvasSelector, statsData, definition, stateSel
 
   return true;
 }
+
+})();
+

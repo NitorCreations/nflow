@@ -26,8 +26,6 @@
     "dagreD3": false,
     "moment": false,
     "Dygraph": false,
-    "Config": false,
-
-    "drawStateExecutionGraph": false
+    "Config": false
   }
 }
