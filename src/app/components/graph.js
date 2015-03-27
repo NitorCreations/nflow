@@ -349,17 +349,9 @@
           .attr('d', 'M 0 0 L 10 5 L 0 10 z');
       }
     }
+
+    function nodeDomId(nodeId) { return 'node_' + nodeId; }
+
+    function edgeDomId(edgeId) { return 'edge' + edgeId; }
   });
-
-// TODO remove jshint exception
-// jshint unused:false
-
-
-function nodeDomId(nodeId) {
-  return 'node_' + nodeId;
-}
-function edgeDomId(edgeId) {
-  return 'edge' + edgeId;
-}
-
 })();
