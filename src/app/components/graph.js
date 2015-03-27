@@ -28,6 +28,44 @@
     function markCurrentState(workflow) {
       d3.select('#' + nodeDomId(workflow.state)).classed('current-state', true);
     }
+
+    function downloadDataUrl(dataurl, filename) {
+      var a = document.createElement('a');
+      // http://stackoverflow.com/questions/12112844/how-to-detect-support-for-the-html5-download-attribute
+      // TODO firefox supports download attr, but due security doesn't work in our case
+      if('download' in a) {
+        console.debug('Download via a.href,a.download');
+        a.download = filename;
+        a.href = dataurl;
+        a.click();
+      } else {
+        console.debug('Download via location.href');
+        // http://stackoverflow.com/questions/12676649/javascript-programmatically-trigger-file-download-in-firefox
+        location.href = dataurl;
+      }
+    }
+
+    function downloadImage(size, dataurl, filename, contentType) {
+      console.info('Downloading image', filename, contentType);
+      var canvas = document.createElement('canvas');
+
+      var context = canvas.getContext('2d');
+      canvas.width = size[0];
+      canvas.height = size[1];
+      var image = new Image();
+      image.width = canvas.width;
+      image.height = canvas.height;
+      image.onload = function() {
+        // image load is async, must use callback
+        context.drawImage(image, 0, 0, this.width, this.height);
+        var canvasdata = canvas.toDataURL(contentType);
+        downloadDataUrl(canvasdata, filename);
+      };
+      image.onerror = function(error) {
+        console.error('Image downloading failed', error);
+      };
+      image.src = dataurl;
+    }
   });
 
 // TODO remove jshint exception
@@ -373,41 +411,4 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
   }
 }
 
-function downloadDataUrl(dataurl, filename) {
-  var a = document.createElement('a');
-  // http://stackoverflow.com/questions/12112844/how-to-detect-support-for-the-html5-download-attribute
-  // TODO firefox supports download attr, but due security doesn't work in our case
-  if('download' in a) {
-    console.debug('Download via a.href,a.download');
-    a.download = filename;
-    a.href = dataurl;
-    a.click();
-  } else {
-    console.debug('Download via location.href');
-    // http://stackoverflow.com/questions/12676649/javascript-programmatically-trigger-file-download-in-firefox
-    location.href = dataurl;
-  }
-}
-
-function downloadImage(size, dataurl, filename, contentType) {
-  console.info('Downloading image', filename, contentType);
-  var canvas = document.createElement('canvas');
-
-  var context = canvas.getContext('2d');
-  canvas.width = size[0];
-  canvas.height = size[1];
-  var image = new Image();
-  image.width = canvas.width;
-  image.height = canvas.height;
-  image.onload = function() {
-    // image load is async, must use callback
-    context.drawImage(image, 0, 0, this.width, this.height);
-    var canvasdata = canvas.toDataURL(contentType);
-    downloadDataUrl(canvasdata, filename);
-  };
-  image.onerror = function(error) {
-    console.error('Image downloading failed', error);
-  };
-  image.src = dataurl;
-}
 })();
