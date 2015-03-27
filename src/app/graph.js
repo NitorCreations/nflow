@@ -39,7 +39,7 @@ function activeTransition(workflow, state, transition) {
   if(!workflow) {
     return true;
   }
-  if(workflow.actions.length < 2) {
+  if(!workflow.actions || workflow.actions.length < 2) {
     return false;
   }
 
