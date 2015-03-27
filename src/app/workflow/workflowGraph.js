@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.workflow.graph', []);
+  var m = angular.module('nflowExplorer.workflow.graph', [
+    'nflowExplorer.graph'
+  ]);
 
   m.directive('workflowGraph', function() {
     return {
@@ -18,37 +20,34 @@
     };
   });
 
-  m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi) {
-    var graph;
+  m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi, Graph) {
     var self = this;
 
     initialize();
 
     function initialize() {
-      graph = initGraph(self.definition, self.workflow);
-
+      var graph = initGraph(self.definition, self.workflow);
       WorkflowGraphApi.registerOnSelectNodeListener(graph.nodeSelected);
-
       graph.drawWorkflowDefinition();
-      markCurrentState(self.workflow);
     }
 
     function initGraph(definition, workflow) {
       var d = definition;
       var w = workflow;
-      var g = workflowDefinitionGraph(d, w);
+      var g = Graph.workflowDefinitionGraph(d, w);
       var selectedNode;
 
       var self = {};
 
       self.drawWorkflowDefinition = function() {
-        drawWorkflowDefinition(g, '#workflowSvg', WorkflowGraphApi.onSelectNode, $rootScope.graph.css);
+        Graph.drawWorkflowDefinition(g, '#workflowSvg', WorkflowGraphApi.onSelectNode, $rootScope.graph.css);
+        Graph.markCurrentState(w);
       };
 
       self.nodeSelected = function(nodeId) {
         console.debug('Selecting node ' + nodeId);
-        if (selectedNode) { unhiglightNode(g, d, selectedNode, w); }
-        if (nodeId) { higlightNode(g, d, nodeId, w); }
+        if (selectedNode) { Graph.setNodeSelected(g, selectedNode, false); }
+        if (nodeId) { Graph.setNodeSelected(g, nodeId, true); }
         selectedNode = nodeId;
       };
 
