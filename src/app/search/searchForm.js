@@ -22,7 +22,7 @@
     };
   });
 
-  m.controller('SearchFormCtrl', function(CriteriaModel, WorkflowSearch) {
+  m.controller('SearchFormCtrl', function(CriteriaModel, WorkflowSearch, $timeout) {
     var self = this;
     self.model = CriteriaModel.model;
     self.search = search;
@@ -37,7 +37,15 @@
     }
 
     function search() {
+      var t = $timeout(function() {
+        self.showIndicator = true;
+      }, 500);
+      function hide() {
+        $timeout.cancel(t);
+        self.showIndicator = false;
+      }
       self.results = WorkflowSearch.query(CriteriaModel.toQuery());
+      self.results.$promise.then(hide, hide);
     }
   });
 
