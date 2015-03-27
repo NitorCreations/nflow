@@ -66,6 +66,151 @@
       };
       image.src = dataurl;
     }
+
+    function workflowDefinitionGraph(definition, workflow) {
+      var g = new dagreD3.Digraph();
+      // NOTE: all nodes must be added to graph before edges
+      addNodes();
+      addEdges();
+      return g;
+
+      function addNodes() {
+        addNodesThatArePresentInWorkflowDefinition();
+        addNodesThatAreNotPresentInWorkflowDefinition();
+        return;
+
+        function addNodesThatArePresentInWorkflowDefinition() {
+          _.forEach(definition.states, function(state) { g.addNode(state.name, createNodeStyle(state, workflow)); });
+        }
+
+        function addNodesThatAreNotPresentInWorkflowDefinition() {
+          _.chain(_.result(workflow, 'actions'))
+            .filter(function(action) { return !g._nodes(action.state); })
+            .forEach(function(action) { g.addNode(action.state, createNodeStyle({name: action.state}, workflow)); })
+          ;
+        }
+
+        function createNodeStyle(state, workflow) {
+          var nodeStyle = {};
+          nodeStyle['class'] = resolveStyleClass();
+          nodeStyle.retries = calculateRetries();
+          nodeStyle.state = state;
+          nodeStyle.label = state.name;
+          return nodeStyle;
+
+          function resolveStyleClass() {
+            var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
+            if(workflow && !isActiveNode()) { cssClass += ' node-passive'; }
+            return cssClass;
+
+            function isActiveNode() {
+              return workflow.state === state.name || !_.isUndefined(_.find(workflow.actions, 'state', state.name));
+            }
+          }
+
+          /**
+           * Count how many times this state has been retried. Including non-consecutive retries.
+           */
+          function calculateRetries() {
+            return _.reduce(_.result(workflow, 'actions'), function(acc, action) {
+              return action.state === state.id && action.retryNo > 0 ? acc+1 : acc;
+            }, 0);
+          }
+        }
+      }
+
+      function addEdges() {
+        addEdgesThatArePresentInWorkflowDefinition();
+        addEdgesToGenericOnErrorState();
+        addEdgesThatAreNotPresentInWorkflowDefinition();
+        return;
+
+        function addEdgesThatArePresentInWorkflowDefinition() {
+          _.forEach(definition.states, function(state) {
+            _.forEach(state.transitions, function(transition) {
+              g.addEdge(null, state.name, transition, createEdgeStyle(workflow, state, transition));
+            });
+
+            if (state.onFailure) {
+              g.addEdge(null, state.name, state.onFailure, createEdgeStyle(workflow, state, state.onFailure, true));
+            }
+          });
+        }
+
+        function addEdgesToGenericOnErrorState() {
+          var errorStateName = definition.onError;
+          _.forEach(definition.states, function(state) {
+            if (state.name !== errorStateName && !state.onFailure && state.type !== 'end' &&
+              !_.contains(state.transitions, errorStateName)) {
+              g.addEdge(null, state.name, errorStateName, createEdgeStyle(workflow, state, errorStateName, true));
+            }
+          });
+        }
+
+        function addEdgesThatAreNotPresentInWorkflowDefinition() {
+          if(!workflow) {
+            return;
+          }
+          var activeEdges = {};
+          var sourceState = null;
+          _.each(workflow.actions, function(action) {
+            if(!activeEdges[action.state]) {
+              activeEdges[action.state] = {};
+            }
+            if(!sourceState) {
+              sourceState = action.state;
+              return;
+            }
+
+            // do not include retries
+            if(sourceState !== action.state) {
+              activeEdges[sourceState][action.state] = true;
+            }
+            sourceState = action.state;
+          });
+
+          // handle last action -> currentAction, do not include retries
+          var lastAction = _.last(workflow.actions);
+          if(lastAction && lastAction.state !== workflow.state) {
+            activeEdges[lastAction.state][workflow.state] = true;
+          }
+
+          _.each(activeEdges, function(targetObj, source) {
+            _.each(Object.keys(targetObj), function(target) {
+              if(!target) { return; }
+              if(!g.inEdges(target, source).length) {
+                g.addEdge(null, source, target,
+                  {'class': 'edge-unexpected edge-active'});
+              }
+            });
+          });
+        }
+
+        function createEdgeStyle(workflow, state, transition, genericError) {
+          return { 'class': resolveStyleClass() };
+
+          function resolveStyleClass() {
+            var cssStyle = 'edge-' + (genericError ? 'error' : 'normal');
+            if (workflow) {
+              cssStyle += ' edge-' + (isActiveTransition(state, transition) ? 'active' : 'passive');
+            }
+            return cssStyle;
+
+            function isActiveTransition(state, transition) {
+              if(_.size(workflow.actions) < 2) { return false; }
+
+              var prevState = _.first(workflow.actions).state;
+              var found =  _.find(_.rest(workflow.actions), function(action) {
+                if (prevState === state.name && action.state === transition) { return true; }
+                prevState = action.state;
+              });
+
+              return !_.isUndefined(found) || _.last(workflow.actions).state === state.name && workflow.state === transition;
+            }
+          }
+        }
+      }
+    }
   });
 
 // TODO remove jshint exception
@@ -77,151 +222,6 @@ function nodeDomId(nodeId) {
 }
 function edgeDomId(edgeId) {
   return 'edge' + edgeId;
-}
-
-function workflowDefinitionGraph(definition, workflow) {
-  var g = new dagreD3.Digraph();
-  // NOTE: all nodes must be added to graph before edges
-  addNodes();
-  addEdges();
-  return g;
-
-  function addNodes() {
-    addNodesThatArePresentInWorkflowDefinition();
-    addNodesThatAreNotPresentInWorkflowDefinition();
-    return;
-
-    function addNodesThatArePresentInWorkflowDefinition() {
-      _.forEach(definition.states, function(state) { g.addNode(state.name, createNodeStyle(state, workflow)); });
-    }
-
-    function addNodesThatAreNotPresentInWorkflowDefinition() {
-      _.chain(_.result(workflow, 'actions'))
-        .filter(function(action) { return !g._nodes(action.state); })
-        .forEach(function(action) { g.addNode(action.state, createNodeStyle({name: action.state}, workflow)); })
-      ;
-    }
-
-    function createNodeStyle(state, workflow) {
-      var nodeStyle = {};
-      nodeStyle['class'] = resolveStyleClass();
-      nodeStyle.retries = calculateRetries();
-      nodeStyle.state = state;
-      nodeStyle.label = state.name;
-      return nodeStyle;
-
-      function resolveStyleClass() {
-        var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
-        if(workflow && !isActiveNode()) { cssClass += ' node-passive'; }
-        return cssClass;
-
-        function isActiveNode() {
-          return workflow.state === state.name || !_.isUndefined(_.find(workflow.actions, 'state', state.name));
-        }
-      }
-
-      /**
-       * Count how many times this state has been retried. Including non-consecutive retries.
-       */
-      function calculateRetries() {
-        return _.reduce(_.result(workflow, 'actions'), function(acc, action) {
-          return action.state === state.id && action.retryNo > 0 ? acc+1 : acc;
-        }, 0);
-      }
-    }
-  }
-
-  function addEdges() {
-    addEdgesThatArePresentInWorkflowDefinition();
-    addEdgesToGenericOnErrorState();
-    addEdgesThatAreNotPresentInWorkflowDefinition();
-    return;
-
-    function addEdgesThatArePresentInWorkflowDefinition() {
-      _.forEach(definition.states, function(state) {
-        _.forEach(state.transitions, function(transition) {
-          g.addEdge(null, state.name, transition, createEdgeStyle(workflow, state, transition));
-        });
-
-        if (state.onFailure) {
-          g.addEdge(null, state.name, state.onFailure, createEdgeStyle(workflow, state, state.onFailure, true));
-        }
-      });
-    }
-
-    function addEdgesToGenericOnErrorState() {
-      var errorStateName = definition.onError;
-      _.forEach(definition.states, function(state) {
-        if (state.name !== errorStateName && !state.onFailure && state.type !== 'end' &&
-          !_.contains(state.transitions, errorStateName)) {
-          g.addEdge(null, state.name, errorStateName, createEdgeStyle(workflow, state, errorStateName, true));
-        }
-      });
-    }
-
-    function addEdgesThatAreNotPresentInWorkflowDefinition() {
-      if(!workflow) {
-        return;
-      }
-      var activeEdges = {};
-      var sourceState = null;
-      _.each(workflow.actions, function(action) {
-        if(!activeEdges[action.state]) {
-          activeEdges[action.state] = {};
-        }
-        if(!sourceState) {
-          sourceState = action.state;
-          return;
-        }
-
-        // do not include retries
-        if(sourceState !== action.state) {
-          activeEdges[sourceState][action.state] = true;
-        }
-        sourceState = action.state;
-      });
-
-      // handle last action -> currentAction, do not include retries
-      var lastAction = _.last(workflow.actions);
-      if(lastAction && lastAction.state !== workflow.state) {
-        activeEdges[lastAction.state][workflow.state] = true;
-      }
-
-      _.each(activeEdges, function(targetObj, source) {
-        _.each(Object.keys(targetObj), function(target) {
-          if(!target) { return; }
-          if(!g.inEdges(target, source).length) {
-            g.addEdge(null, source, target,
-              {'class': 'edge-unexpected edge-active'});
-          }
-        });
-      });
-    }
-
-    function createEdgeStyle(workflow, state, transition, genericError) {
-      return { 'class': resolveStyleClass() };
-
-      function resolveStyleClass() {
-        var cssStyle = 'edge-' + (genericError ? 'error' : 'normal');
-        if (workflow) {
-          cssStyle += ' edge-' + (isActiveTransition(state, transition) ? 'active' : 'passive');
-        }
-        return cssStyle;
-
-        function isActiveTransition(state, transition) {
-          if(_.size(workflow.actions) < 2) { return false; }
-
-          var prevState = _.first(workflow.actions).state;
-          var found =  _.find(_.rest(workflow.actions), function(action) {
-            if (prevState === state.name && action.state === transition) { return true; }
-            prevState = action.state;
-          });
-
-          return !_.isUndefined(found) || _.last(workflow.actions).state === state.name && workflow.state === transition;
-        }
-      }
-    }
-  }
 }
 
 function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, embedCSS) {

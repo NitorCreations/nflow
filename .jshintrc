@@ -28,8 +28,6 @@
     "Dygraph": false,
     "Config": false,
 
-    "workflowDefinitionGraph": false,
-    "workflowDefinitionGraph": false,
     "drawWorkflowDefinition": false,
     "capitalize": false,
     "drawStateExecutionGraph": false
