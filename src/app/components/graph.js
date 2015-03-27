@@ -287,30 +287,17 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
 
   function drawNodes(renderer, graph, nodeSelectedCallBack) {
     var oldDrawNodes = renderer.drawNodes();
-    renderer.drawNodes(
-      function(g, root) {
-        var nodes = oldDrawNodes(graph, root);
+    renderer.drawNodes(function(g, root) {
+      var nodes = oldDrawNodes(graph, root);
+      nodes.attr('style', function() { return 'opacity: 1; cursor: pointer;'; });
+      nodes.append('title').text(function(nodeId){ return buildTitle(g.node(nodeId).state); });
+      nodes.attr('id', function(nodeId) { return nodeDomId(nodeId); });
+      nodes.attr('class', function(nodeId) { return g.node(nodeId)['class']; });
+      nodes.on('click', function(nodeId) { nodeSelectedCallBack(nodeId); });
+      drawRetryIndicator();
+      return nodes;
 
-        // use hand mouse cursor for nodes
-        nodes.attr('style',
-          function() {
-            return 'opacity: 1;cursor: pointer;';
-          });
-        nodes.append('title').text(function(nodeId){
-          var node = g.node(nodeId);
-          return  capitalize(node.state.type) + ' state\n' +
-            node.state.description;
-        });
-        // add id attr to nodes g elements
-        nodes.attr('id', function(nodeId) {
-          return nodeDomId(nodeId);
-        });
-        nodes.attr('class', function(nodeId) {
-          // see createEdgeStyle, class is not supported attribute
-          return g.node(nodeId)['class'];
-        });
-
-        // draw retry indicator
+      function drawRetryIndicator() {
         // fetch sizes for node rects => needed for calculating right edge for rect
         var nodeCoords = {};
         nodes.selectAll('rect').each(function (nodeName) {
@@ -322,7 +309,7 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
         var retryGroup = nodes.append('g');
         retryGroup.each(function(nodeId) {
           var node = g.node(nodeId);
-          if(node.retries > 0) {
+          if (node.retries > 0) {
             var c = nodeCoords[nodeId];
             var t = d3.select(this);
             t.attr('transform', 'translate(' + (- c.x) + ',-4)');
@@ -332,19 +319,14 @@ function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, emb
               .attr('rx', 20).attr('ry', 10)
               .attr('class', 'retry-indicator');
 
-            t.append('text')
-              .append('tspan')
-              .text(node.retries);
-
+            t.append('text').append('tspan').text(node.retries);
             t.append('title').text('State was retried ' + node.retries + ' times.');
           }
         });
-        // event handler for clicking nodes
-        nodes.on('click', function(nodeId) {
-          nodeSelectedCallBack(nodeId);
-        });
-        return nodes;
-      });
+      }
+
+      function buildTitle(state) { return capitalize(state.type) + ' state\n' + state.description; }
+    });
   }
 
   function drawEdges(renderer) {
