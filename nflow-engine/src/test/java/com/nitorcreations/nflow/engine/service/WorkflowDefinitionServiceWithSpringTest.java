@@ -31,12 +31,12 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("nflow-engine-test")
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class WorkflowDefinitionServiceWithSpringTest {
 
   @Configuration
-  @Profile("test")
+  @Profile("nflow-engine-test")
   @ComponentScan(basePackageClasses = SpringDummyTestWorkflow.class)
   static class ContextConfiguration {
     @Bean

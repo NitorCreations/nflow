@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.service;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
@@ -10,6 +11,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 
 @Component
+@Profile("nflow-engine-test")
 public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestWorkflow.SpringDummyTestState> {
 
   public static enum SpringDummyTestState implements com.nitorcreations.nflow.engine.workflow.definition.WorkflowState {
