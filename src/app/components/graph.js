@@ -211,11 +211,11 @@ function workflowDefinitionGraph(definition, workflow) {
       function resolveStyleClass() {
         var cssStyle = 'edge-' + (genericError ? 'error' : 'normal');
         if (workflow) {
-          cssStyle += ' edge-' + (activeTransition(state, transition) ? 'active' : 'passive');
+          cssStyle += ' edge-' + (isActiveTransition(state, transition) ? 'active' : 'passive');
         }
         return cssStyle;
 
-        function activeTransition(state, transition) {
+        function isActiveTransition(state, transition) {
           if(_.size(workflow.actions) < 2) { return false; }
 
           var prevState = _.first(workflow.actions).state;
@@ -224,7 +224,7 @@ function workflowDefinitionGraph(definition, workflow) {
             prevState = action.state;
           });
 
-          return found || _.last(workflow.actions).state === state.name && workflow.state === transition;
+          return !_.isUndefined(found) || _.last(workflow.actions).state === state.name && workflow.state === transition;
         }
       }
     }
