@@ -60,14 +60,29 @@ describe('Directive: searchForm', function () {
     });
 
     describe('search', function () {
+      var $httpBackend,
+        url;
+
+      beforeEach(inject(function (_$httpBackend_, config) {
+        $httpBackend = _$httpBackend_;
+        url = config.nflowUrl + '/v1/workflow-instance';
+      }));
+
+      afterEach(function() {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+      });
+
       it('sets result into view model', function () {
-        sinon.stub(WorkflowSearch, 'query', function() { return [ 'result' ]; });
-
         CriteriaModel.model = { foo: 'bar' };
-        var ctrl = getCtrl(WorkflowSearch);
-        expect(ctrl.results).toEqual([ 'result' ]);
+        url += '?foo=bar';
 
-        WorkflowSearch.query.restore();
+        $httpBackend.whenGET(url).respond(200, [ 'expected' ]);
+        $httpBackend.expectGET(url);
+        var ctrl = getCtrl(WorkflowSearch);
+        $httpBackend.flush();
+
+        expect(angular.copy(ctrl.results)).toEqual([ 'expected' ]);
       });
     });
 
