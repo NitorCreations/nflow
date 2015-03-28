@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.workflowDefinition.tabs', []);
+  var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
+    'nflowExplorer.barchart'
+  ]);
 
   m.directive('workflowDefinitionTabs', function() {
     return {
@@ -17,7 +19,7 @@
     };
   });
 
-  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller) {
+  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller, Barchart) {
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
@@ -49,7 +51,7 @@
       }
       if (stats) {
         processStats(self.definition, stats);
-        self.hasStatistics = drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, WorkflowDefinitionGraphApi.onSelectNode);
+        self.hasStatistics = Barchart.drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, WorkflowDefinitionGraphApi.onSelectNode);
       }
     }
 
