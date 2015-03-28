@@ -10,4 +10,11 @@
     END: 'end',
     ERROR: 'error'
   });
+
+  m.constant('WorkflowInstanceStatus', {
+    CREATED: 'created',
+    IN_PROGRESS: 'inProgress',
+    FINISHED: 'finished',
+    MANUAL: 'manual'
+  });
 })();
