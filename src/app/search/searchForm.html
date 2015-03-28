@@ -8,11 +8,16 @@
             <option value="">-- All workflow types --</option>
           </select>
         </div>
-
         <div class="col-xs-3">
           <label for="state">Workflow state</label>
           <select id="state" class="form-control" ng-model="ctrl.model.state" ng-options="state.name for state in ctrl.model.definition.states track by state.name">
             <option value="">-- All states --</option>
+          </select>
+        </div>
+        <div class="col-xs-3">
+          <label for="status">Workflow status</label>
+          <select id="status" class="form-control" ng-model="ctrl.model.status" ng-options="status for status in ctrl.instanceStatuses track by status">
+            <option value="">-- All statuses --</option>
           </select>
         </div>
       </div>
