@@ -39,6 +39,10 @@ describe('Directive: searchForm', function () {
       expect(ctrl.model).toEqual(expected);
     });
 
+    it('sets instance statuses into view model', function () {
+      expect(getCtrl(WorkflowSearch).instanceStatuses).toEqual([ 'created', 'inProgress', 'finished', 'manual' ]);
+    });
+
     it('with empty criteria does not trigger search', function () {
       CriteriaModel.model = {};
       var spy = sinon.spy(WorkflowSearch, 'query');
@@ -60,17 +64,53 @@ describe('Directive: searchForm', function () {
     });
 
     describe('search', function () {
-      it('sets result into view model', function () {
-        sinon.stub(WorkflowSearch, 'query', function() { return [ 'result' ]; });
+      var $httpBackend,
+        url;
+
+      beforeEach(inject(function (_$httpBackend_, config) {
+        $httpBackend = _$httpBackend_;
 
         CriteriaModel.model = { foo: 'bar' };
-        var ctrl = getCtrl(WorkflowSearch);
-        expect(ctrl.results).toEqual([ 'result' ]);
+        url = config.nflowUrl + '/v1/workflow-instance?foo=bar';
+      }));
 
-        WorkflowSearch.query.restore();
+      afterEach(function() {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
       });
-    });
 
+      it('sets result into view model', function () {
+        $httpBackend.whenGET(url).respond(200, [ 'expected' ]);
+        $httpBackend.expectGET(url);
+        var ctrl = getCtrl(WorkflowSearch);
+        $httpBackend.flush();
+
+        expect(angular.copy(ctrl.results)).toEqual([ 'expected' ]);
+      });
+
+      it('indicator is shown if search takes more than 500 ms', inject(function ($timeout) {
+        $httpBackend.whenGET(url).respond(200, []);
+
+        var ctrl = getCtrl(WorkflowSearch);
+        expect(ctrl.showIndicator).toBeFalsy();
+
+        $timeout.flush(100);
+        expect(ctrl.showIndicator).toBeFalsy();
+        $httpBackend.flush();
+        expect(ctrl.showIndicator).toBeFalsy();
+
+        ctrl.search();
+        $timeout.flush(499);
+        expect(ctrl.showIndicator).toBeFalsy();
+        $timeout.flush(1);
+        expect(ctrl.showIndicator).toBeTruthy();
+        $httpBackend.flush();
+        expect(ctrl.showIndicator).toBeFalsy();
+
+        $timeout.flush();
+        $timeout.verifyNoPendingTasks();
+      }));
+    });
   });
 
 });
