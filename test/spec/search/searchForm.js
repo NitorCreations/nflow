@@ -39,6 +39,10 @@ describe('Directive: searchForm', function () {
       expect(ctrl.model).toEqual(expected);
     });
 
+    it('sets instances statuses into view model', function () {
+      expect(getCtrl(WorkflowSearch).instanceStatuses).toEqual([ 'created', 'inProgress', 'finished', 'manual' ]);
+    });
+
     it('with empty criteria does not trigger search', function () {
       CriteriaModel.model = {};
       var spy = sinon.spy(WorkflowSearch, 'query');
