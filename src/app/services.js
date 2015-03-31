@@ -46,7 +46,7 @@ angular.module('nflowExplorer.services',
                    });
 })
 .factory('WorkflowDefinitionStats', function WorkflowDefinitionStatsFactory($resource, config) {
-  return $resource(config.nflowUrl + '/v1/workflow-definition/:type/statistics',{type: '@type'});
+  return $resource(config.nflowUrl + '/v1/statistics/:type/statistics',{type: '@type'});
 })
 .service('GraphService', function GraphServiceFactory($q, $http, $rootScope) {
   this.loadCss = function getCss() {
