@@ -37,13 +37,20 @@
     }
 
     function executorClass(executor, now) {
-      now = now || moment();
-      var expires = moment(executor.expires);
-      var active = moment(executor.active);
-      if (active.add(1, 'days').isBefore(now)) {
+      now = now || Time.currentMoment();
+      if(!executor.expires) {
+        if(moment(executor.started).add(1, 'days').isBefore(now)) {
+          return;
+        }
+        if(moment(executor.started).add(1, 'hours').isBefore(now)) {
+          return 'warning';
+        }
+        return 'success';
+      }
+      if (moment(executor.active).add(1, 'days').isBefore(now)) {
         return;
       }
-      if (expires.isBefore(now)) {
+      if (moment(executor.expires).isBefore(now)) {
         return 'warning';
       }
       return 'success';
