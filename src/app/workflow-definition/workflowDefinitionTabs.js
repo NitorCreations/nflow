@@ -19,12 +19,48 @@
     };
   });
 
-  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller, Barchart) {
+  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller) {
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
+    self.options = {chart: {
+                type: 'multiBarChart',
+                height: 450,
+                preserveAspectRatio: 'xMinYMin',
+                viewBox: '0 0 100 100',
+                width: 400,
+                margin : {
+                    top: 20,
+                    right: 20,
+                    bottom: 160,
+                    left: 45
+                },
+                x: function(d){return d.label;},
+                y: function(d){return d.value;},
+                clipEdge: true,
+                staggerLabels: false,
+                reduceXTicks: false,
+                showControls: false,
+                // not supported by angular-nvd3?
+                duration: 0,
+                transitionDuration: 0,
+                stacked: true,
+                xAxis: {
+                    axisLabel: 'States',
+                    showMaxMin: false,
+                    rotateLabels: 25,
+                },
+                yAxis: {
+                    axisLabel: 'Workflow instances',
+                    axisLabelDistance: 40,
+                    tickFormat: function(d){
+                        return d3.format(',.0f')(d);
+                    }
+                }
+            }
+    };
 
     initialize();
 
@@ -43,6 +79,39 @@
       return state.name === WorkflowDefinitionGraphApi.selectedNode;
     }
 
+    function statsToData(definition, stats) {
+      console.log('da process', stats);
+      var data = {};
+      // TODO add states from definition
+      var allStateNames = Object.keys(stats.stateStatistics);
+      // TODO read from data, add missing values from this list, skip finished, init data with these
+      var allStatusNames = ['created', 'executing', 'paused', 'stopped', 'manual'];
+      _.forEach(allStatusNames, function(statusName) {
+        if(!data[statusName]) {
+          data[statusName] = {
+            key: _.capitalize(statusName),
+            values: _.map(allStateNames, function(state) {
+              return {
+                label: state,
+                value: 0,
+              };
+            }),
+          };
+        }
+      });
+      _.forEach(stats.stateStatistics, function(x, stateName) {
+        var statusName = Object.keys(x)[0];
+        if(!_.contains(allStatusNames, statusName)) {
+          return;
+        }
+        var allInstances = x[statusName].allInstances;
+        var queuedInstances = x[statusName].queuedInstances;
+        //console.log(stateName, statusName, allInstances, queuedInstances  );
+        var valueForStatus = _.find(data[statusName].values, {label: stateName});
+        valueForStatus.value = allInstances + queuedInstances;
+      });
+      return _.values(data);
+    }
     function updateStateExecutionGraph(type) {
       var stats = WorkflowStatsPoller.getLatest(type);
       if (!self.definition) {
@@ -51,11 +120,15 @@
       }
       if (stats) {
         processStats(self.definition, stats);
-        self.hasStatistics = Barchart.drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, WorkflowDefinitionGraphApi.onSelectNode);
+        if(Object.keys(stats).length === 0) {
+          return;
+        }
+        self.data = statsToData(self.definition, stats);
       }
     }
 
     // TODO move to service
+    // TODO needed for All instances table
     function processStats(definition, stats) {
       var totals = {
         executing: 0,
@@ -81,6 +154,7 @@
         });
       });
       definition.stateStatisticsTotal = totals;
+
       return stats;
     }
 

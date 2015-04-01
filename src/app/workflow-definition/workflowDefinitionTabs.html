@@ -1,6 +1,7 @@
 <div>
   <tabset>
     <tab heading="Active instances" >
+      <!--
       <div ng-hide="ctrl.hasStatistics" class="alert alert-info">
         No workflow instances in non-final states.
       </div>
@@ -11,6 +12,11 @@
           <svg id="statisticsGraph"></svg>
         </div>
       </div>
+    -->
+      <div ng-if="ctrl.data">
+        <nvd3 options='ctrl.options' data='ctrl.data'></nvd3>
+      </div>
+
     </tab>
     <tab heading="All instances">
       <table id="state-list" class="table table-striped table-hover">

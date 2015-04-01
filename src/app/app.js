@@ -18,7 +18,8 @@
     'ngCookies',
     'ngSanitize',
     'ngTouch',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'nvd3',
   ]);
 
   m.run(function (ExecutorPoller) {
@@ -26,5 +27,3 @@
   });
 
 })();
-
-
