@@ -79,6 +79,29 @@
       return state.name === WorkflowDefinitionGraphApi.selectedNode;
     }
 
+    /**
+     * Output:
+     * [
+     *  {
+     *    key: 'Category1Name',
+     *    values: [
+     *      {label: 'item1', value: 7},
+     *      {label: 'item2', value: 2},
+     *      ....
+     *    ]
+     *   },{
+     *    key: 'Category2Name',
+     *    values: [
+     *      {label: 'item1', value: 3},
+     *      {label: 'item2', value: 92},
+     *      ....
+     *    ]
+     *   }, ...
+     *  ]
+     *
+     *  Number of rows in values must be equal in all categories.
+     *  Labels must be same and in same order in all categories.
+     */
     function statsToData(definition, stats) {
       console.log('da process', stats);
       var data = {};
