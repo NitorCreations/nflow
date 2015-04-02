@@ -27,14 +27,17 @@
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
+
+    var width = 450, height = 400;
     self.options = {chart: {
                 type: 'multiBarChart',
-                height: 450,
-                // TODO doesn't work currently
-                preserveAspectRatio: 'xMinYMin',
-                // TODO doesn't work currently
-                viewBox: '0 0 100 100',
-                width: 400,
+                callback: function(chart) {
+                  chart.container.setAttribute('preserveAspectRatio', 'xMinYMin');
+                  var c = Math.min(width, height);
+                  chart.container.setAttribute('viewBox', '0 0 '+ c +' ' + c );
+                },
+                height: height,
+                width: width,
                 margin : {
                     top: 20,
                     right: 20,
