@@ -83,18 +83,18 @@
      * Output:
      * [
      *  {
-     *    key: 'Category1Name',
+     *    key: 'Status1Name',
      *    values: [
-     *      {label: 'item1', value: 7},
-     *      {label: 'item2', value: 2},
-     *      ....
+     *      {label: 'state1', value: 7},
+     *      {label: 'state2', value: 2},
+     *      ...
      *    ]
      *   },{
-     *    key: 'Category2Name',
+     *    key: 'Status2Name',
      *    values: [
-     *      {label: 'item1', value: 3},
-     *      {label: 'item2', value: 92},
-     *      ....
+     *      {label: 'state1', value: 3},
+     *      {label: 'state2', value: 92},
+     *      ...
      *    ]
      *   }, ...
      *  ]
@@ -127,11 +127,8 @@
         if(!_.contains(allStatusNames, statusName)) {
           return;
         }
-        var allInstances = x[statusName].allInstances;
-        var queuedInstances = x[statusName].queuedInstances;
-        //console.log(stateName, statusName, allInstances, queuedInstances  );
         var valueForStatus = _.find(data[statusName].values, {label: stateName});
-        valueForStatus.value = allInstances + queuedInstances;
+        valueForStatus.value = x[statusName].allInstances || 0;
       });
       return _.values(data);
     }
