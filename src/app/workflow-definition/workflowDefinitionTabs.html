@@ -14,7 +14,7 @@
       </div>
     -->
       <div ng-if="ctrl.data">
-        <nvd3 options='ctrl.options' data='ctrl.data'></nvd3>
+        <nvd3 options='ctrl.options' data='ctrl.data' config='{refreshDataOnly: true}'></nvd3>
       </div>
 
     </tab>

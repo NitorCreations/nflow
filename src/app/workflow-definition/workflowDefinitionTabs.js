@@ -8,8 +8,6 @@
 
   /** <workflow-definition-tabs></workflow-definition-tabs> */
   m.directive('workflowDefinitionTabs', function() {
-    // disable debug logging from nvd3
-    window.nv.dev = false;
     return {
       restrict: 'E',
       replace: true,
@@ -31,8 +29,11 @@
     self.startRadiator = startRadiator;
     self.options = {chart: {
                 type: 'multiBarChart',
+                refreshDataOnly: true,
                 height: 450,
+                // TODO doesn't work currently
                 preserveAspectRatio: 'xMinYMin',
+                // TODO doesn't work currently
                 viewBox: '0 0 100 100',
                 width: 400,
                 margin : {
@@ -41,15 +42,16 @@
                     bottom: 160,
                     left: 45
                 },
-                x: function(d){return d.label;},
-                y: function(d){return d.value;},
+                noData: 'No workflow instances in non-final states.',
+                x: function(d) { return d.label; },
+                y: function(d) { return d.value; },
                 clipEdge: true,
                 staggerLabels: false,
                 reduceXTicks: false,
                 showControls: false,
-                // not supported by angular-nvd3?
                 duration: 0,
                 transitionDuration: 0,
+                // TODO this doesn't work
                 stacked: true,
                 xAxis: {
                     axisLabel: 'States',
@@ -59,7 +61,7 @@
                 yAxis: {
                     axisLabel: 'Workflow instances',
                     axisLabelDistance: 40,
-                    tickFormat: function(d){
+                    tickFormat: function(d) {
                         return d3.format(',.0f')(d);
                     }
                 }
