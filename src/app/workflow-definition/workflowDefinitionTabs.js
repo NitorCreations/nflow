@@ -8,6 +8,8 @@
 
   /** <workflow-definition-tabs></workflow-definition-tabs> */
   m.directive('workflowDefinitionTabs', function() {
+    // disable debug logging from nvd3
+    window.nv.dev = false;
     return {
       restrict: 'E',
       replace: true,
