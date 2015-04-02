@@ -201,7 +201,7 @@
      */
     function processStats(definition, stats) {
       var allStatusNames = getStatusNames(stats);
-      var totalStats = {totalInstances: 0, totalQueued: 0};
+      var totalStats = {allInstances: 0, queuedInstances: 0};
       _.forEach(allStatusNames, function(name) {
         totalStats[name] = {
           allInstances: 0,
@@ -218,7 +218,7 @@
         state.stateStatistics = stats.stateStatistics[name] || {};
 
         // TODO calculate correctly, remove non active
-        state.stateStatistics.totalInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
+        state.stateStatistics.allInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
           return a + b.allInstances;
         }, 0);
         state.stateStatistics.queuedInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
@@ -232,8 +232,8 @@
             var queuedInstances = state.stateStatistics[stat].queuedInstances || 0;
             totalStats[stat].allInstances += allInstances;
             totalStats[stat].queuedInstances += queuedInstances;
-            totalStats.totalInstances += allInstances;
-            totalStats.totalQueued += queuedInstances;
+            totalStats.allInstances += allInstances;
+            totalStats.queuedInstances += queuedInstances;
           }
         });
       });
