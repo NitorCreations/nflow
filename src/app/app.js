@@ -19,7 +19,6 @@
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap',
-    'nvd3',
   ]);
 
   m.run(function (ExecutorPoller) {

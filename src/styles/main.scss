@@ -272,22 +272,5 @@ ul.listing {
   background-color: #fcf8e3;
 }
 
-/* barchart.js */
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.bar {
-  fill: steelblue;
-}
-
-.x.axis path {
-  display: none;
-}
-
 /* angular-ui-bootstrap */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
-

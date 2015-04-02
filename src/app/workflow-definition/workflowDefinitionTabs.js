@@ -3,7 +3,7 @@
   var _statusNames = ['created', 'executing', 'inProgress', 'finished',
                       'manual', 'stopped', 'paused'];
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
-    'nflowExplorer.barchart'
+    'nvd3',
   ]);
 
   /** <workflow-definition-tabs></workflow-definition-tabs> */
