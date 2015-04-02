@@ -30,6 +30,7 @@
 
     var width = 450, height = 400;
     self.options = {chart: {
+      // multiBarHorizontalChart get ugly colors due to https://github.com/novus/nvd3/issues/916
                 type: 'multiBarChart',
                 callback: function(chart) {
                   chart.container.setAttribute('preserveAspectRatio', 'xMinYMin');
