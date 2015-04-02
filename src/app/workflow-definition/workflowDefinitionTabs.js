@@ -29,7 +29,6 @@
     self.startRadiator = startRadiator;
     self.options = {chart: {
                 type: 'multiBarChart',
-                refreshDataOnly: true,
                 height: 450,
                 // TODO doesn't work currently
                 preserveAspectRatio: 'xMinYMin',
