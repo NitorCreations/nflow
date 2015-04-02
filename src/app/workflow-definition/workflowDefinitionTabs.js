@@ -1,10 +1,12 @@
 (function () {
   'use strict';
-
+  var _statusNames = ['created', 'executing', 'inProgress', 'finished',
+                      'manual', 'stopped', 'paused'];
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nflowExplorer.barchart'
   ]);
 
+  /** <workflow-definition-tabs></workflow-definition-tabs> */
   m.directive('workflowDefinitionTabs', function() {
     return {
       restrict: 'E',
@@ -103,16 +105,17 @@
      *  Labels must be same and in same order in all categories.
      */
     function statsToData(definition, stats) {
-      console.log('da process', stats);
       var data = {};
       // TODO add states from definition
       var allStateNames = Object.keys(stats.stateStatistics);
       // TODO read from data, add missing values from this list, skip finished, init data with these
-      var allStatusNames = ['created', 'executing', 'paused', 'stopped', 'manual'];
+      var allStatusNames = _.filter(_statusNames, function(name) {
+        return name !== 'finished';
+      });
       _.forEach(allStatusNames, function(statusName) {
         if(!data[statusName]) {
           data[statusName] = {
-            key: _.capitalize(statusName),
+            key: _.startCase(statusName),
             values: _.map(allStateNames, function(state) {
               return {
                 label: state,
@@ -147,34 +150,94 @@
       }
     }
 
+    /**
+     * Compute list of all status names.
+     * We want to show all statuses, including those that API doesn't return
+     * and new statuses that API may return in future.
+     */
+    function getStatusNames(stats) {
+      var names = [].concat(_statusNames);
+      names.concat(_.flatten(_.map(stats, function(stat){
+        return _.keys(stat);
+      })));
+      return _.uniq(names);
+    }
+
     // TODO move to service
-    // TODO needed for All instances table
+    /**
+     * Output:
+     *
+     *
+     * Modifies definition:
+     * Adds definition.stateStatisticsTotal and definition.states[stateName].stats
+     *
+     * definition.stateStatisticsTotal = {
+     *   totalInstances: 1231,
+     *   totalQueued: 102,
+     *   created: {
+     *     allInstances: 91,
+     *     queuedInstances: 29,
+     *   },
+     *   executing: {
+     *     allInstances: 21,
+     *     queuedInstances: 0,
+     *   },
+     *   ...
+     * }
+     *
+     * definition.states[stateName].stats = {
+     *   totalInstances: 10,
+     *   queuedInstances: 3
+     *   created: {
+     *     allInstances: 4,
+     *     queuedInstances: 3,
+     *   },
+     *   executing: {
+     *     allInstances: 2,
+     *     queuedInstances: 1,
+     *   },
+     *   ...
+     * }
+     */
     function processStats(definition, stats) {
-      var totals = {
-        executing: 0,
-        queued: 0,
-        sleeping: 0,
-        nonScheduled: 0,
-        totalActive: 0
-      };
+      var allStatusNames = getStatusNames(stats);
+      var totalStats = {totalInstances: 0, totalQueued: 0};
+      _.forEach(allStatusNames, function(name) {
+        totalStats[name] = {
+          allInstances: 0,
+          queuedInstances: 0,
+        };
+      });
+
       if (!stats.stateStatistics) {
         stats.stateStatistics = {};
       }
       _.each(definition.states, function (state) {
         var name = state.name;
 
-        state.stateStatistics = stats.stateStatistics[name] ? stats.stateStatistics[name] : {};
+        state.stateStatistics = stats.stateStatistics[name] || {};
 
-        state.stateStatistics.totalActive = _.reduce(_.values(state.stateStatistics), function (a, b) {
-          return a + b;
-        }, 0) - (state.stateStatistics.nonScheduled ? state.stateStatistics.nonScheduled : 0);
+        // TODO calculate correctly, remove non active
+        state.stateStatistics.totalInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
+          return a + b.allInstances;
+        }, 0);
+        state.stateStatistics.queuedInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
+          return a + b.queuedInstances;
+        }, 0);
 
-        _.each(['executing', 'queued', 'sleeping', 'nonScheduled', 'totalActive'], function (stat) {
-          totals[stat] += state.stateStatistics[stat] ? state.stateStatistics[stat] : 0;
+        // calculate totals
+        _.each(allStatusNames, function (stat) {
+          if(state.stateStatistics[stat]) {
+            var allInstances = state.stateStatistics[stat].allInstances || 0;
+            var queuedInstances = state.stateStatistics[stat].queuedInstances || 0;
+            totalStats[stat].allInstances += allInstances;
+            totalStats[stat].queuedInstances += queuedInstances;
+            totalStats.totalInstances += allInstances;
+            totalStats.totalQueued += queuedInstances;
+          }
         });
       });
-      definition.stateStatisticsTotal = totals;
-
+      definition.stateStatisticsTotal = totalStats;
       return stats;
     }
 
@@ -183,4 +246,28 @@
     }
   });
 
+
+  /** <workflow-definition-tabs></workflow-definition-tabs> */
+  m.directive('workflowStatisticsTable', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        definition: '=',
+      },
+      bindToController: true,
+      controller: 'WorkflowStatisticsTable',
+      controllerAs: 'ctrl',
+      templateUrl: 'app/workflow-definition/workflowStatisticsTable.html'
+    };
+  });
+  m.controller('WorkflowStatisticsTable', function(WorkflowDefinitionGraphApi) {
+    var self = this;
+    self.isStateSelected = isStateSelected;
+    self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
+
+    function isStateSelected(state) {
+      return state.name === WorkflowDefinitionGraphApi.selectedNode;
+    }
+  });
 })();

@@ -1,0 +1,60 @@
+<div class="statistics-table">
+  <table id="state-list" class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th class="numeric">Created</th>
+      <th class="numeric">Executing</th>
+      <th class="numeric">In&nbsp;progress</th>
+      <th class="numeric">Manual</th>
+      <th class="numeric">Paused</th>
+      <th class="numeric">Stopped</th>
+      <th class="numeric">Finished</th>
+      <th></th>
+      <!-- TODO total active -->
+      <!-- TODO total passive -->
+      <!-- TODO queued/late -->
+    </tr>
+    <tr>
+      <th colspan="2">Total</th>
+      <th class="numeric" title="Workflow instances created but not yet started executing">{{ctrl.definition.stateStatisticsTotal.created.allInstances}}</th>
+      <th class="numeric" title="Workflow instances started executing but not currently processing">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
+      <th class="numeric" title="Workflow instances currently processing">{{ctrl.definition.stateStatisticsTotal.inProgress.allInstances}}</th>
+      <th class="numeric" title="Workflow instances waiting for manual processing (next activation: never)">{{ctrl.definition.stateStatisticsTotal.manual.allInstances}}</th>
+      <th class="numeric" title="Workflow instances paused (may be resumed, next activation: never)">{{ctrl.definition.stateStatisticsTotal.paused.allInstances}}</th>
+      <th class="numeric" title="Workflow instances stopped (may not be resumed, next activation: never)">{{ctrl.definition.stateStatisticsTotal.stopped.allInstances}}</th>
+      <th class="numeric" title="Workflow instances finished (next activation: never)">{{ctrl.definition.stateStatisticsTotal.finished.allInstances}}</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-class="{highlight: ctrl.isStateSelected(state)}" class="wd-state-{{state.name}}"
+        ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
+      <td>{{state.name}}</td>
+      <td>{{state.description}}</td>
+      <td class="numeric">{{state.stateStatistics.created.allInstances | nullToZero}}</td>
+      <td class="numeric">{{state.stateStatistics.executing.allInstances | nullToZero}}</td>
+      <td class="numeric">{{state.stateStatistics.inProgress.allInstances | nullToZero}}</td>
+      <td class="numeric">{{state.stateStatistics.manual.allInstances | nullToZero}}</td>
+      <th class="numeric">{{state.stateStatistics.paused.allInstances | nullToZero}}</th>
+      <th class="numeric">{{state.stateStatistics.stopped.allInstances | nullToZero}}</th>
+      <td class="numeric">{{state.stateStatistics.finished.allInstances | nullToZero}}</td>
+      <td><a ui-sref="search({type: ctrl.definition.type, state: state.name})"><span class="glyphicon glyphicon-search"></span></a></td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+      <th colspan="2">Total</th>
+      <th class="numeric" title="Workflow instances created but not yet started executing">{{ctrl.definition.stateStatisticsTotal.created.allInstances}}</th>
+      <th class="numeric" title="Workflow instances started executing but not currently processing">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
+      <th class="numeric" title="Workflow instances currently processing">{{ctrl.definition.stateStatisticsTotal.inProgress.allInstances}}</th>
+      <th class="numeric" title="Workflow instances waiting for manual processing (next activation: never)">{{ctrl.definition.stateStatisticsTotal.manual.allInstances}}</th>
+      <th class="numeric" title="Workflow instances paused (may be resumed, next activation: never)">{{ctrl.definition.stateStatisticsTotal.paused.allInstances}}</th>
+      <th class="numeric" title="Workflow instances stopped (may not be resumed, next activation: never)">{{ctrl.definition.stateStatisticsTotal.stopped.allInstances}}</th>
+      <th class="numeric" title="Workflow instances finished (next activation: never)">{{ctrl.definition.stateStatisticsTotal.finished.allInstances}}</th>
+      <th></th>
+    </tr>
+    </tfoot>
+  </table>
+</div>
