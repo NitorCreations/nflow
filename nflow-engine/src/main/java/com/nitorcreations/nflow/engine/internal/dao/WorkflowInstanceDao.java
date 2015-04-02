@@ -494,6 +494,14 @@ public class WorkflowInstanceDao {
       conditions.add("w.state in (:states)");
       params.addValue("states", query.states);
     }
+    if (!isEmpty(query.statuses)) {
+      List<String> convertedStatuses = new ArrayList<>();
+      for (WorkflowInstanceStatus s : query.statuses) {
+        convertedStatuses.add(s.name());
+      }
+      conditions.add("w.status in (:statuses)");
+      params.addValue("statuses", convertedStatuses);
+    }
     if (query.businessKey != null) {
       conditions.add("w.business_key = :business_key");
       params.addValue("business_key", query.businessKey);

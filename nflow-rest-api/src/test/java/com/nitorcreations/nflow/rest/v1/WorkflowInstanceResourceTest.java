@@ -216,12 +216,14 @@ public class WorkflowInstanceResourceTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {
-    resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, new String[] { "state" }, "businessKey",
-        "externalId", "", 1L);
-    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+      resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, new String[] { "state" },
+              new WorkflowInstance.WorkflowInstanceStatus[] { WorkflowInstanceStatus.created },
+              "businessKey", "externalId", "", 1L);
+      verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
         hasField("types", contains("type")),
         hasField("states", contains("state")),
+        hasField("statuses", contains(WorkflowInstanceStatus.created)),
         hasField("businessKey", equalTo("businessKey")),
         hasField("externalId", equalTo("externalId")),
         hasField("includeActions", equalTo(false)),
@@ -232,12 +234,14 @@ public class WorkflowInstanceResourceTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorksWithActionAndStateVariableFetches() {
-    resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, new String[] { "state" }, "businessKey",
-        "externalId", "actions,currentStateVariables,actionStateVariables", 1L);
-    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+      resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, new String[] { "state" },
+              new WorkflowInstance.WorkflowInstanceStatus[] { WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing },
+              "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables", 1L);
+      verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
         hasField("types", contains("type")),
         hasField("states", contains("state")),
+        hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
         hasField("businessKey", equalTo("businessKey")),
         hasField("externalId", equalTo("externalId")),
         hasField("includeActions", equalTo(true)),

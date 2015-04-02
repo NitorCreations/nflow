@@ -5,6 +5,8 @@ import static java.util.Arrays.asList;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+
 /**
  * Parameters for workflow instance query.
  */
@@ -24,6 +26,11 @@ public class QueryWorkflowInstances {
    * Workflow instance states.
    */
   public final List<String> states;
+
+  /**
+   * Workflow instance statuses.
+   */
+  public final List<WorkflowInstanceStatus> statuses;
 
   /**
    * External business key.
@@ -61,6 +68,7 @@ public class QueryWorkflowInstances {
     this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
     this.states = new ArrayList<>(builder.states);
+    this.statuses = new ArrayList<>(builder.statuses);
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
     this.includeActions = builder.includeActions;
@@ -76,6 +84,7 @@ public class QueryWorkflowInstances {
     List<Integer> ids = new ArrayList<>();
     List<String> types = new ArrayList<>();
     List<String> states = new ArrayList<>();
+    List<WorkflowInstanceStatus> statuses = new ArrayList<>();
     String businessKey;
     String externalId;
     boolean includeActions;
@@ -116,6 +125,16 @@ public class QueryWorkflowInstances {
      */
     public Builder addStates(String ... newStates) {
       this.states.addAll(asList(newStates));
+      return this;
+    }
+
+    /**
+     * Add workflow statuses to query parameters.
+     * @param newStatuses The statuses.
+     * @return this.
+     */
+    public Builder addStatuses(WorkflowInstanceStatus... newStatuses) {
+      this.statuses.addAll(asList(newStatuses));
       return this;
     }
 
