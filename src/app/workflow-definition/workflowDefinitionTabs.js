@@ -2,6 +2,9 @@
   'use strict';
   var _statusNames = ['created', 'executing', 'inProgress', 'finished',
                       'manual', 'stopped', 'paused'];
+
+  var _finalStatusNames = ['stopped', 'finished'];
+
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nvd3',
   ]);
@@ -45,7 +48,7 @@
                     bottom: 160,
                     left: 45
                 },
-                noData: 'No workflow instances in non-final states.',
+                noData: 'No workflow instances in active states. There may be stopped or finished instances.',
                 x: function(d) { return d.label; },
                 y: function(d) { return d.value; },
                 clipEdge: true,
@@ -117,7 +120,7 @@
       var allStateNames = Object.keys(stats.stateStatistics);
       // TODO read from data, add missing values from this list, skip finished, init data with these
       var allStatusNames = _.filter(_statusNames, function(name) {
-        return name !== 'finished';
+        return !_.contains(_finalStatusNames, name);
       });
       _.forEach(allStatusNames, function(statusName) {
         if(!data[statusName]) {
