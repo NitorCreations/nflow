@@ -51,7 +51,7 @@
                 clipEdge: true,
                 staggerLabels: false,
                 reduceXTicks: false,
-                showControls: false,
+                showControls: true,
                 duration: 0,
                 transitionDuration: 0,
                 // TODO this doesn't work
