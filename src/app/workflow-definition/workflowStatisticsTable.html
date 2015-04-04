@@ -4,6 +4,7 @@
       <tr>
         <th>Name</th>
         <th class="numeric" title="Workflow instances waiting for a free executor. This is part of Created and In Progress values.">Queued</th>
+        <th class="numeric" title="Workflow instances waiting scheduled for execution in the future. This is part of Created and In Progress values.">Scheduled</th>
         <th class="numeric" title="Workflow instances created but not yet started executing">Created</th>
         <th class="numeric" title="Workflow instances started executing but not currently processing">Executing</th>
         <th class="numeric" title="Workflow instances currently processing">In&nbsp;Progress</th>
@@ -20,6 +21,8 @@
       <tr>
         <th>Total</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.queuedInstances + ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
+        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances - ctrl.definition.stateStatisticsTotal.inProgress.allInstances
+                              - ctrl.definition.stateStatisticsTotal.created.queuedInstances - ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.inProgress.allInstances}}</th>
@@ -36,6 +39,8 @@
           ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
         <td title="{{state.description}}">{{state.name}}</td>
         <td class="numeric">{{state.stateStatistics.created.queuedInstances + state.stateStatistics.inProgress.queuedInstances | nullToZero}}</td>
+        <td class="numeric">{{state.stateStatistics.created.allInstances + state.stateStatistics.inProgress.allInstances
+                              - state.stateStatistics.created.queuedInstances - state.stateStatistics.inProgress.queuedInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.created.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.executing.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.inProgress.allInstances | nullToZero}}</td>
@@ -53,6 +58,8 @@
       <tr>
         <th>Total</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.queuedInstances + ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
+        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances + ctrl.definition.stateStatisticsTotal.inProgress.allInstances
+                              - ctrl.definition.stateStatisticsTotal.created.queuedInstances + ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.inProgress.allInstances}}</th>
