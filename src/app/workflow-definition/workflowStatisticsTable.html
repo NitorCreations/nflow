@@ -3,11 +3,9 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th class="numeric" title="Workflow instances waiting for a free executor. This is part of Created and In Progress values.">Queued</th>
-        <th class="numeric" title="Workflow instances waiting scheduled for execution in the future. This is part of Created and In Progress values.">Scheduled</th>
-        <th class="numeric" title="Workflow instances created but not yet started executing">Created</th>
+        <th colspan="2" class="numeric" title="Workflow instances created but not yet started executing">Created</th>
+        <th colspan="2" class="numeric" title="Workflow instances currently processing">In&nbsp;Progress</th>
         <th class="numeric" title="Workflow instances started executing but not currently processing">Executing</th>
-        <th class="numeric" title="Workflow instances currently processing">In&nbsp;Progress</th>
         <th class="numeric" title="Workflow instances waiting for manual processing (next activation: never)">Manual</th>
         <th class="numeric" title="Workflow instances paused (may be resumed, next activation: never)">Paused</th>
         <th class="numeric" title="Workflow instances stopped (may not be resumed, next activation: never)">Stopped</th>
@@ -20,12 +18,13 @@
       </tr>
       <tr>
         <th>Total</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.queuedInstances + ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances - ctrl.definition.stateStatisticsTotal.inProgress.allInstances
-                              - ctrl.definition.stateStatisticsTotal.created.queuedInstances - ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
+        <th class="numeric" title="Waiting for a free executor"
+            ng-class="{queued: ctrl.definition.stateStatisticsTotal.created.queuedInstances > 0}">{{ctrl.definition.stateStatisticsTotal.created.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.inProgress.allInstances}}</th>
+        <th class="numeric" title="Waiting for a free executor"
+            ng-class="{queued: ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances > 0}">{{ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
+        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.manual.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.paused.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.stopped.allInstances}}</th>
@@ -38,12 +37,13 @@
       <tr ng-class="{highlight: ctrl.isStateSelected(state)}" class="wd-state-{{state.name}}"
           ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
         <td title="{{state.description}}">{{state.name}}</td>
-        <td class="numeric">{{state.stateStatistics.created.queuedInstances + state.stateStatistics.inProgress.queuedInstances | nullToZero}}</td>
-        <td class="numeric">{{state.stateStatistics.created.allInstances + state.stateStatistics.inProgress.allInstances
-                              - state.stateStatistics.created.queuedInstances - state.stateStatistics.inProgress.queuedInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.created.allInstances | nullToZero}}</td>
-        <td class="numeric">{{state.stateStatistics.executing.allInstances | nullToZero}}</td>
+        <td class="numeric" title="Waiting for a free executor"
+            ng-class="{queued: state.stateStatistics.created.queuedInstances > 0}">{{state.stateStatistics.created.queuedInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.inProgress.allInstances | nullToZero}}</td>
+        <td class="numeric" title="Waiting for a free executor"
+            ng-class="{queued: state.stateStatistics.inProgress.queuedInstances > 0}">{{state.stateStatistics.inProgress.queuedInstances | nullToZero}}</td>
+        <td class="numeric">{{state.stateStatistics.executing.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.manual.allInstances | nullToZero}}</td>
         <th class="numeric">{{state.stateStatistics.paused.allInstances | nullToZero}}</th>
         <th class="numeric">{{state.stateStatistics.stopped.allInstances | nullToZero}}</th>
@@ -57,12 +57,13 @@
     <tfoot>
       <tr>
         <th>Total</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.queuedInstances + ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances + ctrl.definition.stateStatisticsTotal.inProgress.allInstances
-                              - ctrl.definition.stateStatisticsTotal.created.queuedInstances + ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.created.allInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
+        <th class="numeric" title="Waiting for a free executor"
+            ng-class="{queued: ctrl.definition.stateStatisticsTotal.created.queuedInstances > 0}">{{ctrl.definition.stateStatisticsTotal.created.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.inProgress.allInstances}}</th>
+        <th class="numeric" title="Waiting for a free executor"
+            ng-class="{queued: ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances > 0}">{{ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
+        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.manual.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.paused.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.stopped.allInstances}}</th>

@@ -22,7 +22,11 @@ $color-white: #ffffff;
 $color-green: #C0F4B3;
 $color-dark-green: #bcf4ae;
 $color-light-green: #dff0d8;
+$color-red: #d11;
 
+.queued {
+  color: $color-red;
+}
 /* Fonts */
 // latin-ext
 @font-face {
