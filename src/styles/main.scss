@@ -282,3 +282,10 @@ ul.listing {
 
 /* angular-ui-bootstrap */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+/*
+ * http://stackoverflow.com/questions/22378785/nvd3-charts-remove-0-value-bars
+ */
+.nvd3 rect[height="1"] {
+  display: none !important;
+}
