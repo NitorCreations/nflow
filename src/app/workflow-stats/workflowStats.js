@@ -106,12 +106,14 @@ angular.module('nflowExplorer.workflowStats', [])
    */
   function createExecutionData(currentStates) {
     var data = $rootScope.radiator.stateChart.data;
-    var executionPhases = ['created', 'inProgress', 'executing', 'paused'];
-
+    var executionPhases = ['queued', 'sleeping', 'executing', 'paused', 'manual'];
+    var realStatuses = ['executing', 'paused', 'manual'];
     var dataArray = _.map(data, function(row) {
-      var time = row[0];
-      var stats = row[1];
-      var values = _.map(executionPhases, function(phase) {
+      var time = row[0],
+          stats = row[1];
+      var queued = 0,
+          sleeping = 0;
+      var values = _.map(realStatuses, function(phase) {
         return sum(_.map(currentStates, function(stateName) {
           if(!stats) {
             return undefined;
@@ -123,9 +125,16 @@ angular.module('nflowExplorer.workflowStats', [])
           return stateStats[phase].allInstances;
         }));
       });
-      return [time].concat(values);
+      queued = sum(_.map(stats, function(s) {
+        return s.created ? s.created.queuedInstances : 0 +
+              s.inProgress ? s.inProgress.queuedInstances : 0;
+      }));
+      sleeping = sum(_.map(stats, function(s) {
+        return s.created ? s.created.allInstances - s.created.queuedInstances : 0 +
+              s.inProgress ? s.inProgress.allInstances - s.inProgress.queuedInstances : 0;
+      }));
+      return [time].concat([queued, sleeping]).concat(values);
     });
-
     return {dataArray: dataArray, labels: _.map(executionPhases, _.startCase)};
   }
 
@@ -140,14 +149,18 @@ angular.module('nflowExplorer.workflowStats', [])
     if(!$scope.graphs[canvasId]) {
       var options = {
         axisLabelFontSize: 13,
-        xAxisLabelWidth: 55,
         responsive: true,
         stackedGraph: true,
         legend: 'always',
         //showRangeSelector: true,
         labelsDiv: canvasId + 'Legend',
         labelsSeparateLines: true,
-        labels: labels
+        labels: labels,
+        axes: {
+          x: {
+            axisLabelWidth: 55,
+          }
+        },
       };
       $scope.graphs[canvasId] = new Dygraph(canvas, data.dataArray, options);
     } else {
