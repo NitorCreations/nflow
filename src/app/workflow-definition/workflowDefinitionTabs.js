@@ -1,9 +1,8 @@
 (function () {
   'use strict';
-  var _statusNames = ['created', 'executing', 'inProgress', 'finished',
+  var _statusNames = ['created', 'inProgress', 'executing', 'finished',
                       'manual', 'stopped', 'paused'];
-
-  var _finalStatusNames = ['stopped', 'finished'];
+  var _metaStatuses = ['queued', 'sleeping', 'executing', 'paused', 'manual'];
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nvd3',
@@ -118,10 +117,7 @@
       var data = {};
       // TODO add states from definition
       var allStateNames = Object.keys(stats.stateStatistics);
-      // TODO read from data, add missing values from this list, skip finished, init data with these
-      var allStatusNames = _.filter(_statusNames, function(name) {
-        return !_.contains(_finalStatusNames, name);
-      });
+      var allStatusNames = _metaStatuses;
       _.forEach(allStatusNames, function(statusName) {
         if(!data[statusName]) {
           data[statusName] = {
@@ -135,13 +131,15 @@
           };
         }
       });
-      _.forEach(stats.stateStatistics, function(x, stateName) {
-        var statusName = Object.keys(x)[0];
-        if(!_.contains(allStatusNames, statusName)) {
-          return;
-        }
-        var valueForStatus = _.find(data[statusName].values, {label: stateName});
-        valueForStatus.value = x[statusName].allInstances || 0;
+      _.forEach(stats.stateStatistics, function(stateStats, stateName) {
+        _.forEach(Object.keys(stateStats), function(statusName) {
+          if(!_.contains(allStatusNames, statusName)) {
+            return;
+          }
+          var valueForStatus = _.find(data[statusName].values, {label: stateName});
+
+          valueForStatus.value = stateStats[statusName].allInstances || 0;
+        });
       });
       return _.values(data);
     }
@@ -222,7 +220,7 @@
       if (!stats.stateStatistics) {
         stats.stateStatistics = {};
       }
-      _.each(definition.states, function (state) {
+      _.forEach(definition.states, function (state) {
         var name = state.name;
 
         state.stateStatistics = stats.stateStatistics[name] || {};
@@ -232,11 +230,11 @@
           return a + b.allInstances;
         }, 0);
         state.stateStatistics.queuedInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
-          return a + b.queuedInstances;
+          return a + b.queuedInstances || 0;
         }, 0);
 
         // calculate totals
-        _.each(allStatusNames, function (stat) {
+        _.forEach(allStatusNames, function (stat) {
           if(state.stateStatistics[stat]) {
             var allInstances = state.stateStatistics[stat].allInstances || 0;
             var queuedInstances = state.stateStatistics[stat].queuedInstances || 0;
@@ -246,7 +244,30 @@
             totalStats.queuedInstances += queuedInstances;
           }
         });
+        function queued(stats) {
+          if(!stats) {
+            return 0;
+          }
+          return stats.queuedInstances;
+        }
+        function sleeping(stats) {
+          if(!stats) {
+            return 0;
+          }
+          return stats.allInstances - stats.queuedInstances;
+        }
+
+        state.stateStatistics.queued = {
+          allInstances: queued(state.stateStatistics.created) +
+            queued(state.stateStatistics.inProgress)
+        };
+        state.stateStatistics.sleeping = {
+          allInstances: sleeping(state.stateStatistics.created) +
+            sleeping(state.stateStatistics.inProgress)
+        };
       });
+
+
       definition.stateStatisticsTotal = totalStats;
       return stats;
     }
