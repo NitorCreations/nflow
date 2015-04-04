@@ -4,8 +4,8 @@
       <tr>
         <th>Name</th>
         <th colspan="2" class="numeric" title="Workflow instances created but not yet started executing">Created</th>
-        <th colspan="2" class="numeric" title="Workflow instances currently processing">In&nbsp;Progress</th>
-        <th class="numeric" title="Workflow instances started executing but not currently processing">Executing</th>
+        <th colspan="2" class="numeric" title="Workflow instances started executing but not currently processing">In&nbsp;Progress</th>
+        <th class="numeric" title="Workflow instances currently processing">Executing</th>
         <th class="numeric" title="Workflow instances waiting for manual processing (next activation: never)">Manual</th>
         <th class="numeric" title="Workflow instances paused (may be resumed, next activation: never)">Paused</th>
         <th class="numeric" title="Workflow instances stopped (may not be resumed, next activation: never)">Stopped</th>
@@ -38,11 +38,11 @@
           ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
         <td title="{{state.description}}">{{state.name}}</td>
         <td class="numeric">{{state.stateStatistics.created.allInstances | nullToZero}}</td>
-        <td class="numeric" title="Waiting for a free executor"
-            ng-class="{queued: state.stateStatistics.created.queuedInstances > 0}">{{state.stateStatistics.created.queuedInstances | nullToZero}}</td>
+        <td class="numeric" title="Waiting for a free executor">
+            <span class="queued" ng-if="state.stateStatistics.created.queuedInstances">{{state.stateStatistics.created.queuedInstances}}</span></td>
         <td class="numeric">{{state.stateStatistics.inProgress.allInstances | nullToZero}}</td>
-        <td class="numeric" title="Waiting for a free executor"
-            ng-class="{queued: state.stateStatistics.inProgress.queuedInstances > 0}">{{state.stateStatistics.inProgress.queuedInstances | nullToZero}}</td>
+        <td class="numeric" title="Waiting for a free executor">
+            <span class="queued" ng-if="state.stateStatistics.inProgress.queuedInstances > 0">{{state.stateStatistics.inProgress.queuedInstances}}</span></td>
         <td class="numeric">{{state.stateStatistics.executing.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.manual.allInstances | nullToZero}}</td>
         <th class="numeric">{{state.stateStatistics.paused.allInstances | nullToZero}}</th>
