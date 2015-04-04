@@ -276,5 +276,9 @@ ul.listing {
   background-color: #fcf8e3;
 }
 
+.table-hover > tbody > tr > td:hover, .table-hover > tbody > tr > th:hover, .table-hover > tbody > tr:hover > td, .table-hover > tbody > tr > td, .table-hover > tbody > tr:hover > th {
+  background-color: #c7c7c7;
+}
+
 /* angular-ui-bootstrap */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
