@@ -4,6 +4,7 @@ describe('Directive: executorTable', function () {
 
   beforeEach(module('nflowExplorer.frontPage.executorTable'));
   beforeEach(module('nflowExplorer.karma.templates'));
+  beforeEach(module('nflowExplorer.services'));
 
   it('sets executors into view model', inject(function ($rootScope, $compile) {
     var elem = $compile('<executor-table executors="expected"></executor-table>')($rootScope);
@@ -17,6 +18,7 @@ describe('Directive: executorTable', function () {
     var ctrl;
 
     var today = moment();
+    var twoHoursAgo = moment().subtract(2, 'hours');
     var yesterday = today.clone().subtract(1, 'days');
     var dayBeforeYesterday = today.clone().subtract(2, 'days');
     var tomorrow = today.clone().add(1, 'days');
@@ -24,6 +26,18 @@ describe('Directive: executorTable', function () {
     beforeEach(inject(function ($controller) {
       ctrl = $controller('ExecutorTableCtrl');
     }));
+
+    it('is undefined for dead executor that has never been active', function() {
+      expect(ctrl.executorClass({ started: dayBeforeYesterday },  today)).toBeUndefined();
+    });
+
+    it('is "warning" for expired executor that has never been active', function() {
+      expect(ctrl.executorClass({ started: twoHoursAgo },  today)).toBe('warning');
+    });
+
+    it('is "success" for alive that has never been active', function() {
+      expect(ctrl.executorClass({ started: today },  today)).toBe('success');
+    });
 
     it('is undefined for dead executor', function () {
       expect(ctrl.executorClass({ active: dayBeforeYesterday, expires: today },  today)).toBeUndefined();

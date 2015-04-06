@@ -13,7 +13,8 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="executor in ctrl.executors | orderBy:'active':true" ng-class="ctrl.executorClass(executor)">
+    <tr ng-repeat="executor in ctrl.executors | orderBy:'active':true | filter:ctrl.isActive"
+        ng-class="ctrl.executorClass(executor)">
       <td>{{executor.id}}</td>
       <td>{{executor.host}}</td>
       <td>{{executor.pid}}</td>

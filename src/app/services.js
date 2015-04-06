@@ -113,4 +113,11 @@ angular.module('nflowExplorer.services',
     return tasks[type].latest;
   };
 })
+.service('Time', function Time() {
+  var self = this;
+  self.currentMoment = function() {
+    return moment();
+  };
+})
+
 ;
