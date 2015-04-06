@@ -38,22 +38,26 @@
 
     function executorClass(executor, now) {
       now = now || Time.currentMoment();
-      if(!executor.expires) {
-        if(moment(executor.started).add(1, 'days').isBefore(now)) {
+      if(!executor.expires) { // has never been active
+
+        if(moment(executor.started).add(1, 'days').isBefore(now)) { // dead
           return;
         }
-        if(moment(executor.started).add(1, 'hours').isBefore(now)) {
+        if(moment(executor.started).add(1, 'hours').isBefore(now)) { // expired
           return 'warning';
         }
-        return 'success';
+        return 'success'; // alive
       }
-      if (moment(executor.active).add(1, 'days').isBefore(now)) {
+
+      // has been active
+
+      if (moment(executor.active).add(1, 'days').isBefore(now)) { // dead
         return;
       }
-      if (moment(executor.expires).isBefore(now)) {
+      if (moment(executor.expires).isBefore(now)) { // expired
         return 'warning';
       }
-      return 'success';
+      return 'success'; // alive
     }
   });
 

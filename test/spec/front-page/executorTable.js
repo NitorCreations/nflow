@@ -35,7 +35,7 @@ describe('Directive: executorTable', function () {
       expect(ctrl.executorClass({ started: twoHoursAgo },  today)).toBe('warning');
     });
 
-    it('is "warning" for alive that has never been active', function() {
+    it('is "success" for alive that has never been active', function() {
       expect(ctrl.executorClass({ started: today },  today)).toBe('success');
     });
 
