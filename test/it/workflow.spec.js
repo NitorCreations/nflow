@@ -1,6 +1,7 @@
 'use strict';
 
-var po = require('./pageobjects/pageobjects.js');
+var po = require('./pageobjects/pageobjects');
+var fixture = require('./fixture');
 
 describe('workflow instance page', function () {
 
@@ -8,7 +9,7 @@ describe('workflow instance page', function () {
   var definitionPage = po.workflowDefinitionPage({});
 
   beforeEach(function () {
-    page.get(2); // TODO this is not robust, currently expected creditDecision (approved)
+    page.get(fixture.wfs[0].withActionHistory.id); // TODO this is not robust
   });
 
   it('provides navigation to related workflow definition', function () {
@@ -17,7 +18,7 @@ describe('workflow instance page', function () {
   });
 
   it('selecting node in graph hi-lights node', function() {
-    var state = 'decisionEngine';
+    var state = fixture.wfs[0].states[0];
     expect(page.graph.isSelected(state)).toBeFalsy();
     page.graph.select(state);
     expect(page.graph.isSelected(state)).toBeTruthy();

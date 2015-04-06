@@ -1,6 +1,7 @@
 'use strict';
 
-var po = require('./pageobjects/pageobjects.js');
+var po = require('./pageobjects/pageobjects');
+var fixture = require('./fixture');
 
 describe('search page', function () {
 
@@ -30,11 +31,11 @@ describe('search page', function () {
 
   describe('entry criteria: type', function () {
     beforeEach(function () {
-      page.get('creditDecision');
+      page.get(fixture.wfs[0].name);
     });
 
     it('has pre-populated search form', function () {
-      assertForm('creditDecision');
+      assertForm(fixture.wfs[0].name);
     });
 
     it('has results', function () {
@@ -44,7 +45,7 @@ describe('search page', function () {
 
   describe('entry criteria: state', function () {
     beforeEach(function () {
-      page.get(undefined, 'approved');
+      page.get(undefined, fixture.wfs[0].states[0]);
     });
 
     it('has empty search form', function () {
@@ -58,11 +59,11 @@ describe('search page', function () {
 
   describe('entry criteria: type and state', function () {
     beforeEach(function () {
-      page.get('creditDecision', 'approved');
+      page.get(fixture.wfs[0].name, fixture.wfs[0].withActionHistory.state);
     });
 
     it('has pre-populated search form', function () {
-      assertForm('creditDecision', 'approved');
+      assertForm(fixture.wfs[0].name, fixture.wfs[0].withActionHistory.state);
     });
 
     it('has results', function () {
@@ -78,17 +79,9 @@ describe('search page', function () {
     it('determines state options', function () {
       expect(page.getStateOptions()).toEqual(['-- All states --']);
 
-      page.setType('creditDecision');
+      page.setType(fixture.wfs[0].name);
 
-      expect(page.getStateOptions()).toEqual([
-        '-- All states --',
-        'internalBlacklist',
-        'decisionEngine',
-        'satQuery',
-        'manualDecision',
-        'approved',
-        'rejected'
-      ]);
+      expect(page.getStateOptions()).toEqual([ '-- All states --'].concat(fixture.wfs[0].states));
     });
   });
 });
