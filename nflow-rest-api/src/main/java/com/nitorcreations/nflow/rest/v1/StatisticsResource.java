@@ -39,7 +39,7 @@ public class StatisticsResource {
   }
 
   @GET
-  @Path("/{type}/statistics")
+  @Path("/workflow/{type}")
   @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
   public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type,
       @QueryParam("createdAfter") DateTime createdAfter, @QueryParam("createdBefore") DateTime createdBefore,
