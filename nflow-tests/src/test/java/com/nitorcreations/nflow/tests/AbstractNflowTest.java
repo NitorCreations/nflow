@@ -85,7 +85,7 @@ public abstract class AbstractNflowTest {
   }
 
   public WorkflowDefinitionStatisticsResponse getDefinitionStatistics(String definitionType) {
-    WebClient client = fromClient(statisticsResource, true).path(definitionType).path("statistics");
+    WebClient client = fromClient(statisticsResource, true).path("workflow").path(definitionType);
     return client.get(WorkflowDefinitionStatisticsResponse.class);
   }
 
