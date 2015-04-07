@@ -11,8 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
-import java.util.Map;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
@@ -24,10 +22,10 @@ import org.junit.Test;
 
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import com.nitorcreations.nflow.rest.v1.msg.DefinitionStatisticsResponse;
 import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
 import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
+import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse.StateStatistics;
 import com.nitorcreations.nflow.tests.DemoWorkflowTest.DemoConfiguration;
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
@@ -76,9 +74,9 @@ public class StatisticsTest extends AbstractNflowTest {
   public void t03_queryDefinitionStatistics() {
     WorkflowDefinitionStatisticsResponse statistics = getDefinitionStatistics(DEMO_WORKFLOW_TYPE);
     assertThat(statistics.stateStatistics, is(notNullValue()));
-    Map<String, DefinitionStatisticsResponse> map = statistics.stateStatistics.get("begin");
-    assertThat(map.get("created").allInstances, is(1L));
-    assertThat(map.get("created").queuedInstances, is(0L));
+    StateStatistics stats = statistics.stateStatistics.get("begin");
+    assertThat(stats.created.allInstances, is(1L));
+    assertThat(stats.created.queuedInstances, is(0L));
   }
 
   @Test
@@ -113,8 +111,8 @@ public class StatisticsTest extends AbstractNflowTest {
   public void t08_queryDefinitionStatistics() {
     WorkflowDefinitionStatisticsResponse statistics = getDefinitionStatistics(DEMO_WORKFLOW_TYPE);
     assertThat(statistics.stateStatistics, is(notNullValue()));
-    Map<String, DefinitionStatisticsResponse> map = statistics.stateStatistics.get("begin");
-    assertThat(map.get("created").allInstances, is(1L));
-    assertThat(map.get("created").queuedInstances, is(1L));
+    StateStatistics stats = statistics.stateStatistics.get("begin");
+    assertThat(stats.created.allInstances, is(1L));
+    assertThat(stats.created.queuedInstances, is(1L));
   }
 }
