@@ -2,9 +2,7 @@ package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
-import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
@@ -182,13 +180,7 @@ class WorkflowStateProcessor implements Runnable {
     if (isNextActivationImmediately(execution)) {
       return executing;
     }
-    if (nextState.getType() == manual) {
-      return WorkflowInstanceStatus.manual;
-    }
-    if (nextState.getType().isFinal()) {
-      return finished;
-    }
-    return inProgress;
+    return nextState.getType().getStatus();
   }
 
   private WorkflowActionType getActionType(StateExecutionImpl execution) {

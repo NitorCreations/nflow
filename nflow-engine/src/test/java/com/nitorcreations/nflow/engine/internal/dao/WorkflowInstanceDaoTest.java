@@ -372,8 +372,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(j.queryForObject(sql.capture(), eq(Integer.class), args.capture())).thenReturn(42);
 
     DateTime started = DateTime.now();
-    WorkflowInstance wf = new WorkflowInstance.Builder().setState("updateState").setStateText("update text")
-        .setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43).putStateVariable("A", "B")
+    WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState")
+        .setStateText("update text").setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43).putStateVariable("A", "B")
         .putStateVariable("C", "D").build();
 
     d.insertWorkflowInstance(wf);

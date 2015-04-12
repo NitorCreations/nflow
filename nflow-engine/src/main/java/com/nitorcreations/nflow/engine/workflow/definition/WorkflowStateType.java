@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+
 /**
  * Workflow state types.
  */
@@ -8,27 +10,29 @@ public enum WorkflowStateType {
   /**
    * Initial states of the workflow.
    */
-  start(false),
+  start(false, WorkflowInstanceStatus.inProgress),
 
   /**
    * State that requires manual action. Workflow execution is stopped.
    */
-  manual(true),
+  manual(true, WorkflowInstanceStatus.manual),
 
   /**
    * State that can be normally executed.
    */
-  normal(false),
+  normal(false, WorkflowInstanceStatus.inProgress),
 
   /**
    * Final state of the workflow. Workflow execution is stopped.
    */
-  end(true);
+  end(true, WorkflowInstanceStatus.finished);
 
   private final boolean isFinal;
+  private WorkflowInstanceStatus status;
 
-  private WorkflowStateType(boolean isFinal) {
+  private WorkflowStateType(boolean isFinal, WorkflowInstanceStatus status) {
     this.isFinal = isFinal;
+    this.status = status;
   }
 
   /**
@@ -41,5 +45,15 @@ public enum WorkflowStateType {
    */
   public boolean isFinal() {
     return isFinal;
+  }
+
+  /**
+   * Returns the status for this type. This is used when a workflow instance state is updated, the new status of the instance will
+   * be determined based on the new state type.
+   *
+   * @return Default status for this state type.
+   */
+  public WorkflowInstanceStatus getStatus() {
+    return status;
   }
 }
