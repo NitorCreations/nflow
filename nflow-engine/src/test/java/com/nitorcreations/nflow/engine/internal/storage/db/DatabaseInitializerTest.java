@@ -1,22 +1,28 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+import com.nitorcreations.nflow.engine.internal.dao.DaoTestConfiguration;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { DaoTestConfiguration.class })
+@ActiveProfiles("nflow.db.h2")
 public class DatabaseInitializerTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @Mock
+  @Inject
   DataSource ds;
 
   DatabaseInitializer initializer;
@@ -24,6 +30,11 @@ public class DatabaseInitializerTest {
   @Test
   public void databaseCreationSkipWorks() {
     initializer = new DatabaseInitializer("a2", ds, environmentCreateOnStartup("false"));
+  }
+
+  @Test
+  public void databaseCreationDoesNotThrowExceptionWhenDatabaseIsAlreadyCreated() {
+    initializer = new DatabaseInitializer("fails", ds, environmentCreateOnStartup("true"));
   }
 
   @Test
