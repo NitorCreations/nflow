@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -22,8 +22,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   ObjectStringMapper objectMapper;
   @Mock
   WorkflowInstanceDao workflowInstanceDao;
-  @Mock
-  Environment env;
+  MockEnvironment env = new MockEnvironment();
   @Mock
   WorkflowExecutorListener listener1;
   @Mock
@@ -34,6 +33,9 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
 
   @Before
   public void setup() {
+    env.setProperty("nflow.illegal.state.change.action", "ignore");
+    env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
+    env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao, env);
   }
 

@@ -24,7 +24,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -44,13 +44,15 @@ public class WorkflowDispatcherTest {
   @Mock ExecutorDao recovery;
   @Mock WorkflowStateProcessorFactory executorFactory;
 
-  @Mock Environment env;
+  MockEnvironment env = new MockEnvironment();
 
   @Before
   public void setup() {
-    when(env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class)).thenReturn(0l);
-    when(env.getRequiredProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class)).thenReturn(0);
-    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("ignore");
+    env.setProperty("nflow.dispatcher.sleep.ms", "0");
+    env.setProperty("nflow.dispatcher.executor.queue.wait_until_threshold", "0");
+    env.setProperty("nflow.illegal.state.change.action", "ignore");
+    env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
+    env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     when(recovery.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);

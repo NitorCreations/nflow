@@ -53,6 +53,8 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowExecutorListener[] executorListeners;
   private final String illegalStateChangeAction;
   DateTime lastLogged = now();
+  private final int unknownWorkflowTypeRetryDelay;
+  private final int unknownWorkflowStateRetryDelay;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, Environment env,
@@ -64,6 +66,9 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstanceDao = workflowInstanceDao;
     this.executorListeners = executorListeners;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
+    unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
+    unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
+
   }
 
   @Override
@@ -140,8 +145,8 @@ class WorkflowStateProcessor implements Runnable {
 
   private void rescheduleUnknownWorkflowType(WorkflowInstance instance) {
     logger.warn("Workflow type {} not configured to this nFlow instance - rescheduling workflow instance", instance.type);
-    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusHours(1)).setStatus(inProgress)
-        .setStateText("Unsupported workflow type").build();
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowTypeRetryDelay))
+        .setStatus(inProgress).setStateText("Unsupported workflow type").build();
     workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Finished.");
   }
@@ -149,8 +154,8 @@ class WorkflowStateProcessor implements Runnable {
   private void rescheduleUnknownWorkflowState(WorkflowInstance instance) {
     logger.warn("Workflow state {} not configured to workflow type {} - rescheduling workflow instance", instance.state,
         instance.type);
-    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusHours(1)).setStatus(inProgress)
-        .setStateText("Unsupported workflow state").build();
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowStateRetryDelay))
+        .setStatus(inProgress).setStateText("Unsupported workflow state").build();
     workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Finished.");
   }

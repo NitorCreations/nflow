@@ -44,7 +44,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -76,8 +76,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Mock
   WorkflowInstanceDao workflowInstanceDao;
 
-  @Mock
-  Environment env;
+  MockEnvironment env = new MockEnvironment();
 
   @Mock
   WorkflowExecutorListener listener1;
@@ -103,7 +102,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Before
   public void setup() {
-    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("fail");
+    env.setProperty("nflow.illegal.state.change.action", "fail");
+    env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
+    env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         env, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
@@ -292,7 +293,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void goToErrorStateWhenNextStateIsInvalid() {
-    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("ignore");
+    env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
         listener1, listener2);
 
@@ -553,7 +554,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
-    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("log");
+    env.setProperty("nflow.illegal.state.change.action", "log");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
         listener1, listener2);
 
@@ -573,7 +574,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
-    when(env.getRequiredProperty("nflow.illegal.state.change.action")).thenReturn("ignore");
+    env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
         listener1, listener2);
 
