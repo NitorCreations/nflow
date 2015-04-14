@@ -1,6 +1,6 @@
 {
   "name": "nflow-explorer",
-  "version": "0.0.2",
+  "version": "0.0.7",
   "dependencies": {
     "lodash": "~3.1.0"
   },
