@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.nitorcreations</groupId>
     <artifactId>nflow-root</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1-SNAPSHOT</version>
   </parent>
   <artifactId>nflow-metrics</artifactId>
   <packaging>jar</packaging>
