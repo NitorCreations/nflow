@@ -21,6 +21,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
     addActiveProfile(env);
     addPropertyResource(env);
     addPropertyResource("common");
+    addPropertyResource("nflow-jetty");
     String profiles = getProperty("profiles", String.class, "");
     for (String profile : profiles.split(",")) {
       if (!profile.trim().isEmpty()) {

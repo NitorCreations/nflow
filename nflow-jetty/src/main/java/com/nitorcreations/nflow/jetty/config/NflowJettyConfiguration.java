@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -45,7 +44,6 @@ import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
 
 @Configuration
-@PropertySource("classpath:nflow-jetty.properties")
 @ComponentScan("com.nitorcreations.nflow.jetty")
 @Import(value = { RestConfiguration.class, JmxConfiguration.class})
 @EnableTransactionManagement
