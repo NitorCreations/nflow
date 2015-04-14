@@ -325,7 +325,7 @@
           <links>
             <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
           </links>
-          <excludePackageNames>com.nitorcreations.nflow.engine.internal:com.nitorcreations.nflow.tests</excludePackageNames>
+          <excludePackageNames>com.nitorcreations.nflow.engine.internal</excludePackageNames>
         </configuration>
         <executions>
           <execution>
