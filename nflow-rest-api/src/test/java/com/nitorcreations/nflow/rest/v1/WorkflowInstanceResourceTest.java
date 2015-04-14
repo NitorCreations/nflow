@@ -85,7 +85,8 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
     resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances).updateWorkflowInstance((WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
         (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API changed state to newState."))));
   }
 
@@ -97,7 +98,7 @@ public class WorkflowInstanceResourceTest {
     req.actionDescription = "description";
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("state", equalTo(req.state))),
+        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
         (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
   }
 
@@ -108,7 +109,7 @@ public class WorkflowInstanceResourceTest {
     req.nextActivationTime = new DateTime(2014,11,12,17,55,0);
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("state", equalTo(null))),
+        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
         (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("API changed nextActivationTime to "
             + req.nextActivationTime + ".")), hasField("type", equalTo(externalChange)))));
   }
@@ -121,33 +122,8 @@ public class WorkflowInstanceResourceTest {
     req.actionDescription = "description";
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("state", equalTo(null))),
+        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
         (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
-  }
-
-  @Test
-  public void whenUpdatingStatusUpdateWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
-    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    req.status = "finished";
-    resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("status", equalTo(WorkflowInstanceStatus.finished))),
-        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("API changed status to finished.")),
-            hasField("type", equalTo(externalChange)))));
-  }
-
-  @Test
-  public void whenUpdatingStatusWithDescriptionUpdateWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
-    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    req.status = "finished";
-    req.actionDescription = "description";
-    resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("status", equalTo(WorkflowInstanceStatus.finished))),
-        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")),
-            hasField("type", equalTo(externalChange)))));
   }
 
   @Test

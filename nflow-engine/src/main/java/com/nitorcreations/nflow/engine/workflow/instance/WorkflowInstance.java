@@ -164,7 +164,7 @@ public class WorkflowInstance {
 
     Integer id;
     Integer executorId;
-    WorkflowInstanceStatus status = WorkflowInstanceStatus.created;
+    WorkflowInstanceStatus status;
     String type;
     String businessKey;
     String externalId;

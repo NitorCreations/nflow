@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
@@ -14,7 +15,6 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -38,6 +38,7 @@ import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class WorkflowInstanceServiceTest extends BaseNflowTest {
@@ -121,6 +122,14 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     assertThat(stored.getValue().externalId, notNullValue());
   }
 
+  @Test
+  public void insertWorkflowSetsStatusToCreatedWhenStatusIsNotSpecified() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(null).build();
+    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
+    service.insertWorkflowInstance(i);
+    assertThat(stored.getValue().status, is(WorkflowInstanceStatus.created));
+  }
+
   @Test(expected = RuntimeException.class)
   public void insertWorkflowInstanceUnsupportedType() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setType("nonexistent").build();
@@ -132,9 +141,25 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
     when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
-    when(workflowInstanceDao.updateNotRunningWorkflowInstance(i)).thenReturn(true);
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class))).thenReturn(true);
+    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
     assertThat(service.updateWorkflowInstance(i, a), is(true));
-    verify(workflowInstanceDao).insertWorkflowInstanceAction(eq(i), storedAction.capture());
+    verify(workflowInstanceDao).updateNotRunningWorkflowInstance(stored.capture());
+    assertThat(stored.getValue().status, is(WorkflowInstanceStatus.inProgress));
+    verify(workflowInstanceDao).insertWorkflowInstanceAction(stored2.capture(), storedAction.capture());
+    assertThat(storedAction.getValue().state, is("currentState"));
+  }
+
+  @Test
+  public void updateWorkflowInstanceWorksWhenStateIsNull() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).setState(null).build();
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
+    when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class))).thenReturn(true);
+    assertThat(service.updateWorkflowInstance(i, a), is(true));
+    verify(workflowInstanceDao).updateNotRunningWorkflowInstance(stored.capture());
+    assertThat(stored.getValue().status, is(nullValue()));
+    verify(workflowInstanceDao).insertWorkflowInstanceAction(stored2.capture(), storedAction.capture());
     assertThat(storedAction.getValue().state, is("currentState"));
   }
 
@@ -143,6 +168,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).build();
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(i)).thenReturn(false);
+    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
     assertThat(service.updateWorkflowInstance(i, a), is(false));
     verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),
         any(WorkflowInstanceAction.class));

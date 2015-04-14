@@ -102,12 +102,6 @@ public class WorkflowInstanceResource {
         msg += "API changed nextActivationTime to " + req.nextActivationTime + ". ";
       }
     }
-    if (req.status != null) {
-      builder.setStatus(WorkflowInstanceStatus.valueOf(req.status));
-      if (isBlank(req.actionDescription)) {
-        msg += "API changed status to " + req.status + ".";
-      }
-    }
     if (msg.isEmpty()) {
       return noContent().build();
     }

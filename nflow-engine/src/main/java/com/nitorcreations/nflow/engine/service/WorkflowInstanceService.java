@@ -15,6 +15,7 @@ import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
@@ -72,6 +73,9 @@ public class WorkflowInstanceService {
     if (isEmpty(instance.externalId)) {
       builder.setExternalId(UUID.randomUUID().toString());
     }
+    if (instance.status == null) {
+      builder.setStatus(WorkflowInstanceStatus.created);
+    }
     int id = workflowInstanceDao.insertWorkflowInstance(builder.build());
     if (id == -1 && !isEmpty(instance.externalId)) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(def.getType()).setExternalId(instance.externalId).build();
@@ -82,24 +86,34 @@ public class WorkflowInstanceService {
 
   /**
    * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action. If
-   * action is null, it will be automatically created.
+   * action is null, it will be automatically created. If the state of the instance is not null, the status of the instance is
+   * updated based on the new state. If the state of the instance is null, neither state nor status are updated.
    * @param instance The instance to be updated.
    * @param action The action to be inserted. Can be null.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
-    boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(instance);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
+    if (instance.state == null) {
+      builder.setStatus(null);
+    } else {
+      String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
+      WorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
+      builder.setStatus(definition.getState(instance.state).getType().getStatus());
+    }
+    WorkflowInstance updatedInstance = builder.build();
+    boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);
     if (updated) {
       WorkflowInstanceAction.Builder actionBuilder;
       if (action == null) {
-        actionBuilder = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(instance.id).setStateText("N/A");
+        actionBuilder = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(updatedInstance.id).setStateText("N/A");
       } else {
         actionBuilder = new WorkflowInstanceAction.Builder(action);
       }
-      String currentState = workflowInstanceDao.getWorkflowInstanceState(instance.id);
+      String currentState = workflowInstanceDao.getWorkflowInstanceState(updatedInstance.id);
       action = actionBuilder.setState(currentState).build();
-      workflowInstanceDao.insertWorkflowInstanceAction(instance, action);
+      workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, action);
     }
     return updated;
   }
