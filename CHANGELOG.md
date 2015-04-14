@@ -1,5 +1,7 @@
 ## next version
 
+## 1.3.0 (2015-04-14)
+
 **Details**
 - nflow-engine:
   - Use more optimal SQL when polling workflows when database supports update returning syntax
@@ -13,13 +15,27 @@
     - *recovery* - to indicate that the workflow instance was recovered after some executor died.
   - Use more optimal SQL when updating workflows when database supports updateable cte syntax
   - Automatically abbreviate state text for workflow instance and workflow instance action based on field size in database
-- nflow-rest:
+  - Added WorkflowInstance.status (created, in_progress, executing, manual, finished, paused, stopped) for workflow instances
+  - Removed WorkflowInstance.processing which is now replaced by WorkflowInstance.status
+  - Workflow instance state text is now always set to a meaningful value when the instance is updated
+  - Make most configuration properties required and remove the default values from the source code
+  - Added missing default values to the configuration files
+  - Improved workflow definition statistics query performance and results
+  - Retry processing of a workflow instance that has unknown state after some delay (one hour by default, configurable)
+  - Move workflow instance to error state when a state processing method returns an invalid next state
+- nflow-rest-api:
   - Added support for user-provided action description when updating a workflow instance
   - Added missing configuration options with default values
   - Added support for Action.type
-  - Added service to stop the execution of the workflow instance
+  - Added service to pause, resume and stop the execution of the workflow instance
+  - Make most configuration properties required and remove the default values from the source code
+  - Added missing default values to the configuration files
+  - Moved workflow definitions statistics to /statistics/workflow/{workflow-definition-type} and return statistics per workflow state and status
 - nflow-jetty:
   - added missing configuration options with default values
+  - Make most configuration properties required and remove the default values from the source code
+  - Added missing default values to the configuration files
+  - Use nFlow Explorer version 0.0.7
 
 ## 1.2.0 (2014-12-23)
 
