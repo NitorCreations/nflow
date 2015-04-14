@@ -45,7 +45,22 @@ angular.module('nflowExplorer.workflowStats', [])
     }, 0);
   }
 
-  ///////////////////////
+  /**
+   * Output:
+   * {
+   *   dataArray: [
+   *     timestamp, // Date
+   *     workflowsInState1, // integer
+   *     workflowsInState2,
+   *     ...
+   *   ],
+   *   labels: [
+   *     'state1Name',
+   *     'state2Name',
+   *     ...
+   *   ]
+   * }
+   */
   function createStateData(currentStates) {
     var data = $rootScope.radiator.stateChart.data;
 
@@ -60,39 +75,67 @@ angular.module('nflowExplorer.workflowStats', [])
         if(!stateStats) {
           return 0;
         }
-        return sum(_.values(stateStats));
+        return sum(_.map(_.values(stateStats), function(s) {
+          return s.allInstances;
+        }));
       });
 
       return [time].concat(values);
     });
 
-    return {dataArray: dataArray, labels: currentStates};
+    var x = {dataArray: dataArray, labels: currentStates};
+    return x;
   }
 
-  //
+  /**
+   * Output:
+   * {
+   *   dataArray: [
+   *     timestamp, // Date
+   *     workflowsInStatus1, // integer
+   *     workflowsInStatus1,
+   *     ...
+   *   ],
+   *   labels: [
+   *     'status1Name',
+   *     'status2Name',
+   *     ...
+   *   ]
+   * }
+   *
+   */
   function createExecutionData(currentStates) {
     var data = $rootScope.radiator.stateChart.data;
-    var executionPhases = ['executing', 'nonScheduled', 'queued', 'sleeping'];
-
+    var executionPhases = ['queued', 'sleeping', 'executing', 'paused', 'manual'];
+    var realStatuses = ['executing', 'paused', 'manual'];
     var dataArray = _.map(data, function(row) {
-      var time = row[0];
-      var stats = row[1];
-      var values = _.map(executionPhases, function(phase) {
+      var time = row[0],
+          stats = row[1];
+      var queued = 0,
+          sleeping = 0;
+      var values = _.map(realStatuses, function(phase) {
         return sum(_.map(currentStates, function(stateName) {
           if(!stats) {
             return undefined;
           }
           var stateStats = stats[stateName];
-          if(!stateStats) {
+          if(!stateStats || !stateStats[phase]) {
             return 0;
           }
-          return stateStats[phase];
+          return stateStats[phase].allInstances;
         }));
       });
-      return [time].concat(values);
+      queued = sum(_.map(stats, function(s) {
+        return s.created ? s.created.queuedInstances : 0 +
+              s.inProgress ? s.inProgress.queuedInstances : 0;
+      }));
+      sleeping = sum(_.map(stats, function(s) {
+        return s.created ? s.created.allInstances - s.created.queuedInstances : 0 +
+              s.inProgress ? s.inProgress.allInstances - s.inProgress.queuedInstances : 0;
+      }));
+      return [time].concat([queued, sleeping]).concat(values);
     });
-
-    return {dataArray: dataArray, labels: executionPhases};
+    return {dataArray: dataArray, labels: _.map(executionPhases, _.startCase)};
   }
 
   function drawStackedLineChart(canvasId, data) {
@@ -106,14 +149,18 @@ angular.module('nflowExplorer.workflowStats', [])
     if(!$scope.graphs[canvasId]) {
       var options = {
         axisLabelFontSize: 13,
-        xAxisLabelWidth: 55,
         responsive: true,
         stackedGraph: true,
         legend: 'always',
         //showRangeSelector: true,
         labelsDiv: canvasId + 'Legend',
         labelsSeparateLines: true,
-        labels: labels
+        labels: labels,
+        axes: {
+          x: {
+            axisLabelWidth: 55,
+          }
+        },
       };
       $scope.graphs[canvasId] = new Dygraph(canvas, data.dataArray, options);
     } else {

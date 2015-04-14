@@ -1,10 +1,14 @@
 (function () {
   'use strict';
+  var _statusNames = ['created', 'inProgress', 'executing', 'finished',
+                      'manual', 'stopped', 'paused'];
+  var _metaStatuses = ['queued', 'sleeping', 'executing', 'paused', 'manual'];
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
-    'nflowExplorer.barchart'
+    'nvd3',
   ]);
 
+  /** <workflow-definition-tabs></workflow-definition-tabs> */
   m.directive('workflowDefinitionTabs', function() {
     return {
       restrict: 'E',
@@ -19,12 +23,55 @@
     };
   });
 
-  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller, Barchart) {
+  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller) {
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
+
+    var width = 450, height = 400;
+    self.options = {chart: {
+      // multiBarHorizontalChart get ugly colors due to https://github.com/novus/nvd3/issues/916
+                type: 'multiBarChart',
+                callback: function(chart) {
+                  chart.container.setAttribute('preserveAspectRatio', 'xMinYMin');
+                  var c = Math.min(width, height);
+                  chart.container.setAttribute('viewBox', '0 0 '+ c +' ' + c );
+                },
+                height: height,
+                width: width,
+                margin : {
+                    top: 20,
+                    right: 20,
+                    bottom: 160,
+                    left: 45
+                },
+                noData: 'No workflow instances in active states. There may be stopped or finished instances.',
+                x: function(d) { return d.label; },
+                y: function(d) { return d.value; },
+                clipEdge: true,
+                staggerLabels: false,
+                reduceXTicks: false,
+                showControls: true,
+                duration: 0,
+                transitionDuration: 0,
+                // TODO this doesn't work
+                stacked: true,
+                xAxis: {
+                    axisLabel: 'States',
+                    showMaxMin: false,
+                    rotateLabels: 25,
+                },
+                yAxis: {
+                    axisLabel: 'Workflow instances',
+                    axisLabelDistance: 40,
+                    tickFormat: function(d) {
+                        return d3.format(',.0f')(d);
+                    }
+                }
+            }
+    };
 
     initialize();
 
@@ -43,6 +90,59 @@
       return state.name === WorkflowDefinitionGraphApi.selectedNode;
     }
 
+    /**
+     * Output:
+     * [
+     *  {
+     *    key: 'Status1Name',
+     *    values: [
+     *      {label: 'state1', value: 7},
+     *      {label: 'state2', value: 2},
+     *      ...
+     *    ]
+     *   },{
+     *    key: 'Status2Name',
+     *    values: [
+     *      {label: 'state1', value: 3},
+     *      {label: 'state2', value: 92},
+     *      ...
+     *    ]
+     *   }, ...
+     *  ]
+     *
+     *  Number of rows in values must be equal in all categories.
+     *  Labels must be same and in same order in all categories.
+     */
+    function statsToData(definition, stats) {
+      var data = {};
+      // TODO add states from definition
+      var allStateNames = Object.keys(stats.stateStatistics);
+      var allStatusNames = _metaStatuses;
+      _.forEach(allStatusNames, function(statusName) {
+        if(!data[statusName]) {
+          data[statusName] = {
+            key: _.startCase(statusName),
+            values: _.map(allStateNames, function(state) {
+              return {
+                label: state,
+                value: 0,
+              };
+            }),
+          };
+        }
+      });
+      _.forEach(stats.stateStatistics, function(stateStats, stateName) {
+        _.forEach(Object.keys(stateStats), function(statusName) {
+          if(!_.contains(allStatusNames, statusName)) {
+            return;
+          }
+          var valueForStatus = _.find(data[statusName].values, {label: stateName});
+
+          valueForStatus.value = stateStats[statusName].allInstances || 0;
+        });
+      });
+      return _.values(data);
+    }
     function updateStateExecutionGraph(type) {
       var stats = WorkflowStatsPoller.getLatest(type);
       if (!self.definition) {
@@ -51,36 +151,124 @@
       }
       if (stats) {
         processStats(self.definition, stats);
-        self.hasStatistics = Barchart.drawStateExecutionGraph('#statisticsGraph', stats.stateStatistics, self.definition, WorkflowDefinitionGraphApi.onSelectNode);
+        if(Object.keys(stats).length === 0) {
+          return;
+        }
+        self.data = statsToData(self.definition, stats);
       }
     }
 
+    /**
+     * Compute list of all status names.
+     * We want to show all statuses, including those that API doesn't return
+     * and new statuses that API may return in future.
+     */
+    function getStatusNames(stats) {
+      var names = [].concat(_statusNames);
+      names.concat(_.flatten(_.map(stats, function(stat){
+        return _.keys(stat);
+      })));
+      return _.uniq(names);
+    }
+
     // TODO move to service
+    /**
+     * Output:
+     *
+     *
+     * Modifies definition:
+     * Adds definition.stateStatisticsTotal and definition.states[stateName].stats
+     *
+     * definition.stateStatisticsTotal = {
+     *   totalInstances: 1231,
+     *   totalQueued: 102,
+     *   created: {
+     *     allInstances: 91,
+     *     queuedInstances: 29,
+     *   },
+     *   executing: {
+     *     allInstances: 21,
+     *     queuedInstances: 0,
+     *   },
+     *   ...
+     * }
+     *
+     * definition.states[stateName].stats = {
+     *   totalInstances: 10,
+     *   queuedInstances: 3
+     *   created: {
+     *     allInstances: 4,
+     *     queuedInstances: 3,
+     *   },
+     *   executing: {
+     *     allInstances: 2,
+     *     queuedInstances: 1,
+     *   },
+     *   ...
+     * }
+     */
     function processStats(definition, stats) {
-      var totals = {
-        executing: 0,
-        queued: 0,
-        sleeping: 0,
-        nonScheduled: 0,
-        totalActive: 0
-      };
+      var allStatusNames = getStatusNames(stats);
+      var totalStats = {allInstances: 0, queuedInstances: 0};
+      _.forEach(allStatusNames, function(name) {
+        totalStats[name] = {
+          allInstances: 0,
+          queuedInstances: 0,
+        };
+      });
+
       if (!stats.stateStatistics) {
         stats.stateStatistics = {};
       }
-      _.each(definition.states, function (state) {
+      _.forEach(definition.states, function (state) {
         var name = state.name;
 
-        state.stateStatistics = stats.stateStatistics[name] ? stats.stateStatistics[name] : {};
+        state.stateStatistics = stats.stateStatistics[name] || {};
 
-        state.stateStatistics.totalActive = _.reduce(_.values(state.stateStatistics), function (a, b) {
-          return a + b;
-        }, 0) - (state.stateStatistics.nonScheduled ? state.stateStatistics.nonScheduled : 0);
+        // TODO calculate correctly, remove non active
+        state.stateStatistics.allInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
+          return a + b.allInstances;
+        }, 0);
+        state.stateStatistics.queuedInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
+          return a + b.queuedInstances || 0;
+        }, 0);
 
-        _.each(['executing', 'queued', 'sleeping', 'nonScheduled', 'totalActive'], function (stat) {
-          totals[stat] += state.stateStatistics[stat] ? state.stateStatistics[stat] : 0;
+        // calculate totals
+        _.forEach(allStatusNames, function (stat) {
+          if(state.stateStatistics[stat]) {
+            var allInstances = state.stateStatistics[stat].allInstances || 0;
+            var queuedInstances = state.stateStatistics[stat].queuedInstances || 0;
+            totalStats[stat].allInstances += allInstances;
+            totalStats[stat].queuedInstances += queuedInstances;
+            totalStats.allInstances += allInstances;
+            totalStats.queuedInstances += queuedInstances;
+          }
         });
+        function queued(stats) {
+          if(!stats) {
+            return 0;
+          }
+          return stats.queuedInstances;
+        }
+        function sleeping(stats) {
+          if(!stats) {
+            return 0;
+          }
+          return stats.allInstances - stats.queuedInstances;
+        }
+
+        state.stateStatistics.queued = {
+          allInstances: queued(state.stateStatistics.created) +
+            queued(state.stateStatistics.inProgress)
+        };
+        state.stateStatistics.sleeping = {
+          allInstances: sleeping(state.stateStatistics.created) +
+            sleeping(state.stateStatistics.inProgress)
+        };
       });
-      definition.stateStatisticsTotal = totals;
+
+
+      definition.stateStatisticsTotal = totalStats;
       return stats;
     }
 
@@ -89,4 +277,28 @@
     }
   });
 
+
+  /** <workflow-definition-tabs></workflow-definition-tabs> */
+  m.directive('workflowStatisticsTable', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        definition: '=',
+      },
+      bindToController: true,
+      controller: 'WorkflowStatisticsTable',
+      controllerAs: 'ctrl',
+      templateUrl: 'app/workflow-definition/workflowStatisticsTable.html'
+    };
+  });
+  m.controller('WorkflowStatisticsTable', function(WorkflowDefinitionGraphApi) {
+    var self = this;
+    self.isStateSelected = isStateSelected;
+    self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
+
+    function isStateSelected(state) {
+      return state.name === WorkflowDefinitionGraphApi.selectedNode;
+    }
+  });
 })();

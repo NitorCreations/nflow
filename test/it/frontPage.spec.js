@@ -1,6 +1,9 @@
 'use strict';
 
+var _ = require('lodash');
+
 var po = require('./pageobjects/pageobjects');
+var fixture = require('./fixture');
 
 describe('front page', function() {
 
@@ -10,7 +13,7 @@ describe('front page', function() {
   beforeEach(function() { frontPage.get(); });
 
   it('has list of workflow definitions', function() {
-    expect(frontPage.getDefinitions()).toEqual(['creditDecision', 'processCreditApplication', 'withdrawLoan']);
+    expect(frontPage.getDefinitions()).toEqual(_.pluck(fixture.wfs, 'name'));
   });
 
   it('provides navigation to workflow definitions', function() {
