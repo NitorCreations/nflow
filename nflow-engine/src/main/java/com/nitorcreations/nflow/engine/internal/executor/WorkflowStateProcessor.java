@@ -53,6 +53,8 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowExecutorListener[] executorListeners;
   private final String illegalStateChangeAction;
   DateTime lastLogged = now();
+  private final int unknownWorkflowTypeRetryDelay;
+  private final int unknownWorkflowStateRetryDelay;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, Environment env,
@@ -64,6 +66,9 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstanceDao = workflowInstanceDao;
     this.executorListeners = executorListeners;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
+    unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
+    unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
+
   }
 
   @Override
@@ -84,7 +89,7 @@ class WorkflowStateProcessor implements Runnable {
     logIfLagging(instance);
     WorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
-      unscheduleUnknownWorkflowInstance(instance);
+      rescheduleUnknownWorkflowType(instance);
       return;
     }
     WorkflowSettings settings = definition.getSettings();
@@ -93,10 +98,16 @@ class WorkflowStateProcessor implements Runnable {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
       ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
-      WorkflowState state = definition.getState(instance.state);
+      WorkflowState state;
+      try {
+        state = definition.getState(instance.state);
+      } catch (IllegalStateException e) {
+        rescheduleUnknownWorkflowState(instance);
+        return;
+      }
       try {
         processBeforeListeners(listenerContext);
-        NextAction nextAction = processState(instance, definition, execution);
+        NextAction nextAction = processState(instance, definition, execution, state);
         if (listenerContext != null) {
           listenerContext.nextAction = nextAction;
         }
@@ -132,12 +143,21 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private void unscheduleUnknownWorkflowInstance(WorkflowInstance instance) {
-    logger.warn("Workflow type {} not configured to this nflow instance - unscheduling workflow instance", instance.type);
-    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusHours(1)).setStatus(inProgress)
-        .setStateText("Unsupported workflow type").build();
+  private void rescheduleUnknownWorkflowType(WorkflowInstance instance) {
+    logger.warn("Workflow type {} not configured to this nFlow instance - rescheduling workflow instance", instance.type);
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowTypeRetryDelay))
+        .setStatus(inProgress).setStateText("Unsupported workflow type").build();
     workflowInstanceDao.updateWorkflowInstance(instance);
-    logger.debug("Exiting.");
+    logger.debug("Finished.");
+  }
+
+  private void rescheduleUnknownWorkflowState(WorkflowInstance instance) {
+    logger.warn("Workflow state {} not configured to workflow type {} - rescheduling workflow instance", instance.state,
+        instance.type);
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowStateRetryDelay))
+        .setStatus(inProgress).setStateText("Unsupported workflow state").build();
+    workflowInstanceDao.updateWorkflowInstance(instance);
+    logger.debug("Finished.");
   }
 
   private int busyLoopPrevention(WorkflowSettings settings,
@@ -199,9 +219,9 @@ class WorkflowStateProcessor implements Runnable {
     return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
-  private NextAction processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution) {
+  private NextAction processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution,
+      WorkflowState currentState) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
-    WorkflowState currentState = definition.getState(instance.state);
     if (method == null) {
       execution.setNextState(currentState);
       return stopInState(currentState, "Execution finished.");
@@ -218,6 +238,12 @@ class WorkflowStateProcessor implements Runnable {
           logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, definition
               .getErrorState().name());
           nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+          execution.setFailed();
+        } else if (nextAction.getNextState() != null && !definition.getStates().contains(nextAction.getNextState())) {
+          logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'",
+              nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
+          nextAction = moveToState(definition.getErrorState(), "State '" + instance.state
+              + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
           execution.setFailed();
         } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
           logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
