@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.jdbc.datasource.init.ScriptStatementFailedException;
 
 public class DatabaseInitializer {
   private static final Logger logger = getLogger(DatabaseInitializer.class);
@@ -27,7 +28,10 @@ public class DatabaseInitializer {
   private void populate(ResourceDatabasePopulator populator, DataSource ds) {
     try {
       execute(populator, ds);
-    } catch(Exception ex) {
+    } catch (ScriptStatementFailedException ex) {
+      logger.warn("Failed to create the database, possibly already created: {}", ex.getMessage());
+      logger.debug("Failed to create the database", ex);
+    } catch (Exception ex) {
       logger.warn("Failed to create the database", ex);
     }
   }
