@@ -2,6 +2,11 @@
 
 ## 1.3.0 (2015-04-14)
 
+**Highlights**
+- Introduced workflow instance status, which indicates the execution state (created, inProgress, executing, paused, stopped, finished, manual) of workflow instance
+- Added REST API services for pausing, resuming and stopping workflow instances
+- Restructured workflow definition statistics to return workflow instance status counts for workflow instance states
+
 **Details**
 - nflow-engine:
   - Use more optimal SQL when polling workflows when database supports update returning syntax
