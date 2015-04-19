@@ -2,6 +2,11 @@
 
 (newest first)
 
+2015-04-19 efonsell
+---------------------------
+Define default property-values in properties-files only and make them required when there is a static default value. Do not define default values in properties-files for properties that have a dynamic default value. For example, nflow.dispatcher.sleep.ms default value 1000 is defined in nflow-engine.properties, but nflow.executor.thread.count default value which is based on number of processors is defined in the Java code.
+
+
 2015-01-10 gmokki, efonsell
 ---------------------------
 When polling for next workflow instances in WorkflowInstanceDao, the modified field in OptimisticLockKey is handled as String instead of Timestamp to avoid problems caused by losing millisecond precision from timestamps in some cases (for example with some older versions of MySQL).
