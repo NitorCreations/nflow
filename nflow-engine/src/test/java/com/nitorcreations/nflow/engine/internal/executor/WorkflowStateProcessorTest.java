@@ -44,6 +44,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,6 +80,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   MockEnvironment env = new MockEnvironment();
 
   @Mock
+  BeanFactory beanFactory;
+
+  @Mock
   WorkflowExecutorListener listener1;
 
   @Mock
@@ -100,13 +104,14 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<FailingTestWorkflow.State> failingWf = new FailingTestWorkflow();
 
+
   @Before
   public void setup() {
     env.setProperty("nflow.illegal.state.change.action", "fail");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        env, listener1, listener2);
+        env, beanFactory, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
@@ -295,7 +300,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
-        listener1, listener2);
+        beanFactory, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -556,7 +561,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
-        listener1, listener2);
+        beanFactory, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -576,7 +581,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao, env,
-        listener1, listener2);
+        beanFactory, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);

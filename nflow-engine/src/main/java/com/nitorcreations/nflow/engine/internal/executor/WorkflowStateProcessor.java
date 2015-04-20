@@ -13,10 +13,13 @@ import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
+import java.lang.reflect.Method;
+
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -48,6 +51,7 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowInstanceService workflowInstances;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
+  private final BeanFactory beanFactory;
   private final WorkflowExecutorListener[] executorListeners;
   private final String illegalStateChangeAction;
   DateTime lastLogged = now();
@@ -56,12 +60,13 @@ class WorkflowStateProcessor implements Runnable {
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, Environment env,
-      WorkflowExecutorListener... executorListeners) {
+      BeanFactory beanFactory, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
+    this.beanFactory = beanFactory;
     this.executorListeners = executorListeners;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
@@ -221,11 +226,11 @@ class WorkflowStateProcessor implements Runnable {
     NextAction nextAction;
     Object[] args = objectMapper.createArguments(execution, method);
     if (currentState.getType().isFinal()) {
-      invokeMethod(method.method, definition, args);
+      invokeStateMethod(method.method, definition, args);
       nextAction = stopInState(currentState, "Stopped in final state");
     } else {
       try {
-        nextAction = (NextAction) invokeMethod(method.method, definition, args);
+        nextAction = (NextAction) invokeStateMethod(method.method, definition, args);
         if (nextAction == null) {
           logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, definition
               .getErrorState().name());
@@ -265,6 +270,16 @@ class WorkflowStateProcessor implements Runnable {
     }
     objectMapper.storeArguments(execution, method, args);
     return nextAction;
+  }
+
+  private Object invokeStateMethod(Method method, AbstractWorkflowDefinition<?> definition, Object[] args) {
+    Object instance;
+    if (definition.getClass().isAssignableFrom(method.getDeclaringClass())) {
+      instance = definition;
+    } else {
+      instance = beanFactory.getBean(method.getDeclaringClass());
+    }
+    return invokeMethod(method, instance, args);
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -20,6 +21,7 @@ import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={DaoTestConfiguration.class})
 @ActiveProfiles("nflow.db.h2")
+@DirtiesContext
 public abstract class BaseDaoTest extends BaseNflowTest {
 
   @Inject
