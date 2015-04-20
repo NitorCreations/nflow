@@ -59,7 +59,6 @@
                 // TODO this doesn't work
                 stacked: true,
                 xAxis: {
-                    axisLabel: 'States',
                     showMaxMin: false,
                     rotateLabels: 25,
                 },
