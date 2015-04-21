@@ -23,7 +23,7 @@
     };
   });
 
-  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller) {
+  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller, $timeout) {
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
@@ -38,6 +38,11 @@
                   chart.container.setAttribute('preserveAspectRatio', 'xMinYMin');
                   var c = Math.min(width, height);
                   chart.container.setAttribute('viewBox', '0 0 '+ c +' ' + c );
+                  $timeout(function(){
+                    // TODO: kludge workaround for https://github.com/krispo/angular-nvd3/issues/100 
+                    chart.stacked(true);
+                    chart.update();
+                  });
                 },
                 height: height,
                 width: width,
