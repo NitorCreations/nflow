@@ -1,0 +1,32 @@
+---
+# ansible-playbook -i /etc/ansible/ec2.py --private-key=nbank.pem deploy_nflow.yml
+#
+# TODO: 
+# - Start nFlow server automatically, something like:
+#    java -Dnflow.db.user={{ db_user }} -Dnflow.db.password={{ db_password }} -Dnflow.db.postgresql.url={{ jdbc_url }}
+#         -Dnflow.executor.group=nflow-perf -Dnflow.non_spring_workflows_filename=workflows.txt 
+#         -Dspring.profiles.active=nflow.db.postgresql -jar nflow/nflow-perf-test/target/nflow-perf-tests-*-SNAPSHOT.jar
+
+- name: Deploy and build nFlow to servers
+  hosts: tag_Name_nflow-perftest-nflow-*
+  remote_user: fedora
+  gather_facts: false
+
+  vars_files:
+    - vars/perf-test-environment.yml
+
+  tasks:
+  - name: Install git
+    yum: name=git state=present
+    sudo: yes
+
+  - name: Install Maven
+    yum: name=maven state=present
+    sudo: yes
+
+  - name: Clone nflow repository
+    git: repo=git://github.com/NitorCreations/nflow.git dest=~/nflow version=perf-test-once-more accept_hostkey=yes
+
+  - name: Build nFlow
+    shell: cd nflow && mvn package -DskipTests -P allModules
+

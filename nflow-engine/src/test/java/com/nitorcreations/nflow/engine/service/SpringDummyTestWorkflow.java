@@ -41,6 +41,7 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
 
   protected SpringDummyTestWorkflow() {
     super("springdummy", SpringDummyTestState.start, SpringDummyTestState.end);
+    permit(SpringDummyTestState.start, SpringDummyTestState.end);
   }
 
   public NextAction start(StateExecution execution) {

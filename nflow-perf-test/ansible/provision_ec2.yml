@@ -1,0 +1,92 @@
+---
+# ansible-playbook provision_ec2.yml
+#
+# Creates following servers/services to EC2
+# - nFlow server(s) (server(s) being performance tested)
+# - nFlow client(s) (server(s) that run performance test clients)
+# - RDS service for nflow database (postgresql)
+#
+# Prerequisites
+# - Setup AWS access key and secret (e.g. env variable or .boto-file)
+# - Tune variables in vars/perf-test-environment.yml-file (TODO: automate some of these?)
+#   + vpc_subnet_id-variables point to correct AWS VPC
+#   + security groups are correct for your AWS VPC
+#   + current directory contains pem-file that matches instances_keypair (e.g. nbank.pem)
+
+- name: Provision ec2 instances based on the environment
+  hosts: localhost
+  connection: local
+
+  vars_files:
+    - vars/perf-test-environment.yml
+
+  tasks:
+
+  - name: Launch tested nflow server instances
+    ec2: 
+      region: "{{ ec2_region }}"
+      keypair: "{{ item.keypair }}"
+      group_id: "{{ item.group_id }}"
+      vpc_subnet_id: "{{ item.vpc_subnet_id }}"
+      instance_type: "{{ item.instance_type }}"
+      image: "{{ item.image }}"
+      instance_tags: "{{ item.instance_tags }}"
+      exact_count: "{{ item.exact_count }}"
+      count_tag: "{{ item.count_tag }}"
+      assign_public_ip: "{{ item.assign_public_ip }}"
+      wait: true
+    register: nflow_perftest_nflow_servers
+    with_items: nflow_server_instances
+    tags: launch_nflow_server_instances
+
+  - name: Launch tested nflow client instances
+    ec2: 
+      region: "{{ ec2_region }}"
+      keypair: "{{ item.keypair }}"
+      group_id: "{{ item.group_id }}"
+      vpc_subnet_id: "{{ item.vpc_subnet_id }}"
+      instance_type: "{{ item.instance_type }}"
+      image: "{{ item.image }}"
+      instance_tags: "{{ item.instance_tags }}"
+      exact_count: "{{ item.exact_count }}"
+      count_tag: "{{ item.count_tag }}"
+      assign_public_ip: "{{ item.assign_public_ip }}"
+      wait: true
+    register: nflow_perftest_nflow_clients
+    with_items: nflow_client_instances
+    tags: launch_nflow_client_instances
+
+  - name: Launch RDS server
+    rds:
+      backup_retention: 0
+      command: create
+      db_name: "{{ db_name }}"
+      instance_name: nflow-perftest
+      instance_type: db.m1.small
+      db_engine: postgres
+      port: 5432
+      multi_zone: no
+      size: 5
+      username: "{{ db_user }}"
+      password: "{{ db_password }}"
+      region: "{{ ec2_region }}"
+      security_groups: public-internet-postgresql
+    tags: launch_rds_server
+
+  - name: Launch Graphite server
+    ec2:
+      region: "{{ ec2_region }}"
+      keypair: "{{ item.keypair }}"
+      group_id: "{{ item.group_id }}"
+      vpc_subnet_id: "{{ item.vpc_subnet_id }}"
+      instance_type: "{{ item.instance_type }}"
+      image: "{{ item.image }}"
+      instance_tags: "{{ item.instance_tags }}"
+      exact_count: "{{ item.exact_count }}"
+      count_tag: "{{ item.count_tag }}"
+      assign_public_ip: "{{ item.assign_public_ip }}"
+      wait: true
+    register: nflow_perftest_graphite_server
+    with_items: nflow_graphite_instance
+    tags: launch_nflow_graphite_instance
+
