@@ -3,6 +3,9 @@ jdk:
   - openjdk7
   - oraclejdk8
 env:
+  global:
+  - BUILD_SYSTEM=travis
+  matrix:
   - SPRING_PROFILES_ACTIVE=nflow.db.h2
   - SPRING_PROFILES_ACTIVE=nflow.db.postgresql
   - SPRING_PROFILES_ACTIVE=nflow.db.mysql

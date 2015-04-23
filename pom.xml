@@ -124,6 +124,7 @@
     <maven-project-info.version>2.8</maven-project-info.version>
     <maven-release.version>2.5.1</maven-release.version>
     <maven-resources.version>2.7</maven-resources.version>
+    <maven-shade.version>2.3</maven-shade.version>
     <maven-site.version>3.4</maven-site.version>
     <maven-source.version>2.4</maven-source.version>
     <maven-surefire.version>2.18.1</maven-surefire.version>
@@ -179,6 +180,10 @@
           <version>${maven-javadoc.version}</version>
         </plugin>
         <plugin>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven-shade.version}</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven-site.version}</version>
         </plugin>
@@ -231,9 +236,11 @@
             <instrumentation>
               <ignores>
                 <ignore>com/nitorcreations/nflow/tests/**/*.class</ignore>
+                <ignore>com/nitorcreations/nflow/performance/**/*.class</ignore>
               </ignores>
               <excludes>
                 <exclude>com/nitorcreations/nflow/tests/**/*.class</exclude>
+                <exclude>com/nitorcreations/nflow/performance/**/*.class</exclude>
               </excludes>
             </instrumentation>
           </configuration>
@@ -354,6 +361,23 @@
     </plugins>
   </build>
   <profiles>
+    <profile>
+      <activation>
+        <property>
+          <name>env.BUILD_SYSTEM</name>
+          <value>travis</value>
+        </property>
+      </activation>
+      <id>allModules</id>
+      <modules>
+        <module>nflow-rest-api</module>
+        <module>nflow-engine</module>
+        <module>nflow-jetty</module>
+        <module>nflow-tests</module>
+        <module>nflow-metrics</module>
+        <module>nflow-perf-test</module>
+      </modules>
+    </profile>
     <profile>
       <id>release</id>
       <build>

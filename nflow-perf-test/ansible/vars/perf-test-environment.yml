@@ -1,0 +1,55 @@
+---
+# set these parameters to control the region, keypair, and AMI that are launched
+ec2_region: eu-west-1
+instances_keypair: nbank
+# Fedora image
+image_id: ami-e0912c97
+perftest_subnet: subnet-4c0e0338
+perftest_group_ids: ['sg-1ce94879', 'sg-44948426']
+db_name: nflow
+db_user: nflow
+db_password: nflownflow
+ 
+# Instances to launch be launched.
+# If you re-run the playbook after modifying exact_count,
+# instances will be terminated if the actual count > exact_count,
+# or new instances will be launched if actual count < exact_count.
+
+nflow_client_instances:
+  - instance_type: m3.medium
+    image: "{{ image_id }}"
+    assign_public_ip: true
+    keypair: "{{instances_keypair}}"
+    group_id: "{{perftest_group_ids}}"
+    vpc_subnet_id: "{{perftest_subnet}}"
+    instance_tags: 
+        Name: nflow-perftest-nflow-client
+    exact_count: 1
+    count_tag: 
+        Name: nflow-perftest-nflow-client
+
+nflow_server_instances:
+  - instance_type: m3.medium
+    image: "{{ image_id }}"
+    assign_public_ip: true
+    keypair: "{{instances_keypair}}"
+    group_id: "{{perftest_group_ids}}"
+    vpc_subnet_id: "{{perftest_subnet}}"
+    instance_tags: 
+        Name: nflow-perftest-nflow-server
+    exact_count: 1
+    count_tag: 
+        Name: nflow-perftest-nflow-server
+
+nflow_graphite_instance:
+  - instance_type: m3.medium
+    image: ami-6e7bd919
+    assign_public_ip: true
+    keypair: "{{instances_keypair}}"
+    group_id: "{{perftest_group_ids}}"
+    vpc_subnet_id: "{{perftest_subnet}}"
+    instance_tags: 
+        Name: nflow-perftest-graphite-server
+    exact_count: 1
+    count_tag: 
+        Name: nflow-perftest-graphite-server
