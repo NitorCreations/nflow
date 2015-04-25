@@ -1,5 +1,12 @@
-nFlow Explorer changelog
+nFlow Explorer change log
 
+0.0.8 2015-04-25
+================
+
+* Include nv.d3.css in final build
+* Show all non-final states in bar chart
+* Remove x-axis label from bar chart
+* Show stacked bar chart by default
 
 0.0.7 2015-04-14
 ================
