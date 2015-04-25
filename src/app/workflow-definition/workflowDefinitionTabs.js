@@ -39,7 +39,7 @@
                   var c = Math.min(width, height);
                   chart.container.setAttribute('viewBox', '0 0 '+ c +' ' + c );
                   $timeout(function(){
-                    // TODO: kludge workaround for https://github.com/krispo/angular-nvd3/issues/100 
+                    // TODO: kludge workaround for https://github.com/krispo/angular-nvd3/issues/100
                     chart.stacked(true);
                     chart.update();
                   });
@@ -125,7 +125,7 @@
       var statsStateNames = Object.keys(stats.stateStatistics);
       // add any extra state present in stats, but not present in definition
       var allStateNames = definitionStateNames.concat(_.filter(statsStateNames, function(state) {
-        return !_.contains(definitionStateNames, definitionStateNames);
+        return !_.contains(definitionStateNames, state);
       }));
 
       var activeStateNames = _.filter(allStateNames, function(stateName) {
