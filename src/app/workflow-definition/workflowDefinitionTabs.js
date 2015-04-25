@@ -23,7 +23,7 @@
     };
   });
 
-  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller) {
+  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller, $timeout) {
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
@@ -38,6 +38,11 @@
                   chart.container.setAttribute('preserveAspectRatio', 'xMinYMin');
                   var c = Math.min(width, height);
                   chart.container.setAttribute('viewBox', '0 0 '+ c +' ' + c );
+                  $timeout(function(){
+                    // TODO: kludge workaround for https://github.com/krispo/angular-nvd3/issues/100
+                    chart.stacked(true);
+                    chart.update();
+                  });
                 },
                 height: height,
                 width: width,
@@ -59,7 +64,6 @@
                 // TODO this doesn't work
                 stacked: true,
                 xAxis: {
-                    axisLabel: 'States',
                     showMaxMin: false,
                     rotateLabels: 25,
                 },
@@ -115,14 +119,32 @@
      */
     function statsToData(definition, stats) {
       var data = {};
-      // TODO add states from definition
-      var allStateNames = Object.keys(stats.stateStatistics);
+      var definitionStateNames = _.map(definition.states, function(state) {
+        return state.name;
+      });
+      var statsStateNames = Object.keys(stats.stateStatistics);
+      // add any extra state present in stats, but not present in definition
+      var allStateNames = definitionStateNames.concat(_.filter(statsStateNames, function(state) {
+        return !_.contains(definitionStateNames, state);
+      }));
+
+      var activeStateNames = _.filter(allStateNames, function(stateName) {
+        // remove states that are know to be end states
+        var definitionState = _.find(definition.states, {name: stateName});
+        if(!definitionState) {
+          return true;
+        }
+        if(definitionState.type === 'end') {
+          return false;
+        }
+        return true;
+      });
       var allStatusNames = _metaStatuses;
       _.forEach(allStatusNames, function(statusName) {
         if(!data[statusName]) {
           data[statusName] = {
             key: _.startCase(statusName),
-            values: _.map(allStateNames, function(state) {
+            values: _.map(activeStateNames, function(state) {
               return {
                 label: state,
                 value: 0,
@@ -132,12 +154,14 @@
         }
       });
       _.forEach(stats.stateStatistics, function(stateStats, stateName) {
+        if(!_.contains(activeStateNames, stateName)) {
+          return;
+        }
         _.forEach(Object.keys(stateStats), function(statusName) {
           if(!_.contains(allStatusNames, statusName)) {
             return;
           }
           var valueForStatus = _.find(data[statusName].values, {label: stateName});
-
           valueForStatus.value = stateStats[statusName].allInstances || 0;
         });
       });
