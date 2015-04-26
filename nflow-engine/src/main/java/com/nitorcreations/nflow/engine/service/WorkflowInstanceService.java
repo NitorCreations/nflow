@@ -119,6 +119,23 @@ public class WorkflowInstanceService {
   }
 
   /**
+   * Update the workflow instance in the database, and insert the workflow instance action. If action is null, it will be
+   * automatically created.
+   * @param instance The instance to be updated.
+   * @param action The action to be inserted. Can be null.
+   * @deprecated This will be removed in 2.0.0. Use updateWorkflowInstance instead.
+   */
+  @Transactional
+  @Deprecated
+  public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action) {
+    if (action == null) {
+      action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(instance.id).setState(instance.state)
+          .setStateText(instance.stateText).build();
+    }
+    workflowInstanceDao.updateWorkflowInstanceAfterExecution(instance, action);
+  }
+
+  /**
    * Unschedule workflow instance in the database if it is not currently executing, and insert the workflow instance action
    * if the actionDescription is not null.
    *
