@@ -48,11 +48,6 @@ public class WordGeneratorWorkflow extends WorkflowDefinition<WordGeneratorWorkf
     }
 
     @Override
-    public String getName() {
-      return name();
-    }
-
-    @Override
     public String getDescription() {
       return name();
     }

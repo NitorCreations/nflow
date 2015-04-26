@@ -22,11 +22,6 @@ public class TestDefinitionWithStateTypes extends WorkflowDefinition<TestDefinit
     }
 
     @Override
-    public String getName() {
-      return name();
-    }
-
-    @Override
     public String getDescription() {
       return name();
     }
