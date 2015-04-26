@@ -125,6 +125,13 @@ public class WorkflowInstance {
 
   /**
    * The name of the executor group for this workflow instance.
+   * @deprecated Use executorGroup instead. Will be removed in 2.0.
+   */
+  @Deprecated
+  public final String owner;
+
+  /**
+   * The name of the executor group for this workflow instance.
    */
   public final String executorGroup;
 
@@ -146,6 +153,7 @@ public class WorkflowInstance {
     this.created = builder.created;
     this.modified = builder.modified;
     this.started = builder.started;
+    this.owner = builder.executorGroup;
     this.executorGroup = builder.executorGroup;
   }
 
