@@ -41,6 +41,13 @@ public class WorkflowInstanceAction {
 
   /**
    * The workflow instance identifier.
+   * @deprecated Use @{code workflowInstanceId} instead. This will be removed in 2.0.0.
+   */
+  @Deprecated
+  public final int workflowId;
+
+  /**
+   * The workflow instance identifier.
    */
   public final int workflowInstanceId;
 
@@ -86,6 +93,7 @@ public class WorkflowInstanceAction {
 
   WorkflowInstanceAction(Builder builder) {
     this.id = builder.id;
+    this.workflowId = builder.workflowInstanceId;
     this.workflowInstanceId = builder.workflowInstanceId;
     this.executorId = builder.executorId;
     this.type = builder.type;
