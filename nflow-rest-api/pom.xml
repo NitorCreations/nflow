@@ -3,7 +3,12 @@
   <artifactId>nflow-rest-api</artifactId>
   <packaging>jar</packaging>
   <name>nflow-rest-api</name>
-  <url>http://maven.apache.org</url>
+  <description>nFlow REST API</description>
+  <url>http://nflow.io</url>
+  <organization>
+    <name>Nitor Creations</name>
+    <url>http://www.nitorcreations.com</url>
+  </organization>
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>com.nitorcreations</groupId>

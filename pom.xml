@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <description>nFlow Root</description>
   <version>2.0.0-SNAPSHOT</version>
-  <url>https://github.com/NitorCreations/nflow</url>
+  <url>http://nflow.io</url>
   <licenses>
     <license>
       <name>European Union Public Licence V. 1.1</name>
@@ -19,7 +19,7 @@
     <maven>3.2</maven>
   </prerequisites>
   <organization>
-    <name>Nitor Creations Oy</name>
+    <name>Nitor Creations</name>
     <url>http://www.nitorcreations.com</url>
   </organization>
   <inceptionYear>2014</inceptionYear>
@@ -43,37 +43,37 @@
     <developer>
       <name>Esa Puttonen</name>
       <email>esa.puttonen@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Mikko Tiihonen</name>
       <email>mikko.tiihonen@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Markku Rontu</name>
       <email>markku.rontu@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Juha Syrjälä</name>
       <email>juha.syrjala@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Isto Nikula</name>
       <email>isto.nikula@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Edvard Fonsell</name>
       <email>edvard.fonsell@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Janne Sinivirta</name>
       <email>janne.sinivirta@nitorcreations.com</email>
-      <organization>Nitor Creations Oy</organization>
+      <organization>Nitor Creations</organization>
     </developer>
   </developers>
   <modules>

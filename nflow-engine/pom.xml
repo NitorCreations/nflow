@@ -4,7 +4,12 @@
   <artifactId>nflow-engine</artifactId>
   <packaging>jar</packaging>
   <name>nflow-engine</name>
-  <url>http://maven.apache.org</url>
+  <description>nFlow Engine</description>
+  <url>http://nflow.io</url>
+  <organization>
+    <name>Nitor Creations</name>
+    <url>http://www.nitorcreations.com</url>
+  </organization>
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>com.nitorcreations</groupId>
