@@ -49,11 +49,6 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
     }
 
     @Override
-    public String getName() {
-      return name();
-    }
-
-    @Override
     public String getDescription() {
       return description;
     }

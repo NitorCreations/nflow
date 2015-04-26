@@ -33,11 +33,6 @@ public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
     }
 
     @Override
-    public String getName() {
-      return name();
-    }
-
-    @Override
     public String getDescription() {
       return name();
     }

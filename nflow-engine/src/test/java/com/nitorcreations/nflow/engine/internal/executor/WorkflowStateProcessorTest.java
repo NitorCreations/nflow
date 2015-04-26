@@ -624,11 +624,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       }
 
       @Override
-      public String getName() {
-          return name();
-      }
-
-      @Override
       public String getDescription() {
           return name();
       }
@@ -679,11 +674,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       @Override
       public WorkflowStateType getType() {
         return stateType;
-      }
-
-      @Override
-      public String getName() {
-          return name();
       }
 
       @Override
@@ -755,11 +745,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       @Override
       public WorkflowStateType getType() {
         return stateType;
-      }
-
-      @Override
-      public String getName() {
-          return name();
       }
 
       @Override
