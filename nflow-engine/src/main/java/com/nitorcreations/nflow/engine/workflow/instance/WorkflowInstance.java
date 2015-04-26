@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +81,13 @@ public class WorkflowInstance {
   public final DateTime nextActivation;
 
   /**
+   * True when the workflow instance is being processed by an executor, false otherwise.
+   * @deprecated Use {@link WorkflowInstance#status} == {@link WorkflowInstanceStatus#executing} instead.
+   */
+  @Deprecated
+  public final boolean processing;
+
+  /**
    * The state variables. Uses the variable name as the key and serialized variable value as value.
    */
   public final Map<String, String> stateVariables;
@@ -129,6 +138,7 @@ public class WorkflowInstance {
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
+    this.processing = builder.status == executing;
     this.originalStateVariables = builder.originalStateVariables;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
