@@ -29,6 +29,11 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
     }
 
     @Override
+    public String getName() {
+      return name();
+    }
+
+    @Override
     public String getDescription() {
       return null;
     }

@@ -19,6 +19,16 @@ public interface WorkflowState {
   WorkflowStateType getType();
 
   /**
+   * Return the name of the workflow state.
+   *
+   * @return The name.
+   * @deprecated Use name() instead. Will be removed in 2.0.
+   * TODO 2.0: remove
+   */
+  @Deprecated
+  String getName();
+
+  /**
    * Return the description of the workflow state.
    *
    * @return The description.

@@ -120,6 +120,11 @@ public class WorkflowDefinitionScannerTest {
     }
 
     @Override
+    public String getName() {
+      return name();
+    }
+
+    @Override
     public String getDescription() {
       return null;
     }

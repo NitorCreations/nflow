@@ -174,6 +174,11 @@ public class WorkflowDefinitionTest {
       }
 
       @Override
+      public String getName() {
+        return name();
+      }
+
+      @Override
       public String getDescription() {
         return name();
       }

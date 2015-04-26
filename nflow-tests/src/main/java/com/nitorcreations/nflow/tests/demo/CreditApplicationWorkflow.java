@@ -55,6 +55,11 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     }
 
     @Override
+    public String getName() {
+      return name();
+    }
+
+    @Override
     public String getDescription() {
       return description;
     }
