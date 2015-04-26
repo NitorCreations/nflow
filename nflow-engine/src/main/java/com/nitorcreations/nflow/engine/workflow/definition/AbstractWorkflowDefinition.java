@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.workflow.definition;
 
 import static java.lang.String.format;
 import static org.joda.time.DateTime.now;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -23,6 +25,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
  */
 public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
 
+  private static final Logger logger = getLogger(AbstractWorkflowDefinition.class);
   private final String type;
   private String name;
   private String description;
@@ -183,15 +186,14 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     if (stateMethod != null) {
       WorkflowStateType stateType = state.getType();
       Class<?> returnType = stateMethod.method.getReturnType();
-      if (!stateType.isFinal() && !NextAction.class.equals(returnType)) {
-        String msg = format("Class '%s' has a non-final state method '%s' that does not return NextAction", this.getClass()
-            .getName(), state.name());
+      if (Void.TYPE.equals(returnType) && !stateType.isFinal()) {
+        String msg = format(
+            "Class '%s' has %s state method '%s' that does not return NextAction",
+            this.getClass().getName(), stateType.name(), state.name());
         throw new IllegalArgumentException(msg);
-      }
-      if (stateType.isFinal() && !Void.TYPE.equals(returnType)) {
-        String msg = format("Class '%s' has a final state method '%s' that returns a value", this.getClass().getName(),
-            state.name());
-        throw new IllegalArgumentException(msg);
+      } else if (NextAction.class.equals(returnType) && stateType.isFinal()) {
+        logger.warn("Class '{}' has {} state method '{}' that returns NextAction, should return void. Return value will be ignored. Returning NextAction from final state method will be disallowed in nFlow 2.0.0.",
+            this.getClass().getName(), stateType.name(), state.name());
       }
     }
   }
