@@ -15,7 +15,6 @@ public class StateExecutionImpl implements StateExecution {
   private String nextState;
   private String nextStateReason;
   private boolean isRetry;
-  private boolean saveTrace = true;
   private Throwable thrown;
   private boolean isFailed;
   private boolean isRetryCountExceeded;
@@ -35,10 +34,6 @@ public class StateExecutionImpl implements StateExecution {
 
   public String getNextStateReason() {
     return this.nextStateReason;
-  }
-
-  public boolean isSaveTrace() {
-    return this.saveTrace;
   }
 
   public String getCurrentStateName() {
@@ -105,10 +100,6 @@ public class StateExecutionImpl implements StateExecution {
 
   public void setNextStateReason(String reason) {
     this.nextStateReason = reason;
-  }
-
-  public void setSaveTrace(boolean saveTrace) {
-    this.saveTrace = saveTrace;
   }
 
   public boolean isRetry() {
