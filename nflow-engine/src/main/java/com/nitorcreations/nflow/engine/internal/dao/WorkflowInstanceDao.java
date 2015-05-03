@@ -175,8 +175,8 @@ public class WorkflowInstanceDao {
             int p = 1;
             ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
             ps.setString(p++, instance.type);
-            ps.setObject(p++, instance.parentWorkflowId, Types.INTEGER);
-            ps.setObject(p++, instance.parentActionId, Types.INTEGER);
+            ps.setObject(p++, instance.parentWorkflowId);
+            ps.setObject(p++, instance.parentActionId);
             ps.setString(p++, instance.businessKey);
             ps.setString(p++, instance.externalId);
             ps.setString(p++, executorInfo.getExecutorGroup());
@@ -596,7 +596,9 @@ public class WorkflowInstanceDao {
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
         .setExecutorId(executorId)
-          .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
+        .setParentWorkflowId((Integer) rs.getObject("parent_workflow_id"))
+        .setParentActionId((Integer) rs.getObject("parent_action_id"))
+        .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))
         .setExternalId(rs.getString("external_id"))

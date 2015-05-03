@@ -521,27 +521,30 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Test
   public void insertingSubWorkflowWorks() {
     final WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
-    int id = dao.insertWorkflowInstance(i1);
-    assertThat(id, not(equalTo(-1)));
+    int parentWorkflowId = dao.insertWorkflowInstance(i1);
+    assertThat(parentWorkflowId, not(equalTo(-1)));
 
     DateTime started = DateTime.now();
     final WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
             .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setType(stateExecution).setState("test")
             .setStateText("state text")
-            .setWorkflowInstanceId(id).build();
+            .setWorkflowInstanceId(parentWorkflowId).build();
     i1.stateVariables.put("b", "2");
-    int actionId = transaction.execute(new TransactionCallback<Integer>() {
+    int parentActionId = transaction.execute(new TransactionCallback<Integer>() {
       @Override
       public Integer doInTransaction(TransactionStatus status) {
         return dao.insertWorkflowInstanceAction(i1, a1);
       }
     });
-    WorkflowInstance createdInstance = dao.getWorkflowInstance(id);
+    WorkflowInstance createdInstance = dao.getWorkflowInstance(parentWorkflowId);
     checkSameWorkflowInfo(i1, createdInstance);
-
-    final WorkflowInstance subWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(i1.id).setParentActionId(actionId).build();
+    final WorkflowInstance subWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId).setParentActionId(parentActionId).build();
     int subId = dao.insertWorkflowInstance(subWorkflow);
     assertThat(subId, not(equalTo(-1)));
+
+    WorkflowInstance i2 = dao.getWorkflowInstance(subId);
+    assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
+    assertThat(i2.parentActionId, equalTo(parentActionId));
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
