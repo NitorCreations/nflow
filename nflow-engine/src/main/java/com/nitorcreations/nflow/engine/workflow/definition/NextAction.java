@@ -11,7 +11,6 @@ public class NextAction {
   private final DateTime activation;
   private final WorkflowState nextState;
   private final String reason;
-  private final boolean isSaveTrace = true;
 
   private NextAction(DateTime activation, WorkflowState nextState, String reason) {
     this.reason = reason;
@@ -42,14 +41,6 @@ public class NextAction {
    */
   public String getReason() {
     return reason;
-  }
-
-  /**
-   * Check if nFlow should insert an action row to the database for this action.
-   * @return True if action should be inserted, false otherwise.
-   */
-  public boolean isSaveTrace() {
-    return isSaveTrace;
   }
 
   /**
