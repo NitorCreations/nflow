@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -136,12 +137,11 @@ public class WorkflowInstanceDao {
   private int insertWorkflowInstanceWithCte(WorkflowInstance instance) {
     StringBuilder sqlb = new StringBuilder(256);
     sqlb.append("with wf as (" + insertWorkflowInstanceSql() + " returning id)");
-    int pos = 8;
-    Object[] args = Arrays.copyOf(
-        new Object[] { instance.type, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
-            instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
-            toTimestamp(instance.nextActivation) },
-        pos + instance.stateVariables.size() * 2);
+    Object[] instanceValues = new Object[] { instance.type, instance.parentWorkflowId, instance.parentActionId, instance.businessKey,
+            instance.externalId, executorInfo.getExecutorGroup(), instance.status.name(), instance.state,
+            abbreviate(instance.stateText, instanceStateTextLength), toTimestamp(instance.nextActivation) };
+    int pos = instanceValues.length;
+    Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
     for (Entry<String, String> var : instance.stateVariables.entrySet()) {
       sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
           .append(" select wf.id,0,?,? from wf)");
@@ -153,8 +153,9 @@ public class WorkflowInstanceDao {
   }
 
   String insertWorkflowInstanceSql() {
-    return "insert into nflow_workflow(type, business_key, external_id, executor_group, status, state, state_text, "
-        + "next_activation) values (?, ?, ?, ?, " + sqlVariants.castToEnumType("?", "workflow_status") + ", ?, ?, ?)";
+    return "insert into nflow_workflow(type, parent_workflow_id, parent_action_id, business_key, external_id, " +
+            "executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, "
+            + sqlVariants.castToEnumType("?", "workflow_status") + ", ?, ?, ?)";
   }
 
   String insertWorkflowInstanceStateSql() {
@@ -174,6 +175,8 @@ public class WorkflowInstanceDao {
             int p = 1;
             ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
             ps.setString(p++, instance.type);
+            ps.setObject(p++, instance.parentWorkflowId, Types.INTEGER);
+            ps.setObject(p++, instance.parentActionId, Types.INTEGER);
             ps.setString(p++, instance.businessKey);
             ps.setString(p++, instance.externalId);
             ps.setString(p++, executorInfo.getExecutorGroup());
@@ -550,9 +553,10 @@ public class WorkflowInstanceDao {
   }
 
   @Transactional(propagation = MANDATORY)
-  public void insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
+  public int insertWorkflowInstanceAction(final WorkflowInstance instance, final WorkflowInstanceAction action) {
     int actionId = insertWorkflowInstanceAction(action);
     insertVariables(action.workflowInstanceId, actionId, instance.stateVariables, instance.originalStateVariables);
+    return actionId;
   }
 
   @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")

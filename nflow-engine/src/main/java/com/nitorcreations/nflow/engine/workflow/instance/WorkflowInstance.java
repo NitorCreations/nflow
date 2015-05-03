@@ -44,6 +44,16 @@ public class WorkflowInstance {
   public final Integer executorId;
 
   /**
+   * The id of the workflow that created this sub workflow. Is null for parent workflows.
+   */
+  public final Integer parentWorkflowId;
+
+  /**
+   * The id of the workflow action that created this sub workflow.  Is null for parent workflows.
+   */
+  public final Integer parentActionId;
+
+  /**
    * The current status of the workflow instance.
    */
   public final WorkflowInstanceStatus status;
@@ -122,6 +132,8 @@ public class WorkflowInstance {
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.executorId = builder.executorId;
+    this.parentWorkflowId = builder.parentWorkflowId;
+    this.parentActionId = builder.parentActionId;
     this.status = builder.status;
     this.type = builder.type;
     this.businessKey = builder.businessKey;
@@ -146,6 +158,8 @@ public class WorkflowInstance {
 
     Integer id;
     Integer executorId;
+    Integer parentWorkflowId;
+    Integer parentActionId;
     WorkflowInstanceStatus status;
     String type;
     String businessKey;
@@ -185,6 +199,8 @@ public class WorkflowInstance {
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
       this.executorId = copy.executorId;
+      this.parentWorkflowId = copy.parentWorkflowId;
+      this.parentActionId = copy.parentActionId;
       this.status = copy.status;
       this.type = copy.type;
       this.businessKey = copy.businessKey;
@@ -217,6 +233,26 @@ public class WorkflowInstance {
      */
     public Builder setExecutorId(Integer executorId) {
       this.executorId = executorId;
+      return this;
+    }
+
+    /**
+     * Set the parent workflow identifier.
+     * @param parentWorkflowId The identifier.
+     * @return this.
+     */
+    public Builder setParentWorkflowId(Integer parentWorkflowId) {
+      this.parentWorkflowId = parentWorkflowId;
+      return this;
+    }
+
+    /**
+     * Set the parent workflow identifier.
+     * @param parentActionId The identifier.
+     * @return this.
+     */
+    public Builder setParentActionId(Integer parentActionId) {
+      this.parentActionId = parentActionId;
       return this;
     }
 
