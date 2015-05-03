@@ -3,6 +3,8 @@ create table if not exists nflow_workflow (
   id serial primary key,
   status workflow_status not null,
   type varchar(64) not null,
+  parent_workflow_id integer default null,
+  parent_action_id integer default null,
   business_key varchar(64),
   external_id varchar(64) not null,
   state varchar(64) not null,
@@ -43,6 +45,9 @@ create table if not exists nflow_workflow_action (
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade,
   constraint nflow_workflow_action_uniq unique (workflow_id, id)
 );
+
+alter table nflow_workflow add constraint fk_workflow_parent
+  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
 
 create table if not exists nflow_workflow_state (
   workflow_id int not null,
