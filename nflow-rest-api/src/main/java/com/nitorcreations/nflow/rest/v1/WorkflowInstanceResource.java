@@ -151,7 +151,7 @@ public class WorkflowInstanceResource {
   @Path("/{id}")
   @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)
   public ListWorkflowInstanceResponse fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id) {
-    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[] { id }, new String[0],
+    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[] { id }, new String[0], null,
         new String[0], new WorkflowInstanceStatus[0], null, null, actions + "," + currentStateVariables + "," + actionStateVariables, 1L);
     if (instances.isEmpty()) {
       throw new NotFoundException(format("Workflow instance %s not found", id));
@@ -164,6 +164,7 @@ public class WorkflowInstanceResource {
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("id") @ApiParam(value = "Internal id of workflow instance") Integer[] ids,
       @QueryParam("type") @ApiParam(value = "Type of workflow instance") String[] types,
+      @QueryParam("parentWorkflowId") @ApiParam(value = "Id of parent workflow instance") Integer parentWorkflowId,
       @QueryParam("state") @ApiParam(value = "Current state of workflow instance") String[] states,
       @QueryParam("status") @ApiParam(value = "Current status of workflow instance") WorkflowInstanceStatus[] statuses,
       @QueryParam("businessKey") @ApiParam(value = "Business key for workflow instance") String businessKey,
@@ -172,8 +173,8 @@ public class WorkflowInstanceResource {
           + "," + actions + "," + actionStateVariables, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam(value = "Maximum number of workflow instances to be returned") Long maxResults) {
     List<String> includes = parseIncludes(include);
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).addStatuses(statuses)
-        .setBusinessKey(businessKey).setExternalId(externalId)
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).setParentWorkflowId(parentWorkflowId)
+        .addStates(states).addStatuses(statuses).setBusinessKey(businessKey).setExternalId(externalId)
         .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)).setIncludeActions(includes.contains(actions))
         .setIncludeActionStateVariables(includes.contains(actionStateVariables)).setMaxResults(maxResults).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);

@@ -499,6 +499,14 @@ public class WorkflowInstanceDao {
       conditions.add("w.type in (:types)");
       params.addValue("types", query.types);
     }
+    if (query.parentWorkflowId != null) {
+      conditions.add("w.parent_workflow_id = :parent_workflow_id");
+      params.addValue("parent_workflow_id", query.parentWorkflowId);
+    }
+    if (query.parentActionId != null) {
+      conditions.add("w.parent_action_id = :parent_action_id");
+      params.addValue("parent_action_id", query.parentActionId);
+    }
     if (!isEmpty(query.states)) {
       conditions.add("w.state in (:states)");
       params.addValue("states", query.states);

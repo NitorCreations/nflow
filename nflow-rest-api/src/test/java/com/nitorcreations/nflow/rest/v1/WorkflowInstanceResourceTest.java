@@ -192,12 +192,13 @@ public class WorkflowInstanceResourceTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {
-      resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, new String[] { "state" },
+      resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, 99, new String[] { "state" },
               new WorkflowInstance.WorkflowInstanceStatus[] { WorkflowInstanceStatus.created },
               "businessKey", "externalId", "", 1L);
       verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
         hasField("types", contains("type")),
+        hasField("parentWorkflowId", is(99)),
         hasField("states", contains("state")),
         hasField("statuses", contains(WorkflowInstanceStatus.created)),
         hasField("businessKey", equalTo("businessKey")),
@@ -210,12 +211,13 @@ public class WorkflowInstanceResourceTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorksWithActionAndStateVariableFetches() {
-      resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, new String[] { "state" },
+      resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, 99, new String[] { "state" },
               new WorkflowInstance.WorkflowInstanceStatus[] { WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing },
               "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables", 1L);
       verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42)),
         hasField("types", contains("type")),
+        hasField("parentWorkflowId", is(99)),
         hasField("states", contains("state")),
         hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
         hasField("businessKey", equalTo("businessKey")),
