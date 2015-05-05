@@ -76,14 +76,24 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void queryWorkflowInstanceWithAllConditions() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("b", "2");
-    int id = dao.insertWorkflowInstance(i1);
-    assertThat(id, not(equalTo(-1)));
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(id).addTypes(i1.type).addStates(i1.state).addStatuses(i1.status)
-        .setBusinessKey(i1.businessKey).setExternalId(i1.externalId).setIncludeActions(true)
+    int workflowId = dao.insertWorkflowInstance(i1);
+    assertThat(workflowId, not(equalTo(-1)));
+
+    WorkflowInstanceAction action = constructActionBuilder(workflowId).build();
+    int actionId = dao.insertWorkflowInstanceAction(action);
+
+    WorkflowInstance child = constructWorkflowInstanceBuilder().setParentWorkflowId(workflowId)
+            .setParentActionId(actionId).build();
+    int childId = dao.insertWorkflowInstance(child);
+    assertThat(childId, not(equalTo(-1)));
+
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(childId).addTypes(child.type)
+        .addStates(child.state).addStatuses(i1.status).setParentWorkflowId(workflowId).setParentActionId(actionId)
+        .setBusinessKey(child.businessKey).setExternalId(child.externalId).setIncludeActions(true)
         .setIncludeActionStateVariables(true).setIncludeCurrentStateVariables(true).build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
-    checkSameWorkflowInfo(i1, l.get(0));
+    checkSameWorkflowInfo(child, l.get(0));
   }
 
   @Test

@@ -1,10 +1,12 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import org.joda.time.DateTime;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -29,6 +31,12 @@ public abstract class BaseNflowTest {
       .setStateVariables(new LinkedHashMap<String,String>() {{put("requestData", "{ \"parameter\": \"abc\" }"); }});
   }
 
+  protected WorkflowInstanceAction.Builder constructActionBuilder(int workflowInstanceID) {
+    return new WorkflowInstanceAction.Builder().setExecutionStart(DateTime.now()).setExecutorId(42)
+            .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setType(stateExecution).setState("test")
+            .setStateText("state text")
+            .setWorkflowInstanceId(workflowInstanceID);
+  }
   protected WorkflowInstance.Builder executingInstanceBuilder() {
     return constructWorkflowInstanceBuilder().setId(1).setStatus(executing);
   }

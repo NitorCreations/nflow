@@ -23,6 +23,16 @@ public class QueryWorkflowInstances {
   public final List<String> types;
 
   /**
+   * Parent workflow instance id.
+   */
+  public Integer parentWorkflowId;
+
+  /**
+   * Parent workflow action id.
+   */
+  public Integer parentActionId;
+
+  /**
    * Workflow instance states.
    */
   public final List<String> states;
@@ -67,6 +77,8 @@ public class QueryWorkflowInstances {
   QueryWorkflowInstances(Builder builder) {
     this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
+    this.parentWorkflowId = builder.parentWorkflowId;
+    this.parentActionId = builder.parentActionId;
     this.states = new ArrayList<>(builder.states);
     this.statuses = new ArrayList<>(builder.statuses);
     this.businessKey = builder.businessKey;
@@ -83,6 +95,8 @@ public class QueryWorkflowInstances {
   public static class Builder {
     List<Integer> ids = new ArrayList<>();
     List<String> types = new ArrayList<>();
+    Integer parentWorkflowId;
+    Integer parentActionId;
     List<String> states = new ArrayList<>();
     List<WorkflowInstanceStatus> statuses = new ArrayList<>();
     String businessKey;
@@ -91,6 +105,7 @@ public class QueryWorkflowInstances {
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
     Long maxResults;
+
 
     /**
      * Create a workflow instance query builder.
@@ -115,6 +130,26 @@ public class QueryWorkflowInstances {
      */
     public Builder addTypes(String ... newTypes) {
       this.types.addAll(asList(newTypes));
+      return this;
+    }
+
+    /**
+     * Set parent workflow instance id to query parameters.
+     * @param parentWorkflowId The parent workflow instance id.
+     * @return this.
+     */
+    public Builder setParentWorkflowId(Integer parentWorkflowId) {
+      this.parentWorkflowId = parentWorkflowId;
+      return this;
+    }
+
+    /**
+     * Set parent action id to query parameters.
+     * @param parentActionId The parent action id.
+     * @return this.
+     */
+    public Builder setParentActionId(Integer parentActionId) {
+      this.parentActionId = parentActionId;
       return this;
     }
 
