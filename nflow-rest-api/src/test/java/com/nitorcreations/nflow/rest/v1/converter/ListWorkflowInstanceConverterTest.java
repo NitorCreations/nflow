@@ -51,7 +51,7 @@ public class ListWorkflowInstanceConverterTest {
     stateVariables.put("bar", "quux");
 
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
-        .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
+        .setBusinessKey("businessKey").setParentWorkflowId(942).setParentActionId(842).setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(asList(a)).setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2))
         .setModified(now().minusHours(1)).setRetries(42).setStateVariables(stateVariables).build();
 
@@ -61,13 +61,15 @@ public class ListWorkflowInstanceConverterTest {
     when(nflowObjectMapper.readTree("quux")).thenReturn(nodeQuux);
 
     ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder()
-                .setIncludeActions(true).setIncludeCurrentStateVariables(true).build());
+            .setIncludeActions(true).setIncludeCurrentStateVariables(true).build());
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
     assertThat(resp.type, is(i.type));
+    assertThat(resp.parentWorkflowId, is(i.parentWorkflowId));
+    assertThat(resp.parentActionId, is(i.parentActionId));
     assertThat(resp.businessKey, is(i.businessKey));
     assertThat(resp.externalId, is(i.externalId));
     assertThat(resp.state, is(i.state));
@@ -93,6 +95,8 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
     assertThat(resp.type, is(i.type));
+    assertThat(resp.parentWorkflowId, nullValue());
+    assertThat(resp.parentActionId, nullValue());
     assertThat(resp.businessKey, is(i.businessKey));
     assertThat(resp.externalId, is(i.externalId));
     assertThat(resp.state, is(i.state));

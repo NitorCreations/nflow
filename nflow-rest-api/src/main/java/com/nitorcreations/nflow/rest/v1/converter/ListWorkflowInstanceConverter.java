@@ -35,6 +35,8 @@ public class ListWorkflowInstanceConverter {
     resp.id = instance.id;
     resp.status = instance.status.name();
     resp.type = instance.type;
+    resp.parentWorkflowId = instance.parentWorkflowId;
+    resp.parentActionId = instance.parentActionId;
     resp.businessKey = instance.businessKey;
     resp.externalId = instance.externalId;
     resp.state = instance.state;
