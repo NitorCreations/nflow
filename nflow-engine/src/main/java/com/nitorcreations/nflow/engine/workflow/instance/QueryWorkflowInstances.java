@@ -113,6 +113,20 @@ public class QueryWorkflowInstances {
     public Builder() {
     }
 
+    public Builder(QueryWorkflowInstances copy) {
+      this.ids = copy.ids;
+      this.types = copy.types;
+      this.parentWorkflowId = copy.parentWorkflowId;
+      this.parentActionId = copy.parentActionId;
+      this.states = copy.states;
+      this.statuses = copy.statuses;
+      this.businessKey = copy.businessKey;
+      this.externalId = copy.externalId;
+      this.includeActions = copy.includeActions;
+      this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
+      this.includeActionStateVariables = copy.includeActionStateVariables;
+      this.maxResults = copy.maxResults;
+    }
     /**
      * Add identifiers to query parameters.
      * @param newIds The identifiers.

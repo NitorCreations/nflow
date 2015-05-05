@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
@@ -7,10 +9,13 @@ import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
+import java.util.List;
+
 public class StateExecutionImpl implements StateExecution {
 
   private final WorkflowInstance instance;
   private final ObjectStringMapper objectMapper;
+  private final WorkflowInstanceDao workflowDao;
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
@@ -19,9 +24,10 @@ public class StateExecutionImpl implements StateExecution {
   private boolean isFailed;
   private boolean isRetryCountExceeded;
 
-  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
+  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao) {
     this.instance = instance;
     this.objectMapper = objectMapper;
+    this.workflowDao = workflowDao;
   }
 
   public DateTime getNextActivation() {
@@ -133,6 +139,14 @@ public class StateExecutionImpl implements StateExecution {
 
   public void setRetryCountExceeded() {
     isRetryCountExceeded = true;
+  }
+
+  // TODO add tests
+  @Override
+  public List<WorkflowInstance> getChildWorkflows(QueryWorkflowInstances query) {
+    QueryWorkflowInstances restrictedQuery = new QueryWorkflowInstances.Builder(query)
+            .setParentWorkflowId(instance.id).build();
+    return workflowDao.queryWorkflowInstances(restrictedQuery);
   }
 
 }

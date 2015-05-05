@@ -1,5 +1,10 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+
+import java.util.List;
+
 /**
  * Provides access to workflow instance information.
  *
@@ -81,4 +86,12 @@ public interface StateExecution {
    * @return The external id of the workflow instance.
    */
   String getWorkflowInstanceExternalId();
+
+  /**
+   * Return child workflow instances for current workflow. Query is restricted to childs of current workflow.
+   * @param query The query criterias.
+   * @return List of child workflows that match the query.
+   */
+  List<WorkflowInstance> getChildWorkflows(QueryWorkflowInstances query);
+
 }

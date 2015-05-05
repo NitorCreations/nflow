@@ -6,6 +6,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -24,10 +25,10 @@ import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateT
  */
 public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.State> {
     public static final String WORKFLOW_TYPE = "fibonacci";
-    private static final Logger log = LoggerFactory.getLogger(FibonacciWorkflow.class);
+    private static final Logger logger = LoggerFactory.getLogger(FibonacciWorkflow.class);
 
     public static enum State implements WorkflowState {
-        begin(start), nMinus1(normal), nMinus2(normal), done(end), error(manual);
+        begin(start), nMinus1(normal), nMinus2(normal), poll(normal), done(end), error(manual);
 
         private WorkflowStateType type;
 
@@ -55,41 +56,76 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         super(WORKFLOW_TYPE, State.begin, State.error);
         permit(State.begin, State.nMinus2);
         permit(State.nMinus2, State.nMinus1);
-        permit(State.nMinus2, State.done);
+        permit(State.nMinus2, State.poll);
+        permit(State.nMinus1, State.poll);
         permit(State.nMinus1, State.done);
+        permit(State.nMinus2, State.done);
+        permit(State.poll, State.done);
     }
 
     public NextAction begin(StateExecution execution,  @StateVar(value="requestData", readOnly=true) int n) {
-        log.info("Fibonacci step N = {}", n);
-        return NextAction.moveToState(State.nMinus2, "Starting N = " + n );
+        logger.info("Fibonacci step N = {}", n);
+        execution.setVariable("result", 0);
+        return NextAction.moveToState(State.nMinus2, "Starting N = " + n);
     }
 
     public NextAction nMinus2(StateExecution execution, @StateVar(value="requestData", readOnly=true) int n) {
-        return nextStep(n - 2, 2, State.nMinus1);
+        return nextStep(execution, n - 2, 2, State.nMinus1);
     }
 
     public NextAction nMinus1(StateExecution execution, @StateVar(value="requestData", readOnly = true) int n) {
-        return nextStep(n - 1, 1, State.done);
+        return nextStep(execution, n - 1, 1, State.poll);
     }
 
-    private NextAction nextStep(int nextN, int offset, State nextState) {
-        if(nextN < 1) {
-            log.info("nextN = {}. skipping to done", nextN);
-            return NextAction.moveToState(State.done, "N - " + offset + " = " + nextN + ". Going to end.");
+    private NextAction nextStep(StateExecution execution, int nextN, int offset, State nextState) {
+        if(nextN < 2) {
+            logger.info("nextN = {}. skipping to done", nextN);
+            execution.setVariable("result", execution.getVariable("result", Integer.class) + 1);
+            return NextAction.moveToState(nextState, "N - " + offset + " = " + nextN + ". Going to end.");
         }
-        log.info("Create child workflow N={}", nextN);
+
+        execution.setVariable("childrenCount", String.valueOf(getChildrenCount(execution) + 1));
+        logger.info("Create child workflow N={}", nextN);
         List<WorkflowInstance> childWorkflows = Arrays.asList(createWorkflow(nextN));
         return NextAction.moveToState(nextState, childWorkflows, "Creating childWorkflow to process f(" + nextN + ")");
     }
 
-    public void done(StateExecution execution,  @StateVar(value="requestData", readOnly=true) int n) {
-        // TODO fetch N values from childs, and sum them
-        log.info("We are done N = " + n);
+    private int getChildrenCount(StateExecution execution) {
+        try {
+            return execution.getVariable("childrenCount", Integer.class);
+        } catch (RuntimeException e) {
+            return 0;
+        }
     }
 
+    public NextAction poll(StateExecution execution, @StateVar(value="requestData") int n) {
+        // get finished and failed child workflows
+        List<WorkflowInstance> children = execution.getChildWorkflows(new QueryWorkflowInstances.Builder()
+                .addStatuses(manual.getStatus(), end.getStatus()).build());
+        if(children.size() < getChildrenCount(execution)) {
+            return NextAction.retryAfter(DateTime.now().plusSeconds(10), "Child workflows are not ready yet.");
+        }
+        int sum = 0;
+        for(WorkflowInstance child : children) {
+            if(child.status != WorkflowInstance.WorkflowInstanceStatus.finished) {
+                return NextAction.stopInState(State.error, "Some of the children failed");
+            }
+            sum += execution.getVariable("result", Integer.class);
+        }
+        execution.setVariable("result", sum);
+        return NextAction.moveToState(State.done, "All is good");
+    }
+
+    public void done(StateExecution execution, @StateVar(value="requestData") int n, @StateVar(value="result") int result) {
+        logger.info("We are done: fibonacci({}) == {}", n, result);
+    }
+
+    public void error(StateExecution execution, @StateVar(value="requestData") int n, @StateVar(value="result") int result) {
+        logger.error("Failed to compute F({})", n);
+    }
     private WorkflowInstance createWorkflow(int n) {
-        // TODO these must be set
-        // TODO must check that type exists
+        // TODO these must be set by engine
+        // TODO must check that type exists etc
         WorkflowInstance child = new WorkflowInstance.Builder()
                 .setType(FibonacciWorkflow.WORKFLOW_TYPE)
                 .setStatus(WorkflowInstance.WorkflowInstanceStatus.created)

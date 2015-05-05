@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -149,6 +151,11 @@ public class WorkflowInstance {
     this.modified = builder.modified;
     this.started = builder.started;
     this.executorGroup = builder.executorGroup;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).toString();
   }
 
   /**
