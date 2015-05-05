@@ -36,6 +36,9 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.Workfl
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
+import java.util.Arrays;
+import java.util.List;
+
 class WorkflowStateProcessor implements Runnable {
 
   private static final Logger logger = getLogger(WorkflowStateProcessor.class);
@@ -103,9 +106,10 @@ class WorkflowStateProcessor implements Runnable {
         rescheduleUnknownWorkflowState(instance);
         return;
       }
+      NextAction nextAction = null;
       try {
         processBeforeListeners(listenerContext);
-        NextAction nextAction = processState(instance, definition, execution, state);
+        nextAction = processState(instance, definition, execution, state);
         if (listenerContext != null) {
           listenerContext.nextAction = nextAction;
         }
@@ -123,7 +127,7 @@ class WorkflowStateProcessor implements Runnable {
           processAfterListeners(listenerContext);
         }
         subsequentStateExecutions = busyLoopPrevention(settings, subsequentStateExecutions, execution);
-        instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
+        instance = saveWorkflowInstanceState(execution, instance, definition, nextAction, actionBuilder);
       }
     }
     logger.debug("Finished.");
@@ -170,7 +174,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-      WorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+      WorkflowDefinition<?> definition, NextAction nextAction, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
@@ -182,7 +186,10 @@ class WorkflowStateProcessor implements Runnable {
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
-    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
+
+    // TODO this null check is due to lazy test writer
+    List<WorkflowInstance> childWorkflows = nextAction != null ? nextAction.getChildWorkflows() : Arrays.<WorkflowInstance>asList();
+    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(), childWorkflows);
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 

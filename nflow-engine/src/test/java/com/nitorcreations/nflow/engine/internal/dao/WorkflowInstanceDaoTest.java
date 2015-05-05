@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   WorkflowInstanceDao dao;
   @Inject
   TransactionTemplate transaction;
+  List<WorkflowInstance> noChildWorkflows = Arrays.<WorkflowInstance>asList();
 
   @Test
   public void roundTripTest() {
@@ -113,7 +115,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
         .setWorkflowInstanceId(id).setType(stateExecution).build();
-    dao.updateWorkflowInstanceAfterExecution(i2, a1);
+    dao.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows);
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -338,7 +340,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setType(externalChange).setState("test")
         .setStateText("state text").setWorkflowInstanceId(43).build();
 
-    d.updateWorkflowInstanceAfterExecution(i2, a1);
+    d.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows);
     assertEquals(
         "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = ?, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
         sql.getValue());

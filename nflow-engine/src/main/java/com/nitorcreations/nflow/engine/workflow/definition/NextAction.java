@@ -2,20 +2,32 @@ package com.nitorcreations.nflow.engine.workflow.definition;
 
 import static org.joda.time.DateTime.now;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import org.joda.time.DateTime;
 
 import com.nitorcreations.nflow.engine.internal.executor.InvalidNextActionException;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class NextAction {
 
   private final DateTime activation;
   private final WorkflowState nextState;
   private final String reason;
+  private final List<WorkflowInstance> childWorkflows;
 
   private NextAction(DateTime activation, WorkflowState nextState, String reason) {
+    this(activation, nextState, Arrays.<WorkflowInstance>asList(), reason);
+  }
+
+  private NextAction(DateTime activation, WorkflowState nextState,
+                     List<WorkflowInstance> childWorkflows, String reason) {
     this.reason = reason;
     this.nextState = nextState;
     this.activation = activation;
+    this.childWorkflows = Collections.unmodifiableList(childWorkflows);
   }
 
   /**
@@ -68,6 +80,22 @@ public class NextAction {
   }
 
   /**
+   * Schedule processing of state {@code nextState} at time {@code activation}.
+   * @param nextState The next workflow state.
+   * @param activation The time after which the workflow can be activated.
+   * @param childWorkflows list of child workflows to create.
+   * @param reason The reason for the action.
+   * @return A valid {@code NextAction} value.
+   */
+  public static NextAction moveToStateAfter(WorkflowState nextState, DateTime activation,
+                                            List<WorkflowInstance> childWorkflows, String reason) {
+    assertNotNull(nextState, "Next state can not be null");
+    assertNotNull(activation, "Activation can not be null");
+    assertNotNull(childWorkflows, "childWorkflows can not be null");
+    return new NextAction(activation, nextState, childWorkflows, reason);
+  }
+
+  /**
    * Schedule processing of state {@code nextState} immediately.
    * @param nextState The next workflow state.
    * @param reason The reason for the action.
@@ -76,6 +104,19 @@ public class NextAction {
   public static NextAction moveToState(WorkflowState nextState, String reason) {
     assertNotNull(nextState, "Next state can not be null");
     return new NextAction(now(), nextState, reason);
+  }
+
+  /**
+   * Schedule processing of state {@code nextState} immediately.
+   * @param nextState The next workflow state.
+   * @param childWorkflows list of child workflows to create.
+   * @param reason The reason for the action.
+   * @return A valid {@code NextAction} value.
+   */
+  public static NextAction moveToState(WorkflowState nextState, List<WorkflowInstance> childWorkflows, String reason) {
+    assertNotNull(nextState, "Next state can not be null");
+    assertNotNull(childWorkflows, "childWorkflows can not be null");
+    return new NextAction(now(), nextState, childWorkflows, reason);
   }
 
   /**
@@ -116,4 +157,13 @@ public class NextAction {
   public boolean isRetry() {
     return nextState == null;
   }
+
+  /**
+   * Return list of child workflows.
+   * @return list of child workflows.
+   */
+  public List<WorkflowInstance> getChildWorkflows() {
+    return childWorkflows;
+  }
+
 }
