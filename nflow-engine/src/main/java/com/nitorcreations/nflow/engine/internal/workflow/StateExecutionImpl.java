@@ -9,6 +9,8 @@ import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class StateExecutionImpl implements StateExecution {
@@ -23,6 +25,7 @@ public class StateExecutionImpl implements StateExecution {
   private Throwable thrown;
   private boolean isFailed;
   private boolean isRetryCountExceeded;
+  private List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao) {
     this.instance = instance;
@@ -141,9 +144,21 @@ public class StateExecutionImpl implements StateExecution {
     isRetryCountExceeded = true;
   }
 
+  public void addChildWorkflows(WorkflowInstance ... childWorkflows) {
+    Assert.notNull(childWorkflows, "childWorkflows can not be null");
+    for(WorkflowInstance child : childWorkflows) {
+      Assert.notNull(child, "childWorkflow can not be null");
+      newChildWorkflows.add(child);
+    }
+  }
+
+  public List<WorkflowInstance> getNewChildWorkflows() {
+    return Collections.unmodifiableList(newChildWorkflows);
+  }
+
   // TODO add tests
   @Override
-  public List<WorkflowInstance> getChildWorkflows(QueryWorkflowInstances query) {
+  public List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query) {
     QueryWorkflowInstances restrictedQuery = new QueryWorkflowInstances.Builder(query)
             .setParentWorkflowId(instance.id).build();
     return workflowDao.queryWorkflowInstances(restrictedQuery);

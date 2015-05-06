@@ -86,8 +86,8 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
 
         execution.setVariable("childrenCount", String.valueOf(getChildrenCount(execution) + 1));
         logger.info("Create child workflow N={}", nextN);
-        List<WorkflowInstance> childWorkflows = Arrays.asList(createWorkflow(nextN));
-        return NextAction.moveToState(nextState, childWorkflows, "Creating childWorkflow to process f(" + nextN + ")");
+        execution.addChildWorkflows(createWorkflow(nextN));
+        return NextAction.moveToState(nextState, "Creating childWorkflow to process f(" + nextN + ")");
     }
 
     private int getChildrenCount(StateExecution execution) {
@@ -100,7 +100,7 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
 
     public NextAction poll(StateExecution execution, @StateVar(value="requestData") int n) {
         // get finished and failed child workflows
-        List<WorkflowInstance> children = execution.getChildWorkflows(new QueryWorkflowInstances.Builder()
+        List<WorkflowInstance> children = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
                 .addStatuses(manual.getStatus(), end.getStatus()).build());
         if(children.size() < getChildrenCount(execution)) {
             int delay = new Random().nextInt(5) + 1;

@@ -106,10 +106,10 @@ class WorkflowStateProcessor implements Runnable {
         rescheduleUnknownWorkflowState(instance);
         return;
       }
-      NextAction nextAction = null;
+
       try {
         processBeforeListeners(listenerContext);
-        nextAction = processState(instance, definition, execution, state);
+        NextAction nextAction = processState(instance, definition, execution, state);
         if (listenerContext != null) {
           listenerContext.nextAction = nextAction;
         }
@@ -127,7 +127,7 @@ class WorkflowStateProcessor implements Runnable {
           processAfterListeners(listenerContext);
         }
         subsequentStateExecutions = busyLoopPrevention(settings, subsequentStateExecutions, execution);
-        instance = saveWorkflowInstanceState(execution, instance, definition, nextAction, actionBuilder);
+        instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
       }
     }
     logger.debug("Finished.");
@@ -174,7 +174,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-      WorkflowDefinition<?> definition, NextAction nextAction, WorkflowInstanceAction.Builder actionBuilder) {
+      WorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
@@ -187,9 +187,8 @@ class WorkflowStateProcessor implements Runnable {
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
 
-    // TODO this null check is due to lazy test writer
-    List<WorkflowInstance> childWorkflows = nextAction != null ? nextAction.getChildWorkflows() : Arrays.<WorkflowInstance>asList();
-    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(), childWorkflows);
+    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+            execution.getNewChildWorkflows());
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 

@@ -88,10 +88,18 @@ public interface StateExecution {
   String getWorkflowInstanceExternalId();
 
   /**
+   * Add a new child workflow. Child workflows are stored to database scheduled after current
+   * state method exists successfully.
+   * Note that Child workflows are not visible to queryChildWorkflows() method before they are stored to database.
+   * @param childWorkflows
+   */
+  void addChildWorkflows(WorkflowInstance ... childWorkflows);
+
+  /**
    * Return child workflow instances for current workflow. Query is restricted to childs of current workflow.
    * @param query The query criterias.
    * @return List of child workflows that match the query.
    */
-  List<WorkflowInstance> getChildWorkflows(QueryWorkflowInstances query);
+  List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query);
 
 }
