@@ -352,7 +352,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     d.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows);
     assertEquals(
-        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = ?, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
+        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = least(?, external_next_activation), external_next_activation = null, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
@@ -454,7 +454,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(j.queryForList(sql.capture(), eq(Integer.class))).thenReturn(asList(1, 2, 3));
     assertThat(d.pollNextWorkflowInstanceIds(5), is(asList(1, 2, 3)));
     assertEquals(
-            "update nflow_workflow set executor_id = 42, status = 'executing' where id in (select id from nflow_workflow where executor_id is null and status in ('created', 'inProgress') and next_activation < current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
+            "update nflow_workflow set executor_id = 42, status = 'executing', external_next_activation = null where id in (select id from nflow_workflow where executor_id is null and status in ('created', 'inProgress') and next_activation < current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
             sql.getValue());
   }
 

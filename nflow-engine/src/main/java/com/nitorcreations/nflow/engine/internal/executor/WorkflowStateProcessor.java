@@ -36,8 +36,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.Workfl
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
 class WorkflowStateProcessor implements Runnable {
 
@@ -187,9 +186,33 @@ class WorkflowStateProcessor implements Runnable {
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
 
-    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            execution.getNewChildWorkflows());
+
+
+    if(!execution.isFailed()) {
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+              execution.getNewChildWorkflows());
+      processSuccess(execution, instance);
+    } else {
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+              Collections.<WorkflowInstance>emptyList());
+    }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
+  }
+
+  private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
+    if(execution.wakeUpParentWorkflowTriggered()) {
+      if(instance.parentWorkflowId != null) {
+        logger.debug("wake up {}", instance.parentWorkflowId);
+        boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId);
+        if(notified) {
+          logger.info("Woke up parent workflow instance {}", instance.parentWorkflowId);
+        } else {
+          logger.warn("Failed to wake up parent workflow instace {}", instance.parentWorkflowId);
+        }
+      } else {
+        logger.warn("Workflow {} trying to wake up non existing parent workflow", instance.type);
+      }
+    }
   }
 
   private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {

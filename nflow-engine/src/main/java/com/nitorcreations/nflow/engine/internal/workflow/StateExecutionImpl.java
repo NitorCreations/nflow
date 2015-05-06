@@ -25,6 +25,7 @@ public class StateExecutionImpl implements StateExecution {
   private Throwable thrown;
   private boolean isFailed;
   private boolean isRetryCountExceeded;
+  private boolean wakeUpParentWorkflow = false;
   private List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao) {
@@ -164,4 +165,13 @@ public class StateExecutionImpl implements StateExecution {
     return workflowDao.queryWorkflowInstances(restrictedQuery);
   }
 
+  // TODO add tests
+  @Override
+  public void wakeUpParentWorkflow() {
+    wakeUpParentWorkflow = true;
+  }
+
+  public boolean wakeUpParentWorkflowTriggered() {
+    return wakeUpParentWorkflow;
+  }
 }

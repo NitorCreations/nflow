@@ -113,7 +113,7 @@ public class WorkflowInstanceDao {
   public void setEnvironment(Environment env) {
     workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
     workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
-        Long.class);
+            Long.class);
   }
 
   @PostConstruct
@@ -240,17 +240,17 @@ public class WorkflowInstanceDao {
 
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action, List<WorkflowInstance> childWorkflows) {
     if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
-      updateWorkflowInstanceWithCte(instance, action);
+      updateWorkflowInstanceWithCTE(instance, action);
     } else {
       updateWorkflowInstanceWithTransaction(instance, action, childWorkflows);
     }
   }
 
   public void updateWorkflowInstance(WorkflowInstance instance) {
-    jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
-        abbreviate(instance.stateText, instanceStateTextLength), toTimestamp(instance.nextActivation),
-        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries,
-        instance.id);
+    jdbc.update(updateWorkflowInstanceExternalActivationSql(), instance.status.name(), instance.state,
+            abbreviate(instance.stateText, instanceStateTextLength), toTimestamp(instance.nextActivation),
+            instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries,
+            instance.id);
   }
 
   private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action,
@@ -281,10 +281,10 @@ public class WorkflowInstanceDao {
     }
   }
 
-  private void updateWorkflowInstanceWithCte(WorkflowInstance instance, final WorkflowInstanceAction action) {
+  private void updateWorkflowInstanceWithCTE(WorkflowInstance instance, final WorkflowInstanceAction action) {
     int executorId = executorInfo.getExecutorId();
     StringBuilder sqlb = new StringBuilder(256);
-    sqlb.append("with wf as (").append(updateWorkflowInstanceSql()).append(" returning id), ");
+    sqlb.append("with wf as (").append(updateWorkflowInstanceExternalActivationSql()).append(" returning id), ");
     sqlb.append("act as (").append(insertWorkflowActionSql()).append(" select wf.id,?,")
         .append(sqlVariants.castToEnumType("?", "action_type")).append(",?,?,?,?,? from wf returning id)");
     Map<String, String> changedStateVariables = changedStateVariables(instance.stateVariables, instance.originalStateVariables);
@@ -312,6 +312,15 @@ public class WorkflowInstanceDao {
     return "update nflow_workflow set status = " + sqlVariants.castToEnumType("?", "workflow_status")
         + ", state = ?, state_text = ?, next_activation = ?, executor_id = ?, retries = ? where id = ? and executor_id = "
         + executorInfo.getExecutorId();
+  }
+
+  private String updateWorkflowInstanceExternalActivationSql() {
+    // TODO what if setting next_activation to null and external_next_activation is set to value?
+    return "update nflow_workflow set status = " + sqlVariants.castToEnumType("?", "workflow_status")
+            + ", state = ?, state_text = ?, " +
+            "next_activation = least(?, external_next_activation), external_next_activation = null, " +
+            "executor_id = ?, retries = ? where id = ? and executor_id = "
+            + executorInfo.getExecutorId();
   }
 
   public boolean updateNotRunningWorkflowInstance(WorkflowInstance instance) {
@@ -351,6 +360,19 @@ public class WorkflowInstanceDao {
   public boolean resumePausedWorkflowInstance(long id, String stateText) {
     return jdbc.update("update nflow_workflow set status = '" + inProgress + "', state_text = ? where id = ? and status = '"
         + paused + "'", stateText, id) == 1;
+  }
+
+  // TODO add tests
+  @Transactional
+  public boolean wakeUpWorkflowExternally(int workflowInstanceId) {
+    // TODO if next_activation = null, this will skip waking up. Is it good behaviour?
+    // TODO should wake up only in certain statuses? inProgress, executing, created?
+    String sql = String.format("update nflow_workflow " +
+      "set next_activation = (case when executor_id is null then least(current_timestamp, next_activation) else next_activation end case), " +
+      "external_next_activation = current_timestamp " +
+      "where %s and id = ? and next_activation is not null ",
+      executorInfo.getExecutorGroupCondition());
+    return jdbc.update(sql, workflowInstanceId) == 1;
   }
 
   public boolean wakeupWorkflowInstanceIfNotExecuting(long id, String[] expectedStates) {
@@ -403,7 +425,8 @@ public class WorkflowInstanceDao {
   }
 
   String updateInstanceForExecutionQuery() {
-    return "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + ", status = '" + executing.name() + "'";
+    return "update nflow_workflow set executor_id = " + executorInfo.getExecutorId() + ", status = '" + executing.name() + "', " +
+            "external_next_activation = null";
   }
 
   String whereConditionForInstanceUpdate(int batchSize) {

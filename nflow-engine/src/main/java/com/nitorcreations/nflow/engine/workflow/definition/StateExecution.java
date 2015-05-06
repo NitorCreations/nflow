@@ -102,4 +102,9 @@ public interface StateExecution {
    */
   List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query);
 
+  /**
+   * Notify parent workflow that it may start processing again. Calling this schedules parent workflow for immediate
+   * execution. Scheduling is performed when current state method exists successfully.
+   */
+  void wakeUpParentWorkflow();
 }
