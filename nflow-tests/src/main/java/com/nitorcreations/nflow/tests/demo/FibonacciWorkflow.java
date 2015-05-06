@@ -103,16 +103,17 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         List<WorkflowInstance> children = execution.getChildWorkflows(new QueryWorkflowInstances.Builder()
                 .addStatuses(manual.getStatus(), end.getStatus()).build());
         if(children.size() < getChildrenCount(execution)) {
-            return NextAction.retryAfter(DateTime.now().plusSeconds(10), "Child workflows are not ready yet.");
+            int delay = new Random().nextInt(5) + 1;
+            return NextAction.retryAfter(DateTime.now().plusSeconds(delay), "Child workflows are not ready yet.");
         }
         int sum = 0;
         for(WorkflowInstance child : children) {
             if(child.status != WorkflowInstance.WorkflowInstanceStatus.finished) {
                 return NextAction.stopInState(State.error, "Some of the children failed");
             }
-            sum += execution.getVariable("result", Integer.class);
+            sum += Integer.parseInt(child.stateVariables.getOrDefault("result", "0"));
         }
-        execution.setVariable("result", sum);
+        execution.setVariable("result", execution.getVariable("result", Integer.class) + sum);
         return NextAction.moveToState(State.done, "All is good");
     }
 
