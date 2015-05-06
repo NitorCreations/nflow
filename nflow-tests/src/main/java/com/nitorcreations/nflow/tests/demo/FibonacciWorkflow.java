@@ -111,7 +111,8 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
             if(child.status != WorkflowInstance.WorkflowInstanceStatus.finished) {
                 return NextAction.stopInState(State.error, "Some of the children failed");
             }
-            sum += Integer.parseInt(child.stateVariables.getOrDefault("result", "0"));
+            String childResult = child.stateVariables.get("result");
+            sum += Integer.parseInt(childResult != null ? childResult : "0");
         }
         execution.setVariable("result", execution.getVariable("result", Integer.class) + sum);
         return NextAction.moveToState(State.done, "All is good");
