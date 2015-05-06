@@ -9,6 +9,7 @@ create table if not exists nflow_workflow (
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamp(3) null,
+  external_next_activation timestamp(3) null,
   executor_id int,
   retries int not null default 0,
   created timestamp(3) not null default current_timestamp(3),
