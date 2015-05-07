@@ -366,7 +366,7 @@ public class WorkflowInstanceDao {
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId) {
     String sql = String.format("update nflow_workflow " +
-      "set next_activation = (case when executor_id is null then least(current_timestamp, next_activation) else next_activation end case), " +
+      "set next_activation = (case when executor_id is null then least(current_timestamp, next_activation) else next_activation end), " +
       "external_next_activation = current_timestamp " +
       "where %s and id = ? and next_activation is not null ",
       executorInfo.getExecutorGroupCondition());
