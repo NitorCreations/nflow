@@ -157,7 +157,6 @@ public class StateExecutionImpl implements StateExecution {
     return Collections.unmodifiableList(newChildWorkflows);
   }
 
-  // TODO add tests
   @Override
   public List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query) {
     QueryWorkflowInstances restrictedQuery = new QueryWorkflowInstances.Builder(query)
