@@ -89,7 +89,7 @@ public interface StateExecution {
 
   /**
    * Add a new child workflow. Child workflows are stored to database scheduled after current
-   * state method exists successfully.
+   * state method processing completes successfully.
    * Note that Child workflows are not visible to queryChildWorkflows() method before they are stored to database.
    * @param childWorkflows
    */
@@ -104,7 +104,7 @@ public interface StateExecution {
 
   /**
    * Notify parent workflow that it may start processing again. Calling this schedules parent workflow for immediate
-   * execution. Scheduling is performed when current state method exists successfully.
+   * execution. Scheduling is performed when current state method processing completes successfully.
    */
   void wakeUpParentWorkflow();
 }

@@ -165,13 +165,12 @@ public class StateExecutionImpl implements StateExecution {
     return workflowDao.queryWorkflowInstances(restrictedQuery);
   }
 
-  // TODO add tests
   @Override
   public void wakeUpParentWorkflow() {
     wakeUpParentWorkflow = true;
   }
 
-  public boolean wakeUpParentWorkflowTriggered() {
+  public boolean isWakeUpParentWorkflowSet() {
     return wakeUpParentWorkflow;
   }
 }

@@ -200,14 +200,14 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
-    if(execution.wakeUpParentWorkflowTriggered()) {
+    if(execution.isWakeUpParentWorkflowSet()) {
       if(instance.parentWorkflowId != null) {
         logger.debug("wake up {}", instance.parentWorkflowId);
         boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId);
         if(notified) {
           logger.info("Woke up parent workflow instance {}", instance.parentWorkflowId);
         } else {
-          logger.warn("Failed to wake up parent workflow instace {}", instance.parentWorkflowId);
+          logger.warn("Failed to wake up parent workflow instance {}", instance.parentWorkflowId);
         }
       } else {
         logger.warn("Workflow {} trying to wake up non existing parent workflow", instance.type);
