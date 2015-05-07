@@ -38,6 +38,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -533,30 +535,45 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Test
   public void insertingSubWorkflowWorks() {
     final WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    i1.stateVariables.put("b", "2");
     int parentWorkflowId = dao.insertWorkflowInstance(i1);
     assertThat(parentWorkflowId, not(equalTo(-1)));
 
-    DateTime started = DateTime.now();
-    final WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
-            .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setType(stateExecution).setState("test")
-            .setStateText("state text")
-            .setWorkflowInstanceId(parentWorkflowId).build();
-    i1.stateVariables.put("b", "2");
-    int parentActionId = transaction.execute(new TransactionCallback<Integer>() {
-      @Override
-      public Integer doInTransaction(TransactionStatus status) {
-        return dao.insertWorkflowInstanceAction(i1, a1);
-      }
-    });
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1);
     WorkflowInstance createdInstance = dao.getWorkflowInstance(parentWorkflowId);
     checkSameWorkflowInfo(i1, createdInstance);
-    final WorkflowInstance subWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId).setParentActionId(parentActionId).build();
-    int subId = dao.insertWorkflowInstance(subWorkflow);
-    assertThat(subId, not(equalTo(-1)));
 
-    WorkflowInstance i2 = dao.getWorkflowInstance(subId);
+    int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
+    assertThat(subWorkflowId, not(equalTo(-1)));
+
+    WorkflowInstance i2 = dao.getWorkflowInstance(subWorkflowId);
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
+  }
+
+  @Test
+  public void wakeUpWorkflowExternallyWorks() {
+    DateTime now = DateTime.now();
+    DateTime scheduled = now.plusDays(1);
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(scheduled).build();
+    int parentWorkflowId = dao.insertWorkflowInstance(i1);
+    assertThat(parentWorkflowId, not(equalTo(-1)));
+    WorkflowInstance createdWorkflow = dao.getWorkflowInstance(parentWorkflowId);
+
+    assertThat(createdWorkflow.nextActivation, equalTo(scheduled));
+
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1);
+    assertThat(parentActionId, not(equalTo(-1)));
+
+    int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
+    WorkflowInstance i2 = dao.getWorkflowInstance(subWorkflowId);
+    assertThat(subWorkflowId, not(equalTo(-1)));
+    assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
+    assertThat(i2.parentActionId, equalTo(parentActionId));
+
+    dao.wakeUpWorkflowExternally(parentWorkflowId);
+    WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
+    assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
@@ -571,6 +588,26 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       assertTrue(i2.stateVariables.containsKey(entry.getKey()));
       assertThat(i2.stateVariables.get(entry.getKey()), equalTo(entry.getValue()));
     }
+  }
+
+  private int addWorkflowAction(int workflowId, final WorkflowInstance instance) {
+    DateTime started = DateTime.now();
+    final WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+            .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setType(stateExecution).setState("test")
+            .setStateText("state text")
+            .setWorkflowInstanceId(workflowId).build();
+    int actionId = transaction.execute(new TransactionCallback<Integer>() {
+      @Override
+      public Integer doInTransaction(TransactionStatus status) {
+        return dao.insertWorkflowInstanceAction(instance, action);
+      }
+    });
+    return actionId;
+  }
+
+  private int addSubWorkflow(int parentWorkflowId, int parentActionId) {
+    final WorkflowInstance subWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId).setParentActionId(parentActionId).build();
+    return dao.insertWorkflowInstance(subWorkflow);
   }
 
   static class Poller implements Runnable {

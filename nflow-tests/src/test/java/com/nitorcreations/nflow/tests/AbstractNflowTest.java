@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.tests;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +12,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
@@ -121,6 +124,13 @@ public abstract class AbstractNflowTest {
 
   protected CreateWorkflowInstanceResponse createWorkflowInstance(CreateWorkflowInstanceRequest request) {
     return makeWorkflowInstanceQuery(request, CreateWorkflowInstanceResponse.class);
+  }
+
+  protected ObjectMapper nflowObjectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.registerModule(new JodaModule());
+    return mapper;
   }
 
   protected String updateWorkflowInstance(int instanceId, UpdateWorkflowInstanceRequest request) {

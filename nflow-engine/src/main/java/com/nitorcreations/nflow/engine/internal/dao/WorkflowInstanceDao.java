@@ -365,8 +365,6 @@ public class WorkflowInstanceDao {
   // TODO add tests
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId) {
-    // TODO if next_activation = null, this will skip waking up. Is it good behaviour?
-    // TODO should wake up only in certain statuses? inProgress, executing, created?
     String sql = String.format("update nflow_workflow " +
       "set next_activation = (case when executor_id is null then least(current_timestamp, next_activation) else next_activation end case), " +
       "external_next_activation = current_timestamp " +
