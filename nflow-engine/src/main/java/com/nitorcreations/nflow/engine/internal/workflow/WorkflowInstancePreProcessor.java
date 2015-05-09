@@ -23,6 +23,7 @@ public class WorkflowInstancePreProcessor {
     this.workflowDefinitionService = workflowDefinitionService;
   }
 
+  // TODO should this set next_activation for child workflows?
   public WorkflowInstance process(WorkflowInstance instance) {
     WorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {

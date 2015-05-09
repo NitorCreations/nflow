@@ -13,6 +13,7 @@ import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ class WorkflowStateProcessor implements Runnable {
   private final int instanceId;
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
+  private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
@@ -57,7 +59,8 @@ class WorkflowStateProcessor implements Runnable {
   private final int unknownWorkflowStateRetryDelay;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, Environment env,
+      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
+      WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
@@ -65,6 +68,7 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
     this.executorListeners = executorListeners;
+    this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
@@ -95,7 +99,7 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.status == executing) {
-      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao);
+      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao, workflowInstancePreProcessor);
       ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       WorkflowState state;

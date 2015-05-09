@@ -13,11 +13,14 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
+import static org.springframework.util.Assert.notNull;
+
 public class StateExecutionImpl implements StateExecution {
 
   private final WorkflowInstance instance;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowDao;
+  private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
@@ -28,10 +31,12 @@ public class StateExecutionImpl implements StateExecution {
   private boolean wakeUpParentWorkflow = false;
   private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
-  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao) {
+  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
+                            WorkflowInstancePreProcessor workflowInstancePreProcessor) {
     this.instance = instance;
     this.objectMapper = objectMapper;
     this.workflowDao = workflowDao;
+    this.workflowInstancePreProcessor = workflowInstancePreProcessor;
   }
 
   public DateTime getNextActivation() {
@@ -104,7 +109,7 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   public void setNextState(WorkflowState state) {
-    Assert.notNull(state, "Next state can not be null");
+    notNull(state, "Next state can not be null");
     this.nextState = state.name();
   }
 
@@ -147,10 +152,11 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public void addChildWorkflows(WorkflowInstance ... childWorkflows) {
-    Assert.notNull(childWorkflows, "childWorkflows can not be null");
+    notNull(childWorkflows, "childWorkflows can not be null");
     for(WorkflowInstance child : childWorkflows) {
-      Assert.notNull(child, "childWorkflow can not be null");
-      newChildWorkflows.add(child);
+      notNull(child, "childWorkflow can not be null");
+      WorkflowInstance processedChild = workflowInstancePreProcessor.process(child);
+      newChildWorkflows.add(processedChild);
     }
   }
 

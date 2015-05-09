@@ -28,13 +28,20 @@ public class StateExecutionImplTest {
   ObjectStringMapper objectStringMapper;
   @Mock
   WorkflowInstanceDao workflowDao;
-
+  @Mock
+  WorkflowInstancePreProcessor WorkflowInstancePreProcessor;
   ArgumentCaptor<QueryWorkflowInstances> queryCaptor = ArgumentCaptor.forClass(QueryWorkflowInstances.class);
 
   @Before
   public void setup() {
     instance = new WorkflowInstance.Builder().setId(99).build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao);
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, WorkflowInstancePreProcessor);
+  }
+
+  @Test
+  public void addChildWorkflows() {
+
+    execution.addChildWorkflows();
   }
 
   @Test

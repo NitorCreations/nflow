@@ -144,14 +144,10 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
     public void error(StateExecution execution, @StateVar(value="requestData") int n, @StateVar(value="result") int result) {
         logger.error("Failed to compute F({})", n);
     }
+
     private WorkflowInstance createWorkflow(int n) {
-        // TODO these must be set by engine
-        // TODO must check that type exists etc
         WorkflowInstance child = new WorkflowInstance.Builder()
                 .setType(FibonacciWorkflow.WORKFLOW_TYPE)
-                .setStatus(WorkflowInstance.WorkflowInstanceStatus.created)
-                .setExternalId("" + new Random().nextLong())
-                .setState(FibonacciWorkflow.State.begin.name())
                 .setNextActivation(DateTime.now())
                 .setStateVariables(Collections.singletonMap("requestData", "" + n)).build();
         return child;

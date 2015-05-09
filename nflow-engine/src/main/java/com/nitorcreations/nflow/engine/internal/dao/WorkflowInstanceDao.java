@@ -365,7 +365,6 @@ public class WorkflowInstanceDao {
         + paused + "'", stateText, id) == 1;
   }
 
-  // TODO add tests
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId) {
     String sql = String.format("update nflow_workflow " +
