@@ -469,6 +469,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         return new ArgumentMatcher<List<WorkflowInstance>>() {
             @Override
             public boolean matches(Object argument) {
+                @SuppressWarnings("unchecked")
                 List<WorkflowInstance> a = (List<WorkflowInstance>) argument;
                 assertThat(a, notNullValue());
                 assertThat(a.isEmpty(), is(true));

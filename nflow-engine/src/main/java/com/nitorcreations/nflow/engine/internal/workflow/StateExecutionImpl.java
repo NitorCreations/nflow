@@ -1,17 +1,17 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
-import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
-import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
-import org.joda.time.DateTime;
-import org.springframework.util.Assert;
-
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.joda.time.DateTime;
+import org.springframework.util.Assert;
+
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class StateExecutionImpl implements StateExecution {
 
@@ -26,7 +26,7 @@ public class StateExecutionImpl implements StateExecution {
   private boolean isFailed;
   private boolean isRetryCountExceeded;
   private boolean wakeUpParentWorkflow = false;
-  private List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
+  private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao) {
     this.instance = instance;
@@ -145,6 +145,7 @@ public class StateExecutionImpl implements StateExecution {
     isRetryCountExceeded = true;
   }
 
+  @Override
   public void addChildWorkflows(WorkflowInstance ... childWorkflows) {
     Assert.notNull(childWorkflows, "childWorkflows can not be null");
     for(WorkflowInstance child : childWorkflows) {

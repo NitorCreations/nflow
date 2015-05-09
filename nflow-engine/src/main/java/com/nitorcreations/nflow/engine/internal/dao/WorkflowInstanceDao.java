@@ -311,7 +311,7 @@ public class WorkflowInstanceDao {
     jdbc.queryForObject(sqlb.toString(), Integer.class, args);
   }
 
-  private String insertWorkflowActionSql() {
+  String insertWorkflowActionSql() {
     return "insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end)";
   }
 

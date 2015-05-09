@@ -1,24 +1,23 @@
 package com.nitorcreations.nflow.tests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import com.nitorcreations.nflow.tests.demo.FibonacciWorkflow;
-import com.nitorcreations.nflow.tests.runner.NflowServerRule;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+
+import java.io.IOException;
+
+import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import com.nitorcreations.nflow.tests.demo.FibonacciWorkflow;
+import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class ChildWorkflowTest extends AbstractNflowTest {

@@ -1,12 +1,9 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
 
 public class MysqlDatabaseConfigurationTest {
 

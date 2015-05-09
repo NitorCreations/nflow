@@ -38,8 +38,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
