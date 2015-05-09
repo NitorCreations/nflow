@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.sql.SQLException;
@@ -59,6 +60,21 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public boolean hasUpdateableCTE() {
       return false;
+    }
+
+    @Override
+    public String least(String value1, String value2) {
+      return format("(case " +
+                      "when %1$s is null then %2$s " +
+                      "when %2$s is null then %1$s " +
+                      "when %1$s < %2$s then %1$s " +
+                      "else %2$s end)",
+              value1, value2);
+    }
+
+    @Override
+    public String least1Param(String value1, String value2) {
+      return least(value1, value2);
     }
   }
 }

@@ -155,7 +155,7 @@ public class WorkflowInstance {
 
   @Override
   public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   /**

@@ -354,7 +354,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     d.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows);
     assertEquals(
-        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = least(?, external_next_activation), external_next_activation = null, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
+        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = (case when ?::timestamptz is null then external_next_activation when external_next_activation is null then ?::timestamptz when ?::timestamptz < external_next_activation then ?::timestamptz else external_next_activation end), external_next_activation = null, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins17 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
@@ -362,6 +362,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) i2.status.name()));
     assertThat(args.getAllValues().get(i++), is((Object) i2.state));
     assertThat(args.getAllValues().get(i++), is((Object) i2.stateText));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) 42));
     assertThat(args.getAllValues().get(i++), is((Object) i2.retries));

@@ -8,4 +8,9 @@ public interface SQLVariants {
   String castToEnumType(String variable, String type);
 
   boolean hasUpdateableCTE();
+
+  String least(String value1, String value2);
+
+  String least1Param(String value1, String value2);
+
 }
