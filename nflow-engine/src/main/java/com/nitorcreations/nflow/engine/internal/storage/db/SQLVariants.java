@@ -11,6 +11,6 @@ public interface SQLVariants {
 
   String least(String value1, String value2);
 
-  String least1Param(String value1, String value2);
+  String nextActivationUpdate(String value1, String value2);
 
 }

@@ -73,8 +73,13 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String least1Param(String value1, String value2) {
-      return least(value1, value2);
+    public String nextActivationUpdate(String value1, String value2) {
+      return format("(case " +
+                      "when %1$s is null then null " +
+                      "when %2$s is null then %1$s " +
+                      "when %1$s < %2$s then %1$s " +
+                      "else %2$s end)",
+              value1, value2);
     }
   }
 }

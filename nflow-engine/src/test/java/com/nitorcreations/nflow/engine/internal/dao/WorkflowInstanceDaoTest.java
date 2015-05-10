@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,12 +33,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -335,6 +338,62 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void updatingNextActivationToNullWhileExternalNextActivationIsNotNull() {
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(null).build();
+    int workflowId = dao.insertWorkflowInstance(instance);
+    assertTrue(workflowId > -1);
+    jdbc.update("update nflow_workflow set executor_id = 1 where id = ?", workflowId);
+
+    assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?",
+            new Timestamp(DateTime.now().getMillis()), workflowId), is(1));
+    dao.updateWorkflowInstance(new WorkflowInstance.Builder(dao.getWorkflowInstance(workflowId)).setNextActivation(null).build());
+    WorkflowInstance updated = dao.getWorkflowInstance(workflowId);
+    assertThat(updated.nextActivation, is(CoreMatchers.nullValue()));
+  }
+
+  @Test
+  public void updatingNextActivationWhenExternalNextActivationIsEarlier() {
+    DateTime now = DateTime.now();
+    DateTime future = now.plusDays(1);
+
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(future).build();
+
+    final int workflowId = dao.insertWorkflowInstance(instance);
+    jdbc.update("update nflow_workflow set executor_id = 1 where id = ?", workflowId);
+    assertTrue(workflowId > -1);
+    assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?",
+            new Timestamp(now.getMillis()), workflowId), is(1));
+    System.out.println(jdbc.queryForList("select * from nflow_workflow where id = " + workflowId));
+
+    final WorkflowInstance updatedInstance = new WorkflowInstance.Builder(dao.getWorkflowInstance(workflowId)).build();
+
+    WorkflowInstanceAction action = constructActionBuilder(workflowId).build();
+    dao.updateWorkflowInstanceAfterExecution(updatedInstance, action, Collections.<WorkflowInstance>emptyList());
+
+    WorkflowInstance updated = dao.getWorkflowInstance(workflowId);
+    System.out.println(updated);
+    System.out.println(jdbc.queryForList("select * from nflow_workflow where id = " + workflowId));
+    assertThat(updated.nextActivation, is(now));
+  }
+
+  @Test
+  public void updatingNextActivationWhenExternalNextActivationIsLater() {
+    DateTime now = DateTime.now();
+    DateTime future = now.plusDays(1);
+
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now).build();
+    int workflowId = dao.insertWorkflowInstance(instance);
+    jdbc.update("update nflow_workflow set executor_id = 1 where id = ?", workflowId);
+
+    assertTrue(workflowId > -1);
+    assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?",
+            new Timestamp(future.getMillis()), workflowId), is(1));
+    dao.updateWorkflowInstance(new WorkflowInstance.Builder(dao.getWorkflowInstance(workflowId)).build());
+    WorkflowInstance updated = dao.getWorkflowInstance(workflowId);
+    assertThat(updated.nextActivation, is(now));
+  }
+
+  @Test
   public void fakePostgreSQLupdateWorkflowInstance() {
     JdbcTemplate j = mock(JdbcTemplate.class);
     WorkflowInstanceDao d = preparePostgreSQLDao(j);
@@ -352,7 +411,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     d.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows);
     assertEquals(
-        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = (case when ?::timestamptz is null then external_next_activation when external_next_activation is null then ?::timestamptz when ?::timestamptz < external_next_activation then ?::timestamptz else external_next_activation end), external_next_activation = null, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins17 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
+        "with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, next_activation = (case when ?::timestamptz is null then null when external_next_activation is null then ?::timestamptz when ?::timestamptz < external_next_activation then ?::timestamptz else external_next_activation end), external_next_activation = null, executor_id = ?, retries = ? where id = ? and executor_id = 42 returning id), act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end) select wf.id,?,?::action_type,?,?,?,?,? from wf returning id), ins17 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,act.id,?,? from wf,act) select act.id from act",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 

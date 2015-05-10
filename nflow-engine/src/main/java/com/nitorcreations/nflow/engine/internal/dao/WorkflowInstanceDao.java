@@ -249,7 +249,7 @@ public class WorkflowInstanceDao {
   public void updateWorkflowInstance(WorkflowInstance instance) {
     // using sqlVariants.least() requires that nextActivation is used 4 times
     Timestamp nextActivation = toTimestamp(instance.nextActivation);
-    jdbc.update(updateWorkflowInstanceExternalActivationSql(), instance.status.name(), instance.state,
+    jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
             abbreviate(instance.stateText, instanceStateTextLength),
             nextActivation, nextActivation, nextActivation, nextActivation,
             instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries,
@@ -287,7 +287,7 @@ public class WorkflowInstanceDao {
   private void updateWorkflowInstanceWithCTE(WorkflowInstance instance, final WorkflowInstanceAction action) {
     int executorId = executorInfo.getExecutorId();
     StringBuilder sqlb = new StringBuilder(256);
-    sqlb.append("with wf as (").append(updateWorkflowInstanceExternalActivationSql()).append(" returning id), ");
+    sqlb.append("with wf as (").append(updateWorkflowInstanceSql()).append(" returning id), ");
     sqlb.append("act as (").append(insertWorkflowActionSql()).append(" select wf.id,?,")
         .append(sqlVariants.castToEnumType("?", "action_type")).append(",?,?,?,?,? from wf returning id)");
     Map<String, String> changedStateVariables = changedStateVariables(instance.stateVariables, instance.originalStateVariables);
@@ -315,12 +315,10 @@ public class WorkflowInstanceDao {
     return "insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, execution_start, execution_end)";
   }
 
-  private String updateWorkflowInstanceExternalActivationSql() {
-    // TODO what if setting next_activation to null and external_next_activation is set to value?
-    // current implementation will set next_activation
+  private String updateWorkflowInstanceSql() {
     return "update nflow_workflow set status = " + sqlVariants.castToEnumType("?", "workflow_status")
             + ", state = ?, state_text = ?, " +
-            "next_activation = " + sqlVariants.least1Param("?", "external_next_activation") +
+            "next_activation = " + sqlVariants.nextActivationUpdate("?", "external_next_activation") +
             ", external_next_activation = null, " +
             "executor_id = ?, retries = ? where id = ? and executor_id = "
             + executorInfo.getExecutorId();
