@@ -19,6 +19,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 @Profile("nflow.db.mysql")
 @Configuration
@@ -71,11 +72,6 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String castToEnumType(String variable, String type) {
-      return variable;
-    }
-
-    @Override
     public boolean hasUpdateableCTE() {
       return false;
     }
@@ -91,13 +87,31 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String nextActivationUpdate(String value1, String value2) {
-      return format("(case " +
-                      "when %1$s is null then null " +
-                      "when %2$s is null then %1$s " +
-                      "when %1$s < %2$s then %1$s " +
-                      "else %2$s end)",
-              value1, value2);
+    public String nextActivationUpdate() {
+      return "(case "
+          + "when ? is null then null "
+          + "when external_next_activation is null then ? "
+          + "else least(?, external_next_activation) end)";
+    }
+
+    @Override
+    public String workflowStatus(WorkflowInstanceStatus status) {
+      return "'" + status.name() + "'";
+    }
+
+    @Override
+    public String workflowStatus() {
+      return "?";
+    }
+
+    @Override
+    public String actionType() {
+      return "?";
+    }
+
+    @Override
+    public String castToText() {
+      return "";
     }
   }
 }

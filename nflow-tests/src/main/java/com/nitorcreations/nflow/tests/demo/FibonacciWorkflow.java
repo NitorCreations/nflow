@@ -1,5 +1,18 @@
 package com.nitorcreations.nflow.tests.demo;
 
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
+import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.StateVar;
@@ -8,16 +21,6 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
-import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.*;
 
 /**
  * Fibonacci series generator using recursive process.

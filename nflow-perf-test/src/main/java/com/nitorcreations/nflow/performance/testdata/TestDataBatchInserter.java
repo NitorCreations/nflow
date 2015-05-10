@@ -40,13 +40,12 @@ public class TestDataBatchInserter {
       }
     }
     jdbcTemplate.batchUpdate(
-        "insert into nflow_workflow(id, status, type, business_key, external_id, state, " +
-        "state_text, next_activation, executor_id, retries, created, modified, executor_group) values (?, " +
-        sqlVariants.castToEnumType("?", "workflow_status") + ", ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        instancesBatch);
+        "insert into nflow_workflow(id, status, type, business_key, external_id, state, "
+            + "state_text, next_activation, executor_id, retries, created, modified, executor_group) values (?, "
+            + sqlVariants.workflowStatus() + ", ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", instancesBatch);
     jdbcTemplate.batchUpdate(
-        "insert into nflow_workflow_action(id, workflow_id, executor_id, type, state, state_text, retry_no, execution_start, " +
-        "execution_end) values (?, ?, ?," +  sqlVariants.castToEnumType("?", "action_type") + ", ?, ?, ?, ?, ?)",
+        "insert into nflow_workflow_action(id, workflow_id, executor_id, type, state, state_text, retry_no, execution_start, "
+            + "execution_end) values (?, ?, ?," + sqlVariants.actionType() + ", ?, ?, ?, ?, ?)",
         actionsBatch);
     jdbcTemplate.batchUpdate(
         "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) values (?, ?, ?, ?)", statesBatch);

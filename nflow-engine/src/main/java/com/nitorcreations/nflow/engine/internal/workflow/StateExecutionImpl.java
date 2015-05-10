@@ -1,19 +1,18 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
+import static org.springframework.util.Assert.notNull;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-
-import static org.springframework.util.Assert.notNull;
 
 public class StateExecutionImpl implements StateExecution {
 

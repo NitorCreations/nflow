@@ -6,7 +6,6 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
@@ -23,10 +22,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,6 +34,7 @@ import org.mockito.Mockito;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
