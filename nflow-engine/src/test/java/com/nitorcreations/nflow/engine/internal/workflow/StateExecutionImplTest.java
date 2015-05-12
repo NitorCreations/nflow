@@ -1,15 +1,13 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -56,7 +55,7 @@ public class StateExecutionImplTest {
 
     execution.addChildWorkflows(child1, child2);
 
-    assertThat(execution.getNewChildWorkflows(), is(Arrays.asList(processedChild1, processedChild2)));
+    assertThat(execution.getNewChildWorkflows(), is(asList(processedChild1, processedChild2)));
   }
 
   @Test
@@ -74,19 +73,19 @@ public class StateExecutionImplTest {
             .setParentActionId(42).addTypes("a","b")
             .setBusinessKey("123").build();
 
-    List<WorkflowInstance> result = Arrays.asList(mock(WorkflowInstance.class));
+    List<WorkflowInstance> result = asList(mock(WorkflowInstance.class));
     when(workflowDao.queryWorkflowInstances(queryCaptor.capture())).thenReturn(result);
 
     assertThat(execution.queryChildWorkflows(query), is(result));
     QueryWorkflowInstances actualQuery = queryCaptor.getValue();
 
     assertThat(actualQuery.parentWorkflowId, is(99));
-    assertThat(actualQuery.types, is(Arrays.asList("a", "b")));
+    assertThat(actualQuery.types, is(asList("a", "b")));
     assertThat(actualQuery.businessKey, is("123"));
   }
 
   @Test
-  public void stateExecutionProvidesAccessToSomeWorkflowInstanceFieds() {
+  public void stateExecutionProvidesAccessToSomeWorkflowInstanceFields() {
     assertThat(instance.businessKey, is(executionInterface.getBusinessKey()));
     assertThat(instance.id, is(executionInterface.getWorkflowInstanceId()));
     assertThat(instance.externalId, is(executionInterface.getWorkflowInstanceExternalId()));

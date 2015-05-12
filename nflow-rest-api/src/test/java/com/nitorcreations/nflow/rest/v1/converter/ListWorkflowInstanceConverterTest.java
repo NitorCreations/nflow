@@ -89,7 +89,7 @@ public class ListWorkflowInstanceConverterTest {
   }
 
   @Test
-  public void convertWithActionStateVariablessWorks() throws IOException {
+  public void convertWithActionStateVariablesWorks() throws IOException {
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
