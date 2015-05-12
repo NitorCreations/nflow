@@ -89,7 +89,7 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void whenUpdatingMessageNothingHappens() {
+  public void whenUpdatingMessageStateTextIsUpdated() {
     when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
