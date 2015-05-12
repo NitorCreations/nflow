@@ -13,6 +13,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
@@ -77,6 +79,26 @@ public class WorkflowInstanceResourceTest {
     verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
     verify(workflowInstances).getWorkflowInstance(1);
     verify(createWorkflowConverter).convert(any(WorkflowInstance.class));
+  }
+
+  @Test
+  public void whenUpdatingWithoutParametersNothingHappens() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances, times(0)).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
+  }
+
+  @Test
+  public void whenUpdatingMessageNothingHappens() {
+    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.actionDescription = "my desc";
+    resource.updateWorkflowInstance(3, req);
+
+    verify(workflowInstances).updateWorkflowInstance(
+            (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
+            (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("my desc"))));
   }
 
   @Test
