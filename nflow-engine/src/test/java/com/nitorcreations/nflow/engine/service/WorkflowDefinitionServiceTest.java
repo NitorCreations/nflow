@@ -1,8 +1,10 @@
 package com.nitorcreations.nflow.engine.service;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
@@ -12,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,6 +67,16 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   public void demoWorkflowLoadedSuccessfully() {
     List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void getWorkflowDefinitionReturnsNullWhenTypeIsNotFound() {
+    assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
+  }
+
+  @Test
+  public void getWorkflowDefinitionReturnsDefinitionWhenTypeIsFound() {
+    assertThat(service.getWorkflowDefinition("dummy"), is(instanceOf(DummyTestWorkflow.class)));
   }
 
   @Test

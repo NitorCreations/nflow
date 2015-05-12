@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,8 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 @RunWith(MockitoJUnitRunner.class)
 public class StateExecutionImplTest {
   StateExecutionImpl execution;
+  StateExecution executionInterface;
+
   WorkflowInstance instance;
 
   @Mock
@@ -29,19 +33,39 @@ public class StateExecutionImplTest {
   @Mock
   WorkflowInstanceDao workflowDao;
   @Mock
-  WorkflowInstancePreProcessor WorkflowInstancePreProcessor;
+  WorkflowInstancePreProcessor workflowInstancePreProcessor;
   ArgumentCaptor<QueryWorkflowInstances> queryCaptor = ArgumentCaptor.forClass(QueryWorkflowInstances.class);
 
   @Before
   public void setup() {
-    instance = new WorkflowInstance.Builder().setId(99).build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, WorkflowInstancePreProcessor);
+    instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
+            .setBusinessKey("business").build();
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor);
+    executionInterface = execution;
   }
 
   @Test
   public void addChildWorkflows() {
+    WorkflowInstance child1 = new WorkflowInstance.Builder().setBusinessKey("child1").build();
+    WorkflowInstance child2 = new WorkflowInstance.Builder().setBusinessKey("child2").build();
 
-    execution.addChildWorkflows();
+    WorkflowInstance processedChild1 = mock(WorkflowInstance.class, "processed1");
+    WorkflowInstance processedChild2 = mock(WorkflowInstance.class, "processed2");
+    when(workflowInstancePreProcessor.process(child1)).thenReturn(processedChild1);
+    when(workflowInstancePreProcessor.process(child2)).thenReturn(processedChild2);
+
+    execution.addChildWorkflows(child1, child2);
+
+    assertThat(execution.getNewChildWorkflows(), is(Arrays.asList(processedChild1, processedChild2)));
+  }
+
+  @Test
+  public void wakeUpParentWorkflowSetsWakeupFlag() {
+    assertThat(execution.isWakeUpParentWorkflowSet(), is(false));
+    execution.wakeUpParentWorkflow();
+    assertThat(execution.isWakeUpParentWorkflowSet(), is(true));
+    execution.wakeUpParentWorkflow();
+    assertThat(execution.isWakeUpParentWorkflowSet(), is(true));
   }
 
   @Test
@@ -59,5 +83,13 @@ public class StateExecutionImplTest {
     assertThat(actualQuery.parentWorkflowId, is(99));
     assertThat(actualQuery.types, is(Arrays.asList("a", "b")));
     assertThat(actualQuery.businessKey, is("123"));
+  }
+
+  @Test
+  public void stateExecutionProvidesAccessToSomeWorkflowInstanceFieds() {
+    assertThat(instance.businessKey, is(executionInterface.getBusinessKey()));
+    assertThat(instance.id, is(executionInterface.getWorkflowInstanceId()));
+    assertThat(instance.externalId, is(executionInterface.getWorkflowInstanceExternalId()));
+    assertThat(instance.retries, is(executionInterface.getRetries()));
   }
 }
