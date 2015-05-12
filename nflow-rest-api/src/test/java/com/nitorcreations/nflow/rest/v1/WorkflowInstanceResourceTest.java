@@ -13,7 +13,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
@@ -86,7 +85,7 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     resource.updateWorkflowInstance(3, req);
-    verify(workflowInstances, times(0)).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
+    verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
   }
 
   @Test

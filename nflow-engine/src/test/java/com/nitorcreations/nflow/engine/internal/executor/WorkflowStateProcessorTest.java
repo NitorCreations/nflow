@@ -24,6 +24,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -33,7 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
@@ -50,6 +50,7 @@ import org.springframework.mock.env.MockEnvironment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
@@ -313,7 +314,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
-    verify(workflowInstanceDao, times(0)).wakeUpWorkflowExternally(any(Integer.class));
+    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class));
   }
 
   @Test
