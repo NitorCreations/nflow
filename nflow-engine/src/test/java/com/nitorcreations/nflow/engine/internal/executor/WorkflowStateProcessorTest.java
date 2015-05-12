@@ -107,6 +107,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<FailingTestWorkflow.State> failingWf = new FailingTestWorkflow();
 
+  WorkflowDefinition<NotifyTestWorkflow.State> wakeWf = new NotifyTestWorkflow();
+
   @Before
   public void setup() {
     env.setProperty("nflow.illegal.state.change.action", "fail");
@@ -118,6 +120,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
     doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition("failing-test");
+    doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
+
   }
 
   @After
@@ -305,6 +309,32 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
+  public void doNothingWhenNotifyingParentWithoutParentWorkflowId() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    executor.run();
+    verify(workflowInstanceDao, times(0)).wakeUpWorkflowExternally(any(Integer.class));
+  }
+
+  @Test
+  public void whenWakingUpParentWorkflowSucceeds() {
+    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999)).thenReturn(true);
+    executor.run();
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999);
+  }
+
+  @Test
+  public void whenWakingUpParentWorkflowFails() {
+    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999)).thenReturn(false);
+    executor.run();
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999);
+  }
+
+  @Test
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
@@ -365,7 +395,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0,
-            stateExecutionFailed)),
+                stateExecutionFailed)),
         argThat(noChildWorkflows()));
   }
 
@@ -380,7 +410,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         argThat(matchesWorkflowInstance(finished, FailingTestWorkflow.State.noMethodEndState, 0,
             is("Stopped in state noMethodEndState"), is(nullValue(DateTime.class)))),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.nextStateNoMethod,
-            is("Go to end state that has no method"), 0, stateExecution)),
+                is("Go to end state that has no method"), 0, stateExecution)),
         argThat(noChildWorkflows()));
   }
 
@@ -798,4 +828,49 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       System.err.println("Executing error state");
     }
   }
+
+  public static class NotifyTestWorkflow extends WorkflowDefinition<NotifyTestWorkflow.State> {
+
+    protected NotifyTestWorkflow() {
+      super("notify", State.start, State.end);
+      permit(State.start, State.wakeParent);
+      permit(State.wakeParent, State.end);
+    }
+
+    public static enum State implements WorkflowState {
+      start(WorkflowStateType.start), wakeParent(WorkflowStateType.normal), end(WorkflowStateType.end);
+
+      private final WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+
+      @Override
+      public String getName() {
+        return name();
+      }
+
+      @Override
+      public String getDescription() {
+        return name();
+      }
+    }
+
+    public NextAction wakeParent(StateExecution execution) {
+      execution.wakeUpParentWorkflow();
+      return moveToState(State.end, "Wake up parent");
+    }
+
+    public NextAction start(StateExecution execution) {
+      return moveToState(State.wakeParent, "Move to notifyParent.");
+    }
+
+  }
+
 }
