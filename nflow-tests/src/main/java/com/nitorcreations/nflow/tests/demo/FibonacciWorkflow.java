@@ -45,11 +45,6 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         }
 
         @Override
-        public String getName() {
-            return name();
-        }
-
-        @Override
         public String getDescription() {
             return name();
         }
