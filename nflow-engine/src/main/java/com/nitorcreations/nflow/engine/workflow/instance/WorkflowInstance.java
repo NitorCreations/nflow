@@ -1,7 +1,5 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
-import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,13 +79,6 @@ public class WorkflowInstance {
   public final DateTime nextActivation;
 
   /**
-   * True when the workflow instance is being processed by an executor, false otherwise.
-   * @deprecated Use {@link WorkflowInstance#status} == {@link WorkflowInstanceStatus#executing} instead.
-   */
-  @Deprecated
-  public final boolean processing;
-
-  /**
    * The state variables. Uses the variable name as the key and serialized variable value as value.
    */
   public final Map<String, String> stateVariables;
@@ -125,13 +116,6 @@ public class WorkflowInstance {
 
   /**
    * The name of the executor group for this workflow instance.
-   * @deprecated Use executorGroup instead. Will be removed in 2.0.
-   */
-  @Deprecated
-  public final String owner;
-
-  /**
-   * The name of the executor group for this workflow instance.
    */
   public final String executorGroup;
 
@@ -145,7 +129,6 @@ public class WorkflowInstance {
     this.state = builder.state;
     this.stateText = builder.stateText;
     this.nextActivation = builder.nextActivation;
-    this.processing = builder.status == executing;
     this.originalStateVariables = builder.originalStateVariables;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
@@ -153,7 +136,6 @@ public class WorkflowInstance {
     this.created = builder.created;
     this.modified = builder.modified;
     this.started = builder.started;
-    this.owner = builder.executorGroup;
     this.executorGroup = builder.executorGroup;
   }
 

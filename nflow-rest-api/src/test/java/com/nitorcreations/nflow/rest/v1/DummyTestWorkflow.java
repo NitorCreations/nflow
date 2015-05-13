@@ -32,11 +32,6 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
     }
 
     @Override
-    public String getName() {
-      return name();
-    }
-
-    @Override
     public String getDescription() {
       return description;
     }

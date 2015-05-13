@@ -44,11 +44,6 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
     }
 
     @Override
-    public String getName() {
-      return name();
-    }
-
-    @Override
     public String getDescription() {
       return description;
     }

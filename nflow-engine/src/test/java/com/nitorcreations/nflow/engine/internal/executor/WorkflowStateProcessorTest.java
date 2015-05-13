@@ -624,11 +624,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       }
 
       @Override
-      public String getName() {
-          return name();
-      }
-
-      @Override
       public String getDescription() {
           return name();
       }
@@ -682,11 +677,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       }
 
       @Override
-      public String getName() {
-          return name();
-      }
-
-      @Override
       public String getDescription() {
           return name();
       }
@@ -712,13 +702,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       return moveToState(null, "This should fail");
     }
 
-    public NextAction failure(StateExecution execution) {
-      // Return NextAction to verify that backward compatibility is maintained.
-      // It should be allowed until nFlow 2.0.0 release, even though the return
-      // value is ignored.
-      // TODO: remove in 2.0.0
-      return moveToState(State.process, "this state transfer will be ignored");
-    }
+    public void failure(StateExecution execution) {}
 
     public NextAction nextStateNoMethod(StateExecution execution) {
       return moveToState(State.noMethodEndState, "Go to end state that has no method");
@@ -755,11 +739,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       @Override
       public WorkflowStateType getType() {
         return stateType;
-      }
-
-      @Override
-      public String getName() {
-          return name();
       }
 
       @Override

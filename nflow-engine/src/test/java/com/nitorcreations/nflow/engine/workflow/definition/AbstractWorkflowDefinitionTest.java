@@ -125,6 +125,43 @@ public class AbstractWorkflowDefinitionTest {
     }
   }
 
+  static class TestWorkflow3 extends TestWorkflow {
+    public NextAction done(StateExecution execution) {
+      return stopInState(State.done, "Done");
+    }
+  }
+
+  static class TestWorkflow4 extends WorkflowDefinition<TestWorkflow4.State> {
+
+    protected TestWorkflow4() {
+      super("test", State.begin, State.error);
+    }
+
+    public static enum State implements WorkflowState {
+      begin(start), error(manual);
+
+      private WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+
+      @Override
+      public String getDescription() {
+        return name();
+      }
+    }
+
+    public void begin(StateExecution execution) {
+      // do nothing
+    }
+  }
+
   static class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
 
     protected TestWorkflow() {
@@ -145,11 +182,6 @@ public class AbstractWorkflowDefinitionTest {
       @Override
       public WorkflowStateType getType() {
         return stateType;
-      }
-
-      @Override
-      public String getName() {
-        return name();
       }
 
       @Override
@@ -204,5 +236,20 @@ public class AbstractWorkflowDefinitionTest {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("begin").build();
     NextAction nextAction = moveToState(TestWorkflow.State.done, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(true));
+  }
+
+  @Test
+  public void nonFinalStateMethodMustReturnNextAction() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Class 'com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value");
+    new TestWorkflow3();
+  }
+
+  @Test
+  public void finalStateMethodMustReturnVoid() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown
+        .expectMessage("Class 'com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction");
+    new TestWorkflow4();
   }
 }
