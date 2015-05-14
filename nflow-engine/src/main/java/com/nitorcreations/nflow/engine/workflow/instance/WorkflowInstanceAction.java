@@ -161,18 +161,6 @@ public class WorkflowInstanceAction {
      * Set the workflow instance identifier.
      * @param workflowInstanceId The workflow instance identifier.
      * @return this.
-     * @deprecated Use @{code setWorkflowInstanceId} instead. This will be removed in 2.0.0.
-     */
-    @Deprecated
-    public Builder setWorkflowId(int workflowInstanceId) {
-      this.workflowInstanceId = workflowInstanceId;
-      return this;
-    }
-
-    /**
-     * Set the workflow instance identifier.
-     * @param workflowInstanceId The workflow instance identifier.
-     * @return this.
      */
     public Builder setWorkflowInstanceId(int workflowInstanceId) {
       this.workflowInstanceId = workflowInstanceId;

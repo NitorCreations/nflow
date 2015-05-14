@@ -5,7 +5,6 @@ import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateT
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

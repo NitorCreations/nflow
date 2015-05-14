@@ -344,16 +344,6 @@ public class WorkflowInstance {
     }
 
     /**
-     * Ignored.
-     * @return this.
-     * @deprecated Use setStatus(WorkflowInstanceStatus) instead.
-     */
-    @Deprecated
-    public Builder setProcessing(boolean processing) {
-      return this;
-    }
-
-    /**
      * Set the original state variables.
      * @param originalStateVariables The original state variables.
      * @return this.
@@ -456,18 +446,6 @@ public class WorkflowInstance {
      * @return this.
      */
     public Builder setExecutorGroup(String executorGroup) {
-      this.executorGroup = executorGroup;
-      return this;
-    }
-
-    /**
-     * Set the executor group name.
-     * @param executorGroup The executor group name.
-     * @return this.
-     * @deprecated Use setExecutorGroup instead. Will be removed in 2.0.
-     */
-    @Deprecated
-    public Builder setOwner(String executorGroup) {
       this.executorGroup = executorGroup;
       return this;
     }
