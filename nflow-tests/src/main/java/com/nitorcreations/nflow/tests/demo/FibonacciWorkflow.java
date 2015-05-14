@@ -98,16 +98,10 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
 
     public NextAction poll(StateExecution execution, @StateVar(value="requestData") int n) {
         // get finished and failed child workflows
-        /*
-        // TODO this is preferred way to fetch instances in correct state but this fails in postgresql
-        // due to buggy implementation in queryChildWorkflows with statuses
         List<WorkflowInstance> children = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
                 .addStatuses(manual.getStatus(), end.getStatus()).build());
-        */
-        List<WorkflowInstance> children = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
-                .build());
 
-        if(!childrenFinished(children, execution)) {
+        if(children.size() < getChildrenCount(execution)) {
             return NextAction.retryAfter(DateTime.now().plusSeconds(20), "Child workflows are not ready yet.");
         }
         int sum = 0;
@@ -123,18 +117,6 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         return NextAction.moveToState(State.done, "All is good");
     }
 
-    // TODO remove when queries using status field are fixed for postgresql
-    private boolean childrenFinished(List<WorkflowInstance> children, StateExecution execution) {
-        if (children.size() < getChildrenCount(execution)) {
-            return false;
-        }
-        for(WorkflowInstance child : children) {
-            if(!Arrays.asList(State.done.name(), State.error.name()).contains(child.state)) {
-                return false;
-            }
-        }
-        return true;
-    }
     public void done(StateExecution execution, @StateVar(value="requestData") int n, @StateVar(value="result") int result) {
         logger.info("We are done: fibonacci({}) == {}", n, result);
     }
