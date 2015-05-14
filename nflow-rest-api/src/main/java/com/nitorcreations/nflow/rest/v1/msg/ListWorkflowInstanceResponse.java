@@ -61,4 +61,7 @@ public class ListWorkflowInstanceResponse {
 
   @ApiModelProperty(value = "Time when workflow processing stared (start time for first action)", required=false)
   public DateTime started;
+
+  @ApiModelProperty(value = "Child workflow instance IDs created by this instance, grouped by instance action ID", required = false)
+  public Map<Integer, List<Integer>> childWorkflows;
 }

@@ -394,6 +394,7 @@ public class WorkflowInstanceDao {
         + "from nflow_workflow w where w.id = ?";
     WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
     fillState(instance);
+    fillChildWorkflows(instance);
     return instance;
   }
 
@@ -559,7 +560,28 @@ public class WorkflowInstanceDao {
         fillActions(instance, query.includeActionStateVariables);
       }
     }
+    if (query.includeChildWorkflows) {
+      for (final WorkflowInstance instance : ret) {
+        fillChildWorkflows(instance);
+      }
+    }
     return ret;
+  }
+
+  private void fillChildWorkflows(final WorkflowInstance instance) {
+    jdbc.query("select parent_action_id, id from nflow_workflow where parent_workflow_id = ?", new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        int parentActionId = rs.getInt(1);
+        int childWorkflowInstanceId = rs.getInt(2);
+        List<Integer> children = instance.childWorkflows.get(parentActionId);
+        if (children == null) {
+          children = new ArrayList<>();
+          instance.childWorkflows.put(parentActionId, children);
+        }
+        children.add(childWorkflowInstanceId);
+      }
+    }, instance.id);
   }
 
   private long getMaxResults(Long maxResults) {

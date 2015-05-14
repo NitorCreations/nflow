@@ -58,8 +58,11 @@ public class ListWorkflowInstanceConverter {
         }
       }
     }
-    if(query.includeCurrentStateVariables) {
+    if (query.includeCurrentStateVariables) {
       resp.stateVariables = stateVariablesToJson(instance.stateVariables);
+    }
+    if (query.includeChildWorkflows) {
+      resp.childWorkflows = instance.childWorkflows;
     }
     return resp;
   }

@@ -68,9 +68,13 @@ public class QueryWorkflowInstances {
   public final boolean includeActionStateVariables;
 
   /**
-   * The maximum number of instances to be returned by the query. If null, uses
-   * default value configured for the nFlow engine. The maximum value may also
-   * be limited by nFlow engine configuration.
+   * Setting this to true will make the query return also the created child workflow instance IDs.
+   */
+  public final boolean includeChildWorkflows;
+
+  /**
+   * The maximum number of instances to be returned by the query. If null, uses default value configured for the nFlow engine. The
+   * maximum value may also be limited by nFlow engine configuration.
    */
   public final Long maxResults;
 
@@ -86,6 +90,7 @@ public class QueryWorkflowInstances {
     this.includeActions = builder.includeActions;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
+    this.includeChildWorkflows = builder.includeChildWorkflows;
     this.maxResults = builder.maxResults;
   }
 
@@ -104,8 +109,8 @@ public class QueryWorkflowInstances {
     boolean includeActions;
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
+    boolean includeChildWorkflows;
     Long maxResults;
-
 
     /**
      * Create a workflow instance query builder.
@@ -125,6 +130,7 @@ public class QueryWorkflowInstances {
       this.includeActions = copy.includeActions;
       this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
       this.includeActionStateVariables = copy.includeActionStateVariables;
+      this.includeChildWorkflows = copy.includeChildWorkflows;
       this.maxResults = copy.maxResults;
     }
     /**
@@ -234,6 +240,16 @@ public class QueryWorkflowInstances {
      */
     public Builder setIncludeActionStateVariables(boolean includeActionStateVariables) {
       this.includeActionStateVariables = includeActionStateVariables;
+      return this;
+    }
+
+    /**
+     * Set whether child workflow IDs created by this instance should be included in the results.
+     * @param includeChildWorkflows True to include child workflows, false otherwise.
+     * @return this.
+     */
+    public Builder setIncludeChildWorkflows(boolean includeChildWorkflows) {
+      this.includeChildWorkflows = includeChildWorkflows;
       return this;
     }
 

@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +132,11 @@ public class WorkflowInstance {
    */
   public final String executorGroup;
 
+  /**
+   * Child workflow instance IDs created by this workflow instance, grouped by instance action ID.
+   */
+  public Map<Integer, List<Integer>> childWorkflows;
+
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.executorId = builder.executorId;
@@ -146,6 +152,7 @@ public class WorkflowInstance {
     this.originalStateVariables = builder.originalStateVariables;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
+    this.childWorkflows = builder.childWorkflows;
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
@@ -176,7 +183,8 @@ public class WorkflowInstance {
     DateTime nextActivation;
     final Map<String, String> originalStateVariables = new LinkedHashMap<>();
     final Map<String, String> stateVariables = new LinkedHashMap<>();
-    List<WorkflowInstanceAction> actions;
+    List<WorkflowInstanceAction> actions = new ArrayList<>();
+    final Map<Integer, List<Integer>> childWorkflows = new LinkedHashMap<>();
     int retries;
     DateTime created;
     DateTime started;
@@ -217,6 +225,8 @@ public class WorkflowInstance {
       this.nextActivation = copy.nextActivation;
       this.originalStateVariables.putAll(copy.originalStateVariables);
       this.stateVariables.putAll(copy.stateVariables);
+      this.actions.addAll(copy.actions);
+      this.childWorkflows.putAll(copy.childWorkflows);
       this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;

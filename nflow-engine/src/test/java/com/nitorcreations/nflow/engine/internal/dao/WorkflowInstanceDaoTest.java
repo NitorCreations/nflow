@@ -15,6 +15,7 @@ import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
@@ -90,10 +92,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int childId = dao.insertWorkflowInstance(child);
     assertThat(childId, not(equalTo(-1)));
 
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(childId).addTypes(child.type)
-        .addStates(child.state).addStatuses(i1.status).setParentWorkflowId(workflowId).setParentActionId(actionId)
-        .setBusinessKey(child.businessKey).setExternalId(child.externalId).setIncludeActions(true)
-        .setIncludeActionStateVariables(true).setIncludeCurrentStateVariables(true).build();
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(childId).addTypes(child.type).addStates(child.state)
+        .addStatuses(i1.status).setParentWorkflowId(workflowId).setParentActionId(actionId).setBusinessKey(child.businessKey)
+        .setExternalId(child.externalId).setIncludeActions(true).setIncludeActionStateVariables(true)
+        .setIncludeCurrentStateVariables(true).setIncludeChildWorkflows(true).build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
     checkSameWorkflowInfo(child, l.get(0));
@@ -595,12 +597,18 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance createdInstance = dao.getWorkflowInstance(parentWorkflowId);
     checkSameWorkflowInfo(i1, createdInstance);
 
-    int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
-    assertThat(subWorkflowId, not(equalTo(-1)));
+    int subWorkflowId1 = addSubWorkflow(parentWorkflowId, parentActionId);
+    assertThat(subWorkflowId1, not(equalTo(-1)));
 
-    WorkflowInstance i2 = dao.getWorkflowInstance(subWorkflowId);
+    int subWorkflowId2 = addSubWorkflow(parentWorkflowId, parentActionId);
+    assertThat(subWorkflowId2, not(equalTo(-1)));
+
+    WorkflowInstance i2 = dao.getWorkflowInstance(subWorkflowId1);
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
+
+    WorkflowInstance parent = dao.getWorkflowInstance(parentWorkflowId);
+    assertThat(parent.childWorkflows.get(parentActionId), containsInAnyOrder(subWorkflowId1, subWorkflowId2));
   }
 
   @Test
@@ -636,9 +644,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i1.nextActivation, equalTo(i2.nextActivation));
     assertThat(i1.stateVariables.size(), equalTo(i2.stateVariables.size()));
     Map<String, String> tmpVars = new LinkedHashMap<>(i1.stateVariables);
-    for (Map.Entry<String, String> entry : tmpVars.entrySet()) {
+    for (Entry<String, String> entry : tmpVars.entrySet()) {
       assertTrue(i2.stateVariables.containsKey(entry.getKey()));
       assertThat(i2.stateVariables.get(entry.getKey()), equalTo(entry.getValue()));
+    }
+    for (Entry<Integer, List<Integer>> entry : i1.childWorkflows.entrySet()) {
+      Integer key = entry.getKey();
+      assertTrue(i2.childWorkflows.containsKey(key));
+      assertThat(i2.childWorkflows.get(key), is(entry.getValue()));
     }
   }
 
@@ -684,5 +697,4 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       }
     }
   }
-
 }

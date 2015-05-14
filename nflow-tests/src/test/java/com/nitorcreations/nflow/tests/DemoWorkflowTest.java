@@ -45,7 +45,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   }
 
   @Test(timeout = 5000)
-  public void t04_queryDemoWorkflowHistory() throws Exception {
+  public void t02_queryDemoWorkflowHistory() throws Exception {
     ListWorkflowInstanceResponse wf = null;
     do {
       sleep(200);
@@ -60,5 +60,12 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       }
     } while (wf == null);
     assertThat(wf.actions.size(), is(2));
+  }
+
+  @Test
+  public void t03_queryDemoWorkflowWithMultipleStatuses() {
+    ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
+        .query("status", "finished").query("status", "manual").get(ListWorkflowInstanceResponse[].class);
+    assertThat(instances.length, greaterThanOrEqualTo(1));
   }
 }

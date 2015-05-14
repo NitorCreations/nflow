@@ -12,14 +12,14 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.nitorcreations.nflow.rest.v1.msg.Action;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -69,7 +69,8 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
-    return getInstanceResource(instanceId).get(ListWorkflowInstanceResponse.class);
+    return getInstanceResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables").get(
+        ListWorkflowInstanceResponse.class);
   }
 
   private WebClient getInstanceResource(int instanceId) {
