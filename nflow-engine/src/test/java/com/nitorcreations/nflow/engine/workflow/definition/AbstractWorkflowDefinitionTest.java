@@ -99,12 +99,12 @@ public class AbstractWorkflowDefinitionTest {
     verify(execution).setNextActivation(activation);
   }
 
-  @Test()
+  @Test
   public void sameFailureStateCanBePermittedAgain() {
     new TestWorkflow2().permitSameFailure();
   }
 
-  @Test()
+  @Test
   public void onlyOneFailureStateCanBeDefined() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Different failureState 'failed' already defined for originState 'process'");
@@ -251,5 +251,15 @@ public class AbstractWorkflowDefinitionTest {
     thrown
         .expectMessage("Class 'com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction");
     new TestWorkflow4();
+  }
+
+  @Test
+  public void settersAndGettersWork() {
+    TestWorkflow wf = new TestWorkflow();
+    wf.setName("name");
+    wf.setDescription("description");
+    assertThat(wf.getName(), is("name"));
+    assertThat(wf.getDescription(), is("description"));
+    assertThat(wf.getInitialState(), is(TestWorkflow.State.begin));
   }
 }
