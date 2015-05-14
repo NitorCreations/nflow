@@ -181,8 +181,9 @@ public class WorkflowInstanceResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam(value = "Maximum number of workflow instances to be returned") Long maxResults) {
     List<String> includes = parseIncludes(include);
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).setParentWorkflowId(parentWorkflowId)
-        .addStates(states).addStatuses(statuses).setBusinessKey(businessKey).setExternalId(externalId)
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types)
+        .setParentWorkflowId(parentWorkflowId).setParentActionId(parentActionId).addStates(states).addStatuses(statuses)
+        .setBusinessKey(businessKey).setExternalId(externalId)
         .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)).setIncludeActions(includes.contains(actions))
         .setIncludeActionStateVariables(includes.contains(actionStateVariables)).setMaxResults(maxResults)
         .setIncludeChildWorkflows(includes.contains(childWorkflows)).build();
