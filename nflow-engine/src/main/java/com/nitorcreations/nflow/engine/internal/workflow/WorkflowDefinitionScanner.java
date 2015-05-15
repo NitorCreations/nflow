@@ -29,7 +29,6 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
-import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.Mutable;
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
@@ -44,7 +43,7 @@ public class WorkflowDefinitionScanner {
     knownImmutableTypes.addAll(asList(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class, BigDecimal.class, BigInteger.class, Enum.class));
   }
 
-  public Map<String, WorkflowStateMethod> getStateMethods(@SuppressWarnings("rawtypes") Class<? extends AbstractWorkflowDefinition> definition) {
+  public Map<String, WorkflowStateMethod> getStateMethods(Class<?> definition) {
     final Map<String, WorkflowStateMethod> methods = new LinkedHashMap<>();
     doWithMethods(definition, new MethodCallback() {
       @Override
