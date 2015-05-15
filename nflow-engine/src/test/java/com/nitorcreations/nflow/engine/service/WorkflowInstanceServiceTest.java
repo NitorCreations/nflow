@@ -275,6 +275,13 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   }
 
   @Test
+  public void wakeUpWorkflowInstance() {
+    String[] states = new String[] {"abc", "xyz"};
+    service.wakeupWorkflowInstance(99, states);
+    verify(workflowInstanceDao).wakeupWorkflowInstanceIfNotExecuting(99l, states);
+  }
+
+  @Test
   public void listWorkflowInstances() {
     List<WorkflowInstance> result  = asList(constructWorkflowInstanceBuilder().build());
     QueryWorkflowInstances query = mock(QueryWorkflowInstances.class);
