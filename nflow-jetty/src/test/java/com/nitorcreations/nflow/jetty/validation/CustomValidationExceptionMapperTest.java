@@ -11,8 +11,10 @@ import java.util.LinkedHashSet;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
+import javax.validation.ValidationException;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.validation.ResponseConstraintViolationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +32,7 @@ public class CustomValidationExceptionMapperTest {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
-  public void toResponseWithConstraintViolationExceptionWorks() {
+  public void constraintViolationExceptionCausesBadRequest() {
     Path violationPath = mock(Path.class);
     when(violationPath.toString()).thenReturn("violationPath");
 
@@ -42,7 +44,32 @@ public class CustomValidationExceptionMapperTest {
     ConstraintViolationException cex = mock(ConstraintViolationException.class);
     when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
     Response resp = exceptionMapper.toResponse(cex);
+    assertThat(resp.getStatus(), is(400));
     assertThat(resp.getEntity().toString(), is("violationPath: violationMessage"));
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Test
+  public void responseConstraintViolationExceptionCausesInternalServerError() {
+    Path violationPath = mock(Path.class);
+    when(violationPath.toString()).thenReturn("violationPath");
+
+    ConstraintViolation violation = mock(ConstraintViolation.class);
+    when(violation.getRootBeanClass()).thenReturn(CustomValidationExceptionMapperTest.class);
+    when(violation.getPropertyPath()).thenReturn(violationPath);
+    when(violation.getMessage()).thenReturn("violationMessage");
+
+    ConstraintViolationException cex = mock(ResponseConstraintViolationException.class);
+    when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
+    Response resp = exceptionMapper.toResponse(cex);
+    assertThat(resp.getStatus(), is(500));
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Test
+  public void otherExceptionsCauseInternalServerException() {
+    ValidationException cex = mock(ValidationException.class);
+    Response resp = exceptionMapper.toResponse(cex);
+    assertThat(resp.getStatus(), is(500));
+  }
 }
