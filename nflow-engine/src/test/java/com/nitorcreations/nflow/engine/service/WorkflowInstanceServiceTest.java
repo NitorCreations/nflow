@@ -96,6 +96,15 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     assertThat(stored.getValue().state, is("alternativeStart"));
   }
 
+  @Test
+  public void insertWorkflowInstanceWorksWithoutExternalId() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId(null).setState("alternativeStart").build();
+
+    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
+    service.insertWorkflowInstance(i);
+    assertThat(stored.getValue().externalId, is(notNullValue()));
+  }
+
   @Test(expected = RuntimeException.class)
   public void insertWorkflowInstanceWithWrongStartState() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
