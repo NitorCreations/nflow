@@ -22,7 +22,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
 public class WorkflowDefinitionServiceTest extends BaseNflowTest {
@@ -62,7 +62,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void demoWorkflowLoadedSuccessfully() {
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
   }
 

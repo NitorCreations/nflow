@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -58,13 +58,13 @@ public class WorkflowInstanceService {
    */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
   public int insertWorkflowInstance(WorkflowInstance instance) {
-    WorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
+    AbstractWorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
-      builder.setState(def.getInitialState().toString());
+      builder.setState(def.getInitialState().name());
     } else {
       if (!def.isStartState(instance.state)) {
         throw new RuntimeException("Specified state [" + instance.state + "] is not a start state.");
@@ -99,7 +99,7 @@ public class WorkflowInstanceService {
       builder.setStatus(null);
     } else {
       String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
-      WorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
+      AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
       builder.setStatus(definition.getState(instance.state).getType().getStatus());
     }
     WorkflowInstance updatedInstance = builder.build();
