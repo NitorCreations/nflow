@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -157,6 +158,21 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     assertThat(stored.getValue().status, is(WorkflowInstanceStatus.inProgress));
     verify(workflowInstanceDao).insertWorkflowInstanceAction(stored2.capture(), storedAction.capture());
     assertThat(storedAction.getValue().state, is("currentState"));
+  }
+
+  @Test
+  public void updateWorkflowInstanceWorksWhenActionIsNull() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
+    WorkflowInstanceAction a = null;
+    when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
+    when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class))).thenReturn(true);
+    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
+    assertThat(service.updateWorkflowInstance(i, a), is(true));
+    verify(workflowInstanceDao).updateNotRunningWorkflowInstance(stored.capture());
+    assertThat(stored.getValue().status, is(WorkflowInstanceStatus.inProgress));
+    verify(workflowInstanceDao).insertWorkflowInstanceAction(stored2.capture(), storedAction.capture());
+    assertThat(storedAction.getValue().state, is("currentState"));
+    assertThat(storedAction.getValue().type, is(WorkflowActionType.stateExecution));
   }
 
   @Test

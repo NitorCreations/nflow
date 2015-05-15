@@ -108,6 +108,8 @@ public class WorkflowInstanceService {
       WorkflowInstanceAction.Builder actionBuilder;
       if (action == null) {
         actionBuilder = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(updatedInstance.id).setStateText("N/A");
+        // TODO we don't know type here. Leaving it to null will throw exception, so setting type to fixed value for now
+        actionBuilder.setType(WorkflowActionType.stateExecution);
       } else {
         actionBuilder = new WorkflowInstanceAction.Builder(action);
       }
