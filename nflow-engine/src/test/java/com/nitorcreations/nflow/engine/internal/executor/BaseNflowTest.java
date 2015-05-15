@@ -2,17 +2,17 @@ package com.nitorcreations.nflow.engine.internal.executor;
 
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static java.util.UUID.randomUUID;
 
 import java.util.LinkedHashMap;
-import java.util.UUID;
 
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import org.joda.time.DateTime;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("serial")
@@ -25,7 +25,8 @@ public abstract class BaseNflowTest {
       .setState("CreateLoan")
       .setStateText(null)
       .setNextActivation(new DateTime())
-      .setExternalId(UUID.randomUUID().toString())
+      .setExternalId(randomUUID().toString())
+      .setBusinessKey(randomUUID().toString())
       .setRetries(0)
       .setExecutorGroup("flowInstance1")
       .setStateVariables(new LinkedHashMap<String,String>() {{put("requestData", "{ \"parameter\": \"abc\" }"); }});

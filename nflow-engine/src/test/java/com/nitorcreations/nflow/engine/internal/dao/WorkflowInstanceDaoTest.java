@@ -87,8 +87,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstanceAction action = constructActionBuilder(workflowId).build();
     int actionId = dao.insertWorkflowInstanceAction(action);
 
-    WorkflowInstance child = constructWorkflowInstanceBuilder().setParentWorkflowId(workflowId)
-            .setParentActionId(actionId).build();
+    WorkflowInstance child = constructWorkflowInstanceBuilder().setParentWorkflowId(workflowId).setParentActionId(actionId)
+        .build();
     int childId = dao.insertWorkflowInstance(child);
     assertThat(childId, not(equalTo(-1)));
 
@@ -126,9 +126,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
     sleep(1);
-    DateTime started = DateTime.now();
+    DateTime started = now();
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
-        .setExecutionEnd(DateTime.now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+        .setExecutionEnd(now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
         .setWorkflowInstanceId(id).setType(stateExecution).build();
     dao.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows);
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
@@ -142,6 +142,27 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
       }
     });
+  }
+
+  @Test
+  public void updateWorkflowInstanceWithChildWorkflowsWorks() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
+    int id = dao.insertWorkflowInstance(i1);
+    WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress).setState("updateState")
+        .setStateText("update text").setNextActivation(now()).build();
+    DateTime started = now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+        .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+        .setWorkflowInstanceId(id).setType(stateExecution).build();
+    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("childKey").build();
+    dao.updateWorkflowInstanceAfterExecution(i2, a1, asList(childWorkflow));
+    Map<Integer, List<Integer>> childWorkflows = dao.getWorkflowInstance(id).childWorkflows;
+    assertThat(childWorkflows.size(), is(1));
+    for (List<Integer> childIds : childWorkflows.values()) {
+      assertThat(childIds.size(), is(1));
+      WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0));
+      assertThat(childInstance.businessKey, is("childKey"));
+    }
   }
 
   @Test
