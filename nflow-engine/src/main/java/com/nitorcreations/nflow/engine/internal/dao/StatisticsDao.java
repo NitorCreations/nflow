@@ -22,7 +22,6 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecutionStatistics;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
@@ -143,12 +142,4 @@ public class StatisticsDao {
     return stats;
   }
 
-  protected StateExecutionStatistics getStatisticsForState(Map<String, StateExecutionStatistics> statistics, String state) {
-    StateExecutionStatistics stats = statistics.get(state);
-    if (stats == null) {
-      stats = new StateExecutionStatistics();
-      statistics.put(state, stats);
-    }
-    return stats;
-  }
 }

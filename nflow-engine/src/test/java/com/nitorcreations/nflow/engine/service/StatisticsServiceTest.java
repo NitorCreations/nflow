@@ -1,7 +1,9 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static org.joda.time.DateTime.now;
 import static org.mockito.Mockito.verify;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,10 +20,20 @@ public class StatisticsServiceTest {
   @Mock
   private StatisticsDao dao;
 
-  @Test
-  public void workflowDefinitionStatisticsWorks() {
-    service.getWorkflowDefinitionStatistics("type", null, null, null, null);
+  DateTime createdAfter = now(), createdBefore = now().plusMinutes(1), modifiedAfter = now().plusMinutes(2),
+          modifiedBefore = now().plusMinutes(3);
 
-    verify(dao).getWorkflowDefinitionStatistics("type", null, null, null, null);
+  @Test
+  public void queryStatisticsDelegatesToDao() {
+    service.queryStatistics();
+
+    verify(dao).getQueueStatistics();
+  }
+
+  @Test
+  public void getWorkflowDefinitionStatisticsDelegatesToDao() {
+    service.getWorkflowDefinitionStatistics("type", createdAfter, createdBefore, modifiedAfter, modifiedBefore);
+
+    verify(dao).getWorkflowDefinitionStatistics("type", createdAfter, createdBefore, modifiedAfter, modifiedBefore);
   }
 }
