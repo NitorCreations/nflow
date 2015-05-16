@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
@@ -85,15 +86,17 @@ public class WorkflowInstanceService {
   }
 
   /**
-   * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action. If
-   * action is null, it will be automatically created. If the state of the instance is not null, the status of the instance is
-   * updated based on the new state. If the state of the instance is null, neither state nor status are updated.
+   * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action.
+   * If the state of the instance is not null, the status of the instance is updated based on the new state.
+   * If the state of the instance is null, neither state nor status are updated.
    * @param instance The instance to be updated.
    * @param action The action to be inserted. Can be null.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
+    Assert.notNull(instance, "Workflow instance can not be null");
+    Assert.notNull(action, "Workflow instance action can not be null");
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
       builder.setStatus(null);
@@ -105,15 +108,9 @@ public class WorkflowInstanceService {
     WorkflowInstance updatedInstance = builder.build();
     boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);
     if (updated) {
-      WorkflowInstanceAction.Builder actionBuilder;
-      if (action == null) {
-        actionBuilder = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(updatedInstance.id).setStateText("N/A");
-      } else {
-        actionBuilder = new WorkflowInstanceAction.Builder(action);
-      }
       String currentState = workflowInstanceDao.getWorkflowInstanceState(updatedInstance.id);
-      action = actionBuilder.setState(currentState).build();
-      workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, action);
+      WorkflowInstanceAction updatedAction = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
+      workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, updatedAction);
     }
     return updated;
   }

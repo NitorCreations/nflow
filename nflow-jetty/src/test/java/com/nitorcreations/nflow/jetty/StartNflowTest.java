@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class StartNflowTest {
   @Test
   public void startNflowJettyToRandomFreeLocalPort() throws Exception {
-    JettyServerContainer jetty = initJettyStart(0, "");
+    JettyServerContainer jetty = initJettyStart(0, "jmx");
     assertThat(jetty.getPort(), is(not(0)));
     startStop(jetty);
   }
