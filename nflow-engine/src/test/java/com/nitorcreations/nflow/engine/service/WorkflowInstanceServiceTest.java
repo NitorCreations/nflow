@@ -2,6 +2,7 @@ package com.nitorcreations.nflow.engine.service;
 
 import static com.nitorcreations.Matchers.containsElementsInAnyOrder;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -23,7 +24,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +39,6 @@ import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class WorkflowInstanceServiceTest extends BaseNflowTest {
@@ -137,7 +136,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(null).build();
     when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().status, is(WorkflowInstanceStatus.created));
+    assertThat(stored.getValue().status, is(created));
   }
 
   @Test(expected = RuntimeException.class)
@@ -155,24 +154,18 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
     assertThat(service.updateWorkflowInstance(i, a), is(true));
     verify(workflowInstanceDao).updateNotRunningWorkflowInstance(stored.capture());
-    assertThat(stored.getValue().status, is(WorkflowInstanceStatus.inProgress));
+    assertThat(stored.getValue().status, is(inProgress));
     verify(workflowInstanceDao).insertWorkflowInstanceAction(stored2.capture(), storedAction.capture());
     assertThat(storedAction.getValue().state, is("currentState"));
   }
 
   @Test
-  public void updateWorkflowInstanceWorksWhenActionIsNull() {
+  public void updateWorkflowInstanceThrowsExceptionWhenActionIsNull() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(is("Workflow instance action can not be null"));
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = null;
-    when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
-    when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class))).thenReturn(true);
-    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
-    assertThat(service.updateWorkflowInstance(i, a), is(true));
-    verify(workflowInstanceDao).updateNotRunningWorkflowInstance(stored.capture());
-    assertThat(stored.getValue().status, is(WorkflowInstanceStatus.inProgress));
-    verify(workflowInstanceDao).insertWorkflowInstanceAction(stored2.capture(), storedAction.capture());
-    assertThat(storedAction.getValue().state, is("currentState"));
-    assertThat(storedAction.getValue().type, is(WorkflowActionType.stateExecution));
+    service.updateWorkflowInstance(i, a);
   }
 
   @Test
@@ -278,7 +271,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void wakeUpWorkflowInstance() {
     String[] states = new String[] {"abc", "xyz"};
     service.wakeupWorkflowInstance(99, states);
-    verify(workflowInstanceDao).wakeupWorkflowInstanceIfNotExecuting(99l, states);
+    verify(workflowInstanceDao).wakeupWorkflowInstanceIfNotExecuting(99L, states);
   }
 
   @Test

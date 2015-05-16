@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.jetty.validation;
 
 import static java.util.Arrays.asList;
+import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
+import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,7 +46,7 @@ public class CustomValidationExceptionMapperTest {
     ConstraintViolationException cex = mock(ConstraintViolationException.class);
     when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
     Response resp = exceptionMapper.toResponse(cex);
-    assertThat(resp.getStatus(), is(400));
+    assertThat(resp.getStatus(), is(BAD_REQUEST_400));
     assertThat(resp.getEntity().toString(), is("violationPath: violationMessage"));
   }
 
@@ -62,14 +64,13 @@ public class CustomValidationExceptionMapperTest {
     ConstraintViolationException cex = mock(ResponseConstraintViolationException.class);
     when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
     Response resp = exceptionMapper.toResponse(cex);
-    assertThat(resp.getStatus(), is(500));
+    assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   public void otherExceptionsCauseInternalServerException() {
     ValidationException cex = mock(ValidationException.class);
     Response resp = exceptionMapper.toResponse(cex);
-    assertThat(resp.getStatus(), is(500));
+    assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
   }
 }
