@@ -15,8 +15,6 @@ public interface SQLVariants {
 
   boolean hasUpdateableCTE();
 
-  String least(String value1, String value2);
-
   String nextActivationUpdate();
 
   String castToText();
