@@ -91,61 +91,11 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void insertWorkflowInstanceWorksWithNonDefaultStart() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("alternativeStart").build();
-    when(workflowInstancePreProcessor.process(i)).thenReturn(i);
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().state, is("alternativeStart"));
-  }
-
-  @Test
-  public void insertWorkflowInstanceWorksWithoutExternalId() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId(null).setState("alternativeStart").build();
-
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().externalId, is(notNullValue()));
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void insertWorkflowInstanceWithWrongStartState() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
-    service.insertWorkflowInstance(i);
-  }
-
-  @Test
-  public void insertDuplicateWorkflowInstanceFetchesExistingId() {
-    List<WorkflowInstance> list  = singletonList(constructWorkflowInstanceBuilder().setId(43).build());
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").build();
-    when(workflowInstancePreProcessor.process(i)).thenReturn(i);
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(-1);
-    when(workflowInstanceDao.queryWorkflowInstances(queryCapture.capture())).thenReturn(list);
-    assertThat(service.insertWorkflowInstance(i), is(43));
-    assertThat(queryCapture.getValue().types, containsElementsInAnyOrder(singletonList("dummy")));
-    assertThat(queryCapture.getValue().externalId, is("123"));
-
-  }
-
-  @Test
-  public void insertWorkflowCreatesMissingExternalId() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().build();
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().externalId, notNullValue());
-  }
-
-  @Test
-  public void insertWorkflowSetsStatusToCreatedWhenStatusIsNotSpecified() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(null).build();
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().status, is(created));
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void insertWorkflowInstanceUnsupportedType() {
+  public void insertWorkflowInstanceWhenPreprocessorThrowsCausesException() {
+    thrown.expect(RuntimeException.class);
+    thrown.expectMessage("preprocessor reject");
     WorkflowInstance i = constructWorkflowInstanceBuilder().setType("nonexistent").build();
+    when(workflowInstancePreProcessor.process(i)).thenThrow(new RuntimeException("preprocessor reject"));
     service.insertWorkflowInstance(i);
   }
 
