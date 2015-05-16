@@ -32,7 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
@@ -58,7 +58,7 @@ public class WorkflowDefinitionDao {
     this.nflowObjectMapper = nflowObjectMapper;
   }
 
-  public void storeWorkflowDefinition(WorkflowDefinition<? extends WorkflowState> definition) {
+  public void storeWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
     StoredWorkflowDefinition storedDefinition = convert(definition);
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("type", definition.getType());
@@ -108,7 +108,7 @@ public class WorkflowDefinitionDao {
     });
   }
 
-  StoredWorkflowDefinition convert(WorkflowDefinition<? extends WorkflowState> definition) {
+  StoredWorkflowDefinition convert(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
     StoredWorkflowDefinition resp = new StoredWorkflowDefinition();
     resp.type = definition.getType();
     resp.description = definition.getDescription();

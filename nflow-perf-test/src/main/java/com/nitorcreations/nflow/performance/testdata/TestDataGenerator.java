@@ -26,7 +26,7 @@ import org.joda.time.Interval;
 
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -54,15 +54,15 @@ public class TestDataGenerator {
 
   public List<WorkflowInstance> generateWorkflowInstances(int count) {
     List<WorkflowInstance> result = new ArrayList<>();
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
     for (int i = 0; i < count; i++) {
       result.add(generateWorkflowInstance(definitions));
     }
     return result;
   }
 
-  private WorkflowInstance generateWorkflowInstance(List<WorkflowDefinition<? extends WorkflowState>> definitions) {
-    WorkflowDefinition<? extends WorkflowState> definition = selectRandom(definitions);
+  private WorkflowInstance generateWorkflowInstance(List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions) {
+    AbstractWorkflowDefinition<? extends WorkflowState> definition = selectRandom(definitions);
     DateTime nextActivation = new DateTime().minusYears(5).plusSeconds(random.nextInt(172800000)); // 2000 days
     WorkflowState state = selectRandomState(definition, nextActivation);
     WorkflowInstanceStatus status = selectRandomStatus(state, nextActivation);
@@ -92,7 +92,7 @@ public class TestDataGenerator {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private WorkflowState selectRandomState(WorkflowDefinition definition, DateTime instanceNextActivation) {
+  private WorkflowState selectRandomState(AbstractWorkflowDefinition definition, DateTime instanceNextActivation) {
     if (instanceNextActivation.isAfterNow()) {
       return selectRandomState(definition.getStates(), asList(start));
     } else if (instanceNextActivation.isAfter(new DateTime().minusWeeks(1))) {
@@ -115,10 +115,9 @@ public class TestDataGenerator {
 
   /**
    * Generates actions by backtracking from the randomized current state to a start state.
-   *
-   * @param actionId
    */
-  private List<WorkflowInstanceAction> generateWorkflowInstanceActions(WorkflowDefinition<? extends WorkflowState> definition,
+  private List<WorkflowInstanceAction> generateWorkflowInstanceActions(
+      AbstractWorkflowDefinition<? extends WorkflowState> definition,
       WorkflowState currentState, DateTime nextActivation) {
     List<WorkflowInstanceAction> result = new ArrayList<>();
     Set<WorkflowState> cyclePrevention = new HashSet<>();

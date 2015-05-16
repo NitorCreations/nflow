@@ -1,14 +1,16 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
-import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-import org.springframework.stereotype.Component;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static java.util.UUID.randomUUID;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import javax.inject.Inject;
-import java.util.UUID;
 
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Component;
+
+import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 @Component
 public class WorkflowInstancePreProcessor {
@@ -25,7 +27,7 @@ public class WorkflowInstancePreProcessor {
 
   // TODO should this set next_activation for child workflows?
   public WorkflowInstance process(WorkflowInstance instance) {
-    WorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
+    AbstractWorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {
       throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
     }
@@ -38,10 +40,10 @@ public class WorkflowInstancePreProcessor {
       }
     }
     if (isEmpty(instance.externalId)) {
-      builder.setExternalId(UUID.randomUUID().toString());
+      builder.setExternalId(randomUUID().toString());
     }
     if (instance.status == null) {
-      builder.setStatus(WorkflowInstance.WorkflowInstanceStatus.created);
+      builder.setStatus(created);
     }
     return builder.build();
   }

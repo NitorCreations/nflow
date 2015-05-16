@@ -28,8 +28,8 @@ import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -91,7 +91,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId);
     logIfLagging(instance);
-    WorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
+    AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
       rescheduleUnknownWorkflowType(instance);
       return;
@@ -177,7 +177,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-      WorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+      AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
@@ -244,8 +244,8 @@ class WorkflowStateProcessor implements Runnable {
     return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
-  private NextAction processState(WorkflowInstance instance, WorkflowDefinition<?> definition, StateExecutionImpl execution,
-      WorkflowState currentState) {
+  private NextAction processState(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
+      StateExecutionImpl execution, WorkflowState currentState) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
     if (method == null) {
       execution.setNextState(currentState);

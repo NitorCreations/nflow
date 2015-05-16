@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowSettings;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
@@ -23,7 +23,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class ListWorkflowDefinitionConverter {
 
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
-  public ListWorkflowDefinitionResponse convert(WorkflowDefinition<? extends WorkflowState> definition) {
+  public ListWorkflowDefinitionResponse convert(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
     ListWorkflowDefinitionResponse resp = new ListWorkflowDefinitionResponse();
     resp.type = definition.getType();
     resp.name = definition.getName();

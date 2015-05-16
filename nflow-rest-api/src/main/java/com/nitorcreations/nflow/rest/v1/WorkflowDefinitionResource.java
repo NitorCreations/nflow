@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
@@ -50,11 +50,11 @@ public class WorkflowDefinitionResource {
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
   public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(@QueryParam("type") String[] types) {
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
     Set<String> reqTypes = new HashSet<>(asList(types));
     Set<String> foundTypes = new HashSet<>();
     List<ListWorkflowDefinitionResponse> response = new ArrayList<>();
-    for (WorkflowDefinition<? extends WorkflowState> definition : definitions) {
+    for (AbstractWorkflowDefinition<? extends WorkflowState> definition : definitions) {
       if (reqTypes.isEmpty() || reqTypes.contains(definition.getType())) {
         foundTypes.add(definition.getType());
         response.add(converter.convert(definition));

@@ -38,6 +38,11 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
   }
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
+    this(type, initialState, errorState, settings, null);
+  }
+
+  protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings,
+      Map<String, WorkflowStateMethod> stateMethods) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -46,7 +51,11 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
     this.initialState = initialState;
     this.errorState = errorState;
     this.settings = settings;
-    this.stateMethods = new WorkflowDefinitionScanner().getStateMethods(getClass());
+    if (stateMethods != null) {
+      this.stateMethods = stateMethods;
+    } else {
+      this.stateMethods = new WorkflowDefinitionScanner().getStateMethods(getClass());
+    }
     requireStateMethodExists(initialState);
   }
 

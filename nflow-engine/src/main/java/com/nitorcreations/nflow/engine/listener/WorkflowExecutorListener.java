@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -39,7 +39,7 @@ public interface WorkflowExecutorListener {
     /**
      * The definition of the workflow.
      */
-    public final WorkflowDefinition<?> definition;
+    public final AbstractWorkflowDefinition<?> definition;
 
     /**
      * The name of the state of the workflow instance before processing.
@@ -69,7 +69,7 @@ public interface WorkflowExecutorListener {
      */
     public final Map<Object, Object> data = new LinkedHashMap<>();
 
-    public ListenerContext(WorkflowDefinition<?> definition, WorkflowInstance instance, StateExecution stateExecution) {
+    public ListenerContext(AbstractWorkflowDefinition<?> definition, WorkflowInstance instance, StateExecution stateExecution) {
       this.definition = definition;
       this.instance = instance;
       this.stateExecution = stateExecution;

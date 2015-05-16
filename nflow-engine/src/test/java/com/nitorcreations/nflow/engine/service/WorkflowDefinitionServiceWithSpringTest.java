@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,12 +29,13 @@ import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.StatisticsDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles("nflow-engine-test")
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@DirtiesContext
 public class WorkflowDefinitionServiceWithSpringTest {
 
   @Configuration
@@ -82,7 +84,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
 
   @Test
   public void springWorkflowDefinitionsAreDetected() {
-    List<WorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
     assertThat(definitions.get(0).getType(), is(new SpringDummyTestWorkflow().getType()));
   }

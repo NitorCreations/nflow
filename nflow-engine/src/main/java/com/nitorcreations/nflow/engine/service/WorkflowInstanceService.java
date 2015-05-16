@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
+import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -65,7 +65,7 @@ public class WorkflowInstanceService {
     WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);
     int id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
     if (id == -1 && !isEmpty(instance.externalId)) {
-      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(processedInstance.type).setExternalId(instance.externalId).build();
+      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(instance.type).setExternalId(instance.externalId).build();
       id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
     }
     return id;
@@ -86,7 +86,7 @@ public class WorkflowInstanceService {
       builder.setStatus(null);
     } else {
       String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
-      WorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
+      AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
       builder.setStatus(definition.getState(instance.state).getType().getStatus());
     }
     WorkflowInstance updatedInstance = builder.build();
