@@ -19,6 +19,7 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
  * Fibonacci series generator using recursive process.
@@ -88,18 +89,17 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         return NextAction.moveToState(nextState, "Creating childWorkflow to process f(" + nextN + ")");
     }
 
-    public NextAction poll(StateExecution execution, @StateVar(value="requestData") FiboData fiboData) {
-        int n = fiboData.n;
+    public NextAction poll(StateExecution execution) {
         // get finished and failed child workflows
         List<WorkflowInstance> finishedChildren = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
-                .addStatuses(manual.getStatus(), end.getStatus()).build());
+                .addStatuses(WorkflowInstanceStatus.manual, WorkflowInstanceStatus.finished).build());
 
         if(finishedChildren.size() < execution.getAllChildWorkflows().size()) {
             return NextAction.retryAfter(DateTime.now().plusSeconds(20), "Child workflows are not ready yet.");
         }
         int sum = 0;
         for(WorkflowInstance child : finishedChildren) {
-            if(child.status != WorkflowInstance.WorkflowInstanceStatus.finished) {
+            if(child.status != WorkflowInstanceStatus.finished) {
                 return NextAction.stopInState(State.error, "Some of the children failed");
             }
             String childResult = child.stateVariables.get("result");

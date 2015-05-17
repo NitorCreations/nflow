@@ -13,7 +13,8 @@ import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
-import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
+import java.util.Collections;
+
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.springframework.core.env.Environment;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
@@ -36,8 +38,6 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-
-import java.util.Collections;
 
 class WorkflowStateProcessor implements Runnable {
 
@@ -233,7 +233,7 @@ class WorkflowStateProcessor implements Runnable {
     if (isNextActivationImmediately(execution)) {
       return executing;
     }
-    return nextState.getType().getStatus();
+    return nextState.getType().getStatus(execution.getNextActivation());
   }
 
   private WorkflowActionType getActionType(StateExecutionImpl execution) {

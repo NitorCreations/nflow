@@ -7,8 +7,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
-import java.io.IOException;
-
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -31,7 +29,7 @@ public class ChildWorkflowTest extends AbstractNflowTest {
     }
 
     @Test
-    public void t01_startFibonacciWorkflow() throws IOException {
+    public void t01_startFibonacciWorkflow() {
         CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
         req.type = "fibonacci";
         req.requestData = nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5));

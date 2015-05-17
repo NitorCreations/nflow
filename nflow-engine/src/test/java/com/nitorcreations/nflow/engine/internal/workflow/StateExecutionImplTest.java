@@ -124,7 +124,7 @@ public class StateExecutionImplTest {
     verify(objectStringMapper).convertFromObject("foo", data);
   }
 
-  private static class Data {
+  static class Data {
     public final int number;
     public final String text;
     public Data(int number, String text) {

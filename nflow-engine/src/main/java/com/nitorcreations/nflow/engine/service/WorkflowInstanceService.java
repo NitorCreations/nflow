@@ -90,7 +90,7 @@ public class WorkflowInstanceService {
     } else {
       String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
       AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
-      builder.setStatus(definition.getState(instance.state).getType().getStatus());
+      builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
     }
     WorkflowInstance updatedInstance = builder.build();
     boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);

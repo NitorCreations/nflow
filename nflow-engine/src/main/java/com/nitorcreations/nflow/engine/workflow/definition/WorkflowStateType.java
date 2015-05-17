@@ -1,5 +1,9 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+
+import org.joda.time.DateTime;
+
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
@@ -49,11 +53,15 @@ public enum WorkflowStateType {
 
   /**
    * Returns the status for this type. This is used when a workflow instance state is updated, the new status of the instance will
-   * be determined based on the new state type.
+   * be determined based on the new state type and next activation time.
    *
-   * @return Default status for this state type.
+   * @param nextActivation The next activation for the instance.
+   * @return The status resolved for this state type and nextActivation.
    */
-  public WorkflowInstanceStatus getStatus() {
+  public WorkflowInstanceStatus getStatus(DateTime nextActivation) {
+    if (isFinal && nextActivation != null) {
+      return inProgress;
+    }
     return status;
   }
 }
