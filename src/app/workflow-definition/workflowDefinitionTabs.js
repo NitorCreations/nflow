@@ -71,7 +71,7 @@
                     axisLabel: 'Workflow instances',
                     axisLabelDistance: 40,
                     tickFormat: function(d) {
-                        return d3.format(',.0f')(d);
+                        return d3.format(',d')(d);
                     }
                 }
             }
