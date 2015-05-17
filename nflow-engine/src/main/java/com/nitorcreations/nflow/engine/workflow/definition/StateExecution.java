@@ -107,4 +107,11 @@ public interface StateExecution {
    * execution. Scheduling is performed when current state method processing completes successfully.
    */
   void wakeUpParentWorkflow();
+
+  /**
+   * Create a builder for creating child workflows. Created builder has nextActivation set to current time.
+   * @return Builder for creating child workflows.
+   */
+  WorkflowInstance.Builder workflowInstanceBuilder();
+
 }

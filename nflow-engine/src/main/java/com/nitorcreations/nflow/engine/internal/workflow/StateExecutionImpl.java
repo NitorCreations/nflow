@@ -178,4 +178,9 @@ public class StateExecutionImpl implements StateExecution {
   public boolean isWakeUpParentWorkflowSet() {
     return wakeUpParentWorkflow;
   }
+
+  @Override
+  public WorkflowInstance.Builder workflowInstanceBuilder() {
+    return new WorkflowInstance.Builder(this.objectMapper).setNextActivation(DateTime.now());
+  }
 }

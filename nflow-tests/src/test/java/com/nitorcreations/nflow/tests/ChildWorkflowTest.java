@@ -34,7 +34,7 @@ public class ChildWorkflowTest extends AbstractNflowTest {
     public void t01_startFibonacciWorkflow() throws IOException {
         CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
         req.type = "fibonacci";
-        req.requestData = nflowObjectMapper().readTree("5");
+        req.requestData = nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5));
         CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
         assertThat(resp.id, notNullValue());
         workflowId = resp.id;

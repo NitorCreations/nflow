@@ -60,17 +60,20 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         permit(State.poll, State.done);
     }
 
-    public NextAction begin(StateExecution execution,  @StateVar(value="requestData", readOnly=true) int n) {
+    public NextAction begin(StateExecution execution,  @StateVar(value="requestData", readOnly=true) FiboData fiboData) {
+        int n = fiboData.n;
         logger.info("Fibonacci step N = {}", n);
         execution.setVariable("result", 0);
         return NextAction.moveToState(State.nMinus2, "Starting N = " + n);
     }
 
-    public NextAction nMinus2(StateExecution execution, @StateVar(value="requestData", readOnly=true) int n) {
+    public NextAction nMinus2(StateExecution execution, @StateVar(value="requestData", readOnly=true) FiboData fiboData) {
+        int n = fiboData.n;
         return nextStep(execution, n - 2, 2, State.nMinus1);
     }
 
-    public NextAction nMinus1(StateExecution execution, @StateVar(value="requestData", readOnly = true) int n) {
+    public NextAction nMinus1(StateExecution execution, @StateVar(value="requestData", readOnly = true) FiboData fiboData) {
+        int n = fiboData.n;
         return nextStep(execution, n - 1, 1, State.poll);
     }
 
@@ -83,7 +86,7 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
 
         execution.setVariable("childrenCount", String.valueOf(getChildrenCount(execution) + 1));
         logger.info("Create child workflow N={}", nextN);
-        execution.addChildWorkflows(createWorkflow(nextN));
+        execution.addChildWorkflows(createWorkflow(execution, nextN));
         return NextAction.moveToState(nextState, "Creating childWorkflow to process f(" + nextN + ")");
     }
 
@@ -95,7 +98,8 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         }
     }
 
-    public NextAction poll(StateExecution execution, @StateVar(value="requestData") int n) {
+    public NextAction poll(StateExecution execution, @StateVar(value="requestData") FiboData fiboData) {
+        int n = fiboData.n;
         // get finished and failed child workflows
         List<WorkflowInstance> children = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
                 .addStatuses(manual.getStatus(), end.getStatus()).build());
@@ -116,19 +120,30 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
         return NextAction.moveToState(State.done, "All is good");
     }
 
-    public void done(StateExecution execution, @StateVar(value="requestData") int n, @StateVar(value="result") int result) {
-        logger.info("We are done: fibonacci({}) == {}", n, result);
+    public void done(StateExecution execution, @StateVar(value="requestData") FiboData fiboData, @StateVar(value="result") int result) {
+        logger.info("We are done: fibonacci({}) == {}", fiboData.n, result);
     }
 
-    public void error(StateExecution execution, @StateVar(value="requestData") int n, @StateVar(value="result") int result) {
-        logger.error("Failed to compute F({})", n);
+    public void error(StateExecution execution, @StateVar(value="requestData") FiboData fiboData, @StateVar(value="result") int result) {
+        logger.error("Failed to compute F({})", fiboData.n);
     }
 
-    private WorkflowInstance createWorkflow(int n) {
-        WorkflowInstance child = new WorkflowInstance.Builder()
+    private WorkflowInstance createWorkflow(StateExecution execution, int n) {
+        WorkflowInstance child = execution.workflowInstanceBuilder()
                 .setType(FibonacciWorkflow.WORKFLOW_TYPE)
-                .setNextActivation(DateTime.now())
-                .setStateVariables(Collections.singletonMap("requestData", "" + n)).build();
+                .putStateVariable("requestData", new FiboData(n))
+                .build();
         return child;
+    }
+
+    public static class FiboData {
+        public int n;
+        public FiboData() {
+            // for Jackson
+        }
+        public FiboData(int n) {
+            this();
+            this.n = n;
+        }
     }
 }

@@ -2,12 +2,15 @@ package com.nitorcreations.nflow.engine.internal.workflow;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,5 +93,28 @@ public class StateExecutionImplTest {
     assertThat(instance.id, is(executionInterface.getWorkflowInstanceId()));
     assertThat(instance.externalId, is(executionInterface.getWorkflowInstanceExternalId()));
     assertThat(instance.retries, is(executionInterface.getRetries()));
+  }
+
+  @Test
+  public void workflowInstanceBuilder() {
+    WorkflowInstance.Builder builder = executionInterface.workflowInstanceBuilder();
+    Object data = new Data(32, "foobar");
+    String serializedData = "data in serialized form";
+    when(objectStringMapper.convertFromObject("foo", data)).thenReturn(serializedData);
+    assertThat(builder, is(notNullValue()));
+    builder.putStateVariable("foo", data);
+    WorkflowInstance i = builder.build();
+    assertThat(i.nextActivation, is(notNullValue()));
+    assertThat(i.stateVariables.get("foo"), is(serializedData));
+    verify(objectStringMapper).convertFromObject("foo", data);
+  }
+
+  private static class Data {
+    public final int number;
+    public final String text;
+    public Data(int number, String text) {
+      this.number  = number;
+      this.text = text;
+    }
   }
 }
