@@ -39,6 +39,8 @@ the header and footer. It declares with `ngApp` that this is `nflowExplorer`,
 specifies the topmost `NaviCtrl` controller, and contains the `ngView` directive
 into which route templates are placed.
 
+When adding new `.js` files to the project, you'll need to include them via `<script>` tag to `index.html`. Otherwise they are not found.
+
 When adding third-party libraries or application modules, they need to be added to index.html to be picked up by the build system.
 
 ## `config.js`
@@ -46,3 +48,7 @@ When adding third-party libraries or application modules, they need to be added 
 The `config.js` file is environment configuration file in the form of vanilla javascript,
 e.g. it is does not require angular, is not uglified and can be edited directly in the web server.
 Build scripts may apply environment specific values into this file.
+
+## `app.js`
+
+The `app.js` is the startup point for the application. It defines the top level angular module dependencies. When adding a new module, you'll need to ensure that your module is part of dependency hierarchy, otherwise it won't work.
