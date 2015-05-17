@@ -50,9 +50,9 @@
       });
     }
 
-    function defaultNextState(stateName) {
+    function defaultNextState(stateId) {
       model.nextState = _.first(_.filter(self.definition.states, function(state) {
-        return state.name === stateName;
+        return state.id === stateId;
       }));
     }
 

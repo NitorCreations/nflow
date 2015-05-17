@@ -13,7 +13,7 @@ describe('Controller: SearchCtrl', function () {
 
   function getCtrl(CriteriaModel) {
     return $controller('SearchCtrl', {
-      $stateParams: {type: 'expected type', state: 'expected state name'},
+      $stateParams: {type: 'expected type', state: 'expected state id'},
       definitions: ['expected definition'],
       CriteriaModel: CriteriaModel
     });
@@ -32,7 +32,7 @@ describe('Controller: SearchCtrl', function () {
   it('initializes criteria model from route params', function () {
     var mock = sinon.mock(CriteriaModel);
     var expectation = mock.expects('initialize').withExactArgs(
-      {type: 'expected type', stateName: 'expected state name'},
+      {type: 'expected type', stateId: 'expected state id'},
       ['expected definition']
     );
 

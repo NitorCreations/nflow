@@ -34,9 +34,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-class="{highlight: ctrl.isStateSelected(state)}" class="wd-state-{{state.name}}"
+      <tr ng-class="{highlight: ctrl.isStateSelected(state)}" class="wd-state-{{state.id}}"
           ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
-        <td title="{{state.description}}">{{state.name}}</td>
+        <td title="{{state.description}}">{{state.id}}</td>
         <td class="numeric">{{state.stateStatistics.created.allInstances | nullToZero}}</td>
         <td class="numeric" title="Waiting for a free executor">
             <span class="queued" ng-if="state.stateStatistics.created.queuedInstances">{{state.stateStatistics.created.queuedInstances}}</span></td>
@@ -49,7 +49,7 @@
         <th class="numeric">{{state.stateStatistics.stopped.allInstances | nullToZero}}</th>
         <td class="numeric">{{state.stateStatistics.finished.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.allInstances | nullToZero}}</td>
-        <td><a ui-sref="search({type: ctrl.definition.type, state: state.name})">
+        <td><a ui-sref="search({type: ctrl.definition.type, state: state.id})">
           <span class="glyphicon glyphicon-search"></span></a>
         </td>
       </tr>
