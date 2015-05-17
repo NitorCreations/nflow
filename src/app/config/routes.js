@@ -19,6 +19,11 @@
       template: '<div ui-view></div>'
     });
 
+    $stateProvider.state('executorsTab', {
+      abstract: true,
+      template: '<div ui-view></div>'
+    });
+
     $stateProvider.state('aboutTab', {
       abstract: true,
       template: '<div ui-view></div>'
@@ -41,6 +46,12 @@
             return WorkflowDefinitions.query().$promise;
           }
         }
+      })
+      .state('executors', {
+        parent: 'executorsTab',
+        url: '/executors',
+        templateUrl: 'app/executors/executors.html',
+        controller: 'ExecutorsCtrl as ctrl'
       })
       .state('about', {
         parent: 'aboutTab',

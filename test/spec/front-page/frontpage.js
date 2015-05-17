@@ -8,9 +8,7 @@ describe('Controller: FrontPageCtrl', function () {
   beforeEach(inject(function ($controller, WorkflowDefinitions) {
     sinon.stub(WorkflowDefinitions, 'query', function(){  return ['definition' ]; });
 
-    ctrl = $controller('FrontPageCtrl', {
-      WorkflowDefinitions: WorkflowDefinitions,
-      ExecutorPoller: { executors: ['executor'] } });
+    ctrl = $controller('FrontPageCtrl', { WorkflowDefinitions: WorkflowDefinitions });
   }));
 
   afterEach(inject(function(WorkflowDefinitions) {
@@ -21,7 +19,4 @@ describe('Controller: FrontPageCtrl', function () {
     expect(ctrl.definitions).toEqual(['definition']);
   });
 
-  it('sets executors into view model', function () {
-    expect(ctrl.executors).toEqual(['executor']);
-  });
 });

@@ -6,22 +6,27 @@ describe('menu', function () {
   var menu = po.menu({});
   var frontPage = po.frontPage({});
 
-  function assertTabs(isDefinitionsTabActive, isInstancesTabActive, isAboutTabActive) {
+  function assertTabs(isDefinitionsTabActive, isInstancesTabActive, isExecutorsTabActive, isAboutTabActive) {
     expect(menu.isDefinitionsActive()).toBe(isDefinitionsTabActive);
     expect(menu.isInstancesActive()).toBe(isInstancesTabActive);
+    expect(menu.isExecutorsActive()).toBe(isExecutorsTabActive);
     expect(menu.isAboutActive()).toBe(isAboutTabActive);
   }
 
   function assertDefinitionsTabActive() {
-    assertTabs(true, false, false);
+    assertTabs(true, false, false, false);
   }
 
   function assertInstancesTabActive() {
-    assertTabs(false, true, false);
+    assertTabs(false, true, false, false);
+  }
+
+  function assertExecutorsTabActive() {
+    assertTabs(false, false, true, false);
   }
 
   function assertAboutTabActive() {
-    assertTabs(false, false, true);
+    assertTabs(false, false, false, true);
   }
 
   beforeEach(function () { frontPage.get(); });
@@ -31,6 +36,9 @@ describe('menu', function () {
 
     menu.toInstances();
     assertInstancesTabActive();
+
+    menu.toExecutors();
+    assertExecutorsTabActive();
 
     menu.toAbout();
     assertAboutTabActive();
