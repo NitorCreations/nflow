@@ -171,6 +171,11 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
+  public List<WorkflowInstance> getAllChildWorkflows() {
+    return queryChildWorkflows(new QueryWorkflowInstances.Builder().build());
+  }
+
+  @Override
   public void wakeUpParentWorkflow() {
     wakeUpParentWorkflow = true;
   }

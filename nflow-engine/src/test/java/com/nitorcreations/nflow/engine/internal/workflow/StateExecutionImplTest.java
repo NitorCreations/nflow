@@ -1,16 +1,18 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +78,7 @@ public class StateExecutionImplTest {
             .setParentActionId(42).addTypes("a","b")
             .setBusinessKey("123").build();
 
-    List<WorkflowInstance> result = asList(mock(WorkflowInstance.class));
+    List<WorkflowInstance> result = singletonList(mock(WorkflowInstance.class));
     when(workflowDao.queryWorkflowInstances(queryCaptor.capture())).thenReturn(result);
 
     assertThat(execution.queryChildWorkflows(query), is(result));
@@ -85,6 +87,19 @@ public class StateExecutionImplTest {
     assertThat(actualQuery.parentWorkflowId, is(99));
     assertThat(actualQuery.types, is(asList("a", "b")));
     assertThat(actualQuery.businessKey, is("123"));
+  }
+
+  @Test
+  public void getAllChildWorkflowsQueriesAllChildWorkflows() {
+    List<WorkflowInstance> result = singletonList(mock(WorkflowInstance.class));
+    when(workflowDao.queryWorkflowInstances(queryCaptor.capture())).thenReturn(result);
+
+    assertThat(execution.getAllChildWorkflows(), is(result));
+    QueryWorkflowInstances actualQuery = queryCaptor.getValue();
+
+    assertThat(actualQuery.parentWorkflowId, is(99));
+    assertThat(actualQuery.types, is(Collections.<String>emptyList()));
+    assertThat(actualQuery.businessKey, is(nullValue()));
   }
 
   @Test

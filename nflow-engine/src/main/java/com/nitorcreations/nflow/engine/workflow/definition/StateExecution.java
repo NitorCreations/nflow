@@ -91,7 +91,7 @@ public interface StateExecution {
    * Add a new child workflow. Child workflows are stored to database scheduled after current
    * state method processing completes successfully.
    * Note that Child workflows are not visible to queryChildWorkflows() method before they are stored to database.
-   * @param childWorkflows
+   * @param childWorkflows Child workflows to create.
    */
   void addChildWorkflows(WorkflowInstance ... childWorkflows);
 
@@ -101,6 +101,12 @@ public interface StateExecution {
    * @return List of child workflows that match the query.
    */
   List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query);
+
+  /**
+   * Return all child workflows for current workflow.
+   * @return List of all child workflows.
+   */
+  List<WorkflowInstance> getAllChildWorkflows();
 
   /**
    * Notify parent workflow that it may start processing again. Calling this schedules parent workflow for immediate

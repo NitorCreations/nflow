@@ -5,7 +5,6 @@ import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateT
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -29,12 +28,12 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
     public static final String WORKFLOW_TYPE = "fibonacci";
     private static final Logger logger = LoggerFactory.getLogger(FibonacciWorkflow.class);
 
-    public static enum State implements WorkflowState {
+    public enum State implements WorkflowState {
         begin(start), nMinus1(normal), nMinus2(normal), poll(normal), done(end), error(manual);
 
         private WorkflowStateType type;
 
-        private State(WorkflowStateType type) {
+        State(WorkflowStateType type) {
             this.type = type;
         }
 
@@ -84,31 +83,22 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
             return NextAction.moveToState(nextState, "N - " + offset + " = " + nextN + ". Going to end.");
         }
 
-        execution.setVariable("childrenCount", String.valueOf(getChildrenCount(execution) + 1));
         logger.info("Create child workflow N={}", nextN);
         execution.addChildWorkflows(createWorkflow(execution, nextN));
         return NextAction.moveToState(nextState, "Creating childWorkflow to process f(" + nextN + ")");
     }
 
-    private int getChildrenCount(StateExecution execution) {
-        try {
-            return execution.getVariable("childrenCount", Integer.class);
-        } catch (RuntimeException e) {
-            return 0;
-        }
-    }
-
     public NextAction poll(StateExecution execution, @StateVar(value="requestData") FiboData fiboData) {
         int n = fiboData.n;
         // get finished and failed child workflows
-        List<WorkflowInstance> children = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
+        List<WorkflowInstance> finishedChildren = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder()
                 .addStatuses(manual.getStatus(), end.getStatus()).build());
 
-        if(children.size() < getChildrenCount(execution)) {
+        if(finishedChildren.size() < execution.getAllChildWorkflows().size()) {
             return NextAction.retryAfter(DateTime.now().plusSeconds(20), "Child workflows are not ready yet.");
         }
         int sum = 0;
-        for(WorkflowInstance child : children) {
+        for(WorkflowInstance child : finishedChildren) {
             if(child.status != WorkflowInstance.WorkflowInstanceStatus.finished) {
                 return NextAction.stopInState(State.error, "Some of the children failed");
             }
@@ -129,11 +119,10 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
     }
 
     private WorkflowInstance createWorkflow(StateExecution execution, int n) {
-        WorkflowInstance child = execution.workflowInstanceBuilder()
+        return execution.workflowInstanceBuilder()
                 .setType(FibonacciWorkflow.WORKFLOW_TYPE)
                 .putStateVariable("requestData", new FiboData(n))
                 .build();
-        return child;
     }
 
     public static class FiboData {
