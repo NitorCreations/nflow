@@ -230,15 +230,17 @@ public class WorkflowInstanceDao {
       }
     });
     int updatedRows = 0;
-    for (int i=0; i<updateStatus.length; ++i) {
+    for (int i = 0; i < updateStatus.length; ++i) {
       updatedRows += updateStatus[i];
     }
     if (updatedRows != changedStateVariables.size()) {
-      throw new IllegalStateException("Failed to insert/update state variables, expected update count " + changedStateVariables.size() + ", actual " + updatedRows);
+      throw new IllegalStateException("Failed to insert/update state variables, expected update count "
+          + changedStateVariables.size() + ", actual " + updatedRows);
     }
   }
 
-  public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action, List<WorkflowInstance> childWorkflows) {
+  public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action,
+      List<WorkflowInstance> childWorkflows) {
     if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
       updateWorkflowInstanceWithCTE(instance, action);
     } else {
@@ -262,8 +264,8 @@ public class WorkflowInstanceDao {
         updateWorkflowInstance(instance);
         int parentActionId = insertWorkflowInstanceAction(instance, action);
         for (WorkflowInstance childTemplate : childWorkflows) {
-          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate)
-                  .setParentWorkflowId(instance.id).setParentActionId(parentActionId).build();
+          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
+              .setParentActionId(parentActionId).build();
           insertWorkflowInstance(childWorkflow);
         }
       }

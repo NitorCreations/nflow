@@ -1,12 +1,14 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
+import static java.util.Collections.unmodifiableList;
+import static org.joda.time.DateTime.now;
 import static org.springframework.util.Assert.notNull;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
@@ -31,7 +33,7 @@ public class StateExecutionImpl implements StateExecution {
   private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
-                            WorkflowInstancePreProcessor workflowInstancePreProcessor) {
+      WorkflowInstancePreProcessor workflowInstancePreProcessor) {
     this.instance = instance;
     this.objectMapper = objectMapper;
     this.workflowDao = workflowDao;
@@ -150,23 +152,22 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
-  public void addChildWorkflows(WorkflowInstance ... childWorkflows) {
-    notNull(childWorkflows, "childWorkflows can not be null");
-    for(WorkflowInstance child : childWorkflows) {
-      notNull(child, "childWorkflow can not be null");
+  public void addChildWorkflows(WorkflowInstance... childWorkflows) {
+    Assert.notNull(childWorkflows, "childWorkflows can not be null");
+    for (WorkflowInstance child : childWorkflows) {
+      Assert.notNull(child, "childWorkflow can not be null");
       WorkflowInstance processedChild = workflowInstancePreProcessor.process(child);
       newChildWorkflows.add(processedChild);
     }
   }
 
   public List<WorkflowInstance> getNewChildWorkflows() {
-    return Collections.unmodifiableList(newChildWorkflows);
+    return unmodifiableList(newChildWorkflows);
   }
 
   @Override
   public List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query) {
-    QueryWorkflowInstances restrictedQuery = new QueryWorkflowInstances.Builder(query)
-            .setParentWorkflowId(instance.id).build();
+    QueryWorkflowInstances restrictedQuery = new QueryWorkflowInstances.Builder(query).setParentWorkflowId(instance.id).build();
     return workflowDao.queryWorkflowInstances(restrictedQuery);
   }
 
@@ -186,6 +187,6 @@ public class StateExecutionImpl implements StateExecution {
 
   @Override
   public WorkflowInstance.Builder workflowInstanceBuilder() {
-    return new WorkflowInstance.Builder(this.objectMapper).setNextActivation(DateTime.now());
+    return new WorkflowInstance.Builder(this.objectMapper).setNextActivation(now());
   }
 }
