@@ -34,7 +34,6 @@ module.exports = function(config) {
 
       'src/external/dagre-d3/js/dagre-d3.min.js',
       'src/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
-      'src/external/dygraphs/dygraph-combined.js',
       'bower_components/d3/d3.js',
       'src/config.js',
       'src/app/**/*.js',

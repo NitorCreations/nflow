@@ -13,18 +13,18 @@
 
     return self;
 
-    function initialize(typeAndStateName, definitions) {
+    function initialize(typeAndStateId, definitions) {
       angular.copy({}, self.model);
 
-      self.model.definition = ensureTypeInDefinitions(typeAndStateName.type, definitions);
-      self.model.state = ensureStateNameInDefinitionStates(typeAndStateName.stateName, self.model.definition);
+      self.model.definition = ensureTypeInDefinitions(typeAndStateId.type, definitions);
+      self.model.state = ensureStateIdInDefinitionStates(typeAndStateId.stateId, self.model.definition);
     }
 
     function toQuery() {
       var q = {};
 
       q.type = _.result(self.model.definition, 'type');
-      q.state = _.result(self.model.state, 'name');
+      q.state = _.result(self.model.state, 'id');
       _.defaults(q, _.omit(self.model, ['definition', 'state']));
 
       return omitNonValues(q);
@@ -35,15 +35,15 @@
     }
 
     function onDefinitionChange() {
-      self.model.state = ensureStateNameInDefinitionStates(_.result(self.model.state, 'name'), self.model.definition);
+      self.model.state = ensureStateIdInDefinitionStates(_.result(self.model.state, 'id'), self.model.definition);
     }
 
     function ensureTypeInDefinitions(type, definitions) {
       return nonValueToNull(_.find(definitions, function (d) { return d.type === type; }));
     }
 
-    function ensureStateNameInDefinitionStates(stateName, definition) {
-      return definition ? nonValueToNull(_.find(definition.states, function (s) { return s.name === stateName; })) : null;
+    function ensureStateIdInDefinitionStates(stateId, definition) {
+      return definition ? nonValueToNull(_.find(definition.states, function (s) { return s.id === stateId; })) : null;
     }
 
     function omitNonValues(object) {

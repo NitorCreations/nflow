@@ -3,7 +3,7 @@
     <div class="form-group">
       <label class="col-md-3 control-label" for="nextState">Set state to</label>
       <div class="col-md-9">
-        <select class="selectwidthauto form-control" id="nextState" ng-model="ctrl.model.nextState" ng-options="state.name for state in ctrl.definition.states">
+        <select class="selectwidthauto form-control" id="nextState" ng-model="ctrl.model.nextState" ng-options="state.id for state in ctrl.definition.states">
           <option value="">-- Keep current state --</option>
         </select>
       </div>

@@ -91,7 +91,7 @@
     }
 
     function isStateSelected(state) {
-      return state.name === WorkflowDefinitionGraphApi.selectedNode;
+      return state.id === WorkflowDefinitionGraphApi.selectedNode;
     }
 
     /**
@@ -119,18 +119,18 @@
      */
     function statsToData(definition, stats) {
       var data = {};
-      var definitionStateNames = _.map(definition.states, function(state) {
-        return state.name;
+      var definitionStateIds = _.map(definition.states, function(state) {
+        return state.id;
       });
-      var statsStateNames = Object.keys(stats.stateStatistics);
+      var statsStateIds = Object.keys(stats.stateStatistics);
       // add any extra state present in stats, but not present in definition
-      var allStateNames = definitionStateNames.concat(_.filter(statsStateNames, function(state) {
-        return !_.contains(definitionStateNames, state);
+      var allStateIds = definitionStateIds.concat(_.filter(statsStateIds, function(state) {
+        return !_.contains(definitionStateIds, state);
       }));
 
-      var activeStateNames = _.filter(allStateNames, function(stateName) {
+      var activeStateIds = _.filter(allStateIds, function(stateId) {
         // remove states that are know to be end states
-        var definitionState = _.find(definition.states, {name: stateName});
+        var definitionState = _.find(definition.states, {id: stateId});
         if(!definitionState) {
           return true;
         }
@@ -144,7 +144,7 @@
         if(!data[statusName]) {
           data[statusName] = {
             key: _.startCase(statusName),
-            values: _.map(activeStateNames, function(state) {
+            values: _.map(activeStateIds, function(state) {
               return {
                 label: state,
                 value: 0,
@@ -153,15 +153,15 @@
           };
         }
       });
-      _.forEach(stats.stateStatistics, function(stateStats, stateName) {
-        if(!_.contains(activeStateNames, stateName)) {
+      _.forEach(stats.stateStatistics, function(stateStats, stateId) {
+        if(!_.contains(activeStateIds, stateId)) {
           return;
         }
         _.forEach(Object.keys(stateStats), function(statusName) {
           if(!_.contains(allStatusNames, statusName)) {
             return;
           }
-          var valueForStatus = _.find(data[statusName].values, {label: stateName});
+          var valueForStatus = _.find(data[statusName].values, {label: stateId});
           valueForStatus.value = stateStats[statusName].allInstances || 0;
         });
       });
@@ -201,7 +201,7 @@
      *
      *
      * Modifies definition:
-     * Adds definition.stateStatisticsTotal and definition.states[stateName].stats
+     * Adds definition.stateStatisticsTotal and definition.states[stateId].stats
      *
      * definition.stateStatisticsTotal = {
      *   totalInstances: 1231,
@@ -217,7 +217,7 @@
      *   ...
      * }
      *
-     * definition.states[stateName].stats = {
+     * definition.states[stateId].stats = {
      *   totalInstances: 10,
      *   queuedInstances: 3
      *   created: {
@@ -245,9 +245,9 @@
         stats.stateStatistics = {};
       }
       _.forEach(definition.states, function (state) {
-        var name = state.name;
+        var id = state.id;
 
-        state.stateStatistics = stats.stateStatistics[name] || {};
+        state.stateStatistics = stats.stateStatistics[id] || {};
 
         // TODO calculate correctly, remove non active
         state.stateStatistics.allInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
@@ -322,7 +322,7 @@
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
 
     function isStateSelected(state) {
-      return state.name === WorkflowDefinitionGraphApi.selectedNode;
+      return state.id === WorkflowDefinitionGraphApi.selectedNode;
     }
   });
 })();

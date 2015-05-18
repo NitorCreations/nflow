@@ -80,7 +80,7 @@
         return;
 
         function addNodesThatArePresentInWorkflowDefinition() {
-          _.forEach(definition.states, function(state) { g.addNode(state.name, createNodeStyle(state, workflow)); });
+          _.forEach(definition.states, function(state) { g.addNode(state.id, createNodeStyle(state, workflow)); });
         }
 
         function addNodesThatAreNotPresentInWorkflowDefinition() {
@@ -95,7 +95,7 @@
           nodeStyle['class'] = resolveStyleClass();
           nodeStyle.retries = calculateRetries();
           nodeStyle.state = state;
-          nodeStyle.label = state.name;
+          nodeStyle.label = state.id;
           return nodeStyle;
 
           function resolveStyleClass() {
@@ -104,7 +104,7 @@
             return cssClass;
 
             function isActiveNode() {
-              return workflow.state === state.name || !_.isUndefined(_.find(workflow.actions, 'state', state.name));
+              return workflow.state === state.id || !_.isUndefined(_.find(workflow.actions, 'state', state.id));
             }
           }
 
@@ -128,21 +128,21 @@
         function addEdgesThatArePresentInWorkflowDefinition() {
           _.forEach(definition.states, function(state) {
             _.forEach(state.transitions, function(transition) {
-              g.addEdge(null, state.name, transition, createEdgeStyle(workflow, state, transition));
+              g.addEdge(null, state.id, transition, createEdgeStyle(workflow, state, transition));
             });
 
             if (state.onFailure) {
-              g.addEdge(null, state.name, state.onFailure, createEdgeStyle(workflow, state, state.onFailure, true));
+              g.addEdge(null, state.id, state.onFailure, createEdgeStyle(workflow, state, state.onFailure, true));
             }
           });
         }
 
         function addEdgesToGenericOnErrorState() {
-          var errorStateName = definition.onError;
+          var errorStateId = definition.onError;
           _.forEach(definition.states, function(state) {
-            if (state.name !== errorStateName && !state.onFailure && state.type !== 'end' &&
-              !_.contains(state.transitions, errorStateName)) {
-              g.addEdge(null, state.name, errorStateName, createEdgeStyle(workflow, state, errorStateName, true));
+            if (state.id !== errorStateId && !state.onFailure && state.type !== 'end' &&
+              !_.contains(state.transitions, errorStateId)) {
+              g.addEdge(null, state.id, errorStateId, createEdgeStyle(workflow, state, errorStateId, true));
             }
           });
         }
@@ -201,11 +201,11 @@
 
               var prevState = _.first(workflow.actions).state;
               var found =  _.find(_.rest(workflow.actions), function(action) {
-                if (prevState === state.name && action.state === transition) { return true; }
+                if (prevState === state.id && action.state === transition) { return true; }
                 prevState = action.state;
               });
 
-              return !_.isUndefined(found) || _.last(workflow.actions).state === state.name && workflow.state === transition;
+              return !_.isUndefined(found) || _.last(workflow.actions).state === state.id && workflow.state === transition;
             }
           }
         }

@@ -9,7 +9,7 @@ describe('Service: CriteriaModel', function () {
   beforeEach(inject(function (_CriteriaModel_) {
     CriteriaModel = _CriteriaModel_;
     definitions = [
-      { type: 'foo', states: [ {  name: 'bar'}] }
+      { type: 'foo', states: [ {  id: 'bar'}] }
     ];
 
     actualModel = CriteriaModel.model;
@@ -33,12 +33,12 @@ describe('Service: CriteriaModel', function () {
     });
 
     it('sets known definition state', function () {
-      CriteriaModel.initialize({ type: 'foo', stateName: 'bar'}, definitions);
+      CriteriaModel.initialize({ type: 'foo', stateId: 'bar'}, definitions);
       expect(actualModel).toEqual({ definition: definitions[0], state: definitions[0].states[0] });
     });
 
     it('sets unknown state to null', function () {
-      CriteriaModel.initialize({ type: 'foo', stateName: 'not in foo states'}, definitions);
+      CriteriaModel.initialize({ type: 'foo', stateId: 'not in foo states'}, definitions);
       expect(actualModel).toEqual({ definition: definitions[0], state: null });
     });
 
@@ -61,11 +61,11 @@ describe('Service: CriteriaModel', function () {
 
     });
 
-    it('sets state name', function () {
+    it('sets state id', function () {
       actualModel.state = definitions[0].states[0];
       expect(CriteriaModel.toQuery()).toEqual({state: 'bar'});
 
-      delete actualModel.state.name;
+      delete actualModel.state.id;
       expect(CriteriaModel.toQuery()).toEqual({});
 
       delete actualModel.state;
@@ -115,7 +115,7 @@ describe('Service: CriteriaModel', function () {
 
     it('state is unset if it is not included in definition states', function () {
       actualModel.definition = definitions[0];
-      actualModel.state = { name: 'not in definition states'};
+      actualModel.state = { id: 'not in definition states'};
       CriteriaModel.onDefinitionChange();
       expect(actualModel).toEqual({ definition: definitions[0], state: null});
     });

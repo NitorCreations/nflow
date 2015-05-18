@@ -28,10 +28,10 @@ angular.module('nflowExplorer.workflowStats', [])
     clearData();
   }
 
-  function getCurrentStateNames(data) {
+  function getCurrentStateIds(data) {
     return _.reduce(data, function(acc, stats) {
-      return _.map(stats[1], function(stat, stateName) {
-        return stateName;
+      return _.map(stats[1], function(stat, stateId) {
+        return stateId;
       });
     }, {}).sort();
   }
@@ -67,11 +67,11 @@ angular.module('nflowExplorer.workflowStats', [])
     var dataArray = _.map(data, function(row) {
       var time = row[0];
       var stats = row[1];
-      var values = _.map(currentStates, function(stateName) {
+      var values = _.map(currentStates, function(stateId) {
         if(!stats) {
           return undefined;
         }
-        var stateStats = stats[stateName];
+        var stateStats = stats[stateId];
         if(!stateStats) {
           return 0;
         }
@@ -114,11 +114,11 @@ angular.module('nflowExplorer.workflowStats', [])
       var queued = 0,
           sleeping = 0;
       var values = _.map(realStatuses, function(phase) {
-        return sum(_.map(currentStates, function(stateName) {
+        return sum(_.map(currentStates, function(stateId) {
           if(!stats) {
             return undefined;
           }
-          var stateStats = stats[stateName];
+          var stateStats = stats[stateId];
           if(!stateStats || !stateStats[phase]) {
             return 0;
           }
@@ -177,10 +177,10 @@ angular.module('nflowExplorer.workflowStats', [])
     }
   }
 
-  function filterNonFinalStates(stateNames) {
-    return _.filter(stateNames, function(stateName) {
+  function filterNonFinalStates(stateIds) {
+    return _.filter(stateIds, function(stateId) {
       var state = _.first(_.filter($scope.definition.states, function(state) {
-        return state.name === stateName;
+        return state.id === stateId;
       }));
       if(!state) {
         return true;
@@ -190,7 +190,7 @@ angular.module('nflowExplorer.workflowStats', [])
   }
   function draw() {
     // this loops over all data to get state names. maybe slow
-    var currentStates = getCurrentStateNames($rootScope.radiator.stateChart.data);
+    var currentStates = getCurrentStateIds($rootScope.radiator.stateChart.data);
     currentStates = filterNonFinalStates(currentStates);
     drawStackedLineChart('stateChart', createStateData(currentStates));
     drawStackedLineChart('executionChart', createExecutionData(currentStates));
