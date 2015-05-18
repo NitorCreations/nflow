@@ -1,7 +1,9 @@
 <section>
   <tabset>
     <tab heading="Action history">
-      <workflow-tab-action-history workflow="ctrl.workflow"></workflow-tab-action-history>
+      <workflow-tab-action-history workflow="ctrl.workflow"
+                                    child-workflows="ctrl.childWorkflows">
+      </workflow-tab-action-history>
     </tab>
     <tab heading="State variables">
       <workflow-tab-state-variables workflow="ctrl.workflow"></workflow-tab-state-variables>
