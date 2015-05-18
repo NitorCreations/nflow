@@ -73,11 +73,17 @@
         controller: 'WorkflowCtrl as ctrl',
         resolve: {
           loadCss: loadCss,
-          workflow: function ($stateParams, Workflows) {
+          workflow: function (Workflows, $stateParams) {
             return Workflows.get({id: $stateParams.id}).$promise;
           },
           definition: function (WorkflowDefinitions, workflow) {
             return getDefinition(WorkflowDefinitions, workflow.type);
+          },
+          parentWorkflow: function(Workflows, workflow) {
+            if(workflow.parentWorkflowId) {
+              return Workflows.get({id: workflow.parentWorkflowId}).$promise;
+            }
+            return undefined;
           }
         }
       });

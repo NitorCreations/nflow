@@ -7,7 +7,7 @@
         <li><a ui-sref="workflow-definition({type: ctrl.workflow.type})">Go to workflow definition</a></li>
       </ul>
 
-      <workflow-info workflow="ctrl.workflow"></workflow-info>
+      <workflow-info workflow="ctrl.workflow" parent-workflow="ctrl.parentWorkflow"></workflow-info>
       <workflow-graph definition="ctrl.definition" workflow="ctrl.workflow"></workflow-graph>
     </div>
     <div class="col-md-6">
