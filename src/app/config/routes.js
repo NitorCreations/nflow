@@ -84,6 +84,9 @@
               return Workflows.get({id: workflow.parentWorkflowId}).$promise;
             }
             return undefined;
+          },
+          childWorkflows: function(WorkflowSearch, $stateParams) {
+            return WorkflowSearch.query({parentWorkflowId: $stateParams.id}).$promise;
           }
         }
       });

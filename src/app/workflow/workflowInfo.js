@@ -11,7 +11,8 @@
       replace: true,
       scope: {
         workflow: '=',
-        parentWorkflow: '='
+        parentWorkflow: '=',
+        childWorkflows: '=',
       },
       bindToController: true,
       controller: 'WorkflowInfoCtrl',
