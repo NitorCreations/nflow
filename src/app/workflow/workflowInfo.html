@@ -2,7 +2,9 @@
   <div ng-show="ctrl.parentWorkflow">Parent workflow:
     <a ui-sref="workflow({id: ctrl.parentWorkflow.id})">{{ctrl.parentWorkflow.type}} ({{ctrl.parentWorkflow.id}})</a>
   </div>
-  <div ng-show="ctrl.childWorkflows.length">Child workflows: <strong>{{ctrl.childWorkflows.length}}</strong></div>
+  <div ng-show="ctrl.childWorkflows.length">Child workflows:
+    <strong><a ui-sref="search({parentWorkflowId: ctrl.workflow.id})">{{ctrl.childWorkflows.length}}</a></strong>
+  </div>
   Created: <strong title="{{ctrl.workflow.created | date:'medium' }}">{{ctrl.workflow.created | fromNow}}</strong><br/>
   Started: <strong title="{{ctrl.workflow.started | date:'medium' }}">{{ctrl.workflow.started | fromNow}}</strong><br/>
   Current state: <strong class="wd-active-state" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>

@@ -13,11 +13,12 @@
 
     return self;
 
-    function initialize(typeAndStateId, definitions) {
+    function initialize(initValues, definitions) {
       angular.copy({}, self.model);
 
-      self.model.definition = ensureTypeInDefinitions(typeAndStateId.type, definitions);
-      self.model.state = ensureStateIdInDefinitionStates(typeAndStateId.stateId, self.model.definition);
+      self.model.definition = ensureTypeInDefinitions(initValues.type, definitions);
+      self.model.state = ensureStateIdInDefinitionStates(initValues.stateId, self.model.definition);
+      self.model.parentWorkflowId = nonValueToNull(initValues.parentWorkflowId);
     }
 
     function toQuery() {
