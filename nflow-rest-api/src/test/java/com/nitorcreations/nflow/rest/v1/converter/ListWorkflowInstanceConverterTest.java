@@ -44,7 +44,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithActionsWorks() throws IOException {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).setExecutorId(999).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
@@ -84,7 +84,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.modified, is(i.modified));
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
-    assertThat(resp.actions, contains(reflectEquals(new Action(a.type.name(), a.state, a.stateText, a.retryNo,
+    assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId))));
   }
 
@@ -94,7 +94,7 @@ public class ListWorkflowInstanceConverterTest {
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
 
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState").setStateText("oState desc").
             setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).setExecutorId(999).setUpdatedStateVariables(stateVariables).build();
 
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
@@ -130,13 +130,13 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.modified, is(i.modified));
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
-    assertThat(resp.actions, contains(reflectEquals(new Action(a.type.name(), a.state, a.stateText, a.retryNo,
+    assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
             a.executionStart, a.executionEnd, a.executorId, expectedStateVariables))));
   }
 
   @Test
   public void convertWithoutActionsWorks() {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
@@ -159,7 +159,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithoutStateVariablesWorks() {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
@@ -180,7 +180,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithEmptyStateVariablesWorks() {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState").setStateText("oState desc").
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState").setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
@@ -202,7 +202,7 @@ public class ListWorkflowInstanceConverterTest {
 
   @Test
   public void convertWithMalformedStateVariablesWorks() throws JsonProcessingException, IOException {
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(stateExecution).setState("oState")
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState")
         .setStateText("oState desc").
         setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1)).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();

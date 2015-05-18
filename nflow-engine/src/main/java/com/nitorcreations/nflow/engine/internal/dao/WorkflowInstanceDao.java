@@ -679,6 +679,7 @@ public class WorkflowInstanceDao {
       Map<String, String> actionState = actionStates.containsKey(actionId) ? actionStates.get(actionId) :
         EMPTY_STATE_MAP;
       return new WorkflowInstanceAction.Builder()
+        .setId(rs.getInt("id"))
         .setWorkflowInstanceId(rs.getInt("workflow_id"))
         .setExecutorId(rs.getInt("executor_id"))
         .setType(WorkflowActionType.valueOf(rs.getString("type")))
