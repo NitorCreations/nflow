@@ -38,7 +38,7 @@
       })
       .state('search', {
         parent: 'searchTab',
-        url: '/search?type&state',
+        url: '/search?type&state&parentWorkflowId',
         templateUrl: 'app/search/search.html',
         controller: 'SearchCtrl as ctrl',
         resolve: {
@@ -84,11 +84,20 @@
         controller: 'WorkflowCtrl as ctrl',
         resolve: {
           loadCss: loadCss,
-          workflow: function ($stateParams, Workflows) {
+          workflow: function (Workflows, $stateParams) {
             return Workflows.get({id: $stateParams.id}).$promise;
           },
           definition: function (WorkflowDefinitions, workflow) {
             return getDefinition(WorkflowDefinitions, workflow.type);
+          },
+          parentWorkflow: function(Workflows, workflow) {
+            if(workflow.parentWorkflowId) {
+              return Workflows.get({id: workflow.parentWorkflowId}).$promise;
+            }
+            return undefined;
+          },
+          childWorkflows: function(WorkflowSearch, $stateParams) {
+            return WorkflowSearch.query({parentWorkflowId: $stateParams.id}).$promise;
           }
         }
       });

@@ -14,7 +14,7 @@
             <option value="">-- All states --</option>
           </select>
         </div>
-        <div class="col-xs-3">
+        <div class="col-xs-2">
           <label for="status">Workflow status</label>
           <select id="status" class="form-control" ng-model="ctrl.model.status" ng-options="status for status in ctrl.instanceStatuses track by status">
             <option value="">-- All statuses --</option>
@@ -23,18 +23,20 @@
       </div>
       <div class="row">
         <div class="col-xs-3">
-          <label for="id">Workflow instance id</label>
-          <input name="id" type="number" ng-model="ctrl.model.id" empty-to-null class="form-control" />
-        </div>
-
-        <div class="col-xs-3">
           <label for="businessKey">Business key</label>
           <input name="businessKey" type="text" ng-model="ctrl.model.businessKey" empty-to-null class="form-control"/>
         </div>
-
         <div class="col-xs-3">
           <label for="externalId">External id</label>
           <input name="externalId" type="text" ng-model="ctrl.model.externalId" empty-to-null class="form-control" />
+        </div>
+        <div class="col-xs-2">
+          <label for="id">Workflow instance id</label>
+          <input name="id" type="number" ng-model="ctrl.model.id" empty-to-null class="form-control" />
+        </div>
+        <div class="col-xs-2">
+          <label for="parentId">Parent workflow id</label>
+          <input name="parentId" type="number" ng-model="ctrl.model.parentWorkflowId" empty-to-null class="form-control" />
         </div>
       </div>
     </div>

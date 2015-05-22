@@ -10,7 +10,8 @@
       restrict: 'E',
       replace: true,
       scope: {
-        workflow: '='
+        workflow: '=',
+        childWorkflows: '='
       },
       bindToController: true,
       controller: 'WorkflowTabActionHistoryCtrl',
@@ -24,6 +25,7 @@
 
     self.selectAction = WorkflowGraphApi.onSelectNode;
     self.duration = duration;
+    self.childWorkflowFromAction = childWorkflowFromAction;
 
     function duration(action) {
       var start = moment(action.executionStartTime);
@@ -37,6 +39,10 @@
       }
       return d.humanize();
     }
+
+    function childWorkflowFromAction(action) {
+      return _.filter(self.childWorkflows, {parentActionId: action.id});
+    }
+
   });
 })();
-

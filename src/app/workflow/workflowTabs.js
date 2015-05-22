@@ -13,7 +13,8 @@
       replace: true,
       scope: {
         definition: '=',
-        workflow: '='
+        workflow: '=',
+        childWorkflows: '='
       },
       bindToController: true,
       controller: 'WorkflowTabsCtrl',

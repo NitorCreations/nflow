@@ -10,7 +10,9 @@
       restrict: 'E',
       replace: true,
       scope: {
-        workflow: '='
+        workflow: '=',
+        parentWorkflow: '=',
+        childWorkflows: '=',
       },
       bindToController: true,
       controller: 'WorkflowInfoCtrl',
@@ -21,8 +23,7 @@
 
   m.controller('WorkflowInfoCtrl', function(WorkflowGraphApi) {
     var self = this;
-
-    self.currentStateTime= currentStateTime;
+    self.currentStateTime = currentStateTime;
     self.selectAction = WorkflowGraphApi.onSelectNode;
 
     function currentStateTime() {
