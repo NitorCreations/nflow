@@ -4,6 +4,7 @@ nFlow Explorer change log
 ================
 
 * Updated to use nFlow 2.0.0
+* Support for child workflows
 
 0.0.8 2015-04-25
 ================
