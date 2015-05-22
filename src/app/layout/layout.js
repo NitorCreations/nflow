@@ -33,6 +33,7 @@
     // nope, $stateParams.radiator wont work here
     self.radiator = !!$location.search().radiator;
     self.isFrontPageTabActive = function() { return $state.includes('frontPageTab'); };
+    self.isExecutorsTabActive = function() { return $state.includes('executorsTab'); };
     self.isSearchTabActive = function() { return $state.includes('searchTab'); };
     self.isAboutTabActive = function() { return $state.includes('aboutTab'); };
   });

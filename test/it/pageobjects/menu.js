@@ -5,6 +5,7 @@ module.exports = function (spec) {
 
   spec.definitions = element(by.linkText('Workflow definitions'));
   spec.instances = element(by.linkText('Workflow instances'));
+  spec.executors = element(by.linkText('Executors'));
   spec.about = element(by.linkText('About'));
 
   spec.isActive = function(link) {
@@ -19,6 +20,10 @@ module.exports = function (spec) {
     return spec.instances.click();
   };
 
+  that.toExecutors = function() {
+    return spec.executors.click();
+  };
+
   that.toAbout = function() {
     return spec.about.click();
   };
@@ -29,6 +34,10 @@ module.exports = function (spec) {
 
   that.isInstancesActive = function() {
     return spec.isActive(spec.instances);
+  };
+
+  that.isExecutorsActive = function() {
+    return spec.isActive(spec.executors);
   };
 
   that.isAboutActive = function() {

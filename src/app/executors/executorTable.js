@@ -1,8 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.frontPage.executorTable', [
-    'nflowExplorer.filters'
+  var m = angular.module('nflowExplorer.executors.executorTable', [
+    'nflowExplorer.filters',
+    'nflowExplorer.services'
   ]);
 
   m.directive('executorTable', function () {
@@ -14,7 +15,7 @@
       },
       bindToController: true,
       controller: 'ExecutorTableCtrl as ctrl',
-      templateUrl: 'app/front-page/executorTable.html'
+      templateUrl: 'app/executors/executorTable.html'
     };
   });
 

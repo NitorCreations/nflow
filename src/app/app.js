@@ -9,6 +9,7 @@
     'nflowExplorer.frontPage',
     'nflowExplorer.layout',
     'nflowExplorer.search',
+    'nflowExplorer.executors',
     'nflowExplorer.services',
     'nflowExplorer.services.executorPoller',
     'nflowExplorer.workflow',
