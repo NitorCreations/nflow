@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+
 @Profile("nflow.db.postgresql")
 @Configuration
 public class PgDatabaseConfiguration extends DatabaseConfiguration {
@@ -29,13 +31,36 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String castToEnumType(String variable, String type) {
-      return variable + "::" + type;
+    public boolean hasUpdateableCTE() {
+      return true;
     }
 
     @Override
-    public boolean hasUpdateableCTE() {
-      return true;
+    public String nextActivationUpdate() {
+      return "(case "
+          + "when ?::timestamptz is null then null "
+          + "when external_next_activation is null then ?::timestamptz "
+          + "else least(?::timestamptz, external_next_activation) end)";
+    }
+
+    @Override
+    public String workflowStatus(WorkflowInstanceStatus status) {
+      return "'" + status.name() + "'::workflow_status";
+    }
+
+    @Override
+    public String workflowStatus() {
+      return "?::workflow_status";
+    }
+
+    @Override
+    public String actionType() {
+      return "?::action_type";
+    }
+
+    @Override
+    public String castToText() {
+      return "::text";
     }
   }
 }

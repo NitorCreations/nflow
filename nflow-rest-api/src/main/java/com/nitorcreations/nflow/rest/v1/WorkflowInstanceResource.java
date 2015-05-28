@@ -62,6 +62,12 @@ public class WorkflowInstanceResource {
   public static final String currentStateVariables = "currentStateVariables";
   public static final String actions = "actions";
   public static final String actionStateVariables = "actionStateVariables";
+  public static final String childWorkflows = "childWorkflows";
+  public static final String INCLUDE_PARAM_VALUES = currentStateVariables + "," + actions + "," + actionStateVariables + ","
+      + childWorkflows;
+  private static final String INCLUDE_PARAM_DESC = "Data to include in response. " + currentStateVariables
+      + " = current stateVariables for worfklow, " + actions + " = state transitions, " + actionStateVariables
+      + " = state variable changes for actions, " + childWorkflows + " = map of created child workflow instance IDs by action ID";
 
   @Inject
   public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
@@ -150,9 +156,11 @@ public class WorkflowInstanceResource {
   @GET
   @Path("/{id}")
   @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id) {
-    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[] { id }, new String[0],
-        new String[0], new WorkflowInstanceStatus[0], null, null, actions + "," + currentStateVariables + "," + actionStateVariables, 1L);
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(
+      @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+      @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include) {
+    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(new Integer[] { id }, new String[0], null, null,
+        new String[0], new WorkflowInstanceStatus[0], null, null, include, 1L);
     if (instances.isEmpty()) {
       throw new NotFoundException(format("Workflow instance %s not found", id));
     }
@@ -164,18 +172,21 @@ public class WorkflowInstanceResource {
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("id") @ApiParam(value = "Internal id of workflow instance") Integer[] ids,
       @QueryParam("type") @ApiParam(value = "Type of workflow instance") String[] types,
+      @QueryParam("parentWorkflowId") @ApiParam(value = "Id of parent workflow instance") Integer parentWorkflowId,
+      @QueryParam("parentActionId") @ApiParam(value = "Id of parent workflow instance action") Integer parentActionId,
       @QueryParam("state") @ApiParam(value = "Current state of workflow instance") String[] states,
       @QueryParam("status") @ApiParam(value = "Current status of workflow instance") WorkflowInstanceStatus[] statuses,
       @QueryParam("businessKey") @ApiParam(value = "Business key for workflow instance") String businessKey,
       @QueryParam("externalId") @ApiParam(value = "External id for workflow instance") String externalId,
-      @QueryParam("include") @ApiParam(value = "Data to include in response. currentStateVariables = current stateVariables for worfklow, actions = state transitions, actionStateVariables = state variable changes for actions", allowableValues = currentStateVariables
-          + "," + actions + "," + actionStateVariables, allowMultiple = true) String include,
+      @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam(value = "Maximum number of workflow instances to be returned") Long maxResults) {
     List<String> includes = parseIncludes(include);
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types).addStates(states).addStatuses(statuses)
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types)
+        .setParentWorkflowId(parentWorkflowId).setParentActionId(parentActionId).addStates(states).addStatuses(statuses)
         .setBusinessKey(businessKey).setExternalId(externalId)
         .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)).setIncludeActions(includes.contains(actions))
-        .setIncludeActionStateVariables(includes.contains(actionStateVariables)).setMaxResults(maxResults).build();
+        .setIncludeActionStateVariables(includes.contains(actionStateVariables)).setMaxResults(maxResults)
+        .setIncludeChildWorkflows(includes.contains(childWorkflows)).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {

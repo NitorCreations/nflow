@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,11 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     public StatisticsDao statisticsDao() {
       return mock(StatisticsDao.class);
+    }
+
+    @Bean
+    public WorkflowInstancePreProcessor preProcessor() {
+      return mock(WorkflowInstancePreProcessor.class);
     }
   }
 

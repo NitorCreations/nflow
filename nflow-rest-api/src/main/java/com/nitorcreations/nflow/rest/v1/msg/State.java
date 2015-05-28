@@ -16,32 +16,9 @@ public class State {
     // default constructor for Jackson deserializer
   }
 
-  /**
-   * Create a state.
-   *
-   * @deprecated Use the version that does not take name parameter. This
-   *             constructor will be removed in 2.0.
-   * @param id
-   *          The state identifier.
-   * @param type
-   *          The state type.
-   * @param name
-   *          The state name.
-   * @param description
-   *          The state description.
-   */
-  @Deprecated
-  public State(String id, String type, String name, String description) {
-    this.id = id;
-    this.type = type;
-    this.name = name;
-    this.description = description;
-  }
-
   public State(String id, String type, String description) {
     this.id = id;
     this.type = type;
-    this.name = id;
     this.description = description;
   }
 
@@ -50,13 +27,6 @@ public class State {
 
   @ApiModelProperty(value = "State type", required = true)
   public String type;
-
-  /**
-   * @deprecated Use id instead. Will be removed in 2.0.
-   */
-  @Deprecated
-  @ApiModelProperty(value = "State name", required = true)
-  public String name;
 
   @ApiModelProperty(value = "State description", required = true)
   public String description;

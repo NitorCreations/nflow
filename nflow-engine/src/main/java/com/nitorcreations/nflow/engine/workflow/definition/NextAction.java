@@ -116,4 +116,5 @@ public class NextAction {
   public boolean isRetry() {
     return nextState == null;
   }
+
 }

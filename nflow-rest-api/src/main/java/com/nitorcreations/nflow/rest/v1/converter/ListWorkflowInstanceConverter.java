@@ -35,6 +35,8 @@ public class ListWorkflowInstanceConverter {
     resp.id = instance.id;
     resp.status = instance.status.name();
     resp.type = instance.type;
+    resp.parentWorkflowId = instance.parentWorkflowId;
+    resp.parentActionId = instance.parentActionId;
     resp.businessKey = instance.businessKey;
     resp.externalId = instance.externalId;
     resp.state = instance.state;
@@ -48,16 +50,19 @@ public class ListWorkflowInstanceConverter {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
         if(query.includeActionStateVariables) {
-          resp.actions.add(new Action(action.type.name(), action.state, action.stateText, action.retryNo,
+          resp.actions.add(new Action(action.id, action.type.name(), action.state, action.stateText, action.retryNo,
               action.executionStart, action.executionEnd, action.executorId, stateVariablesToJson(action.updatedStateVariables)));
         } else {
-          resp.actions.add(new Action(action.type.name(), action.state, action.stateText, action.retryNo,
+          resp.actions.add(new Action(action.id, action.type.name(), action.state, action.stateText, action.retryNo,
               action.executionStart, action.executionEnd, action.executorId));
         }
       }
     }
-    if(query.includeCurrentStateVariables) {
+    if (query.includeCurrentStateVariables) {
       resp.stateVariables = stateVariablesToJson(instance.stateVariables);
+    }
+    if (query.includeChildWorkflows) {
+      resp.childWorkflows = instance.childWorkflows;
     }
     return resp;
   }

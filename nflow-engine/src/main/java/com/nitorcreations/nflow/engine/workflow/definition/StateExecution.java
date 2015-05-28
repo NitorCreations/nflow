@@ -1,5 +1,10 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
+
+import java.util.List;
+
 /**
  * Provides access to workflow instance information.
  *
@@ -81,4 +86,38 @@ public interface StateExecution {
    * @return The external id of the workflow instance.
    */
   String getWorkflowInstanceExternalId();
+
+  /**
+   * Add a new child workflow. Child workflows are stored to database scheduled after current
+   * state method processing completes successfully.
+   * Note that Child workflows are not visible to queryChildWorkflows() method before they are stored to database.
+   * @param childWorkflows Child workflows to create.
+   */
+  void addChildWorkflows(WorkflowInstance ... childWorkflows);
+
+  /**
+   * Return child workflow instances for current workflow. Query is restricted to childs of current workflow.
+   * @param query The query criterias.
+   * @return List of child workflows that match the query.
+   */
+  List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query);
+
+  /**
+   * Return all child workflows for current workflow.
+   * @return List of all child workflows.
+   */
+  List<WorkflowInstance> getAllChildWorkflows();
+
+  /**
+   * Notify parent workflow that it may start processing again. Calling this schedules parent workflow for immediate
+   * execution. Scheduling is performed when current state method processing completes successfully.
+   */
+  void wakeUpParentWorkflow();
+
+  /**
+   * Create a builder for creating child workflows. Created builder has nextActivation set to current time.
+   * @return Builder for creating child workflows.
+   */
+  WorkflowInstance.Builder workflowInstanceBuilder();
+
 }

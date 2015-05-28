@@ -1,9 +1,12 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -42,6 +45,16 @@ public class WorkflowInstance {
    * The id of executor that is currently processing this workflow. May be null.
    */
   public final Integer executorId;
+
+  /**
+   * The id of the workflow that created this sub workflow. Is null for parent workflows.
+   */
+  public final Integer parentWorkflowId;
+
+  /**
+   * The id of the workflow action that created this sub workflow.  Is null for parent workflows.
+   */
+  public final Integer parentActionId;
 
   /**
    * The current status of the workflow instance.
@@ -119,9 +132,16 @@ public class WorkflowInstance {
    */
   public final String executorGroup;
 
+  /**
+   * Child workflow instance IDs created by this workflow instance, grouped by instance action ID.
+   */
+  public Map<Integer, List<Integer>> childWorkflows;
+
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.executorId = builder.executorId;
+    this.parentWorkflowId = builder.parentWorkflowId;
+    this.parentActionId = builder.parentActionId;
     this.status = builder.status;
     this.type = builder.type;
     this.businessKey = builder.businessKey;
@@ -132,11 +152,17 @@ public class WorkflowInstance {
     this.originalStateVariables = builder.originalStateVariables;
     this.stateVariables = builder.stateVariables;
     this.actions = builder.actions;
+    this.childWorkflows = builder.childWorkflows;
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
     this.started = builder.started;
     this.executorGroup = builder.executorGroup;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   /**
@@ -146,6 +172,8 @@ public class WorkflowInstance {
 
     Integer id;
     Integer executorId;
+    Integer parentWorkflowId;
+    Integer parentActionId;
     WorkflowInstanceStatus status;
     String type;
     String businessKey;
@@ -155,7 +183,8 @@ public class WorkflowInstance {
     DateTime nextActivation;
     final Map<String, String> originalStateVariables = new LinkedHashMap<>();
     final Map<String, String> stateVariables = new LinkedHashMap<>();
-    List<WorkflowInstanceAction> actions;
+    List<WorkflowInstanceAction> actions = new ArrayList<>();
+    final Map<Integer, List<Integer>> childWorkflows = new LinkedHashMap<>();
     int retries;
     DateTime created;
     DateTime started;
@@ -185,6 +214,8 @@ public class WorkflowInstance {
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
       this.executorId = copy.executorId;
+      this.parentWorkflowId = copy.parentWorkflowId;
+      this.parentActionId = copy.parentActionId;
       this.status = copy.status;
       this.type = copy.type;
       this.businessKey = copy.businessKey;
@@ -194,6 +225,8 @@ public class WorkflowInstance {
       this.nextActivation = copy.nextActivation;
       this.originalStateVariables.putAll(copy.originalStateVariables);
       this.stateVariables.putAll(copy.stateVariables);
+      this.actions.addAll(copy.actions);
+      this.childWorkflows.putAll(copy.childWorkflows);
       this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;
@@ -217,6 +250,26 @@ public class WorkflowInstance {
      */
     public Builder setExecutorId(Integer executorId) {
       this.executorId = executorId;
+      return this;
+    }
+
+    /**
+     * Set the parent workflow identifier.
+     * @param parentWorkflowId The identifier.
+     * @return this.
+     */
+    public Builder setParentWorkflowId(Integer parentWorkflowId) {
+      this.parentWorkflowId = parentWorkflowId;
+      return this;
+    }
+
+    /**
+     * Set the parent workflow identifier.
+     * @param parentActionId The identifier.
+     * @return this.
+     */
+    public Builder setParentActionId(Integer parentActionId) {
+      this.parentActionId = parentActionId;
       return this;
     }
 
@@ -287,16 +340,6 @@ public class WorkflowInstance {
      */
     public Builder setNextActivation(DateTime nextActivation) {
       this.nextActivation = nextActivation;
-      return this;
-    }
-
-    /**
-     * Ignored.
-     * @return this.
-     * @deprecated Use setStatus(WorkflowInstanceStatus) instead.
-     */
-    @Deprecated
-    public Builder setProcessing(boolean processing) {
       return this;
     }
 
@@ -403,18 +446,6 @@ public class WorkflowInstance {
      * @return this.
      */
     public Builder setExecutorGroup(String executorGroup) {
-      this.executorGroup = executorGroup;
-      return this;
-    }
-
-    /**
-     * Set the executor group name.
-     * @param executorGroup The executor group name.
-     * @return this.
-     * @deprecated Use setExecutorGroup instead. Will be removed in 2.0.
-     */
-    @Deprecated
-    public Builder setOwner(String executorGroup) {
       this.executorGroup = executorGroup;
       return this;
     }

@@ -1,16 +1,27 @@
 package com.nitorcreations.nflow.engine.internal.workflow;
 
+import static java.util.Collections.unmodifiableList;
+import static org.joda.time.DateTime.now;
+import static org.springframework.util.Assert.notNull;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class StateExecutionImpl implements StateExecution {
 
   private final WorkflowInstance instance;
   private final ObjectStringMapper objectMapper;
+  private final WorkflowInstanceDao workflowDao;
+  private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
@@ -18,10 +29,15 @@ public class StateExecutionImpl implements StateExecution {
   private Throwable thrown;
   private boolean isFailed;
   private boolean isRetryCountExceeded;
+  private boolean wakeUpParentWorkflow = false;
+  private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
-  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper) {
+  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
+      WorkflowInstancePreProcessor workflowInstancePreProcessor) {
     this.instance = instance;
     this.objectMapper = objectMapper;
+    this.workflowDao = workflowDao;
+    this.workflowInstancePreProcessor = workflowInstancePreProcessor;
   }
 
   public DateTime getNextActivation() {
@@ -94,7 +110,7 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   public void setNextState(WorkflowState state) {
-    Assert.notNull(state, "Next state can not be null");
+    notNull(state, "Next state can not be null");
     this.nextState = state.name();
   }
 
@@ -135,4 +151,42 @@ public class StateExecutionImpl implements StateExecution {
     isRetryCountExceeded = true;
   }
 
+  @Override
+  public void addChildWorkflows(WorkflowInstance... childWorkflows) {
+    Assert.notNull(childWorkflows, "childWorkflows can not be null");
+    for (WorkflowInstance child : childWorkflows) {
+      Assert.notNull(child, "childWorkflow can not be null");
+      WorkflowInstance processedChild = workflowInstancePreProcessor.process(child);
+      newChildWorkflows.add(processedChild);
+    }
+  }
+
+  public List<WorkflowInstance> getNewChildWorkflows() {
+    return unmodifiableList(newChildWorkflows);
+  }
+
+  @Override
+  public List<WorkflowInstance> queryChildWorkflows(QueryWorkflowInstances query) {
+    QueryWorkflowInstances restrictedQuery = new QueryWorkflowInstances.Builder(query).setParentWorkflowId(instance.id).build();
+    return workflowDao.queryWorkflowInstances(restrictedQuery);
+  }
+
+  @Override
+  public List<WorkflowInstance> getAllChildWorkflows() {
+    return queryChildWorkflows(new QueryWorkflowInstances.Builder().build());
+  }
+
+  @Override
+  public void wakeUpParentWorkflow() {
+    wakeUpParentWorkflow = true;
+  }
+
+  public boolean isWakeUpParentWorkflowSet() {
+    return wakeUpParentWorkflow;
+  }
+
+  @Override
+  public WorkflowInstance.Builder workflowInstanceBuilder() {
+    return new WorkflowInstance.Builder(this.objectMapper).setNextActivation(now());
+  }
 }

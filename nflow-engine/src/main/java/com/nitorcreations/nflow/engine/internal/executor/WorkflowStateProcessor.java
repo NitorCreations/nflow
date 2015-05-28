@@ -13,6 +13,8 @@ import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
+import java.util.Collections;
+
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import org.springframework.core.env.Environment;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
@@ -46,6 +49,7 @@ class WorkflowStateProcessor implements Runnable {
   private final int instanceId;
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
+  private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
@@ -55,7 +59,8 @@ class WorkflowStateProcessor implements Runnable {
   private final int unknownWorkflowStateRetryDelay;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, Environment env,
+      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
+      WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
@@ -63,6 +68,7 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
     this.executorListeners = executorListeners;
+    this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
@@ -93,7 +99,7 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.status == executing) {
-      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper);
+      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao, workflowInstancePreProcessor);
       ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       WorkflowState state;
@@ -103,6 +109,7 @@ class WorkflowStateProcessor implements Runnable {
         rescheduleUnknownWorkflowState(instance);
         return;
       }
+
       try {
         processBeforeListeners(listenerContext);
         NextAction nextAction = processState(instance, definition, execution, state);
@@ -182,8 +189,32 @@ class WorkflowStateProcessor implements Runnable {
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
-    workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build());
+
+    if (!execution.isFailed()) {
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+          execution.getNewChildWorkflows());
+      processSuccess(execution, instance);
+    } else {
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+          Collections.<WorkflowInstance> emptyList());
+    }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
+  }
+
+  private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
+    if(execution.isWakeUpParentWorkflowSet()) {
+      if(instance.parentWorkflowId != null) {
+        logger.debug("wake up {}", instance.parentWorkflowId);
+        boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId);
+        if(notified) {
+          logger.info("Woke up parent workflow instance {}", instance.parentWorkflowId);
+        } else {
+          logger.warn("Failed to wake up parent workflow instance {}", instance.parentWorkflowId);
+        }
+      } else {
+        logger.warn("Workflow {} trying to wake up non existing parent workflow", instance.type);
+      }
+    }
   }
 
   private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {
@@ -200,7 +231,7 @@ class WorkflowStateProcessor implements Runnable {
     if (isNextActivationImmediately(execution)) {
       return executing;
     }
-    return nextState.getType().getStatus();
+    return nextState.getType().getStatus(execution.getNextActivation());
   }
 
   private WorkflowActionType getActionType(StateExecutionImpl execution) {

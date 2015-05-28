@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
+import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+
 @Profile("nflow.db.h2")
 @Configuration
 public class H2DatabaseConfiguration extends DatabaseConfiguration {
@@ -52,13 +54,36 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String castToEnumType(String variable, String type) {
-      return variable;
+    public boolean hasUpdateableCTE() {
+      return false;
     }
 
     @Override
-    public boolean hasUpdateableCTE() {
-      return false;
+    public String nextActivationUpdate() {
+      return "(case "
+          + "when ? is null then null "
+          + "when external_next_activation is null then ? "
+          + "else least(?, external_next_activation) end)";
+    }
+
+    @Override
+    public String workflowStatus(WorkflowInstanceStatus status) {
+      return "'" + status.name() + "'";
+    }
+
+    @Override
+    public String workflowStatus() {
+      return "?";
+    }
+
+    @Override
+    public String actionType() {
+      return "?";
+    }
+
+    @Override
+    public String castToText() {
+      return "";
     }
   }
 }

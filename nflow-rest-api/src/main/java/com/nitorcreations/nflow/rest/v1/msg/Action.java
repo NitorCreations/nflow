@@ -13,6 +13,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class Action {
 
+  @ApiModelProperty(value = "Identifier of the workflow instance action.")
+  public int id;
   @ApiModelProperty(value = "Type of state: 'stateExecution', 'stateExecutionFailed', 'externalChange' or 'recovery'.")
   public String type;
   @ApiModelProperty(value = "Name of state")
@@ -33,13 +35,15 @@ public class Action {
   public Action() {
   }
 
-  public Action(String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+  public Action(int id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
       int executorId) {
-    this(type, state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
+    this(id, type, state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
   }
 
-  public Action(String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+  public Action(int id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
       int executorId, Map<String, Object> updatedStateVariables) {
+    this();
+    this.id = id;
     this.type = type;
     this.state = state;
     this.stateText = stateText;

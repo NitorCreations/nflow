@@ -1,13 +1,10 @@
 package com.nitorcreations.nflow.engine.service;
 
-import static com.nitorcreations.Matchers.containsElementsInAnyOrder;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
@@ -36,6 +33,7 @@ import org.mockito.Mockito;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -48,6 +46,8 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   private WorkflowDefinitionService workflowDefinitions;
   @Mock
   private WorkflowInstanceDao workflowInstanceDao;
+  @Mock
+  private WorkflowInstancePreProcessor workflowInstancePreProcessor;
   @Captor
   private ArgumentCaptor<WorkflowInstance> stored, stored2;
   @Captor
@@ -61,7 +61,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void setup() {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
     doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
-    service = new WorkflowInstanceService(workflowDefinitions, workflowInstanceDao);
+    service = new WorkflowInstanceService(workflowDefinitions, workflowInstanceDao, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
   }
 
@@ -80,68 +80,19 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void insertWorkflowInstanceWorks() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(created).setExternalId("123").setState(null).build();
+    when(workflowInstancePreProcessor.process(i)).thenReturn(i);
     when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
     assertThat(service.insertWorkflowInstance(i), is(42));
     assertThat(stored.getValue().externalId, is("123"));
     assertThat(stored.getValue().status, is(created));
-    assertThat(stored.getValue().state, is("start"));
   }
 
   @Test
-  public void insertWorkflowInstanceWorksWithNonDefaultStart() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("alternativeStart").build();
-
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().state, is("alternativeStart"));
-  }
-
-  @Test
-  public void insertWorkflowInstanceWorksWithoutExternalId() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId(null).setState("alternativeStart").build();
-
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().externalId, is(notNullValue()));
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void insertWorkflowInstanceWithWrongStartState() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
-    service.insertWorkflowInstance(i);
-  }
-
-  @Test
-  public void insertDuplicateWorkflowInstanceFetchesExistingId() {
-    List<WorkflowInstance> list  = singletonList(constructWorkflowInstanceBuilder().setId(43).build());
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").build();
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(-1);
-    when(workflowInstanceDao.queryWorkflowInstances(queryCapture.capture())).thenReturn(list);
-    assertThat(service.insertWorkflowInstance(i), is(43));
-    assertThat(queryCapture.getValue().types, containsElementsInAnyOrder(singletonList("dummy")));
-    assertThat(queryCapture.getValue().externalId, is("123"));
-
-  }
-
-  @Test
-  public void insertWorkflowCreatesMissingExternalId() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().build();
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().externalId, notNullValue());
-  }
-
-  @Test
-  public void insertWorkflowSetsStatusToCreatedWhenStatusIsNotSpecified() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(null).build();
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    service.insertWorkflowInstance(i);
-    assertThat(stored.getValue().status, is(created));
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void insertWorkflowInstanceUnsupportedType() {
+  public void insertWorkflowInstanceWhenPreprocessorThrowsCausesException() {
+    thrown.expect(RuntimeException.class);
+    thrown.expectMessage("preprocessor reject");
     WorkflowInstance i = constructWorkflowInstanceBuilder().setType("nonexistent").build();
+    when(workflowInstancePreProcessor.process(i)).thenThrow(new RuntimeException("preprocessor reject"));
     service.insertWorkflowInstance(i);
   }
 

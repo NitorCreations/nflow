@@ -4,7 +4,6 @@ import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -13,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
@@ -32,13 +31,18 @@ public class WorkflowInstanceService {
   private WorkflowDefinitionService workflowDefinitionService;
   @Inject
   private WorkflowInstanceDao workflowInstanceDao;
+  @Inject
+  private WorkflowInstancePreProcessor workflowInstancePreProcessor;
 
   public WorkflowInstanceService() {
   }
 
-  public WorkflowInstanceService(WorkflowDefinitionService workflowDefinitionService, WorkflowInstanceDao workflowInstanceDao) {
+  public WorkflowInstanceService(WorkflowDefinitionService workflowDefinitionService,
+                                 WorkflowInstanceDao workflowInstanceDao,
+                                 WorkflowInstancePreProcessor workflowInstancePreProcessor) {
     this.workflowDefinitionService = workflowDefinitionService;
     this.workflowInstanceDao = workflowInstanceDao;
+    this.workflowInstancePreProcessor = workflowInstancePreProcessor;
   }
 
   /**
@@ -59,27 +63,10 @@ public class WorkflowInstanceService {
    */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
   public int insertWorkflowInstance(WorkflowInstance instance) {
-    AbstractWorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
-    if (def == null) {
-      throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
-    }
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
-    if (instance.state == null) {
-      builder.setState(def.getInitialState().name());
-    } else {
-      if (!def.isStartState(instance.state)) {
-        throw new RuntimeException("Specified state [" + instance.state + "] is not a start state.");
-      }
-    }
-    if (isEmpty(instance.externalId)) {
-      builder.setExternalId(UUID.randomUUID().toString());
-    }
-    if (instance.status == null) {
-      builder.setStatus(WorkflowInstanceStatus.created);
-    }
-    int id = workflowInstanceDao.insertWorkflowInstance(builder.build());
+    WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);
+    int id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
     if (id == -1 && !isEmpty(instance.externalId)) {
-      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(def.getType()).setExternalId(instance.externalId).build();
+      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(instance.type).setExternalId(instance.externalId).build();
       id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
     }
     return id;
@@ -103,7 +90,7 @@ public class WorkflowInstanceService {
     } else {
       String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
       AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
-      builder.setStatus(definition.getState(instance.state).getType().getStatus());
+      builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
     }
     WorkflowInstance updatedInstance = builder.build();
     boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);

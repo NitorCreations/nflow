@@ -23,6 +23,12 @@ public class ListWorkflowInstanceResponse {
   @ApiModelProperty(value = "Workflow definition identifier", required=true)
   public String type;
 
+  @ApiModelProperty(value = "Parent workflow instance id for child workflows", required=false)
+  public Integer parentWorkflowId;
+
+  @ApiModelProperty(value = "Parent workflow instance action id for child workflows", required=false)
+  public Integer parentActionId;
+
   @ApiModelProperty(value = "Main business key or identifier for the started workflow instance", required=false)
   public String businessKey;
 
@@ -55,4 +61,7 @@ public class ListWorkflowInstanceResponse {
 
   @ApiModelProperty(value = "Time when workflow processing stared (start time for first action)", required=false)
   public DateTime started;
+
+  @ApiModelProperty(value = "Child workflow instance IDs created by this instance, grouped by instance action ID", required = false)
+  public Map<Integer, List<Integer>> childWorkflows;
 }

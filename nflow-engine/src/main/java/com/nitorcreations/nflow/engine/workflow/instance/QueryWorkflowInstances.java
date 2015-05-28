@@ -23,6 +23,16 @@ public class QueryWorkflowInstances {
   public final List<String> types;
 
   /**
+   * Parent workflow instance id.
+   */
+  public Integer parentWorkflowId;
+
+  /**
+   * Parent workflow action id.
+   */
+  public Integer parentActionId;
+
+  /**
    * Workflow instance states.
    */
   public final List<String> states;
@@ -58,15 +68,21 @@ public class QueryWorkflowInstances {
   public final boolean includeActionStateVariables;
 
   /**
-   * The maximum number of instances to be returned by the query. If null, uses
-   * default value configured for the nFlow engine. The maximum value may also
-   * be limited by nFlow engine configuration.
+   * Setting this to true will make the query return also the created child workflow instance IDs.
+   */
+  public final boolean includeChildWorkflows;
+
+  /**
+   * The maximum number of instances to be returned by the query. If null, uses default value configured for the nFlow engine. The
+   * maximum value may also be limited by nFlow engine configuration.
    */
   public final Long maxResults;
 
   QueryWorkflowInstances(Builder builder) {
     this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
+    this.parentWorkflowId = builder.parentWorkflowId;
+    this.parentActionId = builder.parentActionId;
     this.states = new ArrayList<>(builder.states);
     this.statuses = new ArrayList<>(builder.statuses);
     this.businessKey = builder.businessKey;
@@ -74,6 +90,7 @@ public class QueryWorkflowInstances {
     this.includeActions = builder.includeActions;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
+    this.includeChildWorkflows = builder.includeChildWorkflows;
     this.maxResults = builder.maxResults;
   }
 
@@ -83,6 +100,8 @@ public class QueryWorkflowInstances {
   public static class Builder {
     List<Integer> ids = new ArrayList<>();
     List<String> types = new ArrayList<>();
+    Integer parentWorkflowId;
+    Integer parentActionId;
     List<String> states = new ArrayList<>();
     List<WorkflowInstanceStatus> statuses = new ArrayList<>();
     String businessKey;
@@ -90,6 +109,7 @@ public class QueryWorkflowInstances {
     boolean includeActions;
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
+    boolean includeChildWorkflows;
     Long maxResults;
 
     /**
@@ -98,6 +118,21 @@ public class QueryWorkflowInstances {
     public Builder() {
     }
 
+    public Builder(QueryWorkflowInstances copy) {
+      this.ids = copy.ids;
+      this.types = copy.types;
+      this.parentWorkflowId = copy.parentWorkflowId;
+      this.parentActionId = copy.parentActionId;
+      this.states = copy.states;
+      this.statuses = copy.statuses;
+      this.businessKey = copy.businessKey;
+      this.externalId = copy.externalId;
+      this.includeActions = copy.includeActions;
+      this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
+      this.includeActionStateVariables = copy.includeActionStateVariables;
+      this.includeChildWorkflows = copy.includeChildWorkflows;
+      this.maxResults = copy.maxResults;
+    }
     /**
      * Add identifiers to query parameters.
      * @param newIds The identifiers.
@@ -115,6 +150,26 @@ public class QueryWorkflowInstances {
      */
     public Builder addTypes(String ... newTypes) {
       this.types.addAll(asList(newTypes));
+      return this;
+    }
+
+    /**
+     * Set parent workflow instance id to query parameters.
+     * @param parentWorkflowId The parent workflow instance id.
+     * @return this.
+     */
+    public Builder setParentWorkflowId(Integer parentWorkflowId) {
+      this.parentWorkflowId = parentWorkflowId;
+      return this;
+    }
+
+    /**
+     * Set parent action id to query parameters.
+     * @param parentActionId The parent action id.
+     * @return this.
+     */
+    public Builder setParentActionId(Integer parentActionId) {
+      this.parentActionId = parentActionId;
       return this;
     }
 
@@ -185,6 +240,16 @@ public class QueryWorkflowInstances {
      */
     public Builder setIncludeActionStateVariables(boolean includeActionStateVariables) {
       this.includeActionStateVariables = includeActionStateVariables;
+      return this;
+    }
+
+    /**
+     * Set whether child workflow IDs created by this instance should be included in the results.
+     * @param includeChildWorkflows True to include child workflows, false otherwise.
+     * @return this.
+     */
+    public Builder setIncludeChildWorkflows(boolean includeChildWorkflows) {
+      this.includeChildWorkflows = includeChildWorkflows;
       return this;
     }
 
