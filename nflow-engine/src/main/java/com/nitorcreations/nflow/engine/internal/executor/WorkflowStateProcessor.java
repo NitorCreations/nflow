@@ -181,6 +181,25 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
+                                                     AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+    if(execution.isStateProcessed()) {
+      return saveProcessedWorkflowInstanceState(execution, instance, definition, actionBuilder);
+    }
+    return saveSkippedWorkflowInstanceState(execution, instance, definition, actionBuilder);
+  }
+
+  private WorkflowInstance saveSkippedWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
+                                                            AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
+
+    // TODO should update nextActivation to value set by listener
+    builder.setStatus(getStatus(execution, definition.getState(instance.state)));
+    WorkflowInstance savedInstance = builder.build();
+    workflowInstanceDao.updateWorkflowInstance(savedInstance);
+    return savedInstance;
+  }
+
+  private WorkflowInstance saveProcessedWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
       AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
@@ -243,7 +262,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
-    return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
+    return execution.isStateProcessed() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
   private void processWithListeners(ListenerContext listenerContext, final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
@@ -288,6 +307,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private NextAction processState(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
       StateExecutionImpl execution, WorkflowState currentState) {
+    execution.stateProcessingStarted();
     WorkflowStateMethod method = definition.getMethod(instance.state);
     if (method == null) {
       execution.setNextState(currentState);

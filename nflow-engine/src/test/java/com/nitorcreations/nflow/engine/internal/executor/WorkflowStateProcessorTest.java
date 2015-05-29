@@ -35,11 +35,14 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.env.MockEnvironment;
@@ -65,6 +68,8 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowStateProcessorTest extends BaseNflowTest {
+  @Rule
+  public Timeout timeoutPerMethod = Timeout.seconds(5);
 
   @Mock
   WorkflowDefinitionService workflowDefinitions;
@@ -254,6 +259,28 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
                     is(nullValue(DateTime.class))));
     assertThat(action.getAllValues().get(1),
             matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
+  }
+
+  /// FIXME
+  @Test
+  public void skippingWorkflowWithListenerCausesProcessorToStopProcessingWorkflow() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setNextActivation(now()).setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
+    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+            workflowInstancePreProcessor, env, listener);
+
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        return null;
+      }
+    }).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
+
+    executor.run();
+    verify(workflowInstanceDao).updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is((String) null),
+            is(instance.nextActivation))));
+    verifyNoMoreInteractions(workflowInstanceDao);
   }
 
   @Test

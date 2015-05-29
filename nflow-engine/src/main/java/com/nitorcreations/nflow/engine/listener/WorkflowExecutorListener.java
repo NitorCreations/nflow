@@ -88,7 +88,7 @@ public interface WorkflowExecutorListener {
    * Processing chain.
    * Process methods in listeners form a Chain of Responsibility pattern. Listener can either call
    * chain.next(listenerContext) to proceed to next filter or not to call it causing processing of state to be
-   * skipped. Any modification made to state of the workflow instance by the filter will be persisted to database.
+   * skipped. Changes to stateExecution.nextAction field the filter will be persisted to database.
    * <p>
    *   Typical implementation:
    * </p>
