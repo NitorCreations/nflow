@@ -17,7 +17,7 @@ public class ListWorkflowInstanceResponse {
   @ApiModelProperty(value = "Identifier of the new workflow instance", required=true)
   public int id;
 
-  @ApiModelProperty(value = "Workflow instance status: 'created', 'executing', 'inProgress', 'finished', 'manual', 'stopped'", required = true)
+  @ApiModelProperty(value = "Workflow instance status: 'created', 'executing', 'inProgress', 'finished', 'manual'", required = true)
   public String status;
 
   @ApiModelProperty(value = "Workflow definition identifier", required=true)

@@ -117,42 +117,6 @@ public class WorkflowInstanceResource {
     return (updated ? noContent() : status(CONFLICT)).build();
   }
 
-  @PUT
-  @Path("/{id}/stop")
-  @ApiOperation(value = "Stop workflow instance")
-  @ApiResponses({ @ApiResponse(code = 204, message = "If the workflow instance was stopped successfully"),
-      @ApiResponse(code = 409, message = "If the workflow instance was executing and it was not stopped") })
-  public Response stopWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
-      @ApiParam("Description of the action") @QueryParam("actionDescription") String actionDescription) {
-    String description = defaultIfBlank(actionDescription, "Workflow stopped via API");
-    boolean updated = workflowInstances.stopWorkflowInstance(id, description, externalChange);
-    return (updated ? noContent() : status(CONFLICT)).build();
-  }
-
-  @PUT
-  @Path("/{id}/pause")
-  @ApiOperation(value = "Pause workflow instance")
-  @ApiResponses({ @ApiResponse(code = 204, message = "If the workflow instance was paused successfully"),
-      @ApiResponse(code = 409, message = "If the workflow instance was executing or unscheduled and it was not paused") })
-  public Response pauseWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
-      @ApiParam("Description of the action") @QueryParam("actionDescription") String actionDescription) {
-    String description = defaultIfBlank(actionDescription, "Workflow paused via API");
-    boolean updated = workflowInstances.pauseWorkflowInstance(id, description, externalChange);
-    return (updated ? noContent() : status(CONFLICT)).build();
-  }
-
-  @PUT
-  @Path("/{id}/resume")
-  @ApiOperation(value = "Resume workflow instance")
-  @ApiResponses({ @ApiResponse(code = 204, message = "If the workflow instance was resumed successfully"),
-      @ApiResponse(code = 409, message = "If the workflow instance was not paused and it was not resumed") })
-  public Response resumeWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
-      @ApiParam("Description of the action") @QueryParam("actionDescription") String actionDescription) {
-    String description = defaultIfBlank(actionDescription, "Workflow resumed via API");
-    boolean updated = workflowInstances.resumeWorkflowInstance(id, description, externalChange);
-    return (updated ? noContent() : status(CONFLICT)).build();
-  }
-
   @GET
   @Path("/{id}")
   @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)

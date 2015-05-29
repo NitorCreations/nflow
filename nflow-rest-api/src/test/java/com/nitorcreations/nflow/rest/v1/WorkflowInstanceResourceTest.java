@@ -147,69 +147,6 @@ public class WorkflowInstanceResourceTest {
         (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
   }
 
-  @Test
-  public void stoppingWorkflowInstanceWorks() {
-    when(workflowInstances.stopWorkflowInstance(3, "test", externalChange)).thenReturn(true);
-    Response response = resource.stopWorkflowInstance(3, "test");
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
-  }
-
-  @Test
-  public void stoppingWorkflowInstanceWithEmptyActionDescriptionWorks() {
-    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API", externalChange)).thenReturn(true);
-    Response response = resource.stopWorkflowInstance(3, null);
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
-  }
-
-  @Test
-  public void stopWorkflowInstanceReturnsErrorWhenStoppingFails() {
-    when(workflowInstances.stopWorkflowInstance(3, "Workflow stopped via API", externalChange)).thenReturn(false);
-    Response response = resource.stopWorkflowInstance(3, null);
-    assertThat(response.getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
-  }
-
-  @Test
-  public void pausingWorkflowInstanceWorks() {
-    when(workflowInstances.pauseWorkflowInstance(3, "test", externalChange)).thenReturn(true);
-    Response response = resource.pauseWorkflowInstance(3, "test");
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
-  }
-
-  @Test
-  public void pausingWorkflowInstanceWithEmptyActionDescriptionWorks() {
-    when(workflowInstances.pauseWorkflowInstance(3, "Workflow paused via API", externalChange)).thenReturn(true);
-    Response response = resource.pauseWorkflowInstance(3, null);
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
-  }
-
-  @Test
-  public void pauseWorkflowInstanceReturnsErrorWhenPausingFails() {
-    when(workflowInstances.pauseWorkflowInstance(3, "Workflow paused via API", externalChange)).thenReturn(false);
-    Response response = resource.pauseWorkflowInstance(3, null);
-    assertThat(response.getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
-  }
-
-  @Test
-  public void resumingWorkflowInstanceWorks() {
-    when(workflowInstances.resumeWorkflowInstance(3, "test", externalChange)).thenReturn(true);
-    Response response = resource.resumeWorkflowInstance(3, "test");
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
-  }
-
-  @Test
-  public void resumingWorkflowInstanceWithEmptyActionDescriptionWorks() {
-    when(workflowInstances.resumeWorkflowInstance(3, "Workflow resumed via API", externalChange)).thenReturn(true);
-    Response response = resource.resumeWorkflowInstance(3, null);
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
-  }
-
-  @Test
-  public void resumeWorkflowInstanceReturnsErrorWhenResumingFails() {
-    when(workflowInstances.resumeWorkflowInstance(3, "Workflow resumed via API", externalChange)).thenReturn(false);
-    Response response = resource.resumeWorkflowInstance(3, null);
-    assertThat(response.getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
-  }
-
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {

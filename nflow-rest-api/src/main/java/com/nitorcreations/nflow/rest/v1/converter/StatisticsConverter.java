@@ -45,12 +45,6 @@ public class StatisticsConverter {
         case "executing":
           stateStats.executing.allInstances = value.allInstances;
           break;
-        case "paused":
-          stateStats.paused.allInstances = value.allInstances;
-          break;
-        case "stopped":
-          stateStats.stopped.allInstances = value.allInstances;
-          break;
         case "manual":
           stateStats.manual.allInstances = value.allInstances;
           break;

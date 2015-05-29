@@ -53,12 +53,6 @@ public class StatisticsConverterTest {
     WorkflowDefinitionStatistics executing = new WorkflowDefinitionStatistics();
     executing.allInstances = 5;
     stateStats.put("executing", executing);
-    WorkflowDefinitionStatistics paused = new WorkflowDefinitionStatistics();
-    paused.allInstances = 6;
-    stateStats.put("paused", paused);
-    WorkflowDefinitionStatistics stopped = new WorkflowDefinitionStatistics();
-    stopped.allInstances = 7;
-    stateStats.put("stopped", stopped);
     WorkflowDefinitionStatistics manual = new WorkflowDefinitionStatistics();
     manual.allInstances = 8;
     stateStats.put("manual", manual);
@@ -76,8 +70,6 @@ public class StatisticsConverterTest {
     assertThat(stateStatistics.inProgress.allInstances, is(3L));
     assertThat(stateStatistics.inProgress.queuedInstances, is(4L));
     assertThat(stateStatistics.executing.allInstances, is(5L));
-    assertThat(stateStatistics.paused.allInstances, is(6L));
-    assertThat(stateStatistics.stopped.allInstances, is(7L));
     assertThat(stateStatistics.manual.allInstances, is(8L));
     assertThat(stateStatistics.finished.allInstances, is(9L));
   }

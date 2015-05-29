@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.service;
 
-import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
@@ -17,7 +16,6 @@ import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefin
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -98,69 +96,6 @@ public class WorkflowInstanceService {
       String currentState = workflowInstanceDao.getWorkflowInstanceState(updatedInstance.id);
       WorkflowInstanceAction updatedAction = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
       workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, updatedAction);
-    }
-    return updated;
-  }
-
-  /**
-   * Unschedule workflow instance in the database if it is not currently executing, and insert the workflow instance action
-   * if the actionDescription is not null.
-   *
-   * @param id The identifier of the workflow instance to be stopped.
-   * @param actionDescription The action description. Can be null.
-   * @param actionType The type of action.
-   * @return True if the workflow instance was stopped, false otherwise.
-   */
-  @Transactional
-  public boolean stopWorkflowInstance(int id, String actionDescription, WorkflowActionType actionType) {
-    boolean updated = workflowInstanceDao.stopNotRunningWorkflowInstance(id, actionDescription);
-    if (updated && actionDescription != null) {
-      String currentState = workflowInstanceDao.getWorkflowInstanceState(id);
-      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(id).setState(currentState)
-          .setStateText(actionDescription).setExecutionStart(now()).setExecutionEnd(now()).setType(actionType).build();
-      workflowInstanceDao.insertWorkflowInstanceAction(action);
-    }
-    return updated;
-  }
-
-  /**
-   * Update workflow instance status in the database to paused if the instance is not currently executing or unscheduled, and
-   * insert the workflow instance action if the actionDescription is not null.
-   *
-   * @param id The identifier of the workflow instance to be paused.
-   * @param actionDescription The action description. Can be null.
-   * @param actionType The type of action.
-   * @return True if the workflow instance was paused, false otherwise.
-   */
-  @Transactional
-  public boolean pauseWorkflowInstance(int id, String actionDescription, WorkflowActionType actionType) {
-    boolean updated = workflowInstanceDao.pauseNotRunningWorkflowInstance(id, actionDescription);
-    if (updated && actionDescription != null) {
-      String currentState = workflowInstanceDao.getWorkflowInstanceState(id);
-      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(id).setState(currentState)
-          .setStateText(actionDescription).setExecutionStart(now()).setExecutionEnd(now()).setType(actionType).build();
-      workflowInstanceDao.insertWorkflowInstanceAction(action);
-    }
-    return updated;
-  }
-
-  /**
-   * Resume workflow instance in the database if it is paused, and insert the workflow instance action if the actionDescription
-   * is not null.
-   *
-   * @param id The identifier of the workflow instance to be resumed.
-   * @param actionDescription The action description. Can be null.
-   * @param actionType The type of action.
-   * @return True if the workflow instance was resumed, false otherwise.
-   */
-  @Transactional
-  public boolean resumeWorkflowInstance(int id, String actionDescription, WorkflowActionType actionType) {
-    boolean updated = workflowInstanceDao.resumePausedWorkflowInstance(id, actionDescription);
-    if (updated && actionDescription != null) {
-      String currentState = workflowInstanceDao.getWorkflowInstanceState(id);
-      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setWorkflowInstanceId(id).setState(currentState)
-          .setStateText(actionDescription).setExecutionStart(now()).setExecutionEnd(now()).setType(actionType).build();
-      workflowInstanceDao.insertWorkflowInstanceAction(action);
     }
     return updated;
   }

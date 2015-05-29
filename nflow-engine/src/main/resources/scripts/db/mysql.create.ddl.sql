@@ -1,6 +1,6 @@
 create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
-  status enum('created', 'executing', 'inProgress', 'finished', 'manual', 'stopped', 'paused') not null,
+  status enum('created', 'executing', 'inProgress', 'finished', 'manual') not null,
   type varchar(64) not null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,

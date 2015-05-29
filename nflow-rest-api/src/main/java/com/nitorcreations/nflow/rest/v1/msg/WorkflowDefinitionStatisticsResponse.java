@@ -19,8 +19,6 @@ public class WorkflowDefinitionStatisticsResponse {
     public AllAndQueued created = new AllAndQueued();
     public AllAndQueued inProgress = new AllAndQueued();
     public All executing = new All();
-    public All paused = new All();
-    public All stopped = new All();
     public All manual = new All();
     public All finished = new All();
 

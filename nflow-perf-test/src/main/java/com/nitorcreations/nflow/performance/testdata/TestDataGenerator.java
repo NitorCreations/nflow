@@ -8,8 +8,11 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
 import static java.util.Collections.reverse;
+import static java.util.UUID.randomUUID;
 import static org.joda.time.DateTime.now;
 
 import java.util.ArrayList;
@@ -32,7 +35,6 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 /**
  * Generates imaginary workflow instances with action history based on the workflow definitions that are deployed to the
@@ -63,7 +65,7 @@ public class TestDataGenerator {
 
   private WorkflowInstance generateWorkflowInstance(List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions) {
     AbstractWorkflowDefinition<? extends WorkflowState> definition = selectRandom(definitions);
-    DateTime nextActivation = new DateTime().minusYears(5).plusSeconds(random.nextInt(172800000)); // 2000 days
+    DateTime nextActivation = now().minusYears(5).plusSeconds(random.nextInt(172800000)); // 2000 days
     WorkflowState state = selectRandomState(definition, nextActivation);
     WorkflowInstanceStatus status = selectRandomStatus(state, nextActivation);
     List<WorkflowInstanceAction> actions = generateWorkflowInstanceActions(definition, state,
@@ -72,17 +74,17 @@ public class TestDataGenerator {
     return new WorkflowInstance.Builder() //
         .setId(nextWorkflowId++) //
         .setType(definition.getType()) //
-        .setBusinessKey(UUID.randomUUID().toString()) //
+        .setBusinessKey(randomUUID().toString()) //
         .setExecutorGroup(executors.getExecutorGroup()) //
         .setExecutorId(executing == status ? executors.getExecutorId() : null) //
-        .setExternalId(UUID.randomUUID().toString()) //
+        .setExternalId(randomUUID().toString()) //
         .setCreated(nextActivation.minusMinutes(5 + random.nextInt(10))) //
         .setModified(nextActivation.minusMinutes(random.nextInt(5))) //
         .setNextActivation(asList(created, executing, inProgress).contains(status) ? nextActivation : null) //
         .setStarted(nextActivation.minusMinutes(random.nextInt(10))) //
         .setState(state.name()) //
         .setActions(actions) //
-        .setStateText(UUID.randomUUID().toString()) //
+        .setStateText(randomUUID().toString()) //
         .setStatus(status) //
         .build();
   }
@@ -151,7 +153,7 @@ public class TestDataGenerator {
             .setRetryNo(retryNo--) //
             .setState(previousState.name()) //
             .setStateText(UUID.randomUUID().toString()) //
-            .setType(isFailureTransition ? WorkflowActionType.stateExecutionFailed : WorkflowActionType.stateExecution) //
+            .setType(isFailureTransition ? stateExecutionFailed : stateExecution) //
             .build());
       }
       currentState = previousState;
@@ -161,7 +163,7 @@ public class TestDataGenerator {
     for (WorkflowInstanceAction action : result) {
       Map<String, String> updatedStateVariables = new HashMap<>();
       if (random.nextInt(2) > 0) {
-        updatedStateVariables.put(Integer.toString(nextActionId), "\"" + UUID.randomUUID().toString() + "\"");
+        updatedStateVariables.put(Integer.toString(nextActionId), "\"" + randomUUID().toString() + "\"");
       }
       resultWithActionIds.add(new WorkflowInstanceAction.Builder(action).setId(nextActionId++)
           .setUpdatedStateVariables(updatedStateVariables).build());
@@ -181,7 +183,7 @@ public class TestDataGenerator {
     } else if (new Interval(now().minusMinutes(10), now().plusMinutes(10)).contains(nextActivation)) {
       return executing;
     }
-    return WorkflowInstanceStatus.stopped;
+    return finished;
   }
 
   public void setCurrentWorkflowId(int currentWorkflowId) {
