@@ -6,7 +6,6 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
@@ -141,81 +140,6 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     assertThat(service.updateWorkflowInstance(i, a), is(false));
     verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),
         any(WorkflowInstanceAction.class));
-  }
-
-  @Test
-  public void stopWorkflowInstanceWorks() {
-    int id = 42;
-    when(workflowInstanceDao.getWorkflowInstanceState(id)).thenReturn("currentState");
-    when(workflowInstanceDao.stopNotRunningWorkflowInstance(id, "test")).thenReturn(true);
-    assertThat(service.stopWorkflowInstance(id, "test", externalChange), is(true));
-    verify(workflowInstanceDao).stopNotRunningWorkflowInstance(id, "test");
-    verify(workflowInstanceDao).insertWorkflowInstanceAction(storedAction.capture());
-    WorkflowInstanceAction action = storedAction.getValue();
-    assertThat(action.workflowInstanceId, is(42));
-    assertThat(action.state, is("currentState"));
-    assertThat(action.stateText, is("test"));
-    assertThat(action.executionStart, is(now()));
-    assertThat(action.executionEnd, is(now()));
-  }
-
-  @Test
-  public void stopRunningWorkflowInstanceFails() {
-    int id = 42;
-    when(workflowInstanceDao.stopNotRunningWorkflowInstance(id, "test")).thenReturn(false);
-    assertThat(service.stopWorkflowInstance(id, "test", externalChange), is(false));
-    verify(workflowInstanceDao).stopNotRunningWorkflowInstance(id, "test");
-    verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstanceAction.class));
-  }
-
-  @Test
-  public void pauseWorkflowInstanceWorks() {
-    int id = 42;
-    when(workflowInstanceDao.getWorkflowInstanceState(id)).thenReturn("currentState");
-    when(workflowInstanceDao.pauseNotRunningWorkflowInstance(id, "test")).thenReturn(true);
-    assertThat(service.pauseWorkflowInstance(id, "test", externalChange), is(true));
-    verify(workflowInstanceDao).pauseNotRunningWorkflowInstance(id, "test");
-    verify(workflowInstanceDao).insertWorkflowInstanceAction(storedAction.capture());
-    WorkflowInstanceAction action = storedAction.getValue();
-    assertThat(action.workflowInstanceId, is(42));
-    assertThat(action.state, is("currentState"));
-    assertThat(action.stateText, is("test"));
-    assertThat(action.executionStart, is(now()));
-    assertThat(action.executionEnd, is(now()));
-  }
-
-  @Test
-  public void pauseRunningWorkflowInstanceFails() {
-    int id = 42;
-    when(workflowInstanceDao.pauseNotRunningWorkflowInstance(id, "test")).thenReturn(false);
-    assertThat(service.pauseWorkflowInstance(id, "test", externalChange), is(false));
-    verify(workflowInstanceDao).pauseNotRunningWorkflowInstance(id, "test");
-    verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstanceAction.class));
-  }
-
-  @Test
-  public void resumeWorkflowInstanceWorks() {
-    int id = 42;
-    when(workflowInstanceDao.getWorkflowInstanceState(id)).thenReturn("currentState");
-    when(workflowInstanceDao.resumePausedWorkflowInstance(id, "test")).thenReturn(true);
-    assertThat(service.resumeWorkflowInstance(id, "test", externalChange), is(true));
-    verify(workflowInstanceDao).resumePausedWorkflowInstance(id, "test");
-    verify(workflowInstanceDao).insertWorkflowInstanceAction(storedAction.capture());
-    WorkflowInstanceAction action = storedAction.getValue();
-    assertThat(action.workflowInstanceId, is(42));
-    assertThat(action.state, is("currentState"));
-    assertThat(action.stateText, is("test"));
-    assertThat(action.executionStart, is(now()));
-    assertThat(action.executionEnd, is(now()));
-  }
-
-  @Test
-  public void resumeRunningWorkflowInstanceFails() {
-    int id = 42;
-    when(workflowInstanceDao.resumePausedWorkflowInstance(id, "test")).thenReturn(false);
-    assertThat(service.resumeWorkflowInstance(id, "test", externalChange), is(false));
-    verify(workflowInstanceDao).resumePausedWorkflowInstance(id, "test");
-    verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstanceAction.class));
   }
 
   @Test
