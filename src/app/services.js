@@ -8,26 +8,6 @@ angular.module('nflowExplorer.services',
                    {'update': {method: 'PUT'},
                    });
 })
-.factory('ManageWorkflow', function ManageWorkflowFactory($http, config) {
-  function processAction(id, actionDescription, action) {
-    var url = config.nflowUrl + '/v1/workflow-instance/' + id + '/' + action;
-    if (actionDescription) {
-      url = url.concat('?actionDescription=' + encodeURIComponent(actionDescription));
-    }
-    return $http.put(url);
-  }
-  return {
-    stop: function (id, actionDescription) {
-      return processAction(id, actionDescription, 'stop');
-    },
-    pause: function (id, actionDescription) {
-      return processAction(id, actionDescription, 'pause');
-    },
-    resume: function (id, actionDescription) {
-      return processAction(id, actionDescription, 'resume');
-    }
-  };
-})
 .factory('WorkflowSearch', function WorkflowSearchFactory($resource, config) {
   return $resource(config.nflowUrl + '/v1/workflow-instance');
 })
