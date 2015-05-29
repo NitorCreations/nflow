@@ -119,7 +119,8 @@ class WorkflowStateProcessor implements Runnable {
 
       try {
         processBeforeListeners(listenerContext);
-        processWithListeners(listenerContext, instance, definition, execution, state);
+        NextAction nextAction = processWithListeners(listenerContext, instance, definition, execution, state);
+        listenerContext.nextAction = nextAction;
       } catch (Throwable t) {
         execution.setFailed(t);
         logger.error("Handler threw exception, trying again later.", t);
@@ -185,14 +186,13 @@ class WorkflowStateProcessor implements Runnable {
     if(execution.isStateProcessed()) {
       return saveProcessedWorkflowInstanceState(execution, instance, definition, actionBuilder);
     }
-    return saveSkippedWorkflowInstanceState(execution, instance, definition, actionBuilder);
+    return saveProcessedWorkflowInstanceState(execution, instance, definition, actionBuilder);
   }
 
   private WorkflowInstance saveSkippedWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
                                                             AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
 
-    // TODO should update nextActivation to value set by listener
     builder.setStatus(getStatus(execution, definition.getState(instance.state)));
     WorkflowInstance savedInstance = builder.build();
     workflowInstanceDao.updateWorkflowInstance(savedInstance);
@@ -208,9 +208,16 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setStatus(getStatus(execution, definition.getState(execution.getNextState())))
-      .setStateText(getStateText(instance, execution))
       .setState(execution.getNextState())
+      .setStateText(getStateText(instance, execution))
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
+
+    if(!execution.isStateProcessed()) {
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), null,
+              Collections.<WorkflowInstance>emptyList());
+      return builder.setOriginalStateVariables(instance.stateVariables).build();
+    }
+
     actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
 
     if (!execution.isFailed()) {
@@ -265,12 +272,16 @@ class WorkflowStateProcessor implements Runnable {
     return execution.isStateProcessed() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
-  private void processWithListeners(ListenerContext listenerContext, final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
+  private NextAction processWithListeners(ListenerContext listenerContext, final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
                                           final StateExecutionImpl execution, final WorkflowState state) {
     List<WorkflowExecutorListener> chain = new LinkedList<>(asList(this.executorListeners));
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
     chain.add(processingListener);
-    new ExecutorListenerChain(chain).next(listenerContext);
+    NextAction nextAction = new ExecutorListenerChain(chain).next(listenerContext);
+    if(execution.isStateProcessed()) {
+      return nextAction;
+    }
+    return new SkippedStateHandler(nextAction, instance, definition, execution, state, illegalStateChangeAction, objectMapper).processState();
   }
 
   static class ExecutorListenerChain implements ListenerChain {
@@ -279,9 +290,9 @@ class WorkflowStateProcessor implements Runnable {
       this.chain = chain.iterator();
     }
     @Override
-    public void next(ListenerContext context) {
+    public NextAction next(ListenerContext context) {
       Assert.isTrue(chain.hasNext(), "Ran out of listeners in listener chain. The last listener must not call " + this.getClass().getSimpleName() + ".next().");
-      chain.next().process(context, this);
+      return chain.next().process(context, this);
     }
   }
 
@@ -300,66 +311,113 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    public void process(ListenerContext listenerContext, ListenerChain chain) {
-      listenerContext.nextAction = processState(instance, definition, execution, state);
+    public NextAction process(ListenerContext listenerContext, ListenerChain chain) {
+      return new NormalStateHandler(instance, definition, execution, state, illegalStateChangeAction, objectMapper).processState();
     }
   }
 
-  private NextAction processState(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
-      StateExecutionImpl execution, WorkflowState currentState) {
-    execution.stateProcessingStarted();
-    WorkflowStateMethod method = definition.getMethod(instance.state);
-    if (method == null) {
-      execution.setNextState(currentState);
-      return stopInState(currentState, "Execution finished.");
+  private static class NormalStateHandler extends StateHandler {
+
+    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState, String illegalStateChangeAction, ObjectStringMapper objectMapper) {
+      super(instance, definition, execution, currentState, illegalStateChangeAction, objectMapper);
     }
-    NextAction nextAction;
-    Object[] args = objectMapper.createArguments(execution, method);
-    if (currentState.getType().isFinal()) {
-      invokeMethod(method.method, definition, args);
-      nextAction = stopInState(currentState, "Stopped in final state");
-    } else {
-      try {
-        nextAction = (NextAction) invokeMethod(method.method, definition, args);
-        if (nextAction == null) {
-          logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, definition
-              .getErrorState().name());
-          nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
-          execution.setFailed();
-        } else if (nextAction.getNextState() != null && !definition.getStates().contains(nextAction.getNextState())) {
-          logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'",
-              nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
-          nextAction = moveToState(definition.getErrorState(), "State '" + instance.state
-              + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
-          execution.setFailed();
-        } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
-          logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
-              nextAction.getNextState());
-          if ("fail".equals(illegalStateChangeAction)) {
-            nextAction = moveToState(definition.getErrorState(), "Illegal state transition from " + instance.state + " to "
-                + nextAction.getNextState().name() + ", proceeding to error state " + definition.getErrorState().name());
-            execution.setFailed();
-          }
-        }
-      } catch (InvalidNextActionException e) {
-        logger.error("State '" + instance.state
-            + "' handler method failed to create valid next action, proceeding to error state '"
-            + definition.getErrorState().name() + "'", e);
-        nextAction = moveToState(definition.getErrorState(), e.getMessage());
-        execution.setFailed(e);
+
+    @Override
+    protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
+      execution.stateProcessingStarted();
+      return (NextAction) invokeMethod(method.method, definition, args);
+    }
+  }
+
+  private static class SkippedStateHandler extends StateHandler {
+    private final NextAction nextAction;
+    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState, String illegalStateChangeAction, ObjectStringMapper objectMapper) {
+      super(instance, definition, execution, currentState, illegalStateChangeAction, objectMapper);
+      this.nextAction = nextAction;
+    }
+
+    @Override
+    protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
+      return nextAction;
+    }
+  }
+
+  abstract private static class StateHandler {
+    protected final WorkflowInstance instance;
+    protected final AbstractWorkflowDefinition<?> definition;
+    protected final StateExecutionImpl execution;
+    protected final WorkflowState currentState;
+    private final ObjectStringMapper objectMapper;
+    private final String illegalStateChangeAction;
+    public StateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
+                        StateExecutionImpl execution, WorkflowState currentState, String illegalStateChangeAction, ObjectStringMapper objectMapper) {
+      this.instance = instance;
+      this.definition = definition;
+      this.execution = execution;
+      this.currentState = currentState;
+      this.illegalStateChangeAction = illegalStateChangeAction;
+      this.objectMapper = objectMapper;
+    }
+    abstract protected NextAction getNextAction(WorkflowStateMethod method, Object args[]);
+
+    public NextAction processState() {
+      WorkflowStateMethod method = definition.getMethod(instance.state);
+      if (method == null) {
+        execution.setNextState(currentState);
+        return stopInState(currentState, "Execution finished.");
       }
+      NextAction nextAction;
+      Object[] args = objectMapper.createArguments(execution, method);
+      if (currentState.getType().isFinal()) {
+        getNextAction(method, args);
+        nextAction = stopInState(currentState, "Stopped in final state");
+      } else {
+        try {
+          nextAction = getNextAction(method, args);
+          if (nextAction == null) {
+            logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, definition
+                    .getErrorState().name());
+            nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+            execution.setFailed();
+          } else if (nextAction.getNextState() != null && !definition.getStates().contains(nextAction.getNextState())) {
+            logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'",
+                    nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
+            nextAction = moveToState(definition.getErrorState(), "State '" + instance.state
+                    + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
+            execution.setFailed();
+          } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
+            logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
+                    nextAction.getNextState());
+            if ("fail".equals(illegalStateChangeAction)) {
+              nextAction = moveToState(definition.getErrorState(), "Illegal state transition from " + instance.state + " to "
+                      + nextAction.getNextState().name() + ", proceeding to error state " + definition.getErrorState().name());
+              execution.setFailed();
+            }
+          }
+        } catch (InvalidNextActionException e) {
+          logger.error("State '" + instance.state
+                  + "' handler method failed to create valid next action, proceeding to error state '"
+                  + definition.getErrorState().name() + "'", e);
+          nextAction = moveToState(definition.getErrorState(), e.getMessage());
+          execution.setFailed(e);
+        }
+      }
+      execution.setNextActivation(nextAction.getActivation());
+      execution.setNextStateReason(nextAction.getReason());
+
+      if(!execution.isStateProcessed()) {
+        execution.setNextState(currentState);
+      } else if (nextAction.isRetry()) {
+        execution.setNextState(currentState);
+        execution.setRetry(true);
+        definition.handleRetryAfter(execution, nextAction.getActivation());
+      } else {
+        execution.setNextState(nextAction.getNextState());
+      }
+      objectMapper.storeArguments(execution, method, args);
+      return nextAction;
     }
-    execution.setNextActivation(nextAction.getActivation());
-    execution.setNextStateReason(nextAction.getReason());
-    if (nextAction.isRetry()) {
-      execution.setNextState(currentState);
-      execution.setRetry(true);
-      definition.handleRetryAfter(execution, nextAction.getActivation());
-    } else {
-      execution.setNextState(nextAction.getNextState());
-    }
-    objectMapper.storeArguments(execution, method, args);
-    return nextAction;
+
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

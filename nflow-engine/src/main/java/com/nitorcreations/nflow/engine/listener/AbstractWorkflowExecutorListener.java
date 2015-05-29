@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.listener;
 
+import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
+
 /**
  * AbstractWorkflowExecutorListener implement WorkflowExecutorListener with no-op/defaults
  * method implementations. A subclasses can override just the methods it is interested in.
@@ -20,8 +22,8 @@ abstract public class AbstractWorkflowExecutorListener implements WorkflowExecut
    * @param listenerContext The listener context.
    */
   @Override
-  public void process(ListenerContext listenerContext, ListenerChain chain) {
-    chain.next(listenerContext);
+  public NextAction process(ListenerContext listenerContext, ListenerChain chain) {
+    return chain.next(listenerContext);
   }
 
   /**

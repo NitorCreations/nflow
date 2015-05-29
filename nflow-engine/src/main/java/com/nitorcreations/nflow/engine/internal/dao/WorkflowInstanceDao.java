@@ -61,6 +61,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.springframework.util.Assert;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is
@@ -239,7 +240,7 @@ public class WorkflowInstanceDao {
 
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action,
       List<WorkflowInstance> childWorkflows) {
-    if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
+    if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty() && action != null) {
       updateWorkflowInstanceWithCTE(instance, action);
     } else {
       updateWorkflowInstanceWithTransaction(instance, action, childWorkflows);
@@ -259,12 +260,15 @@ public class WorkflowInstanceDao {
     transaction.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
+        Assert.isTrue(!(action == null && !childWorkflows.isEmpty()), "action must be non null when there are child workflows.");
         updateWorkflowInstance(instance);
-        int parentActionId = insertWorkflowInstanceAction(instance, action);
-        for (WorkflowInstance childTemplate : childWorkflows) {
-          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
-              .setParentActionId(parentActionId).build();
-          insertWorkflowInstance(childWorkflow);
+        if(action != null) {
+          int parentActionId = insertWorkflowInstanceAction(instance, action);
+          for (WorkflowInstance childTemplate : childWorkflows) {
+            WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
+                    .setParentActionId(parentActionId).build();
+            insertWorkflowInstance(childWorkflow);
+          }
         }
       }
     });
