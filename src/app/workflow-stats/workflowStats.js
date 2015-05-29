@@ -106,8 +106,8 @@ angular.module('nflowExplorer.workflowStats', [])
    */
   function createExecutionData(currentStates) {
     var data = $rootScope.radiator.stateChart.data;
-    var executionPhases = ['queued', 'sleeping', 'executing', 'paused', 'manual'];
-    var realStatuses = ['executing', 'paused', 'manual'];
+    var executionPhases = ['queued', 'sleeping', 'executing', 'manual'];
+    var realStatuses = ['executing', 'manual'];
     var dataArray = _.map(data, function(row) {
       var time = row[0],
           stats = row[1];

@@ -22,7 +22,7 @@
     };
   });
 
-  m.controller('WorkflowManageCtrl', function($state, Workflows, ManageWorkflow, WorkflowGraphApi) {
+  m.controller('WorkflowManageCtrl', function($state, Workflows, WorkflowGraphApi) {
     var model = {};
     model.timeUnits = ['minutes', 'hours', 'days'];
     model.timeUnit = model.timeUnits[0];
@@ -32,13 +32,6 @@
     self.model = model;
 
     self.updateWorkflow = updateWorkflow;
-    self.stopWorkflow = stopWorkflow;
-    self.pauseWorkflow = pauseWorkflow;
-    self.resumeWorkflow = resumeWorkflow;
-
-    self.isPauseDisabled = isPauseDisabled;
-    self.isResumeDisabled = isResumeDisabled;
-    self.isStopDisabled = isStopDisabled;
 
     initialize();
 
@@ -72,29 +65,6 @@
 
       Workflows.update({id: self.workflow.id}, request, refresh);
     }
-
-    function stopWorkflow() {
-      console.info('stopWorkflow()', model);
-      ManageWorkflow.stop(self.workflow.id, model.actionDescription).then(refresh);
-    }
-
-    function pauseWorkflow() {
-      console.info('pauseWorkflow()', model);
-      ManageWorkflow.pause(self.workflow.id, model.actionDescription).then(refresh);
-    }
-
-    function resumeWorkflow() {
-      console.info('resumeWorkflow()', model);
-      ManageWorkflow.resume(self.workflow.id, model.actionDescription).then(refresh);
-    }
-
-    function isPauseDisabled() { return _.isUndefined(self.workflow.nextActivation) || isPaused(); }
-
-    function isResumeDisabled() { return !isPaused(); }
-
-    function isStopDisabled() { return _.isUndefined(self.workflow.nextActivation); }
-
-    function isPaused() { return self.workflow.status === 'paused'; }
 
     function refresh() { $state.reload(); }
   });

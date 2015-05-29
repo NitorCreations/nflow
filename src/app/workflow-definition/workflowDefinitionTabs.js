@@ -1,8 +1,7 @@
 (function () {
   'use strict';
-  var _statusNames = ['created', 'inProgress', 'executing', 'finished',
-                      'manual', 'stopped', 'paused'];
-  var _metaStatuses = ['queued', 'sleeping', 'executing', 'paused', 'manual'];
+  var _statusNames = ['created', 'inProgress', 'executing', 'finished', 'manual'];
+  var _metaStatuses = ['queued', 'sleeping', 'executing', 'manual'];
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nvd3',
@@ -52,7 +51,7 @@
                     bottom: 160,
                     left: 45
                 },
-                noData: 'No workflow instances in active states. There may be stopped or finished instances.',
+                noData: 'No workflow instances in active states. There may be finished instances.',
                 x: function(d) { return d.label; },
                 y: function(d) { return d.value; },
                 clipEdge: true,

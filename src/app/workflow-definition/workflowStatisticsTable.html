@@ -7,8 +7,6 @@
         <th colspan="2" class="numeric" title="Workflow instances started executing but not currently processing">In&nbsp;Progress</th>
         <th class="numeric" title="Workflow instances currently processing">Executing</th>
         <th class="numeric" title="Workflow instances waiting for manual processing (next activation: never)">Manual</th>
-        <th class="numeric" title="Workflow instances paused (may be resumed, next activation: never)">Paused</th>
-        <th class="numeric" title="Workflow instances stopped (may not be resumed, next activation: never)">Stopped</th>
         <th class="numeric" title="Workflow instances finished (next activation: never)">Finished</th>
         <th class="numeric" title="All workflow instances">Total</th>
         <th></th>
@@ -26,8 +24,6 @@
             ng-class="{queued: ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances > 0}">{{ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.manual.allInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.paused.allInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.stopped.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.finished.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.allInstances}}</th>
         <th></th>
@@ -45,8 +41,6 @@
             <span class="queued" ng-if="state.stateStatistics.inProgress.queuedInstances > 0">{{state.stateStatistics.inProgress.queuedInstances}}</span></td>
         <td class="numeric">{{state.stateStatistics.executing.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.manual.allInstances | nullToZero}}</td>
-        <th class="numeric">{{state.stateStatistics.paused.allInstances | nullToZero}}</th>
-        <th class="numeric">{{state.stateStatistics.stopped.allInstances | nullToZero}}</th>
         <td class="numeric">{{state.stateStatistics.finished.allInstances | nullToZero}}</td>
         <td class="numeric">{{state.stateStatistics.allInstances | nullToZero}}</td>
         <td><a ui-sref="search({type: ctrl.definition.type, state: state.id})">
@@ -65,8 +59,6 @@
             ng-class="{queued: ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances > 0}">{{ctrl.definition.stateStatisticsTotal.inProgress.queuedInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.executing.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.manual.allInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.paused.allInstances}}</th>
-        <th class="numeric">{{ctrl.definition.stateStatisticsTotal.stopped.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.finished.allInstances}}</th>
         <th class="numeric">{{ctrl.definition.stateStatisticsTotal.allInstances}}</th>
         <th></th>
