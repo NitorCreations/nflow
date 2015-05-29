@@ -6,6 +6,7 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardMinutes;
@@ -14,7 +15,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import com.nitorcreations.nflow.engine.listener.AbstractWorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -38,6 +44,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
+import org.springframework.util.Assert;
 
 class WorkflowStateProcessor implements Runnable {
 
@@ -100,7 +107,7 @@ class WorkflowStateProcessor implements Runnable {
     int subsequentStateExecutions = 0;
     while (instance.status == executing) {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao, workflowInstancePreProcessor);
-      ListenerContext listenerContext = executorListeners.length == 0 ? null : new ListenerContext(definition, instance, execution);
+      ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       WorkflowState state;
       try {
@@ -112,10 +119,7 @@ class WorkflowStateProcessor implements Runnable {
 
       try {
         processBeforeListeners(listenerContext);
-        NextAction nextAction = processState(instance, definition, execution, state);
-        if (listenerContext != null) {
-          listenerContext.nextAction = nextAction;
-        }
+        processWithListeners(listenerContext, instance, definition, execution, state);
       } catch (Throwable t) {
         execution.setFailed(t);
         logger.error("Handler threw exception, trying again later.", t);
@@ -196,7 +200,7 @@ class WorkflowStateProcessor implements Runnable {
       processSuccess(execution, instance);
     } else {
       workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-          Collections.<WorkflowInstance> emptyList());
+              Collections.<WorkflowInstance>emptyList());
     }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
@@ -240,6 +244,46 @@ class WorkflowStateProcessor implements Runnable {
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
     return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
+  }
+
+  private void processWithListeners(ListenerContext listenerContext, final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
+                                          final StateExecutionImpl execution, final WorkflowState state) {
+    List<WorkflowExecutorListener> chain = new LinkedList<>(asList(this.executorListeners));
+    ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
+    chain.add(processingListener);
+    new ExecutorListenerChain(chain).next(listenerContext);
+  }
+
+  static class ExecutorListenerChain implements ListenerChain {
+    private final Iterator<WorkflowExecutorListener> chain;
+    private ExecutorListenerChain(List<WorkflowExecutorListener> chain) {
+      this.chain = chain.iterator();
+    }
+    @Override
+    public void next(ListenerContext context) {
+      Assert.isTrue(chain.hasNext(), "Ran out of listeners in listener chain. The last listener must not call " + this.getClass().getSimpleName() + ".next().");
+      chain.next().process(context, this);
+    }
+  }
+
+  private class ProcessingExecutorListener extends AbstractWorkflowExecutorListener {
+    private final WorkflowInstance instance;
+    private final AbstractWorkflowDefinition<? extends WorkflowState> definition;
+    private final StateExecutionImpl execution;
+    private final WorkflowState state;
+
+    public ProcessingExecutorListener(final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
+                                      final StateExecutionImpl execution, final WorkflowState state) {
+      this.instance = instance;
+      this.definition = definition;
+      this.execution = execution;
+      this.state = state;
+    }
+
+    @Override
+    public void process(ListenerContext listenerContext, ListenerChain chain) {
+      listenerContext.nextAction = processState(instance, definition, execution, state);
+    }
   }
 
   private NextAction processState(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,

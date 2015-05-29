@@ -2,6 +2,8 @@ package com.nitorcreations.nflow.metrics;
 
 import static java.lang.String.format;
 
+import com.nitorcreations.nflow.engine.listener.AbstractWorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import org.joda.time.DateTime;
 
 import com.codahale.metrics.MetricRegistry;
@@ -18,8 +20,8 @@ import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
  * <li>Retry count histograms</li>
  * </ul>
  */
-public class MetricsWorkflowExecutorListener implements
-    WorkflowExecutorListener {
+public class MetricsWorkflowExecutorListener extends
+        AbstractWorkflowExecutorListener {
   private static final String EXECUTION_KEY = "nflow-metrics-execution";
   private final MetricRegistry metricRegistry;
   private final String nflowExecutorGroup;
