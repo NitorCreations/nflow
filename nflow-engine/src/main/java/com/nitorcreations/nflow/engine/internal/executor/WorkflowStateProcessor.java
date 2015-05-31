@@ -183,24 +183,6 @@ class WorkflowStateProcessor implements Runnable {
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
                                                      AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
-    if(execution.isStateProcessed()) {
-      return saveProcessedWorkflowInstanceState(execution, instance, definition, actionBuilder);
-    }
-    return saveProcessedWorkflowInstanceState(execution, instance, definition, actionBuilder);
-  }
-
-  private WorkflowInstance saveSkippedWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-                                                            AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
-
-    builder.setStatus(getStatus(execution, definition.getState(instance.state)));
-    WorkflowInstance savedInstance = builder.build();
-    workflowInstanceDao.updateWorkflowInstance(savedInstance);
-    return savedInstance;
-  }
-
-  private WorkflowInstance saveProcessedWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-      AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);

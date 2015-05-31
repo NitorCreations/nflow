@@ -99,10 +99,11 @@ public interface WorkflowExecutorListener {
    *   }
    * </code>
    *
+   * http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern
+   *
    * @param listenerContext The listener context.
    * @param chain The listener chain.
    * @return NextAction
-   * @see http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern
    */
   NextAction process(ListenerContext listenerContext, ListenerChain chain);
 
