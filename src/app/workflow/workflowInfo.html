@@ -5,11 +5,11 @@
   <div ng-show="ctrl.childWorkflows.length">Child workflows:
     <strong><a ui-sref="search({parentWorkflowId: ctrl.workflow.id})">{{ctrl.childWorkflows.length}}</a></strong>
   </div>
-  Created: <strong title="{{ctrl.workflow.created | date:'medium' }}">{{ctrl.workflow.created | fromNow}}</strong><br/>
-  Started: <strong title="{{ctrl.workflow.started | date:'medium' }}">{{ctrl.workflow.started | fromNow}}</strong><br/>
+  Created: <strong title="{{ctrl.workflow.created | fromNow}}">{{ctrl.workflow.created | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+  Started: <strong title="{{ctrl.workflow.started | fromNow}}">{{ctrl.workflow.started | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+  Modified: <strong title="{{ctrl.workflow.modified | fromNow}}">{{ctrl.workflow.modified | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
   Current state: <strong class="wd-active-state" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
-  <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span>
-  since <strong title="{{ctrl.currentStateTime() | date:'medium' }}">{{ctrl.currentStateTime() | fromNowOrNever}}</strong><br/>
+  <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span><br/>
   Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
   Next activation: <strong title={{ctrl.workflow.nextActivation}}>{{ctrl.workflow.nextActivation | fromNowOrNever}}</strong>
   <div>Workflow id: <strong>{{ctrl.workflow.id}}</strong></div>

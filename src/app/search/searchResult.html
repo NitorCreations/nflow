@@ -26,10 +26,10 @@
       <td>{{result.businessKey}}</td>
       <td>{{result.externalId}}</td>
       <td>{{result.retries}}</td>
-      <td title="{{result.created | date:'medium'}}">{{result.created | fromNowOrNever}}</td>
-      <td title="{{result.started | date:'medium'}}">{{result.started | fromNowOrNever}}</td>
-      <td title="{{result.modified | date:'medium'}}">{{result.modified | fromNowOrNever}}</td>
-      <td title="{{result.nextActivation | date:'medium'}}">{{result.nextActivation | fromNowOrNever}}</td>
+      <td title="{{result.created | fromNowOrNever}}">{{result.created | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td title="{{result.started | fromNowOrNever}}">{{result.started | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td title="{{result.modified | fromNowOrNever}}">{{result.modified | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td title="{{result.nextActivation | fromNowOrNever}}">{{result.nextActivation | date:'yyyy-MM-dd HH:mm:ss'}}</td>
     </tr>
     </tbody>
   </table>
