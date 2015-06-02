@@ -2,6 +2,7 @@ create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
   status enum('created', 'executing', 'inProgress', 'finished', 'manual') not null,
   type varchar(64) not null,
+  root_workflow_id integer default null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,
   business_key varchar(64),
@@ -16,7 +17,7 @@ create table if not exists nflow_workflow (
   modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
   executor_group varchar(64) not null,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group),
-  index nflow_workflow(next_activation)
+  index nflow_workflow(next_activation, modified)
 );
 
 create table if not exists nflow_workflow_action (
@@ -34,6 +35,9 @@ create table if not exists nflow_workflow_action (
 
 alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
+
+alter table nflow_workflow add constraint fk_workflow_root
+  foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
 
 create table if not exists nflow_workflow_state (
   workflow_id int not null,

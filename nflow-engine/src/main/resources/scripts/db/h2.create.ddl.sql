@@ -2,6 +2,7 @@ create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
   status varchar(32) not null check status in ('created', 'executing', 'inProgress', 'finished', 'manual'),
   type varchar(64) not null,
+  root_workflow_id integer default null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,
   business_key varchar(64),
@@ -20,7 +21,7 @@ create trigger if not exists nflow_workflow_modified before update on nflow_work
 
 create unique index if not exists nflow_workflow_uniq on nflow_workflow (type, external_id, executor_group);
 
-create index if not exists nflow_workflow_next_activation on nflow_workflow(next_activation);
+create index if not exists nflow_workflow_next_activation on nflow_workflow(next_activation, modified);
 
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
@@ -37,6 +38,9 @@ create table if not exists nflow_workflow_action (
 
 alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
+
+alter table nflow_workflow add constraint fk_workflow_root
+  foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
 
 create table if not exists nflow_workflow_state (
   workflow_id int not null,
