@@ -3,6 +3,7 @@ create table if not exists nflow_workflow (
   id serial primary key,
   status workflow_status not null,
   type varchar(64) not null,
+  root_workflow_id integer default null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,
   business_key varchar(64),
@@ -30,7 +31,7 @@ drop trigger if exists update_nflow_modified on nflow_workflow;
 create trigger update_nflow_modified before update on nflow_workflow for each row execute procedure update_modified();
 
 drop index nflow_workflow_activation;
-create index nflow_workflow_activation on nflow_workflow(next_activation) where next_activation is not null;
+create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
 
 create type action_type as enum ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange');
 create table if not exists nflow_workflow_action (
@@ -49,6 +50,9 @@ create table if not exists nflow_workflow_action (
 
 alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
+
+alter table nflow_workflow add constraint fk_workflow_root
+  foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
 
 create table if not exists nflow_workflow_state (
   workflow_id int not null,
