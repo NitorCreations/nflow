@@ -148,7 +148,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWithChildWorkflowsWorks() {
+  public void updateWorkflowInstanceWithRootWorkflowAndChildWorkflowsWorks() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     int id = dao.insertWorkflowInstance(i1);
     WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress).setState("updateState")
@@ -164,6 +164,50 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     for (List<Integer> childIds : childWorkflows.values()) {
       assertThat(childIds.size(), is(1));
       WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0));
+      assertThat(childInstance.rootWorkflowId, is(id));
+      assertThat(childInstance.parentWorkflowId, is(id));
+      assertThat(childInstance.businessKey, is("childKey"));
+    }
+  }
+
+  @Test
+  public void updateWorkflowInstanceWithNonRootWorkflowAndChildWorkflowsWorks() {
+    // create 3 level hierarchy of workflows
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
+    int id = dao.insertWorkflowInstance(i1);
+    WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress).setState("updateState")
+            .setStateText("update text").setNextActivation(now()).build();
+    DateTime started = now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+            .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+            .setWorkflowInstanceId(id).setType(stateExecution).build();
+
+    WorkflowInstance middleWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("middleKey").build();
+
+    dao.updateWorkflowInstanceAfterExecution(i2, a1, asList(middleWorkflow));
+
+    int middleWorkflowId = -1;
+    for (List<Integer> childIds : dao.getWorkflowInstance(id).childWorkflows.values()) {
+      middleWorkflowId = childIds.get(0);
+    }
+
+    middleWorkflow = new WorkflowInstance.Builder(dao.getWorkflowInstance(middleWorkflowId)).setStatus(inProgress).setState("updateState")
+            .setStateText("update text").setNextActivation(now()).build();
+
+    WorkflowInstanceAction middleAction = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+            .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
+            .setWorkflowInstanceId(middleWorkflow.id).setType(stateExecution).build();
+
+    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("childKey").build();
+    dao.updateWorkflowInstanceAfterExecution(middleWorkflow, middleAction, asList(childWorkflow));
+
+    Map<Integer, List<Integer>> childWorkflows = dao.getWorkflowInstance(middleWorkflowId).childWorkflows;
+    assertThat(childWorkflows.size(), is(1));
+    for (List<Integer> childIds : childWorkflows.values()) {
+      assertThat(childIds.size(), is(1));
+      WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0));
+      assertThat(childInstance.rootWorkflowId, is(id));
+      assertThat(childInstance.parentWorkflowId, is(middleWorkflowId));
       assertThat(childInstance.businessKey, is("childKey"));
     }
   }
@@ -351,18 +395,19 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = DateTime.now();
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState")
-        .setStateText("update text").setParentWorkflowId(110).setParentActionId(421)
+        .setStateText("update text").setRootWorkflowId(9283).setParentWorkflowId(110).setParentActionId(421)
         .setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43).putStateVariable("A", "B")
         .putStateVariable("C", "D").build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(
-            "with wf as (insert into nflow_workflow(type, parent_workflow_id, parent_action_id, business_key, external_id, executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?) returning id), ins10 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), ins12 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf) select wf.id from wf",
+            "with wf as (insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?) returning id), ins11 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), ins13 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf) select wf.id from wf",
             sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
     int i = 0;
     assertThat(args.getAllValues().get(i++), is((Object) wf.type));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.rootWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentActionId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.businessKey));
@@ -453,7 +498,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     threads[1].join();
     assertThat(pollers[0].returnSize + pollers[1].returnSize, is(batchSize));
     assertTrue("Race condition should happen", pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition
-        || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize));
+            || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize));
   }
 
   @Test
