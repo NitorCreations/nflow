@@ -123,10 +123,6 @@ public class WorkflowDefinitionBuilder {
     return new GenericMethodState(stateType, name, description);
   }
 
-  public interface MethodCapture {
-    public NextAction action(StateExecution execution);
-  }
-
   /**
    * Creates the dynamic workflow definition.
    * @return a new workflow definition.
