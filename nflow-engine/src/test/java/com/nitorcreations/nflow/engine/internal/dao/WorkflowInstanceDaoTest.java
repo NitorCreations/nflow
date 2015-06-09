@@ -281,35 +281,16 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getWorkflowInstance(workflowId).nextActivation, is(now));
   }
 
-  @Test
-  public void postgreSQLUpdateWithoutActionIsDelegatedToNormalUpdate() throws InterruptedException {
+  @Test(expected = IllegalArgumentException.class)
+  public void postgreSQLUpdateWithoutActionIsNotAllowed() throws InterruptedException {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress)
-            .setState("updateState").setStateText("update text").setNextActivation(DateTime.now()).build();
-    final WorkflowInstance polledInstance = dao.getWorkflowInstance(id);
-    assertThat(polledInstance.status, equalTo(executing));
-    final DateTime originalModifiedTime = polledInstance.modified;
+        .setState("updateState").setStateText("update text").setNextActivation(now()).build();
     sleep(1);
-
     dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows);
-    jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        assertThat(rs.getString("status"), equalTo(inProgress.name()));
-        assertThat(rs.getString("state"), equalTo(i2.state));
-        assertThat(rs.getString("state_text"), equalTo(i2.stateText));
-        assertThat(rs.getTimestamp("next_activation").getTime(), equalTo(i2.nextActivation.toDate().getTime()));
-        assertThat(rs.getInt("executor_id") != 0, equalTo(i2.status == executing));
-        assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
-      }
-    });
-
-    List<WorkflowInstance> instances = dao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().addIds(id).setIncludeActions(true).build());
-    assertThat(instances.size(), is(1));
-    assertThat(instances.get(0).actions.isEmpty(), is(true));
   }
 
   @Test

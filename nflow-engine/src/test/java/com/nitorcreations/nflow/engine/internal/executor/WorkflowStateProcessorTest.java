@@ -287,11 +287,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-            argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
-                    is(skipped))),
-            argThat(nullValue(WorkflowInstanceAction.class)),
-            argThat(noChildWorkflows()));
+    verify(workflowInstanceDao).updateWorkflowInstance(
+        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
+            is(skipped))));
   }
 
   @Test
