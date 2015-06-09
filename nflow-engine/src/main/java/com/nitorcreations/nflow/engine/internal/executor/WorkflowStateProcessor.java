@@ -192,7 +192,7 @@ class WorkflowStateProcessor implements Runnable {
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
 
-    if (!execution.isStateProcessed()) {
+    if (!execution.isStateProcessInvoked()) {
       workflowInstanceDao.updateWorkflowInstance(builder.build());
       return builder.setOriginalStateVariables(instance.stateVariables).build();
     }
@@ -248,7 +248,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
-    return execution.isStateProcessed() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
+    return execution.isStateProcessInvoked() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
   private NextAction processWithListeners(ListenerContext listenerContext, WorkflowInstance instance,
@@ -257,7 +257,7 @@ class WorkflowStateProcessor implements Runnable {
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
     chain.add(processingListener);
     NextAction nextAction = new ExecutorListenerChain(chain).next(listenerContext);
-    if (execution.isStateProcessed()) {
+    if (execution.isStateProcessInvoked()) {
       return nextAction;
     }
     return new SkippedStateHandler(nextAction, instance, definition, execution, state).processState();
@@ -303,7 +303,7 @@ class WorkflowStateProcessor implements Runnable {
 
     @Override
     protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
-      execution.stateProcessingStarted();
+      execution.setStateProcessInvoked(true);
       return (NextAction) invokeMethod(method.method, definition, args);
     }
   }
@@ -380,7 +380,7 @@ class WorkflowStateProcessor implements Runnable {
       execution.setNextActivation(nextAction.getActivation());
       execution.setNextStateReason(nextAction.getReason());
 
-      if (!execution.isStateProcessed()) {
+      if (!execution.isStateProcessInvoked()) {
         execution.setNextState(currentState);
       } else if (nextAction.isRetry()) {
         execution.setNextState(currentState);
