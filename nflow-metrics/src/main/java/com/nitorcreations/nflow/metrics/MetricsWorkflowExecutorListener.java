@@ -2,14 +2,12 @@ package com.nitorcreations.nflow.metrics;
 
 import static java.lang.String.format;
 
-import com.nitorcreations.nflow.engine.listener.AbstractWorkflowExecutorListener;
-import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import org.joda.time.DateTime;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
-import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.AbstractWorkflowExecutorListener;
 
 /**
  * Compute following metrics on per state basis

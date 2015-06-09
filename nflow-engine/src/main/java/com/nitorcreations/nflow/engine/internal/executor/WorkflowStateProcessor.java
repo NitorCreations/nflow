@@ -19,19 +19,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.nitorcreations.nflow.engine.listener.AbstractWorkflowExecutorListener;
-import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.core.env.Environment;
+import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowStateMethod;
+import com.nitorcreations.nflow.engine.listener.AbstractWorkflowExecutorListener;
+import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
@@ -44,11 +45,10 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-import org.springframework.util.Assert;
 
 class WorkflowStateProcessor implements Runnable {
 
-  private static final Logger logger = getLogger(WorkflowStateProcessor.class);
+  static final Logger logger = getLogger(WorkflowStateProcessor.class);
   private static final String MDC_KEY = "workflowInstanceId";
 
   private final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
@@ -57,10 +57,10 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
-  private final ObjectStringMapper objectMapper;
+  final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final WorkflowExecutorListener[] executorListeners;
-  private final String illegalStateChangeAction;
+  final String illegalStateChangeAction;
   DateTime lastLogged = now();
   private final int unknownWorkflowTypeRetryDelay;
   private final int unknownWorkflowStateRetryDelay;
@@ -79,7 +79,6 @@ class WorkflowStateProcessor implements Runnable {
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
-
   }
 
   @Override
@@ -119,8 +118,7 @@ class WorkflowStateProcessor implements Runnable {
 
       try {
         processBeforeListeners(listenerContext);
-        NextAction nextAction = processWithListeners(listenerContext, instance, definition, execution, state);
-        listenerContext.nextAction = nextAction;
+        listenerContext.nextAction = processWithListeners(listenerContext, instance, definition, execution, state);
       } catch (Throwable t) {
         execution.setFailed(t);
         logger.error("Handler threw exception, trying again later.", t);
@@ -263,12 +261,12 @@ class WorkflowStateProcessor implements Runnable {
     if(execution.isStateProcessed()) {
       return nextAction;
     }
-    return new SkippedStateHandler(nextAction, instance, definition, execution, state, illegalStateChangeAction, objectMapper).processState();
+    return new SkippedStateHandler(nextAction, instance, definition, execution, state).processState();
   }
 
   static class ExecutorListenerChain implements ListenerChain {
     private final Iterator<WorkflowExecutorListener> chain;
-    private ExecutorListenerChain(List<WorkflowExecutorListener> chain) {
+    ExecutorListenerChain(List<WorkflowExecutorListener> chain) {
       this.chain = chain.iterator();
     }
     @Override
@@ -294,14 +292,14 @@ class WorkflowStateProcessor implements Runnable {
 
     @Override
     public NextAction process(ListenerContext listenerContext, ListenerChain chain) {
-      return new NormalStateHandler(instance, definition, execution, state, illegalStateChangeAction, objectMapper).processState();
+      return new NormalStateHandler(instance, definition, execution, state).processState();
     }
   }
 
-  private static class NormalStateHandler extends StateHandler {
+  private class NormalStateHandler extends StateHandler {
 
-    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState, String illegalStateChangeAction, ObjectStringMapper objectMapper) {
-      super(instance, definition, execution, currentState, illegalStateChangeAction, objectMapper);
+    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState) {
+      super(instance, definition, execution, currentState);
     }
 
     @Override
@@ -311,10 +309,10 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private static class SkippedStateHandler extends StateHandler {
+  private class SkippedStateHandler extends StateHandler {
     private final NextAction nextAction;
-    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState, String illegalStateChangeAction, ObjectStringMapper objectMapper) {
-      super(instance, definition, execution, currentState, illegalStateChangeAction, objectMapper);
+    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState) {
+      super(instance, definition, execution, currentState);
       this.nextAction = nextAction;
     }
 
@@ -324,21 +322,17 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  abstract private static class StateHandler {
+  abstract private class StateHandler {
     protected final WorkflowInstance instance;
     protected final AbstractWorkflowDefinition<?> definition;
     protected final StateExecutionImpl execution;
     protected final WorkflowState currentState;
-    private final ObjectStringMapper objectMapper;
-    private final String illegalStateChangeAction;
     public StateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
-                        StateExecutionImpl execution, WorkflowState currentState, String illegalStateChangeAction, ObjectStringMapper objectMapper) {
+                        StateExecutionImpl execution, WorkflowState currentState) {
       this.instance = instance;
       this.definition = definition;
       this.execution = execution;
       this.currentState = currentState;
-      this.illegalStateChangeAction = illegalStateChangeAction;
-      this.objectMapper = objectMapper;
     }
     abstract protected NextAction getNextAction(WorkflowStateMethod method, Object args[]);
 

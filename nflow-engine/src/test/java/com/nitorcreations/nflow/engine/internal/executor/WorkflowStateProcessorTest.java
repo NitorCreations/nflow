@@ -22,13 +22,20 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
@@ -42,7 +49,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.env.MockEnvironment;
@@ -51,6 +57,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
+import com.nitorcreations.nflow.engine.listener.ListenerChain;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
@@ -271,10 +278,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
             workflowInstancePreProcessor, env, listener);
 
-    doAnswer(new Answer() {
+    doAnswer(new Answer<NextAction>() {
       @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        return NextAction.retryAfter(skipped, "");
+      public NextAction answer(InvocationOnMock invocation) {
+        return retryAfter(skipped, "");
       }
     }).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
 
@@ -315,16 +322,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
   }
 
-  private void filterChain(WorkflowExecutorListener listener1) {
-    doAnswer(new Answer() {
+  private void filterChain(WorkflowExecutorListener listener) {
+    doAnswer(new Answer<Object>() {
       @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
+      public Object answer(InvocationOnMock invocation) {
         ListenerContext context = (ListenerContext) invocation.getArguments()[0];
         ListenerChain chain = (ListenerChain) invocation.getArguments()[1];
         chain.next(context);
         return null;
       }
-    }).when(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
+    }).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
   }
 
   @Test
