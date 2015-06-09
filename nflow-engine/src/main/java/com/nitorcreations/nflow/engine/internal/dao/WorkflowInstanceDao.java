@@ -240,7 +240,9 @@ public class WorkflowInstanceDao {
 
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action,
       List<WorkflowInstance> childWorkflows) {
-    if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty() && action != null) {
+    Assert.isTrue(action != null, "action can not be null");
+    Assert.isTrue(action != null, "childWorkflows can not be null");
+    if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
       updateWorkflowInstanceWithCTE(instance, action);
     } else {
       updateWorkflowInstanceWithTransaction(instance, action, childWorkflows);
@@ -260,15 +262,12 @@ public class WorkflowInstanceDao {
     transaction.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
-        Assert.isTrue(!(action == null && !childWorkflows.isEmpty()), "action must be non null when there are child workflows.");
         updateWorkflowInstance(instance);
-        if (action != null) {
-          int parentActionId = insertWorkflowInstanceAction(instance, action);
-          for (WorkflowInstance childTemplate : childWorkflows) {
-            WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
-                    .setParentActionId(parentActionId).build();
-            insertWorkflowInstance(childWorkflow);
-          }
+        int parentActionId = insertWorkflowInstanceAction(instance, action);
+        for (WorkflowInstance childTemplate : childWorkflows) {
+          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
+              .setParentActionId(parentActionId).build();
+          insertWorkflowInstance(childWorkflow);
         }
       }
     });
