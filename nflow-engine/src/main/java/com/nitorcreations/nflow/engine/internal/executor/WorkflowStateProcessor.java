@@ -180,7 +180,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-                                                     AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+      AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
@@ -188,13 +188,12 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
       .setNextActivation(execution.getNextActivation())
       .setStatus(getStatus(execution, definition.getState(execution.getNextState())))
-      .setState(execution.getNextState())
       .setStateText(getStateText(instance, execution))
+      .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
 
-    if(!execution.isStateProcessed()) {
-      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), null,
-              Collections.<WorkflowInstance>emptyList());
+    if (!execution.isStateProcessed()) {
+      workflowInstanceDao.updateWorkflowInstance(builder.build());
       return builder.setOriginalStateVariables(instance.stateVariables).build();
     }
 
@@ -206,17 +205,17 @@ class WorkflowStateProcessor implements Runnable {
       processSuccess(execution, instance);
     } else {
       workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-              Collections.<WorkflowInstance>emptyList());
+          Collections.<WorkflowInstance> emptyList());
     }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
 
   private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
-    if(execution.isWakeUpParentWorkflowSet()) {
-      if(instance.parentWorkflowId != null) {
+    if (execution.isWakeUpParentWorkflowSet()) {
+      if (instance.parentWorkflowId != null) {
         logger.debug("wake up {}", instance.parentWorkflowId);
         boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId);
-        if(notified) {
+        if (notified) {
           logger.info("Woke up parent workflow instance {}", instance.parentWorkflowId);
         } else {
           logger.warn("Failed to wake up parent workflow instance {}", instance.parentWorkflowId);
@@ -252,13 +251,13 @@ class WorkflowStateProcessor implements Runnable {
     return execution.isStateProcessed() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
-  private NextAction processWithListeners(ListenerContext listenerContext, final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
-                                          final StateExecutionImpl execution, final WorkflowState state) {
+  private NextAction processWithListeners(ListenerContext listenerContext, WorkflowInstance instance,
+      AbstractWorkflowDefinition<? extends WorkflowState> definition, StateExecutionImpl execution, WorkflowState state) {
     List<WorkflowExecutorListener> chain = new LinkedList<>(asList(this.executorListeners));
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
     chain.add(processingListener);
     NextAction nextAction = new ExecutorListenerChain(chain).next(listenerContext);
-    if(execution.isStateProcessed()) {
+    if (execution.isStateProcessed()) {
       return nextAction;
     }
     return new SkippedStateHandler(nextAction, instance, definition, execution, state).processState();
@@ -381,7 +380,7 @@ class WorkflowStateProcessor implements Runnable {
       execution.setNextActivation(nextAction.getActivation());
       execution.setNextStateReason(nextAction.getReason());
 
-      if(!execution.isStateProcessed()) {
+      if (!execution.isStateProcessed()) {
         execution.setNextState(currentState);
       } else if (nextAction.isRetry()) {
         execution.setNextState(currentState);

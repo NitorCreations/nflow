@@ -51,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
@@ -61,7 +62,6 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.springframework.util.Assert;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is
@@ -262,7 +262,7 @@ public class WorkflowInstanceDao {
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         Assert.isTrue(!(action == null && !childWorkflows.isEmpty()), "action must be non null when there are child workflows.");
         updateWorkflowInstance(instance);
-        if(action != null) {
+        if (action != null) {
           int parentActionId = insertWorkflowInstanceAction(instance, action);
           for (WorkflowInstance childTemplate : childWorkflows) {
             WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
