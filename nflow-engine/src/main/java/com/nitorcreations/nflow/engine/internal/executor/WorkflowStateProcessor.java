@@ -192,20 +192,18 @@ class WorkflowStateProcessor implements Runnable {
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
 
-    if (!execution.isStateProcessInvoked()) {
-      workflowInstanceDao.updateWorkflowInstance(builder.build());
-      return builder.setOriginalStateVariables(instance.stateVariables).build();
-    }
-
-    actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
-
-    if (!execution.isFailed()) {
-      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-          execution.getNewChildWorkflows());
-      processSuccess(execution, instance);
+    if (execution.isStateProcessInvoked()) {
+      actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
+      if (execution.isFailed()) {
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+            Collections.<WorkflowInstance> emptyList());
+      } else {
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+            execution.getNewChildWorkflows());
+        processSuccess(execution, instance);
+      }
     } else {
-      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-          Collections.<WorkflowInstance> emptyList());
+      workflowInstanceDao.updateWorkflowInstance(builder.build());
     }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
