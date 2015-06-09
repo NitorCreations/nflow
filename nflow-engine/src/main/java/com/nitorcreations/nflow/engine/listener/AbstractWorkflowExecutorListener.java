@@ -20,6 +20,8 @@ abstract public class AbstractWorkflowExecutorListener implements WorkflowExecut
   /**
    * Calls next listener in chain.
    * @param listenerContext The listener context.
+   * @param chain The listener chain.
+   * @return The next action to be taken in the workflow.
    */
   @Override
   public NextAction process(ListenerContext listenerContext, ListenerChain chain) {
@@ -38,6 +40,7 @@ abstract public class AbstractWorkflowExecutorListener implements WorkflowExecut
   /**
    * Does nothing.
    * @param listenerContext The listener context.
+   * @param throwable The throwable that was thrown during state processing.
    */
   @Override
   public void afterFailure(ListenerContext listenerContext, Throwable throwable) {
