@@ -28,6 +28,7 @@ public class DatabaseInitializer {
   private void populate(ResourceDatabasePopulator populator, DataSource ds) {
     try {
       execute(populator, ds);
+      logger.info("Database created.");
     } catch (ScriptStatementFailedException ex) {
       logger.warn("Failed to create the database, possibly already created: {}", ex.getMessage());
       logger.debug("Failed to create the database", ex);
@@ -37,6 +38,7 @@ public class DatabaseInitializer {
   }
 
   private ResourceDatabasePopulator createPopulator(ClassPathResource script) {
+    logger.info("Creating database populator using script '{}'", script.getPath().toString());
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
