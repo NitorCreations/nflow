@@ -86,10 +86,11 @@ public interface WorkflowExecutorListener {
 
   /**
    * Processing chain.
-   * Process methods in listeners form a Chain of Responsibility pattern. Listener can either call
-   * chain.next(listenerContext) to proceed to next filter or not to call it causing processing of state to be
-   * skipped. Changes to workflowInstance (not child workflows or state variables) by the filter will be persisted
-   * to database.
+   * Process methods in listeners form a
+   * <a href="http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern">Chain of Responsibility pattern</a>.
+   * Listener can either call chain.next(listenerContext) to proceed to next filter or not to call it causing
+   * processing of state to be skipped. Changes to workflowInstance (not child workflows or state variables) by
+   * the filter will be persisted to database.
    * <p>
    *   Typical implementation:
    * </p>
@@ -98,8 +99,6 @@ public interface WorkflowExecutorListener {
    *     return chain.next(listenerContext);
    *   }
    * </code>
-   *
-   * http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern
    *
    * @param listenerContext The listener context.
    * @param chain The listener chain.
