@@ -238,10 +238,11 @@ public class WorkflowInstanceDao {
     }
   }
 
+  @SuppressWarnings("null")
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action,
       List<WorkflowInstance> childWorkflows) {
     Assert.isTrue(action != null, "action can not be null");
-    Assert.isTrue(action != null, "childWorkflows can not be null");
+    Assert.isTrue(childWorkflows != null, "childWorkflows can not be null");
     if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
       updateWorkflowInstanceWithCTE(instance, action);
     } else {
