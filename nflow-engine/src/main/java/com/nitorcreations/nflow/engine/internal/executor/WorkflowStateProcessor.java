@@ -14,9 +14,9 @@ import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -59,7 +59,7 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
-  private final WorkflowExecutorListener[] executorListeners;
+  private final List<WorkflowExecutorListener> executorListeners;
   final String illegalStateChangeAction;
   DateTime lastLogged = now();
   private final int unknownWorkflowTypeRetryDelay;
@@ -74,7 +74,7 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
-    this.executorListeners = executorListeners;
+    this.executorListeners = asList(executorListeners);
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
@@ -251,8 +251,9 @@ class WorkflowStateProcessor implements Runnable {
 
   private NextAction processWithListeners(ListenerContext listenerContext, WorkflowInstance instance,
       AbstractWorkflowDefinition<? extends WorkflowState> definition, StateExecutionImpl execution, WorkflowState state) {
-    List<WorkflowExecutorListener> chain = new LinkedList<>(asList(this.executorListeners));
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
+    List<WorkflowExecutorListener> chain = new ArrayList<>(executorListeners.size() + 1);
+    chain.addAll(executorListeners);
     chain.add(processingListener);
     NextAction nextAction = new ExecutorListenerChain(chain).next(listenerContext);
     if (execution.isStateProcessInvoked()) {
