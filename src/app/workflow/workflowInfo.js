@@ -27,8 +27,7 @@
     self.selectAction = WorkflowGraphApi.onSelectNode;
 
     function currentStateTime() {
-      var lastAction = _.last(_.result(self, 'workflow.actions'));
-      return _.result(lastAction, 'executionEndTime', '');
+      return _.result(self, 'modified', '');
     }
   });
 })();
