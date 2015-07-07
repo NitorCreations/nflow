@@ -1,15 +1,15 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Map;
 
 import org.joda.time.DateTime;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@ApiModel(value = "State change attempt. A new instance for every retry attempt.")
+@ApiModel(description = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class Action {
 

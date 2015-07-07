@@ -13,6 +13,11 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -44,16 +49,11 @@ import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
 @Path("/v1/workflow-instance")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api(value = "/workflow-instance", description = "Manage workflow instances")
+@Api("Workflow instance management")
 @Component
 public class WorkflowInstanceResource {
   private final WorkflowInstanceService workflowInstances;
@@ -78,7 +78,7 @@ public class WorkflowInstanceResource {
   }
 
   @PUT
-  @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class)
+  @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class, responseContainer = "List")
   @ApiResponse(code = 201, message = "Workflow was created")
   public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
@@ -89,7 +89,7 @@ public class WorkflowInstanceResource {
 
   @PUT
   @Path("/{id}")
-  @ApiOperation(value = "Update workflow instance state")
+  @ApiOperation("Update workflow instance state")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
@@ -119,7 +119,7 @@ public class WorkflowInstanceResource {
 
   @GET
   @Path("/{id}")
-  @ApiOperation(value = "Fetch a workflow instance", response = ListWorkflowInstanceResponse.class)
+  @ApiOperation("Fetch a workflow instance")
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include) {
@@ -134,16 +134,16 @@ public class WorkflowInstanceResource {
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
-      @QueryParam("id") @ApiParam(value = "Internal id of workflow instance") Integer[] ids,
-      @QueryParam("type") @ApiParam(value = "Type of workflow instance") String[] types,
-      @QueryParam("parentWorkflowId") @ApiParam(value = "Id of parent workflow instance") Integer parentWorkflowId,
-      @QueryParam("parentActionId") @ApiParam(value = "Id of parent workflow instance action") Integer parentActionId,
-      @QueryParam("state") @ApiParam(value = "Current state of workflow instance") String[] states,
-      @QueryParam("status") @ApiParam(value = "Current status of workflow instance") WorkflowInstanceStatus[] statuses,
-      @QueryParam("businessKey") @ApiParam(value = "Business key for workflow instance") String businessKey,
-      @QueryParam("externalId") @ApiParam(value = "External id for workflow instance") String externalId,
+      @QueryParam("id") @ApiParam("Internal id of workflow instance") Integer[] ids,
+      @QueryParam("type") @ApiParam("Type of workflow instance") String[] types,
+      @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Integer parentWorkflowId,
+      @QueryParam("parentActionId") @ApiParam("Id of parent workflow instance action") Integer parentActionId,
+      @QueryParam("state") @ApiParam("Current state of workflow instance") String[] states,
+      @QueryParam("status") @ApiParam("Current status of workflow instance") WorkflowInstanceStatus[] statuses,
+      @QueryParam("businessKey") @ApiParam("Business key for workflow instance") String businessKey,
+      @QueryParam("externalId") @ApiParam("External id for workflow instance") String externalId,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
-      @QueryParam("maxResults") @ApiParam(value = "Maximum number of workflow instances to be returned") Long maxResults) {
+      @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults) {
     List<String> includes = parseIncludes(include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(ids).addTypes(types)
         .setParentWorkflowId(parentWorkflowId).setParentActionId(parentActionId).addStates(states).addStatuses(statuses)

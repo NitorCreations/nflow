@@ -1,11 +1,10 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
-
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@ApiModel(value = "Response for statistics")
+@ApiModel(description = "Response for statistics")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class StatisticsResponse {
 

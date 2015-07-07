@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.rest.v1;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -17,13 +19,11 @@ import com.nitorcreations.nflow.engine.service.StatisticsService;
 import com.nitorcreations.nflow.rest.v1.converter.StatisticsConverter;
 import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
 import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
 
 @Path("/v1/statistics")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api(value = "/statistics", description = "Query general statistics")
+@Api("Statistics")
 @Component
 public class StatisticsResource {
 
@@ -33,14 +33,14 @@ public class StatisticsResource {
   private StatisticsConverter statisticsConverter;
 
   @GET
-  @ApiOperation(value = "Query statistics", response = StatisticsResponse.class)
+  @ApiOperation("Query statistics")
   public StatisticsResponse queryStatistics() {
     return statisticsConverter.convert(statisticsService.queryStatistics());
   }
 
   @GET
   @Path("/workflow/{type}")
-  @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
+  @ApiOperation("Get workflow definition statistics")
   public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type,
       @QueryParam("createdAfter") DateTime createdAfter, @QueryParam("createdBefore") DateTime createdBefore,
       @QueryParam("modifiedAfter") DateTime modifiedAfter, @QueryParam("modifiedBefore") DateTime modifiedBefore) {

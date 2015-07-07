@@ -1,13 +1,13 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
-import org.joda.time.DateTime;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@ApiModel(value = "Basic information of workflow executor")
+@ApiModel(description = "Basic information of workflow executor")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class ListWorkflowExecutorResponse {
 
