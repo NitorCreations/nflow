@@ -42,10 +42,7 @@ public class ArchiveDao {
                     "limit " + maxRows,
             new Object[]{DaoUtil.toTimestamp(before), DaoUtil.toTimestamp(before)}, new ArchivableWorkflowsRowMapper());
 
-    // TODO create tables nflow_archive_workflow, nflow_archive_workflow_action, nflow_archive_workflow_state
     // TODO add index to nflow_workflow.modified
-    // TODO add nflow_workflow.root_workflow_id (indexed, foreign key => nflow_workflow.id)
-    // TODO modify childworkflows to set nflow_workflow.root_workflow_id
   }
 
   private static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
