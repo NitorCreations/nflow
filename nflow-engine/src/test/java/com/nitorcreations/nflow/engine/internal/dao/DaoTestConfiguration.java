@@ -49,6 +49,11 @@ public class DaoTestConfiguration {
   }
 
   @Bean
+  public ArchiveDao archiveDao() {
+    return new ArchiveDao();
+  }
+
+  @Bean
   public PlatformTransactionManager transactionManager(DataSource ds) {
     return new DataSourceTransactionManager(ds);
   }
