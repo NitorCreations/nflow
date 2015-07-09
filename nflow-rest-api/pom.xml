@@ -32,7 +32,7 @@
       <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wordnik</groupId>
+      <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
     </dependency>
     <dependency>
@@ -82,12 +82,24 @@
         <configuration>
           <apiSources>
             <apiSource>
+              <springmvc>false</springmvc>
               <locations>com.nitorcreations.nflow.rest</locations>
-              <apiVersion>${project.version}</apiVersion>
               <swaggerDirectory>${project.build.directory}/swagger-docs</swaggerDirectory>
-              <basePath>api</basePath>
-              <swaggerUIDocBasePath>@EMPTY@</swaggerUIDocBasePath>
-              <swaggerApiReader>com.wordnik.swagger.jersey.JerseyApiReader</swaggerApiReader>
+              <basePath>/api</basePath>
+              <info>
+                <version>${project.version}</version>
+                <title>${project.name}</title>
+                <description>${project.description}</description>
+                <license>
+                  <name>European Union Public Licence V. 1.1</name>
+                  <url>https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt</url>
+                </license>
+                <contact>
+                  <name>nFlow community</name>
+                  <url>http://nflow.io</url>
+                  <email>nflow-users@googlegroups.com</email>
+                </contact>
+              </info>
             </apiSource>
           </apiSources>
         </configuration>
@@ -101,13 +113,13 @@
         </executions>
         <dependencies>
           <dependency>
-            <groupId>com.wordnik</groupId>
-            <artifactId>swagger-jersey-jaxrs_2.10</artifactId>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jersey2-jaxrs</artifactId>
             <version>${swagger.version}</version>
           </dependency>
           <dependency>
-            <groupId>com.wordnik</groupId>
-            <artifactId>swagger-jaxrs_2.10</artifactId>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jaxrs</artifactId>
             <version>${swagger.version}</version>
           </dependency>
         </dependencies>

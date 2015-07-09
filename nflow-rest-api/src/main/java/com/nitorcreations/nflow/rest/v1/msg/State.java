@@ -1,14 +1,14 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@ApiModel(value = "Workflow definition states and transition to next states")
+@ApiModel(description = "Workflow definition states and transition to next states")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class State {
 
@@ -31,9 +31,9 @@ public class State {
   @ApiModelProperty(value = "State description", required = true)
   public String description;
 
-  @ApiModelProperty(value = "Alternative transitions from this state", required = false)
+  @ApiModelProperty("Alternative transitions from this state")
   public Set<String> transitions = new LinkedHashSet<>();
 
-  @ApiModelProperty(value = "Failure state for the this state", required = false)
+  @ApiModelProperty("Failure state for the this state")
   public String onFailure;
 }
