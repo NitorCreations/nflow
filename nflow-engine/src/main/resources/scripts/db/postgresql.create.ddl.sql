@@ -24,7 +24,9 @@ create table if not exists nflow_workflow (
 
 create or replace function update_modified() returns trigger language plpgsql as '
 begin
-  NEW.modified := now();
+  if NEW.modified = OLD.modified then
+    NEW.modified := now();
+  end if;
   return NEW;
 end;
 ';
