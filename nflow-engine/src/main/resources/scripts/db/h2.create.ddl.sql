@@ -79,7 +79,7 @@ create table if not exists nflow_workflow_definition (
 -- - same indexes and constraints as production tables
 
 create table if not exists nflow_archive_workflow (
-  id int not null auto_increment primary key,
+  id int not null primary key,
   status varchar(32) not null check status in ('created', 'executing', 'inProgress', 'finished', 'manual'),
   type varchar(64) not null,
   root_workflow_id integer,
@@ -103,7 +103,7 @@ create unique index if not exists nflow_archive_workflow_uniq on nflow_archive_w
 create index if not exists nflow_archive_workflow_next_activation on nflow_archive_workflow(next_activation, modified);
 
 create table if not exists nflow_archive_workflow_action (
-  id int not null auto_increment primary key,
+  id int not null primary key,
   workflow_id int not null,
   executor_id int not null,
   type varchar(32) not null check type in ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange'),

@@ -98,7 +98,7 @@ create trigger update_nflow_definition_modified before update on nflow_workflow_
 -- - same indexes and constraints as production tables
 
 create table if not exists nflow_archive_workflow (
-  id serial primary key,
+  id integer primary key,
   status workflow_status not null,
   type varchar(64) not null,
   root_workflow_id integer,
@@ -122,7 +122,7 @@ drop index nflow_archive_workflow_activation;
 create index nflow_archive_workflow_activation on nflow_archive_workflow(next_activation, modified);
 
 create table if not exists nflow_archive_workflow_action (
-  id serial primary key,
+  id integer primary key,
   workflow_id int not null,
   executor_id int not null,
   type action_type not null,

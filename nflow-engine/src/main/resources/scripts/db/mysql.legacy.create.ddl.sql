@@ -86,7 +86,7 @@ create trigger nflow_workflow_definition_insert before insert on `nflow_workflow
 -- - same indexes and constraints as production tables
 
 create table if not exists nflow_archive_workflow (
-  id int not null auto_increment primary key,
+  id int not null primary key,
   status enum('created', 'executing', 'inProgress', 'finished', 'manual') not null,
   type varchar(64) not null,
   root_workflow_id integer,
@@ -108,7 +108,7 @@ create table if not exists nflow_archive_workflow (
 );
 
 create table if not exists nflow_archive_workflow_action (
-  id int not null auto_increment primary key,
+  id int not null primary key,
   workflow_id int not null,
   executor_id int not null default -1,
   type enum('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange') not null,
