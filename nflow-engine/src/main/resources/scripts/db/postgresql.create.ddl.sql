@@ -117,7 +117,7 @@ create table if not exists nflow_archive_workflow (
   created timestamptz not null,
   modified timestamptz not null,
   executor_group varchar(64) not null,
-  constraint nflow_workflow_uniq unique (type, external_id, executor_group)
+  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
 drop index nflow_archive_workflow_activation;
