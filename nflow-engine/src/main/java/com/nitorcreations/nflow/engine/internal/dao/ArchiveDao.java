@@ -44,7 +44,6 @@ public class ArchiveDao {
     // TODO add index to nflow_workflow.modified (combined index with next_activation?)
     // TODO change modified trigger for postgre
     // TODO add new triggers for h2 and postgre to update scripts
-    // TODO handle recursive dependency between workflow and action somehow
     // TODO implement method to check that archive and prod tables have matching fields
   }
 

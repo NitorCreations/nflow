@@ -24,10 +24,13 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class ArchiveTest extends AbstractNflowTest {
-  private static final int STEP_1_WORKFLOWS = 10, STEP_2_WORKFLOWS = 15, STEP_3_WORKFLOWS = 4;
-
+  private static final int STEP_1_WORKFLOWS = 7, STEP_2_WORKFLOWS = 9, STEP_3_WORKFLOWS = 4;
+  private final int createSleepMs = 1500;
   @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(ArchiveConfiguration.class).build();
+  public static NflowServerRule server = new NflowServerRule.Builder()
+          .prop("nflow.dispatcher.sleep.ms", 25)
+          .springContextClass(ArchiveConfiguration.class)
+          .build();
   static ArchiveService archiveService;
 
   private static DateTime archiveLimit1, archiveLimit2;
@@ -41,7 +44,7 @@ public class ArchiveTest extends AbstractNflowTest {
     for(int i = 0; i < STEP_1_WORKFLOWS; i ++){
       createWorkflow();
     }
-    Thread.sleep(2000);
+    Thread.sleep(createSleepMs);
     archiveLimit1 = DateTime.now();
   }
 
@@ -50,14 +53,15 @@ public class ArchiveTest extends AbstractNflowTest {
     for(int i = 0; i < STEP_2_WORKFLOWS; i ++){
       createWorkflow();
     }
-    Thread.sleep(2000);
+    Thread.sleep(createSleepMs);
     archiveLimit2 = DateTime.now();
   }
 
   @Test(timeout = 5000)
   public void t03_archiveBeforeTime1ArchiveAllWorkflows() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
-    assertEquals(STEP_1_WORKFLOWS, archived);
+    // fibonacci workflow creates 1 child workflow
+    assertEquals(STEP_1_WORKFLOWS * 2, archived);
   }
 
   @Test(timeout = 5000)
@@ -67,9 +71,9 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   @Test(timeout = 5000)
-  public void t05_archiveBeforeTime1Archives() {
+  public void t05_archiveBeforeTime2Archives() {
     int archived = archiveService.archiveWorkflows(archiveLimit2, 5);
-    assertEquals(STEP_2_WORKFLOWS, archived);
+    assertEquals(STEP_2_WORKFLOWS * 2, archived);
   }
 
   @Test(timeout = 5000)
@@ -77,7 +81,7 @@ public class ArchiveTest extends AbstractNflowTest {
     for(int i = 0; i < STEP_3_WORKFLOWS; i ++){
       createWorkflow();
     }
-    Thread.sleep(2000);
+    Thread.sleep(createSleepMs);
   }
 
   @Test(timeout = 5000)
@@ -95,8 +99,7 @@ public class ArchiveTest extends AbstractNflowTest {
   private int createWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = FibonacciWorkflow.WORKFLOW_TYPE;
-    // FIXME set fibo parameter to 3 after foreign key problems have been fixed in archiving
-    req.requestData = nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(1));
+    req.requestData = nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3));
     CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
     return resp.id;
