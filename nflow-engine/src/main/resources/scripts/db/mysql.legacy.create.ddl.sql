@@ -122,12 +122,6 @@ create table if not exists nflow_archive_workflow_action (
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
 );
 
-alter table nflow_archive_workflow add constraint fk_archive_workflow_parent
-  foreign key (parent_workflow_id, parent_action_id) references nflow_archive_workflow_action (workflow_id, id) on delete cascade;
-
-alter table nflow_archive_workflow add constraint fk_archive_workflow_root
-  foreign key (root_workflow_id) references nflow_archive_workflow (id) on delete cascade;
-
 create table if not exists nflow_archive_workflow_state (
   workflow_id int not null,
   action_id int not null,
