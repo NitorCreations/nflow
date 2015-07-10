@@ -83,7 +83,9 @@ create trigger nflow_workflow_definition_insert before insert on `nflow_workflow
 -- Archive tables
 -- - no default values
 -- - no triggers
+-- - no auto increments
 -- - same indexes and constraints as production tables
+-- - remove recursive foreign keys
 
 create table if not exists nflow_archive_workflow (
   id int not null primary key,
@@ -124,7 +126,7 @@ alter table nflow_archive_workflow add constraint fk_archive_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_archive_workflow_action (workflow_id, id) on delete cascade;
 
 alter table nflow_archive_workflow add constraint fk_archive_workflow_root
-  foreign key (root_archive_workflow_id) references nflow_archive_workflow (id) on delete cascade;
+  foreign key (root_workflow_id) references nflow_archive_workflow (id) on delete cascade;
 
 create table if not exists nflow_archive_workflow_state (
   workflow_id int not null,
