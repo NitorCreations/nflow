@@ -32,8 +32,8 @@ public class TableMetadataChecker {
               sourceTable, destinationTable));
     }
     if(! destMetadataMap.keySet().containsAll(sourceMetadataMap.keySet())) {
-      Set<String> missingColumns = new LinkedHashSet<>(destMetadataMap.keySet());
-      missingColumns.removeAll(sourceMetadataMap.keySet());
+      Set<String> missingColumns = new LinkedHashSet<>(sourceMetadataMap.keySet());
+      missingColumns.removeAll(destMetadataMap.keySet());
       throw new IllegalArgumentException(format("Destination table %s is missing columns %s that are present in source table %s",
               destinationTable, missingColumns, sourceTable));
     }

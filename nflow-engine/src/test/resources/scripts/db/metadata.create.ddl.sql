@@ -20,6 +20,14 @@ create table more_columns (
  extra char(1)
 );
 
+create table wrong_columns (
+ id integer not null primary key,
+ text1 varchar(20),
+ text_wrong char(30),
+ time1 time not null,
+ extra char(1)
+);
+
 create table fewer_columns (
  id integer not null primary key,
  text1 varchar(20),
