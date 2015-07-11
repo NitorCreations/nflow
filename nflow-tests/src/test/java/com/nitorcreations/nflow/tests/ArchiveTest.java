@@ -15,6 +15,8 @@ import org.springframework.context.annotation.ComponentScan;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
@@ -24,8 +26,10 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class ArchiveTest extends AbstractNflowTest {
-  private static final int STEP_1_WORKFLOWS = 7, STEP_2_WORKFLOWS = 9, STEP_3_WORKFLOWS = 4;
-  private final int createSleepMs = 1500;
+  private static final int STEP_1_WORKFLOWS = 4, STEP_2_WORKFLOWS = 7, STEP_3_WORKFLOWS = 4;
+  private static final int CREATE_TIMEOUT = 15000;
+  private static final int ARCHIVE_TIMEOUT = 15000;
+
   @ClassRule
   public static NflowServerRule server = new NflowServerRule.Builder()
           .prop("nflow.dispatcher.sleep.ms", 25)
@@ -39,61 +43,60 @@ public class ArchiveTest extends AbstractNflowTest {
     super(server);
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = CREATE_TIMEOUT)
   public void t01_createWorkflows() throws InterruptedException {
-    for(int i = 0; i < STEP_1_WORKFLOWS; i ++){
-      createWorkflow();
-    }
-    Thread.sleep(createSleepMs);
+    waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
     archiveLimit1 = DateTime.now();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = CREATE_TIMEOUT)
   public void t02_createMoreWorkflows() throws InterruptedException {
-    for(int i = 0; i < STEP_2_WORKFLOWS; i ++){
-      createWorkflow();
-    }
-    Thread.sleep(createSleepMs);
+    waitUntilWorkflowsFinished(createWorkflows(STEP_2_WORKFLOWS));
     archiveLimit2 = DateTime.now();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = ARCHIVE_TIMEOUT)
   public void t03_archiveBeforeTime1ArchiveAllWorkflows() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
-    // fibonacci workflow creates 1 child workflow
+    // fibonacci(3) workflow creates 1 child workflow
     assertEquals(STEP_1_WORKFLOWS * 2, archived);
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = ARCHIVE_TIMEOUT)
   public void t04_archiveAgainBeforeTime1DoesNotArchivesAnything() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
     assertEquals(0, archived);
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = ARCHIVE_TIMEOUT)
   public void t05_archiveBeforeTime2Archives() {
     int archived = archiveService.archiveWorkflows(archiveLimit2, 5);
     assertEquals(STEP_2_WORKFLOWS * 2, archived);
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = CREATE_TIMEOUT)
   public void t06_createMoreWorkflows() throws InterruptedException {
-    for(int i = 0; i < STEP_3_WORKFLOWS; i ++){
-      createWorkflow();
-    }
-    Thread.sleep(createSleepMs);
+    waitUntilWorkflowsFinished(createWorkflows(STEP_3_WORKFLOWS));
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = ARCHIVE_TIMEOUT)
   public void t07_archiveAgainBeforeTime1DoesNotArchiveAnything() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
     assertEquals(0, archived);
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = ARCHIVE_TIMEOUT)
   public void t08_archiveAgainBeforeTime2DoesNotArchiveAnything() {
     int archived = archiveService.archiveWorkflows(archiveLimit2, 3);
     assertEquals(0, archived);
+  }
+
+  private List<Integer> createWorkflows(int count) {
+    List<Integer> ids = new ArrayList<>();
+    for(int i = 0; i < count; i ++) {
+      ids.add(createWorkflow());
+    }
+    return ids;
   }
 
   private int createWorkflow() {
@@ -103,6 +106,16 @@ public class ArchiveTest extends AbstractNflowTest {
     CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
     return resp.id;
+  }
+
+  private void waitUntilWorkflowsFinished(List<Integer> workflowIds) {
+    for(int workflowId : workflowIds) {
+      try {
+        getWorkflowInstance(workflowId, "done");
+      } catch (InterruptedException e) {
+        // ignore
+      }
+    }
   }
 
   // TODO another way would be to modify JettyServerContainer to have reference to Spring's applicationContext
