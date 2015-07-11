@@ -15,6 +15,7 @@ public class ArchiveService {
   private ArchiveDao archiveDao;
 
   public int archiveWorkflows(DateTime olderThan, int batchSize) {
+    archiveDao.ensureValidArchiveTablesExist();
     Assert.notNull(olderThan, "olderThan must not be null");
     Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
 
