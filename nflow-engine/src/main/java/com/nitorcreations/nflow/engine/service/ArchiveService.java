@@ -7,17 +7,21 @@ import javax.inject.Named;
 
 import org.joda.time.DateTime;
 import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 @Named
 public class ArchiveService {
+  private static final Logger log = LoggerFactory.getLogger(ArchiveService.class);
   @Inject
   private ArchiveDao archiveDao;
 
   public int archiveWorkflows(DateTime olderThan, int batchSize) {
-    archiveDao.ensureValidArchiveTablesExist();
     Assert.notNull(olderThan, "olderThan must not be null");
     Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
+    archiveDao.ensureValidArchiveTablesExist();
+    log.info("Archiving starting. Archiving passive workflows older than {}, in batches of {}.", olderThan, batchSize);
 
     List<Integer> workflowIds;
     int archivedWorkflows = 0;
@@ -27,9 +31,11 @@ public class ArchiveService {
         break;
       }
       archiveDao.archiveWorkflows(workflowIds);
+      log.debug("Archived a batch of workflows. Workflow ids: {}", workflowIds);
       archivedWorkflows += workflowIds.size();
     } while(!workflowIds.isEmpty());
 
+    log.info("Archiving finished. Archived {} workflows.", archivedWorkflows);
     return archivedWorkflows;
   }
 }
