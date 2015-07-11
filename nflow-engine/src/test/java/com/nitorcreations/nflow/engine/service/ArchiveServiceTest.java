@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,6 +31,7 @@ public class ArchiveServiceTest {
     when(dao.listArchivableWorkflows(limit, 10)).thenReturn(emptyList);
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(0, archived);
+    verify(dao).ensureValidArchiveTablesExist();
     verify(dao).listArchivableWorkflows(limit, 10);
     verifyNoMoreInteractions(dao);
   }
@@ -39,8 +41,22 @@ public class ArchiveServiceTest {
     when(dao.listArchivableWorkflows(limit, 10)).thenReturn(dataList, dataList, dataList, emptyList);
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(dataList.size() * 3, archived);
+    verify(dao).ensureValidArchiveTablesExist();
     verify(dao, times(4)).listArchivableWorkflows(limit, 10);
     verify(dao, times(3)).archiveWorkflows(dataList);
+    verifyNoMoreInteractions(dao);
+  }
+
+  @Test
+  public void noArchivingHappensWhenValidArchiveTablesDoNotExist() {
+    doThrow(new IllegalArgumentException("bad archive table")).when(dao).ensureValidArchiveTablesExist();
+    try {
+      service.archiveWorkflows(limit, 10);
+      fail("exception expected");
+    } catch(IllegalArgumentException e) {
+      // ignore
+    }
+    verify(dao).ensureValidArchiveTablesExist();
     verifyNoMoreInteractions(dao);
   }
 }

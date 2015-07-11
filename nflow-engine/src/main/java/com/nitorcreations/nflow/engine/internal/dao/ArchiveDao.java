@@ -25,10 +25,22 @@ import com.nitorcreations.nflow.engine.internal.config.NFlow;
 @DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class ArchiveDao {
   private JdbcTemplate jdbc;
+  private TableMetadataChecker tableMetadataChecker;
 
   @Inject
   public void setJdbcTemplate(@NFlow JdbcTemplate jdbcTemplate) {
     this.jdbc = jdbcTemplate;
+  }
+
+  @Inject
+  public void setTableMetadataChecker(TableMetadataChecker tableMetadataChecker) {
+    this.tableMetadataChecker = tableMetadataChecker;
+  }
+
+  public void ensureValidArchiveTablesExist() {
+    tableMetadataChecker.ensureCopyingPossible("nflow_workflow", "nflow_archive_workflow");
+    tableMetadataChecker.ensureCopyingPossible("nflow_workflow_action", "nflow_archive_workflow_action");
+    tableMetadataChecker.ensureCopyingPossible("nflow_workflow_state", "nflow_archive_workflow_state");
   }
 
   public List<Integer> listArchivableWorkflows(DateTime before, int maxRows) {
@@ -45,13 +57,6 @@ public class ArchiveDao {
     // TODO change modified trigger for postgre
     // TODO add new triggers for h2 and postgre to update scripts
     // TODO implement method to check that archive and prod tables have matching fields
-  }
-
-  private static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
-    @Override
-    public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return rs.getInt("id");
-    }
   }
 
   @Transactional
@@ -91,7 +96,7 @@ public class ArchiveDao {
   }
 
   private String columnsFromMetadata(String tableName) {
-    List<String> columnNames = jdbc.query("select * from " + tableName + " where 1 = 0", ColumnNamesExtractor.columnNamesExtractor);
+    List<String> columnNames = jdbc.query("select * from " + tableName + " where 1 = 0", DaoUtil.ColumnNamesExtractor.columnNamesExtractor);
     return StringUtils.join(columnNames.toArray(), ",");
   }
 
@@ -99,20 +104,10 @@ public class ArchiveDao {
     return "(" + StringUtils.join(workflowIds.toArray(), ",") + ")";
   }
 
-  static final class ColumnNamesExtractor implements org.springframework.jdbc.core.ResultSetExtractor<List<String>> {
-    static final ColumnNamesExtractor columnNamesExtractor = new ColumnNamesExtractor();
-    private ColumnNamesExtractor() {}
-
+  private static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
     @Override
-    public List<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
-      List<String> columnNames = new LinkedList<>();
-
-      ResultSetMetaData metadata = rs.getMetaData();
-      for(int col = 1; col <= metadata.getColumnCount(); col ++) {
-        columnNames.add(metadata.getColumnName(col));
-      }
-      return columnNames;
+    public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
+      return rs.getInt("id");
     }
   }
-
 }

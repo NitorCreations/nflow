@@ -54,6 +54,11 @@ public class DaoTestConfiguration {
   }
 
   @Bean
+  public TableMetadataChecker tableMetadataChecker() {
+    return new TableMetadataChecker();
+  }
+
+  @Bean
   public PlatformTransactionManager transactionManager(DataSource ds) {
     return new DataSourceTransactionManager(ds);
   }
