@@ -43,6 +43,11 @@ public class ArchiveTest extends AbstractNflowTest {
     super(server);
   }
 
+  @Test(timeout = ARCHIVE_TIMEOUT)
+  public void t00_cleanupExistingArchivableStuff() {
+    archiveService.archiveWorkflows(DateTime.now(), 10);
+  }
+
   @Test(timeout = CREATE_TIMEOUT)
   public void t01_createWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
