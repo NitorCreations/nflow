@@ -58,6 +58,7 @@ public class TableMetadataChecker {
   }
 
   private static class MetadataExtractor implements ResultSetExtractor<Map<String, ColumnMetadata>> {
+    private Map<String, String> typeAliases = typeAliases();
 
     @Override
     public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -67,9 +68,23 @@ public class TableMetadataChecker {
         String columnName = metadata.getColumnName(col);
         String typeName = metadata.getColumnTypeName(col);
         int size = metadata.getColumnDisplaySize(col);
-        metadataMap.put(columnName, new ColumnMetadata(columnName, typeName, size));
+        metadataMap.put(columnName, new ColumnMetadata(columnName, resolveTypeAlias(typeName), size));
       }
       return metadataMap;
+    }
+
+    private String resolveTypeAlias(String type) {
+      String resolvedType = typeAliases.get(type);
+      if(resolvedType != null) {
+        return resolvedType;
+      }
+      return type;
+    }
+
+    private Map<String, String> typeAliases() {
+      Map<String, String> map = new LinkedHashMap<>();
+      map.put("serial", "int4");
+      return map;
     }
   }
 
