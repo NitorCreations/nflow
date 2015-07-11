@@ -63,6 +63,13 @@ public class TableMetadataCheckerTest {
   }
 
   @Test
+  public void destinationWithMissingColumnsIsInvalid() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Destination table wrong_columns is missing columns [TEXT2] that are present in source table base");
+    tableMetadataChecker.ensureCopyingPossible("base", "wrong_columns");
+  }
+
+  @Test
   public void destinationWithWrongTypeIsInvalid() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Source column base.TIME1 has type TIME and destination column wrong_type.TIME1 has mismatching type INTEGER");
