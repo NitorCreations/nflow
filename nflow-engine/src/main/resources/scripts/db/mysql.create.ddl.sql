@@ -17,9 +17,11 @@ create table if not exists nflow_workflow (
   created timestamp(3) not null default current_timestamp(3),
   modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
   executor_group varchar(64) not null,
-  constraint nflow_workflow_uniq unique (type, external_id, executor_group),
-  index nflow_workflow(next_activation, modified)
+  constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
+
+drop index nflow_archive_workflow_activation;
+create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
 
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
@@ -95,9 +97,11 @@ create table if not exists nflow_archive_workflow (
   created timestamp(3) not null,
   modified timestamp(3) not null,
   executor_group varchar(64) not null,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group),
-  index nflow_archive_workflow(next_activation, modified)
+  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
+
+drop index nflow_archive_workflow_activation;
+create index nflow_archive_workflow_activation on nflow_archive_workflow(next_activation, modified);
 
 create table if not exists nflow_archive_workflow_action (
   id int not null primary key,
