@@ -53,10 +53,7 @@ public class ArchiveDao {
                     "limit " + maxRows,
             new Object[]{DaoUtil.toTimestamp(before), DaoUtil.toTimestamp(before)}, new ArchivableWorkflowsRowMapper());
 
-    // TODO add index to nflow_workflow.modified (combined index with next_activation?)
-    // TODO change modified trigger for postgre
-    // TODO add new triggers for h2 and postgre to update scripts
-    // TODO implement method to check that archive and prod tables have matching fields
+    // TODO unit test for archiving child workflows
   }
 
   @Transactional
