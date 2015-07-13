@@ -20,6 +20,16 @@ public class ArchiveService {
   @Inject
   private ArchiveDao archiveDao;
 
+  /**
+   * Archive old and passive workflows. Copies workflow instance, workflow instance actions and state variables to
+   * corresponding archive tables and removes them production tables. Archives workflows that do not have
+   * <code>nextActivation</code> and whose modified time is earlier than <code>olderThan</code> parameter.
+   *
+   * @param olderThan
+   * @param batchSize number of workflow hierarchies to archive in single transactions. Typical value is 1-20. This
+   *                  parameter mostly affects on archival performance.
+   * @return number of archived workflows
+   */
   public int archiveWorkflows(DateTime olderThan, int batchSize) {
     Assert.notNull(olderThan, "olderThan must not be null");
     Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
