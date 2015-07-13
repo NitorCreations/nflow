@@ -1,20 +1,19 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
+import static org.apache.commons.lang3.StringUtils.join;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +50,7 @@ public class ArchiveDao {
                     ")" +
                     "order by modified asc " +
                     "limit " + maxRows,
-            new Object[]{DaoUtil.toTimestamp(before), DaoUtil.toTimestamp(before)}, new ArchivableWorkflowsRowMapper());
+            new Object[] { toTimestamp(before), toTimestamp(before) }, new ArchivableWorkflowsRowMapper());
 
     // TODO unit test for archiving child workflows
   }
@@ -93,15 +92,15 @@ public class ArchiveDao {
   }
 
   private String columnsFromMetadata(String tableName) {
-    List<String> columnNames = jdbc.query("select * from " + tableName + " where 1 = 0", DaoUtil.ColumnNamesExtractor.columnNamesExtractor);
-    return StringUtils.join(columnNames.toArray(), ",");
+    List<String> columnNames = jdbc.query("select * from " + tableName + " where 1 = 0", columnNamesExtractor);
+    return join(columnNames.toArray(), ",");
   }
 
   private String params(List<Integer> workflowIds) {
-    return "(" + StringUtils.join(workflowIds.toArray(), ",") + ")";
+    return "(" + join(workflowIds.toArray(), ",") + ")";
   }
 
-  private static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
+  static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
     @Override
     public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
       return rs.getInt("id");
