@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
@@ -24,7 +25,8 @@ public class ArchiveService {
     Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
     archiveDao.ensureValidArchiveTablesExist();
     log.info("Archiving starting. Archiving passive workflows older than {}, in batches of {}.", olderThan, batchSize);
-
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
     List<Integer> workflowIds;
     int archivedWorkflows = 0;
     do {
@@ -33,8 +35,11 @@ public class ArchiveService {
         break;
       }
       archiveDao.archiveWorkflows(workflowIds);
-      log.debug("Archived a batch of workflows. Workflow ids: {}", workflowIds);
       archivedWorkflows += workflowIds.size();
+
+      double timeDiff = stopWatch.getTime()/1000.0;
+      log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ",
+              workflowIds.size(), archivedWorkflows / timeDiff, workflowIds);
     } while (!workflowIds.isEmpty());
 
     log.info("Archiving finished. Archived {} workflows.", archivedWorkflows);
