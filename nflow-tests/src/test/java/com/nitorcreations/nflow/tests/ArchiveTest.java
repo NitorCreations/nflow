@@ -1,40 +1,42 @@
 package com.nitorcreations.nflow.tests;
 
-import com.nitorcreations.nflow.engine.service.ArchiveService;
-import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import com.nitorcreations.nflow.tests.demo.DemoWorkflow;
-import com.nitorcreations.nflow.tests.demo.FibonacciWorkflow;
-import com.nitorcreations.nflow.tests.runner.NflowServerRule;
-import org.joda.time.DateTime;
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.springframework.context.annotation.ComponentScan;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+
+import org.joda.time.DateTime;
+import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.springframework.context.annotation.ComponentScan;
+
+import com.nitorcreations.nflow.engine.service.ArchiveService;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import com.nitorcreations.nflow.tests.demo.DemoWorkflow;
+import com.nitorcreations.nflow.tests.demo.FibonacciWorkflow;
+import com.nitorcreations.nflow.tests.runner.NflowServerRule;
+
 @FixMethodOrder(NAME_ASCENDING)
 public class ArchiveTest extends AbstractNflowTest {
-  private static final int STEP_1_WORKFLOWS = 4, STEP_2_WORKFLOWS = 7, STEP_3_WORKFLOWS = 4;
+  private static final int STEP_1_WORKFLOWS = 4;
+  private static final int STEP_2_WORKFLOWS = 7;
+  private static final int STEP_3_WORKFLOWS = 4;
   private static final int CREATE_TIMEOUT = 15000;
   private static final int ARCHIVE_TIMEOUT = 15000;
 
   @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder()
-          .prop("nflow.dispatcher.sleep.ms", 25)
-          .springContextClass(ArchiveConfiguration.class)
-          .build();
+  public static NflowServerRule server = new NflowServerRule.Builder().prop("nflow.dispatcher.sleep.ms", 25)
+      .springContextClass(ArchiveConfiguration.class).build();
   static ArchiveService archiveService;
 
   private static DateTime archiveLimit1, archiveLimit2;
@@ -49,13 +51,13 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   @Test(timeout = CREATE_TIMEOUT)
-  public void t01_createWorkflows() throws InterruptedException {
+  public void t01_createWorkflows() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
     archiveLimit1 = DateTime.now();
   }
 
   @Test(timeout = CREATE_TIMEOUT)
-  public void t02_createMoreWorkflows() throws InterruptedException {
+  public void t02_createMoreWorkflows() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_2_WORKFLOWS));
     archiveLimit2 = DateTime.now();
   }
@@ -80,7 +82,7 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   @Test(timeout = CREATE_TIMEOUT)
-  public void t06_createMoreWorkflows() throws InterruptedException {
+  public void t06_createMoreWorkflows() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_3_WORKFLOWS));
   }
 
@@ -98,7 +100,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   private List<Integer> createWorkflows(int count) {
     List<Integer> ids = new ArrayList<>();
-    for(int i = 0; i < count; i ++) {
+    for (int i = 0; i < count; i++) {
       ids.add(createWorkflow());
     }
     return ids;
@@ -108,13 +110,14 @@ public class ArchiveTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = FibonacciWorkflow.WORKFLOW_TYPE;
     req.requestData = nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3));
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
+        CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
     return resp.id;
   }
 
   private void waitUntilWorkflowsFinished(List<Integer> workflowIds) {
-    for(int workflowId : workflowIds) {
+    for (int workflowId : workflowIds) {
       try {
         getWorkflowInstance(workflowId, "done");
       } catch (InterruptedException e) {
@@ -128,17 +131,16 @@ public class ArchiveTest extends AbstractNflowTest {
   @ComponentScan(basePackageClasses = DemoWorkflow.class)
   private static class ArchiveConfiguration {
     @Inject
-    private ArchiveService archiveService;
+    private ArchiveService service;
 
     @PostConstruct
     public void linkArchiveServiceToTestClass() {
-      ArchiveTest.archiveService = archiveService;
+      archiveService = service;
     }
 
     @PreDestroy
     public void removeArchiveServiceFromTestClass() {
-      ArchiveTest.archiveService = null;
+      archiveService = null;
     }
-
   }
 }

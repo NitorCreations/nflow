@@ -1,6 +1,18 @@
 package com.nitorcreations.nflow.engine.service;
 
-import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,13 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArchiveServiceTest {
@@ -22,9 +28,9 @@ public class ArchiveServiceTest {
   private final ArchiveService service = new ArchiveService();
   @Mock
   private ArchiveDao dao;
-  private DateTime limit = new DateTime(2015,7,10,19,57,0,0);
-  private List<Integer> emptyList = Collections.emptyList();
-  private List<Integer> dataList = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+  private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
+  private final List<Integer> emptyList = Collections.emptyList();
+  private final List<Integer> dataList = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
   @Test
   public void withZeroWorkflowsInFirstBatchCausesNothingToArchive() {
@@ -38,7 +44,7 @@ public class ArchiveServiceTest {
 
   @Test
   public void archivingContinuesUntilEmptyListOfArchivableIsReturned() {
-    when(dao.listArchivableWorkflows(limit, 10)).thenReturn(dataList, dataList, dataList, emptyList);
+    doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listArchivableWorkflows(limit, 10);
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(dataList.size() * 3, archived);
     verify(dao).ensureValidArchiveTablesExist();
@@ -53,7 +59,7 @@ public class ArchiveServiceTest {
     try {
       service.archiveWorkflows(limit, 10);
       fail("exception expected");
-    } catch(IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       // ignore
     }
     verify(dao).ensureValidArchiveTablesExist();
