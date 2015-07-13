@@ -1,19 +1,21 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.joda.time.DateTime;
-import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+
+import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
 
 @Named
 public class ArchiveService {
-  private static final Logger log = LoggerFactory.getLogger(ArchiveService.class);
+  private static final Logger log = getLogger(ArchiveService.class);
   @Inject
   private ArchiveDao archiveDao;
 
@@ -27,13 +29,13 @@ public class ArchiveService {
     int archivedWorkflows = 0;
     do {
       workflowIds = archiveDao.listArchivableWorkflows(olderThan, batchSize);
-      if(workflowIds.isEmpty()) {
+      if (workflowIds.isEmpty()) {
         break;
       }
       archiveDao.archiveWorkflows(workflowIds);
       log.debug("Archived a batch of workflows. Workflow ids: {}", workflowIds);
       archivedWorkflows += workflowIds.size();
-    } while(!workflowIds.isEmpty());
+    } while (!workflowIds.isEmpty());
 
     log.info("Archiving finished. Archived {} workflows.", archivedWorkflows);
     return archivedWorkflows;
