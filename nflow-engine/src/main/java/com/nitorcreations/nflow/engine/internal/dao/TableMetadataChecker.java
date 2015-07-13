@@ -1,13 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
-import com.nitorcreations.nflow.engine.internal.config.NFlow;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
+import static java.lang.String.format;
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -17,8 +12,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Named
 public class TableMetadataChecker {
@@ -27,28 +29,28 @@ public class TableMetadataChecker {
   public void ensureCopyingPossible(String sourceTable, String destinationTable) {
     Map<String, ColumnMetadata> sourceMetadataMap = getMetadata(sourceTable);
     Map<String, ColumnMetadata> destMetadataMap = getMetadata(destinationTable);
-    if(destMetadataMap.size() < sourceMetadataMap.size()) {
-      throw new IllegalArgumentException(format("Source table %s has more columns than destination table %s",
-              sourceTable, destinationTable));
+    if (destMetadataMap.size() < sourceMetadataMap.size()) {
+      throw new IllegalArgumentException(format("Source table %s has more columns than destination table %s", sourceTable,
+          destinationTable));
     }
-    if(! destMetadataMap.keySet().containsAll(sourceMetadataMap.keySet())) {
+    if (!destMetadataMap.keySet().containsAll(sourceMetadataMap.keySet())) {
       Set<String> missingColumns = new LinkedHashSet<>(sourceMetadataMap.keySet());
       missingColumns.removeAll(destMetadataMap.keySet());
       throw new IllegalArgumentException(format("Destination table %s is missing columns %s that are present in source table %s",
-              destinationTable, missingColumns, sourceTable));
+          destinationTable, missingColumns, sourceTable));
     }
-    for(Entry<String, ColumnMetadata> entry: sourceMetadataMap.entrySet()) {
+    for (Entry<String, ColumnMetadata> entry : sourceMetadataMap.entrySet()) {
       ColumnMetadata sourceMetadata = entry.getValue();
       ColumnMetadata destMetadata = destMetadataMap.get(entry.getKey());
-      if(!sourceMetadata.typeName.equals(destMetadata.typeName)) {
-        throw new IllegalArgumentException(format("Source column %s.%s has type %s and destination column %s.%s has mismatching type %s",
-                sourceTable, sourceMetadata.columnName, sourceMetadata.typeName,
-                destinationTable, destMetadata.columnName, destMetadata.typeName));
+      if (!sourceMetadata.typeName.equals(destMetadata.typeName)) {
+        throw new IllegalArgumentException(format(
+            "Source column %s.%s has type %s and destination column %s.%s has mismatching type %s", sourceTable,
+            sourceMetadata.columnName, sourceMetadata.typeName, destinationTable, destMetadata.columnName, destMetadata.typeName));
       }
-      if(sourceMetadata.size > destMetadata.size) {
+      if (sourceMetadata.size > destMetadata.size) {
         throw new IllegalArgumentException(format("Source column %s.%s has size %s and destination column %s.%s smaller size %s",
-                sourceTable, sourceMetadata.columnName, sourceMetadata.size,
-                destinationTable, destMetadata.columnName, destMetadata.size));
+            sourceTable, sourceMetadata.columnName, sourceMetadata.size, destinationTable, destMetadata.columnName,
+            destMetadata.size));
       }
     }
   }
@@ -57,14 +59,14 @@ public class TableMetadataChecker {
     return jdbc.query("select * from " + tableName + " where 1 = 0", new MetadataExtractor());
   }
 
-  private static class MetadataExtractor implements ResultSetExtractor<Map<String, ColumnMetadata>> {
-    private Map<String, String> typeAliases = typeAliases();
+  static class MetadataExtractor implements ResultSetExtractor<Map<String, ColumnMetadata>> {
+    private final Map<String, String> typeAliases = typeAliases();
 
     @Override
     public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException, DataAccessException {
       ResultSetMetaData metadata = rs.getMetaData();
       Map<String, ColumnMetadata> metadataMap = new LinkedHashMap<>();
-      for(int col = 1; col <= metadata.getColumnCount(); col ++) {
+      for (int col = 1; col <= metadata.getColumnCount(); col++) {
         String columnName = metadata.getColumnName(col);
         String typeName = metadata.getColumnTypeName(col);
         int size = metadata.getColumnDisplaySize(col);
@@ -75,7 +77,7 @@ public class TableMetadataChecker {
 
     private String resolveTypeAlias(String type) {
       String resolvedType = typeAliases.get(type);
-      if(resolvedType != null) {
+      if (resolvedType != null) {
         return resolvedType;
       }
       return type;
@@ -109,5 +111,4 @@ public class TableMetadataChecker {
   public void setJdbcTemplate(@NFlow JdbcTemplate jdbcTemplate) {
     this.jdbc = jdbcTemplate;
   }
-
 }
