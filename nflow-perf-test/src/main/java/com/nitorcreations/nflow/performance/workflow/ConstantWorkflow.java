@@ -100,8 +100,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
     return NextAction.stopInState(ConstantState.end, "Goto end");
   }
 
-  public NextAction error(StateExecution execution) {
+  public void error(StateExecution execution) {
     logger.error("should not happen");
-    return null;
   }
 }
