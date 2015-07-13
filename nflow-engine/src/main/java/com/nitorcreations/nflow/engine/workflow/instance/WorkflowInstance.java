@@ -44,17 +44,17 @@ public class WorkflowInstance {
 
   /**
    * The id of the workflow that created the hierarchy of workflow where this sub workflow belongs to.
-   * Null for workflows without children and workflows that are root of hierarchy.
+   * Null for workflows that are the root of hierarchy.
    */
   public final Integer rootWorkflowId;
 
   /**
-   * The id of the workflow that created this sub workflow. Is null for parent workflows.
+   * The id of the workflow that created this sub workflow. Is null for root workflows.
    */
   public final Integer parentWorkflowId;
 
   /**
-   * The id of the workflow action that created this sub workflow.  Is null for parent workflows.
+   * The id of the workflow action that created this sub workflow.  Is null for root workflows.
    */
   public final Integer parentActionId;
 

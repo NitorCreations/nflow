@@ -278,7 +278,7 @@ public class WorkflowInstanceDao {
         updateWorkflowInstance(instance);
         int parentActionId = insertWorkflowInstanceAction(instance, action);
         for (WorkflowInstance childTemplate : childWorkflows) {
-          Integer rootWorkflowId = instance.rootWorkflowId != null ? instance.rootWorkflowId : instance.id;
+          Integer rootWorkflowId = instance.rootWorkflowId == null ? instance.id : instance.rootWorkflowId;
           WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setRootWorkflowId(rootWorkflowId)
               .setParentWorkflowId(instance.id).setParentActionId(parentActionId).build();
           insertWorkflowInstance(childWorkflow);
