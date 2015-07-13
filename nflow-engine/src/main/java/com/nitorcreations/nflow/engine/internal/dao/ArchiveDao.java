@@ -43,16 +43,21 @@ public class ArchiveDao {
   }
 
   public List<Integer> listArchivableWorkflows(DateTime before, int maxRows) {
-    return jdbc.query("select * from nflow_workflow parent where parent.next_activation is null and parent.modified <= ? " +
-                    "and not exists(" +
-                    "  select 1 from nflow_workflow child where child.root_workflow_id = parent.id " +
-                    "    and (child.modified > ? or child.next_activation is not null)" +
-                    ")" +
-                    "order by modified asc " +
-                    "limit " + maxRows,
+    return jdbc.query(
+                    "select w.id id from nflow_workflow w, " +
+                    "(" +
+                    "  select parent.id from nflow_workflow parent " +
+                    "  where parent.next_activation is null and parent.modified <= ? " +
+                    "  and parent.root_workflow_id is null " +
+                    "  and not exists(" +
+                    "    select 1 from nflow_workflow child where child.root_workflow_id = parent.id " +
+                    "      and (child.modified > ? or child.next_activation is not null)" +
+                    "  )" +
+                    "  order by modified asc " +
+                    "  limit " + maxRows +
+                    ") as archivable_parent " +
+                    "where archivable_parent.id = w.id or archivable_parent.id = w.root_workflow_id",
             new Object[] { toTimestamp(before), toTimestamp(before) }, new ArchivableWorkflowsRowMapper());
-
-    // TODO unit test for archiving child workflows
   }
 
   @Transactional
