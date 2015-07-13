@@ -1,6 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
-import com.nitorcreations.nflow.engine.internal.storage.db.DatabaseInitializer;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,8 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.inject.Inject;
-import javax.sql.DataSource;
+import com.nitorcreations.nflow.engine.internal.storage.db.DatabaseInitializer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { DaoTestConfiguration.class })
@@ -30,7 +31,7 @@ public class TableMetadataCheckerTest {
 
   @Before
   public void setup() {
-    if(initializer == null) {
+    if (initializer == null) {
       initializer = new DatabaseInitializer("metadata", dataSource, environmentCreateOnStartup("true"));
     }
   }
@@ -72,7 +73,8 @@ public class TableMetadataCheckerTest {
   @Test
   public void destinationWithWrongTypeIsInvalid() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Source column base.TIME1 has type TIME and destination column wrong_type.TIME1 has mismatching type INTEGER");
+    thrown
+        .expectMessage("Source column base.TIME1 has type TIME and destination column wrong_type.TIME1 has mismatching type INTEGER");
     tableMetadataChecker.ensureCopyingPossible("base", "wrong_type");
   }
 
