@@ -20,7 +20,7 @@ create table if not exists nflow_workflow (
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
 
-drop index nflow_archive_workflow_activation;
+drop index nflow_workflow_activation;
 create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
 
 create table if not exists nflow_workflow_action (
