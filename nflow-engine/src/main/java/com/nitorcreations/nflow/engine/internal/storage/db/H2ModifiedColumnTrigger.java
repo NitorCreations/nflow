@@ -15,7 +15,7 @@ public class H2ModifiedColumnTrigger extends TriggerAdapter {
   public void fire(Connection conn, ResultSet oldRow, ResultSet newRow) throws SQLException {
     Timestamp oldModified = oldRow.getTimestamp("modified");
     Timestamp newModified = newRow.getTimestamp("modified");
-    if(Objects.equals(oldModified, newModified)) {
+    if (Objects.equals(oldModified, newModified)) {
       newRow.updateTimestamp("modified", new Timestamp(currentTimeMillis()));
     }
   }
