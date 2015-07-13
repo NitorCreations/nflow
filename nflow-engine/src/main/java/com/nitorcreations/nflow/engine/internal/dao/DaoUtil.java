@@ -39,20 +39,20 @@ public class DaoUtil {
     return rs.wasNull() ? null : value;
   }
 
-  public static final class ColumnNamesExtractor implements org.springframework.jdbc.core.ResultSetExtractor<List<String>> {
+  public static final class ColumnNamesExtractor implements ResultSetExtractor<List<String>> {
     static final ColumnNamesExtractor columnNamesExtractor = new ColumnNamesExtractor();
-    private ColumnNamesExtractor() {}
+
+    private ColumnNamesExtractor() {
+    }
 
     @Override
     public List<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
       List<String> columnNames = new LinkedList<>();
-
       ResultSetMetaData metadata = rs.getMetaData();
-      for(int col = 1; col <= metadata.getColumnCount(); col ++) {
+      for (int col = 1; col <= metadata.getColumnCount(); col++) {
         columnNames.add(metadata.getColumnName(col));
       }
       return columnNames;
     }
   }
-
 }
