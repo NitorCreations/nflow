@@ -46,7 +46,7 @@ create table if not exists nflow_workflow_state (
 
 create table if not exists nflow_executor (
   id int not null auto_increment primary key,
-  host varchar(64) not null,
+  host varchar(253) not null,
   pid int not null,
   executor_group varchar(64),
   started timestamp(3) not null default current_timestamp(3),
