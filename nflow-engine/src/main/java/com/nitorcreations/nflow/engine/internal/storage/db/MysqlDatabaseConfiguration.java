@@ -6,7 +6,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import javax.sql.DataSource;
 
@@ -101,6 +104,26 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public String castToText() {
       return "";
+    }
+
+    @Override
+    public String limit(String query, String limit) {
+      return query + " limit " + limit;
+    }
+
+    @Override
+    public int textType() {
+      return Types.VARCHAR;
+    }
+
+    @Override
+    public void setText(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
+      ps.setString(parameterIndex, value);
+    }
+
+    @Override
+    public String getText(ResultSet rs, int columnIndex) throws SQLException {
+      return rs.getString(columnIndex);
     }
   }
 }

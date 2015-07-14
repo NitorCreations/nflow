@@ -14,6 +14,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -223,7 +224,7 @@ public class WorkflowInstanceDao {
         ps.setInt(1, id);
         ps.setInt(2, actionId);
         ps.setString(3, var.getKey());
-        ps.setString(4, var.getValue());
+        sqlVariants.setText(ps, 4, var.getValue());
         return true;
       }
     });
@@ -390,7 +391,7 @@ public class WorkflowInstanceDao {
       new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
-        instance.stateVariables.put(rs.getString(1), rs.getString(2));
+        instance.stateVariables.put(rs.getString(1), sqlVariants.getText(rs, 2));
       }
     }, instance.id);
     instance.originalStateVariables.putAll(instance.stateVariables);
@@ -409,22 +410,25 @@ public class WorkflowInstanceDao {
         + sqlVariants.workflowStatus(executing) + ", " + "external_next_activation = null";
   }
 
-  String whereConditionForInstanceUpdate(int batchSize) {
+  String whereConditionForInstanceUpdate() {
     return "where executor_id is null and status in (" + sqlVariants.workflowStatus(created) + ", "
         + sqlVariants.workflowStatus(inProgress) + ") and next_activation < current_timestamp and "
-        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize;
+        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
   }
 
   private List<Integer> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
-    return jdbc.queryForList(updateInstanceForExecutionQuery() + " where id in (select id from nflow_workflow "
-        + whereConditionForInstanceUpdate(batchSize) + ") and executor_id is null returning id", Integer.class);
+    String sql = updateInstanceForExecutionQuery() + " where id in ("
+        + sqlVariants.limit("select id from nflow_workflow " + whereConditionForInstanceUpdate(), Integer.toString(batchSize))
+        + ") and executor_id is null returning id";
+    return jdbc.queryForList(sql, Integer.class);
   }
 
   private List<Integer> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     return transaction.execute(new TransactionCallback<List<Integer>>() {
       @Override
       public List<Integer> doInTransaction(TransactionStatus transactionStatus) {
-        String sql = "select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(batchSize);
+        String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(),
+            Integer.toString(batchSize));
         List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
           @Override
           public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -523,7 +527,7 @@ public class WorkflowInstanceDao {
     if (!isEmpty(conditions)) {
       sql += " where " + collectionToDelimitedString(conditions, " and ");
     }
-    sql += " limit :limit";
+    sql = sqlVariants.limit(sql, ":limit");
     params.addValue("limit", getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     for (WorkflowInstance instance : ret) {
@@ -620,11 +624,13 @@ public class WorkflowInstanceDao {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
       Integer executorId = (Integer) rs.getObject("executor_id");
+      BigDecimal parentWorkflowId = rs.getBigDecimal("parent_workflow_id");
+      BigDecimal parentActionId = rs.getBigDecimal("parent_action_id");
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
         .setExecutorId(executorId)
-        .setParentWorkflowId((Integer) rs.getObject("parent_workflow_id"))
-        .setParentActionId((Integer) rs.getObject("parent_action_id"))
+        .setParentWorkflowId(parentWorkflowId == null ? null : parentWorkflowId.intValue())
+        .setParentActionId(parentActionId == null ? null : parentActionId.intValue())
         .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))

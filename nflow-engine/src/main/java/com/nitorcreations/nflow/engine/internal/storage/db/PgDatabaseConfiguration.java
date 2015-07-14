@@ -1,5 +1,10 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -61,6 +66,26 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public String castToText() {
       return "::text";
+    }
+
+    @Override
+    public String limit(String query, String limit) {
+      return query + " limit " + limit;
+    }
+
+    @Override
+    public int textType() {
+      return Types.VARCHAR;
+    }
+
+    @Override
+    public void setText(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
+      ps.setString(parameterIndex, value);
+    }
+
+    @Override
+    public String getText(ResultSet rs, int columnIndex) throws SQLException {
+      return rs.getString(columnIndex);
     }
   }
 }

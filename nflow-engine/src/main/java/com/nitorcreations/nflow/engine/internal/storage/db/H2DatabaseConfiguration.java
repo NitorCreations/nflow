@@ -2,7 +2,10 @@ package com.nitorcreations.nflow.engine.internal.storage.db;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import org.h2.tools.Server;
 import org.springframework.context.annotation.Bean;
@@ -84,6 +87,26 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public String castToText() {
       return "";
+    }
+
+    @Override
+    public String limit(String query, String limit) {
+      return query + " limit " + limit;
+    }
+
+    @Override
+    public int textType() {
+      return Types.VARCHAR;
+    }
+
+    @Override
+    public void setText(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
+      ps.setString(parameterIndex, value);
+    }
+
+    @Override
+    public String getText(ResultSet rs, int columnIndex) throws SQLException {
+      return rs.getString(columnIndex);
     }
   }
 }

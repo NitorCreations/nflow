@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
 import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -42,6 +43,7 @@ public class WorkflowDefinitionDao {
   private ExecutorDao executorInfo;
   private NamedParameterJdbcTemplate namedJdbc;
   private ObjectMapper nflowObjectMapper;
+  private SQLVariants sqlVariants;
 
   @Inject
   public void setExecutorDao(ExecutorDao executorDao) {
@@ -58,13 +60,18 @@ public class WorkflowDefinitionDao {
     this.nflowObjectMapper = nflowObjectMapper;
   }
 
+  @Inject
+  public void setSqlVariants(SQLVariants sqlVariants) {
+    this.sqlVariants = sqlVariants;
+  }
+
   public void storeWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
     StoredWorkflowDefinition storedDefinition = convert(definition);
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("type", definition.getType());
     String serializedDefinition = serializeDefinition(storedDefinition);
     params.addValue("definition_sha1", sha1(serializedDefinition));
-    params.addValue("definition", serializedDefinition);
+    params.addValue("definition", serializedDefinition, sqlVariants.textType());
     params.addValue("modified_by", executorInfo.getExecutorId());
     params.addValue("executor_group", executorInfo.getExecutorGroup());
 

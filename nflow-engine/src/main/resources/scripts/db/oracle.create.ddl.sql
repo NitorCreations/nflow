@@ -1,17 +1,17 @@
 create table nflow_workflow (
-  id integer not null primary key,
+  id int not null primary key,
   status varchar(32) not null,
   type varchar(64) not null,
-  parent_workflow_id integer default null,
-  parent_action_id integer default null,
+  parent_workflow_id int default null,
+  parent_action_id int default null,
   business_key varchar(64),
   external_id varchar(64) not null,
   state varchar(64) not null,
   state_text varchar(128),
   next_activation timestamp null,
   external_next_activation timestamp null,
-  executor_id integer,
-  retries integer default 0 not null,
+  executor_id int,
+  retries int default 0 not null,
   created timestamp default current_timestamp not null,
   modified timestamp default current_timestamp not null,
   executor_group varchar(64) not null,
@@ -42,13 +42,13 @@ end;
 /
 
 create table nflow_workflow_action (
-  id integer not null primary key,
-  workflow_id integer not null,
-  executor_id integer default -1 not null,
+  id int not null primary key,
+  workflow_id int not null,
+  executor_id int default -1 not null,
   type varchar(64) not null,
   state varchar(64) not null,
   state_text varchar(128),
-  retry_no integer not null,
+  retry_no int not null,
   execution_start timestamp not null,
   execution_end timestamp not null,
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade,
@@ -71,16 +71,16 @@ alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
 
 create table nflow_workflow_state (
-  workflow_id integer not null,
-  action_id integer not null,
+  workflow_id int not null,
+  action_id int not null,
   state_key varchar(64) not null,
-  state_value blob not null,
+  state_value clob not null,
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );
 
 create table nflow_executor (
-  id integer not null primary key,
+  id int not null primary key,
   host varchar(253) not null,
   pid int not null,
   executor_group varchar(64),
@@ -103,7 +103,7 @@ end;
 create table nflow_workflow_definition (
   type varchar(64) not null,
   definition_sha1 varchar(40) not null,
-  definition blob not null,
+  definition clob not null,
   created timestamp default current_timestamp not null,
   modified timestamp default current_timestamp not null,
   modified_by int not null,
