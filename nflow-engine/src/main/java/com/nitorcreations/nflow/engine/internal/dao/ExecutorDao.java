@@ -1,20 +1,23 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
+import static java.net.InetAddress.getLocalHost;
+import static org.apache.commons.lang3.StringUtils.left;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive;
 
 import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
@@ -54,6 +57,7 @@ public class ExecutorDao {
   String executorGroupCondition;
   int timeoutSeconds;
   int executorId = -1;
+  int hostMaxLength;
 
   @Inject
   public void setEnvironment(Environment env) {
@@ -76,6 +80,11 @@ public class ExecutorDao {
   @Inject
   public void setWorkflowInstanceDao(WorkflowInstanceDao workflowInstanceDao) {
     this.workflowInstanceDao = workflowInstanceDao;
+  }
+
+  @PostConstruct
+  public void findHostMaxLength() {
+    hostMaxLength = jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor);
   }
 
   private static String createWhereCondition(String group) {
@@ -119,7 +128,7 @@ public class ExecutorDao {
     final String host;
     final int pid;
     try {
-      host = InetAddress.getLocalHost().getCanonicalHostName();
+      host = left(getLocalHost().getCanonicalHostName(), hostMaxLength);
       pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     } catch (Exception ex) {
       throw new RuntimeException("Failed to obtain host name and pid of running jvm", ex);

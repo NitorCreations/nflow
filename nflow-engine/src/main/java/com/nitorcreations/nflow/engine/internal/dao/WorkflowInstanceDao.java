@@ -1,8 +1,8 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
-import static com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao.FirstColumnLengthExtractor.firstColumnLengthExtractor;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
@@ -459,15 +459,6 @@ public class WorkflowInstanceDao {
         return ids;
       }
     });
-  }
-
-  static final class FirstColumnLengthExtractor implements org.springframework.jdbc.core.ResultSetExtractor<Integer> {
-    static final FirstColumnLengthExtractor firstColumnLengthExtractor = new FirstColumnLengthExtractor();
-
-    @Override
-    public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
-      return rs.getMetaData().getColumnDisplaySize(1);
-    }
   }
 
   private static class OptimisticLockKey implements Comparable<OptimisticLockKey> {
