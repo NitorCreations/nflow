@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -455,7 +456,7 @@ public class WorkflowInstanceDao {
             }
             continue;
           }
-          if (status != 1) {
+          if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
             throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
                 + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
           }
