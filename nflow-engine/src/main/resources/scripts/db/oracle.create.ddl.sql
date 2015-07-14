@@ -89,7 +89,7 @@ create table nflow_executor (
   expires timestamp
 );
 
-create sequence nflow_workflow_action_id_seq;
+create sequence nflow_executor_id_seq;
 
 create or replace trigger nflow_executor_insert
   before insert on nflow_executor
