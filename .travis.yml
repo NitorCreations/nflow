@@ -30,3 +30,4 @@ after_success:
 cache:
   directories:
   - $HOME/.m2
+sudo: false
