@@ -14,7 +14,6 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -624,14 +623,12 @@ public class WorkflowInstanceDao {
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
-      Integer executorId = (Integer) rs.getObject("executor_id");
-      BigDecimal parentWorkflowId = rs.getBigDecimal("parent_workflow_id");
-      BigDecimal parentActionId = rs.getBigDecimal("parent_action_id");
+      Integer executorId = DaoUtil.getInt(rs, "executor_id");
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
         .setExecutorId(executorId)
-        .setParentWorkflowId(parentWorkflowId == null ? null : parentWorkflowId.intValue())
-        .setParentActionId(parentActionId == null ? null : parentActionId.intValue())
+        .setParentWorkflowId(DaoUtil.getInt(rs, "parent_workflow_id"))
+        .setParentActionId(DaoUtil.getInt(rs, "parent_action_id"))
         .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))
