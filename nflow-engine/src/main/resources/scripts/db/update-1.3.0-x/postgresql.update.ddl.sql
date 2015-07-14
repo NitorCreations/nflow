@@ -11,6 +11,8 @@ alter table nflow_executor alter host varchar(253) not null;
 alter table nflow_workflow add constraint fk_workflow_root
   foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
 
+alter table nflow_executor alter host varchar(253) not null;
+
 -- archiving
 
 create or replace function update_modified() returns trigger language plpgsql as '

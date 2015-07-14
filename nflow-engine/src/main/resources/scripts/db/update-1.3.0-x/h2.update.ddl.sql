@@ -11,6 +11,8 @@ alter table nflow_executor alter column host varchar(253) not null;
 alter table nflow_workflow add constraint fk_workflow_root
   foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
 
+alter table nflow_executor alter column host varchar(253) not null;
+
 -- archiving
 drop index nflow_workflow_next_activation;
 create index if not exists nflow_workflow_next_activation on nflow_workflow(next_activation, modified);
