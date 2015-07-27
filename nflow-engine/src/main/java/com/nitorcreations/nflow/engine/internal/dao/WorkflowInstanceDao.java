@@ -229,10 +229,18 @@ public class WorkflowInstanceDao {
       }
     });
     int updatedRows = 0;
+    boolean unknownResults = false;
     for (int i = 0; i < updateStatus.length; ++i) {
+      if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
+        unknownResults = true;
+        break;
+      }
+      if (updateStatus[i] == Statement.EXECUTE_FAILED) {
+        throw new IllegalStateException("Failed to insert/update state variables");
+      }
       updatedRows += updateStatus[i];
     }
-    if (updatedRows != changedStateVariables.size()) {
+    if (!unknownResults && updatedRows != changedStateVariables.size()) {
       throw new IllegalStateException("Failed to insert/update state variables, expected update count "
           + changedStateVariables.size() + ", actual " + updatedRows);
     }
