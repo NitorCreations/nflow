@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.getInt;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
@@ -631,12 +632,11 @@ public class WorkflowInstanceDao {
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
-      Integer executorId = DaoUtil.getInt(rs, "executor_id");
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
-        .setExecutorId(executorId)
-        .setParentWorkflowId(DaoUtil.getInt(rs, "parent_workflow_id"))
-        .setParentActionId(DaoUtil.getInt(rs, "parent_action_id"))
+        .setExecutorId(getInt(rs, "executor_id"))
+        .setParentWorkflowId(getInt(rs, "parent_workflow_id"))
+        .setParentActionId(getInt(rs, "parent_action_id"))
         .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))
