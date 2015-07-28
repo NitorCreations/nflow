@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -33,7 +32,7 @@ public class DaoUtil {
   }
 
   public static Integer getInt(ResultSet rs, String columnLabel) throws SQLException {
-    BigDecimal value = rs.getBigDecimal(columnLabel);
-    return value == null ? null : value.intValue();
+    int value = rs.getInt(columnLabel);
+    return rs.wasNull() ? null : value;
   }
 }
