@@ -273,4 +273,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>oracle</id>
+      <activation>
+        <file>
+          <exists>${basedir}/../ojdbc7.jar</exists>
+        </file>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>ojdbc7</artifactId>
+          <version>12.1.0.2.0</version>
+          <scope>system</scope>
+          <systemPath>${basedir}/../ojdbc7.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
