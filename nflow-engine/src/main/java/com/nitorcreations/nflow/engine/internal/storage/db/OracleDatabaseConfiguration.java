@@ -1,11 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.sql.Clob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 
 import org.springframework.context.annotation.Bean;
@@ -78,31 +72,8 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public int textType() {
+    public int longTextType() {
       return Types.CLOB;
-    }
-
-    @Override
-    public void setText(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
-      Clob clob = ps.getConnection().createClob();
-      clob.setString(1, value);
-      ps.setClob(parameterIndex, clob);
-    }
-
-    @Override
-    public String getText(ResultSet rs, int columnIndex) throws SQLException {
-      Clob clob = rs.getClob(columnIndex);
-      try (Reader reader = clob.getCharacterStream()) {
-        char[] arr = new char[1024];
-        StringBuilder sb = new StringBuilder();
-        int numCharsRead;
-        while ((numCharsRead = reader.read(arr, 0, arr.length)) != -1) {
-          sb.append(arr, 0, numCharsRead);
-        }
-        return sb.toString();
-      } catch (IOException e) {
-        throw new SQLException("Failed to read CLOB from database", e);
-      }
     }
   }
 }

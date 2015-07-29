@@ -71,7 +71,7 @@ public class WorkflowDefinitionDao {
     params.addValue("type", definition.getType());
     String serializedDefinition = serializeDefinition(storedDefinition);
     params.addValue("definition_sha1", sha1(serializedDefinition));
-    params.addValue("definition", serializedDefinition, sqlVariants.textType());
+    params.addValue("definition", serializedDefinition, sqlVariants.longTextType());
     params.addValue("modified_by", executorInfo.getExecutorId());
     params.addValue("executor_group", executorInfo.getExecutorGroup());
 

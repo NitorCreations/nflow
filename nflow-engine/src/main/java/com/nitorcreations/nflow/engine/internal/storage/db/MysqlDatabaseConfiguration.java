@@ -6,8 +6,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -112,18 +110,8 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public int textType() {
+    public int longTextType() {
       return Types.VARCHAR;
-    }
-
-    @Override
-    public void setText(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
-      ps.setString(parameterIndex, value);
-    }
-
-    @Override
-    public String getText(ResultSet rs, int columnIndex) throws SQLException {
-      return rs.getString(columnIndex);
     }
   }
 }

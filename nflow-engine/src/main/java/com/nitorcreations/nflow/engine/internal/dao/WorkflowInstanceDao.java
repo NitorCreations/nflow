@@ -225,7 +225,7 @@ public class WorkflowInstanceDao {
         ps.setInt(1, id);
         ps.setInt(2, actionId);
         ps.setString(3, var.getKey());
-        sqlVariants.setText(ps, 4, var.getValue());
+        ps.setString(4, var.getValue());
         return true;
       }
     });
@@ -400,7 +400,7 @@ public class WorkflowInstanceDao {
       new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
-        instance.stateVariables.put(rs.getString(1), sqlVariants.getText(rs, 2));
+        instance.stateVariables.put(rs.getString(1), rs.getString(2));
       }
     }, instance.id);
     instance.originalStateVariables.putAll(instance.stateVariables);

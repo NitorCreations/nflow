@@ -2,8 +2,6 @@ package com.nitorcreations.nflow.engine.internal.storage.db;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -95,18 +93,8 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public int textType() {
+    public int longTextType() {
       return Types.VARCHAR;
-    }
-
-    @Override
-    public void setText(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
-      ps.setString(parameterIndex, value);
-    }
-
-    @Override
-    public String getText(ResultSet rs, int columnIndex) throws SQLException {
-      return rs.getString(columnIndex);
     }
   }
 }
