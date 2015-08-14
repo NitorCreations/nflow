@@ -2,7 +2,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
-import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.net.InetAddress.getLocalHost;
 import static org.apache.commons.lang3.StringUtils.left;
@@ -21,7 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -44,7 +42,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * used in some legacy systems.
  */
 @Component
-@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class ExecutorDao {
   private JdbcTemplate jdbc;
   SQLVariants sqlVariants;

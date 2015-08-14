@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,7 +22,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 public abstract class DatabaseConfiguration {
-  public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
+  private static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
   private static final Logger logger = getLogger(DatabaseConfiguration.class);
   private final String dbType;
 
@@ -62,6 +63,7 @@ public abstract class DatabaseConfiguration {
   @Bean
   @NFlow
   @Scope(SCOPE_PROTOTYPE)
+  @DependsOn(NFLOW_DATABASE_INITIALIZER)
   public JdbcTemplate nflowJdbcTemplate(@NFlow DataSource nflowDataSource) {
     return new JdbcTemplate(nflowDataSource);
   }
@@ -69,6 +71,7 @@ public abstract class DatabaseConfiguration {
   @Bean
   @NFlow
   @Scope(SCOPE_PROTOTYPE)
+  @DependsOn(NFLOW_DATABASE_INITIALIZER)
   public NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate(@NFlow DataSource nflowDataSource) {
     return new NamedParameterJdbcTemplate(nflowDataSource);
   }
