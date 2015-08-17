@@ -86,7 +86,7 @@
   </modules>
   <properties>
     <jdk.version>1.7</jdk.version>
-    <apache.cxf.version>3.1.0</apache.cxf.version>
+    <apache.cxf.version>3.1.2</apache.cxf.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
@@ -94,16 +94,16 @@
     <el.version>3.0.0</el.version>
     <findbugs-annotations.version>3.0.0</findbugs-annotations.version>
     <findbugs.version>3.0.0</findbugs.version>
-    <h2.version>1.4.187</h2.version>
+    <h2.version>1.4.188</h2.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
-    <hikaricp.version>2.3.8</hikaricp.version>
-    <jackson.version>2.5.3</jackson.version>
-    <javassist.version>3.19.0-GA</javassist.version>
+    <hibernate.validator.version>5.2.1.Final</hibernate.validator.version>
+    <hikaricp.version>2.3.9</hikaricp.version>
+    <jackson.version>2.6.1</jackson.version>
+    <javassist.version>3.20.0-GA</javassist.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
-    <jetty.version>9.2.10.v20150310</jetty.version>
-    <jodatime.version>2.7</jodatime.version>
+    <jetty.version>9.2.13.v20150730</jetty.version>
+    <jodatime.version>2.8.2</jodatime.version>
     <junit.version>4.12</junit.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.1.3</logback-classic.version>
@@ -113,7 +113,7 @@
     <maven-dependency.version>2.10</maven-dependency.version>
     <maven-deploy.version>2.8.2</maven-deploy.version>
     <maven-download.version>1.2.1</maven-download.version>
-    <maven-eclipse.version>2.9</maven-eclipse.version>
+    <maven-eclipse.version>2.10</maven-eclipse.version>
     <maven-enforcer.version>1.4</maven-enforcer.version>
     <maven-findbugs.version>3.0.1</maven-findbugs.version>
     <maven-gpg.version>1.6</maven-gpg.version>
@@ -121,11 +121,11 @@
     <maven-jar.version>2.6</maven-jar.version>
     <maven-javadoc.version>2.10.3</maven-javadoc.version>
     <maven-jxr.version>2.5</maven-jxr.version>
-    <maven-pmd.version>3.4</maven-pmd.version>
+    <maven-pmd.version>3.5</maven-pmd.version>
     <maven-project-info.version>2.8</maven-project-info.version>
     <maven-release.version>2.5.2</maven-release.version>
     <maven-resources.version>2.7</maven-resources.version>
-    <maven-shade.version>2.3</maven-shade.version>
+    <maven-shade.version>2.4.1</maven-shade.version>
     <maven-site.version>3.4</maven-site.version>
     <maven-source.version>2.4</maven-source.version>
     <maven-surefire.version>2.18.1</maven-surefire.version>
@@ -133,15 +133,15 @@
     <metrics.version>3.1.2</metrics.version>
     <mockito.version>1.10.19</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
-    <mysql.version>5.1.35</mysql.version>
-    <nexus-staging-maven.version>1.6.5</nexus-staging-maven.version>
+    <mysql.version>5.1.36</mysql.version>
+    <nexus-staging-maven.version>1.6.6</nexus-staging-maven.version>
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>9.4-1201-jdbc41</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <slf4j.version>1.7.12</slf4j.version>
-    <spring.version>4.1.6.RELEASE</spring.version>
-    <swagger.version>1.5.0</swagger.version>
+    <spring.version>4.2.0.RELEASE</spring.version>
+    <swagger.version>1.5.3</swagger.version>
     <validation.api.version>1.1.0.Final</validation.api.version>
     <versions-maven-plugin.version>2.2</versions-maven-plugin.version>
   </properties>

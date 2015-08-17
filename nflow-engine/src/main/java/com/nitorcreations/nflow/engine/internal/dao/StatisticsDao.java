@@ -1,6 +1,5 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
-import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static java.util.Arrays.asList;
 
 import java.sql.ResultSet;
@@ -14,7 +13,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -31,7 +29,6 @@ import com.nitorcreations.nflow.engine.workflow.statistics.Statistics.QueueStati
  * used in some legacy systems.
  */
 @Component
-@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class StatisticsDao {
 
   private JdbcTemplate jdbc;
