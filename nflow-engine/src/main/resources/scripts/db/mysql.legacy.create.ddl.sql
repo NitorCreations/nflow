@@ -110,8 +110,8 @@ create table if not exists nflow_archive_workflow (
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
-drop index nflow_archive_workflow_activation;
-create index nflow_archive_workflow_activation on nflow_archive_workflow(next_activation, modified);
+drop index nflow_archive_workflow_modified;
+create index nflow_archive_workflow_modified on nflow_archive_workflow(modified);
 
 create table if not exists nflow_archive_workflow_action (
   id int not null primary key,
