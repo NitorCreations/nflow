@@ -57,7 +57,7 @@ public class ArchiveDao {
                     "  limit " + maxRows +
                     ") as archivable_parent " +
                     "where archivable_parent.id = w.id or archivable_parent.id = w.root_workflow_id",
-            new Object[] { toTimestamp(before), toTimestamp(before) }, new ArchivableWorkflowsRowMapper());
+            new ArchivableWorkflowsRowMapper(), toTimestamp(before), toTimestamp(before));
   }
 
   @Transactional
@@ -98,11 +98,11 @@ public class ArchiveDao {
 
   private String columnsFromMetadata(String tableName) {
     List<String> columnNames = jdbc.query("select * from " + tableName + " where 1 = 0", columnNamesExtractor);
-    return join(columnNames.toArray(), ",");
+    return join(columnNames, ",");
   }
 
   private String params(List<Integer> workflowIds) {
-    return "(" + join(workflowIds.toArray(), ",") + ")";
+    return "(" + join(workflowIds, ",") + ")";
   }
 
   static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
