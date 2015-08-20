@@ -38,6 +38,7 @@ import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
 import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
 import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
+import com.nitorcreations.nflow.rest.v1.ArchiveResource;
 import com.nitorcreations.nflow.rest.v1.StatisticsResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
 import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
@@ -55,13 +56,15 @@ public class NflowJettyConfiguration {
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
-      StatisticsResource statisticsResource, @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
+      StatisticsResource statisticsResource, ArchiveResource archiveResource,
+      @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
         workflowDefinitionResource,
         workflowExecutorResource,
-        statisticsResource
+        statisticsResource,
+        archiveResource
         ));
     factory.setAddress('/' + factory.getAddress());
     factory.setProviders(asList(
