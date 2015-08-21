@@ -2,7 +2,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
-import static com.nitorcreations.nflow.engine.internal.storage.db.DatabaseConfiguration.NFLOW_DATABASE_INITIALIZER;
 import static org.apache.commons.lang3.StringUtils.join;
 
 import java.sql.ResultSet;
@@ -13,7 +12,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.joda.time.DateTime;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Named
-@DependsOn(NFLOW_DATABASE_INITIALIZER)
 public class ArchiveDao {
   private JdbcTemplate jdbc;
   private TableMetadataChecker tableMetadataChecker;

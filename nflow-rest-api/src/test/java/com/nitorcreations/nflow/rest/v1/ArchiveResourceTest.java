@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -18,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.nitorcreations.nflow.engine.service.ArchiveService;
 import com.nitorcreations.nflow.rest.v1.msg.ArchiveRequest;
+import com.nitorcreations.nflow.rest.v1.msg.ArchiveResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArchiveResourceTest {
@@ -40,10 +40,9 @@ public class ArchiveResourceTest {
     ArchiveRequest request = new ArchiveRequest();
     request.olderThan = olderThan;
     request.batchSize = batchSize;
-    Response response = resource.archiveWorkflows(request);
+    ArchiveResponse response = resource.archiveWorkflows(request);
 
     verify(service).archiveWorkflows(olderThan, batchSize);
-    assertThat(response.getStatus(), is(Status.OK.getStatusCode()));
-    assertThat(response.getHeaderString("X-Archived-Workflows"), is("100"));
+    assertThat(response.archivedWorkflows, is(archived));
   }
 }
