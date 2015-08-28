@@ -388,7 +388,8 @@ class WorkflowStateProcessor implements Runnable {
         execution.setRetry(true);
         definition.handleRetryAfter(execution, nextAction.getActivation());
       } else {
-        execution.setNextState(nextAction.getNextState());
+        WorkflowState nextState = nextAction.getNextState() == null ? currentState : nextAction.getNextState();
+        execution.setNextState(nextState);
       }
       objectMapper.storeArguments(execution, method, args);
       return nextAction;

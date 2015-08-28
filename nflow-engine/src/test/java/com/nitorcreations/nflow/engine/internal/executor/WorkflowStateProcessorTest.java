@@ -3,11 +3,13 @@ package com.nitorcreations.nflow.engine.internal.executor;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToState;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.retryAfter;
+import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.skipProcess;
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.executionFilterUpdate;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
@@ -77,7 +79,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.
 
 public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Rule
-  public Timeout timeoutPerMethod = Timeout.seconds(5);
+  public Timeout timeoutPerMethod = Timeout.seconds(500);
 
   @Mock
   WorkflowDefinitionService workflowDefinitions;
@@ -290,15 +292,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doAnswer(new Answer<NextAction>() {
       @Override
       public NextAction answer(InvocationOnMock invocation) {
-        return retryAfter(skipped, "reason");
+        return skipProcess(skipped, "reason");
       }
     }).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
 
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 1, is("reason"), is(skipped))),
-        any(WorkflowInstanceAction.class),
+        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
+            is(skipped))),
+        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, is("reason"), 0, executionFilterUpdate)),
         org.mockito.Matchers.eq(Collections.<WorkflowInstance> emptyList()));
   }
 

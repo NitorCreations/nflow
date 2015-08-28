@@ -11,11 +11,13 @@ public class NextAction {
   private final DateTime activation;
   private final WorkflowState nextState;
   private final String reason;
+  private final boolean isRetry;
 
-  private NextAction(DateTime activation, WorkflowState nextState, String reason) {
+  private NextAction(DateTime activation, WorkflowState nextState, String reason, boolean isRetry) {
     this.reason = reason;
     this.nextState = nextState;
     this.activation = activation;
+    this.isRetry = isRetry;
   }
 
   /**
@@ -51,7 +53,20 @@ public class NextAction {
    */
   public static NextAction retryAfter(DateTime activation, String reason) {
     assertNotNull(activation, "Activation can not be null");
-    return new NextAction(activation, null, reason);
+    return new NextAction(activation, null, reason, true);
+  }
+
+  /**
+   * To be used in executor listeners, when the listener wants to skip the
+   * state method processing. Schedules a retry for the current state at time
+   * {@code activation}, without incrementing retry counter.
+   * @param activation The time after which the workflow can be activated.
+   * @param reason The reason for the action.
+   * @return A valid {@code NextAction} value.
+   */
+  public static NextAction skipProcess(DateTime activation, String reason) {
+    assertNotNull(activation, "Activation can not be null");
+    return new NextAction(activation, null, reason, false);
   }
 
   /**
@@ -64,7 +79,7 @@ public class NextAction {
   public static NextAction moveToStateAfter(WorkflowState nextState, DateTime activation, String reason) {
     assertNotNull(nextState, "Next state can not be null");
     assertNotNull(activation, "Activation can not be null");
-    return new NextAction(activation, nextState, reason);
+    return new NextAction(activation, nextState, reason, false);
   }
 
   /**
@@ -75,7 +90,7 @@ public class NextAction {
    */
   public static NextAction moveToState(WorkflowState nextState, String reason) {
     assertNotNull(nextState, "Next state can not be null");
-    return new NextAction(now(), nextState, reason);
+    return new NextAction(now(), nextState, reason, false);
   }
 
   /**
@@ -94,7 +109,7 @@ public class NextAction {
   public static NextAction stopInState(WorkflowState finalState, String reason) {
     assertNotNull(finalState, "State can not be null");
     assertFinalState(finalState);
-    return new NextAction(null, finalState, reason);
+    return new NextAction(null, finalState, reason, false);
   }
 
   private static void assertFinalState(WorkflowState state) {
@@ -114,7 +129,7 @@ public class NextAction {
    * @return True if action is a retry, false otherwise.
    */
   public boolean isRetry() {
-    return nextState == null;
+    return isRetry;
   }
 
 }
