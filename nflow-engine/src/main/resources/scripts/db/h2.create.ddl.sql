@@ -26,7 +26,7 @@ create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
   workflow_id int not null,
   executor_id int not null default -1,
-  type varchar(32) not null check type in ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange'),
+  type varchar(32) not null check type in ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange', 'executionFilterUpdate'),
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,

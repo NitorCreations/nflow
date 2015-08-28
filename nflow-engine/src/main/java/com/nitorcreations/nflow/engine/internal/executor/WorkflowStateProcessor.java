@@ -4,6 +4,7 @@ import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.mov
 import static com.nitorcreations.nflow.engine.workflow.definition.NextAction.stopInState;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.executionFilterUpdate;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
@@ -192,18 +193,14 @@ class WorkflowStateProcessor implements Runnable {
       .setState(execution.getNextState())
       .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
 
-    if (execution.isStateProcessInvoked()) {
-      actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
-      if (execution.isFailed()) {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            Collections.<WorkflowInstance> emptyList());
-      } else {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            execution.getNewChildWorkflows());
-        processSuccess(execution, instance);
-      }
+    actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
+    if (!execution.isStateProcessInvoked() || execution.isFailed()) {
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+          Collections.<WorkflowInstance> emptyList());
     } else {
-      workflowInstanceDao.updateWorkflowInstance(builder.build());
+      workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
+          execution.getNewChildWorkflows());
+      processSuccess(execution, instance);
     }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }
@@ -242,11 +239,14 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowActionType getActionType(StateExecutionImpl execution) {
-    return execution.isFailed() || execution.isRetryCountExceeded() ? stateExecutionFailed : stateExecution;
+    if (execution.isStateProcessInvoked()) {
+      return execution.isFailed() || execution.isRetryCountExceeded() ? stateExecutionFailed : stateExecution;
+    }
+    return executionFilterUpdate;
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
-    return execution.isStateProcessInvoked() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
+    return execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
   }
 
   private NextAction processWithListeners(ListenerContext listenerContext, WorkflowInstance instance,
@@ -383,9 +383,7 @@ class WorkflowStateProcessor implements Runnable {
       execution.setNextActivation(nextAction.getActivation());
       execution.setNextStateReason(nextAction.getReason());
 
-      if (!execution.isStateProcessInvoked()) {
-        execution.setNextState(currentState);
-      } else if (nextAction.isRetry()) {
+      if (nextAction.isRetry()) {
         execution.setNextState(currentState);
         execution.setRetry(true);
         definition.handleRetryAfter(execution, nextAction.getActivation());

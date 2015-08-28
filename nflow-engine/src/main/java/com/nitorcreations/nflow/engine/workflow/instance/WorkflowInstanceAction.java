@@ -31,7 +31,11 @@ public class WorkflowInstanceAction {
     /**
      * Dead executor recovery.
      */
-    recovery
+    recovery,
+    /**
+     * Update by workflow execution filter.
+     */
+    executionFilterUpdate
   }
 
   /**

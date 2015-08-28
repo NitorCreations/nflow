@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,15 +290,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doAnswer(new Answer<NextAction>() {
       @Override
       public NextAction answer(InvocationOnMock invocation) {
-        return retryAfter(skipped, "");
+        return retryAfter(skipped, "reason");
       }
     }).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
 
     executor.run();
 
-    verify(workflowInstanceDao).updateWorkflowInstance(
-        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
-            is(skipped))));
+    verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
+        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 1, is("reason"), is(skipped))),
+        any(WorkflowInstanceAction.class),
+        org.mockito.Matchers.eq(Collections.<WorkflowInstance> emptyList()));
   }
 
   @Test

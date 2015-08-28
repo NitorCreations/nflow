@@ -6,3 +6,4 @@ alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
 
 alter table nflow_executor alter host varchar(253) not null;
+alter type action_type add value if not exists 'executionFilterUpdate' after 'externalChange';
