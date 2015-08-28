@@ -253,7 +253,11 @@ class WorkflowStateProcessor implements Runnable {
       AbstractWorkflowDefinition<? extends WorkflowState> definition, StateExecutionImpl execution, WorkflowState state) {
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
     List<WorkflowExecutorListener> chain = new ArrayList<>(executorListeners.size() + 1);
-    chain.addAll(executorListeners);
+    for (WorkflowExecutorListener listener : executorListeners) {
+      if (listener.appliesTo(listenerContext)) {
+        chain.add(listener);
+      }
+    }
     chain.add(processingListener);
     NextAction nextAction = new ExecutorListenerChain(chain).next(listenerContext);
     if (execution.isStateProcessInvoked()) {
@@ -396,20 +400,24 @@ class WorkflowStateProcessor implements Runnable {
 
   private void processBeforeListeners(ListenerContext listenerContext) {
     for (WorkflowExecutorListener listener : executorListeners) {
-      try {
-        listener.beforeProcessing(listenerContext);
-      } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing (" + t.getMessage() + ")", t);
+      if (listener.appliesTo(listenerContext)) {
+        try {
+          listener.beforeProcessing(listenerContext);
+        } catch (Throwable t) {
+          logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing (" + t.getMessage() + ")", t);
+        }
       }
     }
   }
 
   private void processAfterListeners(ListenerContext listenerContext) {
     for (WorkflowExecutorListener listener : executorListeners) {
-      try {
-        listener.afterProcessing(listenerContext);
-      } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterProcessing (" + t.getMessage() + ")", t);
+      if (listener.appliesTo(listenerContext)) {
+        try {
+          listener.afterProcessing(listenerContext);
+        } catch (Throwable t) {
+          logger.error("Error in " + listener.getClass().getName() + ".afterProcessing (" + t.getMessage() + ")", t);
+        }
       }
     }
   }

@@ -96,6 +96,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   WorkflowExecutorListener listener2;
 
   @Mock
+  WorkflowExecutorListener listener3;
+
+  @Mock
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
 
   @Captor
@@ -125,7 +128,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+            workflowInstancePreProcessor, env, listener1, listener2, listener3);
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
@@ -133,6 +136,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
     filterChain(listener1);
     filterChain(listener2);
+    filterChain(listener3);
+    when(listener1.appliesTo(any(ListenerContext.class))).thenReturn(true);
+    when(listener2.appliesTo(any(ListenerContext.class))).thenReturn(true);
+    when(listener3.appliesTo(any(ListenerContext.class))).thenReturn(false);
   }
 
   @After
@@ -275,6 +282,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setNextActivation(now).setState("start").setStateText("myStateText").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
+    when(listener.appliesTo(any(ListenerContext.class))).thenReturn(true);
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
             workflowInstancePreProcessor, env, listener);
 
@@ -298,6 +306,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     filterChain(listener1);
     executor.run();
+    verify(listener1, times(5)).appliesTo(any(ListenerContext.class));
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
     verify(listener1, times(2)).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
@@ -337,6 +346,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("processReturnNullNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
+    verify(listener1, times(5)).appliesTo(any(ListenerContext.class));
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
     verify(listener1, times(2)).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
@@ -422,6 +432,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
+    verify(listener1, times(3)).appliesTo(any(ListenerContext.class));
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterProcessing(any(ListenerContext.class));
@@ -440,6 +451,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
+    verify(listener1, times(2)).appliesTo(any(ListenerContext.class));
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
@@ -570,13 +582,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
+    verify(listener1, times(3)).appliesTo(any(ListenerContext.class));
+    verify(listener2, times(3)).appliesTo(any(ListenerContext.class));
+    verify(listener3, times(3)).appliesTo(any(ListenerContext.class));
     verify(listener1).beforeProcessing(any(ListenerContext.class));
-    verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener2).beforeProcessing(any(ListenerContext.class));
+    verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener2).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verify(listener2).afterProcessing(any(ListenerContext.class));
-    verifyNoMoreInteractions(listener1, listener2);
+    verifyNoMoreInteractions(listener1, listener2, listener3);
   }
 
   @Test
@@ -586,6 +601,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
+    verify(listener1, times(2)).appliesTo(any(ListenerContext.class));
+    verify(listener2, times(2)).appliesTo(any(ListenerContext.class));
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener2).beforeProcessing(any(ListenerContext.class));

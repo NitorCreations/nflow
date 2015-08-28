@@ -78,6 +78,14 @@ public interface WorkflowExecutorListener {
   }
 
   /**
+   * Checks if this listener should be applied in given context. If the listener returns false, none of the
+   * filter methods (beforeProcessing, process and afterProcessing) are called.
+   * @param listenerContext The listener context.
+   * @return True if this filter should be applied, false otherwise.
+   */
+  boolean appliesTo(ListenerContext listenerContext);
+
+  /**
    * Executed before state is processed. Exceptions are logged but they do not
    * affect workflow processing.
    * @param listenerContext The listener context.

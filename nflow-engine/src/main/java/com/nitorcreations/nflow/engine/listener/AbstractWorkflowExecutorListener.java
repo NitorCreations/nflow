@@ -9,6 +9,14 @@ import com.nitorcreations.nflow.engine.workflow.definition.NextAction;
 abstract public class AbstractWorkflowExecutorListener implements WorkflowExecutorListener {
 
   /**
+   * By default, apply filter always.
+   */
+  @Override
+  public boolean appliesTo(ListenerContext listenerContext) {
+    return true;
+  }
+
+  /**
    * Does nothing.
    * @param listenerContext The listener context.
    */
