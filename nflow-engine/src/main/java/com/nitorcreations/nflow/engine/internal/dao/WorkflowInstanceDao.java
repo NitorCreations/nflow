@@ -51,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
@@ -237,8 +238,11 @@ public class WorkflowInstanceDao {
     }
   }
 
+  @SuppressWarnings("null")
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action,
       List<WorkflowInstance> childWorkflows) {
+    Assert.isTrue(action != null, "action can not be null");
+    Assert.isTrue(childWorkflows != null, "childWorkflows can not be null");
     if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
       updateWorkflowInstanceWithCTE(instance, action);
     } else {

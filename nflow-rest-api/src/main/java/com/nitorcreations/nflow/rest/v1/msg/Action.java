@@ -15,7 +15,7 @@ public class Action {
 
   @ApiModelProperty(value = "Identifier of the workflow instance action.")
   public int id;
-  @ApiModelProperty(value = "Type of state: 'stateExecution', 'stateExecutionFailed', 'externalChange' or 'recovery'.")
+  @ApiModelProperty(value = "Type of state: 'stateExecution', 'stateExecutionFailed', 'externalChange', 'recovery' or 'executorListenerUpdate'.")
   public String type;
   @ApiModelProperty(value = "Name of state")
   public String state;

@@ -41,7 +41,9 @@ import javax.inject.Inject;
 
 import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -63,6 +65,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Inject
   TransactionTemplate transaction;
   List<WorkflowInstance> noChildWorkflows = Arrays.<WorkflowInstance>asList();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void roundTripTest() {
@@ -279,6 +283,19 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
             new Timestamp(future.getMillis()), workflowId), is(1));
     assertThat(dao.updateWorkflowInstance(new WorkflowInstance.Builder(dao.getWorkflowInstance(workflowId)).build()), is(1));
     assertThat(dao.getWorkflowInstance(workflowId).nextActivation, is(now));
+  }
+
+  @Test
+  public void postgreSQLUpdateWithoutActionIsNotAllowed() throws InterruptedException {
+    thrown.expect(IllegalArgumentException.class);
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
+    int id = dao.insertWorkflowInstance(i1);
+    List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, contains(id));
+    final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress)
+        .setState("updateState").setStateText("update text").setNextActivation(now()).build();
+    sleep(1);
+    dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows);
   }
 
   @Test

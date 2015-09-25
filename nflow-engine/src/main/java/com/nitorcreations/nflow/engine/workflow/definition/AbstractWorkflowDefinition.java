@@ -298,7 +298,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
    * @return True if the nextAction is permitted, false otherwise.
    */
   public boolean isAllowedNextAction(WorkflowInstance instance, NextAction nextAction) {
-    if (nextAction.isRetry()) {
+    if (nextAction.getNextState() == null) {
       return true;
     }
     List<String> allowedNextStates = allowedTransitions.get(instance.state);
