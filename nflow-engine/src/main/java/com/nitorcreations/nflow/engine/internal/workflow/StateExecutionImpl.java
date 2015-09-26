@@ -30,6 +30,7 @@ public class StateExecutionImpl implements StateExecution {
   private boolean isFailed;
   private boolean isRetryCountExceeded;
   private boolean wakeUpParentWorkflow = false;
+  private boolean isStateProcessInvoked = false;
   private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
@@ -188,5 +189,13 @@ public class StateExecutionImpl implements StateExecution {
   @Override
   public WorkflowInstance.Builder workflowInstanceBuilder() {
     return new WorkflowInstance.Builder(this.objectMapper).setNextActivation(now());
+  }
+
+  public void setStateProcessInvoked(boolean isStateProcessInvoked) {
+    this.isStateProcessInvoked = isStateProcessInvoked;
+  }
+
+  public boolean isStateProcessInvoked() {
+    return isStateProcessInvoked;
   }
 }
