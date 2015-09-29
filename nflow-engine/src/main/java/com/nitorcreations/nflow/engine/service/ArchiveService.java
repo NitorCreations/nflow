@@ -38,23 +38,23 @@ public class ArchiveService {
     log.info("Archiving starting. Archiving passive workflows older than {}, in batches of {}.", olderThan, batchSize);
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
-    List<Integer> workflowIds;
+    List<Integer> rootWorkflowIds;
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int archivedWorkflows = 0;
     do {
-      workflowIds = archiveDao.listArchivableWorkflows(olderThan, batchSize);
-      if (workflowIds.isEmpty()) {
+      rootWorkflowIds = archiveDao.listArchivableRootWorkflows(olderThan, batchSize);
+      if (rootWorkflowIds.isEmpty()) {
         break;
       }
-      archiveDao.archiveWorkflows(workflowIds);
-      archivedWorkflows += workflowIds.size();
+      archiveDao.archiveRootWorkflows(rootWorkflowIds);
+      archivedWorkflows += rootWorkflowIds.size();
 
       double timeDiff = stopWatch.getTime() / 1000.0;
-      log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ", workflowIds.size(), archivedWorkflows
-          / timeDiff, workflowIds);
-      periodicLogger.log("Archived {} workflows. Archiving about {} workflows / second.", workflowIds.size(), archivedWorkflows
+      log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ", rootWorkflowIds.size(), archivedWorkflows
+          / timeDiff, rootWorkflowIds);
+      periodicLogger.log("Archived {} workflows. Archiving about {} workflows / second.", rootWorkflowIds.size(), archivedWorkflows
               / timeDiff);
-    } while (!workflowIds.isEmpty());
+    } while (!rootWorkflowIds.isEmpty());
 
     log.info("Archiving finished. Archived {} workflows.", archivedWorkflows);
     return archivedWorkflows;

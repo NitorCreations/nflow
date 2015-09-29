@@ -39,11 +39,9 @@ public class ArchiveDao {
     tableMetadataChecker.ensureCopyingPossible("nflow_workflow_state", "nflow_archive_workflow_state");
   }
 
-  public List<Integer> listArchivableWorkflows(DateTime before, int maxRows) {
+  public List<Integer> listArchivableRootWorkflows(DateTime before, int maxRows) {
     return jdbc.query(
-                    "select w.id id from nflow_workflow w, " +
-                    "(" +
-                    "  select parent.id from nflow_workflow parent " +
+                    "  select parent.id id from nflow_workflow parent " +
                     "  where parent.next_activation is null and parent.modified <= ? " +
                     "  and parent.root_workflow_id is null " +
                     "  and not exists(" +
@@ -51,15 +49,13 @@ public class ArchiveDao {
                     "      and (child.modified > ? or child.next_activation is not null)" +
                     "  )" +
                     "  order by modified asc " +
-                    "  limit " + maxRows +
-                    ") as archivable_parent " +
-                    "where archivable_parent.id = w.id or archivable_parent.id = w.root_workflow_id",
+                    "  limit " + maxRows,
             new ArchivableWorkflowsRowMapper(), toTimestamp(before), toTimestamp(before));
   }
 
   @Transactional
-  public void archiveWorkflows(List<Integer> workflowIds) {
-    String workflowIdParams = params(workflowIds);
+  public void archiveRootWorkflows(List<Integer> rootWorkflowIds) {
+    String workflowIdParams = params(rootWorkflowIds);
 
     archiveWorkflowTable(workflowIdParams);
     archiveActionTable(workflowIdParams);
@@ -70,26 +66,24 @@ public class ArchiveDao {
   private void archiveWorkflowTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow");
     jdbc.update("insert into nflow_archive_workflow(" + columns + ") " +
-            "select " + columns + " from nflow_workflow where id in " + workflowIdParams);
+            "select " + columns + " from nflow_workflow where id in " + workflowIdParams + " or root_workflow_id in " + workflowIdParams);
   }
 
   private void archiveActionTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow_action");
     jdbc.update("insert into nflow_archive_workflow_action(" + columns + ") " +
-            "select " + columns + " from nflow_workflow_action where workflow_id in " + workflowIdParams);
+            "select " + columns + " from nflow_workflow_action where workflow_id in " +
+            "  (select id from nflow_workflow where id in " + workflowIdParams + " or root_workflow_id in " + workflowIdParams + ")");
   }
 
   private void archiveStateTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow_state");
     jdbc.update("insert into nflow_archive_workflow_state (" + columns + ") " +
-            "select " + columns + " from nflow_workflow_state where workflow_id in " + workflowIdParams);
+            "select " + columns + " from nflow_workflow_state where workflow_id in " +
+            "  (select id from nflow_workflow where id in " + workflowIdParams + " or root_workflow_id in " + workflowIdParams + ")");
   }
 
   private void deleteWorkflows(String workflowIdParams) {
-    jdbc.update("delete from nflow_workflow_state where workflow_id in " + workflowIdParams);
-    jdbc.update("update nflow_workflow set root_workflow_id=null, parent_workflow_id=null, parent_action_id=null " +
-            "where id in " + workflowIdParams + " and (root_workflow_id is not null or parent_workflow_id is not null)");
-    jdbc.update("delete from nflow_workflow_action where workflow_id in " + workflowIdParams);
     jdbc.update("delete from nflow_workflow where id in " + workflowIdParams);
   }
 

@@ -13,6 +13,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import org.joda.time.DateTime;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -38,6 +40,8 @@ public class ArchiveTest extends AbstractNflowTest {
   public static NflowServerRule server = new NflowServerRule.Builder().prop("nflow.dispatcher.sleep.ms", 25)
       .springContextClass(ArchiveConfiguration.class).build();
   static ArchiveService archiveService;
+  static WorkflowInstanceDao workflowInstanceDao;
+
 
   private static DateTime archiveLimit1, archiveLimit2;
 
@@ -48,37 +52,43 @@ public class ArchiveTest extends AbstractNflowTest {
   @Test(timeout = ARCHIVE_TIMEOUT)
   public void t00_cleanupExistingArchivableStuff() {
     archiveService.archiveWorkflows(DateTime.now(), 10);
+    assertEquals(0, workflowCount());
   }
 
   @Test(timeout = CREATE_TIMEOUT)
   public void t01_createWorkflows() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
     archiveLimit1 = DateTime.now();
+    // fibonacci(3) creates 1 child workflow, thus * 2
+    assertEquals(STEP_1_WORKFLOWS * 2, workflowCount());
   }
 
   @Test(timeout = CREATE_TIMEOUT)
   public void t02_createMoreWorkflows() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_2_WORKFLOWS));
     archiveLimit2 = DateTime.now();
+    assertEquals((STEP_1_WORKFLOWS + STEP_2_WORKFLOWS) * 2, workflowCount());
   }
 
   @Test(timeout = ARCHIVE_TIMEOUT)
   public void t03_archiveBeforeTime1ArchiveAllWorkflows() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
-    // fibonacci(3) workflow creates 1 child workflow
-    assertEquals(STEP_1_WORKFLOWS * 2, archived);
+    assertEquals(STEP_1_WORKFLOWS, archived);
+    assertEquals(STEP_2_WORKFLOWS * 2, workflowCount());
   }
 
   @Test(timeout = ARCHIVE_TIMEOUT)
   public void t04_archiveAgainBeforeTime1DoesNotArchivesAnything() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
     assertEquals(0, archived);
+    assertEquals(STEP_2_WORKFLOWS * 2, workflowCount());
   }
 
   @Test(timeout = ARCHIVE_TIMEOUT)
   public void t05_archiveBeforeTime2Archives() {
     int archived = archiveService.archiveWorkflows(archiveLimit2, 5);
-    assertEquals(STEP_2_WORKFLOWS * 2, archived);
+    assertEquals(STEP_2_WORKFLOWS, archived);
+    assertEquals(0, workflowCount());
   }
 
   @Test(timeout = CREATE_TIMEOUT)
@@ -90,12 +100,14 @@ public class ArchiveTest extends AbstractNflowTest {
   public void t07_archiveAgainBeforeTime1DoesNotArchiveAnything() {
     int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
     assertEquals(0, archived);
+    assertEquals(STEP_3_WORKFLOWS * 2, workflowCount());
   }
 
   @Test(timeout = ARCHIVE_TIMEOUT)
   public void t08_archiveAgainBeforeTime2DoesNotArchiveAnything() {
     int archived = archiveService.archiveWorkflows(archiveLimit2, 3);
     assertEquals(0, archived);
+    assertEquals(STEP_3_WORKFLOWS * 2, workflowCount());
   }
 
   private List<Integer> createWorkflows(int count) {
@@ -126,21 +138,29 @@ public class ArchiveTest extends AbstractNflowTest {
     }
   }
 
+  private int workflowCount() {
+    return workflowInstanceDao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().build()).size();
+  }
+
   // TODO another way would be to modify JettyServerContainer to have reference to Spring's applicationContext
   // that would allow accessing ArchiveService via NflowServerRule
   @ComponentScan(basePackageClasses = DemoWorkflow.class)
   private static class ArchiveConfiguration {
     @Inject
     private ArchiveService service;
+    @Inject
+    private WorkflowInstanceDao dao;
 
     @PostConstruct
     public void linkArchiveServiceToTestClass() {
       archiveService = service;
+      workflowInstanceDao = dao;
     }
 
     @PreDestroy
     public void removeArchiveServiceFromTestClass() {
       archiveService = null;
+      workflowInstanceDao = null;
     }
   }
 }

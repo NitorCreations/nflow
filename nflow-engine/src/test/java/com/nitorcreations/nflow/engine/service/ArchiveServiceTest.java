@@ -34,22 +34,22 @@ public class ArchiveServiceTest {
 
   @Test
   public void withZeroWorkflowsInFirstBatchCausesNothingToArchive() {
-    when(dao.listArchivableWorkflows(limit, 10)).thenReturn(emptyList);
+    when(dao.listArchivableRootWorkflows(limit, 10)).thenReturn(emptyList);
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(0, archived);
     verify(dao).ensureValidArchiveTablesExist();
-    verify(dao).listArchivableWorkflows(limit, 10);
+    verify(dao).listArchivableRootWorkflows(limit, 10);
     verifyNoMoreInteractions(dao);
   }
 
   @Test
   public void archivingContinuesUntilEmptyListOfArchivableIsReturned() {
-    doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listArchivableWorkflows(limit, 10);
+    doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listArchivableRootWorkflows(limit, 10);
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(dataList.size() * 3, archived);
     verify(dao).ensureValidArchiveTablesExist();
-    verify(dao, times(4)).listArchivableWorkflows(limit, 10);
-    verify(dao, times(3)).archiveWorkflows(dataList);
+    verify(dao, times(4)).listArchivableRootWorkflows(limit, 10);
+    verify(dao, times(3)).archiveRootWorkflows(dataList);
     verifyNoMoreInteractions(dao);
   }
 

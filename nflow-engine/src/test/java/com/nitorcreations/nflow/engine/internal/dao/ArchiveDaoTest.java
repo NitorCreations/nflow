@@ -53,7 +53,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     expectedArchive.add(storePassiveWorkflow(archiveTime1));
     expectedArchive.add(storePassiveWorkflow(archiveTime2));
 
-    List<Integer> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
+    List<Integer> archivableIds = archiveDao.listArchivableRootWorkflows(archiveTimeLimit, 10);
     assertEqualsInAnyOrder(expectedArchive, archivableIds);
   }
 
@@ -72,12 +72,12 @@ public class ArchiveDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Integer> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
+    List<Integer> archivableIds = archiveDao.listArchivableRootWorkflows(archiveTimeLimit, 10);
     Collections.sort(archivableIds);
     assertEquals(expectedArchive, archivableIds);
 
     expectedArchive.add(eleventh);
-    archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 11);
+    archivableIds = archiveDao.listArchivableRootWorkflows(archiveTimeLimit, 11);
     assertEqualsInAnyOrder(expectedArchive, archivableIds);
   }
 
@@ -93,7 +93,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     archivableWorkflows.add(storePassiveWorkflow(archiveTime2));
 
     int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
-    archiveDao.archiveWorkflows(archivableWorkflows);
+    archiveDao.archiveRootWorkflows(archivableWorkflows);
     int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
@@ -120,7 +120,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     archivableWorkflows.addAll(asList(archivable1, archivable2));
 
     int activeActionCountBefore = rowCount("select 1 from nflow_workflow_action");
-    archiveDao.archiveWorkflows(archivableWorkflows);
+    archiveDao.archiveRootWorkflows(archivableWorkflows);
     int activeActionCountAfter = rowCount("select 1 from nflow_workflow_action");
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
@@ -162,7 +162,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     archivableWorkflows.addAll(asList(archivable1, archivable2));
 
     int variablesCountBefore = rowCount("select 1 from nflow_workflow_state");
-    archiveDao.archiveWorkflows(archivableWorkflows);
+    archiveDao.archiveRootWorkflows(archivableWorkflows);
     int variablesCountAfter = rowCount("select 1 from nflow_workflow_state");
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
