@@ -234,7 +234,7 @@ public class WorkflowInstanceDao {
     for (int i = 0; i < updateStatus.length; ++i) {
       if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
         unknownResults = true;
-        break;
+        continue;
       }
       if (updateStatus[i] == Statement.EXECUTE_FAILED) {
         throw new IllegalStateException("Failed to insert/update state variables");
