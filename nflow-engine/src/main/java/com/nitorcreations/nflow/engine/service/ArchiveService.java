@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.nitorcreations.nflow.engine.internal.util.PeriodicLogger;
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class ArchiveService {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     List<Integer> workflowIds;
+    PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int archivedWorkflows = 0;
     do {
       workflowIds = archiveDao.listArchivableWorkflows(olderThan, batchSize);
@@ -50,6 +52,8 @@ public class ArchiveService {
       double timeDiff = stopWatch.getTime() / 1000.0;
       log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ", workflowIds.size(), archivedWorkflows
           / timeDiff, workflowIds);
+      periodicLogger.log("Archived {} workflows. Archiving about {} workflows / second.", workflowIds.size(), archivedWorkflows
+              / timeDiff);
     } while (!workflowIds.isEmpty());
 
     log.info("Archiving finished. Archived {} workflows.", archivedWorkflows);
