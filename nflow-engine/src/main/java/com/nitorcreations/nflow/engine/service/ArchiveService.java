@@ -40,23 +40,27 @@ public class ArchiveService {
     stopWatch.start();
     List<Integer> rootWorkflowIds;
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
+    int archivedRootWorkflows = 0;
     int archivedWorkflows = 0;
     do {
       rootWorkflowIds = archiveDao.listArchivableRootWorkflows(olderThan, batchSize);
       if (rootWorkflowIds.isEmpty()) {
         break;
       }
-      archiveDao.archiveRootWorkflows(rootWorkflowIds);
-      archivedWorkflows += rootWorkflowIds.size();
+      archivedWorkflows += archiveDao.archiveRootWorkflows(rootWorkflowIds);
+      archivedRootWorkflows += rootWorkflowIds.size();
 
       double timeDiff = stopWatch.getTime() / 1000.0;
-      log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ", rootWorkflowIds.size(), archivedWorkflows
-          / timeDiff, rootWorkflowIds);
-      periodicLogger.log("Archived {} workflows. Archiving about {} workflows / second.", rootWorkflowIds.size(), archivedWorkflows
-              / timeDiff);
+      log.debug("Archived {} workflow trees. {} workflow trees / second. Root workflow ids: {}. ",
+              rootWorkflowIds.size(), archivedRootWorkflows / timeDiff, rootWorkflowIds);
+      periodicLogger.log("Archived {} workflow trees and {} workflow instances (incl. child workflows) so far. " +
+              "Archiving about {} workflow trees / second and {} workflow instances / second.",
+              archivedRootWorkflows, archivedWorkflows,
+              archivedRootWorkflows / timeDiff, archivedWorkflows / timeDiff);
     } while (!rootWorkflowIds.isEmpty());
 
-    log.info("Archiving finished. Archived {} workflows.", archivedWorkflows);
-    return archivedWorkflows;
+    log.info("Archiving finished. Archived {} workflow trees and {} workflow instances (incl. child workflows).",
+            archivedRootWorkflows, archivedWorkflows);
+    return archivedRootWorkflows;
   }
 }
