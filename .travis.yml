@@ -15,7 +15,5 @@ before_script:
   - 'npm install -g bower grunt-cli'
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
-script: grunt
-# TODO grunt itest fails because it connects to a remote server that is currently down. Setup nflow server in travis
-#script: grunt && grunt itest
+script: grunt && grunt itest
 sudo: required
