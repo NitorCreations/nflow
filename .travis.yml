@@ -4,6 +4,11 @@ before_install:
   - "sh -e /etc/init.d/xvfb start"
   - gem install sass
   - gem install compass
+  - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq google-chrome-stable
+  - which google-chrome
 
 node_js:
   - '0.10'
@@ -13,4 +18,4 @@ before_script:
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
 script: grunt itest
-
+sudo: required
