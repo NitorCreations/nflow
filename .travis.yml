@@ -12,7 +12,5 @@ before_script:
   - 'npm install -g bower grunt-cli'
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
-  - 'node_modules/protractor/bin/webdriver-manager start &'
-  - 'sleep 60'
 script: grunt itest
 
