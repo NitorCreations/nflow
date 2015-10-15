@@ -1,10 +1,10 @@
 'use strict';
 var Config = function() {
-  //this.nflowUrl = 'http://localhost:7500/api/';
-  this.nflowUrl = 'http://nbank.dynalias.com/nflow-dev/api';
+  this.nflowUrl = 'http://localhost:7500/api/';
+  //this.nflowUrl = 'http://nbank.dynalias.com/nflow-dev/api';
 
-  //this.nflowApiDocs = 'http://localhost:7500/doc/';
-  this.nflowApiDocs = 'http://nbank.dynalias.com/nflow/doc/';
+  this.nflowApiDocs = 'http://localhost:7500/doc/';
+  //this.nflowApiDocs = 'http://nbank.dynalias.com/nflow/doc/';
 
   this.radiator = {
     // poll period in seconds
