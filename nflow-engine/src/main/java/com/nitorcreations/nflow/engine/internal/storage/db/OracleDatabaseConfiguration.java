@@ -8,71 +8,72 @@ import org.springframework.context.annotation.Profile;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
-@Profile("nflow.db.postgresql")
+@Profile("nflow.db.oracle")
 @Configuration
-public class PgDatabaseConfiguration extends DatabaseConfiguration {
-  public PgDatabaseConfiguration() {
-    super("postgresql");
-  }
+public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 
+  public OracleDatabaseConfiguration() {
+    super("oracle");
+  }
 
   @Bean
   public SQLVariants sqlVariants() {
-    return new PostgreSQLVariants();
+    return new OracleSqlVariants();
   }
 
-  public static class PostgreSQLVariants implements SQLVariants {
+  public static class OracleSqlVariants implements SQLVariants {
+
     @Override
     public String currentTimePlusSeconds(int seconds) {
-      return "current_timestamp + interval '" + seconds + " second'";
+      return "current_timestamp + interval '" + seconds + "' second";
     }
 
     @Override
     public boolean hasUpdateReturning() {
-      return true;
+      return false;
     }
 
     @Override
     public boolean hasUpdateableCTE() {
-      return true;
+      return false;
     }
 
     @Override
     public String nextActivationUpdate() {
       return "(case "
-          + "when ?::timestamptz is null then null "
-          + "when external_next_activation is null then ?::timestamptz "
-          + "else least(?::timestamptz, external_next_activation) end)";
+          + "when ? is null then null "
+          + "when external_next_activation is null then ? "
+          + "else least(?, external_next_activation) end)";
     }
 
     @Override
     public String workflowStatus(WorkflowInstanceStatus status) {
-      return "'" + status.name() + "'::workflow_status";
+      return "'" + status.name() + "'";
     }
 
     @Override
     public String workflowStatus() {
-      return "?::workflow_status";
+      return "?";
     }
 
     @Override
     public String actionType() {
-      return "?::action_type";
+      return "?";
     }
 
     @Override
     public String castToText() {
-      return "::text";
+      return "";
     }
 
     @Override
     public String limit(String query, String limit) {
-      return query + " limit " + limit;
+      return "select * from (" + query + ") where rownum <= " + limit;
     }
 
     @Override
     public int longTextType() {
-      return Types.VARCHAR;
+      return Types.CLOB;
     }
   }
 }

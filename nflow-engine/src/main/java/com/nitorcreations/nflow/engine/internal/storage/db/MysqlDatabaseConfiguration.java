@@ -7,6 +7,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import javax.sql.DataSource;
 
@@ -101,6 +102,16 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public String castToText() {
       return "";
+    }
+
+    @Override
+    public String limit(String query, String limit) {
+      return query + " limit " + limit;
+    }
+
+    @Override
+    public int longTextType() {
+      return Types.VARCHAR;
     }
   }
 }

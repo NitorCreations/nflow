@@ -18,4 +18,8 @@ public interface SQLVariants {
   String nextActivationUpdate();
 
   String castToText();
+
+  String limit(String query, String limit);
+
+  int longTextType();
 }

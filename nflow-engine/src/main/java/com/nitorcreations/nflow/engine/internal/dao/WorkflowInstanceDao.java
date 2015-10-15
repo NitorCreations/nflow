@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
+import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.getInt;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
@@ -18,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -229,10 +231,18 @@ public class WorkflowInstanceDao {
       }
     });
     int updatedRows = 0;
+    boolean unknownResults = false;
     for (int i = 0; i < updateStatus.length; ++i) {
+      if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
+        unknownResults = true;
+        continue;
+      }
+      if (updateStatus[i] == Statement.EXECUTE_FAILED) {
+        throw new IllegalStateException("Failed to insert/update state variables");
+      }
       updatedRows += updateStatus[i];
     }
-    if (updatedRows != changedStateVariables.size()) {
+    if (!unknownResults && updatedRows != changedStateVariables.size()) {
       throw new IllegalStateException("Failed to insert/update state variables, expected update count "
           + changedStateVariables.size() + ", actual " + updatedRows);
     }
@@ -413,22 +423,25 @@ public class WorkflowInstanceDao {
         + sqlVariants.workflowStatus(executing) + ", " + "external_next_activation = null";
   }
 
-  String whereConditionForInstanceUpdate(int batchSize) {
+  String whereConditionForInstanceUpdate() {
     return "where executor_id is null and status in (" + sqlVariants.workflowStatus(created) + ", "
         + sqlVariants.workflowStatus(inProgress) + ") and next_activation < current_timestamp and "
-        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc limit " + batchSize;
+        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
   }
 
   private List<Integer> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
-    return jdbc.queryForList(updateInstanceForExecutionQuery() + " where id in (select id from nflow_workflow "
-        + whereConditionForInstanceUpdate(batchSize) + ") and executor_id is null returning id", Integer.class);
+    String sql = updateInstanceForExecutionQuery() + " where id in ("
+        + sqlVariants.limit("select id from nflow_workflow " + whereConditionForInstanceUpdate(), Integer.toString(batchSize))
+        + ") and executor_id is null returning id";
+    return jdbc.queryForList(sql, Integer.class);
   }
 
   private List<Integer> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     return transaction.execute(new TransactionCallback<List<Integer>>() {
       @Override
       public List<Integer> doInTransaction(TransactionStatus transactionStatus) {
-        String sql = "select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(batchSize);
+        String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(),
+            Integer.toString(batchSize));
         List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
           @Override
           public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -455,7 +468,7 @@ public class WorkflowInstanceDao {
             }
             continue;
           }
-          if (status != 1) {
+          if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
             throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
                 + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
           }
@@ -527,7 +540,7 @@ public class WorkflowInstanceDao {
     if (!isEmpty(conditions)) {
       sql += " where " + collectionToDelimitedString(conditions, " and ");
     }
-    sql += " limit :limit";
+    sql = sqlVariants.limit(sql, ":limit");
     params.addValue("limit", getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     for (WorkflowInstance instance : ret) {
@@ -623,12 +636,11 @@ public class WorkflowInstanceDao {
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
-      Integer executorId = (Integer) rs.getObject("executor_id");
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
-        .setExecutorId(executorId)
-        .setParentWorkflowId((Integer) rs.getObject("parent_workflow_id"))
-        .setParentActionId((Integer) rs.getObject("parent_action_id"))
+        .setExecutorId(getInt(rs, "executor_id"))
+        .setParentWorkflowId(getInt(rs, "parent_workflow_id"))
+        .setParentActionId(getInt(rs, "parent_action_id"))
         .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
         .setType(rs.getString("type"))
         .setBusinessKey(rs.getString("business_key"))

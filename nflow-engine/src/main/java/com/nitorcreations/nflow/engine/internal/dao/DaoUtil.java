@@ -30,4 +30,9 @@ public class DaoUtil {
       return rs.getMetaData().getColumnDisplaySize(1);
     }
   }
+
+  public static Integer getInt(ResultSet rs, String columnLabel) throws SQLException {
+    int value = rs.getInt(columnLabel);
+    return rs.wasNull() ? null : value;
+  }
 }
