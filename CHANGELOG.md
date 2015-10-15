@@ -4,6 +4,7 @@
 - WorkflowExecutorListeners are now implemened as a listener chain. The listeners may now skip the actual execution of a state method. Useful e.g. for locking. 
 - Increase nflow_executor.host length to 253 characters in db. It can now contain a full DNS name.
 - When a database is created, nflow writes a log message about that.
+- Experimental support for Oracle database
 
 ## 1.3.0 (2015-04-14)
 
