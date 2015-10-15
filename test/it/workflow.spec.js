@@ -9,7 +9,7 @@ describe('workflow instance page', function () {
   var definitionPage = po.workflowDefinitionPage({});
 
   beforeEach(function () {
-    page.get(fixture.wfs[0].withActionHistory.id); // TODO this is not robust
+    page.get(fixture.workflow.withActionHistory.id); // TODO this is not robust
   });
 
   it('provides navigation to related workflow definition', function () {
@@ -18,7 +18,7 @@ describe('workflow instance page', function () {
   });
 
   it('selecting node in graph hi-lights node', function() {
-    var state = fixture.wfs[0].states[0];
+    var state = fixture.workflow.states[0];
     expect(page.graph.isSelected(state)).toBeFalsy();
     page.graph.select(state);
     expect(page.graph.isSelected(state)).toBeTruthy();
