@@ -5,7 +5,7 @@
     "angular": "1.4.9",
     "json3": "3.3.2",
     "es5-shim": "4.5.7",
-    "bootstrap-sass-official": "3.3.4",
+    "bootstrap-sass": "3.3.4",
     "angular-resource": "1.4.9",
     "angular-cookies": "1.4.9",
     "angular-sanitize": "1.4.9",

@@ -3,7 +3,7 @@
     <div class="col-md-6">
       <h2>{{ctrl.definition.type}}</h2>
       <blockquote ng-show="ctrl.definition.description">{{ctrl.definition.description}}</blockquote>
-      <div><a class="wd-search-by-type" ui-sref="search({type: ctrl.definition.type})"><span class="glyphicon glyphicon-search"></span> Search related workflow instances</a></div>
+      <div>&#128269; <a class="wd-search-by-type" ui-sref="search({type: ctrl.definition.type})">Search related workflow instances</a></div>
       <workflow-definition-graph definition="ctrl.definition"></workflow-definition-graph>
     </div>
     <div class="col-md-6">
