@@ -61,3 +61,25 @@ nflow-explorer/
 - `bower.json` - this is our project configuration for Bower and it contains the list of Bower dependencies we need.
 - `Gruntfile.js` - our build script.
 - `package.json` - metadata about the app, used by NPM and our build script. Our NPM dependencies are listed here.
+
+## Running test
+
+### Unit tests
+
+```sh
+grunt test
+```
+
+### Integration tests:
+
+First install webdriver: 
+
+```sh 
+node_modules/protractor/bn/webdriver-manager update
+```
+
+Running tests
+
+```sh
+grunt itest
+```

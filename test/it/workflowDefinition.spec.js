@@ -8,13 +8,13 @@ describe('workflow definition page', function () {
   var page = po.workflowDefinitionPage({});
   var searchPage = po.searchPage({});
 
-  beforeEach(function() { page.get(fixture.wfs[0].name); });
+  beforeEach(function() { page.get(fixture.workflow.name); });
 
   it('provides navigation to instance search by type', function () {
     page.toInstanceSearchByType();
     expect(searchPage.isDisplayed()).toBeTruthy();
 
-    expect(searchPage.getType()).toBe(fixture.wfs[0].name);
+    expect(searchPage.getType()).toBe(fixture.workflow.name);
     expect(searchPage.getState()).toBe('');
     expect(searchPage.getInstanceId()).toBe('');
     expect(searchPage.getBusinessKey()).toBe('');
@@ -24,7 +24,7 @@ describe('workflow definition page', function () {
   });
 
   it('selecting node in graph hi-lights node', function() {
-    var state = fixture.wfs[0].states[0];
+    var state = fixture.workflow.states[0];
     expect(page.graph.isSelected(state)).toBeFalsy();
     page.graph.select(state);
     expect(page.graph.isSelected(state)).toBeTruthy();
@@ -63,25 +63,25 @@ describe('workflow definition page', function () {
       });
 
       it('clicking state hi-lights corresponding node in graph', function() {
-        var state = fixture.wfs[0].states[1];
+        var state = fixture.workflow.states[1];
         expect(page.graph.isSelected(state)).toBeFalsy();
         page.tabs.allInstances.select(state);
         expect(page.graph.isSelected(state)).toBeTruthy();
       });
 
       it('clicking node hi-lights corresponding state in list', function () {
-        var state = fixture.wfs[0].states[2];
+        var state = fixture.workflow.states[2];
         expect(page.tabs.allInstances.isSelected(state)).toBeFalsy();
         page.graph.select(state);
         expect(page.tabs.allInstances.isSelected(state)).toBeTruthy();
       });
 
       it('provides navigation to instance search by type and state', function() {
-        page.tabs.allInstances.toInstanceSearch(fixture.wfs[0].withActionHistory.state);
+        page.tabs.allInstances.toInstanceSearch(fixture.workflow.withActionHistory.state);
         expect(searchPage.isDisplayed()).toBeTruthy();
 
-        expect(searchPage.getType()).toBe(fixture.wfs[0].name);
-        expect(searchPage.getState()).toBe(fixture.wfs[0].withActionHistory.state);
+        expect(searchPage.getType()).toBe(fixture.workflow.name);
+        expect(searchPage.getState()).toBe(fixture.workflow.withActionHistory.state);
         expect(searchPage.getInstanceId()).toBe('');
         expect(searchPage.getBusinessKey()).toBe('');
         expect(searchPage.getExternalId()).toBe('');

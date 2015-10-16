@@ -5,7 +5,10 @@ exports.config = {
   specs: ['it/**/*.spec.js'],
 
   capabilities: {
-    browserName: 'chrome'
+    browserName: 'chrome',
+    'chromeOptions': {
+      'args': ['no-sandbox']
+    }
   },
 
   jasmineNodeOpts: {

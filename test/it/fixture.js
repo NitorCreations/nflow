@@ -2,6 +2,24 @@
 
 var fixtures = {};
 
+var demoWorkflow = {
+  name: 'demo',
+  states: [ 'begin', 'process', 'done', 'error' ],
+  withActionHistory: { id: 1, state: 'begin' }
+};
+
+fixtures.demoServer = {
+  workflow: demoWorkflow,
+  wfs: [
+    { name: 'creditApplicationProcess' },
+    demoWorkflow,
+    { name: 'fibonacci' },
+    { name: 'slowWorkflow' },
+    { name: 'wordGenerator' },
+    { name: 'wordGeneratorErrors' }
+  ]
+};
+
 fixtures.nbankNflow = {
   wfs: [
     {
@@ -26,4 +44,4 @@ fixtures.nbankNflowDev = {
 };
 
 //module.exports = fixtures.nbankNflow;
-module.exports = fixtures.nbankNflowDev;
+module.exports = fixtures.demoServer;

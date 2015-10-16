@@ -1,9 +1,12 @@
 language: node_js
 before_install:
   - "export DISPLAY=:99.0"
+  - sh travis/run-nflow-server.sh
   - "sh -e /etc/init.d/xvfb start"
-  - gem install sass
-  - gem install compass
+  - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq google-chrome-stable
 
 node_js:
   - '0.10'
@@ -12,7 +15,5 @@ before_script:
   - 'npm install -g bower grunt-cli'
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
-  - 'node_modules/protractor/bin/webdriver-manager start &'
-  - 'sleep 60'
-script: grunt itest
-
+script: grunt && grunt itest
+sudo: required
