@@ -45,6 +45,8 @@ public class ArchiveServiceTest {
   @Test
   public void archivingContinuesUntilEmptyListOfArchivableIsReturned() {
     doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listArchivableWorkflows(limit, 10);
+    when(dao.archiveWorkflows(dataList)).thenReturn(dataList.size());
+    when(dao.archiveWorkflows(emptyList)).thenReturn(emptyList.size());
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(dataList.size() * 3, archived);
     verify(dao).ensureValidArchiveTablesExist();

@@ -58,18 +58,19 @@ public class ArchiveDao {
   }
 
   @Transactional
-  public void archiveWorkflows(List<Integer> workflowIds) {
+  public int archiveWorkflows(List<Integer> workflowIds) {
     String workflowIdParams = params(workflowIds);
 
-    archiveWorkflowTable(workflowIdParams);
+    int archivedWorkflows = archiveWorkflowTable(workflowIdParams);
     archiveActionTable(workflowIdParams);
     archiveStateTable(workflowIdParams);
     deleteWorkflows(workflowIdParams);
+    return archivedWorkflows;
   }
 
-  private void archiveWorkflowTable(String workflowIdParams) {
+  private int archiveWorkflowTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow");
-    jdbc.update("insert into nflow_archive_workflow(" + columns + ") " +
+    return jdbc.update("insert into nflow_archive_workflow(" + columns + ") " +
             "select " + columns + " from nflow_workflow where id in " + workflowIdParams);
   }
 
