@@ -1,8 +1,11 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.springframework.dao.DataAccessException;
@@ -34,5 +37,22 @@ public class DaoUtil {
   public static Integer getInt(ResultSet rs, String columnLabel) throws SQLException {
     int value = rs.getInt(columnLabel);
     return rs.wasNull() ? null : value;
+  }
+
+  public static final class ColumnNamesExtractor implements ResultSetExtractor<List<String>> {
+    static final ColumnNamesExtractor columnNamesExtractor = new ColumnNamesExtractor();
+
+    private ColumnNamesExtractor() {
+    }
+
+    @Override
+    public List<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
+      List<String> columnNames = new LinkedList<>();
+      ResultSetMetaData metadata = rs.getMetaData();
+      for (int col = 1; col <= metadata.getColumnCount(); col++) {
+        columnNames.add(metadata.getColumnName(col));
+      }
+      return columnNames;
+    }
   }
 }

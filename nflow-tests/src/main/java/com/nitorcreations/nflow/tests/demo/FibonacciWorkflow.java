@@ -98,7 +98,7 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
     List<WorkflowInstance> finishedChildren = execution.queryChildWorkflows(query);
 
     if (finishedChildren.size() < execution.getAllChildWorkflows().size()) {
-      return retryAfter(now().plusSeconds(20), "Child workflows are not ready yet.");
+      return retryAfter(now().plusSeconds(10), "Child workflows are not ready yet.");
     }
     int sum = 0;
     for (WorkflowInstance child : finishedChildren) {

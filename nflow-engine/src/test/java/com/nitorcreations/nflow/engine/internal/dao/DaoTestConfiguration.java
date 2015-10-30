@@ -49,6 +49,16 @@ public class DaoTestConfiguration {
   }
 
   @Bean
+  public ArchiveDao archiveDao() {
+    return new ArchiveDao();
+  }
+
+  @Bean
+  public TableMetadataChecker tableMetadataChecker() {
+    return new TableMetadataChecker();
+  }
+
+  @Bean
   public PlatformTransactionManager transactionManager(DataSource ds) {
     return new DataSourceTransactionManager(ds);
   }

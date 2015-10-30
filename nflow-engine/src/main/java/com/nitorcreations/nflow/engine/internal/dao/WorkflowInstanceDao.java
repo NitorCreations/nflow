@@ -137,9 +137,10 @@ public class WorkflowInstanceDao {
   private int insertWorkflowInstanceWithCte(WorkflowInstance instance) {
     StringBuilder sqlb = new StringBuilder(256);
     sqlb.append("with wf as (" + insertWorkflowInstanceSql() + " returning id)");
-    Object[] instanceValues = new Object[] { instance.type, instance.parentWorkflowId, instance.parentActionId,
-        instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(), instance.status.name(), instance.state,
-        abbreviate(instance.stateText, instanceStateTextLength), toTimestamp(instance.nextActivation) };
+    Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
+        instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
+        instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
+        toTimestamp(instance.nextActivation) };
     int pos = instanceValues.length;
     Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
     for (Entry<String, String> var : instance.stateVariables.entrySet()) {
@@ -153,8 +154,8 @@ public class WorkflowInstanceDao {
   }
 
   String insertWorkflowInstanceSql() {
-    return "insert into nflow_workflow(type, parent_workflow_id, parent_action_id, business_key, external_id, "
-        + "executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, " + sqlVariants.workflowStatus()
+    return "insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
+        + "executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?, " + sqlVariants.workflowStatus()
         + ", ?, ?, ?)";
   }
 
@@ -175,6 +176,7 @@ public class WorkflowInstanceDao {
             int p = 1;
             ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
             ps.setString(p++, instance.type);
+            ps.setObject(p++, instance.rootWorkflowId);
             ps.setObject(p++, instance.parentWorkflowId);
             ps.setObject(p++, instance.parentActionId);
             ps.setString(p++, instance.businessKey);
@@ -216,20 +218,20 @@ public class WorkflowInstanceDao {
     }
     final Iterator<Entry<String, String>> variables = changedStateVariables.entrySet().iterator();
     int[] updateStatus = jdbc.batchUpdate(insertWorkflowInstanceStateSql() + " values (?,?,?,?)",
-        new AbstractInterruptibleBatchPreparedStatementSetter() {
-      @Override
-      protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
-        if (!variables.hasNext()) {
-          return false;
-        }
-        Entry<String, String> var = variables.next();
-        ps.setInt(1, id);
-        ps.setInt(2, actionId);
-        ps.setString(3, var.getKey());
-        ps.setString(4, var.getValue());
-        return true;
-      }
-    });
+            new AbstractInterruptibleBatchPreparedStatementSetter() {
+              @Override
+              protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
+                if (!variables.hasNext()) {
+                  return false;
+                }
+                Entry<String, String> var = variables.next();
+                ps.setInt(1, id);
+                ps.setInt(2, actionId);
+                ps.setString(3, var.getKey());
+                ps.setString(4, var.getValue());
+                return true;
+              }
+            });
     int updatedRows = 0;
     boolean unknownResults = false;
     for (int i = 0; i < updateStatus.length; ++i) {
@@ -276,8 +278,9 @@ public class WorkflowInstanceDao {
         updateWorkflowInstance(instance);
         int parentActionId = insertWorkflowInstanceAction(instance, action);
         for (WorkflowInstance childTemplate : childWorkflows) {
-          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
-              .setParentActionId(parentActionId).build();
+          Integer rootWorkflowId = instance.rootWorkflowId == null ? instance.id : instance.rootWorkflowId;
+          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setRootWorkflowId(rootWorkflowId)
+              .setParentWorkflowId(instance.id).setParentActionId(parentActionId).build();
           insertWorkflowInstance(childWorkflow);
         }
       }
@@ -639,6 +642,7 @@ public class WorkflowInstanceDao {
       return new WorkflowInstance.Builder()
         .setId(rs.getInt("id"))
         .setExecutorId(getInt(rs, "executor_id"))
+        .setRootWorkflowId(getInt(rs, "root_workflow_id"))
         .setParentWorkflowId(getInt(rs, "parent_workflow_id"))
         .setParentActionId(getInt(rs, "parent_action_id"))
         .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
