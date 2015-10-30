@@ -38,7 +38,7 @@ public class ChildWorkflowTest extends AbstractNflowTest {
         workflowId = resp.id;
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 30000)
     public void t02_checkFibonacciWorkflowComputesCorrectResult() throws InterruptedException {
         ListWorkflowInstanceResponse response = getWorkflowInstance(workflowId, FibonacciWorkflow.State.done.name());
         assertTrue(response.stateVariables.containsKey("result"));
