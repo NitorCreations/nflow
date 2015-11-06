@@ -56,7 +56,7 @@ public class ArchiveService {
           / timeDiff, workflowIds);
       periodicLogger.log("Archived {} workflows. Archiving about {} workflows / second.", archivedWorkflows,
           archivedWorkflowsTotal / timeDiff);
-    } while (!workflowIds.isEmpty());
+    } while (true);
 
     log.info("Archiving finished. Archived {} workflows in {} seconds.", archivedWorkflowsTotal, stopWatch.getTime() / 1000);
     return archivedWorkflowsTotal;
