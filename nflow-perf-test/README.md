@@ -20,7 +20,7 @@ java -Dnflow.db.user=nflow -Dnflow.db.password=nflownflow
   -Dnflow.db.postgresql.url=jdbc:postgresql://<your_rds_database>:5432/nflow?tcpKeepAlive=true 
   -Dnflow.executor.group=nflow-perf -Dnflow.non_spring_workflows_filename=workflows.txt 
   -Dspring.profiles.active=nflow.db.postgresql -Dtestdata.target.count=1000000
-  -jar nflow/nflow-perf-test/target/nflow-perf-tests-*-SNAPSHOT.jar generateTestData
+  -jar nflow/nflow-perf-test/target/nflow-perf-test-*-SNAPSHOT.jar generateTestData
 ```
 
 **Setup AWS environment using Ansible.**

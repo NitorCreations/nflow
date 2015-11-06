@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,6 +77,11 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     public WorkflowInstancePreProcessor preProcessor() {
       return mock(WorkflowInstancePreProcessor.class);
+    }
+
+    @Bean
+    public ArchiveDao archiveDao() {
+      return mock(ArchiveDao.class);
     }
   }
 

@@ -22,7 +22,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 public abstract class DatabaseConfiguration {
-  private static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
+  public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
   private static final Logger logger = getLogger(DatabaseConfiguration.class);
   private final String dbType;
 

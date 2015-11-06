@@ -49,7 +49,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void t02_checkAcceptCreditApplicationReached() throws InterruptedException {
     ListWorkflowInstanceResponse response;
     do {
