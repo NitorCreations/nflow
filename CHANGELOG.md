@@ -1,10 +1,21 @@
 ## next version
 
-- Added support for child workflows. 
-- WorkflowExecutorListeners are now implemened as a listener chain. The listeners may now skip the actual execution of a state method. Useful e.g. for locking. 
-- Increase nflow_executor.host length to 253 characters in db. It can now contain a full DNS name.
-- When a database is created, nflow writes a log message about that.
+## 2.0.0 (2015-11-06)
+
+**Highlights**
+- Support for child workflows
+- WorkflowExecutorListeners are now implemened as a listener chain. The listeners may now skip the actual execution of a state method. Useful e.g. for locking.
+- Support for archiving old, finished workflow instances
+
+**Details**
+- Increase nflow_executor.host length to 253 characters in database. It can now contain a full DNS name.
+- When a database is created, nFlow writes a log message about it
 - Experimental support for Oracle database
+- Added new Maven module for performance tests
+- Added WorkflowInstanceAction.id
+- Final state methods cannot return value anymore
+- Remove deprecated fields: WorkflowInstanceAction.workflowId, WorkflowInstanceService.updateWorkflowInstanceAfterExecution, WorkflowInstance.processing, WorkflowInstance.owner, WorkflowState.getName()
+- Small bug fixes and enhancements
 
 ## 1.3.0 (2015-04-14)
 
