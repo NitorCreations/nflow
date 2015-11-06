@@ -143,9 +143,9 @@
         if(!data[statusName]) {
           data[statusName] = {
             key: _.startCase(statusName),
-            values: _.map(activeStateIds, function(state) {
+            values: _.map(activeStateIds, function(stateId) {
               return {
-                label: state,
+                label: stateId,
                 value: 0,
               };
             }),
@@ -156,16 +156,32 @@
         if(!_.contains(activeStateIds, stateId)) {
           return;
         }
-        _.forEach(Object.keys(stateStats), function(statusName) {
-          if(!_.contains(allStatusNames, statusName)) {
-            return;
-          }
-          var valueForStatus = _.find(data[statusName].values, {label: stateId});
-          valueForStatus.value = stateStats[statusName].allInstances || 0;
+        _.forEach(stateStats, function(statistics, statusName) {
+          addInstanceCountsToMetaStatuses(stateId, statusName, statistics, data);
         });
       });
       return _.values(data);
     }
+
+    function addInstanceCountsToMetaStatuses(stateId, statusName, statistics, data) {
+        var valueForStatus;
+        if (statusName === 'created' || statusName === 'inProgress') {
+            var queued = statistics.queuedInstances || 0;
+            var all = statistics.allInstances || 0;
+            var nonQueued = all - queued;
+            valueForStatus = _.find(data.sleeping.values, { label: stateId });
+            valueForStatus.value += nonQueued;
+            valueForStatus = _.find(data.queued.values, { label: stateId });
+            valueForStatus.value += queued;
+        } else if (statusName === 'manual') {
+            valueForStatus = _.find(data.manual.values, { label: stateId });
+            valueForStatus.value = statistics.allInstances || 0;
+        } else if (statusName === 'executing') {
+            valueForStatus = _.find(data.executing.values, { label: stateId });
+            valueForStatus.value = statistics.allInstances || 0;
+        }
+    }
+
     function updateStateExecutionGraph(type) {
       var stats = WorkflowStatsPoller.getLatest(type);
       if (!self.definition) {
