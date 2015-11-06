@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -47,9 +47,10 @@ public class DaoUtil {
 
     @Override
     public List<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
-      List<String> columnNames = new LinkedList<>();
       ResultSetMetaData metadata = rs.getMetaData();
-      for (int col = 1; col <= metadata.getColumnCount(); col++) {
+      int columnCount = metadata.getColumnCount();
+      List<String> columnNames = new ArrayList<>(columnCount);
+      for (int col = 1; col <= columnCount; col++) {
         columnNames.add(metadata.getColumnName(col));
       }
       return columnNames;
