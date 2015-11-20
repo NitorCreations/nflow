@@ -135,7 +135,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(now().plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
         .setWorkflowInstanceId(id).setType(stateExecution).build();
-    dao.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows, emptyWorkflows);
+    WorkflowInstance newWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("newKey").build();
+
+    dao.updateWorkflowInstanceAfterExecution(i2, a1, noChildWorkflows, asList(newWorkflow));
+
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -147,6 +150,14 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
       }
     });
+    QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().setBusinessKey("newKey").build();
+    List<WorkflowInstance> instances = dao.queryWorkflowInstances(query);
+    assertThat(instances.size(), is(1));
+    for (WorkflowInstance instance : instances) {
+      assertThat(instance.rootWorkflowId, is(nullValue()));
+      assertThat(instance.parentWorkflowId, is(nullValue()));
+      assertThat(instance.businessKey, is("newKey"));
+    }
   }
 
   @Test

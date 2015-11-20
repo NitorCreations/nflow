@@ -122,6 +122,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<NotifyTestWorkflow.State> wakeWf = new NotifyTestWorkflow();
 
+  static WorkflowInstance newChildWorkflow = mock(WorkflowInstance.class);
+
+  static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
+
   @Before
   public void setup() {
     env.setProperty("nflow.illegal.state.change.action", "fail");
@@ -147,12 +151,18 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void runWorkflowThroughOneSuccessfulState() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstancePreProcessor.process(newChildWorkflow)).thenReturn(newChildWorkflow);
+    when(workflowInstancePreProcessor.process(newWorkflow)).thenReturn(newWorkflow);
+
     executor.run();
+
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(
             matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, is("Scheduled by previous state start"))),
         argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, is("Process after delay"), 0, stateExecution)),
-        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
+        childWorkflows.capture(), workflows.capture());
+    assertThat(childWorkflows.getValue().get(0), is(newChildWorkflow));
+    assertThat(workflows.getValue().get(0), is(newWorkflow));
   }
 
   @Test
@@ -756,6 +766,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
+      execution.addChildWorkflows(newChildWorkflow);
+      execution.addWorkflows(newWorkflow);
       return moveToStateAfter(State.process, getSettings().getErrorTransitionActivation(0), "Process after delay");
     }
 
@@ -809,6 +821,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
+      execution.addChildWorkflows(newChildWorkflow);
+      execution.addWorkflows(newWorkflow);
       throw new RuntimeException("test-fail");
     }
 
