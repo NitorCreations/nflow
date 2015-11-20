@@ -107,6 +107,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Captor
   ArgumentCaptor<List<WorkflowInstance>> childWorkflows;
 
+  @Captor
+  ArgumentCaptor<List<WorkflowInstance>> workflows;
+
   ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
 
   WorkflowStateProcessor executor;
@@ -145,12 +148,11 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
-    verify(workflowInstanceDao)
-        .updateWorkflowInstanceAfterExecution(
-                argThat(matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0,
-                        is("Scheduled by previous state start"))),
-                argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, is("Process after delay"), 0, stateExecution)),
-                argThat(noChildWorkflows()));
+    verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
+        argThat(
+            matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, is("Scheduled by previous state start"))),
+        argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, is("Process after delay"), 0, stateExecution)),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @Test
@@ -159,10 +161,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-            argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
-            argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0,
-                    stateExecutionFailed)),
-            argThat(noChildWorkflows()));
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
+        argThat(
+            matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0, stateExecutionFailed)),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @Test
@@ -172,7 +174,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
-            childWorkflows.capture());
+        childWorkflows.capture(), workflows.capture());
     assertThat(update.getAllValues().get(0),
         matchesWorkflowInstance(executing, FailingTestWorkflow.State.failure, 0,
             is("Max retry count exceeded, going to failure state")));
@@ -194,7 +196,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
-            childWorkflows.capture());
+        childWorkflows.capture(), workflows.capture());
     assertThat(update.getAllValues().get(0),
             matchesWorkflowInstance(executing, SimpleTestWorkflow.State.processing, 0, is("Scheduled by previous state start")));
     assertThat(action.getAllValues().get(0),
@@ -212,7 +214,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
-            childWorkflows.capture());
+        childWorkflows.capture(), workflows.capture());
     assertThat(update.getAllValues().get(1),
             matchesWorkflowInstance(finished, SimpleTestWorkflow.State.end, 0, is("Stopped in state end"), nullValue(DateTime.class)));
     assertThat(action.getAllValues().get(1),
@@ -237,11 +239,11 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-            argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
-                    nullValue(DateTime.class))),
-            argThat(matchesWorkflowInstanceAction(SimpleTestWorkflow.State.beforeManual, is("Move to manual state."),
-                    simpleWf.getSettings().maxRetries, stateExecution)),
-            argThat(noChildWorkflows()));
+        argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
+            nullValue(DateTime.class))),
+        argThat(matchesWorkflowInstanceAction(SimpleTestWorkflow.State.beforeManual, is("Move to manual state."),
+            simpleWf.getSettings().maxRetries, stateExecution)),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @Test
@@ -250,7 +252,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         .setRetries(failingWf.getSettings().maxRetries).build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
-    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture());
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        childWorkflows.capture(), workflows.capture());
     assertThat(
             update.getAllValues().get(0),
             matchesWorkflowInstance(executing, FailingTestWorkflow.State.error, 0,
@@ -303,7 +306,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
-    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture());
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        childWorkflows.capture(), workflows.capture());
     assertThat(
         update.getAllValues().get(0),
         matchesWorkflowInstance(executing, FailingTestWorkflow.State.error, 0,
@@ -342,7 +346,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
-    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture());
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        childWorkflows.capture(), workflows.capture());
     assertThat(
         update.getAllValues().get(0),
         matchesWorkflowInstance(executing, FailingTestWorkflow.State.error, 0,
@@ -395,7 +400,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture());
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        childWorkflows.capture(), workflows.capture());
     assertThat(
         update.getAllValues().get(0),
         matchesWorkflowInstance(executing, FailingTestWorkflow.State.error, 0, is("Scheduled by previous state invalidNextState")));
@@ -427,9 +433,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-            argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
-            argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
-            argThat(noChildWorkflows()));
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
+        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @Test
@@ -446,9 +452,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0,
-                stateExecutionFailed)),
-        argThat(noChildWorkflows()));
+        argThat(
+            matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0, stateExecutionFailed)),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @Test
@@ -462,8 +468,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         argThat(matchesWorkflowInstance(finished, FailingTestWorkflow.State.noMethodEndState, 0,
             is("Stopped in state noMethodEndState"), is(nullValue(DateTime.class)))),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.nextStateNoMethod,
-                is("Go to end state that has no method"), 0, stateExecution)),
-        argThat(noChildWorkflows()));
+            is("Go to end state that has no method"), 0, stateExecution)),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @Test
@@ -474,7 +480,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
-        argThat(noChildWorkflows()));
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
   }
 
   @SuppressWarnings("serial")
@@ -494,7 +500,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, is("Finished"), 0, stateExecution)),
-        argThat(noChildWorkflows()));
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
 
     assertThat((String) lastArgs.get(0), is("Str"));
     assertThat((Integer) lastArgs.get(1), is(42));
@@ -551,7 +557,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
 
-    private ArgumentMatcher<List<WorkflowInstance>> noChildWorkflows() {
+  private ArgumentMatcher<List<WorkflowInstance>> isEmptyWorkflowList() {
         return new ArgumentMatcher<List<WorkflowInstance>>() {
             @Override
             public boolean matches(Object argument) {
@@ -653,7 +659,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), argThat(noChildWorkflows()));
+    verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
     assertThat(
         update.getAllValues().get(0),
         matchesWorkflowInstance(executing, SimpleTestWorkflow.State.error, 0,
@@ -680,7 +687,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), argThat(noChildWorkflows()));
+    verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
     assertThat(
         update.getAllValues().get(0),
         matchesWorkflowInstance(executing, SimpleTestWorkflow.State.start, 0,
@@ -700,7 +708,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), argThat(noChildWorkflows()));
+    verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
+        argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()));
     assertThat(
         update.getAllValues().get(0),
         matchesWorkflowInstance(executing, SimpleTestWorkflow.State.start, 0,

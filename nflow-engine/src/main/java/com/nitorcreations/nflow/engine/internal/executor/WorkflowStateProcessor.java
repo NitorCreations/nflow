@@ -196,10 +196,10 @@ class WorkflowStateProcessor implements Runnable {
       actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
       if (execution.isFailed()) {
         workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            Collections.<WorkflowInstance> emptyList());
+            Collections.<WorkflowInstance> emptyList(), Collections.<WorkflowInstance> emptyList());
       } else {
         workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            execution.getNewChildWorkflows());
+            execution.getNewChildWorkflows(), execution.getNewWorkflows());
         processSuccess(execution, instance);
       }
     } else {

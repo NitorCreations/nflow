@@ -32,6 +32,7 @@ public class StateExecutionImpl implements StateExecution {
   private boolean wakeUpParentWorkflow = false;
   private boolean isStateProcessInvoked = false;
   private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
+  private final List<WorkflowInstance> newWorkflows = new LinkedList<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor) {
@@ -162,8 +163,22 @@ public class StateExecutionImpl implements StateExecution {
     }
   }
 
+  @Override
+  public void addWorkflows(WorkflowInstance... workflows) {
+    Assert.notNull(workflows, "workflows can not be null");
+    for (WorkflowInstance workflow : workflows) {
+      Assert.notNull(workflow, "workflow can not be null");
+      WorkflowInstance processedInstance = workflowInstancePreProcessor.process(workflow);
+      newWorkflows.add(processedInstance);
+    }
+  }
+
   public List<WorkflowInstance> getNewChildWorkflows() {
     return unmodifiableList(newChildWorkflows);
+  }
+
+  public List<WorkflowInstance> getNewWorkflows() {
+    return unmodifiableList(newWorkflows);
   }
 
   @Override
