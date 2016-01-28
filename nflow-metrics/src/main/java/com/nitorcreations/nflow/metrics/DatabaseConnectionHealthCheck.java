@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.metrics;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.nitorcreations.nflow.engine.service.HealthCheckService;
 import com.nitorcreations.nflow.engine.service.StatisticsService;
 
 /**
@@ -8,16 +9,16 @@ import com.nitorcreations.nflow.engine.service.StatisticsService;
  */
 public class DatabaseConnectionHealthCheck extends HealthCheck {
 
-  private final StatisticsService statisticsService;
+  private final HealthCheckService healthCheckService;
 
-  public DatabaseConnectionHealthCheck(StatisticsService statisticsService) {
-    this.statisticsService = statisticsService;
+  public DatabaseConnectionHealthCheck(HealthCheckService healthCheckService) {
+    this.healthCheckService = healthCheckService;
   }
 
   @Override
   protected Result check() throws Exception {
     try {
-      statisticsService.queryStatistics();
+      healthCheckService.checkDatabaseConnection();
       return HealthCheck.Result.healthy("Connection to nFlow database is OK.");
     } catch(Exception e) {
       return HealthCheck.Result.unhealthy(e);

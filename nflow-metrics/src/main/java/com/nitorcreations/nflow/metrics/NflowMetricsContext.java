@@ -5,6 +5,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
+import com.nitorcreations.nflow.engine.service.HealthCheckService;
 import com.nitorcreations.nflow.engine.service.StatisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class NflowMetricsContext {
   private static final Logger logger = LoggerFactory.getLogger(NflowMetricsContext.class);
 
   @Inject
-  private StatisticsService statisticsService;
+  private HealthCheckService healthCheckService;
 
   @Inject
   private MetricRegistry metricRegistry;
@@ -35,7 +36,7 @@ public class NflowMetricsContext {
 
   @Bean
   public DatabaseConnectionHealthCheck databaseConnectionHealthCheck() {
-    return new DatabaseConnectionHealthCheck(statisticsService);
+    return new DatabaseConnectionHealthCheck(healthCheckService);
   }
 
   @PostConstruct
