@@ -1,16 +1,20 @@
 package com.nitorcreations.nflow.metrics;
 
-import javax.inject.Named;
-
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck;
+import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
+import com.nitorcreations.nflow.engine.service.StatisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricRegistry;
-import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Configures MetricsWorkflowExecutorListener.
@@ -20,9 +24,28 @@ import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 public class NflowMetricsContext {
   private static final Logger logger = LoggerFactory.getLogger(NflowMetricsContext.class);
 
+  @Inject
+  private StatisticsService statisticsService;
+
   @Bean
   public MetricRegistry metricRegistry() {
     return new MetricRegistry();
+  }
+
+  @Bean
+  public HealthCheckRegistry healthCheckRegistry() {
+    return new HealthCheckRegistry();
+  }
+
+  @Bean
+  public DatabaseConnectionHealthCheck databaseConnectionHealthCheck() {
+    return new DatabaseConnectionHealthCheck(statisticsService);
+  }
+
+  @PostConstruct
+  public void registerHealthChecks() {
+    healthCheckRegistry().register("nflow-database-connection", databaseConnectionHealthCheck());
+    healthCheckRegistry().register("thread-deadlocks", new ThreadDeadlockHealthCheck());
   }
 
   @Bean

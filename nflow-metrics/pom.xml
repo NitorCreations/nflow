@@ -20,6 +20,10 @@
       <artifactId>metrics-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-healthchecks</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.nitorcreations</groupId>
       <artifactId>nflow-engine</artifactId>
     </dependency>
