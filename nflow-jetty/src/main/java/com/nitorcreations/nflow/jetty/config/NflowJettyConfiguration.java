@@ -2,9 +2,13 @@ package com.nitorcreations.nflow.jetty.config;
 
 import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
@@ -12,6 +16,10 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck;
+import com.codahale.metrics.jvm.*;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.LoggingFeature;
@@ -118,5 +126,30 @@ public class NflowJettyConfiguration {
   @Bean
   public PlatformTransactionManager transactionManager(@NFlow DataSource nflowDataSource)  {
     return new DataSourceTransactionManager(nflowDataSource);
+  }
+
+  @Bean
+  public MetricRegistry metricRegistry() {
+    return new MetricRegistry();
+  }
+
+  @Bean
+  public HealthCheckRegistry healthCheckRegistry() {
+    return new HealthCheckRegistry();
+  }
+
+  @PostConstruct
+  public void registerHealthChecks() {
+    healthCheckRegistry().register("thread-deadlocks", new ThreadDeadlockHealthCheck());
+  }
+
+  @PostConstruct
+  public void registerMetrics() {
+    metricRegistry().register("memory-usage", new MemoryUsageGaugeSet());
+    metricRegistry().register("buffer-pools", new BufferPoolMetricSet( ManagementFactory.getPlatformMBeanServer()));
+    metricRegistry().register("garbage-collector", new GarbageCollectorMetricSet());
+    metricRegistry().register("class-loading", new ClassLoadingGaugeSet());
+    metricRegistry().register("file-descriptor-ratio", new FileDescriptorRatioGauge());
+    metricRegistry().register("thread-states", new CachedThreadStatesGaugeSet(ManagementFactory.getThreadMXBean(), new ThreadDeadlockDetector(), 60, SECONDS));
   }
 }

@@ -27,15 +27,11 @@ public class NflowMetricsContext {
   @Inject
   private StatisticsService statisticsService;
 
-  @Bean
-  public MetricRegistry metricRegistry() {
-    return new MetricRegistry();
-  }
+  @Inject
+  private MetricRegistry metricRegistry;
 
-  @Bean
-  public HealthCheckRegistry healthCheckRegistry() {
-    return new HealthCheckRegistry();
-  }
+  @Inject
+  private HealthCheckRegistry healthCheckRegistry;
 
   @Bean
   public DatabaseConnectionHealthCheck databaseConnectionHealthCheck() {
@@ -44,21 +40,20 @@ public class NflowMetricsContext {
 
   @PostConstruct
   public void registerHealthChecks() {
-    healthCheckRegistry().register("nflow-database-connection", databaseConnectionHealthCheck());
-    healthCheckRegistry().register("thread-deadlocks", new ThreadDeadlockHealthCheck());
+    healthCheckRegistry.register("nflow-database-connection", databaseConnectionHealthCheck());
   }
 
   @Bean
   public MetricsWorkflowExecutorListener metricsWorkflowExecutorListener(ExecutorDao executors) {
     logger.info("Enabling MetricsWorkflowExecutorListener");
-    return new MetricsWorkflowExecutorListener(metricRegistry(), executors);
+    return new MetricsWorkflowExecutorListener(metricRegistry, executors);
   }
 
   @Profile("jmx")
   @Bean(destroyMethod="stop")
   public JmxReporter jmxMetricsReporter() {
     logger.info("Enabling Metrics JmxReporter");
-    JmxReporter jmxMetricsReporter = JmxReporter.forRegistry(metricRegistry()).inDomain("nflow.metrics").build();
+    JmxReporter jmxMetricsReporter = JmxReporter.forRegistry(metricRegistry).inDomain("nflow.metrics").build();
     jmxMetricsReporter.start();
     return jmxMetricsReporter;
   }

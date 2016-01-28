@@ -20,7 +20,7 @@ public class DatabaseConnectionHealthCheck extends HealthCheck {
       statisticsService.queryStatistics();
       return HealthCheck.Result.healthy("Connection to nFlow database is OK.");
     } catch(Exception e) {
-      return HealthCheck.Result.unhealthy("Failed to connect nFlow database", e);
+      return HealthCheck.Result.unhealthy(e);
     }
   }
 }

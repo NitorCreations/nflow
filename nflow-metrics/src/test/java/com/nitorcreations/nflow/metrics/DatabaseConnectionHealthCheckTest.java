@@ -31,7 +31,7 @@ public class DatabaseConnectionHealthCheckTest {
     when(statisticsService.queryStatistics()).thenThrow(exception);
 
     HealthCheck.Result result = check.check();
-    assertEquals(exception, result.getError());
     assertEquals(false, result.isHealthy());
+    assertEquals(exception, result.getError());
   }
 }
