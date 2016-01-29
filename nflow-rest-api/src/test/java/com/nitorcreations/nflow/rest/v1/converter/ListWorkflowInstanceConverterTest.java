@@ -216,8 +216,8 @@ public class ListWorkflowInstanceConverterTest {
         .setNextActivation(now()).setActions(Arrays.asList(a))
         .setStateVariables(stateVariables). build();
 
-    when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException("bad data", null));
-    when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException("bad data", null));
+    when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException(null, "bad data"));
+    when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException(null, "bad data"));
 
     ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(true).build());
 

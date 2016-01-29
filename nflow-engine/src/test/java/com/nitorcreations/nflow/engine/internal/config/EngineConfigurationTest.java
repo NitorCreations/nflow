@@ -71,6 +71,7 @@ public class EngineConfigurationTest {
   public void nflowObjectMapperInstantiated() {
     ObjectMapper mapper = configuration.nflowObjectMapper();
     assertThat(mapper.canSerialize(DateTime.class), is(true));
-    assertThat(mapper.getSerializationConfig().getSerializationInclusion(), is(JsonInclude.Include.NON_EMPTY));
+    assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
+        is(JsonInclude.Include.NON_EMPTY));
   }
 }
