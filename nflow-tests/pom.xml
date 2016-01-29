@@ -36,6 +36,10 @@
       <artifactId>annotations</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.github.robwin</groupId>
+      <artifactId>swagger2markup</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
@@ -85,6 +89,31 @@
   </profiles>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>1.5.2</version>
+        <executions>
+          <execution>
+            <id>generate-docs</id>
+            <phase>package</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+            <configuration>
+              <sourceDocumentName>index.adoc</sourceDocumentName>
+              <outputDirectory>${project.build.directory}/rest-api-docs</outputDirectory>
+              <backend>html</backend>
+              <attributes>
+                <toclevels>2</toclevels>
+                <toc>left</toc>
+                <doctype>book</doctype>
+                <generated>src/main/asciidoc</generated>
+              </attributes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
