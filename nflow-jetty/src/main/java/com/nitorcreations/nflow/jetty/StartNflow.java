@@ -89,7 +89,7 @@ public class StartNflow
     setupJmx(server, env);
     setupServerConnector(server, host, port);
     ServletContextHandler context = setupServletContextHandler(env.getRequiredProperty("extra.resource.directories", String[].class));
-    setupHandlers(server, context);
+    setupHandlers(server, context, env);
     setupSpring(context, env);
     setupCxf(context);
     server.start();
@@ -187,18 +187,19 @@ public class StartNflow
     return context;
   }
 
-  private void setupHandlers(final Server server, final ServletContextHandler context) {
+  private void setupHandlers(final Server server, final ServletContextHandler context, ConfigurableEnvironment env) {
     HandlerCollection handlers = new HandlerCollection();
     server.setHandler(handlers);
     handlers.addHandler(context);
-    handlers.addHandler(createAccessLogHandler());
+    handlers.addHandler(createAccessLogHandler(env));
   }
 
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-  private RequestLogHandler createAccessLogHandler() {
+  private RequestLogHandler createAccessLogHandler(ConfigurableEnvironment env) {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
-    new File("log").mkdir();
-    NCSARequestLog requestLog = new NCSARequestLog(Paths.get("log", "yyyy_mm_dd.request.log").toString());
+    String directory = env.getProperty("nflow.jetty.accesslog.directory", "log");
+    new File(directory).mkdir();
+    NCSARequestLog requestLog = new NCSARequestLog(Paths.get(directory, "yyyy_mm_dd.request.log").toString());
     requestLog.setRetainDays(90);
     requestLog.setAppend(true);
     requestLog.setLogDateFormat("yyyy-MM-dd:HH:mm:ss Z");
