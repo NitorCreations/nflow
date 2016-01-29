@@ -24,7 +24,8 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
   @Test
   public void convertRemoteSwaggerToAsciiDoc() throws IOException {
     // TODO: here we could call nFlow server swagger resource - if we had one
-    Swagger2MarkupConverter.from("http://bank.nflow.io/nflow/api-docs/swagger.json").build()
+
+    Swagger2MarkupConverter.from("../nflow-rest-api/target/swagger-docs/swagger.json").build()
         .intoFolder("src/main/asciidoc");
 
     // Then validate that three AsciiDoc files have been created
