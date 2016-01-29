@@ -41,7 +41,7 @@ public class NflowMetricsContext {
 
   @PostConstruct
   public void registerHealthChecks() {
-    healthCheckRegistry.register("nflow-database-connection", databaseConnectionHealthCheck());
+    healthCheckRegistry.register("nflowDatabaseConnection", databaseConnectionHealthCheck());
   }
 
   @Bean

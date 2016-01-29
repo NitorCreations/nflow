@@ -1,25 +1,29 @@
 package com.nitorcreations.nflow.jetty.config;
 
-import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
-import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.lang.management.ManagementFactory;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.sql.DataSource;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.ext.RuntimeDelegate;
-
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck;
-import com.codahale.metrics.jvm.*;
+import com.codahale.metrics.jvm.BufferPoolMetricSet;
+import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
+import com.codahale.metrics.jvm.ClassLoadingGaugeSet;
+import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadDeadlockDetector;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.rest.config.BadRequestExceptionMapper;
+import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
+import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
+import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
+import com.nitorcreations.nflow.rest.config.RestConfiguration;
+import com.nitorcreations.nflow.rest.v1.ArchiveResource;
+import com.nitorcreations.nflow.rest.v1.StatisticsResource;
+import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
+import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
+import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.LoggingFeature;
@@ -37,20 +41,19 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.internal.config.NFlow;
-import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
-import com.nitorcreations.nflow.rest.config.BadRequestExceptionMapper;
-import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
-import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
-import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
-import com.nitorcreations.nflow.rest.config.RestConfiguration;
-import com.nitorcreations.nflow.rest.v1.ArchiveResource;
-import com.nitorcreations.nflow.rest.v1.StatisticsResource;
-import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
-import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
-import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.sql.DataSource;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.ext.RuntimeDelegate;
+import java.lang.management.ManagementFactory;
+import java.util.Arrays;
+
+import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
+import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.jetty")
@@ -140,16 +143,16 @@ public class NflowJettyConfiguration {
 
   @PostConstruct
   public void registerHealthChecks() {
-    healthCheckRegistry().register("thread-deadlocks", new ThreadDeadlockHealthCheck());
+    healthCheckRegistry().register("threadDeadlocks", new ThreadDeadlockHealthCheck());
   }
 
   @PostConstruct
   public void registerMetrics() {
-    metricRegistry().register("memory-usage", new MemoryUsageGaugeSet());
-    metricRegistry().register("buffer-pools", new BufferPoolMetricSet( ManagementFactory.getPlatformMBeanServer()));
-    metricRegistry().register("garbage-collector", new GarbageCollectorMetricSet());
-    metricRegistry().register("class-loading", new ClassLoadingGaugeSet());
-    metricRegistry().register("file-descriptor-ratio", new FileDescriptorRatioGauge());
-    metricRegistry().register("thread-states", new CachedThreadStatesGaugeSet(ManagementFactory.getThreadMXBean(), new ThreadDeadlockDetector(), 60, SECONDS));
+    metricRegistry().register("memoryUsage", new MemoryUsageGaugeSet());
+    metricRegistry().register("bufferPools", new BufferPoolMetricSet( ManagementFactory.getPlatformMBeanServer()));
+    metricRegistry().register("garbageCollector", new GarbageCollectorMetricSet());
+    metricRegistry().register("classLoading", new ClassLoadingGaugeSet());
+    metricRegistry().register("fileDescriptorRatio", new FileDescriptorRatioGauge());
+    metricRegistry().register("threadStates", new CachedThreadStatesGaugeSet(ManagementFactory.getThreadMXBean(), new ThreadDeadlockDetector(), 60, SECONDS));
   }
 }
