@@ -1,14 +1,15 @@
 package com.nitorcreations.nflow.tests;
 
 import com.nitorcreations.nflow.tests.runner.NflowServerRule;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 
@@ -43,10 +44,9 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
   }
 
   private void makeRequest(URI uri) throws IOException {
-    try(CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      HttpGet request = new HttpGet(uri);
-      HttpResponse response = httpclient.execute(request);
-      assertEquals(200, response.getStatusLine().getStatusCode());
-    }
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(uri);
+    Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
+    assertEquals(200, response.getStatus());
   }
 }

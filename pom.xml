@@ -144,7 +144,6 @@
     <swagger.version>1.5.6</swagger.version>
     <validation.api.version>1.1.0.Final</validation.api.version>
     <versions-maven-plugin.version>2.2</versions-maven-plugin.version>
-    <httpclient.version>4.5.1</httpclient.version>
   </properties>
   <build>
     <pluginManagement>
@@ -714,18 +713,6 @@
         <groupId>com.googlecode.multithreadedtc</groupId>
         <artifactId>multithreadedtc</artifactId>
         <version>${multithreadedtc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${httpclient.version}</version>
-        <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
