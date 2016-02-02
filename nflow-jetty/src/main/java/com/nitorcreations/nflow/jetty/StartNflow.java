@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.servlets.AdminServlet;
+import com.nitorcreations.nflow.jetty.servlet.MetricsServletContextListener;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -92,6 +94,7 @@ public class StartNflow
     setupHandlers(server, context, env);
     setupSpring(context, env);
     setupCxf(context);
+    setupMetricsAdminServlet(context);
     server.start();
     long end = currentTimeMillis();
     JettyServerContainer startedServer = new JettyServerContainer(server);
@@ -100,6 +103,7 @@ public class StartNflow
     logger.info("API available at http://{}:{}/api/", host, port);
     logger.info("Swagger available at http://{}:{}/doc/", host, port);
     logger.info("Explorer available at http://{}:{}/explorer/", host, port);
+    logger.info("Metrics and health checks available at http://{}:{}/metrics/", host, port);
     return startedServer;
   }
 
@@ -117,6 +121,13 @@ public class StartNflow
     ServletHolder servlet = context.addServlet(CXFServlet.class, "/api/*");
     servlet.setDisplayName("nflow-cxf-services");
     servlet.setInitOrder(1);
+  }
+
+  protected void setupMetricsAdminServlet(ServletContextHandler context) {
+    ServletHolder servlet = context.addServlet(AdminServlet.class, "/metrics/*");
+    context.addEventListener(new MetricsServletContextListener());
+    servlet.setDisplayName("nflow-metrics-admin-servlet");
+    servlet.setInitOrder(2);
   }
 
   private Server setupServer() {

@@ -1,17 +1,11 @@
 package com.nitorcreations.nflow.jetty.config;
 
-import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
-import static java.util.Arrays.asList;
-
-import java.util.Arrays;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.sql.DataSource;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.ext.RuntimeDelegate;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.rest.config.*;
+import com.nitorcreations.nflow.rest.v1.*;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.LoggingFeature;
@@ -29,24 +23,20 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.nitorcreations.nflow.engine.internal.config.NFlow;
-import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
-import com.nitorcreations.nflow.rest.config.BadRequestExceptionMapper;
-import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
-import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
-import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
-import com.nitorcreations.nflow.rest.config.RestConfiguration;
-import com.nitorcreations.nflow.rest.v1.ArchiveResource;
-import com.nitorcreations.nflow.rest.v1.StatisticsResource;
-import com.nitorcreations.nflow.rest.v1.WorkflowDefinitionResource;
-import com.nitorcreations.nflow.rest.v1.WorkflowExecutorResource;
-import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.sql.DataSource;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.ext.RuntimeDelegate;
+import java.util.Arrays;
+
+import static com.nitorcreations.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
+import static java.util.Arrays.asList;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.jetty")
-@Import(value = { RestConfiguration.class, JmxConfiguration.class})
+@Import(value = { RestConfiguration.class, JmxConfiguration.class, MetricsConfiguration.class})
 @EnableTransactionManagement
 public class NflowJettyConfiguration {
 
@@ -119,4 +109,5 @@ public class NflowJettyConfiguration {
   public PlatformTransactionManager transactionManager(@NFlow DataSource nflowDataSource)  {
     return new DataSourceTransactionManager(nflowDataSource);
   }
+
 }

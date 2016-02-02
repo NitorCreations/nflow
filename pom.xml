@@ -609,6 +609,16 @@
         <artifactId>metrics-core</artifactId>
         <version>${metrics.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-healthchecks</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-servlets</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
       <!-- specify commons-lang as runtime since we do not want any new code to depend on it -->
       <dependency>
         <groupId>commons-lang</groupId>

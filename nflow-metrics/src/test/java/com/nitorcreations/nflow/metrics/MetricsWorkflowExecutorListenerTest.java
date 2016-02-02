@@ -6,6 +6,10 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.nitorcreations.nflow.engine.internal.dao.StatisticsDao;
+import com.nitorcreations.nflow.engine.service.HealthCheckService;
+import com.nitorcreations.nflow.engine.service.StatisticsService;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,6 +97,21 @@ public class MetricsWorkflowExecutorListenerTest {
   @Configuration
   @Import(NflowMetricsContext.class)
   public static class Config {
+    @Bean
+    public MetricRegistry metricRegistry() {
+      return new MetricRegistry();
+    }
+
+    @Bean
+    public HealthCheckRegistry healthCheckRegistry() {
+      return new HealthCheckRegistry();
+    }
+
+    @Bean
+    public HealthCheckService healthCheckService() {
+      return mock(HealthCheckService.class);
+    }
+
     @Bean
     public ExecutorDao executorDao() {
       ExecutorDao dao = mock(ExecutorDao.class);

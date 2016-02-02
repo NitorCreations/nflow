@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
+import com.nitorcreations.nflow.engine.internal.dao.*;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +26,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
-import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
-import com.nitorcreations.nflow.engine.internal.dao.StatisticsDao;
-import com.nitorcreations.nflow.engine.internal.dao.WorkflowDefinitionDao;
-import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 
@@ -82,6 +78,11 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     public ArchiveDao archiveDao() {
       return mock(ArchiveDao.class);
+    }
+
+    @Bean
+    public HealthCheckDao healthCheckDao() {
+      return mock(HealthCheckDao.class);
     }
   }
 
