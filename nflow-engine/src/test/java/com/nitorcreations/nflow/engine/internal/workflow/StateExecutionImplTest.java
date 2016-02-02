@@ -64,6 +64,21 @@ public class StateExecutionImplTest {
   }
 
   @Test
+  public void addWorkflows() {
+    WorkflowInstance instance1 = new WorkflowInstance.Builder().setBusinessKey("instance1").build();
+    WorkflowInstance instance2 = new WorkflowInstance.Builder().setBusinessKey("instance2").build();
+
+    WorkflowInstance processedInstance1 = mock(WorkflowInstance.class, "processed1");
+    WorkflowInstance processedInstance2 = mock(WorkflowInstance.class, "processed2");
+    when(workflowInstancePreProcessor.process(instance1)).thenReturn(processedInstance1);
+    when(workflowInstancePreProcessor.process(instance2)).thenReturn(processedInstance2);
+
+    execution.addWorkflows(instance1, instance2);
+
+    assertThat(execution.getNewWorkflows(), is(asList(processedInstance1, processedInstance2)));
+  }
+
+  @Test
   public void wakeUpParentWorkflowSetsWakeupFlag() {
     assertThat(execution.isWakeUpParentWorkflowSet(), is(false));
     execution.wakeUpParentWorkflow();
