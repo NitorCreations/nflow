@@ -8,9 +8,11 @@ import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateT
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static java.lang.Integer.parseInt;
+import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;

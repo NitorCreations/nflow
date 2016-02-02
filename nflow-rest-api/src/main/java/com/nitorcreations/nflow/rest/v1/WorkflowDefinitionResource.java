@@ -49,9 +49,9 @@ public class WorkflowDefinitionResource {
 
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
-  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(@QueryParam("type") String[] types) {
+  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(@QueryParam("type") List<String> types) {
     List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
-    Set<String> reqTypes = new HashSet<>(asList(types));
+    Set<String> reqTypes = new HashSet<>(types);
     Set<String> foundTypes = new HashSet<>();
     List<ListWorkflowDefinitionResponse> response = new ArrayList<>();
     for (AbstractWorkflowDefinition<? extends WorkflowState> definition : definitions) {

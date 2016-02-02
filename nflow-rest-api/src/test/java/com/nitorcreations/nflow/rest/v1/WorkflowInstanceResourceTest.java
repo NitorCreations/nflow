@@ -150,8 +150,8 @@ public class WorkflowInstanceResourceTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {
-    resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, 99, 88, new String[] { "state" },
-        new WorkflowInstance.WorkflowInstanceStatus[] { WorkflowInstanceStatus.created }, "businessKey", "externalId", "", 1L);
+    resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", 1L);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
       hasField("ids", contains(42)),
       hasField("types", contains("type")),
@@ -170,8 +170,8 @@ public class WorkflowInstanceResourceTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
-    resource.listWorkflowInstances(new Integer[] { 42 }, new String[] { "type" }, 99, 88, new String[] { "state" },
-        new WorkflowInstance.WorkflowInstanceStatus[] { WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing },
+    resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
+        asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
         "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
       hasField("ids", contains(42)),

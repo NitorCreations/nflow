@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,14 +62,14 @@ public class WorkflowDefinitionResourceTest {
 
   @Test
   public void listWorkflowDefinitionsFindsExistingDefinition() {
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(new String[] { "dummy" });
+    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("dummy"));
     assertThat(ret.size(), is(1));
     verify(workflowDefinitionDao, never()).queryStoredWorkflowDefinitions(anyCollectionOf(String.class));
   }
 
   @Test
   public void listWorkflowDefinitionsDoesNotFindNonExistentDefinition() {
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(new String[] { "nonexistent" });
+    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("nonexistent"));
     assertThat(ret.size(), is(0));
     verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(stringList.capture());
     assertThat(stringList.getValue(), containsElements(asList("nonexistent")));
@@ -76,7 +77,7 @@ public class WorkflowDefinitionResourceTest {
 
   @Test
   public void listWorkflowDefinitionsFindsExistingDefinitionWithoutArguments() {
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(new String[] {});
+    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(Collections.<String>emptyList());
     assertThat(ret.size(), is(1));
     verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(stringList.capture());
     assertThat(stringList.getValue().size(), is(0));
@@ -94,7 +95,7 @@ public class WorkflowDefinitionResourceTest {
     storedDefinitionDummy.type = "dummy";
     when(converter.convert(storedDefinitionNew)).thenReturn(storedResponseNew);
     storedDefinitionNew.type = "new";
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(new String[] {});
+    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(Collections.<String>emptyList());
     assertThat(ret, hasItems(storedResponseNew, dummyResponse));
     assertThat(ret, not(hasItem(storedResponseDummy)));
   }
@@ -107,7 +108,7 @@ public class WorkflowDefinitionResourceTest {
     ListWorkflowDefinitionResponse storedResponseNew = mock(ListWorkflowDefinitionResponse.class, "dbNew");
     when(converter.convert(storedDefinitionNew)).thenReturn(storedResponseNew);
     storedDefinitionNew.type = "new";
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(new String[] { "new" });
+    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("new"));
     assertThat(ret, hasItems(storedResponseNew));
   }
 }
