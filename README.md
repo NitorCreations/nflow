@@ -32,7 +32,7 @@ public class App {
   }
 }
 ```
-That's it! Running `App` will start nFlow server though without any workflow definitions. 
+That's it! Running `App` in your favourite IDE will start nFlow server though without any workflow definitions. 
 Point your browser to [http://localhost:7500/doc/](http://localhost:7500/doc/) and you can use interactive online documentation for the nFlow REST API.
 
 See the next sections for creating your own workflow definitions.
