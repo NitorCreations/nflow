@@ -1,7 +1,9 @@
 package com.nitorcreations.nflow.engine.service;
 
+import static java.util.Arrays.asList;
 import static org.springframework.util.StringUtils.isEmpty;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.inject.Inject;
