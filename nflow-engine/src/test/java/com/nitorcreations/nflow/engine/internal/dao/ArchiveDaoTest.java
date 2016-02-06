@@ -2,7 +2,6 @@ package com.nitorcreations.nflow.engine.internal.dao;
 
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static java.util.Arrays.asList;
-import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -246,8 +245,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
   }
 
   private int storeActiveWorkflow(DateTime modified) {
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setNextActivation(now())
-        .setModified(modified).build();
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setModified(modified).build();
     int id = insert(instance);
     return id;
   }
