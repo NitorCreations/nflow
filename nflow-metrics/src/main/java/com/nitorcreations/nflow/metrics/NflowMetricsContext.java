@@ -1,21 +1,20 @@
 package com.nitorcreations.nflow.metrics;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck;
-import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
-import com.nitorcreations.nflow.engine.service.HealthCheckService;
-import com.nitorcreations.nflow.engine.service.StatisticsService;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
+import com.nitorcreations.nflow.engine.service.HealthCheckService;
 
 /**
  * Configures MetricsWorkflowExecutorListener.

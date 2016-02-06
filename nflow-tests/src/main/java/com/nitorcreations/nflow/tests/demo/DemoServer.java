@@ -2,7 +2,6 @@ package com.nitorcreations.nflow.tests.demo;
 
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static com.nitorcreations.nflow.tests.demo.SpringApplicationContext.applicationContext;
-import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 
 import com.nitorcreations.nflow.engine.service.WorkflowInstanceService;
@@ -11,8 +10,6 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.jetty.StartNflow;
 import com.nitorcreations.nflow.metrics.NflowMetricsContext;
-
-import java.util.Arrays;
 
 public class DemoServer {
 

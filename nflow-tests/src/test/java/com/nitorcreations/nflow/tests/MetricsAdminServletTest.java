@@ -1,20 +1,21 @@
 package com.nitorcreations.nflow.tests;
 
-import com.nitorcreations.nflow.tests.runner.NflowServerRule;
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+
+import java.net.URI;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.URI;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+
+import com.nitorcreations.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class MetricsAdminServletTest extends AbstractNflowTest {
@@ -32,18 +33,18 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t01_canFetchMetrics() throws IOException {
+  public void t01_canFetchMetrics() {
     URI uri = URI.create("http://localhost:" + server.getPort() + "/metrics/metrics");
     makeRequest(uri);
   }
 
   @Test
-  public void t02_canFetchHealthChecks() throws IOException {
+  public void t02_canFetchHealthChecks() {
     URI uri = URI.create("http://localhost:" + server.getPort() + "/metrics/healthcheck");
     makeRequest(uri);
   }
 
-  private void makeRequest(URI uri) throws IOException {
+  private void makeRequest(URI uri) {
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(uri);
     Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();

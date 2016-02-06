@@ -1,10 +1,7 @@
 package com.nitorcreations.nflow.rest.v1;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.sort;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,6 +24,9 @@ import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefin
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/v1/workflow-definition")
 @Consumes(APPLICATION_JSON)

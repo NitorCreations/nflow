@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
  * Parameters for workflow instance query.

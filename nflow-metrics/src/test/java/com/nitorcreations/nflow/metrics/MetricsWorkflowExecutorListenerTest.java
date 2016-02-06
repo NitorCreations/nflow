@@ -6,10 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.nitorcreations.nflow.engine.internal.dao.StatisticsDao;
-import com.nitorcreations.nflow.engine.service.HealthCheckService;
-import com.nitorcreations.nflow.engine.service.StatisticsService;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +17,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
+import com.nitorcreations.nflow.engine.service.HealthCheckService;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;

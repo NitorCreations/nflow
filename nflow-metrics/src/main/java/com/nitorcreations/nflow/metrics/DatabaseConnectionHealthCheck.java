@@ -2,7 +2,6 @@ package com.nitorcreations.nflow.metrics;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.nitorcreations.nflow.engine.service.HealthCheckService;
-import com.nitorcreations.nflow.engine.service.StatisticsService;
 
 /**
  * Check that connection to nflow database can be made.
@@ -16,7 +15,7 @@ public class DatabaseConnectionHealthCheck extends HealthCheck {
   }
 
   @Override
-  protected Result check() throws Exception {
+  protected Result check() {
     try {
       healthCheckService.checkDatabaseConnection();
       return HealthCheck.Result.healthy("Connection to nFlow database is OK.");
