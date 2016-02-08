@@ -14,8 +14,8 @@ create table if not exists nflow_workflow (
   external_next_activation timestamp(3) null,
   executor_id int,
   retries int not null default 0,
-  created timestamp(3) not null default current_timestamp(3),
-  modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
+  created timestamp(3) default current_timestamp(3),
+  modified timestamp(3) default current_timestamp(3) on update current_timestamp(3),
   executor_group varchar(64) not null,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
@@ -31,8 +31,8 @@ create table if not exists nflow_workflow_action (
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,
-  execution_start timestamp(3) not null,
-  execution_end timestamp(3) not null,
+  execution_start timestamp(3) default current_timestamp(3),
+  execution_end timestamp(3) default current_timestamp(3),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );
 
@@ -56,17 +56,17 @@ create table if not exists nflow_executor (
   host varchar(253) not null,
   pid int not null,
   executor_group varchar(64),
-  started timestamp(3) not null default current_timestamp(3),
-  active timestamp(3),
-  expires timestamp(3)
+  started timestamp(3) default current_timestamp(3),
+  active timestamp(3) default current_timestamp(3),
+  expires timestamp(3) default current_timestamp(3)
 );
 
 create table if not exists nflow_workflow_definition (
   type varchar(64) not null,
   definition_sha1 varchar(40) not null,
   definition text not null,
-  created timestamp(3) not null default current_timestamp(3),
-  modified timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
+  created timestamp(3) default current_timestamp(3),
+  modified timestamp(3) default current_timestamp(3) on update current_timestamp(3),
   modified_by int not null,
   executor_group varchar(64) not null,
   primary key (type, executor_group)
@@ -94,8 +94,8 @@ create table if not exists nflow_archive_workflow (
   external_next_activation timestamp(3) null,
   executor_id int,
   retries int not null default 0,
-  created timestamp(3) not null,
-  modified timestamp(3) not null,
+  created timestamp(3) default current_timestamp(3),
+  modified timestamp(3) default current_timestamp(3),
   executor_group varchar(64) not null,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
@@ -108,8 +108,8 @@ create table if not exists nflow_archive_workflow_action (
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,
-  execution_start timestamp(3) not null,
-  execution_end timestamp(3) not null,
+  execution_start timestamp(3) default current_timestamp(3),
+  execution_end timestamp(3) default current_timestamp(3),
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
 );
 
@@ -121,4 +121,3 @@ create table if not exists nflow_archive_workflow_state (
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
 );
-
