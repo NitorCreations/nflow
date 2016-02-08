@@ -80,6 +80,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
       }
       sleep(1000);
     }
+    fail("Workflow instance was not recovered");
   }
 
   private void verifyBeginAndProcessAreExecutedByDifferentExecutors(ListWorkflowInstanceResponse wf) {

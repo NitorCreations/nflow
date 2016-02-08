@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static org.hamcrest.Matchers.is;
@@ -43,11 +44,11 @@ public class ExecutorDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void recoverWorkflowInstancesFromDeadNodesSetsExecutorIdToNullAndInsertsAction() {
+  public void recoverWorkflowInstancesFromDeadNodesSetsExecutorIdToNullAndStatusToInProgressAndInsertsAction() {
     int crashedExecutorId = 999;
     insertCrashedExecutor(crashedExecutorId);
     int id = workflowInstanceDao.insertWorkflowInstance(new WorkflowInstance.Builder().setType("test").setExternalId("extId")
-        .setExecutorGroup(dao.getExecutorGroup()).setStatus(inProgress).setState("processing").build());
+        .setExecutorGroup(dao.getExecutorGroup()).setStatus(executing).setState("processing").build());
     int updated = jdbc.update("update nflow_workflow set executor_id = ? where id = ?", crashedExecutorId, id);
     assertThat(updated, is(1));
 
@@ -55,6 +56,8 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
     Integer executorId = jdbc.queryForObject("select executor_id from nflow_workflow where id = ?", Integer.class, id);
     assertThat(executorId, is(nullValue()));
+    String status = jdbc.queryForObject("select status from nflow_workflow where id = ?", String.class, id);
+    assertThat(status, is(inProgress.name()));
 
     List<WorkflowInstanceAction> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
         new WorkflowInstanceActionRowMapper(Collections.<Integer,Map<String, String>>emptyMap()), id);
