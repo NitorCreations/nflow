@@ -1,9 +1,9 @@
 package com.nitorcreations.nflow.rest.v1.converter;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -20,15 +20,13 @@ public class CreateWorkflowConverter {
     this.factory = factory;
   }
 
-  public WorkflowInstance convertAndValidate(CreateWorkflowInstanceRequest req) {
-    WorkflowInstance.Builder builder = factory.newWorkflowInstanceBuilder().setType(req.type)
-        .setBusinessKey(req.businessKey).setExternalId(req.externalId);
-    if (req.activationTime == null) {
-      builder.setNextActivation(DateTime.now());
-    } else {
+  public WorkflowInstance convert(CreateWorkflowInstanceRequest req) {
+    WorkflowInstance.Builder builder = factory.newWorkflowInstanceBuilder().setType(req.type).setBusinessKey(req.businessKey)
+        .setExternalId(req.externalId);
+    if (req.activationTime != null) {
       builder.setNextActivation(req.activationTime);
     }
-    if (StringUtils.isNotEmpty(req.startState)) {
+    if (isNotEmpty(req.startState)) {
       builder.setState(req.startState);
     }
     if (req.requestData != null) {

@@ -74,7 +74,7 @@ public class WorkflowInstanceResourceTest {
     Response r = resource.createWorkflowInstance(req);
     assertThat(r.getStatus(), is(201));
     assertThat(r.getHeaderString("Location"), is("1"));
-    verify(createWorkflowConverter).convertAndValidate(req);
+    verify(createWorkflowConverter).convert(req);
     verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
     verify(workflowInstances).getWorkflowInstance(1);
     verify(createWorkflowConverter).convert(any(WorkflowInstance.class));

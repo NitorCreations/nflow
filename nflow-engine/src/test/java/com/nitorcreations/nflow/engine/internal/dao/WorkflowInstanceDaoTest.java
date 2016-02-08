@@ -126,7 +126,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     // FIXME this assert fails randomly. due to race condition?
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress)
-        .setState("updateState").setStateText("update text").setNextActivation(DateTime.now()).build();
+        .setState("updateState").setStateText("update text").build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id);
     assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
@@ -165,7 +165,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     int id = dao.insertWorkflowInstance(i1);
     WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress).setState("updateState")
-        .setStateText("update text").setNextActivation(now()).build();
+        .setStateText("update text").build();
     DateTime started = now();
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
@@ -189,7 +189,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     int id = dao.insertWorkflowInstance(i1);
     WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress).setState("updateState")
-            .setStateText("update text").setNextActivation(now()).build();
+        .setStateText("update text").build();
     DateTime started = now();
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
             .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
@@ -204,8 +204,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       middleWorkflowId = childIds.get(0);
     }
 
-    middleWorkflow = new WorkflowInstance.Builder(dao.getWorkflowInstance(middleWorkflowId)).setStatus(inProgress).setState("updateState")
-            .setStateText("update text").setNextActivation(now()).build();
+    middleWorkflow = new WorkflowInstance.Builder(dao.getWorkflowInstance(middleWorkflowId)).setStatus(inProgress)
+        .setState("updateState").setStateText("update text").build();
 
     WorkflowInstanceAction middleAction = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
             .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setState("test").setStateText("state text")
@@ -350,7 +350,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress)
-        .setState("updateState").setStateText("update text").setNextActivation(now()).build();
+        .setState("updateState").setStateText("update text").build();
     sleep(1);
     dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows, emptyWorkflows);
   }
@@ -460,8 +460,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstances() {
-    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1))
-        .setExecutorGroup("junit").build();
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1)).setExecutorGroup("junit")
+        .build();
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> firstBatch = dao.pollNextWorkflowInstanceIds(100);
     List<Integer> secondBatch = dao.pollNextWorkflowInstanceIds(100);
@@ -499,7 +499,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void pollNextWorkflowInstancesWithPartialRaceCondition() throws InterruptedException {
     int batchSize = 100;
     for (int i = 0; i < batchSize; i++) {
-      WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(DateTime.now().minusMinutes(1))
+      WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
           .setExecutorGroup("junit").build();
       dao.insertWorkflowInstance(instance);
     }

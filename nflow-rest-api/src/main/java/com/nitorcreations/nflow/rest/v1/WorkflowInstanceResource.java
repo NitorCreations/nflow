@@ -13,11 +13,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -51,6 +46,12 @@ import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import com.nitorcreations.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @Path("/v1/workflow-instance")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
@@ -82,7 +83,7 @@ public class WorkflowInstanceResource {
   @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class, responseContainer = "List")
   @ApiResponse(code = 201, message = "Workflow was created")
   public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) {
-    WorkflowInstance instance = createWorkflowConverter.convertAndValidate(req);
+    WorkflowInstance instance = createWorkflowConverter.convert(req);
     int id = workflowInstances.insertWorkflowInstance(instance);
     instance = workflowInstances.getWorkflowInstance(id);
     return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
@@ -95,7 +96,7 @@ public class WorkflowInstanceResource {
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       UpdateWorkflowInstanceRequest req) {
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id).setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
     if (!isEmpty(req.state)) {
       builder.setState(req.state);
@@ -103,11 +104,8 @@ public class WorkflowInstanceResource {
         msg = "API changed state to " + req.state + ". ";
       }
     }
-    if (req.nextActivationTime != null) {
-      builder.setNextActivation(req.nextActivationTime);
-      if (isBlank(req.actionDescription)) {
-        msg += "API changed nextActivationTime to " + req.nextActivationTime + ". ";
-      }
+    if (req.nextActivationTime != null && isBlank(req.actionDescription)) {
+      msg += "API changed nextActivationTime to " + req.nextActivationTime + ". ";
     }
     if (msg.isEmpty()) {
       return noContent().build();

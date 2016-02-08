@@ -24,7 +24,6 @@ public abstract class BaseNflowTest {
       .setType("dummy")
       .setState("CreateLoan")
       .setStateText(null)
-      .setNextActivation(new DateTime())
       .setExternalId(randomUUID().toString())
       .setBusinessKey(randomUUID().toString())
       .setRetries(0)
