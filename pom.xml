@@ -130,7 +130,6 @@
     <maven-site.version>3.4</maven-site.version>
     <maven-source.version>2.4</maven-source.version>
     <maven-surefire.version>2.19.1</maven-surefire.version>
-    <maven-swagger.version>3.1.0</maven-swagger.version>
     <metrics.version>3.1.2</metrics.version>
     <mockito.version>1.10.19</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
@@ -142,7 +141,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <slf4j.version>1.7.14</slf4j.version>
     <spring.version>4.2.4.RELEASE</spring.version>
-    <swagger.version>1.5.3</swagger.version>
+    <swagger.version>1.5.7</swagger.version>
     <jersey.version>2.22.1</jersey.version>
     <validation.api.version>1.1.0.Final</validation.api.version>
     <versions-maven-plugin.version>2.2</versions-maven-plugin.version>
@@ -549,8 +548,18 @@
         <version>${apache.cxf.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-service-description</artifactId>
+        <version>${apache.cxf.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
         <artifactId>jackson-jaxrs-json-provider</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
@@ -672,6 +681,11 @@
       <dependency>
         <groupId>io.swagger</groupId>
         <artifactId>swagger-annotations</artifactId>
+        <version>${swagger.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-jaxrs</artifactId>
         <version>${swagger.version}</version>
       </dependency>
       <dependency>

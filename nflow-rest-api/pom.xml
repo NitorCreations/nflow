@@ -84,79 +84,6 @@
     </dependency>
   </dependencies>
   <build>
-    <plugins>
-      <plugin>
-        <groupId>com.github.kongchen</groupId>
-        <artifactId>swagger-maven-plugin</artifactId>
-        <version>${maven-swagger.version}</version>
-        <configuration>
-          <apiSources>
-            <apiSource>
-              <springmvc>false</springmvc>
-              <locations>com.nitorcreations.nflow.rest</locations>
-              <swaggerDirectory>${project.build.directory}/swagger-docs</swaggerDirectory>
-              <basePath>/api</basePath>
-              <info>
-                <version>${project.version}</version>
-                <title>${project.name}</title>
-                <description>${project.description}</description>
-                <license>
-                  <name>European Union Public Licence V. 1.1</name>
-                  <url>https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt</url>
-                </license>
-                <contact>
-                  <name>nFlow community</name>
-                  <url>http://nflow.io</url>
-                  <email>nflow-users@googlegroups.com</email>
-                </contact>
-              </info>
-            </apiSource>
-          </apiSources>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jersey2-jaxrs</artifactId>
-            <version>${swagger.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jaxrs</artifactId>
-            <version>${swagger.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.outputDirectory}/static/api-docs</outputDirectory>
-              <overwrite>true</overwrite>
-              <resources>
-                <resource>
-                  <directory>${project.build.directory}/swagger-docs</directory>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -173,32 +100,6 @@
                 </arguments>
               </buildCommand>
             </additionalBuildcommands>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>${lifecycle-mapping.version}</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>com.github.kongchen</groupId>
-                    <artifactId>swagger-maven-plugin</artifactId>
-                    <versionRange>[1.0.0,)</versionRange>
-                    <goals>
-                      <goal>generate</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <execute>
-                      <runOnIncremental>false</runOnIncremental>
-                    </execute>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
           </configuration>
         </plugin>
       </plugins>
