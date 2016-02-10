@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.jetty.validation;
+package com.nitorcreations.nflow.jetty.mapper;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
