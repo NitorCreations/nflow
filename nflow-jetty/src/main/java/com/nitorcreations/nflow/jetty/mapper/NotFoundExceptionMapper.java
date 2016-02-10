@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.config;
+package com.nitorcreations.nflow.jetty.mapper;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
