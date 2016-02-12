@@ -57,4 +57,15 @@ public class DateTimeParamConverterProviderTest {
     thrown.expectMessage("Unrecognized date format: 2014/01/01");
     converter.fromString("2014/01/01");
   }
+
+  @Test
+  public void convertNullDatetimeToNullString() {
+    assertThat(converter.toString(null), is(nullValue()));
+  }
+
+  @Test
+  public void convertEmptyAndNullStringToNullDateTime() {
+    assertThat(converter.fromString(""), is(nullValue()));
+    assertThat(converter.fromString(null), is(nullValue()));
+  }
 }
