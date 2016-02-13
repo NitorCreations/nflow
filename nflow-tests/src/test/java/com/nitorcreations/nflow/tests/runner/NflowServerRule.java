@@ -82,6 +82,10 @@ public class NflowServerRule extends ExternalResource {
     return (String) props.get("nflow.executor.group");
   }
 
+  public String getHttpAddress() {
+    return "http://localhost:" + getPort();
+  }
+
   public void stopServer() {
     stopJetty();
   }

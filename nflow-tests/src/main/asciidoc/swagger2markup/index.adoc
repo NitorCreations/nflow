@@ -6,6 +6,6 @@
 // links that are created in paths.adoc, will actually link to items in
 // definitions.adoc.
 
-include::overview.adoc[]
-include::paths.adoc[]
-include::definitions.adoc[]
+include::swagger2markup/overview.adoc[]
+include::swagger2markup/paths.adoc[]
+include::swagger2markup/definitions.adoc[]

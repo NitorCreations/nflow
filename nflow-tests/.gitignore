@@ -1,3 +1,3 @@
-src/main/asciidoc/*
-!src/main/asciidoc/index.adoc
+src/main/asciidoc/swagger2markup/*
+!src/main/asciidoc/swagger2markup/index.adoc
 

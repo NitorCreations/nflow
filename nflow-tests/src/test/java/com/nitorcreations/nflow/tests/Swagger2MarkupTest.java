@@ -14,6 +14,8 @@ import io.github.robwin.swagger2markup.Swagger2MarkupConverter;
 
 public class Swagger2MarkupTest extends AbstractNflowTest {
 
+  private static final String SWAGGER2_MARKUP_ASCIIDOC_DIR = "src/main/asciidoc/swagger2markup";
+
   @ClassRule
   public static NflowServerRule server = new NflowServerRule.Builder().build();
 
@@ -23,13 +25,10 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
 
   @Test
   public void convertRemoteSwaggerToAsciiDoc() throws IOException {
-    // TODO: here we could call nFlow server swagger resource - if we had one
-
-    Swagger2MarkupConverter.from("../nflow-rest-api/target/swagger-docs/swagger.json").build()
-        .intoFolder("src/main/asciidoc");
+    Swagger2MarkupConverter.from(server.getHttpAddress() + "/api/swagger.json").build().intoFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
 
     // Then validate that three AsciiDoc files have been created
-    String[] files = new File("src/main/asciidoc").list();
+    String[] files = new File(SWAGGER2_MARKUP_ASCIIDOC_DIR).list();
     assertEquals(4, files.length);
   }
 }

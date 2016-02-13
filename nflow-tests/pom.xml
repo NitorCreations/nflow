@@ -101,14 +101,14 @@
               <goal>process-asciidoc</goal>
             </goals>
             <configuration>
-              <sourceDocumentName>index.adoc</sourceDocumentName>
+              <sourceDocumentName>swagger2markup/index.adoc</sourceDocumentName>
               <outputDirectory>${project.build.directory}/rest-api-docs</outputDirectory>
               <backend>html</backend>
               <attributes>
                 <toclevels>2</toclevels>
                 <toc>left</toc>
                 <doctype>book</doctype>
-                <generated>src/main/asciidoc</generated>
+                <generated>src/main/asciidoc/swagger2markup</generated>
               </attributes>
             </configuration>
           </execution>
