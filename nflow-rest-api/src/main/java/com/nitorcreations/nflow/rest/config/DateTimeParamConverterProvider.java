@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.rest.config;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.joda.time.format.ISODateTimeFormat.dateTime;
 import static org.joda.time.format.ISODateTimeFormat.dateTimeNoMillis;
 
@@ -29,6 +30,9 @@ public class DateTimeParamConverterProvider implements ParamConverterProvider {
   static final class DateTimeParamConverter implements ParamConverter<DateTime> {
     @Override
     public DateTime fromString(String value) {
+      if (isEmpty(value)) {
+        return null;
+      }
       try {
         return dateTimeNoMillis().parseDateTime(value);
       } catch (IllegalArgumentException e) {
@@ -42,6 +46,9 @@ public class DateTimeParamConverterProvider implements ParamConverterProvider {
 
     @Override
     public String toString(DateTime value) {
+      if (value == null) {
+        return null;
+      }
       return value.toString();
     }
   }

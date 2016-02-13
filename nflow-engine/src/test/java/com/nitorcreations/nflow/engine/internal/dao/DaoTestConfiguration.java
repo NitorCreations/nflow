@@ -54,6 +54,11 @@ public class DaoTestConfiguration {
   }
 
   @Bean
+  public HealthCheckDao healthCheckDao() {
+    return new HealthCheckDao();
+  }
+
+  @Bean
   public TableMetadataChecker tableMetadataChecker() {
     return new TableMetadataChecker();
   }

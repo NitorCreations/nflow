@@ -252,13 +252,14 @@ public class WorkflowInstanceDao {
 
   @SuppressWarnings("null")
   public void updateWorkflowInstanceAfterExecution(WorkflowInstance instance, WorkflowInstanceAction action,
-      List<WorkflowInstance> childWorkflows) {
+      List<WorkflowInstance> childWorkflows, List<WorkflowInstance> workflows) {
     Assert.isTrue(action != null, "action can not be null");
     Assert.isTrue(childWorkflows != null, "childWorkflows can not be null");
-    if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty()) {
+    Assert.isTrue(workflows != null, "workflows can not be null");
+    if (sqlVariants.hasUpdateableCTE() && childWorkflows.isEmpty() && workflows.isEmpty()) {
       updateWorkflowInstanceWithCTE(instance, action);
     } else {
-      updateWorkflowInstanceWithTransaction(instance, action, childWorkflows);
+      updateWorkflowInstanceWithTransaction(instance, action, childWorkflows, workflows);
     }
   }
 
@@ -271,7 +272,7 @@ public class WorkflowInstanceDao {
   }
 
   private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action,
-                                                     final List<WorkflowInstance> childWorkflows) {
+      final List<WorkflowInstance> childWorkflows, final List<WorkflowInstance> workflows) {
     transaction.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -283,6 +284,9 @@ public class WorkflowInstanceDao {
               .setParentWorkflowId(instance.id).setParentActionId(parentActionId).build();
           insertWorkflowInstance(childWorkflow);
         }
+        for (WorkflowInstance workflow : workflows) {
+          insertWorkflowInstance(workflow);
+        }
       }
     });
   }
@@ -290,10 +294,9 @@ public class WorkflowInstanceDao {
   @Transactional
   public void recoverWorkflowInstance(final int instanceId, final WorkflowInstanceAction action) {
     int executorId = executorInfo.getExecutorId();
-    int updated = jdbc.update(
-        "update nflow_workflow set executor_id = null where id = ? and executor_id in (select id from nflow_executor where "
-            + executorInfo.getExecutorGroupCondition() + " and id <> " + executorId + " and expires < current_timestamp)",
-        instanceId);
+    int updated = jdbc.update("update nflow_workflow set executor_id = null, status = " + sqlVariants.workflowStatus(inProgress)
+        + " where id = ? and executor_id in (select id from nflow_executor where " + executorInfo.getExecutorGroupCondition()
+        + " and id <> " + executorId + " and expires < current_timestamp)", instanceId);
     if (updated > 0) {
       insertWorkflowInstanceAction(action);
     }

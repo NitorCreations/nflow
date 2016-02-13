@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -17,9 +16,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
+import com.nitorcreations.nflow.engine.service.HealthCheckService;
 import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -31,9 +32,8 @@ public class MetricsWorkflowExecutorListenerTest {
   MetricRegistry metricRegistry;
   MetricsWorkflowExecutorListener listener;
   WorkflowDefinition<?> definition = mock(WorkflowDefinition.class);
-  WorkflowInstance instance = new WorkflowInstance.Builder().setRetries(2).setState("my-state").build();
-  WorkflowInstance instance2 = new WorkflowInstance.Builder().setRetries(2).setState("my-state")
-      .setNextActivation(DateTime.now()).build();
+  WorkflowInstance instance = new WorkflowInstance.Builder().setRetries(2).setState("my-state").setNextActivation(null).build();
+  WorkflowInstance instance2 = new WorkflowInstance.Builder().setRetries(2).setState("my-state").build();
   StateExecution stateExecution = mock(StateExecution.class);
   ListenerContext context = new WorkflowExecutorListener.ListenerContext(
       definition, instance, stateExecution);
@@ -57,7 +57,7 @@ public class MetricsWorkflowExecutorListenerTest {
   }
 
   @Test
-  public void beforeContext() {
+  public void whenNextActivationIsSetToNullBeforeContext() {
     listener.beforeProcessing(context);
     assertEquals(1, metricRegistry.getHistograms().get("foobarName.0.myWorkflow.my-state.retries").getCount());
     assertNotNull(metricRegistry.getTimers().get("foobarName.0.myWorkflow.my-state.execution-time"));
@@ -65,7 +65,7 @@ public class MetricsWorkflowExecutorListenerTest {
   }
 
   @Test
-  public void whenNextActivationIsSetBeforeContext() {
+  public void beforeContext() {
     listener.beforeProcessing(context2);
     assertEquals(1, metricRegistry.getHistograms().get("foobarName.0.myWorkflow.my-state.retries").getCount());
     assertNotNull(metricRegistry.getTimers().get("foobarName.0.myWorkflow.my-state.execution-time"));
@@ -93,6 +93,21 @@ public class MetricsWorkflowExecutorListenerTest {
   @Configuration
   @Import(NflowMetricsContext.class)
   public static class Config {
+    @Bean
+    public MetricRegistry metricRegistry() {
+      return new MetricRegistry();
+    }
+
+    @Bean
+    public HealthCheckRegistry healthCheckRegistry() {
+      return new HealthCheckRegistry();
+    }
+
+    @Bean
+    public HealthCheckService healthCheckService() {
+      return mock(HealthCheckService.class);
+    }
+
     @Bean
     public ExecutorDao executorDao() {
       ExecutorDao dao = mock(ExecutorDao.class);

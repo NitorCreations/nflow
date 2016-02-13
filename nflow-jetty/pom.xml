@@ -18,7 +18,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <nflow.explorer.version>1.0.0</nflow.explorer.version>
-    <swagger.ui.version>2.1.0</swagger.ui.version>
+    <swagger.ui.version>2.1.4</swagger.ui.version>
   </properties>
   <build>
     <plugins>
@@ -203,6 +203,14 @@
       <artifactId>cxf-rt-management</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-service-description</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-jaxrs</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
     </dependency>
@@ -241,6 +249,10 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-servlets</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

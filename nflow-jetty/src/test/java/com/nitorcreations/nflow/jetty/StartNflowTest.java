@@ -29,20 +29,21 @@ public class StartNflowTest {
 
   private void startStop(JettyServerContainer jetty) throws Exception {
     for (int i = 0; i < 5000; i+=50) {
-      if (jetty.isStarted())
+      if (jetty.isStarted()) {
         break;
+      }
       sleep(50);
     }
     assertTrue("Jetty did not start in 5 seconds", jetty.isStarted());
     sleep(100);
     jetty.stop();
     for (int i = 0; i < 10000; i+=50) {
-      if (jetty.isStopped())
+      if (jetty.isStopped()) {
         return;
+      }
       sleep(50);
     }
     fail("Jetty did not stop gracefully in 10 seconds");
-
   }
 
   @Ignore(value = "Not used generally to avoid port conflicts")

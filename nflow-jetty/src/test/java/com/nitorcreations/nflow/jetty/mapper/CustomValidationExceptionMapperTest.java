@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.jetty.validation;
+package com.nitorcreations.nflow.jetty.mapper;
 
 import static java.util.Arrays.asList;
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.nitorcreations.nflow.jetty.mapper.CustomValidationExceptionMapper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomValidationExceptionMapperTest {

@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.rest.config;
+package com.nitorcreations.nflow.jetty.mapper;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.hamcrest.CoreMatchers.is;
@@ -8,6 +8,8 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
+
+import com.nitorcreations.nflow.jetty.mapper.BadRequestExceptionMapper;
 
 public class BadRequestExceptionMapperTest {
   BadRequestExceptionMapper mapper = new BadRequestExceptionMapper();

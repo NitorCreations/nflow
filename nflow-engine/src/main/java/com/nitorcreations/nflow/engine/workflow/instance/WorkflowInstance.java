@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import static org.joda.time.DateTime.now;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -184,7 +186,7 @@ public class WorkflowInstance {
     String externalId;
     String state;
     String stateText;
-    DateTime nextActivation;
+    DateTime nextActivation = now();
     final Map<String, String> originalStateVariables = new LinkedHashMap<>();
     final Map<String, String> stateVariables = new LinkedHashMap<>();
     List<WorkflowInstanceAction> actions = new ArrayList<>();

@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.servlets.AdminServlet;
+import com.nitorcreations.nflow.jetty.servlet.MetricsServletContextListener;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -89,9 +91,10 @@ public class StartNflow
     setupJmx(server, env);
     setupServerConnector(server, host, port);
     ServletContextHandler context = setupServletContextHandler(env.getRequiredProperty("extra.resource.directories", String[].class));
-    setupHandlers(server, context);
+    setupHandlers(server, context, env);
     setupSpring(context, env);
     setupCxf(context);
+    setupMetricsAdminServlet(context);
     server.start();
     long end = currentTimeMillis();
     JettyServerContainer startedServer = new JettyServerContainer(server);
@@ -100,6 +103,7 @@ public class StartNflow
     logger.info("API available at http://{}:{}/api/", host, port);
     logger.info("Swagger available at http://{}:{}/doc/", host, port);
     logger.info("Explorer available at http://{}:{}/explorer/", host, port);
+    logger.info("Metrics and health checks available at http://{}:{}/metrics/", host, port);
     return startedServer;
   }
 
@@ -117,6 +121,13 @@ public class StartNflow
     ServletHolder servlet = context.addServlet(CXFServlet.class, "/api/*");
     servlet.setDisplayName("nflow-cxf-services");
     servlet.setInitOrder(1);
+  }
+
+  protected void setupMetricsAdminServlet(ServletContextHandler context) {
+    ServletHolder servlet = context.addServlet(AdminServlet.class, "/metrics/*");
+    context.addEventListener(new MetricsServletContextListener());
+    servlet.setDisplayName("nflow-metrics-admin-servlet");
+    servlet.setInitOrder(2);
   }
 
   private Server setupServer() {
@@ -187,18 +198,19 @@ public class StartNflow
     return context;
   }
 
-  private void setupHandlers(final Server server, final ServletContextHandler context) {
+  private void setupHandlers(final Server server, final ServletContextHandler context, ConfigurableEnvironment env) {
     HandlerCollection handlers = new HandlerCollection();
     server.setHandler(handlers);
     handlers.addHandler(context);
-    handlers.addHandler(createAccessLogHandler());
+    handlers.addHandler(createAccessLogHandler(env));
   }
 
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-  private RequestLogHandler createAccessLogHandler() {
+  private RequestLogHandler createAccessLogHandler(ConfigurableEnvironment env) {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
-    new File("log").mkdir();
-    NCSARequestLog requestLog = new NCSARequestLog(Paths.get("log", "yyyy_mm_dd.request.log").toString());
+    String directory = env.getProperty("nflow.jetty.accesslog.directory", "log");
+    new File(directory).mkdir();
+    NCSARequestLog requestLog = new NCSARequestLog(Paths.get(directory, "yyyy_mm_dd.request.log").toString());
     requestLog.setRetainDays(90);
     requestLog.setAppend(true);
     requestLog.setLogDateFormat("yyyy-MM-dd:HH:mm:ss Z");

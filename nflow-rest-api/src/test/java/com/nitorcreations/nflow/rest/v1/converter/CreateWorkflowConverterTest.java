@@ -42,7 +42,7 @@ public class CreateWorkflowConverterTest {
     req.requestData = mock(JsonNode.class);
     req.type = "wfType";
     req.startState = "startState";
-    WorkflowInstance i = converter.convertAndValidate(req);
+    WorkflowInstance i = converter.convert(req);
     assertThat(i.nextActivation, equalTo(req.activationTime));
     assertThat(i.businessKey, equalTo(req.businessKey));
     assertThat(i.externalId, equalTo(req.externalId));
@@ -54,7 +54,7 @@ public class CreateWorkflowConverterTest {
   public void convertAndValidateWorksWithMinimalData() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "wfType";
-    WorkflowInstance i = converter.convertAndValidate(req);
+    WorkflowInstance i = converter.convert(req);
     assertThat(i.nextActivation, notNullValue(DateTime.class));
     assertThat(i.businessKey, nullValue(String.class));
     assertThat(i.externalId, nullValue(String.class));

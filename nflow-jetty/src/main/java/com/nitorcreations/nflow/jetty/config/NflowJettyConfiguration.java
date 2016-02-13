@@ -14,9 +14,11 @@ import javax.ws.rs.ext.RuntimeDelegate;
 
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.feature.Feature;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.message.Message;
@@ -32,11 +34,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
-import com.nitorcreations.nflow.jetty.validation.CustomValidationExceptionMapper;
-import com.nitorcreations.nflow.rest.config.BadRequestExceptionMapper;
+import com.nitorcreations.nflow.jetty.mapper.BadRequestExceptionMapper;
+import com.nitorcreations.nflow.jetty.mapper.CustomValidationExceptionMapper;
+import com.nitorcreations.nflow.jetty.mapper.NotFoundExceptionMapper;
 import com.nitorcreations.nflow.rest.config.CorsHeaderContainerResponseFilter;
 import com.nitorcreations.nflow.rest.config.DateTimeParamConverterProvider;
-import com.nitorcreations.nflow.rest.config.NotFoundExceptionMapper;
 import com.nitorcreations.nflow.rest.config.RestConfiguration;
 import com.nitorcreations.nflow.rest.v1.ArchiveResource;
 import com.nitorcreations.nflow.rest.v1.StatisticsResource;
@@ -46,7 +48,7 @@ import com.nitorcreations.nflow.rest.v1.WorkflowInstanceResource;
 
 @Configuration
 @ComponentScan("com.nitorcreations.nflow.jetty")
-@Import(value = { RestConfiguration.class, JmxConfiguration.class})
+@Import(value = { RestConfiguration.class, JmxConfiguration.class, MetricsConfiguration.class})
 @EnableTransactionManagement
 public class NflowJettyConfiguration {
 
@@ -75,11 +77,23 @@ public class NflowJettyConfiguration {
         new BadRequestExceptionMapper(),
         new DateTimeParamConverterProvider()
         ));
-    factory.setFeatures(asList(new LoggingFeature()));
+    factory.setFeatures(asList(new LoggingFeature(), swaggerFeature()));
     factory.setBus(cxf());
     factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationInInterceptor()));
     factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationOutInterceptor()));
     return factory.create();
+  }
+
+  private Feature swaggerFeature() {
+    Swagger2Feature feature = new Swagger2Feature();
+    feature.setBasePath(env.getProperty("nflow.swagger.basepath", "/api"));
+    feature.setContact("nFlow community");
+    feature.setDescription("nFlow REST API");
+    feature.setLicense("European Union Public Licence V. 1.1");
+    feature.setLicenseUrl("https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt");
+    feature.setTitle("nflow-rest-api");
+    feature.setVersion("1");
+    return feature;
   }
 
   private CorsHeaderContainerResponseFilter corsHeadersProvider() {
@@ -119,4 +133,5 @@ public class NflowJettyConfiguration {
   public PlatformTransactionManager transactionManager(@NFlow DataSource nflowDataSource)  {
     return new DataSourceTransactionManager(nflowDataSource);
   }
+
 }
