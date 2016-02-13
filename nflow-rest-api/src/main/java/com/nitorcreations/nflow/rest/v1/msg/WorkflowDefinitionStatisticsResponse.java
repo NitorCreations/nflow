@@ -1,18 +1,19 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Response for workflow definition statistics")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
 public class WorkflowDefinitionStatisticsResponse {
 
   @ApiModelProperty(value = "Statistics per state", required = true)
+  // TODO: Swagger fails to scan StateStatistics-class because it is referenced by a Map. There's multiple Swagger issues open
+  // related to this. Follow issue: https://github.com/swagger-api/swagger-ui/issues/1248
   public Map<String, StateStatistics> stateStatistics = new LinkedHashMap<>();
 
   @ApiModel(description = "Statistics for a state")

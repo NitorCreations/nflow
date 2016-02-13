@@ -45,11 +45,11 @@ public class StatisticsResourceTest {
 
   @Test
   public void queryStatisticsDelegatesToStatisticsService() {
-    when(service.queryStatistics()).thenReturn(stats);
+    when(service.getStatistics()).thenReturn(stats);
     when(converter.convert(stats)).thenReturn(expected);
     StatisticsResponse response = resource.queryStatistics();
 
-    verify(service).queryStatistics();
+    verify(service).getStatistics();
     assertThat(response, is(response));
   }
 

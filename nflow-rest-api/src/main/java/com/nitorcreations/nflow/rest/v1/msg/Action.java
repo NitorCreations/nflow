@@ -1,21 +1,20 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Map;
 
 import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class Action {
 
-  @ApiModelProperty(value = "Identifier of the workflow instance action.")
+  @ApiModelProperty(value = "Identifier of the workflow instance action")
   public int id;
-  @ApiModelProperty(value = "Type of state: 'stateExecution', 'stateExecutionFailed', 'externalChange' or 'recovery'.")
+  @ApiModelProperty(value = "Type of state (stateExecution, stateExecutionFailed, externalChange, recovery)")
   public String type;
   @ApiModelProperty(value = "Name of state")
   public String state;
@@ -29,7 +28,7 @@ public class Action {
   public DateTime executionEndTime;
   @ApiModelProperty(value = "Identifier of the executor that executed this action")
   public int executorId;
-  @ApiModelProperty(value = "Updated state variables.", required = false)
+  @ApiModelProperty(value = "Updated state variables", required = false)
   public Map<String, Object> updatedStateVariables;
 
   public Action() {

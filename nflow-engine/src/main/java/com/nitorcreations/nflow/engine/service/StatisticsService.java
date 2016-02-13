@@ -24,7 +24,7 @@ public class StatisticsService {
    * Return queue statistics for the executor group.
    * @return Queue statistics.
    */
-  public Statistics queryStatistics() {
+  public Statistics getStatistics() {
     return statisticsDao.getQueueStatistics();
   }
 

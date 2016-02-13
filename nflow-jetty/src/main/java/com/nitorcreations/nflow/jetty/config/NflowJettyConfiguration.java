@@ -87,8 +87,10 @@ public class NflowJettyConfiguration {
   private Feature swaggerFeature() {
     Swagger2Feature feature = new Swagger2Feature();
     feature.setBasePath(env.getProperty("nflow.swagger.basepath", "/api"));
-    feature.setContact("nFlow community");
-    feature.setDescription("nFlow REST API");
+    feature.setContact("nFlow community (nflow-users@googlegroups.com)");
+    feature.setDescription(
+        "nFlow REST API provides services for managing workflow instances and querying metadata (statistics, workflow "
+            + "definitions, etc) of nFlow Engine. The services are also used by nFlow Explorer user interface.");
     feature.setLicense("European Union Public Licence V. 1.1");
     feature.setLicenseUrl("https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt");
     feature.setTitle("nflow-rest-api");

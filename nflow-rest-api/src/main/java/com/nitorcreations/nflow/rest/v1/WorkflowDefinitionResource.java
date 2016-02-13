@@ -27,6 +27,7 @@ import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/v1/workflow-definition")
 @Consumes(APPLICATION_JSON)
@@ -49,7 +50,8 @@ public class WorkflowDefinitionResource {
 
   @GET
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List")
-  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(@QueryParam("type") List<String> types) {
+  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(
+      @QueryParam("type") @ApiParam(value = "Included workflow types") List<String> types) {
     List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
     Set<String> reqTypes = new HashSet<>(types);
     Set<String> foundTypes = new HashSet<>();
