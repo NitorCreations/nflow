@@ -35,7 +35,7 @@ public class StatisticsResource {
   private StatisticsConverter statisticsConverter;
 
   @GET
-  @ApiOperation("Get executor group statistics")
+  @ApiOperation(value = "Get executor group statistics", notes = "Returns counts of queued and executing workflow instances.")
   public StatisticsResponse queryStatistics() {
     return statisticsConverter.convert(statisticsService.getStatistics());
   }

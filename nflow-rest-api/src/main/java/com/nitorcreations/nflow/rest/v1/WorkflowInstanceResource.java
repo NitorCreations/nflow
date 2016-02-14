@@ -92,7 +92,8 @@ public class WorkflowInstanceResource {
 
   @PUT
   @Path("/{id}")
-  @ApiOperation("Update workflow instance")
+  @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
+      + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
@@ -119,7 +120,7 @@ public class WorkflowInstanceResource {
 
   @GET
   @Path("/{id}")
-  @ApiOperation("Fetch a workflow instance")
+  @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include) {
