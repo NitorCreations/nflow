@@ -1,8 +1,8 @@
 package com.nitorcreations.nflow.rest.v1.msg;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @ApiModel(description = "Basic information of workflow definition")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
@@ -14,13 +14,10 @@ public class ListWorkflowDefinitionResponse implements Comparable<ListWorkflowDe
   @ApiModelProperty(value = "Name of the workflow definition", required=true)
   public String name;
 
-  @ApiModelProperty("Description workflow definition")
+  @ApiModelProperty("Description of the workflow definition")
   public String description;
 
-  @ApiModelProperty(value = "Version of the workflow definition", required=true)
-  public int version;
-
-  @ApiModelProperty(value = "Generic error state", required=true)
+  @ApiModelProperty(value = "Default error state", required = true)
   public String onError;
 
   @ApiModelProperty(value = "Workflow definition states and transitions", required=true)

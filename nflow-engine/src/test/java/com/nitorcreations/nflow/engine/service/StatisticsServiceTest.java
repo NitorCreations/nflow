@@ -25,7 +25,7 @@ public class StatisticsServiceTest {
 
   @Test
   public void queryStatisticsDelegatesToDao() {
-    service.queryStatistics();
+    service.getStatistics();
 
     verify(dao).getQueueStatistics();
   }

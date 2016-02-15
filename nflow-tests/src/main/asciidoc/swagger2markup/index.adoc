@@ -1,0 +1,11 @@
+// The convertSwagger2markup plugin creates three separate files:
+//    overview.adoc
+//    path.adoc
+//    definitions.adoc
+// We will combine them into one. This has the benefit that HTML and PDF
+// links that are created in paths.adoc, will actually link to items in
+// definitions.adoc.
+
+include::swagger2markup/overview.adoc[]
+include::swagger2markup/paths.adoc[]
+include::swagger2markup/definitions.adoc[]

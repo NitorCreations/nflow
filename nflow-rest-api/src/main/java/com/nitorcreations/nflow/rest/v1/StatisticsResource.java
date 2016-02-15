@@ -1,8 +1,6 @@
 package com.nitorcreations.nflow.rest.v1;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -20,6 +18,10 @@ import com.nitorcreations.nflow.rest.v1.converter.StatisticsConverter;
 import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
 import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/v1/statistics")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
@@ -33,17 +35,20 @@ public class StatisticsResource {
   private StatisticsConverter statisticsConverter;
 
   @GET
-  @ApiOperation("Query statistics")
+  @ApiOperation(value = "Get executor group statistics", notes = "Returns counts of queued and executing workflow instances.")
   public StatisticsResponse queryStatistics() {
-    return statisticsConverter.convert(statisticsService.queryStatistics());
+    return statisticsConverter.convert(statisticsService.getStatistics());
   }
 
   @GET
   @Path("/workflow/{type}")
   @ApiOperation("Get workflow definition statistics")
-  public WorkflowDefinitionStatisticsResponse getStatistics(@PathParam("type") String type,
-      @QueryParam("createdAfter") DateTime createdAfter, @QueryParam("createdBefore") DateTime createdBefore,
-      @QueryParam("modifiedAfter") DateTime modifiedAfter, @QueryParam("modifiedBefore") DateTime modifiedBefore) {
+  public WorkflowDefinitionStatisticsResponse getStatistics(
+      @PathParam("type") @ApiParam(value = "Workflow definition type", required = true) String type,
+      @QueryParam("createdAfter") @ApiParam(value = "Include only workflow instances created after given time") DateTime createdAfter,
+      @QueryParam("createdBefore") @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
+      @QueryParam("modifiedAfter") @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
+      @QueryParam("modifiedBefore") @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
     return statisticsConverter.convert(statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter,
         modifiedBefore));
   }

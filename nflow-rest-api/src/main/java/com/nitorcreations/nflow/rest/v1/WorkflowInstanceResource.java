@@ -80,9 +80,10 @@ public class WorkflowInstanceResource {
   }
 
   @PUT
-  @ApiOperation(value = "Submit new workflow instance", response = CreateWorkflowInstanceResponse.class, responseContainer = "List")
-  @ApiResponse(code = 201, message = "Workflow was created")
-  public Response createWorkflowInstance(@Valid CreateWorkflowInstanceRequest req) {
+  @ApiOperation(value = "Submit new workflow instance")
+  @ApiResponses(@ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class))
+  public Response createWorkflowInstance(
+      @Valid @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
     int id = workflowInstances.insertWorkflowInstance(instance);
     instance = workflowInstances.getWorkflowInstance(id);
@@ -91,11 +92,12 @@ public class WorkflowInstanceResource {
 
   @PUT
   @Path("/{id}")
-  @ApiOperation("Update workflow instance state")
+  @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
+      + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
-      UpdateWorkflowInstanceRequest req) {
+      @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id).setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
     if (!isEmpty(req.state)) {
@@ -118,7 +120,7 @@ public class WorkflowInstanceResource {
 
   @GET
   @Path("/{id}")
-  @ApiOperation("Fetch a workflow instance")
+  @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include) {
@@ -134,7 +136,7 @@ public class WorkflowInstanceResource {
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("id") @ApiParam("Internal id of workflow instance") List<Integer> ids,
-      @QueryParam("type") @ApiParam("Type of workflow instance") List<String> types,
+      @QueryParam("type") @ApiParam("Workflow definition type of workflow instance") List<String> types,
       @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Integer parentWorkflowId,
       @QueryParam("parentActionId") @ApiParam("Id of parent workflow instance action") Integer parentActionId,
       @QueryParam("state") @ApiParam("Current state of workflow instance") List<String> states,
