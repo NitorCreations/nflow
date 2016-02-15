@@ -52,10 +52,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Path("/v1/workflow-instance")
+@Path("/nflow/v1/workflow-instance")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("Workflow instance management")
+@Api("nFlow workflow instance management")
 @Component
 public class WorkflowInstanceResource {
   private final WorkflowInstanceService workflowInstances;

@@ -37,7 +37,7 @@ public class RestClientConfiguration {
     bean.getFeatures().add(new LoggingFeature());
     bean.setProviders(asList(jsonProvider));
     bean.setBus(cxf());
-    return bean.createWebClient().type(APPLICATION_JSON).accept(APPLICATION_JSON).path("api").path("v1");
+    return bean.createWebClient().type(APPLICATION_JSON).accept(APPLICATION_JSON).path("api").path("nflow").path("v1");
   }
 
   @Bean(destroyMethod = "shutdown")

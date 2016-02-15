@@ -1,8 +1,6 @@
 package com.nitorcreations.nflow.rest.v1;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,10 +19,13 @@ import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowExecutorConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
 
-@Path("/v1/workflow-executor")
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Path("/nflow/v1/workflow-executor")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("Workflow executor management")
+@Api("nFlow workflow executor management")
 @Component
 public class WorkflowExecutorResource {
 
