@@ -1,6 +1,7 @@
 package com.nitorcreations.nflow.jetty.spring;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
 
   public NflowStandardEnvironment(Map<String, Object> overrideProperties) {
     getPropertySources().addLast(new MapPropertySource("override", overrideProperties));
+    addExternalPropertyResource();
     String env = getProperty("env", "local");
     addActiveProfile(env);
     addPropertyResource(env);
@@ -43,6 +45,17 @@ public class NflowStandardEnvironment extends StandardEnvironment {
     }
     if (!dbProfileDefined) {
       addActiveProfile("nflow.db.h2");
+    }
+  }
+
+  private void addExternalPropertyResource() {
+    String externalLocation = getProperty("nflow.external.config");
+    if (!isEmpty(externalLocation)) {
+      try {
+        getPropertySources().addLast(new ResourcePropertySource(externalLocation));
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to initialize external properties from location " + externalLocation);
+      }
     }
   }
 

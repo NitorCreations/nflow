@@ -22,10 +22,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@Path("/v1/statistics")
+@Path("/nflow/v1/statistics")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("Statistics")
+@Api("nFlow statistics")
 @Component
 public class StatisticsResource {
 

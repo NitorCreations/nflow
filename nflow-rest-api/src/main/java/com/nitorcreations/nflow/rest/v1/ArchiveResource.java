@@ -18,10 +18,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@Path("/v1/archive")
+@Path("/nflow/v1/archive")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("Archiving")
+@Api("nFlow archiving")
 @Component
 public class ArchiveResource {
 

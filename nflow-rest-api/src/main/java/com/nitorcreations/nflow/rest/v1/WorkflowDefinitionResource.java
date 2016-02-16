@@ -29,10 +29,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@Path("/v1/workflow-definition")
+@Path("/nflow/v1/workflow-definition")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("Workflow definition management")
+@Api("nFlow workflow definition management")
 @Component
 public class WorkflowDefinitionResource {
 
