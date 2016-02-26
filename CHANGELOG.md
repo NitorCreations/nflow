@@ -1,4 +1,9 @@
-nFlow Explorer change log
+# nFlow Explorer change log
+
+1.1.0 2016-02-26
+================
+
+* Updated to use nFlow 3.0.0
 
 1.0.0 2015-11-06
 ================
