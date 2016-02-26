@@ -1,5 +1,33 @@
 ## next version
 
+## 3.0.0 (2016-02-26)
+
+**Highlights**
+- Easier to embed nflow-rest-api to applications
+- Production use support features for nflow-jetty
+
+**Details**
+- nflow-engine:
+  - Independent workflows can be created in state methods (StateExecution.addWorkflows())
+  - Added service for checking database connection status (HealthCheckService)
+  - Support for MySQL database 5.7.x
+  - fixed: workflow instance recovery functionality (broken by version 2.0.0)
+  - fixed: Oracle database schema
+- nflow-rest-api:
+  - **_breaking change:_** Prefixed operation paths by "/nflow" (e.g. /v1/statistics -> /nflow/v1/statistics) 
+  - Support for Jersey JAX-RS implementation
+  - **_breaking change:_** Moved exception mappers to nflow-jetty (BadRequestExceptionMapper, CustomValidationExceptionMapper, NotFoundExceptionMapper)
+  - Improved Swagger documentation
+- nflow-jetty:
+  - New configuration properties:
+    - nflow.jetty.accesslog.directory: access log directory (default "log")
+    - nflow.swagger.basepath: Swagger basepath for services (default "/api")
+    - nflow.external.config: location for external configuration (default undefined)
+  - Added metrics and health check endpoints from [Dropwizard](http://metrics.dropwizard.io/) to /metrics -context
+- nflow-metrics:
+  - **_breaking change:_** No longer defines MetricRegistry bean (must be injected from outside)
+  - Added database check feature for health checks (DatabaseConnectionHealthCheck)
+
 ## 2.0.0 (2015-11-06)
 
 **Highlights**
