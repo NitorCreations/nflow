@@ -51,6 +51,21 @@ public class NflowStandardEnvironmentTest {
   }
 
   @Test
+  public void externalPropertiesEffective() {
+    Map<String, Object> overrideProperties = new HashMap<>();
+    overrideProperties.put("nflow.external.config", "/external.properties");
+    NflowStandardEnvironment environment = new NflowStandardEnvironment(overrideProperties);
+    assertThat(environment.getProperty("nflow.executor.group"), is("externallyDefinedExecutorGroup"));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void missingExternalPropertiesException() {
+    Map<String, Object> overrideProperties = new HashMap<>();
+    overrideProperties.put("nflow.external.config", "/missing.properties");
+    new NflowStandardEnvironment(overrideProperties);
+  }
+
+  @Test
   public void profilesPropertyEnablesSpringProfiles() {
     setProperty("profiles", "plain.test.profile,other.test.profile");
     NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());

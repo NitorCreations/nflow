@@ -7,6 +7,7 @@ import static java.net.InetAddress.getLocalHost;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive;
 
 import java.lang.management.ManagementFactory;
@@ -20,6 +21,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -43,6 +45,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @Component
 public class ExecutorDao {
+  private static final Logger logger = getLogger(ExecutorDao.class);
   private JdbcTemplate jdbc;
   SQLVariants sqlVariants;
   private WorkflowInstanceDao workflowInstanceDao;
@@ -130,6 +133,7 @@ public class ExecutorDao {
     } catch (Exception ex) {
       throw new RuntimeException("Failed to obtain host name and pid of running jvm", ex);
     }
+    logger.info("Joining executor group {}", executorGroup);
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
