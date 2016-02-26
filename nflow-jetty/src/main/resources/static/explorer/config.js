@@ -1,6 +1,6 @@
 'use strict';
 var Config = function() {
-  this.nflowUrl = '../api';
+  this.nflowUrl = '../api/nflow';
   this.nflowApiDocs = '../doc/';
 
   this.radiator = {
