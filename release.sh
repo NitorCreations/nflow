@@ -50,7 +50,7 @@ SNAPSHOT_VERSION=$SNAPSHOT_VERSION-SNAPSHOT
 prompt_continue "set version $RELEASE_VERSION to local git repository"
 
 mvn versions:set -DnewVersion=$RELEASE_VERSION
-sed -i -e 's/$PREVIOUS_VERSION/$RELEASE_VERSION/g' README.md
+sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" README.md
 git commit -am "release $RELEASE_VERSION"
 
 prompt_continue "push version $RELEASE_VERSION to remote git repository"
@@ -83,12 +83,12 @@ mvn site javadoc:aggregate
 git checkout gh-pages
 
 mv target/site/apidocs apidocs/v$RELEASE_VERSION
-sed -i '2s/.*/redirect_to: \/nflow\/apidocs\/$RELEASE_VERSION\//' apidocs/current/index.html
+sed -i "2s/.*/redirect_to: \/nflow\/apidocs\/v$RELEASE_VERSION\//" apidocs/current/index.html
 git add apidocs/current/index.html apidocs/v$RELEASE_VERSION
 git commit -m "updated javadocs for version $RELEASE_VERSION"
 
 mv nflow-tests/target/rest-api-docs rest-apidocs/v$RELEASE_VERSION
-sed -i '2s/.*/redirect_to: \/nflow\/rest-apidocs\/$RELEASE_VERSION\//' rest-apidocs/current/index.html
+sed -i "2s/.*/redirect_to: \/nflow\/rest-apidocs\/v$RELEASE_VERSION\//" rest-apidocs/current/index.html
 git add rest-apidocs/current/index.html rest-apidocs/v$RELEASE_VERSION
 git commit -m "updated REST API documentation for version $RELEASE_VERSION"
 
