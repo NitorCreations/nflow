@@ -5,7 +5,7 @@ var fixtures = {};
 var demoWorkflow = {
   name: 'demo',
   states: [ 'begin', 'process', 'done', 'error' ],
-  withActionHistory: { id: 1, state: 'begin' }
+  withActionHistory: { id: 1, state: 'done' }
 };
 
 fixtures.demoServer = {
@@ -25,7 +25,7 @@ fixtures.nbankNflow = {
     {
       name: 'creditDecision',
       states: [ 'internalBlacklist', 'decisionEngine', 'satQuery', 'manualDecision', 'approved', 'rejected' ],
-      withActionHistory: { id: 2, state: 'approved' }
+      withActionHistory: { id: 2, state: 'done' }
     },
     { name: 'processCreditApplication' },
     { name: 'withdrawLoan' }
