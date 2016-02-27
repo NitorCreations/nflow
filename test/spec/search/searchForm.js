@@ -28,7 +28,7 @@ describe('Directive: searchForm', function () {
       WorkflowService = _WorkflowService_;
     }));
 
-    function getCtrl(WorkflowSearch) {
+    function getCtrl(WorkflowService) {
       return $controller('SearchFormCtrl', { CriteriaModel: CriteriaModel, WorkflowService: WorkflowService});
     }
 

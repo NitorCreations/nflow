@@ -9,11 +9,10 @@
   m.controller('FrontPageCtrl', function FrontPageCtrl(WorkflowDefinitionService) {
     var self = this;
 
-    console.log('jfjfjfjf', WorkflowDefinitionService.list())
-    WorkflowDefinitionService.list().then(function(defs) {
-      console.log('kheee', defs)
-      self.definitions = defs;
-    });
+    WorkflowDefinitionService.list()
+      .then(function(definitions) {
+        self.definitions = definitions;
+      });
   });
 
 })();
