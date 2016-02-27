@@ -2,11 +2,11 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.services.WorkflowStatsPoller', [
-    'nflowExplorer.services.WorkflowDefinitionStats',
+    'nflowExplorer.services.WorkflowDefinitionService',
   ]);
 
   m.service('WorkflowStatsPoller', function WorkflowStatsPoller($rootScope, config, $interval,
-                                                                WorkflowDefinitionStats) {
+                                                                WorkflowDefinitionService) {
     var tasks = {};
 
     function addStateData(type, time, stats) {
@@ -18,14 +18,14 @@
     }
 
     function updateStats(type) {
-      WorkflowDefinitionStats.get({type: type},
-        function(stats) {
+      WorkflowDefinitionService.getStats(type)
+        .then(function(stats) {
           console.info('Fetched statistics for ' + type);
           addStateData(type, new Date(), stats);
           tasks[type].latest = stats;
           $rootScope.$broadcast('workflowStatsUpdated', type);
-        },
-        function() {
+        })
+        .catch(function() {
           console.error('Fetching workflow ' + type + ' stats failed');
           addStateData(type, new Date(), {});
           $rootScope.$broadcast('workflowStatsUpdated', type);

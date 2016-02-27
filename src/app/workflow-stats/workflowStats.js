@@ -1,7 +1,7 @@
 'use strict';
 angular.module('nflowExplorer.workflowStats', [])
 .controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitionService,
-                                                            WorkflowDefinitionStats, $stateParams, config) {
+                                                            $stateParams, config) {
   $scope.type=$stateParams.type;
 
   var itemCount = config.maxHistorySize;
@@ -203,17 +203,17 @@ angular.module('nflowExplorer.workflowStats', [])
 
 
   function updateChart() {
-    WorkflowDefinitionStats.get({type: $scope.type},
-                                function(stats) {
-                                  console.info('Fetching statistics', stats);
-                                  addStateData(new Date(), stats.stateStatistics);
-                                  draw();
-                                },
-                                function(error) {
-                                  console.error(error);
-                                  addStateData(new Date(), {});
-                                  draw();
-                                });
+    WorkflowDefinitionService.getStats($scope.type)
+      .then(function(stats) {
+        console.info('Fetching statistics', stats);
+        addStateData(new Date(), stats.stateStatistics);
+        draw();
+      })
+      .catch(function(error) {
+        console.error(error);
+        addStateData(new Date(), {});
+        draw();
+      });
   }
 
   $scope.$on('$destroy', function(){

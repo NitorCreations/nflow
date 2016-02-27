@@ -9,6 +9,7 @@
     var api = this;
     api.get = get;
     api.list = list;
+    api.getStats = getStats;
 
     var getCache = $cacheFactory('workflow-definition');
     function get(type) {
@@ -30,6 +31,11 @@
           cache: listCache} });
 
       return resource.query().$promise;
+    }
+
+    function getStats(type) {
+      var stats = $resource(config.nflowUrl + '/v1/statistics/workflow/:type', {type: '@type'});
+      return stats.get({type: type}).$promise;
     }
 
   });

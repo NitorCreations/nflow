@@ -22,7 +22,8 @@
     };
   });
 
-  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi, WorkflowDefinitionStats, WorkflowStatsPoller, $timeout) {
+  m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi,
+                                                      WorkflowStatsPoller, $timeout) {
     var self = this;
     self.hasStatistics = false;
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
