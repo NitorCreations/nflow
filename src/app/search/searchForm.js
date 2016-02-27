@@ -3,6 +3,8 @@
 
   var m = angular.module('nflowExplorer.search.searchForm', [
     'nflowExplorer.search.criteriaModel',
+    'nflowExplorer.services',
+    'nflowExplorer.components',
   ]);
 
   m.directive('searchForm', function() {

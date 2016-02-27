@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.search.searchResult', []);
+  var m = angular.module('nflowExplorer.search.searchResult', [
+    'nflowExplorer.components',
+  ]);
 
   m.directive('searchResult', function() {
     return {

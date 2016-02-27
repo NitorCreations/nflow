@@ -2,6 +2,8 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.services.ExecutorPoller', [
+    'nflowExplorer.config',
+    'nflowExplorer.services.Executors'
   ]);
 
   m.factory('ExecutorPoller', function ($interval, config, Executors) {

@@ -2,6 +2,8 @@
   'use strict';
 
   angular.module('nflowExplorer.services', [
+    'nflowExplorer.config',
+
     'nflowExplorer.services.ExecutorPoller',
     'nflowExplorer.services.Executors',
     'nflowExplorer.services.GraphService',

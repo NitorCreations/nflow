@@ -22,8 +22,6 @@
     'ui.bootstrap',
   ]);
 
-  m.constant('config', new Config());
-
   m.run(function (ExecutorPoller) {
     ExecutorPoller.start();
   });

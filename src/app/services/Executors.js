@@ -1,7 +1,8 @@
 (function () {
   'use strict';
   var m = angular.module('nflowExplorer.services.Executors', [
-    'nflowExplorer.services.ExecutorPoller'
+    'nflowExplorer.config',
+    'ngResource',
   ]);
 
   m.factory('Executors', function ExecutorsFactory($resource, config) {
