@@ -9,8 +9,7 @@
     'nflowExplorer.services.Time',
     'nflowExplorer.services.WorkflowDefinitions',
     'nflowExplorer.services.WorkflowDefinitionStats',
-    'nflowExplorer.services.Workflows',
-    'nflowExplorer.services.WorkflowSearch',
+    'nflowExplorer.services.WorkflowService',
     'nflowExplorer.services.WorkflowStatsPoller',
   ]);
 
