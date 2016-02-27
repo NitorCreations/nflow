@@ -3,7 +3,7 @@
 
   var m = angular.module('nflowExplorer.executors', [
     'nflowExplorer.executors.executorTable',
-    'nflowExplorer.services.executorPoller'
+    'nflowExplorer.services.ExecutorPoller'
   ]);
 
   m.controller('ExecutorsCtrl', function ExecutorsCtrl(ExecutorPoller) {

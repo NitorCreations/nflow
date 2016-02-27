@@ -1,8 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.services.executorPoller', [
-    'nflowExplorer.services'
+  var m = angular.module('nflowExplorer.services.ExecutorPoller', [
   ]);
 
   m.factory('ExecutorPoller', function ($interval, config, Executors) {

@@ -11,16 +11,18 @@
     'nflowExplorer.search',
     'nflowExplorer.executors',
     'nflowExplorer.services',
-    'nflowExplorer.services.executorPoller',
     'nflowExplorer.workflow',
     'nflowExplorer.workflowDefinition',
     'nflowExplorer.workflowStats',
     'ngAnimate',
     'ngCookies',
+    'ngResource',
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap',
   ]);
+
+  m.constant('config', new Config());
 
   m.run(function (ExecutorPoller) {
     ExecutorPoller.start();
