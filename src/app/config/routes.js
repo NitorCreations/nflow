@@ -42,8 +42,8 @@
         templateUrl: 'app/search/search.html',
         controller: 'SearchCtrl as ctrl',
         resolve: {
-          definitions: function (WorkflowDefinitions) {
-            return WorkflowDefinitions.query().$promise;
+          definitions: function (WorkflowDefinitionService) {
+            return WorkflowDefinitionService.list();
           }
         }
       })
@@ -72,8 +72,8 @@
         controller: 'WorkflowDefinitionCtrl as ctrl',
         resolve: {
           loadCss: loadCss,
-          definition: function (WorkflowDefinitions, $stateParams) {
-            return getDefinition(WorkflowDefinitions, $stateParams.type);
+          definition: function (WorkflowDefinitionService, $stateParams) {
+            return getDefinition(WorkflowDefinitionService, $stateParams.type);
           }
         }
       })
@@ -87,8 +87,8 @@
           workflow: function (WorkflowService, $stateParams) {
             return WorkflowService.get($stateParams.id);
           },
-          definition: function (WorkflowDefinitions, workflow) {
-            return getDefinition(WorkflowDefinitions, workflow.type);
+          definition: function (WorkflowDefinitionService, workflow) {
+            return getDefinition(WorkflowDefinitionService, workflow.type);
           },
           parentWorkflow: function(WorkflowService, workflow) {
             if(workflow.parentWorkflowId) {
@@ -102,8 +102,8 @@
         }
       });
 
-    function getDefinition(WorkflowDefinitions, type) {
-      return WorkflowDefinitions.get({type: type}).$promise.then(_.first);
+    function getDefinition(WorkflowDefinitionService, type) {
+      return WorkflowDefinitionService.get(type).then(_.first);
     }
 
     function loadCss(GraphService) {

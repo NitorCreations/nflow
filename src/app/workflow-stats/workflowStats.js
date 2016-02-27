@@ -1,7 +1,7 @@
 'use strict';
 angular.module('nflowExplorer.workflowStats', [])
-.controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
-                                                             $stateParams, config) {
+.controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitionService,
+                                                            WorkflowDefinitionStats, $stateParams, config) {
   $scope.type=$stateParams.type;
 
   var itemCount = config.maxHistorySize;
@@ -196,10 +196,10 @@ angular.module('nflowExplorer.workflowStats', [])
     drawStackedLineChart('executionChart', createExecutionData(currentStates));
   }
 
-  WorkflowDefinitions.get({type: $scope.type},
-                          function(data) {
-                            $scope.definition = _.first(data);
-                          });
+  WorkflowDefinitionService.get($scope.type)
+    .then(function(data) {
+      $scope.definition = _.first(data);
+    });
 
 
   function updateChart() {

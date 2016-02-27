@@ -7,7 +7,7 @@
     'nflowExplorer.services.ExecutorService',
     'nflowExplorer.services.GraphService',
     'nflowExplorer.services.Time',
-    'nflowExplorer.services.WorkflowDefinitions',
+    'nflowExplorer.services.WorkflowDefinitionService',
     'nflowExplorer.services.WorkflowDefinitionStats',
     'nflowExplorer.services.WorkflowService',
     'nflowExplorer.services.WorkflowStatsPoller',

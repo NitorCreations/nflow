@@ -6,9 +6,14 @@
     'nflowExplorer.services',
   ]);
 
-  m.controller('FrontPageCtrl', function FrontPageCtrl(WorkflowDefinitions) {
+  m.controller('FrontPageCtrl', function FrontPageCtrl(WorkflowDefinitionService) {
     var self = this;
-    self.definitions = WorkflowDefinitions.query();
+
+    console.log('jfjfjfjf', WorkflowDefinitionService.list())
+    WorkflowDefinitionService.list().then(function(defs) {
+      console.log('kheee', defs)
+      self.definitions = defs;
+    });
   });
 
 })();

@@ -1,10 +1,12 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.services.WorkflowStatsPoller', []);
+  var m = angular.module('nflowExplorer.services.WorkflowStatsPoller', [
+    'nflowExplorer.services.WorkflowDefinitionStats',
+  ]);
 
   m.service('WorkflowStatsPoller', function WorkflowStatsPoller($rootScope, config, $interval,
-                                                                WorkflowDefinitions, WorkflowDefinitionStats) {
+                                                                WorkflowDefinitionStats) {
     var tasks = {};
 
     function addStateData(type, time, stats) {
