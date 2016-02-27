@@ -1,0 +1,6 @@
+<select class="endpoint-selection"
+        ng-if="ctrl.endpoints && ctrl.endpoints.length > 1"
+        ng-change="ctrl.endpointChange(ctrl.selectedEndpointId)"
+        ng-model="ctrl.selectedEndpointId"
+        ng-options="option.id as option.title for option in ctrl.endpoints">
+</select>

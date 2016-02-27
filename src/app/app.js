@@ -22,7 +22,8 @@
     'ui.bootstrap',
   ]);
 
-  m.run(function (ExecutorService) {
+  m.run(function (EndpointService, ExecutorService) {
+    EndpointService.init();
     ExecutorService.start();
   });
 
