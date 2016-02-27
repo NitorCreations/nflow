@@ -3,8 +3,7 @@
 
   var m = angular.module('nflowExplorer', [
     'nflowExplorer.about',
-    'nflowExplorer.config.console',
-    'nflowExplorer.config.routes',
+    'nflowExplorer.config',
     'nflowExplorer.components',
     'nflowExplorer.frontPage',
     'nflowExplorer.layout',
@@ -14,6 +13,7 @@
     'nflowExplorer.workflow',
     'nflowExplorer.workflowDefinition',
     'nflowExplorer.workflowStats',
+
     'ngAnimate',
     'ngCookies',
     'ngResource',
