@@ -5,7 +5,7 @@
     'nflowExplorer.about',
     'nflowExplorer.config.console',
     'nflowExplorer.config.routes',
-    'nflowExplorer.filters',
+    'nflowExplorer.components',
     'nflowExplorer.frontPage',
     'nflowExplorer.layout',
     'nflowExplorer.search',

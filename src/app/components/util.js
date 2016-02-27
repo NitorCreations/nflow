@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.util', []);
+  var m = angular.module('nflowExplorer.components.util', []);
 
   m.directive('emptyToNull', function() {
     return {
