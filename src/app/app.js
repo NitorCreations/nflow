@@ -22,8 +22,8 @@
     'ui.bootstrap',
   ]);
 
-  m.run(function (ExecutorPoller) {
-    ExecutorPoller.start();
+  m.run(function (ExecutorService) {
+    ExecutorService.start();
   });
 
 })();

@@ -1,17 +1,17 @@
 'use strict';
 
-describe('Service: ExecutorPoller', function () {
+describe('Service: ExecutorService', function () {
   var $httpBackend,
     $interval,
-    ExecutorPoller,
+    ExecutorService,
     url,
     pollInterval;
 
-  beforeEach(module('nflowExplorer.services.ExecutorPoller'));
-  beforeEach(inject(function (_$httpBackend_, _$interval_, _ExecutorPoller_, config) {
+  beforeEach(module('nflowExplorer.services.ExecutorService'));
+  beforeEach(inject(function (_$httpBackend_, _$interval_, _ExecutorService_, config) {
     $httpBackend = _$httpBackend_;
     $interval = _$interval_;
-    ExecutorPoller = _ExecutorPoller_;
+    ExecutorService = _ExecutorService_;
 
     url = config.nflowUrl + '/v1/workflow-executor';
     pollInterval = config.radiator.pollPeriod * 1000;
@@ -23,18 +23,18 @@ describe('Service: ExecutorPoller', function () {
   });
 
   it('initially has no executors', function () {
-    expect(ExecutorPoller.executors).toEqual([]);
+    expect(ExecutorService.executors).toEqual([]);
   });
 
   it('when started, executors are set and poll is started', function () {
     var backend = $httpBackend.whenGET(url).respond(200, [ 'expected' ]);
 
     // important: reference to executors must not be overwritten on poll update
-    var actual = ExecutorPoller.executors;
+    var actual = ExecutorService.executors;
     expect(actual).toEqual([]);
 
     $httpBackend.expectGET(url);
-    ExecutorPoller.start();
+    ExecutorService.start();
     $httpBackend.flush();
     expect(actual).toEqual([ 'expected']);
 
@@ -51,16 +51,16 @@ describe('Service: ExecutorPoller', function () {
     expect(actual).toEqual([ 'expected 3']);
   });
 
-  it('after start subsequent calls to start do not start multiple pollers', inject(function (Executors) {
-    var spy = sinon.spy(Executors, 'query');
+  it('after start subsequent calls to start do not start multiple pollers', inject(function (ExecutorService) {
+    var spy = sinon.spy(ExecutorService, 'list');
     $httpBackend.whenGET(url).respond(200, []);
 
-    ExecutorPoller.start();
-    ExecutorPoller.start();
+    ExecutorService.start();
+    ExecutorService.start();
     $httpBackend.flush();
 
     expect(spy.callCount).toBe(1);
 
-    Executors.query.restore();
+    ExecutorService.list.restore();
   }));
 });

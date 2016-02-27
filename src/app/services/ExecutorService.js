@@ -1,18 +1,24 @@
 (function () {
   'use strict';
-
-  var m = angular.module('nflowExplorer.services.ExecutorPoller', [
+  var m = angular.module('nflowExplorer.services.ExecutorService', [
     'nflowExplorer.config',
-    'nflowExplorer.services.Executors'
   ]);
 
-  m.factory('ExecutorPoller', function ($interval, config, Executors) {
+  m.service('ExecutorService', function ExecutorService(config, $http, $interval) {
     var started = false;
 
-    var api = {};
-    api.executors = [];
+    var api = this;
+    api.list = list;
     api.start = start;
-    return api;
+    api.executors = [];
+
+    function list() {
+      return $http({
+        url: config.nflowUrl + '/v1/workflow-executor'
+      }).then(function (response) {
+        return response.data;
+      });
+    }
 
     function start() {
       if (!started) {
@@ -26,9 +32,10 @@
 
     function updateExecutors() {
       console.info('Fetching executors');
-      Executors.query(function (executors) {
+      api.list().then(function (executors) {
         angular.copy(executors, api.executors);
       });
     }
   });
+
 })();

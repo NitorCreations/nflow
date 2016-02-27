@@ -4,8 +4,7 @@
   angular.module('nflowExplorer.services', [
     'nflowExplorer.config',
 
-    'nflowExplorer.services.ExecutorPoller',
-    'nflowExplorer.services.Executors',
+    'nflowExplorer.services.ExecutorService',
     'nflowExplorer.services.GraphService',
     'nflowExplorer.services.Time',
     'nflowExplorer.services.WorkflowDefinitions',
