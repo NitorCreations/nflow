@@ -16,7 +16,7 @@
   m.controller('EndpointSelectionCtrl', function EndpointSelectionCtrl(config, EndpointService) {
     var ctrl = this;
     ctrl.endpoints = config.nflowEndpoints;
-    ctrl.selectedEndpointId = EndpointService.currentEndpoint().id;
+    ctrl.selectedEndpoint = EndpointService.currentEndpoint();
     ctrl.endpointChange = function(id) {
       EndpointService.selectEndpoint(id);
     };

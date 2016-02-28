@@ -188,6 +188,10 @@ ul.listing {
 	list-style-image: url('dot.png');
 }
 
+.endpoint-selection > button, .endpoint-selection > li {
+  padding: 10px 15px 10px 15px;
+}
+
 /* Form */
 .form {
 	margin-bottom: 40px;

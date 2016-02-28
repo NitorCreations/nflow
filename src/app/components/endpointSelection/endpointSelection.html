@@ -1,6 +1,12 @@
-<select class="endpoint-selection"
-        ng-if="ctrl.endpoints && ctrl.endpoints.length > 1"
-        ng-change="ctrl.endpointChange(ctrl.selectedEndpointId)"
-        ng-model="ctrl.selectedEndpointId"
-        ng-options="option.id as option.title for option in ctrl.endpoints">
-</select>
+<div class="btn-group endpoint-selection" ng-if="ctrl.endpoints && ctrl.endpoints.length > 1">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      {{ctrl.selectedEndpoint.title}} <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li ng-repeat="option in ctrl.endpoints">
+      <a id="select-endpoint-{{option.id}}" ng-click="ctrl.endpointChange('{{option.id}}')" ng-hide="{{option.id == ctrl.selectedEndpoint.id}}">
+        {{option.title}}
+      </a>
+    </li>
+  </ul>
+</div>
