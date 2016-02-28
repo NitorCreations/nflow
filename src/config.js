@@ -15,9 +15,9 @@ var Config = function() {
       id: 'nbank',
       title: 'nBank at nflow.io',
       apiUrl: 'http://bank.nflow.io/nflow/api/nflow',
-      docUrl: 'bank.nflow.io/nflow/doc/'
+      docUrl: 'http://bank.nflow.io/nflow/doc/'
     },
-  ]
+  ];
 
   this.radiator = {
     // poll period in seconds
