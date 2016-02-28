@@ -11,7 +11,7 @@
     "angular-sanitize": "1.4.9",
     "angular-animate": "1.4.9",
     "angular-touch": "1.4.9",
-    "angular-ui-router": "0.2.13",
+    "angular-ui-router": "0.2.18",
     "momentjs": "2.9.0",
     "lodash": "3.6.0",
     "angular-nvd3": "1.0.0-beta",
