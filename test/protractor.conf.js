@@ -11,6 +11,15 @@ exports.config = {
     }
   },
 
+  // allows running individual files: grunt itest --suite frontPage,search
+  suites: {
+    frontPage: 'it/frontPage.spec.js',
+    menu: 'it/menu.spec.js',
+    search: 'it/search.spec.js',
+    workflow: 'it/workflow.spec.js',
+    workflowDefinition: 'it/workflowDefinition.spec.js',
+  },
+
   jasmineNodeOpts: {
     onComplete: null,
     isVerbose: true,
