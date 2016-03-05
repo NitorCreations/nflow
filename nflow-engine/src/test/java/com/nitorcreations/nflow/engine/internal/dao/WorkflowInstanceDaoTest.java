@@ -123,7 +123,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
-    // FIXME this assert fails randomly. due to race condition?
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)).setStatus(inProgress)
         .setState("updateState").setStateText("update text").build();
@@ -478,7 +477,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(j.queryForList(sql.capture(), eq(Integer.class))).thenReturn(asList(1, 2, 3));
     assertThat(d.pollNextWorkflowInstanceIds(5), is(asList(1, 2, 3)));
     assertEquals(
-        "update nflow_workflow set executor_id = 42, status = 'executing'::workflow_status, external_next_activation = null where id in (select id from nflow_workflow where executor_id is null and status in ('created'::workflow_status, 'inProgress'::workflow_status) and next_activation < current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
+        "update nflow_workflow set executor_id = 42, status = 'executing'::workflow_status, external_next_activation = null where id in (select id from nflow_workflow where executor_id is null and status in ('created'::workflow_status, 'inProgress'::workflow_status) and next_activation <= current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
             sql.getValue());
   }
 
