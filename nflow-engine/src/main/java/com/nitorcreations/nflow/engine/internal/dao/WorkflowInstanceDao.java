@@ -431,7 +431,7 @@ public class WorkflowInstanceDao {
 
   String whereConditionForInstanceUpdate() {
     return "where executor_id is null and status in (" + sqlVariants.workflowStatus(created) + ", "
-        + sqlVariants.workflowStatus(inProgress) + ") and next_activation < current_timestamp and "
+        + sqlVariants.workflowStatus(inProgress) + ") and next_activation <= current_timestamp and "
         + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
   }
 

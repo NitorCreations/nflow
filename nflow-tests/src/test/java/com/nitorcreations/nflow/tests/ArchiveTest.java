@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.tests;
 
+import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -51,15 +53,19 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   @Test(timeout = CREATE_TIMEOUT)
-  public void t01_createWorkflows() {
+  public void t01_createWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
     archiveLimit1 = DateTime.now();
+    // Make sure first batch of workflows is created before the second batch.
+    // (some databases have 1 second precision in timestamps (e.g. mysql 5.5))
+    sleep(SECONDS.toMillis(1));
   }
 
   @Test(timeout = CREATE_TIMEOUT)
-  public void t02_createMoreWorkflows() {
+  public void t02_createMoreWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_2_WORKFLOWS));
     archiveLimit2 = DateTime.now();
+    sleep(SECONDS.toMillis(1));
   }
 
   @Test(timeout = ARCHIVE_TIMEOUT)
