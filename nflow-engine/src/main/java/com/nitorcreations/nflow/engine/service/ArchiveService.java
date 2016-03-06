@@ -16,6 +16,9 @@ import org.springframework.util.Assert;
 import com.nitorcreations.nflow.engine.internal.dao.ArchiveDao;
 import com.nitorcreations.nflow.engine.internal.util.PeriodicLogger;
 
+/**
+ * Service for archiving old workflow instances from nflow-tables to nflow_archive-tables.
+ */
 @Named
 public class ArchiveService {
   private static final Logger log = getLogger(ArchiveService.class);

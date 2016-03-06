@@ -1,10 +1,14 @@
 package com.nitorcreations.nflow.engine.service;
 
-import com.nitorcreations.nflow.engine.internal.dao.HealthCheckDao;
-import org.springframework.stereotype.Component;
-
 import javax.inject.Inject;
 
+import org.springframework.stereotype.Component;
+
+import com.nitorcreations.nflow.engine.internal.dao.HealthCheckDao;
+
+/**
+ * Service for checking the database connection. The service can be e.g. hooked up to web service health check endpoint.
+ */
 @Component
 public class HealthCheckService {
 
