@@ -95,7 +95,7 @@ public class WorkflowDefinitionDao {
       MessageDigest digest = MessageDigest.getInstance("SHA-1");
       digest.update(serializedDefinition.getBytes(UTF_8));
       return format("%040x", new BigInteger(1, digest.digest()));
-    } catch (NoSuchAlgorithmException e) {
+    } catch (@SuppressWarnings("unused") NoSuchAlgorithmException e) {
       throw new IllegalStateException("SHA1 not supported");
     }
   }

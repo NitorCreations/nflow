@@ -111,7 +111,7 @@ class WorkflowStateProcessor implements Runnable {
       WorkflowState state;
       try {
         state = definition.getState(instance.state);
-      } catch (IllegalStateException e) {
+      } catch (@SuppressWarnings("unused") IllegalStateException e) {
         rescheduleUnknownWorkflowState(instance);
         return;
       }

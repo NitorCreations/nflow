@@ -126,7 +126,7 @@ public class ArchiveTest extends AbstractNflowTest {
     for (int workflowId : workflowIds) {
       try {
         getWorkflowInstance(workflowId, "done");
-      } catch (InterruptedException e) {
+      } catch (@SuppressWarnings("unused") InterruptedException e) {
         // ignore
       }
     }

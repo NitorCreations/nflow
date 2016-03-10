@@ -68,7 +68,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
   public NextAction quickState(StateExecution execution) {
     try {
       Thread.sleep(10);
-    } catch (InterruptedException e) {
+    } catch (@SuppressWarnings("unused") InterruptedException e) {
       // ignore
     }
     return moveToState(ConstantState.retryTwiceState, "Go do some retries");
@@ -94,7 +94,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
   public NextAction slowState(StateExecution execution) {
     try {
       Thread.sleep(500);
-    } catch (InterruptedException e) {
+    } catch (@SuppressWarnings("unused") InterruptedException e) {
       // ignore
     }
     return NextAction.stopInState(ConstantState.end, "Goto end");

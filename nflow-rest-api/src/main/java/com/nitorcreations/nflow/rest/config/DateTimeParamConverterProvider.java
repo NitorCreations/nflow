@@ -35,7 +35,7 @@ public class DateTimeParamConverterProvider implements ParamConverterProvider {
       }
       try {
         return dateTimeNoMillis().parseDateTime(value);
-      } catch (IllegalArgumentException e) {
+      } catch (@SuppressWarnings("unused") IllegalArgumentException e) {
         try {
           return dateTime().parseDateTime(value);
         } catch (IllegalArgumentException e2) {

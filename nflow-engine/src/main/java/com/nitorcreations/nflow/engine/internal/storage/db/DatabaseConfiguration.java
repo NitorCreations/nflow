@@ -55,7 +55,7 @@ public abstract class DatabaseConfiguration {
       if (metricRegistry != null) {
         config.setMetricRegistry(metricRegistry);
       }
-    } catch (ClassNotFoundException | NoSuchBeanDefinitionException e) {
+    } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
       // ignored - metrics is an optional dependency
     }
   }

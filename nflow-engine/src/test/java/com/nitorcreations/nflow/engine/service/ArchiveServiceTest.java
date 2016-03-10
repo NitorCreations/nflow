@@ -61,7 +61,7 @@ public class ArchiveServiceTest {
     try {
       service.archiveWorkflows(limit, 10);
       fail("exception expected");
-    } catch (IllegalArgumentException e) {
+    } catch (@SuppressWarnings("unused") IllegalArgumentException e) {
       // ignore
     }
     verify(dao).ensureValidArchiveTablesExist();

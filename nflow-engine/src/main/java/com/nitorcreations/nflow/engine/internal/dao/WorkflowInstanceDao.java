@@ -129,7 +129,7 @@ public class WorkflowInstanceDao {
         return insertWorkflowInstanceWithCte(instance);
       }
       return insertWorkflowInstanceWithTransaction(instance);
-    } catch (DuplicateKeyException ex) {
+    } catch (@SuppressWarnings("unused") DuplicateKeyException ex) {
       return -1;
     }
   }

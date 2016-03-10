@@ -44,7 +44,7 @@ public class WorkflowInstanceExecutor {
       if (!executor.awaitTermination(awaitTerminationSeconds, SECONDS)) {
         logger.warn("Timed out while waiting for executor to terminate");
       }
-    } catch (InterruptedException ex) {
+    } catch (@SuppressWarnings("unused") InterruptedException ex) {
       logger.warn("Interrupted while waiting for executor to terminate");
       currentThread().interrupt();
     }

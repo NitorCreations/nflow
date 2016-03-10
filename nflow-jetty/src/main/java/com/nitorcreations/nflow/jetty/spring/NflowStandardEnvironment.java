@@ -54,7 +54,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
       try {
         getPropertySources().addLast(new ResourcePropertySource(externalLocation));
         logger.info("Using external configuration file: {}", externalLocation);
-      } catch (IOException e) {
+      } catch (@SuppressWarnings("unused") IOException e) {
         throw new RuntimeException("Failed to initialize external properties from location " + externalLocation);
       }
     }
@@ -64,7 +64,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
     name += ".properties";
     try {
       getPropertySources().addLast(new ResourcePropertySource(name, getClass().getClassLoader()));
-    } catch (IOException e) {
+    } catch (@SuppressWarnings("unused") IOException e) {
       logger.info("Failed to initialize environment-specific properties from resource {}", name);
     }
   }

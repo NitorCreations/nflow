@@ -185,7 +185,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
       try {
         workflowInstanceDao.getWorkflowInstance(id);
         fail("Expected workflow " + id + " to be removed");
-      } catch (EmptyResultDataAccessException e) {
+      } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
         // expected exception
       }
     }

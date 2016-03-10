@@ -60,7 +60,7 @@ public class WorkflowDispatcher implements Runnable {
         } catch (PollingRaceConditionException pex) {
           logger.info(pex.getMessage());
           sleep(true);
-        } catch (InterruptedException dropThrough) {
+        } catch (@SuppressWarnings("unused") InterruptedException dropThrough) {
         } catch (Exception e) {
           logger.error("Exception in executing dispatcher - retrying after sleep period (" + e.getMessage() + ")", e);
           sleep(false);
@@ -79,7 +79,7 @@ public class WorkflowDispatcher implements Runnable {
     try {
       // TODO use timeout?
       shutdownDone.await();
-    } catch (InterruptedException e) {
+    } catch (@SuppressWarnings("unused") InterruptedException e) {
       logger.info("Shutdown interrupted.");
     }
   }
@@ -117,7 +117,7 @@ public class WorkflowDispatcher implements Runnable {
       } else {
         Thread.sleep(sleepTime);
       }
-    } catch (InterruptedException ok) {
+    } catch (@SuppressWarnings("unused") InterruptedException ok) {
     }
   }
 }
