@@ -22,4 +22,6 @@ public interface SQLVariants {
   String limit(String query, String limit);
 
   int longTextType();
+
+  boolean useBatchUpdate();
 }

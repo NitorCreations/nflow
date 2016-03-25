@@ -66,14 +66,13 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * Use setter injection because constructor injection may not work when nFlow is
- * used in some legacy systems.
+ * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
 @Component
 public class WorkflowInstanceDao {
 
-  static final Map<String, String> EMPTY_STATE_MAP = Collections.<String,String>emptyMap();
-  static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>>emptyMap();
+  static final Map<String, String> EMPTY_STATE_MAP = Collections.<String, String> emptyMap();
+  static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
 
   JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
@@ -114,7 +113,7 @@ public class WorkflowInstanceDao {
   public void setEnvironment(Environment env) {
     workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
     workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
-            Long.class);
+        Long.class);
   }
 
   @PostConstruct
@@ -155,8 +154,8 @@ public class WorkflowInstanceDao {
 
   String insertWorkflowInstanceSql() {
     return "insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
-        + "executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?, " + sqlVariants.workflowStatus()
-        + ", ?, ?, ?)";
+        + "executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?, "
+        + sqlVariants.workflowStatus() + ", ?, ?, ?)";
   }
 
   String insertWorkflowInstanceStateSql() {
@@ -196,7 +195,8 @@ public class WorkflowInstanceDao {
     });
   }
 
-  private Map<String, String> changedStateVariables(Map<String, String> stateVariables, Map<String, String> originalStateVariables) {
+  private Map<String, String> changedStateVariables(Map<String, String> stateVariables,
+      Map<String, String> originalStateVariables) {
     if (stateVariables == null) {
       return emptyMap();
     }
@@ -211,42 +211,53 @@ public class WorkflowInstanceDao {
   }
 
   @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
-  void insertVariables(final int id, final int actionId, Map<String, String> stateVariables, Map<String, String> originalStateVariables) {
+  void insertVariables(final int id, final int actionId, Map<String, String> stateVariables,
+      Map<String, String> originalStateVariables) {
     Map<String, String> changedStateVariables = changedStateVariables(stateVariables, originalStateVariables);
     if (changedStateVariables.isEmpty()) {
       return;
     }
-    final Iterator<Entry<String, String>> variables = changedStateVariables.entrySet().iterator();
-    int[] updateStatus = jdbc.batchUpdate(insertWorkflowInstanceStateSql() + " values (?,?,?,?)",
-            new AbstractInterruptibleBatchPreparedStatementSetter() {
-              @Override
-              protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
-                if (!variables.hasNext()) {
-                  return false;
-                }
-                Entry<String, String> var = variables.next();
-                ps.setInt(1, id);
-                ps.setInt(2, actionId);
-                ps.setString(3, var.getKey());
-                ps.setString(4, var.getValue());
-                return true;
+    if (sqlVariants.useBatchUpdate()) {
+      final Iterator<Entry<String, String>> variables = changedStateVariables.entrySet().iterator();
+      int[] updateStatus = jdbc.batchUpdate(insertWorkflowInstanceStateSql() + " values (?,?,?,?)",
+          new AbstractInterruptibleBatchPreparedStatementSetter() {
+            @Override
+            protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
+              if (!variables.hasNext()) {
+                return false;
               }
-            });
-    int updatedRows = 0;
-    boolean unknownResults = false;
-    for (int i = 0; i < updateStatus.length; ++i) {
-      if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
-        unknownResults = true;
-        continue;
+              Entry<String, String> var = variables.next();
+              ps.setInt(1, id);
+              ps.setInt(2, actionId);
+              ps.setString(3, var.getKey());
+              ps.setString(4, var.getValue());
+              return true;
+            }
+          });
+      int updatedRows = 0;
+      boolean unknownResults = false;
+      for (int i = 0; i < updateStatus.length; ++i) {
+        if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
+          unknownResults = true;
+          continue;
+        }
+        if (updateStatus[i] == Statement.EXECUTE_FAILED) {
+          throw new IllegalStateException("Failed to insert/update state variables");
+        }
+        updatedRows += updateStatus[i];
       }
-      if (updateStatus[i] == Statement.EXECUTE_FAILED) {
-        throw new IllegalStateException("Failed to insert/update state variables");
+      if (!unknownResults && updatedRows != changedStateVariables.size()) {
+        throw new IllegalStateException("Failed to insert/update state variables, expected update count "
+            + changedStateVariables.size() + ", actual " + updatedRows);
       }
-      updatedRows += updateStatus[i];
-    }
-    if (!unknownResults && updatedRows != changedStateVariables.size()) {
-      throw new IllegalStateException("Failed to insert/update state variables, expected update count "
-          + changedStateVariables.size() + ", actual " + updatedRows);
+    } else {
+      for (Entry<String, String> entry : changedStateVariables.entrySet()) {
+        int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, entry.getKey(),
+            entry.getValue());
+        if (updated != 1) {
+          throw new IllegalStateException("Failed to insert state variable " + entry.getKey());
+        }
+      }
     }
   }
 
@@ -306,8 +317,8 @@ public class WorkflowInstanceDao {
     int executorId = executorInfo.getExecutorId();
     StringBuilder sqlb = new StringBuilder(256);
     sqlb.append("with wf as (").append(updateWorkflowInstanceSql()).append(" returning id), ");
-    sqlb.append("act as (").append(insertWorkflowActionSql()).append(" select wf.id, ?, ")
-        .append(sqlVariants.actionType()).append(", ?, ?, ?, ?, ? from wf returning id)");
+    sqlb.append("act as (").append(insertWorkflowActionSql()).append(" select wf.id, ?, ").append(sqlVariants.actionType())
+        .append(", ?, ?, ?, ?, ? from wf returning id)");
     Map<String, String> changedStateVariables = changedStateVariables(instance.stateVariables, instance.originalStateVariables);
 
     // using sqlVariants.nextActivationUpdate() requires that nextActivation is added 3 times
@@ -384,7 +395,7 @@ public class WorkflowInstanceDao {
       sql.append(" and state in (");
       for (int i = 0; i < expectedStates.length; i++) {
         sql.append("?,");
-        args[i+1] = expectedStates[i];
+        args[i + 1] = expectedStates[i];
       }
       sql.setCharAt(sql.length() - 1, ')');
     }
@@ -401,18 +412,18 @@ public class WorkflowInstanceDao {
     return instance;
   }
 
-  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
+  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   private void fillState(final WorkflowInstance instance) {
     jdbc.query(
-      "select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
-        + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
-        + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
-      new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        instance.stateVariables.put(rs.getString(1), rs.getString(2));
-      }
-    }, instance.id);
+        "select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
+            + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
+            + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet rs) throws SQLException {
+            instance.stateVariables.put(rs.getString(1), rs.getString(2));
+          }
+        }, instance.id);
     instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
@@ -455,26 +466,44 @@ public class WorkflowInstanceDao {
           }
         });
         sort(instances);
-        List<Object[]> batchArgs = new ArrayList<>(instances.size());
         List<Integer> ids = new ArrayList<>(instances.size());
-        for (OptimisticLockKey instance : instances) {
-          batchArgs.add(new Object[] { instance.id, instance.modified });
-          ids.add(instance.id);
-        }
-        int[] updateStatuses = jdbc.batchUpdate(updateInstanceForExecutionQuery()
-            + " where id = ? and modified = ? and executor_id is null", batchArgs);
-        Iterator<Integer> idIt = ids.iterator();
-        for (int status : updateStatuses) {
-          idIt.next();
-          if (status == 0) {
-            idIt.remove();
-            if (ids.isEmpty()) {
+        if (sqlVariants.useBatchUpdate()) {
+          List<Object[]> batchArgs = new ArrayList<>(instances.size());
+          for (OptimisticLockKey instance : instances) {
+            batchArgs.add(new Object[] { instance.id, instance.modified });
+            ids.add(instance.id);
+          }
+          int[] updateStatuses = jdbc.batchUpdate(
+              updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
+          Iterator<Integer> idIt = ids.iterator();
+          for (int status : updateStatuses) {
+            idIt.next();
+            if (status == 0) {
+              idIt.remove();
+              if (ids.isEmpty()) {
+                throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+                    + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+              }
+              continue;
+            }
+            if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
               throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
                   + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
             }
-            continue;
           }
-          if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
+        } else {
+          boolean raceConditionDetected = false;
+          for (OptimisticLockKey instance : instances) {
+            int updated = jdbc.update(
+                updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", instance.id,
+                instance.modified);
+            if (updated == 1) {
+              ids.add(instance.id);
+            } else {
+              raceConditionDetected = true;
+            }
+          }
+          if (raceConditionDetected && ids.isEmpty()) {
             throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
                 + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
           }
@@ -592,8 +621,8 @@ public class WorkflowInstanceDao {
   }
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables) {
-    Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance) :
-      EMPTY_ACTION_STATE_MAP;
+    Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
+        : EMPTY_ACTION_STATE_MAP;
     instance.actions.addAll(jdbc.query("select * from nflow_workflow_action where workflow_id = ? order by id asc",
         new WorkflowInstanceActionRowMapper(actionStates), instance.id));
   }
@@ -610,16 +639,15 @@ public class WorkflowInstanceDao {
     return actionId;
   }
 
-  @SuppressFBWarnings(value="SIC_INNER_SHOULD_BE_STATIC_ANON", justification="common jdbctemplate practice")
+  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   public int insertWorkflowInstanceAction(final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
-      @SuppressFBWarnings(value="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification="findbugs does not trust jdbctemplate")
-      public PreparedStatement createPreparedStatement(Connection con)
-          throws SQLException {
-        PreparedStatement p = con.prepareStatement(insertWorkflowActionSql() + " values (?, ?, " + sqlVariants.actionType()
-            + ", ?, ?, ?, ?, ?)", new String[] { "id" });
+      @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+      public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+        PreparedStatement p = con.prepareStatement(
+            insertWorkflowActionSql() + " values (?, ?, " + sqlVariants.actionType() + ", ?, ?, ?, ?, ?)", new String[] { "id" });
         int field = 1;
         p.setInt(field++, action.workflowInstanceId);
         p.setInt(field++, executorInfo.getExecutorId());
@@ -642,51 +670,50 @@ public class WorkflowInstanceDao {
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return new WorkflowInstance.Builder()
-        .setId(rs.getInt("id"))
-        .setExecutorId(getInt(rs, "executor_id"))
-        .setRootWorkflowId(getInt(rs, "root_workflow_id"))
-        .setParentWorkflowId(getInt(rs, "parent_workflow_id"))
-        .setParentActionId(getInt(rs, "parent_action_id"))
-        .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
-        .setType(rs.getString("type"))
-        .setBusinessKey(rs.getString("business_key"))
-        .setExternalId(rs.getString("external_id"))
-        .setState(rs.getString("state"))
-        .setStateText(rs.getString("state_text"))
-        .setActions(new ArrayList<WorkflowInstanceAction>())
-        .setNextActivation(toDateTime(rs.getTimestamp("next_activation")))
-        .setRetries(rs.getInt("retries"))
-        .setCreated(toDateTime(rs.getTimestamp("created")))
-        .setModified(toDateTime(rs.getTimestamp("modified")))
-        .setStarted(toDateTime(rs.getTimestamp("started")))
-        .setExecutorGroup(rs.getString("executor_group"))
-        .build();
+      return new WorkflowInstance.Builder() //
+          .setId(rs.getInt("id")) //
+          .setExecutorId(getInt(rs, "executor_id")) //
+          .setRootWorkflowId(getInt(rs, "root_workflow_id")) //
+          .setParentWorkflowId(getInt(rs, "parent_workflow_id")) //
+          .setParentActionId(getInt(rs, "parent_action_id")) //
+          .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status"))) //
+          .setType(rs.getString("type")) //
+          .setBusinessKey(rs.getString("business_key")) //
+          .setExternalId(rs.getString("external_id")) //
+          .setState(rs.getString("state")) //
+          .setStateText(rs.getString("state_text")) //
+          .setActions(new ArrayList<WorkflowInstanceAction>()) //
+          .setNextActivation(toDateTime(rs.getTimestamp("next_activation"))) //
+          .setRetries(rs.getInt("retries")) //
+          .setCreated(toDateTime(rs.getTimestamp("created"))) //
+          .setModified(toDateTime(rs.getTimestamp("modified"))) //
+          .setStarted(toDateTime(rs.getTimestamp("started"))) //
+          .setExecutorGroup(rs.getString("executor_group")).build();
     }
   }
 
   static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction> {
     private final Map<Integer, Map<String, String>> actionStates;
+
     public WorkflowInstanceActionRowMapper(Map<Integer, Map<String, String>> actionStates) {
       this.actionStates = actionStates;
     }
+
     @Override
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
       int actionId = rs.getInt("id");
-      Map<String, String> actionState = actionStates.containsKey(actionId) ? actionStates.get(actionId) :
-        EMPTY_STATE_MAP;
-      return new WorkflowInstanceAction.Builder()
-        .setId(rs.getInt("id"))
-        .setWorkflowInstanceId(rs.getInt("workflow_id"))
-        .setExecutorId(rs.getInt("executor_id"))
-        .setType(WorkflowActionType.valueOf(rs.getString("type")))
-        .setState(rs.getString("state"))
-        .setStateText(rs.getString("state_text"))
-        .setUpdatedStateVariables(actionState)
-        .setRetryNo(rs.getInt("retry_no"))
-        .setExecutionStart(toDateTime(rs.getTimestamp("execution_start")))
-        .setExecutionEnd(toDateTime(rs.getTimestamp("execution_end")))
-        .build();
+      Map<String, String> actionState = actionStates.containsKey(actionId) ? actionStates.get(actionId) : EMPTY_STATE_MAP;
+      return new WorkflowInstanceAction.Builder() //
+          .setId(rs.getInt("id")) //
+          .setWorkflowInstanceId(rs.getInt("workflow_id")) //
+          .setExecutorId(rs.getInt("executor_id")) //
+          .setType(WorkflowActionType.valueOf(rs.getString("type"))) //
+          .setState(rs.getString("state")) //
+          .setStateText(rs.getString("state_text")) //
+          .setUpdatedStateVariables(actionState) //
+          .setRetryNo(rs.getInt("retry_no")) //
+          .setExecutionStart(toDateTime(rs.getTimestamp("execution_start"))) //
+          .setExecutionEnd(toDateTime(rs.getTimestamp("execution_end"))).build();
     }
   }
 
