@@ -166,6 +166,7 @@ public class WorkflowDispatcherTest {
         waitForTick(1);
         dispatcher.shutdown();
         assertPoolIsShutdown(true);
+        verify(recovery).markShutdown();
       }
     }
     TestFramework.runOnce(new ShutdownBlocksUntilPoolShutdown());

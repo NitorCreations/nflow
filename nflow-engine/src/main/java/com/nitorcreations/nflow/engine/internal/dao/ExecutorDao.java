@@ -197,4 +197,9 @@ public class ExecutorDao {
       }
     }, executorGroup);
   }
+
+  public void markShutdown() {
+    jdbc.update("update nflow_executor set expires=current_timestamp where executor_group = ? and id = ?", executorGroup,
+        getExecutorId());
+  }
 }
