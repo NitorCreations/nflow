@@ -11,6 +11,7 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
+import static java.util.Collections.synchronizedMap;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,6 @@ import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -75,6 +76,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowStateProcessorTest extends BaseNflowTest {
+
   @Rule
   public Timeout timeoutPerMethod = Timeout.seconds(5);
 
@@ -126,13 +128,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
 
+  static Map<Integer, DateTime> processingInstances;
+
   @Before
   public void setup() {
+    processingInstances = synchronizedMap(new HashMap<Integer, DateTime>());
     env.setProperty("nflow.illegal.state.change.action", "fail");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
@@ -289,7 +294,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener);
+        workflowInstancePreProcessor, env, processingInstances, listener);
 
     doAnswer(new Answer<NextAction>() {
       @Override
@@ -403,7 +408,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -644,11 +649,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  @Ignore("not implemented yet")
   @Test
-  public void runLaggingWorkflow() {
-    // TODO
+  public void instanceIsRemovedFromProcessingInstancesAfterExecution() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    assertThat(processingInstances.containsKey(instance.id), is(false));
   }
+
 
   @Test
   public void instanceWithUnsupportedTypeIsRescheduled() {
@@ -690,7 +700,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -711,7 +721,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -892,6 +902,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
+      assertThat(processingInstances.containsKey(execution.getWorkflowInstanceId()), is(true));
       return moveToState(State.processing, "Move to processing.");
     }
 

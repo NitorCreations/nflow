@@ -55,6 +55,9 @@ public class WorkflowDispatcher implements Runnable {
 
           if (!shutdownRequested) {
             executorRecovery.tick();
+            if (stateProcessorFactory.getPotentiallyStuckProcessors() == executor.getThreadCount()) {
+              logger.warn("All state processor threads are potentially stuck.");
+            }
             dispatch(getNextInstanceIds());
           }
         } catch (PollingRaceConditionException pex) {

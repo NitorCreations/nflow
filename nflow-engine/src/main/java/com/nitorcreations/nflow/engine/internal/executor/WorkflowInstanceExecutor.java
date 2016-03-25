@@ -14,6 +14,7 @@ public class WorkflowInstanceExecutor {
   private static final Logger logger = getLogger(WorkflowInstanceExecutor.class);
 
   private final int awaitTerminationSeconds;
+  private final int threadCount;
   final ThreadPoolExecutor executor;
   final ThresholdBlockingQueue<Runnable> queue;
 
@@ -24,6 +25,11 @@ public class WorkflowInstanceExecutor {
     executor = new ThreadPoolExecutor(threadCount, threadCount, keepAliveSeconds, SECONDS, queue, threadFactory);
     executor.allowCoreThreadTimeOut(keepAliveSeconds > 0);
     this.awaitTerminationSeconds = awaitTerminationSeconds;
+    this.threadCount = threadCount;
+  }
+
+  public int getThreadCount() {
+    return threadCount;
   }
 
   public void waitUntilQueueSizeLowerThanThreshold(DateTime waitUntil) throws InterruptedException {

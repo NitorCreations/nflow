@@ -1,22 +1,32 @@
 package com.nitorcreations.nflow.engine.internal.executor;
 
+import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,19 +42,28 @@ import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
 import com.nitorcreations.nflow.engine.listener.WorkflowExecutorListener;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import edu.umd.cs.mtc.MultithreadedTestCase;
-import edu.umd.cs.mtc.TestFramework;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDispatcherTest {
+
   WorkflowDispatcher dispatcher;
   WorkflowInstanceExecutor executor;
-
-  @Mock WorkflowInstanceDao workflowInstances;
-  @Mock ExecutorDao recovery;
-  @Mock WorkflowStateProcessorFactory executorFactory;
-
   MockEnvironment env = new MockEnvironment();
+  @Mock
+  WorkflowInstanceDao workflowInstances;
+  @Mock
+  ExecutorDao recovery;
+  @Mock
+  WorkflowStateProcessorFactory executorFactory;
+  @Mock
+  Appender<ILoggingEvent> mockAppender;
+  @Captor
+  ArgumentCaptor<ILoggingEvent> loggingEventCaptor;
 
   @Before
   public void setup() {
@@ -56,6 +75,14 @@ public class WorkflowDispatcherTest {
     when(recovery.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
+    Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
+    logger.addAppender(mockAppender);
+  }
+
+  @After
+  public void teardown() {
+    Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
+    logger.detachAppender(mockAppender);
   }
 
   @Test(expected = BeanCreationException.class)
@@ -69,15 +96,13 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
-            .thenReturn(ids(1))
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenReturn(ids(1))
             .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
             .thenAnswer(waitForTickAndAnswer(2, ids(2), this));
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, noOpRunnable());
         when(executorFactory.createProcessor(1)).thenReturn(fakeWorkflowExecutor);
         WorkflowStateProcessor fakeWorkflowExecutor2 = fakeWorkflowExecutor(2, noOpRunnable());
         when(executorFactory.createProcessor(2)).thenReturn(fakeWorkflowExecutor2);
-
         dispatcher.run();
       }
 
@@ -94,7 +119,7 @@ public class WorkflowDispatcherTest {
         inOrder.verify(executorFactory).createProcessor(2);
       }
     }
-    TestFramework.runOnce(new ExceptionDuringDispatcherExecutionCausesRetry());
+    runOnce(new ExceptionDuringDispatcherExecutionCausesRetry());
   }
 
   @Test
@@ -102,10 +127,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ErrorDuringDispatcherExecutionStopsDispatcher extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
-            .thenThrow(new AssertionError())
-            .thenReturn(ids(1));
-
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenThrow(new AssertionError()).thenReturn(ids(1));
         try {
           dispatcher.run();
           Assert.fail("Error should stop the dispatcher");
@@ -120,7 +142,7 @@ public class WorkflowDispatcherTest {
         verify(executorFactory, never()).createProcessor(anyInt());
       }
     }
-    TestFramework.runOnce(new ErrorDuringDispatcherExecutionStopsDispatcher());
+    runOnce(new ErrorDuringDispatcherExecutionStopsDispatcher());
   }
 
   @Test
@@ -129,8 +151,7 @@ public class WorkflowDispatcherTest {
     class EmptyPollResultCausesNoTasksToBeScheduled extends MultithreadedTestCase {
       @SuppressWarnings("unchecked")
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
-            .thenReturn(ids(), ids())
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenReturn(ids(), ids())
             .thenAnswer(waitForTickAndAnswer(2, ids(), this));
         dispatcher.run();
       }
@@ -146,7 +167,7 @@ public class WorkflowDispatcherTest {
         verify(executorFactory, never()).createProcessor(anyInt());
       }
     }
-    TestFramework.runOnce(new EmptyPollResultCausesNoTasksToBeScheduled());
+    runOnce(new EmptyPollResultCausesNoTasksToBeScheduled());
   }
 
   @Test
@@ -154,11 +175,9 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ShutdownBlocksUntilPoolShutdown extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
-            .thenAnswer(waitForTickAndAnswer(2, ids(1), this));
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(1), this));
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
         when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
-
         dispatcher.run();
       }
 
@@ -169,7 +188,7 @@ public class WorkflowDispatcherTest {
         verify(recovery).markShutdown();
       }
     }
-    TestFramework.runOnce(new ShutdownBlocksUntilPoolShutdown());
+    runOnce(new ShutdownBlocksUntilPoolShutdown());
   }
 
   @Test
@@ -187,7 +206,6 @@ public class WorkflowDispatcherTest {
         });
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
         when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
-
         dispatcher.run();
       }
 
@@ -199,7 +217,7 @@ public class WorkflowDispatcherTest {
         assertPoolIsShutdown(true);
       }
     }
-    TestFramework.runOnce(new ShutdownCanBeInterrupted());
+    runOnce(new ShutdownCanBeInterrupted());
   }
 
   @Test
@@ -217,7 +235,6 @@ public class WorkflowDispatcherTest {
       public void threadDispatcher() {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
         doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown();
-
         dispatcher.run();
       }
 
@@ -231,7 +248,7 @@ public class WorkflowDispatcherTest {
         verify(poolSpy).shutdown();
       }
     }
-    TestFramework.runOnce(new ExceptionOnPoolShutdownIsNotPropagated());
+    runOnce(new ExceptionOnPoolShutdownIsNotPropagated());
   }
 
   @Test
@@ -254,7 +271,38 @@ public class WorkflowDispatcherTest {
         dispatcher.shutdown();
       }
     }
-    TestFramework.runOnce(new ShutdownCanBeCalledMultipleTimes());
+    runOnce(new ShutdownCanBeCalledMultipleTimes());
+  }
+
+  @Test
+  public void dispatcherLogsWarningWhenAllThreadsArePotentiallyStuck() throws Throwable {
+    @SuppressWarnings("unused")
+    class DispatcherLogsWarning extends MultithreadedTestCase {
+      public void threadDispatcher() throws InterruptedException {
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
+            .thenAnswer(waitForTickAndAnswer(2, Collections.<Integer> emptyList(), this));
+        when(executorFactory.getPotentiallyStuckProcessors()).thenReturn(executor.getThreadCount());
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+      }
+
+      @Override
+      public void finish() {
+        verify(mockAppender, atLeast(1)).doAppend(loggingEventCaptor.capture());
+        for (ILoggingEvent event : loggingEventCaptor.getAllValues()) {
+          if (event.getLevel().equals(Level.WARN)
+              && event.getFormattedMessage().equals("All state processor threads are potentially stuck.")) {
+            return;
+          }
+        }
+        Assert.fail("Expected warning was not logged");
+      }
+    }
+    runOnce(new DispatcherLogsWarning());
   }
 
   void assertPoolIsShutdown(boolean isTrue) {
@@ -279,7 +327,8 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowStateProcessor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
-    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, env, (WorkflowExecutorListener) null) {
+    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, env, new HashMap<Integer, DateTime>(),
+        (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();

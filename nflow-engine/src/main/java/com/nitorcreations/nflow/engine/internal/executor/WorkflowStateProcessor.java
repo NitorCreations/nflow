@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -64,16 +65,18 @@ class WorkflowStateProcessor implements Runnable {
   DateTime lastLogged = now();
   private final int unknownWorkflowTypeRetryDelay;
   private final int unknownWorkflowStateRetryDelay;
+  private final Map<Integer, DateTime> processingInstances;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
-      WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
+      WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env, Map<Integer, DateTime> processingInstances,
       WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
+    this.processingInstances = processingInstances;
     this.executorListeners = asList(executorListeners);
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
@@ -85,10 +88,12 @@ class WorkflowStateProcessor implements Runnable {
   public void run() {
     try {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
+      processingInstances.put(instanceId, now());
       runImpl();
     } catch (Throwable ex) {
       logger.error("Unexpected failure occurred", ex);
     } finally {
+      processingInstances.remove(instanceId);
       MDC.remove(MDC_KEY);
     }
   }
