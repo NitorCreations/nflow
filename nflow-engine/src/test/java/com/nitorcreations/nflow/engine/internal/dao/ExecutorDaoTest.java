@@ -60,7 +60,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(status, is(inProgress.name()));
 
     List<WorkflowInstanceAction> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(Collections.<Integer,Map<String, String>>emptyMap()), id);
+        new WorkflowInstanceActionRowMapper(Collections.<Integer, Map<String, String>> emptyMap()), id);
     assertThat(actions.size(), is(1));
     WorkflowInstanceAction workflowInstanceAction = actions.get(0);
     assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));
@@ -72,8 +72,8 @@ public class ExecutorDaoTest extends BaseDaoTest {
     executorId = jdbc.queryForObject("select executor_id from nflow_workflow where id = ?", Integer.class, id);
     assertThat(executorId, is(nullValue()));
 
-    actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?", new WorkflowInstanceActionRowMapper(
-        Collections.<Integer, Map<String, String>> emptyMap()), id);
+    actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
+        new WorkflowInstanceActionRowMapper(Collections.<Integer, Map<String, String>> emptyMap()), id);
     assertThat(actions.size(), is(1));
     assertThat(workflowInstanceAction.executorId, is(dao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
@@ -83,8 +83,8 @@ public class ExecutorDaoTest extends BaseDaoTest {
   private void insertCrashedExecutor(int crashedExecutorId) {
     jdbc.update(
         "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
-        crashedExecutorId, "localhost", 666, dao.getExecutorGroup(), started.toDate(), started.plusSeconds(1).toDate(), started
-            .plusHours(1).toDate());
+        crashedExecutorId, "localhost", 666, dao.getExecutorGroup(), started.toDate(), started.plusSeconds(1).toDate(),
+        started.plusHours(1).toDate());
   }
 
   @Test
@@ -102,5 +102,17 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(executor.started, is(started));
     assertThat(executor.active, is(started.plusSeconds(1)));
     assertThat(executor.expires, is(started.plusHours(1)));
+  }
+
+  @Test
+  public void markShutdownSetsExecutorExpired() {
+    jdbc.update(
+        "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
+        dao.getExecutorId(), "localhost", 666, dao.getExecutorGroup(), now().toDate(), now().toDate(),
+        now().plusHours(1).toDate());
+
+    dao.markShutdown();
+
+    assertThat(dao.getExecutors().get(0).expires.isAfterNow(), is(false));
   }
 }

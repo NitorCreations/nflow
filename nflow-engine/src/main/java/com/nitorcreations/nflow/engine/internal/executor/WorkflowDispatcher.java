@@ -68,6 +68,7 @@ public class WorkflowDispatcher implements Runnable {
       }
     } finally {
       shutdownPool();
+      executorRecovery.markShutdown();
       logger.info("Shutdown finished.");
       shutdownDone.countDown();
     }
