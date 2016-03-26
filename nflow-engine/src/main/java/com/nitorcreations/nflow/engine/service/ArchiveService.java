@@ -57,7 +57,7 @@ public class ArchiveService {
       double timeDiff = max(stopWatch.getTime() / 1000.0, 0.000001);
       log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ", archivedWorkflows, archivedWorkflowsTotal
           / timeDiff, workflowIds);
-      periodicLogger.log("Archived {} workflows. Archiving about {} workflows / second.", archivedWorkflows,
+      periodicLogger.info("Archived {} workflows. Archiving about {} workflows / second.", archivedWorkflows,
           archivedWorkflowsTotal / timeDiff);
     } while (true);
 

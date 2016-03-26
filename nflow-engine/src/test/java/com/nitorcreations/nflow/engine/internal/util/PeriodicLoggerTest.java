@@ -37,17 +37,17 @@ public class PeriodicLoggerTest {
 
     @Test
     public void periodicLoggerLogsAtFirstLogCall() {
-        periodicLogger.log("foo {}", params);
+        periodicLogger.info("foo {}", params);
         verify(logger, times(1)).info("foo {}", params);
         verifyNoMoreInteractions(logger);
     }
 
     @Test
     public void periodicLoggerDoenstLogMoreThanOneTimeInPeriod() {
-        periodicLogger.log("foo {}", params);
-        periodicLogger.log("foo {}", params);
-        periodicLogger.log("bar {}", params);
-        periodicLogger.log("baz");
+        periodicLogger.info("foo {}", params);
+        periodicLogger.warn("foo {}", params);
+        periodicLogger.info("bar {}", params);
+        periodicLogger.warn("baz");
         setCurrentMillisFixed(now + 59 * 1000);
         verify(logger, times(1)).info("foo {}", params);
         verifyNoMoreInteractions(logger);
@@ -55,14 +55,14 @@ public class PeriodicLoggerTest {
 
     @Test
     public void periodicLoggerLogsAgainWhenPeriodChanges() {
-        periodicLogger.log("foo1 {}", params);
+        periodicLogger.info("foo1 {}", params);
         verify(logger, times(1)).info("foo1 {}", params);
         setCurrentMillisFixed(now + 60 * 1000);
-        periodicLogger.log("foo2 {}", params);
-        periodicLogger.log("foo2 {}", params);
-        verify(logger, times(1)).info("foo2 {}", params);
+        periodicLogger.warn("foo2 {}", params);
+        periodicLogger.warn("foo2 {}", params);
+        verify(logger, times(1)).warn("foo2 {}", params);
         setCurrentMillisFixed(now + 110 * 1000);
-        periodicLogger.log("foo3 {}", params);
+        periodicLogger.info("foo3 {}", params);
         verifyNoMoreInteractions(logger);
     }
 }
