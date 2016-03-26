@@ -9,7 +9,7 @@ import org.slf4j.Logger;
  * iteration, but want to get a log row e.g. once per minute. Not thread safe.
  */
 public class PeriodicLogger {
-  private Long previousLogging;
+  private long previousLogging;
   private final int periodInSeconds;
   private final Logger logger;
 
@@ -18,12 +18,25 @@ public class PeriodicLogger {
     this.periodInSeconds = periodInSeconds;
   }
 
-  public void log(String message, Object... parameters) {
-    long now = periodNumber();
-    if (previousLogging == null || previousLogging != now) {
+  public void info(String message, Object... parameters) {
+    if (canLog()) {
       logger.info(message, parameters);
     }
-    previousLogging = now;
+  }
+
+  public void warn(String message, Object... parameters) {
+    if (canLog()) {
+      logger.warn(message, parameters);
+    }
+  }
+
+  private boolean canLog() {
+    long currentPeriod = periodNumber();
+    if (previousLogging != currentPeriod) {
+      previousLogging = currentPeriod;
+      return true;
+    }
+    return false;
   }
 
   private long periodNumber() {
