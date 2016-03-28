@@ -218,46 +218,54 @@ public class WorkflowInstanceDao {
       return;
     }
     if (sqlVariants.useBatchUpdate()) {
-      final Iterator<Entry<String, String>> variables = changedStateVariables.entrySet().iterator();
-      int[] updateStatus = jdbc.batchUpdate(insertWorkflowInstanceStateSql() + " values (?,?,?,?)",
-          new AbstractInterruptibleBatchPreparedStatementSetter() {
-            @Override
-            protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
-              if (!variables.hasNext()) {
-                return false;
-              }
-              Entry<String, String> var = variables.next();
-              ps.setInt(1, id);
-              ps.setInt(2, actionId);
-              ps.setString(3, var.getKey());
-              ps.setString(4, var.getValue());
-              return true;
-            }
-          });
-      int updatedRows = 0;
-      boolean unknownResults = false;
-      for (int i = 0; i < updateStatus.length; ++i) {
-        if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
-          unknownResults = true;
-          continue;
-        }
-        if (updateStatus[i] == Statement.EXECUTE_FAILED) {
-          throw new IllegalStateException("Failed to insert/update state variables");
-        }
-        updatedRows += updateStatus[i];
-      }
-      if (!unknownResults && updatedRows != changedStateVariables.size()) {
-        throw new IllegalStateException("Failed to insert/update state variables, expected update count "
-            + changedStateVariables.size() + ", actual " + updatedRows);
-      }
+      insertVariablesWithBatchUpdate(id, actionId, changedStateVariables);
     } else {
-      for (Entry<String, String> entry : changedStateVariables.entrySet()) {
-        int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, entry.getKey(),
-            entry.getValue());
-        if (updated != 1) {
-          throw new IllegalStateException("Failed to insert state variable " + entry.getKey());
-        }
+      insertVariablesWithMultipleUpdates(id, actionId, changedStateVariables);
+    }
+  }
+
+  private void insertVariablesWithMultipleUpdates(final int id, final int actionId, Map<String, String> changedStateVariables) {
+    for (Entry<String, String> entry : changedStateVariables.entrySet()) {
+      int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, entry.getKey(),
+          entry.getValue());
+      if (updated != 1) {
+        throw new IllegalStateException("Failed to insert state variable " + entry.getKey());
       }
+    }
+  }
+
+  private void insertVariablesWithBatchUpdate(final int id, final int actionId, Map<String, String> changedStateVariables) {
+    final Iterator<Entry<String, String>> variables = changedStateVariables.entrySet().iterator();
+    int[] updateStatus = jdbc.batchUpdate(insertWorkflowInstanceStateSql() + " values (?,?,?,?)",
+        new AbstractInterruptibleBatchPreparedStatementSetter() {
+          @Override
+          protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
+            if (!variables.hasNext()) {
+              return false;
+            }
+            Entry<String, String> var = variables.next();
+            ps.setInt(1, id);
+            ps.setInt(2, actionId);
+            ps.setString(3, var.getKey());
+            ps.setString(4, var.getValue());
+            return true;
+          }
+        });
+    int updatedRows = 0;
+    boolean unknownResults = false;
+    for (int i = 0; i < updateStatus.length; ++i) {
+      if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
+        unknownResults = true;
+        continue;
+      }
+      if (updateStatus[i] == Statement.EXECUTE_FAILED) {
+        throw new IllegalStateException("Failed to insert/update state variables");
+      }
+      updatedRows += updateStatus[i];
+    }
+    if (!unknownResults && updatedRows != changedStateVariables.size()) {
+      throw new IllegalStateException("Failed to insert/update state variables, expected update count "
+          + changedStateVariables.size() + ", actual " + updatedRows);
     }
   }
 
@@ -468,47 +476,54 @@ public class WorkflowInstanceDao {
         sort(instances);
         List<Integer> ids = new ArrayList<>(instances.size());
         if (sqlVariants.useBatchUpdate()) {
-          List<Object[]> batchArgs = new ArrayList<>(instances.size());
-          for (OptimisticLockKey instance : instances) {
-            batchArgs.add(new Object[] { instance.id, instance.modified });
+          updateNextWorkflowInstancesWithBatchUpdate(instances, ids);
+        } else {
+          updateNextWorkflowInstancesWithMultipleUpdates(instances, ids);
+        }
+        return ids;
+      }
+
+      private void updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances, List<Integer> ids) {
+        boolean raceConditionDetected = false;
+        for (OptimisticLockKey instance : instances) {
+          int updated = jdbc.update(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null",
+              instance.id, instance.modified);
+          if (updated == 1) {
             ids.add(instance.id);
+          } else {
+            raceConditionDetected = true;
           }
-          int[] updateStatuses = jdbc.batchUpdate(
-              updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
-          Iterator<Integer> idIt = ids.iterator();
-          for (int status : updateStatuses) {
-            idIt.next();
-            if (status == 0) {
-              idIt.remove();
-              if (ids.isEmpty()) {
-                throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-                    + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
-              }
-              continue;
-            }
-            if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
+        }
+        if (raceConditionDetected && ids.isEmpty()) {
+          throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+              + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+        }
+      }
+
+      private void updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances, List<Integer> ids) {
+        List<Object[]> batchArgs = new ArrayList<>(instances.size());
+        for (OptimisticLockKey instance : instances) {
+          batchArgs.add(new Object[] { instance.id, instance.modified });
+          ids.add(instance.id);
+        }
+        int[] updateStatuses = jdbc.batchUpdate(
+            updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
+        Iterator<Integer> idIt = ids.iterator();
+        for (int status : updateStatuses) {
+          idIt.next();
+          if (status == 0) {
+            idIt.remove();
+            if (ids.isEmpty()) {
               throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
                   + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
             }
+            continue;
           }
-        } else {
-          boolean raceConditionDetected = false;
-          for (OptimisticLockKey instance : instances) {
-            int updated = jdbc.update(
-                updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", instance.id,
-                instance.modified);
-            if (updated == 1) {
-              ids.add(instance.id);
-            } else {
-              raceConditionDetected = true;
-            }
-          }
-          if (raceConditionDetected && ids.isEmpty()) {
+          if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
             throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
                 + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
           }
         }
-        return ids;
       }
     });
   }
