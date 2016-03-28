@@ -11,7 +11,6 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
-import static java.util.Collections.synchronizedMap;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -33,10 +32,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -128,11 +127,11 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
 
-  static Map<Integer, DateTime> processingInstances;
+  static Map<Integer, WorkflowStateProcessor> processingInstances;
 
   @Before
   public void setup() {
-    processingInstances = synchronizedMap(new HashMap<Integer, DateTime>());
+    processingInstances = new ConcurrentHashMap<>();
     env.setProperty("nflow.illegal.state.change.action", "fail");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
@@ -614,30 +613,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterFailure(any(ListenerContext.class),  argThat(new IsTestFailException()));
     verify(listener2).afterFailure(any(ListenerContext.class), argThat(new IsTestFailException()));
     verifyNoMoreInteractions(listener1, listener2);
-  }
-
-  @Test
-  public void logIfLaggingUpdatesLastLoggedWhenLogIsLagging() {
-    executor.lastLogged = now().minusDays(1);
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(2)).build();
-    executor.logIfLagging(instance);
-    assertThat(executor.lastLogged, is(now()));
-  }
-
-  @Test
-  public void logIfLaggingDoesNotUpdateLastLoggedWhenInstanceIsNotLagging() {
-    executor.lastLogged = now().minusDays(1);
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusSeconds(59)).build();
-    executor.logIfLagging(instance);
-    assertThat(executor.lastLogged, is(now().minusDays(1)));
-  }
-
-  @Test
-  public void logIfLaggingDoesNotUpdateLastLoggedWhenLaggingIsRecentlyLogged() {
-    executor.lastLogged = now().minusSeconds(29);
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(2)).build();
-    executor.logIfLagging(instance);
-    assertThat(executor.lastLogged, is(now().minusSeconds(29)));
   }
 
   static final class IsTestFailException extends ArgumentMatcher<Throwable> {

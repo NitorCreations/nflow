@@ -15,11 +15,10 @@ import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,6 +71,7 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
+    env.setProperty("nflow.executor.stuckThreadThreshold.seconds", "60");
     when(recovery.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
@@ -294,8 +294,8 @@ public class WorkflowDispatcherTest {
       public void finish() {
         verify(mockAppender, atLeast(1)).doAppend(loggingEventCaptor.capture());
         for (ILoggingEvent event : loggingEventCaptor.getAllValues()) {
-          if (event.getLevel().equals(Level.WARN)
-              && event.getFormattedMessage().equals("All state processor threads are potentially stuck.")) {
+          if (event.getLevel().equals(Level.WARN) && event.getFormattedMessage()
+              .equals("2 of 2 state processor threads are potentially stuck (processing longer than 60 seconds)")) {
             return;
           }
         }
@@ -327,8 +327,8 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowStateProcessor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
-    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, env, new HashMap<Integer, DateTime>(),
-        (WorkflowExecutorListener) null) {
+    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, env,
+        new ConcurrentHashMap<Integer, WorkflowStateProcessor>(), (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();
