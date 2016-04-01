@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.tests;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.MYSQL;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
@@ -46,7 +47,7 @@ public class FutureWorkflowTest extends AbstractNflowTest {
     public DemoConfiguration(Environment env) {
       // mysql 5.5.x (from travis) and mariadb 10.0 (only when using mysql jdbc driver instead of mariadb jdbc driver) do not
       // support millisecond precision in timestamps
-      if (asList(env.getActiveProfiles()).contains("nflow.db.mysql")) {
+      if (asList(env.getActiveProfiles()).contains(MYSQL)) {
         FUTURE = FUTURE.withMillisOfSecond(0);
       }
     }

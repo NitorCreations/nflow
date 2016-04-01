@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.H2;
+
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
@@ -18,7 +20,7 @@ import com.nitorcreations.nflow.engine.internal.storage.db.DatabaseInitializer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { DaoTestConfiguration.class })
-@ActiveProfiles("nflow.db.h2")
+@ActiveProfiles(H2)
 @DirtiesContext
 public class TableMetadataCheckerTest {
   @Inject

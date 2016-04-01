@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.metrics;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.JMX;
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.METRICS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,8 +48,8 @@ public class MetricsWorkflowExecutorListenerTest {
       @Override
       protected ConfigurableEnvironment createEnvironment() {
         MockEnvironment env = new MockEnvironment();
-        env.addActiveProfile("metrics");
-        env.addActiveProfile("jmx");
+        env.addActiveProfile(METRICS);
+        env.addActiveProfile(JMX);
         return env;
       }
     };

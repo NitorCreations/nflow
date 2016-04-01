@@ -1,5 +1,8 @@
 package com.nitorcreations.nflow.jetty;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.JMX;
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.MYSQL;
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.POSTGRESQL;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -14,7 +17,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class StartNflowTest {
   @Test
   public void startNflowJettyToRandomFreeLocalPort() throws Exception {
-    JettyServerContainer jetty = initJettyStart(0, "jmx");
+    JettyServerContainer jetty = initJettyStart(0, JMX);
     assertThat(jetty.getPort(), is(not(0)));
     startStop(jetty);
   }
@@ -57,13 +60,13 @@ public class StartNflowTest {
   @Test
   @Ignore
   public void startNflowJettyMysql() throws Exception {
-    startStop(initJettyStart("nflow.db.mysql"));
+    startStop(initJettyStart(MYSQL));
   }
 
   @Test
   @Ignore
   public void startNflowJettyPostgreSQL() throws Exception {
-    startStop(initJettyStart("nflow.db.postgresql"));
+    startStop(initJettyStart(POSTGRESQL));
   }
 
   @Configurable

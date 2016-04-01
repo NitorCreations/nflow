@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.metrics;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.JMX;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -49,7 +51,7 @@ public class NflowMetricsContext {
     return new MetricsWorkflowExecutorListener(metricRegistry, executors);
   }
 
-  @Profile("jmx")
+  @Profile(JMX)
   @Bean(destroyMethod="stop")
   public JmxReporter jmxMetricsReporter() {
     logger.info("Enabling Metrics JmxReporter");

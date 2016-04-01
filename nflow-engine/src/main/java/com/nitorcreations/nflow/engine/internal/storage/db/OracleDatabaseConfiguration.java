@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.ORACLE;
+
 import java.sql.Types;
 
 import org.springframework.context.annotation.Bean;
@@ -8,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
-@Profile("nflow.db.oracle")
+@Profile(ORACLE)
 @Configuration
 public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 

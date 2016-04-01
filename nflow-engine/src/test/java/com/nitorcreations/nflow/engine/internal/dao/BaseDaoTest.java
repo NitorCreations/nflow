@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.dao;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.H2;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
@@ -19,7 +20,7 @@ import com.nitorcreations.nflow.engine.internal.executor.BaseNflowTest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={DaoTestConfiguration.class})
-@ActiveProfiles("nflow.db.h2")
+@ActiveProfiles(H2)
 public abstract class BaseDaoTest extends BaseNflowTest {
 
   @Inject

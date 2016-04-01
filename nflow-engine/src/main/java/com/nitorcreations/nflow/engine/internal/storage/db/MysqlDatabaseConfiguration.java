@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.MYSQL;
 import static java.lang.Integer.parseInt;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -21,7 +22,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
-@Profile("nflow.db.mysql")
+@Profile(MYSQL)
 @Configuration
 public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
   private static final Logger logger = getLogger(MysqlDatabaseConfiguration.class);

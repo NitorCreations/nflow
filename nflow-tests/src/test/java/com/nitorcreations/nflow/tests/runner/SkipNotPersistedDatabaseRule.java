@@ -1,7 +1,10 @@
 package com.nitorcreations.nflow.tests.runner;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.MYSQL;
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.ORACLE;
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.POSTGRESQL;
 import static java.lang.System.getenv;
-import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.containsAny;
 import static org.junit.Assume.assumeTrue;
 
 import org.junit.rules.TestRule;
@@ -15,8 +18,7 @@ public class SkipNotPersistedDatabaseRule implements TestRule {
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
-        if (!contains(getenv("SPRING_PROFILES_ACTIVE"), "nflow.db.mysql") &&
-                !contains(getenv("SPRING_PROFILES_ACTIVE"), "nflow.db.postgresql")) {
+        if (!containsAny(getenv("SPRING_PROFILES_ACTIVE"), MYSQL, POSTGRESQL, ORACLE)) {
           assumeTrue("Skipped test for not real database", false);
         }
         base.evaluate();
