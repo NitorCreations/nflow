@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.jetty;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.JMX;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.list;
@@ -23,8 +24,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import com.codahale.metrics.servlets.AdminServlet;
-import com.nitorcreations.nflow.jetty.servlet.MetricsServletContextListener;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -45,8 +44,10 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.ContextLoaderListener;
 
+import com.codahale.metrics.servlets.AdminServlet;
 import com.nitorcreations.core.utils.KillProcess;
 import com.nitorcreations.nflow.jetty.config.NflowJettyConfiguration;
+import com.nitorcreations.nflow.jetty.servlet.MetricsServletContextListener;
 import com.nitorcreations.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 import com.nitorcreations.nflow.jetty.spring.NflowStandardEnvironment;
 
@@ -137,7 +138,7 @@ public class StartNflow
   }
 
   private void setupJmx(Server server, Environment env) {
-    if (asList(env.getActiveProfiles()).contains("jmx")) {
+    if (asList(env.getActiveProfiles()).contains(JMX)) {
       MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
       server.addEventListener(mbContainer);
       server.addBean(mbContainer);

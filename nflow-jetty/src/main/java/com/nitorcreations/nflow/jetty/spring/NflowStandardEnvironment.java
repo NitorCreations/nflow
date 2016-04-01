@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.jetty.spring;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.H2;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -44,7 +45,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
       }
     }
     if (!dbProfileDefined) {
-      addActiveProfile("nflow.db.h2");
+      addActiveProfile(H2);
     }
   }
 

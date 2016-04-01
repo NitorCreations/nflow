@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.jetty.spring;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.H2;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static org.hamcrest.Matchers.is;
@@ -83,6 +84,6 @@ public class NflowStandardEnvironmentTest {
   @Test
   public void databaseProfileDefaultsToH2() {
     NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());
-    assertThat(environment.acceptsProfiles("nflow.db.h2"), is(true));
+    assertThat(environment.acceptsProfiles(H2), is(true));
   }
 }

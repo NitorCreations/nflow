@@ -1,5 +1,7 @@
 package com.nitorcreations.nflow.jetty.config;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.JMX;
+
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.management.counters.CounterRepository;
@@ -8,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Profile("jmx")
+@Profile(JMX)
 @Configuration
 public class JmxConfiguration {
 

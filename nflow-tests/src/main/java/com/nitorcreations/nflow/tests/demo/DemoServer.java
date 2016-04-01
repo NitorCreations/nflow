@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.tests.demo;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.JMX;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static com.nitorcreations.nflow.tests.demo.SpringApplicationContext.applicationContext;
 import static org.joda.time.DateTime.now;
@@ -15,7 +16,7 @@ public class DemoServer {
 
   public static void main(String[] args) throws Exception {
     new StartNflow().registerSpringContext(NflowMetricsContext.class, SpringApplicationContext.class, DemoWorkflow.class)
-        .startJetty(7500, "local", "jmx");
+        .startJetty(7500, "local", JMX);
     insertDemoWorkflows();
   }
 

@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import static com.nitorcreations.nflow.engine.internal.config.Profiles.H2;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.sql.SQLException;
@@ -13,7 +14,7 @@ import org.springframework.core.env.Environment;
 
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
-@Profile("nflow.db.h2")
+@Profile(H2)
 @Configuration
 public class H2DatabaseConfiguration extends DatabaseConfiguration {
   public H2DatabaseConfiguration() {
