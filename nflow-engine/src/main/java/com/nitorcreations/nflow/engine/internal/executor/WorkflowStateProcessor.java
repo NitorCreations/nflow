@@ -182,7 +182,7 @@ class WorkflowStateProcessor implements Runnable {
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
       AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
-      logger.info("No handler method defined for {}, clearing next activation", execution.getNextState());
+      logger.debug("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)

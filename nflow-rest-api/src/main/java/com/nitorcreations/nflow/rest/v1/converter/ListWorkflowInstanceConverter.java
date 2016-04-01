@@ -49,7 +49,7 @@ public class ListWorkflowInstanceConverter {
     if (query.includeActions) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
-        if(query.includeActionStateVariables) {
+        if (query.includeActionStateVariables) {
           resp.actions.add(new Action(action.id, action.type.name(), action.state, action.stateText, action.retryNo,
               action.executionStart, action.executionEnd, action.executorId, stateVariablesToJson(action.updatedStateVariables)));
         } else {
@@ -67,15 +67,14 @@ public class ListWorkflowInstanceConverter {
     return resp;
   }
 
-  private Map<String, Object> stateVariablesToJson(Map<String, String>  stateVariables) {
-    if(isEmpty(stateVariables)) {
+  private Map<String, Object> stateVariablesToJson(Map<String, String> stateVariables) {
+    if (isEmpty(stateVariables)) {
       return null;
     }
     Map<String, Object> jsonStateVariables = new LinkedHashMap<>();
-    for(Entry<String, String> entry : stateVariables.entrySet()) {
+    for (Entry<String, String> entry : stateVariables.entrySet()) {
       jsonStateVariables.put(entry.getKey(), stringToJson(entry.getKey(), entry.getValue()));
     }
-
     return jsonStateVariables;
   }
 
@@ -83,8 +82,8 @@ public class ListWorkflowInstanceConverter {
     try {
       return nflowRestObjectMapper.readTree(value);
     } catch (IOException e) {
-      logger.warn("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}",
-    		  key, e.getClass().getSimpleName(), e.getMessage());
+      logger.debug("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}", key,
+          e.getClass().getSimpleName(), e.getMessage());
       return new TextNode(value);
     }
   }
