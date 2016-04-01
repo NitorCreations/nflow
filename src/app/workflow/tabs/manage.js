@@ -54,7 +54,7 @@
       var now = moment(new Date());
       var request = {};
       if(model.nextState) {
-        request.state = model.nextState.name;
+        request.state = model.nextState.id;
       }
       if(_.isNumber(model.duration) && model.timeUnit) {
         request.nextActivationTime = now.add(moment.duration(model.duration, model.timeUnit));
