@@ -129,12 +129,12 @@ end;
 -- - remove recursive foreign keys
 
 create table nflow_archive_workflow (
-  id integer primary key,
+  id int not null primary key,
   status varchar(32) not null,
   type varchar(64) not null,
-  root_workflow_id integer,
-  parent_workflow_id integer,
-  parent_action_id integer,
+  root_workflow_id int,
+  parent_workflow_id int,
+  parent_action_id int,
   business_key varchar(64),
   external_id varchar(64) not null,
   state varchar(64) not null,
@@ -142,7 +142,7 @@ create table nflow_archive_workflow (
   next_activation timestamp,
   external_next_activation timestamp,
   executor_id int,
-  retries int default 0 not null,
+  retries int not null,
   created timestamp not null,
   modified timestamp not null,
   executor_group varchar(64) not null,
@@ -150,7 +150,7 @@ create table nflow_archive_workflow (
 );
 
 create table nflow_archive_workflow_action (
-  id integer primary key,
+  id int not null primary key,
   workflow_id int not null,
   executor_id int not null,
   type varchar(64) not null,
