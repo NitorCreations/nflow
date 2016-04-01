@@ -17,7 +17,7 @@
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <nflow.explorer.version>1.1.0</nflow.explorer.version>
+    <nflow.explorer.version>1.2.0</nflow.explorer.version>
     <swagger.ui.version>2.1.4</swagger.ui.version>
   </properties>
   <build>
