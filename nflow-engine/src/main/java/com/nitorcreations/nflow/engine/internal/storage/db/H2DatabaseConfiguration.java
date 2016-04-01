@@ -96,5 +96,10 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     public int longTextType() {
       return Types.VARCHAR;
     }
+
+    @Override
+    public boolean useBatchUpdate() {
+      return true;
+    }
   }
 }

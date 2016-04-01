@@ -75,5 +75,10 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
     public int longTextType() {
       return Types.CLOB;
     }
+
+    @Override
+    public boolean useBatchUpdate() {
+      return false;
+    }
   }
 }

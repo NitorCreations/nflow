@@ -74,5 +74,10 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     public int longTextType() {
       return Types.VARCHAR;
     }
+
+    @Override
+    public boolean useBatchUpdate() {
+      return true;
+    }
   }
 }
