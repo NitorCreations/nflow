@@ -16,11 +16,13 @@ import org.springframework.stereotype.Component;
 import com.nitorcreations.nflow.engine.internal.dao.ExecutorDao;
 import com.nitorcreations.nflow.engine.internal.dao.PollingRaceConditionException;
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.internal.util.PeriodicLogger;
 
 @Component
 public class WorkflowDispatcher implements Runnable {
 
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
+  private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
   private volatile boolean shutdownRequested;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
@@ -30,6 +32,7 @@ public class WorkflowDispatcher implements Runnable {
   private final WorkflowStateProcessorFactory stateProcessorFactory;
   private final ExecutorDao executorRecovery;
   private final long sleepTime;
+  private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
 
   @Inject
@@ -40,6 +43,7 @@ public class WorkflowDispatcher implements Runnable {
     this.stateProcessorFactory = stateProcessorFactory;
     this.executorRecovery = executorRecovery;
     this.sleepTime = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
+    this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
     if (!executorRecovery.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
     }
@@ -55,6 +59,11 @@ public class WorkflowDispatcher implements Runnable {
 
           if (!shutdownRequested) {
             executorRecovery.tick();
+            int potentiallyStuckProcessors = stateProcessorFactory.getPotentiallyStuckProcessors();
+            if (potentiallyStuckProcessors > 0) {
+              periodicLogger.warn("{} of {} state processor threads are potentially stuck (processing longer than {} seconds)",
+                  potentiallyStuckProcessors, executor.getThreadCount(), stuckThreadThresholdSeconds);
+            }
             dispatch(getNextInstanceIds());
           }
         } catch (PollingRaceConditionException pex) {
@@ -86,7 +95,7 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   private void shutdownPool() {
-    try  {
+    try {
       executor.shutdown();
     } catch (Exception e) {
       logger.error("Error in shutting down thread pool.", e);
@@ -114,7 +123,7 @@ public class WorkflowDispatcher implements Runnable {
   private void sleep(boolean randomize) {
     try {
       if (randomize) {
-        Thread.sleep((long)(sleepTime * rand.nextDouble()));
+        Thread.sleep((long) (sleepTime * rand.nextDouble()));
       } else {
         Thread.sleep(sleepTime);
       }

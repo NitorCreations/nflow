@@ -35,13 +35,13 @@ import static org.mockito.Mockito.when;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -75,6 +75,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowStateProcessorTest extends BaseNflowTest {
+
   @Rule
   public Timeout timeoutPerMethod = Timeout.seconds(5);
 
@@ -126,13 +127,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
 
+  static Map<Integer, WorkflowStateProcessor> processingInstances;
+
   @Before
   public void setup() {
+    processingInstances = new ConcurrentHashMap<>();
     env.setProperty("nflow.illegal.state.change.action", "fail");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
@@ -289,7 +293,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener);
+        workflowInstancePreProcessor, env, processingInstances, listener);
 
     doAnswer(new Answer<NextAction>() {
       @Override
@@ -403,7 +407,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -611,30 +615,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verifyNoMoreInteractions(listener1, listener2);
   }
 
-  @Test
-  public void logIfLaggingUpdatesLastLoggedWhenLogIsLagging() {
-    executor.lastLogged = now().minusDays(1);
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(2)).build();
-    executor.logIfLagging(instance);
-    assertThat(executor.lastLogged, is(now()));
-  }
-
-  @Test
-  public void logIfLaggingDoesNotUpdateLastLoggedWhenInstanceIsNotLagging() {
-    executor.lastLogged = now().minusDays(1);
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusSeconds(59)).build();
-    executor.logIfLagging(instance);
-    assertThat(executor.lastLogged, is(now().minusDays(1)));
-  }
-
-  @Test
-  public void logIfLaggingDoesNotUpdateLastLoggedWhenLaggingIsRecentlyLogged() {
-    executor.lastLogged = now().minusSeconds(29);
-    WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(2)).build();
-    executor.logIfLagging(instance);
-    assertThat(executor.lastLogged, is(now().minusSeconds(29)));
-  }
-
   static final class IsTestFailException extends ArgumentMatcher<Throwable> {
     @Override
     public boolean matches(Object argument) {
@@ -644,11 +624,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  @Ignore("not implemented yet")
   @Test
-  public void runLaggingWorkflow() {
-    // TODO
+  public void instanceIsRemovedFromProcessingInstancesAfterExecution() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+
+    executor.run();
+
+    assertThat(processingInstances.containsKey(instance.id), is(false));
   }
+
 
   @Test
   public void instanceWithUnsupportedTypeIsRescheduled() {
@@ -690,7 +675,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -711,7 +696,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, listener1, listener2);
+        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
@@ -892,6 +877,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
 
     public NextAction start(StateExecution execution) {
+      assertThat(processingInstances.containsKey(execution.getWorkflowInstanceId()), is(true));
       return moveToState(State.processing, "Move to processing.");
     }
 

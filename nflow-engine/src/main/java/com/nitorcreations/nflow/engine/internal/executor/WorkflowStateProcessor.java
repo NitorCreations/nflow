@@ -6,11 +6,12 @@ import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.Duration.standardMinutes;
-import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -27,6 +28,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
+import com.nitorcreations.nflow.engine.internal.util.PeriodicLogger;
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.internal.workflow.StateExecutionImpl;
 import com.nitorcreations.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
@@ -49,6 +51,8 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction.
 class WorkflowStateProcessor implements Runnable {
 
   static final Logger logger = getLogger(WorkflowStateProcessor.class);
+  private static final PeriodicLogger laggingLogger = new PeriodicLogger(logger, 30);
+  private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);
   private static final String MDC_KEY = "workflowInstanceId";
 
   private final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
@@ -61,19 +65,22 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowInstanceDao workflowInstanceDao;
   private final List<WorkflowExecutorListener> executorListeners;
   final String illegalStateChangeAction;
-  DateTime lastLogged = now();
   private final int unknownWorkflowTypeRetryDelay;
   private final int unknownWorkflowStateRetryDelay;
+  private final Map<Integer, WorkflowStateProcessor> processingInstances;
+  private long startTimeSeconds;
+  private Thread thread;
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
-      WorkflowExecutorListener... executorListeners) {
+      Map<Integer, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
+    this.processingInstances = processingInstances;
     this.executorListeners = asList(executorListeners);
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
@@ -85,10 +92,14 @@ class WorkflowStateProcessor implements Runnable {
   public void run() {
     try {
       MDC.put(MDC_KEY, String.valueOf(instanceId));
+      startTimeSeconds = currentTimeMillis() / 1000;
+      thread = currentThread();
+      processingInstances.put(instanceId, this);
       runImpl();
     } catch (Throwable ex) {
       logger.error("Unexpected failure occurred", ex);
     } finally {
+      processingInstances.remove(instanceId);
       MDC.remove(MDC_KEY);
     }
   }
@@ -105,7 +116,8 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.status == executing) {
-      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao, workflowInstancePreProcessor);
+      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
+          workflowInstancePreProcessor);
       ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       WorkflowState state;
@@ -140,14 +152,9 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   void logIfLagging(WorkflowInstance instance) {
-    DateTime now = now();
-    Duration executionLag = new Duration(instance.nextActivation, now);
+    Duration executionLag = new Duration(instance.nextActivation, now());
     if (executionLag.isLongerThan(standardMinutes(1))) {
-      Duration logInterval = new Duration(lastLogged, now);
-      if (logInterval.isLongerThan(standardSeconds(30))) {
-        logger.warn("Execution lagging {} seconds.", executionLag.getStandardSeconds());
-        lastLogged = now;
-      }
+      laggingLogger.warn("Execution lagging {} seconds.", executionLag.getStandardSeconds());
     }
   }
 
@@ -168,8 +175,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Finished.");
   }
 
-  private int busyLoopPrevention(WorkflowSettings settings,
-      int subsequentStateExecutions, StateExecutionImpl execution) {
+  private int busyLoopPrevention(WorkflowSettings settings, int subsequentStateExecutions, StateExecutionImpl execution) {
     if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && execution.getNextActivation() != null) {
       logger.warn("Executed {} times without delay, forcing short transition delay", MAX_SUBSEQUENT_STATE_EXECUTIONS);
       if (execution.getNextActivation().isBefore(settings.getShortTransitionActivation())) {
@@ -185,13 +191,12 @@ class WorkflowStateProcessor implements Runnable {
       logger.debug("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance)
-      .setNextActivation(execution.getNextActivation())
-      .setStatus(getStatus(execution, definition.getState(execution.getNextState())))
-      .setStateText(getStateText(instance, execution))
-      .setState(execution.getNextState())
-      .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
-
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance) //
+        .setNextActivation(execution.getNextActivation()) //
+        .setStatus(getStatus(execution, definition.getState(execution.getNextState()))) //
+        .setStateText(getStateText(instance, execution)) //
+        .setState(execution.getNextState()) //
+        .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     if (execution.isStateProcessInvoked()) {
       actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
       if (execution.isFailed()) {
@@ -246,7 +251,8 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private boolean isNextActivationImmediately(StateExecutionImpl execution) {
-    return execution.isStateProcessInvoked() && execution.getNextActivation() != null && !execution.getNextActivation().isAfterNow();
+    return execution.isStateProcessInvoked() && execution.getNextActivation() != null
+        && !execution.getNextActivation().isAfterNow();
   }
 
   private NextAction processWithListeners(ListenerContext listenerContext, WorkflowInstance instance,
@@ -264,12 +270,15 @@ class WorkflowStateProcessor implements Runnable {
 
   static class ExecutorListenerChain implements ListenerChain {
     private final Iterator<WorkflowExecutorListener> chain;
+
     ExecutorListenerChain(List<WorkflowExecutorListener> chain) {
       this.chain = chain.iterator();
     }
+
     @Override
     public NextAction next(ListenerContext context) {
-      Assert.isTrue(chain.hasNext(), "Ran out of listeners in listener chain. The last listener must not call " + this.getClass().getSimpleName() + ".next().");
+      Assert.isTrue(chain.hasNext(), "Ran out of listeners in listener chain. The last listener must not call "
+          + this.getClass().getSimpleName() + ".next().");
       return chain.next().process(context, this);
     }
   }
@@ -280,8 +289,8 @@ class WorkflowStateProcessor implements Runnable {
     private final StateExecutionImpl execution;
     private final WorkflowState state;
 
-    public ProcessingExecutorListener(final WorkflowInstance instance, final AbstractWorkflowDefinition<? extends WorkflowState> definition,
-                                      final StateExecutionImpl execution, final WorkflowState state) {
+    public ProcessingExecutorListener(WorkflowInstance instance, AbstractWorkflowDefinition<? extends WorkflowState> definition,
+        StateExecutionImpl execution, WorkflowState state) {
       this.instance = instance;
       this.definition = definition;
       this.execution = execution;
@@ -296,7 +305,8 @@ class WorkflowStateProcessor implements Runnable {
 
   private class NormalStateHandler extends StateHandler {
 
-    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState) {
+    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution,
+        WorkflowState currentState) {
       super(instance, definition, execution, currentState);
     }
 
@@ -309,7 +319,9 @@ class WorkflowStateProcessor implements Runnable {
 
   private class SkippedStateHandler extends StateHandler {
     private final NextAction nextAction;
-    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution, WorkflowState currentState) {
+
+    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
+        StateExecutionImpl execution, WorkflowState currentState) {
       super(instance, definition, execution, currentState);
       this.nextAction = nextAction;
     }
@@ -325,13 +337,15 @@ class WorkflowStateProcessor implements Runnable {
     protected final AbstractWorkflowDefinition<?> definition;
     protected final StateExecutionImpl execution;
     protected final WorkflowState currentState;
-    public StateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
-                        StateExecutionImpl execution, WorkflowState currentState) {
+
+    public StateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution,
+        WorkflowState currentState) {
       this.instance = instance;
       this.definition = definition;
       this.execution = execution;
       this.currentState = currentState;
     }
+
     abstract protected NextAction getNextAction(WorkflowStateMethod method, Object args[]);
 
     public NextAction processState() {
@@ -349,29 +363,30 @@ class WorkflowStateProcessor implements Runnable {
         try {
           nextAction = getNextAction(method, args);
           if (nextAction == null) {
-            logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, definition
-                    .getErrorState().name());
+            logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state,
+                definition.getErrorState().name());
             nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
             execution.setFailed();
           } else if (nextAction.getNextState() != null && !definition.getStates().contains(nextAction.getNextState())) {
             logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'",
-                    nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
-            nextAction = moveToState(definition.getErrorState(), "State '" + instance.state
-                    + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
+                nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
+            nextAction = moveToState(definition.getErrorState(),
+                "State '" + instance.state + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
             execution.setFailed();
           } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
             logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
-                    nextAction.getNextState());
+                nextAction.getNextState());
             if ("fail".equals(illegalStateChangeAction)) {
               nextAction = moveToState(definition.getErrorState(), "Illegal state transition from " + instance.state + " to "
-                      + nextAction.getNextState().name() + ", proceeding to error state " + definition.getErrorState().name());
+                  + nextAction.getNextState().name() + ", proceeding to error state " + definition.getErrorState().name());
               execution.setFailed();
             }
           }
         } catch (InvalidNextActionException e) {
-          logger.error("State '" + instance.state
-                  + "' handler method failed to create valid next action, proceeding to error state '"
-                  + definition.getErrorState().name() + "'", e);
+          logger.error(
+              "State '" + instance.state + "' handler method failed to create valid next action, proceeding to error state '"
+                  + definition.getErrorState().name() + "'",
+              e);
           nextAction = moveToState(definition.getErrorState(), e.getMessage());
           execution.setFailed(e);
         }
@@ -422,5 +437,22 @@ class WorkflowStateProcessor implements Runnable {
         logger.error("Error in " + listener.getClass().getName() + ".afterFailure (" + t.getMessage() + ")", t);
       }
     }
+  }
+
+  public long getStartTimeSeconds() {
+    return startTimeSeconds;
+  }
+
+  public void logPotentiallyStuck(long processingTimeSeconds) {
+    threadStuckLogger.warn("Workflow instance {} has been processed for {} seconds, it may be stuck.\n{}", instanceId,
+        processingTimeSeconds, getStackTraceAsString());
+  }
+
+  private StringBuilder getStackTraceAsString() {
+    StringBuilder sb = new StringBuilder(2000);
+    for (StackTraceElement element : thread.getStackTrace()) {
+      sb.append(element.toString()).append('\n');
+    }
+    return sb;
   }
 }
