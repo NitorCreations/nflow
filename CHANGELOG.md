@@ -1,5 +1,23 @@
 ## next version
 
+## 3.1.0 (2016-04-01)
+
+**Highlights**
+- Stack traces of stuck executors
+- Oracle fixes
+
+**Details**
+- nflow-engine:
+  - prints stack traces for executor threads that are stuck (nflow.executor.stuckThreadThreshold.seconds)
+  - marks node not running on graceful shutdown
+  - do not use batch updates on old Oracle databases
+- nflow-jetty:
+  - Use nFlow Explorer version 1.2.0
+- source:
+  - added package level javadocs
+- build:
+  - do not deploy test packages to maven central 
+
 ## 3.0.0 (2016-02-26)
 
 **Highlights**
