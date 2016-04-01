@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get install -qq google-chrome-stable
 
 node_js:
-  - '0.10'
+  - '4.1'
 
 before_script:
   - 'npm install -g bower grunt-cli'
