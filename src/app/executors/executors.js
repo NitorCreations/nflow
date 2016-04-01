@@ -3,12 +3,12 @@
 
   var m = angular.module('nflowExplorer.executors', [
     'nflowExplorer.executors.executorTable',
-    'nflowExplorer.services.executorPoller'
+    'nflowExplorer.services'
   ]);
 
-  m.controller('ExecutorsCtrl', function ExecutorsCtrl(ExecutorPoller) {
+  m.controller('ExecutorsCtrl', function ExecutorsCtrl(ExecutorService) {
     var self = this;
-    self.executors = ExecutorPoller.executors;
+    self.executors = ExecutorService.executors;
   });
 
 })();

@@ -3,27 +3,28 @@
 
   var m = angular.module('nflowExplorer', [
     'nflowExplorer.about',
-    'nflowExplorer.config.console',
-    'nflowExplorer.config.routes',
-    'nflowExplorer.filters',
+    'nflowExplorer.config',
+    'nflowExplorer.components',
     'nflowExplorer.frontPage',
     'nflowExplorer.layout',
     'nflowExplorer.search',
     'nflowExplorer.executors',
     'nflowExplorer.services',
-    'nflowExplorer.services.executorPoller',
     'nflowExplorer.workflow',
     'nflowExplorer.workflowDefinition',
     'nflowExplorer.workflowStats',
+
     'ngAnimate',
     'ngCookies',
+    'ngResource',
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap',
   ]);
 
-  m.run(function (ExecutorPoller) {
-    ExecutorPoller.start();
+  m.run(function (EndpointService, ExecutorService) {
+    EndpointService.init();
+    ExecutorService.start();
   });
 
 })();

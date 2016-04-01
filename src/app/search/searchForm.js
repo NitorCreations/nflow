@@ -4,8 +4,7 @@
   var m = angular.module('nflowExplorer.search.searchForm', [
     'nflowExplorer.search.criteriaModel',
     'nflowExplorer.services',
-    'nflowExplorer.util',
-    'nflowExplorer.constants'
+    'nflowExplorer.components',
   ]);
 
   m.directive('searchForm', function() {
@@ -23,7 +22,7 @@
     };
   });
 
-  m.controller('SearchFormCtrl', function($timeout, CriteriaModel, WorkflowSearch, WorkflowInstanceStatus) {
+  m.controller('SearchFormCtrl', function($timeout, CriteriaModel, WorkflowService, WorkflowInstanceStatus) {
     var self = this;
     self.showIndicator = false;
     self.instanceStatuses = _.values(WorkflowInstanceStatus);
@@ -41,8 +40,12 @@
 
     function search() {
       var t = $timeout(function() { self.showIndicator = true; }, 500);
-      self.results = WorkflowSearch.query(CriteriaModel.toQuery());
-      self.results.$promise.then(hideIndicator, hideIndicator);
+
+      WorkflowService.query(CriteriaModel.toQuery())
+        .then(function(results) {
+          self.results = results;
+          hideIndicator();
+        }).catch(hideIndicator);
 
       function hideIndicator() {
         $timeout.cancel(t);

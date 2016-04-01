@@ -42,8 +42,8 @@
         templateUrl: 'app/search/search.html',
         controller: 'SearchCtrl as ctrl',
         resolve: {
-          definitions: function (WorkflowDefinitions) {
-            return WorkflowDefinitions.query().$promise;
+          definitions: function (WorkflowDefinitionService) {
+            return WorkflowDefinitionService.list();
           }
         }
       })
@@ -72,8 +72,8 @@
         controller: 'WorkflowDefinitionCtrl as ctrl',
         resolve: {
           loadCss: loadCss,
-          definition: function (WorkflowDefinitions, $stateParams) {
-            return getDefinition(WorkflowDefinitions, $stateParams.type);
+          definition: function (WorkflowDefinitionService, $stateParams) {
+            return getDefinition(WorkflowDefinitionService, $stateParams.type);
           }
         }
       })
@@ -84,26 +84,26 @@
         controller: 'WorkflowCtrl as ctrl',
         resolve: {
           loadCss: loadCss,
-          workflow: function (Workflows, $stateParams) {
-            return Workflows.get({id: $stateParams.id}).$promise;
+          workflow: function (WorkflowService, $stateParams) {
+            return WorkflowService.get($stateParams.id);
           },
-          definition: function (WorkflowDefinitions, workflow) {
-            return getDefinition(WorkflowDefinitions, workflow.type);
+          definition: function (WorkflowDefinitionService, workflow) {
+            return getDefinition(WorkflowDefinitionService, workflow.type);
           },
-          parentWorkflow: function(Workflows, workflow) {
+          parentWorkflow: function(WorkflowService, workflow) {
             if(workflow.parentWorkflowId) {
-              return Workflows.get({id: workflow.parentWorkflowId}).$promise;
+              return WorkflowService.get(workflow.parentWorkflowId);
             }
             return undefined;
           },
-          childWorkflows: function(WorkflowSearch, $stateParams) {
-            return WorkflowSearch.query({parentWorkflowId: $stateParams.id}).$promise;
+          childWorkflows: function(WorkflowService, $stateParams) {
+            return WorkflowService.query({parentWorkflowId: $stateParams.id});
           }
         }
       });
 
-    function getDefinition(WorkflowDefinitions, type) {
-      return WorkflowDefinitions.get({type: type}).$promise.then(_.first);
+    function getDefinition(WorkflowDefinitionService, type) {
+      return WorkflowDefinitionService.get(type).then(_.first);
     }
 
     function loadCss(GraphService) {

@@ -1,7 +1,7 @@
 'use strict';
 angular.module('nflowExplorer.workflowStats', [])
-.controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitions, WorkflowDefinitionStats,
-                                                             $stateParams, config) {
+.controller('WorkflowStatsCtrl', function WorkflowStatsCtrl($scope, $rootScope, $interval, WorkflowDefinitionService,
+                                                            $stateParams, config) {
   $scope.type=$stateParams.type;
 
   var itemCount = config.maxHistorySize;
@@ -196,24 +196,24 @@ angular.module('nflowExplorer.workflowStats', [])
     drawStackedLineChart('executionChart', createExecutionData(currentStates));
   }
 
-  WorkflowDefinitions.get({type: $scope.type},
-                          function(data) {
-                            $scope.definition = _.first(data);
-                          });
+  WorkflowDefinitionService.get($scope.type)
+    .then(function(data) {
+      $scope.definition = _.first(data);
+    });
 
 
   function updateChart() {
-    WorkflowDefinitionStats.get({type: $scope.type},
-                                function(stats) {
-                                  console.info('Fetching statistics', stats);
-                                  addStateData(new Date(), stats.stateStatistics);
-                                  draw();
-                                },
-                                function(error) {
-                                  console.error(error);
-                                  addStateData(new Date(), {});
-                                  draw();
-                                });
+    WorkflowDefinitionService.getStats($scope.type)
+      .then(function(stats) {
+        console.info('Fetching statistics', stats);
+        addStateData(new Date(), stats.stateStatistics);
+        draw();
+      })
+      .catch(function(error) {
+        console.error(error);
+        addStateData(new Date(), {});
+        draw();
+      });
   }
 
   $scope.$on('$destroy', function(){

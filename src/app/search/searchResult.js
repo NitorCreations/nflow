@@ -2,8 +2,7 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.search.searchResult', [
-    'nflowExplorer.constants',
-    'nflowExplorer.filters'
+    'nflowExplorer.components',
   ]);
 
   m.directive('searchResult', function() {

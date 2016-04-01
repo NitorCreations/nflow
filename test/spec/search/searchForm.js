@@ -20,47 +20,47 @@ describe('Directive: searchForm', function () {
   describe('SearchFormCtrl', function () {
     var $controller,
       CriteriaModel,
-      WorkflowSearch;
+      WorkflowService;
 
-    beforeEach(inject(function (_$controller_, _CriteriaModel_, _WorkflowSearch_) {
+    beforeEach(inject(function (_$controller_, _CriteriaModel_, _WorkflowService_) {
       $controller = _$controller_;
       CriteriaModel = _CriteriaModel_;
-      WorkflowSearch = _WorkflowSearch_;
+      WorkflowService = _WorkflowService_;
     }));
 
-    function getCtrl(WorkflowSearch) {
-      return $controller('SearchFormCtrl', { CriteriaModel: CriteriaModel, WorkflowSearch: WorkflowSearch});
+    function getCtrl(WorkflowService) {
+      return $controller('SearchFormCtrl', { CriteriaModel: CriteriaModel, WorkflowService: WorkflowService});
     }
 
     it('sets criteria model into view model', function () {
       var expected = CriteriaModel.model = { foo: 'bar' };
 
-      var ctrl = getCtrl(WorkflowSearch);
+      var ctrl = getCtrl(WorkflowService);
       expect(ctrl.model).toEqual(expected);
     });
 
     it('sets instance statuses into view model', function () {
-      expect(getCtrl(WorkflowSearch).instanceStatuses).toEqual([ 'created', 'inProgress', 'finished', 'manual' ]);
+      expect(getCtrl(WorkflowService).instanceStatuses).toEqual([ 'created', 'inProgress', 'finished', 'manual' ]);
     });
 
     it('with empty criteria does not trigger search', function () {
       CriteriaModel.model = {};
-      var spy = sinon.spy(WorkflowSearch, 'query');
+      var spy = sinon.spy(WorkflowService, 'query');
 
-      getCtrl(WorkflowSearch);
+      getCtrl(WorkflowService);
 
       expect(spy.callCount).toBe(0);
-      WorkflowSearch.query.restore();
+      WorkflowService.query.restore();
     });
 
     it('with non-empty criteria does not trigger search', function () {
       CriteriaModel.model = { foo: 'bar' };
-      var spy = sinon.spy(WorkflowSearch, 'query');
+      var spy = sinon.spy(WorkflowService, 'query');
 
-      getCtrl(WorkflowSearch);
+      getCtrl(WorkflowService);
 
       expect(spy.callCount).toBe(1);
-      WorkflowSearch.query.restore();
+      WorkflowService.query.restore();
     });
 
     describe('search', function () {
@@ -82,7 +82,7 @@ describe('Directive: searchForm', function () {
       it('sets result into view model', function () {
         $httpBackend.whenGET(url).respond(200, [ 'expected' ]);
         $httpBackend.expectGET(url);
-        var ctrl = getCtrl(WorkflowSearch);
+        var ctrl = getCtrl(WorkflowService);
         $httpBackend.flush();
 
         expect(angular.copy(ctrl.results)).toEqual([ 'expected' ]);
@@ -91,7 +91,7 @@ describe('Directive: searchForm', function () {
       it('indicator is shown if search takes more than 500 ms', inject(function ($timeout) {
         $httpBackend.whenGET(url).respond(200, []);
 
-        var ctrl = getCtrl(WorkflowSearch);
+        var ctrl = getCtrl(WorkflowService);
         expect(ctrl.showIndicator).toBeFalsy();
 
         $timeout.flush(100);

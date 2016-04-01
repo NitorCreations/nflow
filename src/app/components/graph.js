@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.graph', []);
+  var m = angular.module('nflowExplorer.components.graph', []);
 
   m.factory('Graph', function() {
     return {

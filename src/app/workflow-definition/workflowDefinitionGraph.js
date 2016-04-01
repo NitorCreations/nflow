@@ -1,9 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.workflowDefinition.graph', [
-    'nflowExplorer.graph'
-  ]);
+  var m = angular.module('nflowExplorer.workflowDefinition.graph', []);
 
   m.directive('workflowDefinitionGraph', function() {
     return {

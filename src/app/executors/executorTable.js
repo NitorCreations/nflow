@@ -2,8 +2,8 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.executors.executorTable', [
-    'nflowExplorer.filters',
-    'nflowExplorer.services'
+    'nflowExplorer.services',
+    'nflowExplorer.components',
   ]);
 
   m.directive('executorTable', function () {

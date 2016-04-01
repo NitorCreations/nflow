@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.constants', []);
+  var m = angular.module('nflowExplorer.components.constants', []);
 
   m.constant('WorkflowStateType', {
     START: 'start',

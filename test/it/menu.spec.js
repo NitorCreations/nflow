@@ -11,6 +11,7 @@ describe('menu', function () {
     expect(menu.isInstancesActive()).toBe(isInstancesTabActive);
     expect(menu.isExecutorsActive()).toBe(isExecutorsTabActive);
     expect(menu.isAboutActive()).toBe(isAboutTabActive);
+    expect(menu.isEnpointSelectionPresent()).toBe(true);
   }
 
   function assertDefinitionsTabActive() {

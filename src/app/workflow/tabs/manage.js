@@ -22,7 +22,7 @@
     };
   });
 
-  m.controller('WorkflowManageCtrl', function($state, Workflows, WorkflowGraphApi) {
+  m.controller('WorkflowManageCtrl', function($state, WorkflowService, WorkflowGraphApi) {
     var model = {};
     model.timeUnits = ['minutes', 'hours', 'days'];
     model.timeUnit = model.timeUnits[0];
@@ -63,7 +63,7 @@
         request.actionDescription = model.actionDescription;
       }
 
-      Workflows.update({id: self.workflow.id}, request, refresh);
+      WorkflowService.update(self.workflow.id, request).then(refresh);
     }
 
     function refresh() { $state.reload(); }
