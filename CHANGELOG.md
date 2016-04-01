@@ -1,5 +1,11 @@
 # nFlow Explorer change log
 
+1.2.0 2016-04-01
+================
+
+* Fix setting new state for workflow instance (broken in 1.1.0)
+* Support multiple nFlow REST API endpoints
+
 1.1.0 2016-02-26
 ================
 
