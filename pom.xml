@@ -384,6 +384,12 @@
     </profile>
     <profile>
       <id>release</id>
+      <modules>
+        <module>nflow-rest-api</module>
+        <module>nflow-engine</module>
+        <module>nflow-jetty</module>
+        <module>nflow-metrics</module>
+      </modules>
       <build>
         <plugins>
           <plugin>
