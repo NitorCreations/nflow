@@ -336,7 +336,7 @@
           <links>
             <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
           </links>
-          <excludePackageNames>com.nitorcreations.nflow.engine.internal:com.nitorcreations.nflow.performance</excludePackageNames>
+          <excludePackageNames>com.nitorcreations.nflow.engine.internal</excludePackageNames>
         </configuration>
         <executions>
           <execution>
@@ -384,12 +384,6 @@
     </profile>
     <profile>
       <id>release</id>
-      <modules>
-        <module>nflow-rest-api</module>
-        <module>nflow-engine</module>
-        <module>nflow-jetty</module>
-        <module>nflow-metrics</module>
-      </modules>
       <build>
         <plugins>
           <plugin>
