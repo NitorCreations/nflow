@@ -183,6 +183,50 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void updateWorkflowInstanceWithChildWorkflowHavingExistinExternalIdWorks() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
+    int id = dao.insertWorkflowInstance(i1);
+    WorkflowInstance i2 = new WorkflowInstance.Builder(dao.getWorkflowInstance(id)) //
+        .setStatus(inProgress) //
+        .setState("updateState") //
+        .setStateText("update text").build();
+    DateTime started = now();
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder() //
+        .setExecutionStart(started) //
+        .setExecutorId(42) //
+        .setExecutionEnd(started.plusMillis(100)) //
+        .setRetryNo(1) //
+        .setState("test") //
+        .setStateText("state text") //
+        .setWorkflowInstanceId(id) //
+        .setType(stateExecution).build();
+    WorkflowInstance childWorkflow1 = constructWorkflowInstanceBuilder() //
+        .setBusinessKey("childKey") //
+        .setExternalId("extId") //
+        .putStateVariable("key", "value").build();
+    WorkflowInstance childWorkflow2 = constructWorkflowInstanceBuilder() //
+        .setBusinessKey("childKey") //
+        .setExternalId("extId") //
+        .putStateVariable("key", "newValue") //
+        .putStateVariable("newKey", "value").build();
+
+    dao.updateWorkflowInstanceAfterExecution(i2, a1, asList(childWorkflow1, childWorkflow2), emptyWorkflows);
+
+    Map<Integer, List<Integer>> childWorkflows = dao.getWorkflowInstance(id).childWorkflows;
+    assertThat(childWorkflows.size(), is(1));
+    for (List<Integer> childIds : childWorkflows.values()) {
+      assertThat(childIds.size(), is(1));
+      WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0));
+      assertThat(childInstance.rootWorkflowId, is(id));
+      assertThat(childInstance.parentWorkflowId, is(id));
+      assertThat(childInstance.businessKey, is("childKey"));
+      assertThat(childInstance.externalId, is("extId"));
+      assertThat(childInstance.stateVariables.get("key"), is("value"));
+      assertThat(childInstance.stateVariables.get("newKey"), is(nullValue()));
+    }
+  }
+
+  @Test
   public void updateWorkflowInstanceWithNonRootWorkflowAndChildWorkflowsWorks() {
     // create 3 level hierarchy of workflows
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();

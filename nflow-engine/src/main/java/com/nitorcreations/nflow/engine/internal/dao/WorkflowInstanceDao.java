@@ -11,6 +11,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.collectionToDelimitedString;
@@ -34,6 +35,7 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -73,6 +75,7 @@ public class WorkflowInstanceDao {
 
   static final Map<String, String> EMPTY_STATE_MAP = Collections.<String, String> emptyMap();
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
+  static final Logger logger = getLogger(WorkflowInstanceDao.class);
 
   JdbcTemplate jdbc;
   private NamedParameterJdbcTemplate namedJdbc;
@@ -123,33 +126,34 @@ public class WorkflowInstanceDao {
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
-    try {
-      if (sqlVariants.hasUpdateableCTE()) {
-        return insertWorkflowInstanceWithCte(instance);
-      }
-      return insertWorkflowInstanceWithTransaction(instance);
-    } catch (@SuppressWarnings("unused") DuplicateKeyException ex) {
-      return -1;
+    if (sqlVariants.hasUpdateableCTE()) {
+      return insertWorkflowInstanceWithCte(instance);
     }
+    return insertWorkflowInstanceWithTransaction(instance);
   }
 
   private int insertWorkflowInstanceWithCte(WorkflowInstance instance) {
-    StringBuilder sqlb = new StringBuilder(256);
-    sqlb.append("with wf as (" + insertWorkflowInstanceSql() + " returning id)");
-    Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
-        instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
-        instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
-        toTimestamp(instance.nextActivation) };
-    int pos = instanceValues.length;
-    Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
-    for (Entry<String, String> var : instance.stateVariables.entrySet()) {
-      sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
-          .append(" select wf.id,0,?,? from wf)");
-      args[pos++] = var.getKey();
-      args[pos++] = var.getValue();
+    try {
+      StringBuilder sqlb = new StringBuilder(256);
+      sqlb.append("with wf as (" + insertWorkflowInstanceSql() + " returning id)");
+      Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
+          instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
+          instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
+          toTimestamp(instance.nextActivation) };
+      int pos = instanceValues.length;
+      Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
+      for (Entry<String, String> var : instance.stateVariables.entrySet()) {
+        sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
+            .append(" select wf.id,0,?,? from wf)");
+        args[pos++] = var.getKey();
+        args[pos++] = var.getValue();
+      }
+      sqlb.append(" select wf.id from wf");
+      return jdbc.queryForObject(sqlb.toString(), Integer.class, args);
+    } catch (DuplicateKeyException e) {
+      logger.warn("Failed to insert workflow instance", e);
+      return -1;
     }
-    sqlb.append(" select wf.id from wf");
-    return jdbc.queryForObject(sqlb.toString(), Integer.class, args);
   }
 
   String insertWorkflowInstanceSql() {
@@ -167,27 +171,32 @@ public class WorkflowInstanceDao {
       @Override
       public Integer doInTransaction(TransactionStatus status) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(new PreparedStatementCreator() {
-          @Override
-          @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
-          public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-            PreparedStatement ps;
-            int p = 1;
-            ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
-            ps.setString(p++, instance.type);
-            ps.setObject(p++, instance.rootWorkflowId);
-            ps.setObject(p++, instance.parentWorkflowId);
-            ps.setObject(p++, instance.parentActionId);
-            ps.setString(p++, instance.businessKey);
-            ps.setString(p++, instance.externalId);
-            ps.setString(p++, executorInfo.getExecutorGroup());
-            ps.setString(p++, instance.status.name());
-            ps.setString(p++, instance.state);
-            ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
-            ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-            return ps;
-          }
-        }, keyHolder);
+        try {
+          jdbc.update(new PreparedStatementCreator() {
+            @Override
+            @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+              PreparedStatement ps;
+              int p = 1;
+              ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
+              ps.setString(p++, instance.type);
+              ps.setObject(p++, instance.rootWorkflowId);
+              ps.setObject(p++, instance.parentWorkflowId);
+              ps.setObject(p++, instance.parentActionId);
+              ps.setString(p++, instance.businessKey);
+              ps.setString(p++, instance.externalId);
+              ps.setString(p++, executorInfo.getExecutorGroup());
+              ps.setString(p++, instance.status.name());
+              ps.setString(p++, instance.state);
+              ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
+              ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+              return ps;
+            }
+          }, keyHolder);
+        } catch (DuplicateKeyException e) {
+          logger.warn("Failed to insert workflow instance", e);
+          return -1;
+        }
         int id = keyHolder.getKey().intValue();
         insertVariables(id, 0, instance.stateVariables, EMPTY_STATE_MAP);
         return id;
@@ -506,8 +515,8 @@ public class WorkflowInstanceDao {
           batchArgs.add(new Object[] { instance.id, instance.modified });
           ids.add(instance.id);
         }
-        int[] updateStatuses = jdbc.batchUpdate(
-            updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
+        int[] updateStatuses = jdbc
+            .batchUpdate(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
         Iterator<Integer> idIt = ids.iterator();
         for (int status : updateStatuses) {
           idIt.next();
