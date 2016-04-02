@@ -83,9 +83,10 @@ git push
 prompt_continue "update JavaDoc and REST API documentation ($RELEASE_VERSION) in gh-pages to local git repository"
 
 git checkout $RELEASE_VERSION
-mvn clean install
+mvn clean install -DskipTests=true
 mvn site javadoc:aggregate
 git checkout gh-pages
+git pull --rebase
 
 mv target/site/apidocs apidocs/v$RELEASE_VERSION
 sed -i "2s/.*/redirect_to: \/nflow\/apidocs\/v$RELEASE_VERSION\//" apidocs/current/index.html
@@ -101,5 +102,4 @@ prompt_continue "push JavaDoc and REST API documentation ($RELEASE_VERSION) in g
 
 git push
 git checkout master
-
 
