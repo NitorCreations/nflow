@@ -21,9 +21,9 @@ if [[ $GIT_STATUS ]]; then
   exit 1
 fi
 
-if [[ $# -ne 3 ]]; then
-  echo "Usage: `basename $0` <previous_release_version_number> <new_release_version_number> <next_snapshot_version_number>"
-  echo "Example: `basename $0` 2.0.0 2.1.0 2.1.1"
+if [[ $# -lt 3 ]]; then
+  echo "Usage: `basename $0` <previous_release_version_number> <new_release_version_number> <next_snapshot_version_number> [<gpg_passphrase>]"
+  echo "Example: `basename $0` 2.0.0 2.1.0 2.1.1 mypassphrase"
   exit 1
 fi
 
@@ -47,6 +47,11 @@ fi
 shift
 SNAPSHOT_VERSION=$SNAPSHOT_VERSION-SNAPSHOT
 
+if [[ -n $1 ]]; then
+  GPG_PASSPHRASE="-Dpassphrase=$1"
+fi
+shift
+
 prompt_continue "set version $RELEASE_VERSION to local git repository"
 
 mvn versions:set -DnewVersion=$RELEASE_VERSION
@@ -59,7 +64,7 @@ git push
 
 prompt_continue "release version $RELEASE_VERSION to Maven Central"
 
-mvn -Prelease clean deploy
+mvn -Prelease clean deploy $GPG_PASSPHRASE
 
 prompt_continue "tag and push tags for version $RELEASE_VERSION to remote git repository"
 
