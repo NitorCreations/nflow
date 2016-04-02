@@ -17,8 +17,6 @@
   - Use nFlow Explorer version 1.2.0
 - source:
   - Add package level javadocs
-- build:
-  - Do not deploy test packages to Maven Central 
 
 ## 3.0.0 (2016-02-26)
 
