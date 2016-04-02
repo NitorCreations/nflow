@@ -48,7 +48,7 @@ shift
 SNAPSHOT_VERSION=$SNAPSHOT_VERSION-SNAPSHOT
 
 if [[ -n $1 ]]; then
-  GPG_PASSPHRASE="-Dpassphrase=$1"
+  GPG_PASSPHRASE="-Dgpg.passphrase=$1"
 fi
 shift
 
