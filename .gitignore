@@ -1,4 +1,5 @@
 **/.*~
+*~
 .classpath
 .project
 /*/*log
@@ -6,3 +7,4 @@ target
 .idea
 *.iml
 **/.DS_Store
+
