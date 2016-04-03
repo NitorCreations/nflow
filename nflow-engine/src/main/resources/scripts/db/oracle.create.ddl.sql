@@ -18,11 +18,14 @@ create table nflow_workflow (
   executor_group varchar(64) not null,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group),
   constraint status_enum check (status in ('created', 'executing', 'inProgress', 'finished', 'manual'))
-);
+)
+/
 
-create index nflow_workflow_activation on nflow_workflow (next_activation);
+create index nflow_workflow_activation on nflow_workflow (next_activation)
+/
 
-create sequence nflow_workflow_id_seq;
+create sequence nflow_workflow_id_seq
+/
 
 create or replace trigger nflow_workflow_insert
   before insert on nflow_workflow
@@ -55,9 +58,11 @@ create table nflow_workflow_action (
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade,
   constraint nflow_workflow_action_uniq unique (workflow_id, id),
   constraint type_enum check (type in ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange'))
-);
+)
+/
 
-create sequence nflow_workflow_action_id_seq;
+create sequence nflow_workflow_action_id_seq
+/
 
 create or replace trigger nflow_workflow_action_insert
   before insert on nflow_workflow_action
@@ -69,7 +74,8 @@ end;
 /
 
 alter table nflow_workflow add constraint fk_workflow_parent
-  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
+  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade
+/
 
 create table nflow_workflow_state (
   workflow_id int not null,
@@ -78,7 +84,8 @@ create table nflow_workflow_state (
   state_value clob not null,
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
-);
+)
+/
 
 create table nflow_executor (
   id int not null primary key,
@@ -88,9 +95,11 @@ create table nflow_executor (
   started timestamp default current_timestamp not null,
   active timestamp,
   expires timestamp
-);
+)
+/
 
-create sequence nflow_executor_id_seq;
+create sequence nflow_executor_id_seq
+/
 
 create or replace trigger nflow_executor_insert
   before insert on nflow_executor
@@ -110,7 +119,8 @@ create table nflow_workflow_definition (
   modified_by int not null,
   executor_group varchar(64) not null,
   primary key (type, executor_group)
-);
+)
+/
 
 create or replace trigger nflow_workflow_def_update
   before update on nflow_workflow_definition
@@ -147,7 +157,8 @@ create table nflow_archive_workflow (
   modified timestamp not null,
   executor_group varchar(64) not null,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
-);
+)
+/
 
 create table nflow_archive_workflow_action (
   id int not null primary key,
@@ -161,7 +172,8 @@ create table nflow_archive_workflow_action (
   execution_end timestamp not null,
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade,
   constraint nflow_archive_wf_action_uniq unique (workflow_id, id)
-);
+)
+/
 
 create table nflow_archive_workflow_state (
   workflow_id int not null,
@@ -170,5 +182,5 @@ create table nflow_archive_workflow_state (
   state_value clob not null,
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
-);
-
+)
+/
