@@ -40,6 +40,7 @@ public class DatabaseInitializer {
   private ResourceDatabasePopulator createPopulator(ClassPathResource script) {
     logger.info("Creating database populator using script '{}'", script.getPath().toString());
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+    populator.setSeparator("oracle".equals(dbType) ? "/" : ";");
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
     populator.addScript(script);
