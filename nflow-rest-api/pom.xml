@@ -12,7 +12,7 @@
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>com.nitorcreations</groupId>
-    <version>3.1.1</version>
+    <version>3.1.2-SNAPSHOT</version>
   </parent>
   <properties>
     <EMPTY></EMPTY>
