@@ -95,14 +95,28 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .build();
     int childId = dao.insertWorkflowInstance(child);
     assertThat(childId, not(equalTo(-1)));
+    dao.insertWorkflowInstanceAction(constructActionBuilder(childId).build());
+    dao.insertWorkflowInstanceAction(constructActionBuilder(childId).build());
 
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().addIds(childId).addTypes(child.type).addStates(child.state)
-        .addStatuses(i1.status).setParentWorkflowId(workflowId).setParentActionId(actionId).setBusinessKey(child.businessKey)
-        .setExternalId(child.externalId).setIncludeActions(true).setIncludeActionStateVariables(true)
-        .setIncludeCurrentStateVariables(true).setIncludeChildWorkflows(true).build();
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder() //
+        .addIds(childId) //
+        .addTypes(child.type) //
+        .addStates(child.state) //
+        .addStatuses(i1.status) //
+        .setParentWorkflowId(workflowId) //
+        .setParentActionId(actionId) //
+        .setBusinessKey(child.businessKey) //
+        .setExternalId(child.externalId) //
+        .setIncludeActions(true) //
+        .setIncludeActionStateVariables(true) //
+        .setIncludeCurrentStateVariables(true) //
+        .setIncludeChildWorkflows(true) //
+        .setMaxResults(1L) //
+        .setMaxActions(1L).build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
     checkSameWorkflowInfo(child, l.get(0));
+    assertThat(l.get(0).actions.size(), is(1));
   }
 
   @Test

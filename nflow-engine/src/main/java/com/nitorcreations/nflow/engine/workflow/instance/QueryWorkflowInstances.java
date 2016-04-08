@@ -78,6 +78,12 @@ public class QueryWorkflowInstances {
    */
   public final Long maxResults;
 
+  /**
+   * The maximum number of actions to be returned for each instance by the query. If null, uses default value configured for the
+   * nFlow engine. The maximum value may also be limited by nFlow engine configuration.
+   */
+  public final Long maxActions;
+
   QueryWorkflowInstances(Builder builder) {
     this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
@@ -92,6 +98,7 @@ public class QueryWorkflowInstances {
     this.includeActionStateVariables = builder.includeActionStateVariables;
     this.includeChildWorkflows = builder.includeChildWorkflows;
     this.maxResults = builder.maxResults;
+    this.maxActions = builder.maxActions;
   }
 
   /**
@@ -111,6 +118,7 @@ public class QueryWorkflowInstances {
     boolean includeActionStateVariables;
     boolean includeChildWorkflows;
     Long maxResults;
+    Long maxActions;
 
     /**
      * Create a workflow instance query builder.
@@ -132,6 +140,7 @@ public class QueryWorkflowInstances {
       this.includeActionStateVariables = copy.includeActionStateVariables;
       this.includeChildWorkflows = copy.includeChildWorkflows;
       this.maxResults = copy.maxResults;
+      this.maxActions = copy.maxActions;
     }
     /**
      * Add identifiers to query parameters.
@@ -264,7 +273,20 @@ public class QueryWorkflowInstances {
     }
 
     /**
+     * Set the maximum number of actions returned for each instance.
+     *
+     * @param maxActions
+     *          The maximum number of actionsto be returned.
+     * @return this.
+     */
+    public Builder setMaxActions(Long maxActions) {
+      this.maxActions = maxActions;
+      return this;
+    }
+
+    /**
      * Create the workflow instance query object.
+     *
      * @return Workflow instance query.
      */
     public QueryWorkflowInstances build() {

@@ -7,6 +7,7 @@ import static com.nitorcreations.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static java.lang.Math.min;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
@@ -84,6 +85,8 @@ public class WorkflowInstanceDao {
   SQLVariants sqlVariants;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
+  private long workflowInstanceQueryMaxActions;
+  private long workflowInstanceQueryMaxActionsDefault;
   int instanceStateTextLength;
   int actionStateTextLength;
 
@@ -116,6 +119,9 @@ public class WorkflowInstanceDao {
   public void setEnvironment(Environment env) {
     workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
     workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
+        Long.class);
+    workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
+    workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
         Long.class);
   }
 
@@ -607,7 +613,7 @@ public class WorkflowInstanceDao {
     }
     if (query.includeActions) {
       for (WorkflowInstance instance : ret) {
-        fillActions(instance, query.includeActionStateVariables);
+        fillActions(instance, query.includeActionStateVariables, query.maxActions);
       }
     }
     if (query.includeChildWorkflows) {
@@ -638,17 +644,22 @@ public class WorkflowInstanceDao {
     if (maxResults == null) {
       return workflowInstanceQueryMaxResultsDefault;
     }
-    if (maxResults.longValue() > workflowInstanceQueryMaxResults) {
-      return workflowInstanceQueryMaxResults;
-    }
-    return maxResults.longValue();
+    return min(maxResults.longValue(), workflowInstanceQueryMaxResults);
   }
 
-  private void fillActions(WorkflowInstance instance, boolean includeStateVariables) {
+  private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long maxActions) {
     Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
         : EMPTY_ACTION_STATE_MAP;
-    instance.actions.addAll(jdbc.query("select * from nflow_workflow_action where workflow_id = ? order by id asc",
-        new WorkflowInstanceActionRowMapper(actionStates), instance.id));
+    String limit = Long.toString(getMaxActions(maxActions));
+    String sql = sqlVariants.limit("select * from nflow_workflow_action where workflow_id = ? order by id asc", limit);
+    instance.actions.addAll(jdbc.query(sql, new WorkflowInstanceActionRowMapper(actionStates), instance.id));
+  }
+
+  private long getMaxActions(Long maxActions) {
+    if (maxActions == null) {
+      return workflowInstanceQueryMaxActionsDefault;
+    }
+    return min(maxActions.longValue(), workflowInstanceQueryMaxActions);
   }
 
   private Map<Integer, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance) {
