@@ -1,5 +1,13 @@
 ## next version
 
+## 3.1.1 (2016-04-08)
+
+**Details**
+- nflow-engine:
+  - Do not block shutdown when marking node as not running fails
+  - Use batch updates when Oracle database server version is 12.1 or newer
+  - Fix automatic database creation to work with Oracle database
+
 ## 3.1.0 (2016-04-01)
 
 **Highlights**
