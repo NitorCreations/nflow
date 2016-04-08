@@ -1,5 +1,6 @@
 package com.nitorcreations.nflow.engine.internal.storage.db;
 
+import static com.nitorcreations.nflow.engine.internal.storage.db.OracleDatabaseConfiguration.DB_TYPE_ORACLE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
@@ -40,7 +41,7 @@ public class DatabaseInitializer {
   private ResourceDatabasePopulator createPopulator(ClassPathResource script) {
     logger.info("Creating database populator using script '{}'", script.getPath().toString());
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-    populator.setSeparator("oracle".equals(dbType) ? "/" : ";");
+    populator.setSeparator(DB_TYPE_ORACLE.equals(dbType) ? "/" : ";");
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
     populator.addScript(script);

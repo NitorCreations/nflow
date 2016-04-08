@@ -25,11 +25,11 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.Workfl
 public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 
   private static final Logger logger = getLogger(OracleDatabaseConfiguration.class);
-  private static final String DB_TYPE = "oracle";
+  public static final String DB_TYPE_ORACLE = "oracle";
   static boolean useBatchUpdates;
 
   public OracleDatabaseConfiguration() {
-    super(DB_TYPE);
+    super(DB_TYPE_ORACLE);
   }
 
   @Bean
@@ -44,7 +44,7 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain oracle version", e);
     }
-    return new DatabaseInitializer(DB_TYPE, nflowDataSource, env);
+    return new DatabaseInitializer(DB_TYPE_ORACLE, nflowDataSource, env);
   }
 
   @Bean
