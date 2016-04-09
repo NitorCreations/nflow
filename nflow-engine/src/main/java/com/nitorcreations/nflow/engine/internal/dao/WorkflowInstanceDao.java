@@ -651,7 +651,7 @@ public class WorkflowInstanceDao {
     Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
         : EMPTY_ACTION_STATE_MAP;
     String limit = Long.toString(getMaxActions(maxActions));
-    String sql = sqlVariants.limit("select * from nflow_workflow_action where workflow_id = ? order by id asc", limit);
+    String sql = sqlVariants.limit("select * from nflow_workflow_action where workflow_id = ? order by id desc", limit);
     instance.actions.addAll(jdbc.query(sql, new WorkflowInstanceActionRowMapper(actionStates), instance.id));
   }
 
