@@ -1,9 +1,9 @@
 package com.nitorcreations.nflow.engine.workflow.definition;
 
+import java.util.List;
+
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
-
-import java.util.List;
 
 /**
  * Provides access to workflow instance information.
@@ -126,5 +126,13 @@ public interface StateExecution {
    * @return Builder for creating child workflows.
    */
   WorkflowInstance.Builder workflowInstanceBuilder();
+
+  /**
+   * Control if action is created when workflow instance is update to the database after state processing. By default the action
+   * is created. Additionally, the action is always created when new workflows or child workflows are created or when the state
+   * variables are updated, regardless of this setting.
+   * @param createAction Whether action should be created or not.
+   */
+  void setCreateAction(boolean createAction);
 
 }

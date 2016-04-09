@@ -1,11 +1,14 @@
 package com.nitorcreations.nflow.engine.workflow.instance;
 
+import static java.util.Collections.emptyMap;
 import static org.joda.time.DateTime.now;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -168,6 +171,24 @@ public class WorkflowInstance {
   @Override
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
+
+  /**
+   * Return the state variables that have been added or modified during state processing.
+   * @return New and modified state variables.
+   */
+  public Map<String, String> getChangedStateVariables() {
+    if (stateVariables == null) {
+      return emptyMap();
+    }
+    Map<String, String> changedVariables = new HashMap<>(stateVariables.size());
+    for (Entry<String, String> current : stateVariables.entrySet()) {
+      String oldVal = originalStateVariables.get(current.getKey());
+      if (oldVal == null || !oldVal.equals(current.getValue())) {
+        changedVariables.put(current.getKey(), current.getValue());
+      }
+    }
+    return changedVariables;
   }
 
   /**

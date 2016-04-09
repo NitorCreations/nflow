@@ -77,14 +77,14 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
   public void t05_checkWorkflowInstanceActions() {
     int i = 1;
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
-            new Action(i++, stateExecution.name(), "createCreditApplication", "", 0, null, null, 0),
-            new Action(i++, stateExecution.name(), "acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
-            new Action(i++, stateExecution.name(), "grantLoan", "", 0, null, null, 0),
-            new Action(i++, stateExecution.name(), "grantLoan", "", 0, null, null, 0),
-            new Action(i++, stateExecution.name(), "grantLoan", "", 1, null, null, 0),
-            new Action(i++, stateExecution.name(), "grantLoan", "", 2, null, null, 0),
-            new Action(i++, stateExecution.name(), "grantLoan", "", 3, null, null, 0),
-            new Action(i++, stateExecution.name(), "error", "", 0, null, null, 0))));
+        new Action(i++, stateExecution.name(), "error", "", 0, null, null, 0),
+        new Action(i++, stateExecution.name(), "grantLoan", "", 3, null, null, 0),
+        new Action(i++, stateExecution.name(), "grantLoan", "", 2, null, null, 0),
+        new Action(i++, stateExecution.name(), "grantLoan", "", 1, null, null, 0),
+        new Action(i++, stateExecution.name(), "grantLoan", "", 0, null, null, 0),
+        new Action(i++, stateExecution.name(), "grantLoan", "", 0, null, null, 0),
+        new Action(i++, stateExecution.name(), "acceptCreditApplication", "", 0, null, null, 0), // probably not the way to show manual action in future
+        new Action(i++, stateExecution.name(), "createCreditApplication", "", 0, null, null, 0))));
   }
 
 }
