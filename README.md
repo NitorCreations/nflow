@@ -5,7 +5,7 @@ User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 
 ## Demo
 
-http://nbank.dynalias.com/nflow/explorer/
+http://bank.nflow.io/nflow/explorer/
 
 ## Quick Start
 
