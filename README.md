@@ -4,7 +4,7 @@ nFlow is a light-weight and modular solution for orchestrating processes using J
 
 * **Orchestration of microservices:** trending REST-based microservice architecture does not provide standardized solutions for composing services into reliable business processes. nFlow fills this gap by providing a framework for implementing workflows based on ideas like [idempotent retry](http://www.servicedesignpatterns.com/WebServiceInfrastructures/IdempotentRetry) and [finite state machine](http://en.wikipedia.org/wiki/Finite-state_machine).
 
-* **Traditional business process engine:** although nFlow does not implement (bloated) BPMN/BPEL standards, it can be utilized as superfast business process engine that runs on Jetty and starts in seconds instead of minutes. Custom visualization tools can be implemented on top nFlow REST API while waiting for the development of 'official' nFlow tools. 
+* **Traditional business process engine:** although nFlow does not implement (bloated) BPMN/BPEL standards, it can be utilized as a superfast business process engine that runs on application server of your choice and starts in seconds instead of minutes. nFlow workflow definitions and instances can be visualized and managed in [nFlow Explorer](https://github.com/NitorCreations/nflow-explorer) user interface.
 
 * **Asynchronous backend dispatcher:** submit tasks from UI to nFlow that executes or forwards them realiably following [Request/Acknowledge pattern](http://servicedesignpatterns.com/ClientServiceInteractions/RequestAcknowledge). nFlow engine can be embedded to your UI applications or run as an external service.
 
