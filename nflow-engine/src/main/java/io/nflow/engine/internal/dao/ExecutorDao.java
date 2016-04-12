@@ -34,6 +34,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nitorcreations.nflow.engine.model.ModelObject;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
@@ -176,7 +178,7 @@ public class ExecutorDao {
     }
   }
 
-  static final class InstanceInfo {
+  static final class InstanceInfo extends ModelObject {
     public int id;
     public String state;
   }

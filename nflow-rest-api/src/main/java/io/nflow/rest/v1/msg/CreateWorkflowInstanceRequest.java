@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.nitorcreations.nflow.engine.model.ModelObject;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.swagger.annotations.ApiModel;
@@ -15,7 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
   "Request for submitting a new workflow instance. Note that if externalId is given, " +
   "type and externalId pair must be unique hence enabling retry-safety.")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
-public class CreateWorkflowInstanceRequest {
+public class CreateWorkflowInstanceRequest extends ModelObject {
 
   @NotNull
   @Size(max=30)

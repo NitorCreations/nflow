@@ -60,6 +60,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -550,7 +551,7 @@ public class WorkflowInstanceDao {
     });
   }
 
-  private static class OptimisticLockKey implements Comparable<OptimisticLockKey> {
+  private static class OptimisticLockKey extends ModelObject implements Comparable<OptimisticLockKey> {
     public final int id;
     public final Timestamp modified;
 

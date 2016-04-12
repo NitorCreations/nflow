@@ -13,11 +13,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
@@ -319,7 +319,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     assertEquals(expectedCopy, actualCopy);
   }
 
-  private static class StateKey {
+  private static class StateKey extends ModelObject {
     public final int workflowId;
     public final int actionId;
     public final String stateKey;
@@ -328,11 +328,6 @@ public class ArchiveDaoTest extends BaseDaoTest {
       this.workflowId = workflowId;
       this.actionId = actionId;
       this.stateKey = stateKey;
-    }
-
-    @Override
-    public String toString() {
-      return ReflectionToStringBuilder.toString(this);
     }
   }
 }

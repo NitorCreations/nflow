@@ -1,17 +1,18 @@
 package io.nflow.rest.v1.msg;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import javax.validation.constraints.NotNull;
 
 import org.joda.time.DateTime;
 
+import com.nitorcreations.nflow.engine.model.ModelObject;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Request to start archiving process")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
-public class ArchiveRequest {
+public class ArchiveRequest extends ModelObject {
 
   @NotNull
   @ApiModelProperty(value = "Passive workflow instances whose modified time is before this will be archived.", required = true)

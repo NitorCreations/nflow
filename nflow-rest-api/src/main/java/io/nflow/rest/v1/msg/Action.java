@@ -4,13 +4,15 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import com.nitorcreations.nflow.engine.model.ModelObject;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
-public class Action {
+public class Action extends ModelObject {
 
   @ApiModelProperty(value = "Identifier of the workflow instance action")
   public int id;

@@ -1,15 +1,16 @@
 package io.nflow.rest.v1.msg;
 
+import org.joda.time.DateTime;
+
+import com.nitorcreations.nflow.engine.model.ModelObject;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import org.joda.time.DateTime;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 @ApiModel(description = "Request for update workflow instance")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
-public class UpdateWorkflowInstanceRequest {
+public class UpdateWorkflowInstanceRequest extends ModelObject {
 
   @ApiModelProperty("New state of the workflow instance")
   public String state;

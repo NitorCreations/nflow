@@ -3,13 +3,15 @@ package io.nflow.rest.v1.msg;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.nitorcreations.nflow.engine.model.ModelObject;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Response for workflow definition statistics")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
-public class WorkflowDefinitionStatisticsResponse {
+public class WorkflowDefinitionStatisticsResponse extends ModelObject {
 
   @ApiModelProperty(value = "Statistics per state", required = true)
   // TODO: Swagger fails to scan StateStatistics-class because it is referenced by a Map. There's multiple Swagger issues open
@@ -17,7 +19,7 @@ public class WorkflowDefinitionStatisticsResponse {
   public Map<String, StateStatistics> stateStatistics = new LinkedHashMap<>();
 
   @ApiModel(description = "Statistics for a state")
-  public static class StateStatistics {
+  public static class StateStatistics extends ModelObject {
     @ApiModelProperty(value = "Instances created", required = true)
     public AllAndQueued created = new AllAndQueued();
     @ApiModelProperty(value = "Instances in progress", required = true)
@@ -36,7 +38,7 @@ public class WorkflowDefinitionStatisticsResponse {
     }
 
     @ApiModel(description = "All instances")
-    public static class All {
+    public static class All extends ModelObject {
       @ApiModelProperty(value = "Statistics per state", required = true)
       public long allInstances;
     }
