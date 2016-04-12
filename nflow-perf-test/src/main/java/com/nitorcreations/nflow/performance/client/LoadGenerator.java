@@ -50,7 +50,7 @@ public class LoadGenerator {
     return allInstanceIds;
   }
 
-  class LoadGeneratorThread extends Thread {
+  private static final class LoadGeneratorThread extends Thread {
     private final int id;
     private final PerfTestClient c;
     private final int loadCount;
