@@ -151,7 +151,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", 1L);
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
       hasField("ids", contains(42)),
       hasField("types", contains("type")),
@@ -164,7 +164,9 @@ public class WorkflowInstanceResourceTest {
       hasField("includeActions", equalTo(false)),
       hasField("includeCurrentStateVariables", equalTo(false)),
       hasField("includeActionStateVariables", equalTo(false)),
-      hasField("includeChildWorkflows", equalTo(false)))));
+      hasField("includeChildWorkflows", equalTo(false)),
+      hasField("maxResults", equalTo(null)),
+      hasField("maxActions", equalTo(null)))));
   }
 
   @SuppressWarnings("unchecked")
@@ -172,7 +174,7 @@ public class WorkflowInstanceResourceTest {
   public void listWorkflowInstancesWorksWithAllIncludes() {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
-        "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L);
+        "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
       hasField("ids", contains(42)),
       hasField("types", contains("type")),
@@ -185,7 +187,9 @@ public class WorkflowInstanceResourceTest {
       hasField("includeActions", equalTo(true)),
       hasField("includeCurrentStateVariables", equalTo(true)),
       hasField("includeActionStateVariables", equalTo(true)),
-      hasField("includeChildWorkflows", equalTo(true)))));
+      hasField("includeChildWorkflows", equalTo(true)),
+      hasField("maxResults", equalTo(1L)),
+      hasField("maxActions", equalTo(1L)))));
   }
 
   @Test
@@ -193,7 +197,7 @@ public class WorkflowInstanceResourceTest {
     thrown.expect(NotFoundException.class);
     when(workflowInstances.listWorkflowInstances(any(QueryWorkflowInstances.class))).thenReturn(
         Collections.<WorkflowInstance> emptyList());
-    resource.fetchWorkflowInstance(42, null);
+    resource.fetchWorkflowInstance(42, null, null);
   }
 
   @SuppressWarnings("unchecked")
@@ -210,12 +214,14 @@ public class WorkflowInstanceResourceTest {
         hasField("includeActions", equalTo(false)),
         hasField("includeCurrentStateVariables", equalTo(false)),
         hasField("includeActionStateVariables", equalTo(false)),
-        hasField("includeChildWorkflows", equalTo(false))));
+        hasField("includeChildWorkflows", equalTo(false)),
+        hasField("maxResults", equalTo(1L)),
+        hasField("maxActions", equalTo(null))));
     when(workflowInstances.listWorkflowInstances(query)).thenReturn(asList(instance1, instance2));
     ListWorkflowInstanceResponse resp1 = mock(ListWorkflowInstanceResponse.class);
     ListWorkflowInstanceResponse resp2 = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance1), any(QueryWorkflowInstances.class))).thenReturn(resp1, resp2);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null);
+    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null);
     verify(workflowInstances).listWorkflowInstances(any(QueryWorkflowInstances.class));
     assertEquals(resp1, result);
   }
@@ -233,11 +239,14 @@ public class WorkflowInstanceResourceTest {
         hasField("includeActions", equalTo(true)),
         hasField("includeCurrentStateVariables", equalTo(true)),
         hasField("includeActionStateVariables", equalTo(true)),
-        hasField("includeChildWorkflows", equalTo(true))));
+        hasField("includeChildWorkflows", equalTo(true)),
+        hasField("maxResults", equalTo(1L)),
+        hasField("maxActions", equalTo(1L))));
     when(workflowInstances.listWorkflowInstances(query)).thenReturn(asList(instance1));
     ListWorkflowInstanceResponse resp1 = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance1), any(QueryWorkflowInstances.class))).thenReturn(resp1);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows");
+    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
+        "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L);
     verify(workflowInstances).listWorkflowInstances(any(QueryWorkflowInstances.class));
     assertEquals(resp1, result);
   }

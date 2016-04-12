@@ -33,6 +33,7 @@ public class StateExecutionImpl implements StateExecution {
   private boolean isStateProcessInvoked = false;
   private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
   private final List<WorkflowInstance> newWorkflows = new LinkedList<>();
+  private boolean createAction = true;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor) {
@@ -212,5 +213,14 @@ public class StateExecutionImpl implements StateExecution {
 
   public boolean isStateProcessInvoked() {
     return isStateProcessInvoked;
+  }
+
+  @Override
+  public void setCreateAction(boolean createAction) {
+    this.createAction = createAction;
+  }
+
+  public boolean createAction() {
+    return createAction;
   }
 }

@@ -67,12 +67,12 @@ public class StateVariablesTest extends AbstractNflowTest {
     assertEquals(singletonMap("value", "bar3"), listResponse.stateVariables.get("variable2"));
 
     assertEquals(6, listResponse.actions.size());
-    assertState(listResponse.actions, 0, StateWorkflow.State.state1, "foo1", null);
-    assertState(listResponse.actions, 1, StateWorkflow.State.state2, null, "bar1");
-    assertState(listResponse.actions, 2, StateWorkflow.State.state3, null, "bar2");
-    assertState(listResponse.actions, 3, StateWorkflow.State.state4, null, null);
-    assertState(listResponse.actions, 4, StateWorkflow.State.state5, null, "bar3");
-    assertState(listResponse.actions, 5, StateWorkflow.State.done, null, null);
+    assertState(listResponse.actions, 5, StateWorkflow.State.state1, "foo1", null);
+    assertState(listResponse.actions, 4, StateWorkflow.State.state2, null, "bar1");
+    assertState(listResponse.actions, 3, StateWorkflow.State.state3, null, "bar2");
+    assertState(listResponse.actions, 2, StateWorkflow.State.state4, null, null);
+    assertState(listResponse.actions, 1, StateWorkflow.State.state5, null, "bar3");
+    assertState(listResponse.actions, 0, StateWorkflow.State.done, null, null);
   }
 
   private void assertState(List<Action> actions, int index, State state, String variable1, String variable2) {
