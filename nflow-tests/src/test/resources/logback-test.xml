@@ -41,7 +41,7 @@
 	</appender>
 
 	<logger name="org" level="info" />
-	<logger name="com.nitorcreations" level="info" />
+	<logger name="io.nflow" level="info" />
 	<logger name="h2database" level="warn" />
 	<!-- to enable logging of executed sql statements (which does not include parameter values), uncomment this: -->
 	<!-- 

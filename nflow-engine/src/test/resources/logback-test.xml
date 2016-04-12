@@ -40,7 +40,7 @@
 		<queueSize>2000</queueSize>
 	</appender>
 
-	<logger name="com.nitorcreations" level="info"/>
+	<logger name="io.nflow" level="info"/>
 	<!-- to enable logging of executed sql statements (which does not include parameter values), uncomment this: -->
 	<!-- 
 	  <logger name="org.springframework.jdbc.core.JdbcTemplate" level="debug"/>
