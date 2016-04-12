@@ -53,6 +53,7 @@ import com.nitorcreations.nflow.jetty.spring.NflowStandardEnvironment;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = { "UPM_UNCALLED_PRIVATE_METHOD", "UUF_UNUSED_FIELD" }, justification = "FindBugs bug")
 public class StartNflow
 {
   private static final Logger logger = LoggerFactory.getLogger(StartNflow.class);
