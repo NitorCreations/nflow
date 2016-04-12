@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Named
 public class ArchiveDao {
   private JdbcTemplate jdbc;
@@ -33,6 +35,7 @@ public class ArchiveDao {
     this.tableMetadataChecker = tableMetadataChecker;
   }
 
+  @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "tableMetadataChecker is injected")
   public void ensureValidArchiveTablesExist() {
     tableMetadataChecker.ensureCopyingPossible("nflow_workflow", "nflow_archive_workflow");
     tableMetadataChecker.ensureCopyingPossible("nflow_workflow_action", "nflow_archive_workflow_action");

@@ -11,9 +11,12 @@ import java.math.BigInteger;
 
 import org.joda.time.DateTime;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Configuration for the workflow execution.
  */
+@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class WorkflowSettings {
   /**
    * Minimum delay on execution retry after an error. Unit is milliseconds.

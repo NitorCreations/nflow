@@ -11,6 +11,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive;
 
 import java.lang.management.ManagementFactory;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,6 +45,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
 @Component
+@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class ExecutorDao {
   private static final Logger logger = getLogger(ExecutorDao.class);
   private JdbcTemplate jdbc;
@@ -68,7 +70,7 @@ public class ExecutorDao {
   }
 
   @Inject
-  public void setSQLVariants(SQLVariants sqlVariants) {
+  public void setSqlVariants(SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
   }
 
@@ -130,7 +132,7 @@ public class ExecutorDao {
     try {
       host = left(getLocalHost().getCanonicalHostName(), hostMaxLength);
       pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
-    } catch (Exception ex) {
+    } catch (UnknownHostException | NumberFormatException ex) {
       throw new RuntimeException("Failed to obtain host name and pid of running jvm", ex);
     }
     logger.info("Joining executor group {}", executorGroup);

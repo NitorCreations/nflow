@@ -24,11 +24,15 @@ import com.nitorcreations.nflow.engine.workflow.definition.WorkflowDefinitionSta
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics;
 import com.nitorcreations.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Use setter injection because constructor injection may not work when nFlow is
  * used in some legacy systems.
  */
 @Component
+@SuppressFBWarnings(value = { "SIC_INNER_SHOULD_BE_STATIC_ANON",
+    "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" }, justification = "common jdbctemplate practice, jdbc and executorInfo are injected")
 public class StatisticsDao {
 
   private JdbcTemplate jdbc;

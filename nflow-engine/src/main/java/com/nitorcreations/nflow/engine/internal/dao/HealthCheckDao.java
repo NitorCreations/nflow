@@ -11,10 +11,14 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Named
+@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class HealthCheckDao {
   private JdbcTemplate jdbc;
 
+  @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "jdbc is injected")
   public void checkDatabaseConnection() {
     jdbc.query("select status, type from nflow_workflow where id = 0", new ResultSetExtractor<Object>() {
       @Override

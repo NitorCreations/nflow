@@ -3,6 +3,9 @@ package com.nitorcreations.nflow.engine.workflow.statistics;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class Statistics {
 
   public final QueueStatistics queuedStatistics;
@@ -13,6 +16,7 @@ public class Statistics {
     this.executionStatistics = executionStatistics;
   }
 
+  @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
   public static class QueueStatistics {
     public final int count;
     public final Long maxAgeMillis;

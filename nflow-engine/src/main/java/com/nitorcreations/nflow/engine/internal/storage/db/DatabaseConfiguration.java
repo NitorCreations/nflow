@@ -42,7 +42,7 @@ public abstract class DatabaseConfiguration {
     config.setUsername(property(env, "user"));
     config.setPassword(property(env, "password"));
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
-    config.setIdleTimeout(property(env, "idle_timeout_seconds", Integer.class) * 1000);
+    config.setIdleTimeout(property(env, "idle_timeout_seconds", Long.class) * 1000);
     config.setAutoCommit(true);
     setMetricRegistryIfBeanFoundOnClassPath(config, appCtx);
     return new HikariDataSource(config);

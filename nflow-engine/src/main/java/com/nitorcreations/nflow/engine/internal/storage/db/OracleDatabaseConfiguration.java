@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -26,7 +27,7 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 
   private static final Logger logger = getLogger(OracleDatabaseConfiguration.class);
   public static final String DB_TYPE_ORACLE = "oracle";
-  static boolean useBatchUpdates;
+  private boolean useBatchUpdate;
 
   public OracleDatabaseConfiguration() {
     super(DB_TYPE_ORACLE);
@@ -40,7 +41,7 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
       int majorVersion = meta.getDatabaseMajorVersion();
       int minorVersion = meta.getDatabaseMinorVersion();
       logger.info("Oracle {}.{}, product version {}", majorVersion, minorVersion, meta.getDatabaseProductVersion());
-      useBatchUpdates = (majorVersion > 12 || (majorVersion == 12 && minorVersion >= 1));
+      useBatchUpdate = (majorVersion > 12 || (majorVersion == 12 && minorVersion >= 1));
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain oracle version", e);
     }
@@ -48,11 +49,18 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   @Bean
+  @DependsOn(NFLOW_DATABASE_INITIALIZER)
   public SQLVariants sqlVariants() {
-    return new OracleSqlVariants();
+    return new OracleSqlVariants(useBatchUpdate);
   }
 
   public static class OracleSqlVariants implements SQLVariants {
+
+    private final boolean useBatchUpdate;
+
+    public OracleSqlVariants(boolean useBatchUpdate) {
+      this.useBatchUpdate = useBatchUpdate;
+    }
 
     @Override
     public String currentTimePlusSeconds(int seconds) {
@@ -109,7 +117,7 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 
     @Override
     public boolean useBatchUpdate() {
-      return useBatchUpdates;
+      return useBatchUpdate;
     }
   }
 }
