@@ -239,12 +239,12 @@
             </formats>
             <instrumentation>
               <ignores>
-                <ignore>com/nitorcreations/nflow/tests/**/*.class</ignore>
-                <ignore>com/nitorcreations/nflow/performance/**/*.class</ignore>
+                <ignore>io/nflow/tests/**/*.class</ignore>
+                <ignore>io/nflow/performance/**/*.class</ignore>
               </ignores>
               <excludes>
-                <exclude>com/nitorcreations/nflow/tests/**/*.class</exclude>
-                <exclude>com/nitorcreations/nflow/performance/**/*.class</exclude>
+                <exclude>io/nflow/tests/**/*.class</exclude>
+                <exclude>io/nflow/performance/**/*.class</exclude>
               </excludes>
             </instrumentation>
           </configuration>
@@ -336,7 +336,7 @@
           <links>
             <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
           </links>
-          <excludePackageNames>com.nitorcreations.nflow.engine.internal</excludePackageNames>
+          <excludePackageNames>io.nflow.engine.internal</excludePackageNames>
         </configuration>
         <executions>
           <execution>
