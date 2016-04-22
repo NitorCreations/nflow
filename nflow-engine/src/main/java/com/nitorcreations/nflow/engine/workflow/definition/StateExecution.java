@@ -37,22 +37,18 @@ public interface StateExecution {
   /**
    * Return a string value of the given variable.
    *
-   * @param name
-   *          The name of the variable.
-   * @return The string value of the variable.
+   * @param name The name of the variable.
+   * @return The string value of the variable, or null if the variable does not exist.
    */
   String getVariable(String name);
 
   /**
    * Return the value of the given variable. The value is deserialized by the object mapper.
    *
-   * @param name
-   *          The name of the variable.
-   * @param type
-   *          The class of the variable.
-   * @param <T>
-   *          The type of object to be deserialized.
-   * @return The deserialized value of class {code T}.
+   * @param name The name of the variable.
+   * @param type The class of the variable.
+   * @param <T> The type of object to be deserialized.
+   * @return The deserialized value of class {code T}, or null if the variable does not exist.
    */
   <T> T getVariable(String name, Class<T> type);
 
@@ -65,6 +61,18 @@ public interface StateExecution {
    * @return The string value of the variable or the default value.
    */
   String getVariable(String name, String defaultValue);
+
+  /**
+   * Return the value of the given variable, or {code defaultValue} if the variable does not
+   * exist. The value is deserialized by the object mapper.
+   *
+   * @param name The name of the variable.
+   * @param type The class of the variable.
+   * @param defaultValue The default value if the variable does not exist.
+   * @param <T> The type of object to be deserialized.
+   * @return The deserialized value of class {code T}.
+   */
+  <T> T getVariable(String name, Class<T> type, T defaultValue);
 
   /**
    * Set the string value of the given variable.

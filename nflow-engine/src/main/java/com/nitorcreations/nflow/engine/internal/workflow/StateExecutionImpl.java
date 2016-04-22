@@ -85,9 +85,17 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> T getVariable(String name, Class<T> type) {
-    return (T) objectMapper.convertToObject(type, name, getVariable(name));
+    return getVariable(name, type, null);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getVariable(String name, Class<T> type, T defaultValue) {
+    if (instance.stateVariables.containsKey(name)) {
+      return (T) objectMapper.convertToObject(type, name, getVariable(name));
+    }
+    return defaultValue;
   }
 
   @Override
