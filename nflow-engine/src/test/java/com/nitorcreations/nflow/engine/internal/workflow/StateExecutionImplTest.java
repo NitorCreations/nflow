@@ -139,6 +139,65 @@ public class StateExecutionImplTest {
     verify(objectStringMapper).convertFromObject("foo", data);
   }
 
+  @Test
+  public void getStringVariableWorks() {
+    execution.setVariable("foo", "bar");
+
+    assertThat(execution.getVariable("foo"), is("bar"));
+  }
+
+  @Test
+  public void getMissingStringVariableReturnsNull() {
+    assertThat(execution.getVariable("foo"), is(nullValue()));
+  }
+
+  @Test
+  public void getStringVariableWithDefaultWorks() {
+    execution.setVariable("foo", "bar");
+
+    assertThat(execution.getVariable("foo", "default"), is("bar"));
+  }
+
+  @Test
+  public void getMissingStringVariableWithDefaultReturnDefaultValue() {
+    assertThat(execution.getVariable("foo", "default"), is("default"));
+  }
+
+  @Test
+  public void getVariableWorks() {
+    Data data = new Data(47, "bar");
+    String serializedData = "data in serialized form";
+    when(objectStringMapper.convertFromObject("foo", data)).thenReturn(serializedData);
+    when(objectStringMapper.convertToObject(Data.class, "foo", serializedData)).thenReturn(data);
+    execution.setVariable("foo", data);
+
+    assertThat(execution.getVariable("foo", Data.class), is(data));
+  }
+
+  @Test
+  public void getMissingVariableReturnsNull() {
+    assertThat(execution.getVariable("foo", Data.class), is(nullValue()));
+  }
+
+  @Test
+  public void getVariableWithDefaultWorks() {
+    Data data = new Data(47, "bar");
+    Data defaultData = new Data(42, "foobar");
+    String serializedData = "data in serialized form";
+    when(objectStringMapper.convertFromObject("foo", data)).thenReturn(serializedData);
+    when(objectStringMapper.convertToObject(Data.class, "foo", serializedData)).thenReturn(data);
+    execution.setVariable("foo", data);
+
+    assertThat(execution.getVariable("foo", Data.class, defaultData), is(data));
+  }
+
+  @Test
+  public void getMissingVariableWithDefaultReturnsDefaultValue() {
+    Data defaultData = new Data(42, "foobar");
+
+    assertThat(execution.getVariable("foo", Data.class, defaultData), is(defaultData));
+  }
+
   static class Data {
     public final int number;
     public final String text;
