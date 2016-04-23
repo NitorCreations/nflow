@@ -139,8 +139,9 @@ public class ExecutorDao {
       @Override
       @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-        PreparedStatement p = con.prepareStatement("insert into nflow_executor(host, pid, executor_group) values (?,?,?)",
-            new String[] { "id" });
+        String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
+            + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
+        PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
         p.setString(1, host);
         p.setInt(2, pid);
         p.setString(3, executorGroup);

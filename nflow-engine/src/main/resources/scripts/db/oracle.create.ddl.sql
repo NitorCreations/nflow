@@ -93,8 +93,8 @@ create table nflow_executor (
   pid int not null,
   executor_group varchar(64),
   started timestamp default current_timestamp not null,
-  active timestamp,
-  expires timestamp
+  active timestamp not null,
+  expires timestamp not null
 )
 /
 
