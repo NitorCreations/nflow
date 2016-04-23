@@ -20,7 +20,7 @@ public class ThresholdBlockingQueue<E> extends AbstractQueue<E> implements Block
     queue = new LinkedBlockingQueue<>(capacity);
   }
 
-  private void notifyIf() {
+  public void notifyIf() {
     int size = queue.size();
     synchronized (this) {
       if (size <= notifyThreshHold) {

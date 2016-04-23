@@ -57,6 +57,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import com.nitorcreations.nflow.engine.internal.storage.db.SQLVariants;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -82,6 +83,7 @@ public class WorkflowInstanceDao {
   private TransactionTemplate transaction;
   ExecutorDao executorInfo;
   SQLVariants sqlVariants;
+  private WorkflowInstanceExecutor workflowInstanceExecutor;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
   private long workflowInstanceQueryMaxActions;
@@ -124,6 +126,11 @@ public class WorkflowInstanceDao {
         Long.class);
   }
 
+  @Inject
+  public void setWorkflowInstanceExecutor(WorkflowInstanceExecutor workflowInstanceExecutor) {
+    this.workflowInstanceExecutor = workflowInstanceExecutor;
+  }
+
   @PostConstruct
   public void findColumnMaxLengths() {
     instanceStateTextLength = jdbc.query("select state_text from nflow_workflow where 1 = 0", firstColumnLengthExtractor);
@@ -131,10 +138,16 @@ public class WorkflowInstanceDao {
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
+    int id;
     if (sqlVariants.hasUpdateableCTE()) {
-      return insertWorkflowInstanceWithCte(instance);
+      id = insertWorkflowInstanceWithCte(instance);
+    } else {
+      id = insertWorkflowInstanceWithTransaction(instance);
     }
-    return insertWorkflowInstanceWithTransaction(instance);
+    if (instance.nextActivation != null && instance.nextActivation.isBeforeNow()) {
+      workflowInstanceExecutor.wakeUpDispatcherIfNeeded();
+    }
+    return id;
   }
 
   private int insertWorkflowInstanceWithCte(WorkflowInstance instance) {

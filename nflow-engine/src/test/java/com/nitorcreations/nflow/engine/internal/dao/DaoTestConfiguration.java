@@ -10,12 +10,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration.H2SQLVariants;
 
@@ -76,5 +78,11 @@ public class DaoTestConfiguration {
     mapper.registerModule(new JodaModule());
     return mapper;
   }
+
+  @Bean
+  public WorkflowInstanceExecutor workflowInstanceExecutor() {
+    return new WorkflowInstanceExecutor(10, 1, 5, 10, 10, new CustomizableThreadFactory("junit-"));
+  }
+
 }
 
