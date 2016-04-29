@@ -20,7 +20,7 @@ public class ThresholdBlockingQueue<E> extends AbstractQueue<E> implements Block
     queue = new LinkedBlockingQueue<>(capacity);
   }
 
-  public void notifyIf() {
+  public void notifyIfNotFull() {
     int size = queue.size();
     synchronized (this) {
       if (size <= notifyThreshHold) {
@@ -47,7 +47,7 @@ public class ThresholdBlockingQueue<E> extends AbstractQueue<E> implements Block
   @Override
   public E poll() {
     E o = queue.poll();
-    notifyIf();
+    notifyIfNotFull();
     return o;
   }
 
@@ -79,14 +79,14 @@ public class ThresholdBlockingQueue<E> extends AbstractQueue<E> implements Block
   @Override
   public E take() throws InterruptedException {
     E o = queue.take();
-    notifyIf();
+    notifyIfNotFull();
     return o;
   }
 
   @Override
   public E poll(long timeout, TimeUnit unit) throws InterruptedException {
     E o = queue.poll(timeout, unit);
-    notifyIf();
+    notifyIfNotFull();
     return o;
   }
 
@@ -98,14 +98,14 @@ public class ThresholdBlockingQueue<E> extends AbstractQueue<E> implements Block
   @Override
   public int drainTo(Collection<? super E> c) {
     int count = queue.drainTo(c);
-    notifyIf();
+    notifyIfNotFull();
     return count;
   }
 
   @Override
   public int drainTo(Collection<? super E> c, int maxElements) {
     int count = queue.drainTo(c, maxElements);
-    notifyIf();
+    notifyIfNotFull();
     return count;
   }
 }

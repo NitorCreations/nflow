@@ -37,7 +37,7 @@ public class WorkflowInstanceExecutor {
   }
 
   public void wakeUpDispatcherIfNeeded() {
-    queue.notifyIf();
+    queue.notifyIfNotFull();
   }
 
   public void execute(Runnable runnable) {
