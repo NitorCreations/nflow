@@ -16,9 +16,12 @@ import org.joda.time.DateTime;
 
 import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * An instance of a workflow.
  */
+@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class WorkflowInstance {
 
   /**

@@ -20,7 +20,7 @@ public class TestDataManager {
 
   public TestDataManager(TestDataGenerator generator, TestDataBatchInserter inserter, Environment env) {
     executors = Executors.newSingleThreadExecutor();
-    executors.submit(new PopulatorRunnable(generator, inserter, env));
+    executors.execute(new PopulatorRunnable(generator, inserter, env));
   }
 
   static class PopulatorRunnable implements Runnable {

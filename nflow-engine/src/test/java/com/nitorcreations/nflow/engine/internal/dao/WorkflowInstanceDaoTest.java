@@ -606,7 +606,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate j) {
     WorkflowInstanceDao d = new WorkflowInstanceDao();
-    d.setSQLVariants(new PostgreSQLVariants());
+    d.setSqlVariants(new PostgreSQLVariants());
     ExecutorDao eDao = mock(ExecutorDao.class);
     when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
     when(eDao.getExecutorId()).thenReturn(42);

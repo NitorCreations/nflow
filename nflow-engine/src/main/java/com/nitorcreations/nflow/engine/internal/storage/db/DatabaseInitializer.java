@@ -39,7 +39,7 @@ public class DatabaseInitializer {
   }
 
   private ResourceDatabasePopulator createPopulator(ClassPathResource script) {
-    logger.info("Creating database populator using script '{}'", script.getPath().toString());
+    logger.info("Creating database populator using script '{}'", script.getPath());
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setSeparator(DB_TYPE_ORACLE.equals(dbType) ? "/" : ";");
     populator.setIgnoreFailedDrops(true);
@@ -51,7 +51,7 @@ public class DatabaseInitializer {
   private ClassPathResource resolveScript() {
     ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
     if (!script.exists()) {
-      throw new IllegalArgumentException("No ddl script found: " + script.toString());
+      throw new IllegalArgumentException("No ddl script found: " + script);
     }
     return script;
   }

@@ -54,7 +54,11 @@ public class ListWorkflowDefinitionResponse implements Comparable<ListWorkflowDe
   }
 
   @Override
+  @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
   public int compareTo(ListWorkflowDefinitionResponse response) {
+    if (type == null) {
+      throw new IllegalStateException("type must be set");
+    }
     return type.compareTo(response.type);
   }
 

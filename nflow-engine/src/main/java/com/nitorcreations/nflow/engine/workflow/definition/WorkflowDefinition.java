@@ -32,6 +32,7 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> exte
    * @param settings The workflow settings.
    */
   @SuppressWarnings("unchecked")
+  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "findbugs does not understand that S extends both WorkflowState end Enum")
   protected WorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
     super(type, initialState, errorState, settings);
     this.allStates = EnumSet.allOf((Class<S>) initialState.getClass());

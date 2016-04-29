@@ -70,6 +70,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
 @Component
+@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class WorkflowInstanceDao {
 
   static final Map<String, String> EMPTY_STATE_MAP = Collections.<String, String> emptyMap();
@@ -89,7 +90,7 @@ public class WorkflowInstanceDao {
   int actionStateTextLength;
 
   @Inject
-  public void setSQLVariants(SQLVariants sqlVariants) {
+  public void setSqlVariants(SQLVariants sqlVariants) {
     this.sqlVariants = sqlVariants;
   }
 
@@ -178,7 +179,8 @@ public class WorkflowInstanceDao {
         try {
           jdbc.update(new PreparedStatementCreator() {
             @Override
-            @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+            @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
+                "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
             public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
               PreparedStatement ps;
               int p = 1;
@@ -208,7 +210,6 @@ public class WorkflowInstanceDao {
     });
   }
 
-  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   void insertVariables(final int id, final int actionId, Map<String, String> changedStateVariables) {
     if (changedStateVariables.isEmpty()) {
       return;
@@ -427,7 +428,6 @@ public class WorkflowInstanceDao {
     return instance;
   }
 
-  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   private void fillState(final WorkflowInstance instance) {
     jdbc.query(
         "select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
@@ -442,7 +442,6 @@ public class WorkflowInstanceDao {
     instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
-  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   public List<Integer> pollNextWorkflowInstanceIds(final int batchSize) {
     if (sqlVariants.hasUpdateReturning()) {
       return pollNextWorkflowInstanceIdsWithUpdateReturning(batchSize);
@@ -545,6 +544,7 @@ public class WorkflowInstanceDao {
     }
 
     @Override
+    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
     public int compareTo(OptimisticLockKey other) {
       return this.id - other.id;
     }
@@ -666,12 +666,12 @@ public class WorkflowInstanceDao {
     return actionId;
   }
 
-  @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
   public int insertWorkflowInstanceAction(final WorkflowInstanceAction action) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
-      @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+      @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
         PreparedStatement p = con.prepareStatement(
             insertWorkflowActionSql() + " values (?, ?, " + sqlVariants.actionType() + ", ?, ?, ?, ?, ?)", new String[] { "id" });

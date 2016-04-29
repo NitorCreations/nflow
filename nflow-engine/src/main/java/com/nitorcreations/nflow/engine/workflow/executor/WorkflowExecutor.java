@@ -2,9 +2,12 @@ package com.nitorcreations.nflow.engine.workflow.executor;
 
 import org.joda.time.DateTime;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Describes one workflow executor.
  */
+@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class WorkflowExecutor {
   /**
    * Unique identifier of executor instance. Each time an executor is started it receives a new identifier.

@@ -22,6 +22,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Named
 public class TableMetadataChecker {
   private JdbcTemplate jdbc;
@@ -55,6 +57,7 @@ public class TableMetadataChecker {
     }
   }
 
+  @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "jdbc is injected")
   private Map<String, ColumnMetadata> getMetadata(String tableName) {
     return jdbc.query("select * from " + tableName + " where 1 = 0", new MetadataExtractor());
   }
