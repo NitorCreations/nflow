@@ -13,6 +13,7 @@
   - Support for limiting the number of actions returned when getting workflow instance via REST API. The latest actions are returned first.
   - Add StateExecution.getVariable(name, type, default) method. Also change StateExecution.getVariable(name, type) so that it returns null when variable is not set instead of throwing a NullPointerException.
   - Adding a new workflow instance wakes the dispatcher thread if it is sleeping and the queue is not full
+  - Set nflow_executor.active and nflow_executor_expires when inserting new executor to database, do not accept null values for these columns anymore
   - Fix or suppress all FindBugs warnings
 
 ## 3.1.1 (2016-04-08)
