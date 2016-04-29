@@ -1,5 +1,20 @@
 ## next version
 
+## 3.2.0 (2016-04-29)
+
+**Highlights**
+- Support for not saving an action when workflow instance is processed
+- Support for limiting the number of actions returned when getting workflow instance via REST API
+- Add StateExecution.getVariable(name, type, default) method
+
+**Details**
+- nflow-engine:
+  - Support for not saving an action when workflow instance is processed by calling StateExecution.setCreateAction(false)
+  - Support for limiting the number of actions returned when getting workflow instance via REST API. The latest actions are returned first.
+  - Add StateExecution.getVariable(name, type, default) method. Also change StateExecution.getVariable(name, type) so that it returns null when variable is not set instead of throwing a NullPointerException.
+  - Adding a new workflow instance wakes the dispatcher thread if it is sleeping and the queue is not full
+  - Fix or suppress all FindBugs warnings
+
 ## 3.1.1 (2016-04-08)
 
 **Details**
