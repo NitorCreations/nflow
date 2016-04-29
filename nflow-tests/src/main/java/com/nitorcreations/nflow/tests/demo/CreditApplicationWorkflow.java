@@ -82,6 +82,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public void acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+    System.err.println(execution.getVariable("diipa", Boolean.class));
     logger.info("IRL: descheduling workflow instance, next state set externally");
   }
 
