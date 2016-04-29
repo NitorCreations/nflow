@@ -62,8 +62,8 @@ create table if not exists nflow_executor (
   pid int not null,
   executor_group varchar(64),
   started timestamp not null default current_timestamp,
-  active timestamp,
-  expires timestamp
+  active timestamp not null,
+  expires timestamp not null
 );
 
 create table if not exists nflow_workflow_definition (
