@@ -36,6 +36,10 @@ public class WorkflowInstanceExecutor {
     queue.waitUntilQueueSizeLowerThanThreshold(waitUntil);
   }
 
+  public void wakeUpDispatcherIfNeeded() {
+    queue.notifyIfNotFull();
+  }
+
   public void execute(Runnable runnable) {
     executor.execute(runnable);
   }

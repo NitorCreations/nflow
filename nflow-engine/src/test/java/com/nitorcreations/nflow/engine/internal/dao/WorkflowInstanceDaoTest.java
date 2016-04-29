@@ -52,6 +52,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import com.nitorcreations.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
@@ -65,6 +66,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   ExecutorDao executorDao;
   @Inject
   TransactionTemplate transaction;
+  @Inject
+  WorkflowInstanceExecutor workflowInstanceExecutor;
   List<WorkflowInstance> noChildWorkflows = emptyList();
   List<WorkflowInstance> emptyWorkflows = emptyList();
   Map<String, String> emptyVars = emptyMap();
@@ -606,6 +609,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate j) {
     WorkflowInstanceDao d = new WorkflowInstanceDao();
+    d.setWorkflowInstanceExecutor(workflowInstanceExecutor);
     d.setSqlVariants(new PostgreSQLVariants());
     ExecutorDao eDao = mock(ExecutorDao.class);
     when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
