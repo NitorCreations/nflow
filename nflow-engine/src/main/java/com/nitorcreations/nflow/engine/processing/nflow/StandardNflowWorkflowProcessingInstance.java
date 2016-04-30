@@ -40,7 +40,7 @@ public class StandardNflowWorkflowProcessingInstance implements WorkflowProcessi
 
   @Override
   public WorkflowProcessingState getCurrentState() {
-    return getWorkflowProcessingState(instance.state);
+    return processingDefinition.getState(instance.state);
   }
 
   @Override
@@ -50,23 +50,13 @@ public class StandardNflowWorkflowProcessingInstance implements WorkflowProcessi
     Object[] args = objectMapper.createArguments((StateExecutionImpl)stateExecution, method);
     NextAction nextAction = (NextAction) invokeMethod(method.method, definition, args);
     // TODO handle changes to StateVars
-    WorkflowProcessingState state = getWorkflowProcessingState(nextAction.getNextState().name());
+    WorkflowProcessingState state = processingDefinition.getState(nextAction.getNextState().name());
 
     // TODO handle exceptions etc
     // TODO ugly cast for StateExecutionImpl
     objectMapper.storeArguments((StateExecutionImpl)stateExecution, method, args);
 
     return NextProcessingAction.moveToStateAfter(state, nextAction.getActivation(), nextAction.getReason());
-  }
-
-  private WorkflowProcessingState getWorkflowProcessingState(String name) {
-    // TODO maybe WorkflowProcessingDefinition.getState(name) ???
-    for(WorkflowProcessingState state : getWorkflowDefinition().getStates()) {
-      if(state.getName().equals(name)) {
-        return state;
-      }
-    }
-    throw new IllegalArgumentException("unknown state " + name);
   }
 
   @Override

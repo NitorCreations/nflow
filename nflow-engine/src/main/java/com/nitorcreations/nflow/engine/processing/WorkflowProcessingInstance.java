@@ -22,7 +22,7 @@ public interface WorkflowProcessingInstance {
 
   /**
    * In case of retry, this will show next when state execution is attempted for the next time.
-   * If you return null, you'll get binary backoff algorithm.
+   * If null is returned, default retry time strategy is used from the engine.
    * @return
    */
   DateTime nextRetryTime();

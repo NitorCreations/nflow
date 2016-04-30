@@ -4,6 +4,7 @@ import com.nitorcreations.nflow.engine.internal.workflow.ObjectStringMapper;
 import com.nitorcreations.nflow.engine.processing.AbstractWorkflowProcessingFactory;
 import com.nitorcreations.nflow.engine.processing.WorkflowProcessingDefinition;
 import com.nitorcreations.nflow.engine.processing.WorkflowProcessingInstance;
+import com.nitorcreations.nflow.engine.processing.WorkflowProcessingSettings;
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
@@ -21,7 +22,9 @@ public class StandardNflowWorkflowProcessingFactory extends AbstractWorkflowProc
   @Override
   public WorkflowProcessingInstance createInstance(WorkflowInstance instance) {
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
-    WorkflowProcessingDefinition processDefinition = new StandardNfloWorkflowProcessingDefinition();
+    // TODO workflowSettings
+    WorkflowProcessingSettings settings = new WorkflowProcessingSettings() {};
+    WorkflowProcessingDefinition processDefinition = new StandardNfloWorkflowProcessingDefinition(definition, settings);
     return new StandardNflowWorkflowProcessingInstance(instance, processDefinition, definition, objectMapper);
   }
 

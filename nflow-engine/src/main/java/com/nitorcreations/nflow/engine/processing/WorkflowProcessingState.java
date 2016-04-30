@@ -37,11 +37,11 @@ public interface WorkflowProcessingState {
    * Max number of consecutive retries in state
    * @return max number of retries.
    */
-  int getRetryCountLimit();
+  int getMaxRetries();
 
   /**
    * Warn if execution time exeeds this value.
    * @return limit in seconds.
    */
-  int getExecutionTimeoutWarningLimit();
+  int getMaxExecutionTime();
 }

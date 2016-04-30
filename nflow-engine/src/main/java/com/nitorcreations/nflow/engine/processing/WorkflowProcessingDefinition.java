@@ -7,6 +7,12 @@ public interface WorkflowProcessingDefinition {
   String getDescription();
 
   /**
+   * State for new workflow if no state is given.
+   * TODO is this actually needed at all?
+   */
+  WorkflowProcessingState getDefaultInitialState();
+
+  /**
    * Generic error state where to go if WorkflowProcessingState doesn't define error state.
    * @return
    */
@@ -17,4 +23,8 @@ public interface WorkflowProcessingDefinition {
    * @return
    */
   List<WorkflowProcessingState> getStates();
+
+  WorkflowProcessingState getState(String stateName);
+
+  WorkflowProcessingSettings getSettings();
 }
