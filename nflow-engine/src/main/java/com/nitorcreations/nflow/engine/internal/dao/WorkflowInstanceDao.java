@@ -607,9 +607,9 @@ public class WorkflowInstanceDao {
       conditions.add("w.external_id = :external_id");
       params.addValue("external_id", query.externalId);
     }
-    if (!isEmpty(conditions)) {
-      sql += " where " + collectionToDelimitedString(conditions, " and ");
-    }
+    conditions.add("w.executor_group = :executor_group");
+    params.addValue("executor_group", executorInfo.getExecutorGroup());
+    sql += " where " + collectionToDelimitedString(conditions, " and ");
     sql = sqlVariants.limit(sql, ":limit");
     params.addValue("limit", getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
