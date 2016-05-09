@@ -27,23 +27,24 @@ public class CorsHeaderContainerResponseFilterTest {
   Environment env;
   CorsHeaderContainerResponseFilter filter;
   MultivaluedMap<String, Object> headerMap = new MultivaluedHashMap<>();
+  private static final String HOST = "example.com";
+  private static final String HEADERS = "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept";
 
   @Before
   public void setup() {
+    when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(HOST);
+    when(env.getRequiredProperty("nflow.rest.allow.headers")).thenReturn(HEADERS);
     filter = new CorsHeaderContainerResponseFilter(env);
     when(responseContext.getHeaders()).thenReturn(headerMap);
   }
 
   @Test
   public void addsHeaders() {
-    String host="example.com";
-    when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(host);
 
     filter.filter(requestContext, responseContext);
 
-    assertEquals(asList(host), headerMap.get("Access-Control-Allow-Origin"));
-    assertEquals(asList("X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept"),
-        headerMap.get("Access-Control-Allow-Headers"));
+    assertEquals(asList(HOST), headerMap.get("Access-Control-Allow-Origin"));
+    assertEquals(asList(HEADERS), headerMap.get("Access-Control-Allow-Headers"));
     assertEquals(asList("OPTIONS, GET, POST, PUT, DELETE"), headerMap.get("Access-Control-Allow-Methods"));
     assertEquals(asList("true"), headerMap.get("Access-Control-Allow-Credentials"));
   }

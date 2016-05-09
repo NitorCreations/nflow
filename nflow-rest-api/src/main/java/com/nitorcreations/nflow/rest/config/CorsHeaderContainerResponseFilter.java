@@ -9,26 +9,28 @@ import javax.ws.rs.ext.Provider;
 import org.springframework.core.env.Environment;
 
 /**
- * Filter to add headers to allow Cross-Origin Resource Sharing.
+ * Filter to add headers to allow Cross-Origin Resource Sharing. Applied only to JAX-RS resources that are annotated with
+ * {@code NflowCors} annotation.
  *
  * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS</a>
  */
 @Provider
+@NflowCors
 public class CorsHeaderContainerResponseFilter implements ContainerResponseFilter {
 
-  private final Environment env;
+  private final String origin;
+  private final String headers;
 
   @Inject
   public CorsHeaderContainerResponseFilter(final Environment env) {
-    this.env = env;
+    origin = env.getRequiredProperty("nflow.rest.allow.origin");
+    headers = env.getRequiredProperty("nflow.rest.allow.headers");
   }
 
   @Override
   public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) {
-    String origin = env.getRequiredProperty("nflow.rest.allow.origin");
     responseContext.getHeaders().add("Access-Control-Allow-Origin", origin);
-    responseContext.getHeaders().add("Access-Control-Allow-Headers",
-        "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept");
+    responseContext.getHeaders().add("Access-Control-Allow-Headers", headers);
     responseContext.getHeaders().add("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
     // for cookies?
     responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");

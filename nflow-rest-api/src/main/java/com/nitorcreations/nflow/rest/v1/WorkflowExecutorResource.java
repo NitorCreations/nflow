@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.service.WorkflowExecutorService;
 import com.nitorcreations.nflow.engine.workflow.executor.WorkflowExecutor;
+import com.nitorcreations.nflow.rest.config.NflowCors;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowExecutorConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
 
@@ -27,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 @Produces(APPLICATION_JSON)
 @Api("nFlow workflow executor management")
 @Component
+@NflowCors
 public class WorkflowExecutorResource {
 
   private final WorkflowExecutorService workflowExecutors;
