@@ -14,6 +14,7 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.service.StatisticsService;
+import com.nitorcreations.nflow.rest.config.NflowCors;
 import com.nitorcreations.nflow.rest.v1.converter.StatisticsConverter;
 import com.nitorcreations.nflow.rest.v1.msg.StatisticsResponse;
 import com.nitorcreations.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
@@ -27,6 +28,7 @@ import io.swagger.annotations.ApiParam;
 @Produces(APPLICATION_JSON)
 @Api("nFlow statistics")
 @Component
+@NflowCors
 public class StatisticsResource {
 
   @Inject

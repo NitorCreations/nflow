@@ -22,6 +22,7 @@ import com.nitorcreations.nflow.engine.internal.workflow.StoredWorkflowDefinitio
 import com.nitorcreations.nflow.engine.service.WorkflowDefinitionService;
 import com.nitorcreations.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import com.nitorcreations.nflow.engine.workflow.definition.WorkflowState;
+import com.nitorcreations.nflow.rest.config.NflowCors;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import com.nitorcreations.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 
@@ -34,6 +35,7 @@ import io.swagger.annotations.ApiParam;
 @Produces(APPLICATION_JSON)
 @Api("nFlow workflow definition management")
 @Component
+@NflowCors
 public class WorkflowDefinitionResource {
 
   private final WorkflowDefinitionService workflowDefinitions;

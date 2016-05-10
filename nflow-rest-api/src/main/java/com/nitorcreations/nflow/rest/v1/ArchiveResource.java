@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import org.springframework.stereotype.Component;
 
 import com.nitorcreations.nflow.engine.service.ArchiveService;
+import com.nitorcreations.nflow.rest.config.NflowCors;
 import com.nitorcreations.nflow.rest.v1.msg.ArchiveRequest;
 import com.nitorcreations.nflow.rest.v1.msg.ArchiveResponse;
 
@@ -23,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 @Produces(APPLICATION_JSON)
 @Api("nFlow archiving")
 @Component
+@NflowCors
 public class ArchiveResource {
 
   @Inject

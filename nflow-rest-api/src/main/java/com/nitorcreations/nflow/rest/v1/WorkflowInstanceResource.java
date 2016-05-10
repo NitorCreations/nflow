@@ -39,6 +39,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import com.nitorcreations.nflow.rest.config.NflowCors;
 import com.nitorcreations.nflow.rest.v1.converter.CreateWorkflowConverter;
 import com.nitorcreations.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import com.nitorcreations.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -57,6 +58,7 @@ import io.swagger.annotations.ApiResponses;
 @Produces(APPLICATION_JSON)
 @Api("nFlow workflow instance management")
 @Component
+@NflowCors
 public class WorkflowInstanceResource {
   private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
