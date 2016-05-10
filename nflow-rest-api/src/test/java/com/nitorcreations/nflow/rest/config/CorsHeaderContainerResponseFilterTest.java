@@ -1,7 +1,10 @@
 package com.nitorcreations.nflow.rest.config;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import javax.ws.rs.container.ContainerRequestContext;
@@ -34,19 +37,30 @@ public class CorsHeaderContainerResponseFilterTest {
   public void setup() {
     when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(HOST);
     when(env.getRequiredProperty("nflow.rest.allow.headers")).thenReturn(HEADERS);
+    when(env.getProperty("nflow.rest.cors.enabled", Boolean.class, TRUE)).thenReturn(TRUE);
     filter = new CorsHeaderContainerResponseFilter(env);
     when(responseContext.getHeaders()).thenReturn(headerMap);
   }
 
   @Test
   public void addsHeaders() {
-
     filter.filter(requestContext, responseContext);
 
     assertEquals(asList(HOST), headerMap.get("Access-Control-Allow-Origin"));
     assertEquals(asList(HEADERS), headerMap.get("Access-Control-Allow-Headers"));
     assertEquals(asList("OPTIONS, GET, POST, PUT, DELETE"), headerMap.get("Access-Control-Allow-Methods"));
     assertEquals(asList("true"), headerMap.get("Access-Control-Allow-Credentials"));
+    verifyZeroInteractions(requestContext);
+  }
+
+  @Test
+  public void doesNotAddHeadersWhenDisabled() {
+    when(env.getProperty("nflow.rest.cors.enabled", Boolean.class, TRUE)).thenReturn(FALSE);
+    filter = new CorsHeaderContainerResponseFilter(env);
+
+    filter.filter(requestContext, responseContext);
+
+    verifyZeroInteractions(requestContext, responseContext);
   }
 
 }
