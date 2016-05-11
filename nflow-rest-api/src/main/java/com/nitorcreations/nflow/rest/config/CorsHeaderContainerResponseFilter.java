@@ -1,7 +1,5 @@
 package com.nitorcreations.nflow.rest.config;
 
-import static java.lang.Boolean.TRUE;
-
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -20,15 +18,15 @@ import org.springframework.core.env.Environment;
 @NflowCors
 public class CorsHeaderContainerResponseFilter implements ContainerResponseFilter {
 
+  private final boolean enabled;
   private final String origin;
   private final String headers;
-  private final boolean enabled;
 
   @Inject
   public CorsHeaderContainerResponseFilter(final Environment env) {
+    enabled = env.getRequiredProperty("nflow.rest.cors.enabled", Boolean.class);
     origin = env.getRequiredProperty("nflow.rest.allow.origin");
     headers = env.getRequiredProperty("nflow.rest.allow.headers");
-    enabled = env.getProperty("nflow.rest.cors.enabled", Boolean.class, TRUE);
   }
 
   @Override

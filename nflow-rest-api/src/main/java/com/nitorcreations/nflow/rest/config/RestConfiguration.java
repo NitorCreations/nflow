@@ -14,7 +14,7 @@ import com.nitorcreations.nflow.engine.internal.config.EngineConfiguration;
 import com.nitorcreations.nflow.engine.internal.config.NFlow;
 
 @Configuration
-@Import(EngineConfiguration.class)
+@Import({ EngineConfiguration.class, NflowRestApiPropertiesConfiguration.class })
 @ComponentScan("com.nitorcreations.nflow.rest")
 public class RestConfiguration {
 

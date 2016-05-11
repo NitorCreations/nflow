@@ -37,7 +37,7 @@ public class CorsHeaderContainerResponseFilterTest {
   public void setup() {
     when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(HOST);
     when(env.getRequiredProperty("nflow.rest.allow.headers")).thenReturn(HEADERS);
-    when(env.getProperty("nflow.rest.cors.enabled", Boolean.class, TRUE)).thenReturn(TRUE);
+    when(env.getRequiredProperty("nflow.rest.cors.enabled", Boolean.class)).thenReturn(TRUE);
     filter = new CorsHeaderContainerResponseFilter(env);
     when(responseContext.getHeaders()).thenReturn(headerMap);
   }
@@ -55,7 +55,7 @@ public class CorsHeaderContainerResponseFilterTest {
 
   @Test
   public void doesNotAddHeadersWhenDisabled() {
-    when(env.getProperty("nflow.rest.cors.enabled", Boolean.class, TRUE)).thenReturn(FALSE);
+    when(env.getRequiredProperty("nflow.rest.cors.enabled", Boolean.class)).thenReturn(FALSE);
     filter = new CorsHeaderContainerResponseFilter(env);
 
     filter.filter(requestContext, responseContext);
