@@ -1,5 +1,20 @@
 ## next version
 
+**Highlights**
+- Fixes to nflow-rest-api CORS header filter
+- Fixes to query workflow instances service
+
+**Details**
+- nflow-engine:
+  - Filter query workflow instances result by executor group
+  - Query workflow instances returns latest instances first
+- nflow-rest-api:
+  - CorsHeaderContainerResponseFilter is applied to nFlow REST API resources only
+  - CorsHeaderContainerResponseFilter can be disabled via configuration (nflow.rest.cors.enabled=false)
+  - Allowed CORS headers can be configured by setting nflow.rest.allow.headers
+- nflow-jetty:
+  - Use nFlow Explorer version 1.2.1
+
 ## 3.2.0 (2016-04-29)
 
 **Highlights**
