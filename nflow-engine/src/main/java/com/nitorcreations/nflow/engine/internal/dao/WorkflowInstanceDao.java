@@ -609,7 +609,7 @@ public class WorkflowInstanceDao {
     }
     conditions.add("w.executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
-    sql += " where " + collectionToDelimitedString(conditions, " and ");
+    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
     sql = sqlVariants.limit(sql, ":limit");
     params.addValue("limit", getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
