@@ -17,7 +17,7 @@
     <th>Next activation</th>
     </thead>
     <tbody>
-    <tr ng-repeat="result in ctrl.results | reverse" ng-class="ctrl.getStateClass(result)">
+    <tr ng-repeat="result in ctrl.results" ng-class="ctrl.getStateClass(result)">
       <td><a ui-sref="workflow({id: result.id})">{{result.id}}</a></td>
       <td><a ui-sref="workflow({id: result.id})">{{result.type}}</a></td>
       <td>{{result.state}}</td>

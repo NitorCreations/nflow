@@ -17,7 +17,7 @@
                 info: action.type === 'externalChange',
                 warning: action.type === 'recovery'
                 }"
-        ng-repeat="action in ctrl.workflow.actions | reverse"
+        ng-repeat="action in ctrl.workflow.actions"
         ng-click="ctrl.selectAction(action.state)">
       <td>{{ctrl.workflow.actions.length - $index}}</td>
       <td>{{action.state}}</td>
