@@ -3,7 +3,7 @@
   var m = angular.module('nflowExplorer.services.EndpointService', [
     'nflowExplorer.config',
   ]);
-  m.service('EndpointService', function EndpointService(config, $window) {
+  m.service('EndpointService', function EndpointService(config, $window, $state) {
     var api = this;
     api.currentEndpoint = currentEndpoint;
     api.selectEndpoint = selectEndpoint;
@@ -28,6 +28,7 @@
       } catch (e) {}
 
       if(change) {
+        $state.go('frontPage');
         $window.location.reload();
       }
     }
