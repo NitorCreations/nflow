@@ -1,4 +1,4 @@
-## next version
+## 3.3.0 (2016-05-27)
 
 **Highlights**
 - Fixes to nflow-rest-api CORS header filter
