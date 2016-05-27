@@ -1,6 +1,6 @@
 # nFlow Explorer change log
 
-1.2.1 2016-05-dd
+1.2.1 2016-05-27
 ================
 
 * Do not reverse order of workflow instances in search results
