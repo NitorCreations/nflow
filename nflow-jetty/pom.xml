@@ -13,7 +13,7 @@
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>com.nitorcreations</groupId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.3.0</version>
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
