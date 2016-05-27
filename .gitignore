@@ -10,3 +10,5 @@ rubygems/
 target
 .idea
 *.iml
+*~
+
