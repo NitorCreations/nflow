@@ -153,7 +153,8 @@
           }
           var activeEdges = {};
           var sourceState = null;
-          _.each(workflow.actions, function(action) {
+          var actions = workflow.actions.slice().reverse();
+          _.each(actions, function(action) {
             if(!activeEdges[action.state]) {
               activeEdges[action.state] = {};
             }
@@ -170,7 +171,7 @@
           });
 
           // handle last action -> currentAction, do not include retries
-          var lastAction = _.last(workflow.actions);
+          var lastAction = _.last(actions);
           if(lastAction && lastAction.state !== workflow.state) {
             activeEdges[lastAction.state][workflow.state] = true;
           }
@@ -197,15 +198,16 @@
             return cssStyle;
 
             function isActiveTransition(state, transition) {
-              if(_.size(workflow.actions) < 2) { return false; }
+              var actions = workflow.actions.slice().reverse();
+              if(_.size(actions) < 2) { return false; }
 
-              var prevState = _.first(workflow.actions).state;
-              var found =  _.find(_.rest(workflow.actions), function(action) {
+              var prevState = _.first(actions).state;
+              var found =  _.find(_.rest(actions), function(action) {
                 if (prevState === state.id && action.state === transition) { return true; }
                 prevState = action.state;
               });
 
-              return !_.isUndefined(found) || _.last(workflow.actions).state === state.id && workflow.state === transition;
+              return !_.isUndefined(found) || _.last(actions).state === state.id && workflow.state === transition;
             }
           }
         }
