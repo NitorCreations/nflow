@@ -3,10 +3,6 @@ before_install:
   - "export DISPLAY=:99.0"
   - sh travis/run-nflow-server.sh
   - "sh -e /etc/init.d/xvfb start"
-  - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-  - sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq google-chrome-stable
 
 node_js:
   - '4.1'
@@ -17,11 +13,14 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - google-chrome-stable
       - g++-4.8
 
 before_script:
   - 'npm install -g bower grunt-cli'
+  - 'npm install'
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
 script: grunt && grunt itest
 sudo: required
+dist: trusty
