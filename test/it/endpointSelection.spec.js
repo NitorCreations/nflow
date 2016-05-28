@@ -5,6 +5,7 @@ var po = require('./pageobjects/pageobjects');
 describe('endpoint selection', function () {
   var menu = po.menu({});
   var frontPage = po.frontPage({});
+  var aboutPage = po.aboutPage({});
 
   beforeEach(function() { frontPage.get(); });
 
@@ -41,12 +42,13 @@ describe('endpoint selection', function () {
       it('endpoint menu should be closed', function() {
         expect(menu.isEnpointSelectionOpen()).toBe(false);
       });
-
     });
+
   });
 
   describe('selecting nBank endpoint', function() {
     beforeEach(function() {
+      aboutPage.get();
       menu.clickEndpointSelection();
       menu.selectEndpoint('nbank');
     });
@@ -66,6 +68,10 @@ describe('endpoint selection', function () {
 
     it('selected endpoint should be "nBank at nflow.io"', function() {
       expect(menu.selectedEndpoint()).toBe('nBank at nflow.io');
+    });
+
+    it('frontPage should be displayed', function( ){
+      expect(frontPage.isDisplayed()).toBeTruthy();
     });
 
     it('front page show localhost workflows', function() {
