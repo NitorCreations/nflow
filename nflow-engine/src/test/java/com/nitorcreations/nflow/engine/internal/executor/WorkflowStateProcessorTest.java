@@ -397,25 +397,25 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
-    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class));
+    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(String[].class));
   }
 
   @Test
   public void whenWakingUpParentWorkflowSucceeds() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
-    when(workflowInstanceDao.wakeUpWorkflowExternally(999)).thenReturn(true);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new String[0])).thenReturn(true);
     executor.run();
-    verify(workflowInstanceDao).wakeUpWorkflowExternally(999);
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new String[0]);
   }
 
   @Test
   public void whenWakingUpParentWorkflowFails() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
-    when(workflowInstanceDao.wakeUpWorkflowExternally(999)).thenReturn(false);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new String[0])).thenReturn(false);
     executor.run();
-    verify(workflowInstanceDao).wakeUpWorkflowExternally(999);
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new String[0]);
   }
 
   @Test

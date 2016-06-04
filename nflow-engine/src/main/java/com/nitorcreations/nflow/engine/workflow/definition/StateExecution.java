@@ -126,8 +126,11 @@ public interface StateExecution {
   /**
    * Notify parent workflow that it may start processing again. Calling this schedules parent workflow for immediate
    * execution. Scheduling is performed when current state method processing completes successfully.
+   *
+   * @param expectedStates If parent state is not one of the expected states, it is not woken up. If no expected states are
+   * given, parent workflow is woken up regardless of the state.
    */
-  void wakeUpParentWorkflow();
+  void wakeUpParentWorkflow(String... expectedStates);
 
   /**
    * Create a builder for creating child workflows. Created builder has nextActivation set to current time.
