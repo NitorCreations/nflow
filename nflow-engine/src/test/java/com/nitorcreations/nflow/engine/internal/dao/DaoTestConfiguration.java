@@ -5,7 +5,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -21,7 +20,6 @@ import com.nitorcreations.nflow.engine.internal.executor.WorkflowInstanceExecuto
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
 import com.nitorcreations.nflow.engine.internal.storage.db.H2DatabaseConfiguration.H2SQLVariants;
 
-@Configuration
 @PropertySource({"classpath:junit.properties"})
 @EnableTransactionManagement
 @Import(H2DatabaseConfiguration.class)
