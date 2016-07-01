@@ -53,7 +53,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <grunt.target>build</grunt.target>
-    <frontend-maven.version>0.0.26</frontend-maven.version>
+    <frontend-maven.version>1.0</frontend-maven.version>
     <maven-assembly.version>2.6</maven-assembly.version>
     <maven-clean.version>3.0.0</maven-clean.version>
     <maven-deploy.version>2.8.2</maven-deploy.version>
@@ -61,8 +61,8 @@
     <maven-install.version>2.5.2</maven-install.version>
     <maven-site.version>3.4</maven-site.version>
     <nexus-staging-maven.version>1.6.6</nexus-staging-maven.version>
-    <node.version>v0.12.0</node.version>
-    <npm.version>2.5.1</npm.version>
+    <node.version>v6.2.2</node.version> <!-- https://nodejs.org/en/download/releases/ -->
+    <npm.version>3.9.5</npm.version> <!-- https://github.com/npm/npm/releases -->
     <versions-maven-plugin.version>2.2</versions-maven-plugin.version>
   </properties>
   <build>
