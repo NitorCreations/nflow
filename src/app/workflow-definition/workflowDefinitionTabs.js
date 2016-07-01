@@ -125,7 +125,7 @@
       var statsStateIds = Object.keys(stats.stateStatistics);
       // add any extra state present in stats, but not present in definition
       var allStateIds = definitionStateIds.concat(_.filter(statsStateIds, function(state) {
-        return !_.contains(definitionStateIds, state);
+        return !_.includes(definitionStateIds, state);
       }));
 
       var activeStateIds = _.filter(allStateIds, function(stateId) {
@@ -154,7 +154,7 @@
         }
       });
       _.forEach(stats.stateStatistics, function(stateStats, stateId) {
-        if(!_.contains(activeStateIds, stateId)) {
+        if(!_.includes(activeStateIds, stateId)) {
           return;
         }
         _.forEach(stateStats, function(statistics, statusName) {
