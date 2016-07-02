@@ -22,5 +22,8 @@ before_script:
   - 'bower install'
   - 'node_modules/protractor/bin/webdriver-manager update'
 script: grunt && grunt itest
+notifications:
+  flowdock:
+    secure: QbIGfsj64a2Ms5y/aTO0PUAVBRv9mKxAwLFj5NxWACEVxm1JKZvrQ4ov/8XbVRbRl96sMIoWPox7Gu++ZgLjb7w+jeiCvWLwJwRDxlCgsYvb4hAcPXlNBO7SF4kcUifPfJpaDsb3EThUUK8EtsI5aOxvCqGKMChTDoQnej3kc0o=
 sudo: required
 dist: trusty
