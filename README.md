@@ -75,7 +75,7 @@ grunt test
 First install webdriver: 
 
 ```sh 
-node_modules/protractor/bn/webdriver-manager update
+node_modules/protractor/bin/webdriver-manager update
 ```
 
 Running tests
