@@ -1,5 +1,8 @@
 <section>
-  <table class="table table-striped table-hover">
+  <div class="alert alert-info" role="alert" ng-hide="ctrl.workflow.stateVariables.length">
+    No state variables
+  </div>
+  <table ng-show="ctrl.workflow.stateVariables.length" class="table table-striped table-hover">
     <thead>
     <tr><th>Variable</th><th>Value</th></tr>
     </thead>

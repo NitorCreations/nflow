@@ -1,6 +1,9 @@
 <div>
   <h2>Workflow definitions</h2>
-  <div class="row marketing">
+  <div class="alert alert-info" role="alert" ng-hide="ctrl.definitions.length">
+    No workflow definitions registered
+  </div>
+  <div id="workflowDefinitionsList" ng-show="ctrl.definitions.length" class="row marketing">
     <dl ng-repeat="definition in ctrl.definitions">
       <dt><a ui-sref="workflow-definition({type: definition.type})">{{definition.type}}</a></dt>
       <dd>{{definition.description}}</dd>

@@ -10,7 +10,7 @@
   m.controller('SearchCtrl', function ($stateParams, definitions, CriteriaModel) {
     var self = this;
     self.definitions = definitions;
-    self.results = [];
+    self.results = undefined;
     self.hasResults = hasResults;
 
     CriteriaModel.initialize({
@@ -21,7 +21,7 @@
       definitions);
 
     function hasResults() {
-      return !_.isEmpty(self.results);
+      return self.results !== undefined;
     }
 
     function toInt(value) {

@@ -27,7 +27,7 @@ describe('Controller: SearchCtrl', function () {
 
   it('sets empty results into view model', function () {
     var ctrl = getCtrl(CriteriaModel);
-    expect(ctrl.results).toEqual([]);
+    expect(ctrl.results).toEqual(undefined);
   });
 
   it('initializes criteria model from route params', function () {
