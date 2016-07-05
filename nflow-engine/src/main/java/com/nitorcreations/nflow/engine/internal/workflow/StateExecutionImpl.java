@@ -2,12 +2,14 @@ package com.nitorcreations.nflow.engine.internal.workflow;
 
 import static java.util.Collections.unmodifiableList;
 import static org.joda.time.DateTime.now;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import com.nitorcreations.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -18,6 +20,7 @@ import com.nitorcreations.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class StateExecutionImpl implements StateExecution {
 
+  private static final Logger LOG = getLogger(StateExecutionImpl.class);
   private final WorkflowInstance instance;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowDao;
@@ -29,11 +32,11 @@ public class StateExecutionImpl implements StateExecution {
   private Throwable thrown;
   private boolean isFailed;
   private boolean isRetryCountExceeded;
-  private boolean wakeUpParentWorkflow = false;
   private boolean isStateProcessInvoked = false;
   private final List<WorkflowInstance> newChildWorkflows = new LinkedList<>();
   private final List<WorkflowInstance> newWorkflows = new LinkedList<>();
   private boolean createAction = true;
+  private String[] wakeUpParentStates;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor) {
@@ -202,12 +205,16 @@ public class StateExecutionImpl implements StateExecution {
   }
 
   @Override
-  public void wakeUpParentWorkflow() {
-    wakeUpParentWorkflow = true;
+  public void wakeUpParentWorkflow(String... expectedStates) {
+    if (instance.parentWorkflowId == null) {
+      LOG.warn("wakeUpParentWorkflow called on non-child workflow");
+      return;
+    }
+    wakeUpParentStates = expectedStates;
   }
 
-  public boolean isWakeUpParentWorkflowSet() {
-    return wakeUpParentWorkflow;
+  public String[] getWakeUpParentWorkflowStates() {
+    return wakeUpParentStates;
   }
 
   @Override

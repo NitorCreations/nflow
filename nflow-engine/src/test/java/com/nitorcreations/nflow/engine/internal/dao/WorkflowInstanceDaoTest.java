@@ -706,7 +706,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void wakeUpWorkflowExternallyWorks() {
+  public void wakeUpWorkflowExternallyWorksWithEmptyExpectedStates() {
     DateTime now = DateTime.now();
     DateTime scheduled = now.plusDays(1);
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(scheduled).build();
@@ -725,9 +725,59 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId);
+    dao.wakeUpWorkflowExternally(parentWorkflowId, new String[0]);
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
+  }
+
+  @Test
+  public void wakeUpWorkflowExternallyWorksWithExpectedStates() {
+    DateTime now = DateTime.now();
+    DateTime scheduled = now.plusDays(1);
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(scheduled).build();
+    int parentWorkflowId = dao.insertWorkflowInstance(i1);
+    assertThat(parentWorkflowId, not(equalTo(-1)));
+    WorkflowInstance createdWorkflow = dao.getWorkflowInstance(parentWorkflowId);
+
+    assertThat(createdWorkflow.nextActivation, equalTo(scheduled));
+
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1);
+    assertThat(parentActionId, not(equalTo(-1)));
+
+    int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
+    WorkflowInstance i2 = dao.getWorkflowInstance(subWorkflowId);
+    assertThat(subWorkflowId, not(equalTo(-1)));
+    assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
+    assertThat(i2.parentActionId, equalTo(parentActionId));
+
+    dao.wakeUpWorkflowExternally(parentWorkflowId, new String[] { "CreateLoan" });
+    WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
+    assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
+  }
+
+  @Test
+  public void wakeUpWorkflowExternallyDoesNotWakeUpWorkflowInUnexpectedState() {
+    DateTime now = DateTime.now();
+    DateTime scheduled = now.plusDays(1);
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(scheduled).setState("unexpected").build();
+    int parentWorkflowId = dao.insertWorkflowInstance(i1);
+    assertThat(parentWorkflowId, not(equalTo(-1)));
+    WorkflowInstance createdWorkflow = dao.getWorkflowInstance(parentWorkflowId);
+
+    assertThat(createdWorkflow.nextActivation, equalTo(scheduled));
+
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1);
+    assertThat(parentActionId, not(equalTo(-1)));
+
+    int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
+    WorkflowInstance i2 = dao.getWorkflowInstance(subWorkflowId);
+    assertThat(subWorkflowId, not(equalTo(-1)));
+    assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
+    assertThat(i2.parentActionId, equalTo(parentActionId));
+
+    dao.wakeUpWorkflowExternally(parentWorkflowId, new String[] { "CreateLoan" });
+    WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
+    assertThat(wakenWorkflow.nextActivation, is(scheduled));
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
