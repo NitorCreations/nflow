@@ -1,0 +1,170 @@
+<svg id="dagreSvg" class="svg-content-responsive" preserveAspectRatio="xMinYMin meet" viewBox="0 0 197.984375 217.5625" version="1.1" xmlns="http://www.w3.org/2000/svg"><rect class="graph-background" width="100%" height="100%" style=""></rect><style type="text/css">/** Styling for nFlow workflow graphs
+workflow_definition.html / workflow.html
+
+This file will be embedded inside generated SVG.
+
+See app.js how this file is loaded (resolve:).
+*/
+
+.graph-background {
+  fill: white;
+  pointer-events: all;
+}
+
+/**
+Node styles
+-----------
+Generated svg looks like this
+
+
+&lt;g class="node-normal"  transform="translate(...)"&gt;
+  &lt;rect&gt;&lt;!--this is background for node--&gt;&lt;/rect&gt;
+  &lt;g transform="translate(-100,-9.5)"&gt;
+    &lt;text text-anchor="left"&gt;
+     &lt;tspan dy="1em" x="1"&gt;&lt;!-- node text goes here --&gt;&lt;/tspan&gt;
+    &lt;/text&gt;
+  &lt;/g&gt;
+  &lt;title&gt;&lt;!-- tooltip goes here --&gt;&lt;/title&gt;
+&lt;/g&gt;
+*/
+/* changing font or font size may require code changes to have right size boxes */
+.node-normal, .node-manual, .node-start, .node-end {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  fill: black;
+  opacity: 1; cursor: pointer;
+}
+
+.node-start &gt; rect, .node-manual &gt; rect, .node-normal &gt; rect, .node-end &gt; rect, .node-error &gt; rect {
+  stroke-width: 1.5px;
+  stroke: black;
+  fill: white;
+}
+.node-start &gt; rect {
+  fill: LightBlue;
+}
+
+.node-normal &gt; rect {
+  fill: white;
+}
+
+.node-manual &gt; rect {
+  fill: yellow;
+}
+
+.node-error &gt; rect {
+  fill: pink;
+}
+
+.node-end &gt; rect {
+  fill: LightGreen;
+}
+
+
+.node-normal.selected &gt; rect, .node-manual.selected &gt; rect, .node-error.selected &gt; rect, .node-start.selected &gt; rect, .node-end.selected &gt; rect {
+  stroke-width: 3px;
+}
+
+.node-active &gt; rect{
+  stroke-width: 3px;
+}
+
+.node-active.selected {
+  stroke-width: 4px;
+}
+
+.node-passive{
+  fill: gray;
+}
+
+.node-passive &gt; rect{
+  stroke: gray;
+}
+
+
+/**
+Edge styles
+------------
+Basic edge types are
+- normal: normal transition
+- error: error transition
+- unexpected: any transition not part of workflow definition. Unexpected is always active.
+
+Edges may be one of:
+- &lt;none&gt;: with workflow definition
+- passive: when transition has not been used by workflow instance
+- active: when transition has been used by workflow instance
+
+Edge may be also be selected.
+
+So error edge, that has not been used and is selected is indicated like this
+
+class="edge-error edge-passive selected"
+
+If you need new colors for arrowheads see graph.js, addArrowheadMarker()
+*/
+.edge-normal, .edge-error, .edge-unexpected {
+  stroke-width: 1px;
+  fill: none;
+  stroke: black;
+  marker-end: url(#arrowhead);
+}
+
+.edge-normal {
+  stroke: black;
+  marker-end: url(#arrowhead);
+  fill: none;
+}
+
+.edge-error {
+  stroke: black;
+  stroke-dasharray: 5,5;
+  marker-end: url(#arrowhead);
+  fill: none;
+}
+
+.edge-unexpected {
+  stroke: red;
+  fill: none;
+  marker-end: url(#arrowhead-red);
+}
+
+.edge-normal.edge-active, .edge-error.edge-active, .edge-unexpected.edge-active {
+  stroke-width: 2px;
+}
+
+.edge-passive {
+  stroke: gray;
+  marker-end: url(#arrowhead-gray);
+}
+
+.edge-normal.selected, .edge-error.selected, .edge-unexpected.selected {
+  stroke-width: 2px;
+}
+
+.edge-active.selected {
+  stroke-width: 4px;
+}
+
+.edge-passive.selected {
+  stroke: gray;
+}
+
+
+/* retries */
+.retry-indicator {
+  fill: orange;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+
+/* */
+g.current-state &gt; g &gt; text {
+  text-decoration: underline;
+}
+</style><g transform="translate(20, 20)"><g class="zoom"><g class="edgePaths"><g class="edgePath enter"><path marker-end="url(#arrowhead-none)" id="edge_1" class="edge-normal" d="M60.38751270325203,39.1875L58.048272357723576,41.6875C55.70903201219512,44.1875,51.030551321138205,49.1875,48.63133045392954,54.1875C46.23210958672087,59.1875,46.11214854336043,64.1875,46.05216802168022,66.6875L45.9921875,69.1875" style="opacity: 1;"></path></g><g class="edgePath enter"><path marker-end="url(#arrowhead-none)" id="edge_2" class="edge-normal" d="M35.34571900406504,108.375L34.021277947154466,110.875C32.6968368902439,113.375,30.047954776422763,118.375,28.68955369241192,123.375C27.331152608401084,128.375,27.263232554200542,133.375,27.229272527100267,135.875L27.1953125,138.375" style="opacity: 1;"></path></g><g class="edgePath enter"><path marker-end="url(#arrowhead-none)" id="edge_3" class="edge-error" d="M107.98828125,37.07199857789048L112.52546643283273,40.063350195897016C117.06265161566546,43.05470181390355,126.13702198133092,49.037405049916615,130.74651604491305,63.26484139409568C135.35601010849518,77.49227773827474,135.50062786999396,99.9644471906198,135.30197553212508,113.85692914296484C135.10332319425623,127.7494110953099,134.56140075701973,133.06220554765494,134.29043953840147,135.71860277382746L134.0194783197832,138.375" style="opacity: 1;"></path></g><g class="edgePath enter"><path marker-end="url(#arrowhead-none)" id="edge_4" class="edge-error" d="M75.44254954268293,108.375L79.16621146680217,110.875C82.8898733909214,113.375,90.33719723915988,118.375,96.49404005758808,123.375C102.65088287601625,128.375,107.51724466463415,133.375,109.9504255589431,135.875L112.38360645325203,138.375" style="opacity: 1;"></path></g><defs><marker id="arrowhead-none" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="5" orient="auto" style="fill: none;"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker><marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="5" orient="auto" fill="#333"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker><marker id="arrowhead-gray" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="5" orient="auto" fill="gray"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker><marker id="arrowhead-red" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="5" orient="auto" fill="red"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs></g><g class="edgeLabels"><g class="edgeLabel enter" transform="translate(45.9921875,54.1875)" style="opacity: 1;"><rect rx="5" ry="5" x="0" y="0" width="0" height="0" fill="#fff"></rect><g transform="translate(0,0)"><text text-anchor="left"><tspan dy="1em" x="1"></tspan></text></g></g><g class="edgeLabel enter" transform="translate(27.1953125,123.375)" style="opacity: 1;"><rect rx="5" ry="5" x="0" y="0" width="0" height="0" fill="#fff"></rect><g transform="translate(0,0)"><text text-anchor="left"><tspan dy="1em" x="1"></tspan></text></g></g><g class="edgeLabel enter" transform="translate(136.1875,88.78125)" style="opacity: 1;"><rect rx="5" ry="5" x="0" y="0" width="0" height="0" fill="#fff"></rect><g transform="translate(0,0)"><text text-anchor="left"><tspan dy="1em" x="1"></tspan></text></g></g><g class="edgeLabel enter" transform="translate(97.98828125,123.375)" style="opacity: 1;"><rect rx="5" ry="5" x="0" y="0" width="0" height="0" fill="#fff"></rect><g transform="translate(0,0)"><text text-anchor="left"><tspan dy="1em" x="1"></tspan></text></g></g></g><g class="nodes"><g class="node-start" style="opacity: 1; cursor: pointer;" id="node_begin" transform="translate(79.19140625,19.59375)"><rect rx="5" ry="5" x="-28.796875" y="-19.59375" width="57.59375" height="39.1875" fill="#fff"></rect><g transform="translate(-18.796875,-9.59375)"><text text-anchor="left"><tspan dy="1em" x="1">begin</tspan></text></g><title>Start state
+begin</title><g></g></g><g class="node-normal" style="opacity: 1; cursor: pointer;" id="node_process" transform="translate(45.9921875,88.78125)"><rect rx="5" ry="5" x="-36.3984375" y="-19.59375" width="72.796875" height="39.1875" fill="#fff"></rect><g transform="translate(-26.3984375,-9.59375)"><text text-anchor="left"><tspan dy="1em" x="1">process</tspan></text></g><title>Normal state
+process</title><g></g></g><g class="node-end" style="opacity: 1; cursor: pointer;" id="node_done" transform="translate(27.1953125,157.96875)"><rect rx="5" ry="5" x="-27.1953125" y="-19.59375" width="54.390625" height="39.1875" fill="#fff"></rect><g transform="translate(-17.1953125,-9.59375)"><text text-anchor="left"><tspan dy="1em" x="1">done</tspan></text></g><title>End state
+done</title><g></g></g><g class="node-manual" style="opacity: 1; cursor: pointer;" id="node_error" transform="translate(131.1875,157.96875)"><rect rx="5" ry="5" x="-26.796875" y="-19.59375" width="53.59375" height="39.1875" fill="#fff"></rect><g transform="translate(-16.796875,-9.59375)"><text text-anchor="left"><tspan dy="1em" x="1">error</tspan></text></g><title>Manual state
+error</title><g></g></g></g></g></g></svg>
