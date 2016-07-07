@@ -1,2 +1,2 @@
-com.nitorcreations.nflow.performance.workflow.NoDelaysWorkflow
-com.nitorcreations.nflow.performance.workflow.ConstantWorkflow
+io.nflow.performance.workflow.NoDelaysWorkflow
+io.nflow.performance.workflow.ConstantWorkflow

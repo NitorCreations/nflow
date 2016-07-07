@@ -2,9 +2,9 @@ nFlow performance testing
 =========================
 
  - `ansible/` directory contains [Ansible](http://www.ansible.com/) scripts for setting up AWS performance test environment
- - `com.nitorcreations.nflow.performance.client and .server` packages contain performance test client and server implementations
- - `com.nitorcreations.nflow.performance.testdata` package contains tools for generating data for performance testing
- - `com.nitorcreations.nflow.performance.workflow` package contains workflow definitions that are utilized by other packages
+ - `io.nflow.performance.client and .server` packages contain performance test client and server implementations
+ - `io.nflow.performance.testdata` package contains tools for generating data for performance testing
+ - `io.nflow.performance.workflow` package contains workflow definitions that are utilized by other packages
 
 **Generate data for performance testing**
 
@@ -59,5 +59,5 @@ java -Dhost=<your_nflow_server> -Dnflow.db.user=nflow -Dnflow.db.password=nflown
 
 2. Connect to your nFlow client server and start performance client threads using the following command (change parameters to match your environment):
 ```
-java -Dnflow.url=http://<your_nflow_server_load_balancer>:7500 -cp nflow-perf-test/target/nflow-perf-tests-*-SNAPSHOT.jar com.nitorcreations.nflow.performance.client.LoadGenerator
+java -Dnflow.url=http://<your_nflow_server_load_balancer>:7500 -cp nflow-perf-test/target/nflow-perf-tests-*-SNAPSHOT.jar io.nflow.performance.client.LoadGenerator
 ```

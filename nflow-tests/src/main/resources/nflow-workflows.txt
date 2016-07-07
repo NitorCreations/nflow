@@ -1,5 +1,5 @@
-com.nitorcreations.nflow.tests.demo.WordGeneratorWorkflow
-com.nitorcreations.nflow.tests.demo.WordGeneratorErrorsWorkflow
-com.nitorcreations.nflow.tests.demo.CreditApplicationWorkflow
-com.nitorcreations.nflow.tests.demo.SlowWorkflow
-com.nitorcreations.nflow.tests.demo.FibonacciWorkflow
+io.nflow.tests.demo.WordGeneratorWorkflow
+io.nflow.tests.demo.WordGeneratorErrorsWorkflow
+io.nflow.tests.demo.CreditApplicationWorkflow
+io.nflow.tests.demo.SlowWorkflow
+io.nflow.tests.demo.FibonacciWorkflow
