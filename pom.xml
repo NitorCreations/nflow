@@ -39,40 +39,42 @@
     <system>Github</system>
     <url>https://github.com/NitorCreations/nflow/issues</url>
   </issueManagement>
+  <repositories>
+    <repository>
+      <id>snapshots-repo</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
   <developers>
     <developer>
       <name>Esa Puttonen</name>
-      <email>esa.puttonen@nitorcreations.com</email>
+      <email>esa.puttonen@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Mikko Tiihonen</name>
-      <email>mikko.tiihonen@nitorcreations.com</email>
+      <email>mikko.tiihonen@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Markku Rontu</name>
-      <email>markku.rontu@nitorcreations.com</email>
+      <email>markku.rontu@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Juha Syrjälä</name>
-      <email>juha.syrjala@nitorcreations.com</email>
-      <organization>Nitor Creations</organization>
-    </developer>
-    <developer>
-      <name>Isto Nikula</name>
-      <email>isto.nikula@nitorcreations.com</email>
+      <email>juha.syrjala@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
     <developer>
       <name>Edvard Fonsell</name>
-      <email>edvard.fonsell@nitorcreations.com</email>
-      <organization>Nitor Creations</organization>
-    </developer>
-    <developer>
-      <name>Janne Sinivirta</name>
-      <email>janne.sinivirta@nitorcreations.com</email>
+      <email>edvard.fonsell@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
   </developers>
