@@ -37,6 +37,8 @@ Point your browser to [http://localhost:7500/doc/](http://localhost:7500/doc/) a
 
 See the next sections for creating your own workflow definitions.
 
+Note! Starting from 4.0.0 release, nFlow requires Java 8 or newer. Older releases require Java 7 or newer.
+
 ## <a name="components"></a>Ok, I'm interested!
 
 For a more thorough getting started guide, configurations, license information etc. checkout the [nFlow wiki pages](https://github.com/NitorCreations/nflow/wiki)! You can also look into a short [slide deck](https://github.com/NitorCreations/nflow/raw/master/nflow-documentation/presentations/nflow_presentation.pdf).
