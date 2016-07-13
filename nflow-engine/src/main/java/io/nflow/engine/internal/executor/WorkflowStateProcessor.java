@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -137,7 +138,7 @@ class WorkflowStateProcessor implements Runnable {
         execution.setRetry(true);
         execution.setNextState(state);
         execution.setNextStateReason(getStackTrace(t));
-        definition.handleRetry(execution);
+        handleRetry(execution, definition);
       } finally {
         if (execution.isFailed()) {
           processAfterFailureListeners(listenerContext, execution.getThrown());
@@ -396,7 +397,7 @@ class WorkflowStateProcessor implements Runnable {
       } else if (nextAction.isRetry()) {
         execution.setNextState(currentState);
         execution.setRetry(true);
-        definition.handleRetryAfter(execution, nextAction.getActivation());
+        handleRetryAfter(execution, nextAction.getActivation(), definition);
       } else {
         execution.setNextState(nextAction.getNextState());
       }
@@ -404,6 +405,61 @@ class WorkflowStateProcessor implements Runnable {
       return nextAction;
     }
 
+  }
+
+  /**
+   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
+   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
+   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
+   * schedules the next attempt for the state based on workflow settings. This method is called when an unexpected exception
+   * happens during state method handling.
+   *
+   * @param execution
+   *          State execution information.
+   * @param definition
+   *          Workflow definition
+   */
+  void handleRetry(StateExecutionImpl execution, AbstractWorkflowDefinition<?> definition) {
+    handleRetryAfter(execution, definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
+  }
+
+  /**
+   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
+   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
+   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
+   * schedules the next attempt to the given activation time. This method is called when a retry attempt is explicitly requested
+   * by a state handling method.
+   *
+   * @param execution
+   *          State execution information.
+   * @param activation
+   *          Time for next retry attempt.
+   * @param definition
+   *          Workflow definition
+   */
+  void handleRetryAfter(StateExecutionImpl execution, DateTime activation, AbstractWorkflowDefinition<?> definition) {
+    if (execution.getRetries() >= definition.getSettings().maxRetries) {
+      execution.setRetry(false);
+      execution.setRetryCountExceeded();
+      WorkflowState failureState = definition.getFailureTransitions().get(execution.getCurrentStateName());
+      WorkflowState currentState = definition.getState(execution.getCurrentStateName());
+      if (failureState != null) {
+        execution.setNextState(failureState);
+        execution.setNextStateReason("Max retry count exceeded, going to failure state");
+        execution.setNextActivation(now());
+      } else {
+        execution.setNextState(definition.getErrorState());
+        if (definition.getErrorState().equals(currentState)) {
+          execution.setNextStateReason("Max retry count exceeded when handling error state, processing stopped");
+          execution.setNextActivation(null);
+        } else {
+          execution.setNextStateReason("Max retry count exceeded, no failure state defined, going to error state");
+          execution.setNextActivation(now());
+        }
+      }
+    } else {
+      execution.setNextActivation(activation);
+    }
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {

@@ -3,20 +3,13 @@ package io.nflow.engine.workflow.definition;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -25,14 +18,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.nflow.engine.internal.workflow.StateExecutionImpl;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class AbstractWorkflowDefinitionTest {
 
   private final TestWorkflow workflow = new TestWorkflow();
-  private final DateTime activation = now().plusDays(1);
-  private final StateExecutionImpl execution = mock(StateExecutionImpl.class);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -40,63 +30,11 @@ public class AbstractWorkflowDefinitionTest {
   @Before
   public void setup() {
     setCurrentMillisFixed(DateTime.now().getMillis());
-    when(execution.getRetries()).thenReturn(workflow.getSettings().maxRetries);
   }
 
   @After
   public void reset() {
     setCurrentMillisSystem();
-  }
-
-  @Test
-  public void exceedingMaxRetriesInFailureStateGoesToErrorState() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.failed.name());
-
-    workflow.handleRetryAfter(execution, activation);
-
-    verify(execution).setNextState(TestWorkflow.State.error);
-    verify(execution).setNextActivation(now());
-  }
-
-  @Test
-  public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
-
-    workflow.handleRetryAfter(execution, activation);
-
-    verify(execution).setNextState(TestWorkflow.State.failed);
-    verify(execution).setNextActivation(now());
-  }
-
-  @Test
-  public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.startWithoutFailure.name());
-
-    workflow.handleRetryAfter(execution, activation);
-
-    verify(execution).setNextState(TestWorkflow.State.error);
-    verify(execution).setNextActivation(now());
-  }
-
-  @Test
-  public void exceedingMaxRetriesInErrorStateStopsProcessing() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.error.name());
-
-    workflow.handleRetryAfter(execution, activation);
-
-    verify(execution).setNextState(TestWorkflow.State.error);
-    verify(execution).setNextActivation(null);
-  }
-
-  @Test
-  public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
-    when(execution.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
-    when(execution.getRetries()).thenReturn(0);
-
-    workflow.handleRetryAfter(execution, activation);
-
-    verify(execution, never()).setNextState(any(TestWorkflow.State.class));
-    verify(execution).setNextActivation(activation);
   }
 
   @Test
@@ -159,47 +97,6 @@ public class AbstractWorkflowDefinitionTest {
 
     public void begin(StateExecution execution) {
       // do nothing
-    }
-  }
-
-  static class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
-
-    protected TestWorkflow() {
-      super("test", State.begin, State.error);
-      permit(State.begin, State.done, State.failed);
-      permit(State.startWithoutFailure, State.done);
-    }
-
-    public static enum State implements WorkflowState {
-      begin(start), startWithoutFailure(start), process(normal), done(end), failed(end), error(manual);
-
-      private WorkflowStateType stateType;
-
-      private State(WorkflowStateType stateType) {
-        this.stateType = stateType;
-      }
-
-      @Override
-      public WorkflowStateType getType() {
-        return stateType;
-      }
-
-      @Override
-      public String getDescription() {
-        return name();
-      }
-    }
-
-    public NextAction begin(StateExecution execution) {
-      return stopInState(State.done, "Done");
-    }
-
-    public NextAction process(StateExecution execution) {
-      return stopInState(State.done, "Done");
-    }
-
-    public NextAction startWithoutFailure(StateExecution execution) {
-      return stopInState(State.done, "Done");
     }
   }
 
