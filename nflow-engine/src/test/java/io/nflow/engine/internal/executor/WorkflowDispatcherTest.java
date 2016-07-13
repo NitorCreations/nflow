@@ -55,7 +55,7 @@ public class WorkflowDispatcherTest {
   @Mock
   WorkflowInstanceDao workflowInstances;
   @Mock
-  ExecutorDao recovery;
+  ExecutorDao executorDao;
   @Mock
   WorkflowStateProcessorFactory executorFactory;
   @Mock
@@ -71,9 +71,9 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     env.setProperty("nflow.executor.stuckThreadThreshold.seconds", "60");
-    when(recovery.isTransactionSupportEnabled()).thenReturn(true);
+    when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
-    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
+    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, executorDao, env);
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
     logger.addAppender(mockAppender);
   }
@@ -86,8 +86,8 @@ public class WorkflowDispatcherTest {
 
   @Test(expected = BeanCreationException.class)
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
-    when(recovery.isTransactionSupportEnabled()).thenReturn(false);
-    new WorkflowDispatcher(executor, workflowInstances, executorFactory, recovery, env);
+    when(executorDao.isTransactionSupportEnabled()).thenReturn(false);
+    new WorkflowDispatcher(executor, workflowInstances, executorFactory, executorDao, env);
   }
 
   @Test
@@ -184,7 +184,7 @@ public class WorkflowDispatcherTest {
         waitForTick(1);
         dispatcher.shutdown();
         assertPoolIsShutdown(true);
-        verify(recovery).markShutdown();
+        verify(executorDao).markShutdown();
       }
     }
     runOnce(new ShutdownBlocksUntilPoolShutdown());
@@ -228,7 +228,7 @@ public class WorkflowDispatcherTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(executor);
-        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, recovery, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, executorDao, env);
       }
 
       public void threadDispatcher() {

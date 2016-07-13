@@ -7,10 +7,12 @@ import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.lang.Math.min;
 import static java.util.Collections.sort;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -58,6 +60,7 @@ import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.internal.executor.InstanceInfo;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.model.ModelObject;
@@ -331,8 +334,32 @@ public class WorkflowInstanceDao {
     });
   }
 
+  public void recoverWorkflowInstancesFromDeadNodes() {
+    for (InstanceInfo instance : getRecoverableInstances()) {
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
+          .setType(recovery).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
+      recoverWorkflowInstance(instance.id, action);
+    }
+  }
+
+  private List<InstanceInfo> getRecoverableInstances() {
+    String sql = "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
+        + executorInfo.getExecutorGroupCondition() + " and id <> " + executorInfo.getExecutorId()
+        + " and expires < current_timestamp)";
+    List<InstanceInfo> instances = jdbc.query(sql, new RowMapper<InstanceInfo>() {
+      @Override
+      public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+        InstanceInfo instance = new InstanceInfo();
+        instance.id = rs.getInt("id");
+        instance.state = rs.getString("state");
+        return instance;
+      }
+    });
+    return instances;
+  }
+
   @Transactional
-  public void recoverWorkflowInstance(final int instanceId, final WorkflowInstanceAction action) {
+  private void recoverWorkflowInstance(final int instanceId, final WorkflowInstanceAction action) {
     int executorId = executorInfo.getExecutorId();
     int updated = jdbc.update("update nflow_workflow set executor_id = null, status = " + sqlVariants.workflowStatus(inProgress)
         + " where id = ? and executor_id in (select id from nflow_executor where " + executorInfo.getExecutorGroupCondition()
