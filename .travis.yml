@@ -1,7 +1,6 @@
 language: java
 jdk:
   - oraclejdk8
-  - openjdk7
 env:
   global:
   - BUILD_SYSTEM=travis
@@ -31,3 +30,4 @@ cache:
   directories:
   - $HOME/.m2
 sudo: false
+
