@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
+import io.nflow.engine.workflow.definition.StateExecution;
 
 @Component
 public class ObjectStringMapper {
@@ -27,7 +28,7 @@ public class ObjectStringMapper {
   }
 
   @SuppressWarnings("unchecked")
-  public Object[] createArguments(StateExecutionImpl execution,
+  public Object[] createArguments(StateExecution execution,
       WorkflowStateMethod method) {
     Object[] args = new Object[method.params.length + 1];
     args[0] = execution;
@@ -68,7 +69,7 @@ public class ObjectStringMapper {
   }
 
   @SuppressWarnings("unchecked")
-  public void storeArguments(StateExecutionImpl execution,
+  public void storeArguments(StateExecution execution,
       WorkflowStateMethod method, Object[] args) {
     StateParameter[] params = method.params;
     for (int i = 0; i < params.length; i++) {
