@@ -165,10 +165,12 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
   }
 
   private List<String> allowedTransitionsFor(S state) {
-    if (!allowedTransitions.containsKey(state.name())) {
-      allowedTransitions.put(state.name(), new ArrayList<String>());
+    String stateName = state.name();
+    List<String> transitions = allowedTransitions.get(stateName);
+    if (transitions == null) {
+      allowedTransitions.put(stateName, new ArrayList<String>());
     }
-    return allowedTransitions.get(state.name());
+    return transitions;
   }
 
   /**
@@ -179,7 +181,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     return settings;
   }
 
-  void requireStateMethodExists(S state) {
+  final void requireStateMethodExists(S state) {
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
     if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(
