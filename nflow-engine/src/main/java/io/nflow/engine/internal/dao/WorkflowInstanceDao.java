@@ -272,7 +272,7 @@ public class WorkflowInstanceDao {
         continue;
       }
       if (updateStatus[i] == Statement.EXECUTE_FAILED) {
-        throw new IllegalStateException("Failed to insert/update state variables");
+        throw new IllegalStateException("Failed to insert/update state variable at index " + i + " (" + updateStatus[i] + ")");
       }
       updatedRows += updateStatus[i];
     }
