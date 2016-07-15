@@ -48,7 +48,7 @@ public class WorkflowDefinitionScanner {
     final Map<String, WorkflowStateMethod> methods = new LinkedHashMap<>();
     doWithMethods(definition, new MethodCallback() {
       @Override
-      public void doWith(Method method) throws IllegalArgumentException {
+      public void doWith(Method method) {
         List<StateParameter> params = new ArrayList<>();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -67,7 +67,8 @@ public class WorkflowDefinitionScanner {
                 readOnly = false;
                 mutable = true;
               }
-              params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz), stateInfo.readOnly() || readOnly, mutable));
+              params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz),
+                  readOnly || stateInfo.readOnly(), mutable));
               break;
             }
           }
