@@ -215,8 +215,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
-    String[] expectedStates = execution.getWakeUpParentWorkflowStates();
-    if (expectedStates != null) {
+    execution.getWakeUpParentWorkflowStates().ifPresent(expectedStates -> {
       logger.debug("Possibly waking up parent workflow instance {}", instance.parentWorkflowId);
       boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId, expectedStates);
       if (notified) {
@@ -224,7 +223,7 @@ class WorkflowStateProcessor implements Runnable {
       } else {
         logger.info("Did not woke up parent workflow instance {}", instance.parentWorkflowId);
       }
-    }
+    });
   }
 
   private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {

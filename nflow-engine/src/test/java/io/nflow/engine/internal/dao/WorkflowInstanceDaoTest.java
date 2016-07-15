@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -648,7 +649,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
-    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[0]);
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, new ArrayList<String>());
     assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
   }
 
@@ -660,7 +661,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
     assertThat(dao.getWorkflowInstance(id).nextActivation, is(past));
-    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { i1.state });
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, asList(i1.state));
     assertThat(dao.getWorkflowInstance(id).nextActivation, is(past));
   }
 
@@ -669,7 +670,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     int id = dao.insertWorkflowInstance(i1);
     assertThat(dao.getWorkflowInstance(id).nextActivation, nullValue());
-    dao.wakeupWorkflowInstanceIfNotExecuting(id, new String[] { "otherState", i1.state });
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, asList("otherState", i1.state));
     assertThat(dao.getWorkflowInstance(id).nextActivation, notNullValue());
   }
 
@@ -728,7 +729,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, new String[0]);
+    dao.wakeUpWorkflowExternally(parentWorkflowId, new ArrayList<String>());
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }
@@ -753,7 +754,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, new String[] { "CreateLoan" });
+    dao.wakeUpWorkflowExternally(parentWorkflowId, asList("CreateLoan"));
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }
@@ -778,7 +779,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, new String[] { "CreateLoan" });
+    dao.wakeUpWorkflowExternally(parentWorkflowId, asList("CreateLoan"));
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId);
     assertThat(wakenWorkflow.nextActivation, is(scheduled));
   }

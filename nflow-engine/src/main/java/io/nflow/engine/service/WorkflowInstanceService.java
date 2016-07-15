@@ -3,6 +3,7 @@ package io.nflow.engine.service;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -102,11 +103,11 @@ public class WorkflowInstanceService {
   /**
    * Wake up the workflow instance matching the given id if it is in one of the expected states.
    * @param id Workflow instance id.
-   * @param expectedStates The expected states.
+   * @param expectedStates The expected states, empty for any.
    * @return True if the instance was woken up, false otherwise.
    */
   @Transactional
-  public boolean wakeupWorkflowInstance(long id, String... expectedStates) {
+  public boolean wakeupWorkflowInstance(long id, List<String> expectedStates) {
     return workflowInstanceDao.wakeupWorkflowInstanceIfNotExecuting(id, expectedStates);
   }
 

@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -404,30 +405,31 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void doNothingWhenNotifyingParentWithoutParentWorkflowId() {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
-    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(String[].class));
+    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(List.class));
   }
 
   @Test
   public void whenWakingUpParentWorkflowSucceeds() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
-    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new String[0])).thenReturn(true);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(true);
     executor.run();
-    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new String[0]);
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
   }
 
   @Test
   public void whenWakingUpParentWorkflowFails() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
-    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new String[0])).thenReturn(false);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(false);
     executor.run();
-    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new String[0]);
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
   }
 
   @Test

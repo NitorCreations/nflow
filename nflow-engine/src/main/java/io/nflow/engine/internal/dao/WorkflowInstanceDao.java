@@ -432,7 +432,7 @@ public class WorkflowInstanceDao {
   }
 
   @Transactional
-  public boolean wakeUpWorkflowExternally(int workflowInstanceId, String[] expectedStates) {
+  public boolean wakeUpWorkflowExternally(int workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then "
         + "least(current_timestamp, coalesce(next_activation, current_timestamp)) else next_activation end), "
         + "external_next_activation = current_timestamp where " + executorInfo.getExecutorGroupCondition()
@@ -440,7 +440,7 @@ public class WorkflowInstanceDao {
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);
   }
 
-  public boolean wakeupWorkflowInstanceIfNotExecuting(long workflowInstanceId, String[] expectedStates) {
+  public boolean wakeupWorkflowInstanceIfNotExecuting(long workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = current_timestamp")
         .append(" where id = ? and executor_id is null and status in (").append(sqlVariants.workflowStatus(inProgress))
         .append(", ").append(sqlVariants.workflowStatus(created))
@@ -448,14 +448,14 @@ public class WorkflowInstanceDao {
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);
   }
 
-  private boolean addExpectedStatesToQueryAndUpdate(StringBuilder sql, long workflowInstanceId, String[] expectedStates) {
-    Object[] args = new Object[1 + expectedStates.length];
+  private boolean addExpectedStatesToQueryAndUpdate(StringBuilder sql, long workflowInstanceId, List<String> expectedStates) {
+    Object[] args = new Object[1 + expectedStates.size()];
     args[0] = workflowInstanceId;
-    if (expectedStates.length > 0) {
+    if (!expectedStates.isEmpty()) {
       sql.append(" and state in (");
-      for (int i = 0; i < expectedStates.length; i++) {
+      for (int i = 0; i < expectedStates.size(); i++) {
         sql.append("?,");
-        args[i + 1] = expectedStates[i];
+        args[i + 1] = expectedStates.get(i);
       }
       sql.setCharAt(sql.length() - 1, ')');
     }

@@ -144,7 +144,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void wakeUpWorkflowInstance() {
-    String[] states = new String[] {"abc", "xyz"};
+    List<String> states = asList("abc", "xyz");
     service.wakeupWorkflowInstance(99, states);
     verify(workflowInstanceDao).wakeupWorkflowInstanceIfNotExecuting(99L, states);
   }
