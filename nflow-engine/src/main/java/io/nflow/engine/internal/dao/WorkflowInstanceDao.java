@@ -336,9 +336,10 @@ public class WorkflowInstanceDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
+    WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
+        .setType(recovery).setStateText("Recovered");
     for (InstanceInfo instance : getRecoverableInstances()) {
-      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
-          .setType(recovery).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
+      WorkflowInstanceAction action = builder.setState(instance.state).setWorkflowInstanceId(instance.id).build();
       recoverWorkflowInstance(instance.id, action);
     }
   }
