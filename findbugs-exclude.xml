@@ -5,4 +5,7 @@
   <Match>
     <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING" />
   </Match>
+  <Match>
+    <Bug pattern="IMC_IMMATURE_CLASS_NO_EQUALS" />
+  </Match>
 </FindBugsFilter>
