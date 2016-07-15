@@ -34,7 +34,8 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
 
   @Bean
   @Override
-  @SuppressFBWarnings(value = "CLI_CONSTANT_LIST_INDEX", justification = "extracting major and minor version from splitted string")
+  @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
+      justification = "extracting major and minor version from splitted string, exception message is ok")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     String dbType = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
