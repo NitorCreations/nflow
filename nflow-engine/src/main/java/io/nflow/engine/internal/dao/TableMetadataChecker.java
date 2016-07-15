@@ -33,9 +33,11 @@ public class TableMetadataChecker {
       throw new IllegalArgumentException(format("Source table %s has more columns than destination table %s", sourceTable,
           destinationTable));
     }
-    if (!destMetadataMap.keySet().containsAll(sourceMetadataMap.keySet())) {
-      Set<String> missingColumns = new LinkedHashSet<>(sourceMetadataMap.keySet());
-      missingColumns.removeAll(destMetadataMap.keySet());
+    Set<String> sourceKeySet = sourceMetadataMap.keySet();
+    Set<String> destKeySet = destMetadataMap.keySet();
+    if (!destKeySet.containsAll(sourceKeySet)) {
+      Set<String> missingColumns = new LinkedHashSet<>(sourceKeySet);
+      missingColumns.removeAll(destKeySet);
       throw new IllegalArgumentException(format("Destination table %s is missing columns %s that are present in source table %s",
           destinationTable, missingColumns, sourceTable));
     }
