@@ -1,7 +1,6 @@
 package io.nflow.jetty.spring;
 
 import static io.nflow.engine.internal.config.Profiles.H2;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -37,10 +36,11 @@ public class NflowStandardEnvironment extends StandardEnvironment {
 
   private void setupDbProfile() {
     boolean dbProfileDefined = false;
-    for (String profile : asList(getActiveProfiles())) {
+    String[] activeProfiles = getActiveProfiles();
+    for (String profile : activeProfiles) {
       if (profile.startsWith("nflow.db")) {
         if (dbProfileDefined) {
-          throw new RuntimeException("Multiple nflow.db profiles defined: " + Arrays.toString(getActiveProfiles()));
+          throw new RuntimeException("Multiple nflow.db profiles defined: " + Arrays.toString(activeProfiles));
         }
         dbProfileDefined = true;
       }

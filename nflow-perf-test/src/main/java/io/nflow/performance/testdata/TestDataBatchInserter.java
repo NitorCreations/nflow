@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.joda.time.DateTime;
+import org.joda.time.base.BaseDateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import io.nflow.engine.internal.storage.db.SQLVariants;
@@ -59,7 +59,7 @@ public class TestDataBatchInserter {
     return id;
   }
 
-  public static Timestamp toTimestamp(DateTime time) {
+  private Timestamp toTimestamp(BaseDateTime time) {
     return time == null ? null : new Timestamp(time.getMillis());
   }
 

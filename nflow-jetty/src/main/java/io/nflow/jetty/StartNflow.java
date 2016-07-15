@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.jmx.MBeanContainer;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -36,7 +37,7 @@ import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.component.ContainerLifeCycle;
+import org.eclipse.jetty.util.component.Container;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.ContextLoaderListener;
 
 import com.codahale.metrics.servlets.AdminServlet;
@@ -141,7 +143,7 @@ public class StartNflow
     return server;
   }
 
-  private void setupJmx(ContainerLifeCycle server, Environment env) {
+  private void setupJmx(Container server, Environment env) {
     if (asList(env.getActiveProfiles()).contains(JMX)) {
       MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
       server.addEventListener(mbContainer);
@@ -204,7 +206,7 @@ public class StartNflow
     return context;
   }
 
-  private void setupHandlers(final HandlerWrapper server, final ServletContextHandler context, ConfigurableEnvironment env) {
+  private void setupHandlers(final HandlerWrapper server, final Handler context, PropertyResolver env) {
     HandlerCollection handlers = new HandlerCollection();
     server.setHandler(handlers);
     handlers.addHandler(context);
@@ -212,7 +214,7 @@ public class StartNflow
   }
 
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-  private RequestLogHandler createAccessLogHandler(ConfigurableEnvironment env) {
+  private RequestLogHandler createAccessLogHandler(PropertyResolver env) {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
     String directory = env.getProperty("nflow.jetty.accesslog.directory", "log");
     new File(directory).mkdir();

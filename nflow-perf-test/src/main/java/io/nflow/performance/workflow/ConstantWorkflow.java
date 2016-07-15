@@ -19,7 +19,7 @@ import io.nflow.engine.workflow.definition.WorkflowStateType;
  */
 public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.ConstantState> {
   private static final Logger logger = LoggerFactory.getLogger(ConstantWorkflow.class);
-  private final String key = "retries";
+  private static final String KEY = "retries";
 
   public static enum ConstantState implements WorkflowState {
     start(WorkflowStateType.start, "Start"), quickState("This executes fast then goes to retryTwice"), retryTwiceState(
@@ -61,7 +61,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
 
   public NextAction start(StateExecution execution) {
     // nothing here
-    execution.setVariable(key, 0);
+    execution.setVariable(KEY, 0);
     return moveToState(ConstantState.quickState, "Time for quickness");
   }
 
@@ -76,9 +76,9 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
 
   public NextAction retryTwiceState(StateExecution execution) {
     // Retries once and goes then goes to scheduleState
-    Integer retryCount = execution.getVariable(key, Integer.class);
+    Integer retryCount = execution.getVariable(KEY, Integer.class);
     retryCount++;
-    execution.setVariable(key, retryCount);
+    execution.setVariable(KEY, retryCount);
     if (retryCount > 2) {
       logger.info("Retry count {}. Go to next state", retryCount);
       return moveToState(ConstantState.scheduleState, "Schedule some action");

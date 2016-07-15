@@ -18,8 +18,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.nflow.jetty.spring.NflowStandardEnvironment;
-
 @RunWith(MockitoJUnitRunner.class)
 public class NflowStandardEnvironmentTest {
 
@@ -78,7 +76,7 @@ public class NflowStandardEnvironmentTest {
   @Test
   public void multipleDatabaseProfilesPrevented() {
     thrown.expect(RuntimeException.class);
-    thrown.expectMessage("Multiple nflow.db-profiles defined");
+    thrown.expectMessage("Multiple nflow.db profiles defined");
     setProperty("profiles", "nflow.db.profile1,nflow.db.profile2");
     new NflowStandardEnvironment(new HashMap<String, Object>());
   }

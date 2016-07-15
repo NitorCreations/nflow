@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -16,11 +18,15 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
  */
 public class TestDataManager {
 
-  private final ExecutorService executors;
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   public TestDataManager(TestDataGenerator generator, TestDataBatchInserter inserter, Environment env) {
-    executors = Executors.newSingleThreadExecutor();
-    executors.execute(new PopulatorRunnable(generator, inserter, env));
+    executor.execute(new PopulatorRunnable(generator, inserter, env));
+  }
+
+  @PreDestroy
+  public void stop() {
+    executor.shutdown();
   }
 
   static class PopulatorRunnable implements Runnable {
