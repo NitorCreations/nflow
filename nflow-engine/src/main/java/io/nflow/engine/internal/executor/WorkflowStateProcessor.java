@@ -310,7 +310,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
+    protected NextAction getNextAction(WorkflowStateMethod method, Object... args) {
       execution.setStateProcessInvoked(true);
       return (NextAction) invokeMethod(method.method, definition, args);
     }
@@ -326,7 +326,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
+    protected NextAction getNextAction(WorkflowStateMethod method, Object... args) {
       return nextAction;
     }
   }
@@ -345,7 +345,7 @@ class WorkflowStateProcessor implements Runnable {
       this.currentState = currentState;
     }
 
-    abstract protected NextAction getNextAction(WorkflowStateMethod method, Object args[]);
+    abstract protected NextAction getNextAction(WorkflowStateMethod method, Object... args);
 
     public NextAction processState() {
       WorkflowStateMethod method = definition.getMethod(instance.state);
