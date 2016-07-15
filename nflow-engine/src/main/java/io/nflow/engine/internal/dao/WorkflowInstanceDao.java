@@ -38,7 +38,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -793,7 +792,7 @@ public class WorkflowInstanceDao {
     private final Map<Integer, Map<String, String>> actionStates = new LinkedHashMap<>();
 
     @Override
-    public Map<Integer, Map<String, String>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public Map<Integer, Map<String, String>> extractData(ResultSet rs) throws SQLException {
       while (rs.next()) {
         int actionId = rs.getInt("action_id");
         String stateKey = rs.getString("state_key");
