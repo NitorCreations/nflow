@@ -25,15 +25,18 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
+import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.component.ContainerLifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -138,7 +141,7 @@ public class StartNflow
     return server;
   }
 
-  private void setupJmx(Server server, Environment env) {
+  private void setupJmx(ContainerLifeCycle server, Environment env) {
     if (asList(env.getActiveProfiles()).contains(JMX)) {
       MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
       server.addEventListener(mbContainer);
@@ -158,7 +161,7 @@ public class StartNflow
   }
 
   @SuppressWarnings("resource")
-  private ServletContextHandler setupServletContextHandler(String[] extraStaticResources) throws IOException {
+  private ServletContextHandler setupServletContextHandler(String... extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
 
     // workaround for a jetty bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=364936
@@ -189,18 +192,19 @@ public class StartNflow
 
     context.addServlet(holder, "/*");
 
-    context.getMimeTypes().addMimeMapping("ttf", "application/font-sfnt");
-    context.getMimeTypes().addMimeMapping("otf", "application/font-sfnt");
-    context.getMimeTypes().addMimeMapping("woff", "application/font-woff");
-    context.getMimeTypes().addMimeMapping("eot", "application/vnd.ms-fontobject");
-    context.getMimeTypes().addMimeMapping("svg", "image/svg+xml");
-    context.getMimeTypes().addMimeMapping("html", "text/html; charset=utf-8");
-    context.getMimeTypes().addMimeMapping("css", "text/css; charset=utf-8");
-    context.getMimeTypes().addMimeMapping("js", "application/javascript; charset=utf-8");
+    MimeTypes mimeTypes = context.getMimeTypes();
+    mimeTypes.addMimeMapping("ttf", "application/font-sfnt");
+    mimeTypes.addMimeMapping("otf", "application/font-sfnt");
+    mimeTypes.addMimeMapping("woff", "application/font-woff");
+    mimeTypes.addMimeMapping("eot", "application/vnd.ms-fontobject");
+    mimeTypes.addMimeMapping("svg", "image/svg+xml");
+    mimeTypes.addMimeMapping("html", "text/html; charset=utf-8");
+    mimeTypes.addMimeMapping("css", "text/css; charset=utf-8");
+    mimeTypes.addMimeMapping("js", "application/javascript; charset=utf-8");
     return context;
   }
 
-  private void setupHandlers(final Server server, final ServletContextHandler context, ConfigurableEnvironment env) {
+  private void setupHandlers(final HandlerWrapper server, final ServletContextHandler context, ConfigurableEnvironment env) {
     HandlerCollection handlers = new HandlerCollection();
     server.setHandler(handlers);
     handlers.addHandler(context);

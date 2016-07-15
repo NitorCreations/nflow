@@ -155,7 +155,7 @@ public class WorkflowInstanceDao {
   private int insertWorkflowInstanceWithCte(WorkflowInstance instance) {
     try {
       StringBuilder sqlb = new StringBuilder(256);
-      sqlb.append("with wf as (" + insertWorkflowInstanceSql() + " returning id)");
+      sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
       Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
           instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
           instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
@@ -439,10 +439,10 @@ public class WorkflowInstanceDao {
 
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId, List<String> expectedStates) {
-    StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then "
-        + "least(current_timestamp, coalesce(next_activation, current_timestamp)) else next_activation end), "
-        + "external_next_activation = current_timestamp where " + executorInfo.getExecutorGroupCondition()
-        + " and id = ? and next_activation is not null");
+    StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then ")
+        .append("least(current_timestamp, coalesce(next_activation, current_timestamp)) else next_activation end), ")
+        .append("external_next_activation = current_timestamp where ").append(executorInfo.getExecutorGroupCondition())
+        .append(" and id = ? and next_activation is not null");
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);
   }
 

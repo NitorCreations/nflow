@@ -6,6 +6,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
     for (String profile : asList(getActiveProfiles())) {
       if (profile.startsWith("nflow.db")) {
         if (dbProfileDefined) {
-          throw new RuntimeException("Multiple nflow.db-profiles defined");
+          throw new RuntimeException("Multiple nflow.db profiles defined: " + Arrays.toString(getActiveProfiles()));
         }
         dbProfileDefined = true;
       }
@@ -55,8 +56,8 @@ public class NflowStandardEnvironment extends StandardEnvironment {
       try {
         getPropertySources().addLast(new ResourcePropertySource(externalLocation));
         logger.info("Using external configuration file: {}", externalLocation);
-      } catch (@SuppressWarnings("unused") IOException e) {
-        throw new RuntimeException("Failed to initialize external properties from location " + externalLocation);
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to initialize external properties from location " + externalLocation, e);
       }
     }
   }
