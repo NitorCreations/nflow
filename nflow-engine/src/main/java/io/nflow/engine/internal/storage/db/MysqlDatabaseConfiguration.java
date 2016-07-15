@@ -40,7 +40,9 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
-      logger.info("MySQL {}.{}, product version {}", meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), databaseProductVersion);
+      int majorVersion = meta.getDatabaseMajorVersion();
+      int minorVersion = meta.getDatabaseMinorVersion();
+      logger.info("MySQL {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
       if (databaseProductVersion.contains("MariaDB")) {
         if (databaseProductVersion.startsWith("5.5.5-")) {
           databaseProductVersion = databaseProductVersion.substring(6);
@@ -49,7 +51,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
         if (parseInt(versions[0]) <= 5 && parseInt(versions[1]) <= 5) {
           dbType += ".legacy";
         }
-      } else if (meta.getDatabaseMajorVersion() <=5 && meta.getDatabaseMinorVersion() <= 5) {
+      } else if (majorVersion <= 5 && minorVersion <= 5) {
         dbType += ".legacy";
       }
     } catch (SQLException e) {
