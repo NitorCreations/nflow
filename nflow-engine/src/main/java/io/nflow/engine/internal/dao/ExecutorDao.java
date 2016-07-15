@@ -117,7 +117,8 @@ public class ExecutorDao {
     return isActualTransactionActive();
   }
 
-  @SuppressFBWarnings(value = "MDM_INETADDRESS_GETLOCALHOST", justification = "localhost is used for getting host name only")
+  @SuppressFBWarnings(value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
+      justification = "localhost is used for getting host name only, exception message is fine")
   private int allocateExecutorId() {
     final String host;
     final int pid;
