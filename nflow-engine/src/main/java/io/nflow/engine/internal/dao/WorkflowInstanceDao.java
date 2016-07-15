@@ -358,15 +358,21 @@ public class WorkflowInstanceDao {
     });
   }
 
-  @Transactional
-  public void recoverWorkflowInstance(final int instanceId, final WorkflowInstanceAction action) {
-    int executorId = executorInfo.getExecutorId();
-    int updated = jdbc.update("update nflow_workflow set executor_id = null, status = " + sqlVariants.workflowStatus(inProgress)
-        + " where id = ? and executor_id in (select id from nflow_executor where " + executorInfo.getExecutorGroupCondition()
-        + " and id <> " + executorId + " and expires < current_timestamp)", instanceId);
-    if (updated > 0) {
-      insertWorkflowInstanceAction(action);
-    }
+  private void recoverWorkflowInstance(final int instanceId, final WorkflowInstanceAction action) {
+    transaction.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        int executorId = executorInfo.getExecutorId();
+        int updated = jdbc.update(
+            "update nflow_workflow set executor_id = null, status = " + sqlVariants.workflowStatus(inProgress)
+                + " where id = ? and executor_id in (select id from nflow_executor where "
+                + executorInfo.getExecutorGroupCondition() + " and id <> " + executorId + " and expires < current_timestamp)",
+            instanceId);
+        if (updated > 0) {
+          insertWorkflowInstanceAction(action);
+        }
+      }
+    });
   }
 
   private void updateWorkflowInstanceWithCTE(WorkflowInstance instance, final WorkflowInstanceAction action,
