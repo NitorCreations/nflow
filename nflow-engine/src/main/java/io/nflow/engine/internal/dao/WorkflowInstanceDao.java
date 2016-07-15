@@ -348,7 +348,7 @@ public class WorkflowInstanceDao {
     String sql = "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
         + executorInfo.getExecutorGroupCondition() + " and id <> " + executorInfo.getExecutorId()
         + " and expires < current_timestamp)";
-    List<InstanceInfo> instances = jdbc.query(sql, new RowMapper<InstanceInfo>() {
+    return jdbc.query(sql, new RowMapper<InstanceInfo>() {
       @Override
       public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
         InstanceInfo instance = new InstanceInfo();
@@ -357,7 +357,6 @@ public class WorkflowInstanceDao {
         return instance;
       }
     });
-    return instances;
   }
 
   @Transactional
