@@ -34,11 +34,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nitorcreations.nflow.engine.model.ModelObject;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 

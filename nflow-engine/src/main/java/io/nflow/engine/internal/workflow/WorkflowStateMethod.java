@@ -3,9 +3,8 @@ package io.nflow.engine.internal.workflow;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import com.nitorcreations.nflow.engine.model.ModelObject;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.model.ModelObject;
 
 @SuppressFBWarnings(value="EI_EXPOSE_REP2", justification = "internal class, not important for security")
 public class WorkflowStateMethod extends ModelObject {

@@ -3,9 +3,8 @@ package io.nflow.rest.v1.msg;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.nitorcreations.nflow.engine.model.ModelObject;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.model.ModelObject;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

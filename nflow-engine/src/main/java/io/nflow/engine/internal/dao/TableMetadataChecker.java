@@ -18,10 +18,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.nitorcreations.nflow.engine.model.ModelObject;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.model.ModelObject;
 
 @Named
 public class TableMetadataChecker {
