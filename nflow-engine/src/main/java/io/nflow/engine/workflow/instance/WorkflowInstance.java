@@ -416,6 +416,7 @@ public class WorkflowInstance extends ModelObject {
      * @param value The value of the variable, serialized by object mapper.
      * @return this.
      */
+    @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
     public Builder putStateVariable(String key, Object value) {
       if (mapper == null) {
         throw new IllegalStateException("WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
