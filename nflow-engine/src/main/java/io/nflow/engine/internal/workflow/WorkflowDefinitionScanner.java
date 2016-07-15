@@ -119,7 +119,7 @@ public class WorkflowDefinitionScanner {
       return NextAction.class.equals(returnType) || Void.TYPE.equals(returnType);
     }
 
-    private boolean hasStateExecutionParameter(Class<?>[] parameterTypes) {
+    private boolean hasStateExecutionParameter(Class<?>... parameterTypes) {
       return parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]);
     }
   }
