@@ -260,6 +260,7 @@
             <findbugsXmlOutput>true</findbugsXmlOutput>
             <effort>Max</effort>
             <threshold>Low</threshold>
+            <excludeFilterFile>../findbugs-exclude.xml</excludeFilterFile>
             <plugins>
               <plugin>
                 <groupId>com.mebigfatguy.fb-contrib</groupId>
