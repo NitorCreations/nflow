@@ -130,7 +130,8 @@ public class ExecutorDao {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
-      @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+      @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql is constant in practice")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
         String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
             + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
