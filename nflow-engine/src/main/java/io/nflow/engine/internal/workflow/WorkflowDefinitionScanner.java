@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -87,6 +88,7 @@ public class WorkflowDefinitionScanner {
     return knownImmutableTypes.contains(type);
   }
 
+  @SuppressFBWarnings(value = "URV_UNRELATED_RETURN_VALUES", justification = "return values are unrelated")
   Object defaultValue(StateVar stateInfo, Class<?> clazz) {
     if (clazz.isPrimitive()) {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");

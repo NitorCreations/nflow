@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
@@ -28,6 +29,7 @@ public class ObjectStringMapper {
   }
 
   @SuppressWarnings("unchecked")
+  @SuppressFBWarnings(value = "UCC_UNRELATED_COLLECTION_CONTENTS", justification = "args are unrelated")
   public Object[] createArguments(StateExecution execution,
       WorkflowStateMethod method) {
     Object[] args = new Object[method.params.length + 1];
