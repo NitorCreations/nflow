@@ -27,7 +27,7 @@ public class WorkflowStateMethod extends ModelObject {
     }
   }
 
-  public WorkflowStateMethod(Method method, StateParameter[] params) {
+  public WorkflowStateMethod(Method method, StateParameter... params) {
     this.method = method;
     this.params = params;
   }
