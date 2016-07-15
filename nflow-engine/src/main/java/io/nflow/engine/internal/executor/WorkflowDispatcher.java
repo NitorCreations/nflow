@@ -13,6 +13,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -33,6 +34,7 @@ public class WorkflowDispatcher implements Runnable {
   private final ExecutorDao executorDao;
   private final long sleepTime;
   private final int stuckThreadThresholdSeconds;
+  @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "rand does not need to be secure here")
   private final Random rand = new Random();
 
   @Inject
