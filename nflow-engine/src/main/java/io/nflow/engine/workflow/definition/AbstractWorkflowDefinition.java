@@ -168,7 +168,8 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     String stateName = state.name();
     List<String> transitions = allowedTransitions.get(stateName);
     if (transitions == null) {
-      allowedTransitions.put(stateName, new ArrayList<String>());
+      transitions = new ArrayList<>();
+      allowedTransitions.put(stateName, transitions);
     }
     return transitions;
   }
