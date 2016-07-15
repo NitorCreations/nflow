@@ -13,18 +13,16 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is
@@ -74,7 +72,7 @@ public class StatisticsDao {
       this.itemsOnly = itemsOnly;
     }
     @Override
-    public QueueStatistics extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public QueueStatistics extractData(ResultSet rs) throws SQLException {
       rs.next();
       int items = rs.getInt("items");
       if (itemsOnly) {
