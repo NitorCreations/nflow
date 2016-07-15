@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -33,6 +34,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
 
   @Bean
   @Override
+  @SuppressFBWarnings(value = "CLI_CONSTANT_LIST_INDEX", justification = "extracting major and minor version from splitted string")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     String dbType = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
