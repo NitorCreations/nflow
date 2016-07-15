@@ -276,9 +276,10 @@ public class WorkflowInstanceDao {
       }
       updatedRows += updateStatus[i];
     }
-    if (!unknownResults && updatedRows != changedStateVariables.size()) {
-      throw new IllegalStateException("Failed to insert/update state variables, expected update count "
-          + changedStateVariables.size() + ", actual " + updatedRows);
+    int changedVariables = changedStateVariables.size();
+    if (!unknownResults && updatedRows != changedVariables) {
+      throw new IllegalStateException(
+          "Failed to insert/update state variables, expected update count " + changedVariables + ", actual " + updatedRows);
     }
   }
 
