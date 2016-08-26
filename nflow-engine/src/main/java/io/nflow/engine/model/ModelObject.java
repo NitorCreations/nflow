@@ -5,6 +5,10 @@ import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCod
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
+/**
+ * Inheriting ModelObject is an implementation detail only to provide toString/equals/hashCode for subclasses. We would use
+ * something more sensible method, but this is what Java allows. User code should never use ModelObject for anything.
+ */
 public abstract class ModelObject {
 
   @Override
