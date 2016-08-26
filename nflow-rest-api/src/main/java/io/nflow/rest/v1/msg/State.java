@@ -4,12 +4,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.model.ModelObject;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Workflow definition states and transition to next states")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
-public class State {
+public class State extends ModelObject {
 
   public State() {
     // default constructor for Jackson deserializer

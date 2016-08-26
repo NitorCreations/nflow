@@ -1,12 +1,13 @@
 package io.nflow.rest.v1.msg;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.model.ModelObject;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Basic information of workflow definition")
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
-public class ListWorkflowDefinitionResponse implements Comparable<ListWorkflowDefinitionResponse> {
+public class ListWorkflowDefinitionResponse extends ModelObject implements Comparable<ListWorkflowDefinitionResponse> {
 
   @ApiModelProperty(value = "Type of the workflow definition", required=true)
   public String type;
@@ -27,7 +28,7 @@ public class ListWorkflowDefinitionResponse implements Comparable<ListWorkflowDe
   public Settings settings;
 
 
-  public static class Settings {
+  public static class Settings extends ModelObject {
 
     @ApiModelProperty(value = "Global transition delays for the workflow", required=true)
     public TransitionDelays transitionDelaysInMilliseconds;
@@ -37,7 +38,7 @@ public class ListWorkflowDefinitionResponse implements Comparable<ListWorkflowDe
 
   }
 
-  public static class TransitionDelays {
+  public static class TransitionDelays extends ModelObject {
 
     @ApiModelProperty(value = "Delay in immediate transition", required=true)
     public long immediate;

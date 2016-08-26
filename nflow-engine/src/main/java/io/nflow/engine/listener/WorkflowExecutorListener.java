@@ -8,6 +8,7 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -28,7 +29,7 @@ public interface WorkflowExecutorListener {
    * life-cycle methods.
    */
   @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "listeners are implemented by business applications")
-  public class ListenerContext {
+  public class ListenerContext extends ModelObject {
 
     /**
      * The time when the listener context was created.

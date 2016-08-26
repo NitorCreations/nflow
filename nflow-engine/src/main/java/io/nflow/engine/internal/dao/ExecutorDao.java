@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
@@ -176,7 +177,7 @@ public class ExecutorDao {
     }
   }
 
-  static final class InstanceInfo {
+  static final class InstanceInfo extends ModelObject {
     public int id;
     public String state;
   }

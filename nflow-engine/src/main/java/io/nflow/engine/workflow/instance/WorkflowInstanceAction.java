@@ -8,10 +8,12 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import io.nflow.engine.model.ModelObject;
+
 /**
  * An execution of a workflow instance state.
  */
-public class WorkflowInstanceAction {
+public class WorkflowInstanceAction extends ModelObject {
   /**
    * Describes the trigger for the action.
    */

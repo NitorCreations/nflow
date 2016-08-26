@@ -1,7 +1,6 @@
 package io.nflow.engine.internal.dao;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,14 +14,13 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import io.nflow.engine.internal.config.NFlow;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.model.ModelObject;
 
 @Named
 public class TableMetadataChecker {
@@ -93,7 +91,7 @@ public class TableMetadataChecker {
     }
   }
 
-  private static class ColumnMetadata {
+  private static class ColumnMetadata extends ModelObject {
     public final String columnName;
     public final String typeName;
     public final int size;
@@ -102,11 +100,6 @@ public class TableMetadataChecker {
       this.columnName = columnName;
       this.typeName = typeName;
       this.size = size;
-    }
-
-    @Override
-    public String toString() {
-      return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
     }
   }
 

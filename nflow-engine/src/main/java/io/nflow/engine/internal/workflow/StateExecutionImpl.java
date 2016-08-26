@@ -13,12 +13,13 @@ import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
-public class StateExecutionImpl implements StateExecution {
+public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   private static final Logger LOG = getLogger(StateExecutionImpl.class);
   private final WorkflowInstance instance;

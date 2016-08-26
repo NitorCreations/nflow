@@ -16,12 +16,13 @@ import org.springframework.util.Assert;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
 import io.nflow.engine.internal.workflow.WorkflowDefinitionScanner;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod;
+import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 /**
  * The base class for all workflow definitions.
  */
-public abstract class AbstractWorkflowDefinition<S extends WorkflowState> {
+public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extends ModelObject {
 
   private final String type;
   private String name;

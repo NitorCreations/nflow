@@ -10,19 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
-import io.nflow.engine.internal.workflow.ObjectStringMapper;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.model.ModelObject;
 
 /**
  * An instance of a workflow.
  */
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
-public class WorkflowInstance {
+public class WorkflowInstance extends ModelObject {
 
   /**
    * Describes the status for workflow instance.
@@ -169,11 +167,6 @@ public class WorkflowInstance {
     this.modified = builder.modified;
     this.started = builder.started;
     this.executorGroup = builder.executorGroup;
-  }
-
-  @Override
-  public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   /**

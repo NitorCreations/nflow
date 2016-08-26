@@ -5,8 +5,9 @@ import static org.joda.time.DateTime.now;
 import org.joda.time.DateTime;
 
 import io.nflow.engine.internal.executor.InvalidNextActionException;
+import io.nflow.engine.model.ModelObject;
 
-public class NextAction {
+public class NextAction extends ModelObject {
 
   private final DateTime activation;
   private final WorkflowState nextState;

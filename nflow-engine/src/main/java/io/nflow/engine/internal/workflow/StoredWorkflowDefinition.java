@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.model.ModelObject;
 
-public class StoredWorkflowDefinition {
+public class StoredWorkflowDefinition extends ModelObject {
   public String type;
   public String description;
   public String onError;
   public List<State> states;
 
   @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
-  public static class State implements Comparable<State> {
+  public static class State extends ModelObject implements Comparable<State> {
 
     public State() {
       // default constructor is required by Jackson deserializer
