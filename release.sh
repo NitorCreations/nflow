@@ -80,26 +80,25 @@ prompt_continue "push version $SNAPSHOT_VERSION to remote git repository"
 
 git push
 
-prompt_continue "update JavaDoc and REST API documentation ($RELEASE_VERSION) in gh-pages to local git repository"
+prompt_continue "update JavaDoc and REST API documentation ($RELEASE_VERSION) in docs to local git repository"
 
 git checkout $RELEASE_VERSION
 mvn clean install -DskipTests=true
 mvn site javadoc:aggregate
-git checkout gh-pages
+git checkout master
 git pull --rebase
 
-mv target/site/apidocs apidocs/v$RELEASE_VERSION
-sed -i "2s/.*/redirect_to: \/nflow\/apidocs\/v$RELEASE_VERSION\//" apidocs/current/index.html
-git add apidocs/current/index.html apidocs/v$RELEASE_VERSION
+mv target/site/apidocs docs/apidocs/v$RELEASE_VERSION
+sed -i "2s/.*/redirect_to: \/nflow\/apidocs\/v$RELEASE_VERSION\//" docs/apidocs/current/index.html
+git add docs/apidocs/current/index.html docs/apidocs/v$RELEASE_VERSION
 git commit -m "updated javadocs for version $RELEASE_VERSION"
 
-mv nflow-tests/target/rest-api-docs rest-apidocs/v$RELEASE_VERSION
-sed -i "2s/.*/redirect_to: \/nflow\/rest-apidocs\/v$RELEASE_VERSION\//" rest-apidocs/current/index.html
-git add rest-apidocs/current/index.html rest-apidocs/v$RELEASE_VERSION
+mv nflow-tests/target/rest-api-docs docs/rest-apidocs/v$RELEASE_VERSION
+sed -i "2s/.*/redirect_to: \/nflow\/rest-apidocs\/v$RELEASE_VERSION\//" docs/rest-apidocs/current/index.html
+git add docs/rest-apidocs/current/index.html docs/rest-apidocs/v$RELEASE_VERSION
 git commit -m "updated REST API documentation for version $RELEASE_VERSION"
 
-prompt_continue "push JavaDoc and REST API documentation ($RELEASE_VERSION) in gh-pages to remote git repository"
+prompt_continue "push JavaDoc and REST API documentation ($RELEASE_VERSION) in docs to remote git repository"
 
 git push
-git checkout master
 
