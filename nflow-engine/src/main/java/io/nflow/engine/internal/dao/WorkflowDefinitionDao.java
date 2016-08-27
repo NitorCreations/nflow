@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
@@ -91,13 +92,14 @@ public class WorkflowDefinitionDao {
     }
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is fine")
   private String sha1(String serializedDefinition) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-1");
       digest.update(serializedDefinition.getBytes(UTF_8));
       return format("%040x", new BigInteger(1, digest.digest()));
-    } catch (@SuppressWarnings("unused") NoSuchAlgorithmException e) {
-      throw new IllegalStateException("SHA1 not supported");
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-1 not supported", e);
     }
   }
 

@@ -13,12 +13,14 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.PeriodicLogger;
 
 @Component
+@SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "rand does not need to be secure")
 public class WorkflowDispatcher implements Runnable {
 
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
@@ -30,21 +32,22 @@ public class WorkflowDispatcher implements Runnable {
   private final WorkflowInstanceExecutor executor;
   private final WorkflowInstanceDao workflowInstances;
   private final WorkflowStateProcessorFactory stateProcessorFactory;
-  private final ExecutorDao executorRecovery;
-  private final long sleepTime;
+  private final ExecutorDao executorDao;
+  private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
 
   @Inject
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
   public WorkflowDispatcher(WorkflowInstanceExecutor executor, WorkflowInstanceDao workflowInstances,
-      WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorRecovery, Environment env) {
+      WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorDao, Environment env) {
     this.executor = executor;
     this.workflowInstances = workflowInstances;
     this.stateProcessorFactory = stateProcessorFactory;
-    this.executorRecovery = executorRecovery;
-    this.sleepTime = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
+    this.executorDao = executorDao;
+    this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
-    if (!executorRecovery.isTransactionSupportEnabled()) {
+    if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
     }
   }
@@ -55,10 +58,12 @@ public class WorkflowDispatcher implements Runnable {
     try {
       while (!shutdownRequested) {
         try {
-          executor.waitUntilQueueSizeLowerThanThreshold(executorRecovery.getMaxWaitUntil());
+          executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
 
           if (!shutdownRequested) {
-            executorRecovery.tick();
+            if (executorDao.tick()) {
+              workflowInstances.recoverWorkflowInstancesFromDeadNodes();
+            }
             int potentiallyStuckProcessors = stateProcessorFactory.getPotentiallyStuckProcessors();
             if (potentiallyStuckProcessors > 0) {
               periodicLogger.warn("{} of {} state processor threads are potentially stuck (processing longer than {} seconds)",
@@ -77,7 +82,7 @@ public class WorkflowDispatcher implements Runnable {
       }
     } finally {
       shutdownPool();
-      executorRecovery.markShutdown();
+      executorDao.markShutdown();
       logger.info("Shutdown finished.");
       shutdownDone.countDown();
     }
@@ -120,12 +125,13 @@ public class WorkflowDispatcher implements Runnable {
     return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);
   }
 
+  @SuppressFBWarnings(value = "MDM_THREAD_YIELD", justification = "Intentionally masking race condition")
   private void sleep(boolean randomize) {
     try {
       if (randomize) {
-        Thread.sleep((long) (sleepTime * rand.nextDouble()));
+        Thread.sleep((long) (sleepTimeMillis * rand.nextDouble()));
       } else {
-        Thread.sleep(sleepTime);
+        Thread.sleep(sleepTimeMillis);
       }
     } catch (@SuppressWarnings("unused") InterruptedException ok) {
     }

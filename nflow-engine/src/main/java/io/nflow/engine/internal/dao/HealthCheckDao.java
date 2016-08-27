@@ -5,13 +5,11 @@ import java.sql.ResultSet;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import io.nflow.engine.internal.config.NFlow;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.internal.config.NFlow;
 
 @Named
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
@@ -22,7 +20,7 @@ public class HealthCheckDao {
   public void checkDatabaseConnection() {
     jdbc.query("select status, type from nflow_workflow where id = 0", new ResultSetExtractor<Object>() {
       @Override
-      public Object extractData(ResultSet resultSet) throws DataAccessException {
+      public Object extractData(ResultSet resultSet) {
         return null;
       }
     });

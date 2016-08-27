@@ -2,7 +2,6 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
-import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.net.InetAddress.getLocalHost;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -37,9 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
@@ -50,7 +47,6 @@ public class ExecutorDao {
   private static final Logger logger = getLogger(ExecutorDao.class);
   private JdbcTemplate jdbc;
   SQLVariants sqlVariants;
-  private WorkflowInstanceDao workflowInstanceDao;
 
   private int keepaliveIntervalSeconds;
   private DateTime nextUpdate = now();
@@ -79,11 +75,6 @@ public class ExecutorDao {
     this.jdbc = nflowJdbcTemplate;
   }
 
-  @Inject
-  public void setWorkflowInstanceDao(WorkflowInstanceDao workflowInstanceDao) {
-    this.workflowInstanceDao = workflowInstanceDao;
-  }
-
   @PostConstruct
   public void findHostMaxLength() {
     hostMaxLength = jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor);
@@ -93,13 +84,13 @@ public class ExecutorDao {
     return "executor_group = '" + group + "'";
   }
 
-  public void tick() {
+  public boolean tick() {
     if (nextUpdate.isAfterNow()) {
-      return;
+      return false;
     }
     nextUpdate = now().plusSeconds(keepaliveIntervalSeconds);
     updateActiveTimestamp();
-    recoverWorkflowInstancesFromDeadNodes();
+    return true;
   }
 
   public String getExecutorGroup() {
@@ -126,6 +117,8 @@ public class ExecutorDao {
     return isActualTransactionActive();
   }
 
+  @SuppressFBWarnings(value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
+      justification = "localhost is used for getting host name only, exception message is fine")
   private int allocateExecutorId() {
     final String host;
     final int pid;
@@ -139,7 +132,8 @@ public class ExecutorDao {
     KeyHolder keyHolder = new GeneratedKeyHolder();
     jdbc.update(new PreparedStatementCreator() {
       @Override
-      @SuppressFBWarnings(value = "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", justification = "findbugs does not trust jdbctemplate")
+      @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql is constant in practice")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
         String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
             + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
@@ -156,30 +150,6 @@ public class ExecutorDao {
   public void updateActiveTimestamp() {
     updateWithPreparedStatement("update nflow_executor set active=current_timestamp, expires="
         + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
-  }
-
-  public void recoverWorkflowInstancesFromDeadNodes() {
-    String sql = "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
-        + executorGroupCondition + " and id <> " + getExecutorId() + " and expires < current_timestamp)";
-    List<InstanceInfo> instances = jdbc.query(sql, new RowMapper<InstanceInfo>() {
-      @Override
-      public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-        InstanceInfo instance = new InstanceInfo();
-        instance.id = rs.getInt("id");
-        instance.state = rs.getString("state");
-        return instance;
-      }
-    });
-    for (InstanceInfo instance : instances) {
-      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
-          .setType(recovery).setState(instance.state).setStateText("Recovered").setWorkflowInstanceId(instance.id).build();
-      workflowInstanceDao.recoverWorkflowInstance(instance.id, action);
-    }
-  }
-
-  static final class InstanceInfo extends ModelObject {
-    public int id;
-    public String state;
   }
 
   private void updateWithPreparedStatement(String sql) {

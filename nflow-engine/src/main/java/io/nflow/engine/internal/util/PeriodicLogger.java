@@ -4,10 +4,13 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import org.slf4j.Logger;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * PeriodicLogger logs once per given periodInSeconds period. Typically used in a loop where you don't want to log at every
  * iteration, but want to get a log row e.g. once per minute. Not thread safe.
  */
+@SuppressFBWarnings(value = "LO_SUSPECT_LOG_PARAMETER", justification = "we are wrapping the logger here")
 public class PeriodicLogger {
   private long previousLogging;
   private final int periodInSeconds;

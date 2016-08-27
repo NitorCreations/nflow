@@ -55,7 +55,8 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
   }
 
   @Override
-  @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
+  @SuppressFBWarnings(value = { "EQ_COMPARETO_USE_OBJECT_EQUALS", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
+      justification = "This class has a natural ordering that is inconsistent with equals, exception message is ok")
   public int compareTo(ListWorkflowDefinitionResponse response) {
     if (type == null) {
       throw new IllegalStateException("type must be set");

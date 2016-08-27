@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -33,12 +34,16 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
 
   @Bean
   @Override
+  @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
+      justification = "extracting major and minor version from splitted string, exception message is ok")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     String dbType = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
-      logger.info("MySQL {}.{}, product version {}", meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), databaseProductVersion);
+      int majorVersion = meta.getDatabaseMajorVersion();
+      int minorVersion = meta.getDatabaseMinorVersion();
+      logger.info("MySQL {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
       if (databaseProductVersion.contains("MariaDB")) {
         if (databaseProductVersion.startsWith("5.5.5-")) {
           databaseProductVersion = databaseProductVersion.substring(6);
@@ -47,7 +52,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
         if (parseInt(versions[0]) <= 5 && parseInt(versions[1]) <= 5) {
           dbType += ".legacy";
         }
-      } else if (meta.getDatabaseMajorVersion() <=5 && meta.getDatabaseMinorVersion() <= 5) {
+      } else if (majorVersion <= 5 && minorVersion <= 5) {
         dbType += ".legacy";
       }
     } catch (SQLException e) {

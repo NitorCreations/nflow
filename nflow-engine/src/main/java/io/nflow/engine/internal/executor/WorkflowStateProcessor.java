@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -55,7 +56,7 @@ class WorkflowStateProcessor implements Runnable {
   private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);
   private static final String MDC_KEY = "workflowInstanceId";
 
-  private final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
+  private static final int MAX_SUBSEQUENT_STATE_EXECUTIONS = 100;
 
   private final int instanceId;
   private final WorkflowDefinitionService workflowDefinitions;
@@ -137,7 +138,7 @@ class WorkflowStateProcessor implements Runnable {
         execution.setRetry(true);
         execution.setNextState(state);
         execution.setNextStateReason(getStackTrace(t));
-        definition.handleRetry(execution);
+        handleRetry(execution, definition);
       } finally {
         if (execution.isFailed()) {
           processAfterFailureListeners(listenerContext, execution.getThrown());
@@ -176,10 +177,12 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private int busyLoopPrevention(WorkflowSettings settings, int subsequentStateExecutions, StateExecutionImpl execution) {
-    if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && execution.getNextActivation() != null) {
+    DateTime nextActivation = execution.getNextActivation();
+    if (subsequentStateExecutions++ >= MAX_SUBSEQUENT_STATE_EXECUTIONS && nextActivation != null) {
       logger.warn("Executed {} times without delay, forcing short transition delay", MAX_SUBSEQUENT_STATE_EXECUTIONS);
-      if (execution.getNextActivation().isBefore(settings.getShortTransitionActivation())) {
-        execution.setNextActivation(settings.getShortTransitionActivation());
+      DateTime shortTransitionActivation = settings.getShortTransitionActivation();
+      if (nextActivation.isBefore(shortTransitionActivation)) {
+        execution.setNextActivation(shortTransitionActivation);
       }
     }
     return subsequentStateExecutions;
@@ -214,8 +217,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
-    String[] expectedStates = execution.getWakeUpParentWorkflowStates();
-    if (expectedStates != null) {
+    execution.getWakeUpParentWorkflowStates().ifPresent(expectedStates -> {
       logger.debug("Possibly waking up parent workflow instance {}", instance.parentWorkflowId);
       boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId, expectedStates);
       if (notified) {
@@ -223,7 +225,7 @@ class WorkflowStateProcessor implements Runnable {
       } else {
         logger.info("Did not woke up parent workflow instance {}", instance.parentWorkflowId);
       }
-    }
+    });
   }
 
   private String getStateText(WorkflowInstance instance, StateExecutionImpl execution) {
@@ -308,7 +310,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
+    protected NextAction getNextAction(WorkflowStateMethod method, Object... args) {
       execution.setStateProcessInvoked(true);
       return (NextAction) invokeMethod(method.method, definition, args);
     }
@@ -324,7 +326,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    protected NextAction getNextAction(WorkflowStateMethod method, Object args[]) {
+    protected NextAction getNextAction(WorkflowStateMethod method, Object... args) {
       return nextAction;
     }
   }
@@ -343,7 +345,7 @@ class WorkflowStateProcessor implements Runnable {
       this.currentState = currentState;
     }
 
-    abstract protected NextAction getNextAction(WorkflowStateMethod method, Object args[]);
+    abstract protected NextAction getNextAction(WorkflowStateMethod method, Object... args);
 
     public NextAction processState() {
       WorkflowStateMethod method = definition.getMethod(instance.state);
@@ -357,34 +359,34 @@ class WorkflowStateProcessor implements Runnable {
         getNextAction(method, args);
         nextAction = stopInState(currentState, "Stopped in final state");
       } else {
+        WorkflowState errorState = definition.getErrorState();
         try {
           nextAction = getNextAction(method, args);
           if (nextAction == null) {
-            logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state,
-                definition.getErrorState().name());
-            nextAction = moveToState(definition.getErrorState(), "State handler method returned null");
+            logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, errorState);
+            nextAction = moveToState(errorState, "State handler method returned null");
             execution.setFailed();
-          } else if (nextAction.getNextState() != null && !definition.getStates().contains(nextAction.getNextState())) {
-            logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'",
-                nextAction.getNextState(), definition.getType(), definition.getErrorState().name());
-            nextAction = moveToState(definition.getErrorState(),
-                "State '" + instance.state + "' handler method returned invalid next state '" + nextAction.getNextState() + "'");
-            execution.setFailed();
-          } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
-            logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state,
-                nextAction.getNextState());
-            if ("fail".equals(illegalStateChangeAction)) {
-              nextAction = moveToState(definition.getErrorState(), "Illegal state transition from " + instance.state + " to "
-                  + nextAction.getNextState().name() + ", proceeding to error state " + definition.getErrorState().name());
+          } else {
+            WorkflowState nextState = nextAction.getNextState();
+            if (nextState != null && !definition.getStates().contains(nextState)) {
+              logger.error("State '{}' is not a state of '{}' workflow definition, proceeding to error state '{}'", nextState,
+                  definition.getType(), errorState);
+              nextAction = moveToState(errorState,
+                  "State '" + instance.state + "' handler method returned invalid next state '" + nextState + "'");
               execution.setFailed();
+            } else if (!"ignore".equals(illegalStateChangeAction) && !definition.isAllowedNextAction(instance, nextAction)) {
+              logger.warn("State transition from '{}' to '{}' is not allowed by workflow definition.", instance.state, nextState);
+              if ("fail".equals(illegalStateChangeAction)) {
+                nextAction = moveToState(errorState, "Illegal state transition from " + instance.state + " to " + nextState
+                    + ", proceeding to error state " + errorState);
+                execution.setFailed();
+              }
             }
           }
         } catch (InvalidNextActionException e) {
-          logger.error(
-              "State '" + instance.state + "' handler method failed to create valid next action, proceeding to error state '"
-                  + definition.getErrorState().name() + "'",
-              e);
-          nextAction = moveToState(definition.getErrorState(), e.getMessage());
+          logger.error("State '" + instance.state
+              + "' handler method failed to return valid next action, proceeding to error state '" + errorState + "'", e);
+          nextAction = moveToState(errorState, e.getMessage());
           execution.setFailed(e);
         }
       }
@@ -396,7 +398,7 @@ class WorkflowStateProcessor implements Runnable {
       } else if (nextAction.isRetry()) {
         execution.setNextState(currentState);
         execution.setRetry(true);
-        definition.handleRetryAfter(execution, nextAction.getActivation());
+        handleRetryAfter(execution, nextAction.getActivation(), definition);
       } else {
         execution.setNextState(nextAction.getNextState());
       }
@@ -404,6 +406,63 @@ class WorkflowStateProcessor implements Runnable {
       return nextAction;
     }
 
+  }
+
+  /**
+   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
+   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
+   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
+   * schedules the next attempt for the state based on workflow settings. This method is called when an unexpected exception
+   * happens during state method handling.
+   *
+   * @param execution
+   *          State execution information.
+   * @param definition
+   *          Workflow definition
+   */
+  void handleRetry(StateExecutionImpl execution, AbstractWorkflowDefinition<?> definition) {
+    handleRetryAfter(execution, definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
+  }
+
+  /**
+   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
+   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
+   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
+   * schedules the next attempt to the given activation time. This method is called when a retry attempt is explicitly requested
+   * by a state handling method.
+   *
+   * @param execution
+   *          State execution information.
+   * @param activation
+   *          Time for next retry attempt.
+   * @param definition
+   *          Workflow definition
+   */
+  void handleRetryAfter(StateExecutionImpl execution, DateTime activation, AbstractWorkflowDefinition<?> definition) {
+    if (execution.getRetries() >= definition.getSettings().maxRetries) {
+      execution.setRetry(false);
+      execution.setRetryCountExceeded();
+      String currentStateName = execution.getCurrentStateName();
+      WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
+      WorkflowState currentState = definition.getState(currentStateName);
+      if (failureState != null) {
+        execution.setNextState(failureState);
+        execution.setNextStateReason("Max retry count exceeded, going to failure state");
+        execution.setNextActivation(now());
+      } else {
+        WorkflowState errorState = definition.getErrorState();
+        execution.setNextState(errorState);
+        if (errorState.equals(currentState)) {
+          execution.setNextStateReason("Max retry count exceeded when handling error state, processing stopped");
+          execution.setNextActivation(null);
+        } else {
+          execution.setNextStateReason("Max retry count exceeded, no failure state defined, going to error state");
+          execution.setNextActivation(now());
+        }
+      }
+    } else {
+      execution.setNextActivation(activation);
+    }
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {
@@ -448,7 +507,7 @@ class WorkflowStateProcessor implements Runnable {
   private StringBuilder getStackTraceAsString() {
     StringBuilder sb = new StringBuilder(2000);
     for (StackTraceElement element : thread.getStackTrace()) {
-      sb.append(element.toString()).append('\n');
+      sb.append(element).append('\n');
     }
     return sb;
   }

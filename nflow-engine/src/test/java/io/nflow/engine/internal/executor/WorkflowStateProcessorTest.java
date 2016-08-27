@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.internal.workflow.StateExecutionImpl;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener;
@@ -69,7 +71,9 @@ import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.TestWorkflow;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -102,6 +106,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Mock
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
 
+  @Mock
+  StateExecutionImpl executionMock;
+
   @Captor
   ArgumentCaptor<WorkflowInstance> update;
 
@@ -132,6 +139,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static Map<Integer, WorkflowStateProcessor> processingInstances;
 
+  private final TestWorkflow testWorkflowDef = new TestWorkflow();
+
+  private final DateTime tomorrow = now().plusDays(1);
+
   @Before
   public void setup() {
     processingInstances = new ConcurrentHashMap<>();
@@ -147,6 +158,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
     filterChain(listener1);
     filterChain(listener2);
+    when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
   }
 
   @After
@@ -393,30 +405,31 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void doNothingWhenNotifyingParentWithoutParentWorkflowId() {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
-    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(String[].class));
+    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(List.class));
   }
 
   @Test
   public void whenWakingUpParentWorkflowSucceeds() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
-    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new String[0])).thenReturn(true);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(true);
     executor.run();
-    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new String[0]);
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
   }
 
   @Test
   public void whenWakingUpParentWorkflowFails() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
-    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new String[0])).thenReturn(false);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(false);
     executor.run();
-    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new String[0]);
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
   }
 
   @Test
@@ -727,6 +740,82 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
             is("Scheduled by previous state illegalStateChange")));
     assertThat(action.getAllValues().get(0),
         matchesWorkflowInstanceAction(SimpleTestWorkflow.State.illegalStateChange, is("illegal state change"), 0, stateExecution));
+  }
+
+  @Test
+  public void handleRetryMaxRetriesExceededHaveFailureState() {
+    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1);
+    verify(execution).setNextState(TestDefinition.TestState.failed);
+    verify(execution).setNextStateReason(any(String.class));
+    verify(execution).setNextActivation(any(DateTime.class));
+  }
+
+  @Test
+  public void handleRetryMaxRetriesExceededNotHaveFailureState() {
+    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestDefinition.TestState.start2);
+    verify(execution).setNextState(TestDefinition.TestState.error);
+    verify(execution).setNextStateReason(any(String.class));
+    verify(execution).setNextActivation(any(DateTime.class));
+  }
+
+  private StateExecutionImpl handleRetryMaxRetriesExceeded(TestDefinition.TestState currentState) {
+    TestDefinition def = new TestDefinition("x", currentState);
+    StateExecutionImpl execution = mock(StateExecutionImpl.class);
+    when(execution.getRetries()).thenReturn(def.getSettings().maxRetries);
+    when(execution.getCurrentStateName()).thenReturn(currentState.name());
+    executor.handleRetry(execution, def);
+    return execution;
+  }
+
+  @Test
+  public void exceedingMaxRetriesInFailureStateGoesToErrorState() {
+    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.failed.name());
+
+    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
+
+    verify(executionMock).setNextState(TestWorkflow.State.error);
+    verify(executionMock).setNextActivation(now());
+  }
+
+  @Test
+  public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
+    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
+
+    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
+
+    verify(executionMock).setNextState(TestWorkflow.State.failed);
+    verify(executionMock).setNextActivation(now());
+  }
+
+  @Test
+  public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
+    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.startWithoutFailure.name());
+
+    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
+
+    verify(executionMock).setNextState(TestWorkflow.State.error);
+    verify(executionMock).setNextActivation(now());
+  }
+
+  @Test
+  public void exceedingMaxRetriesInErrorStateStopsProcessing() {
+    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.error.name());
+
+    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
+
+    verify(executionMock).setNextState(TestWorkflow.State.error);
+    verify(executionMock).setNextActivation(null);
+  }
+
+  @Test
+  public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
+    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
+    when(executionMock.getRetries()).thenReturn(0);
+
+    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
+
+    verify(executionMock, never()).setNextState(any(TestWorkflow.State.class));
+    verify(executionMock).setNextActivation(tomorrow);
   }
 
   public static class Pojo {

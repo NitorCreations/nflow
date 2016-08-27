@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -47,7 +48,7 @@ public class WorkflowDefinitionScanner {
     final Map<String, WorkflowStateMethod> methods = new LinkedHashMap<>();
     doWithMethods(definition, new MethodCallback() {
       @Override
-      public void doWith(Method method) throws IllegalArgumentException {
+      public void doWith(Method method) {
         List<StateParameter> params = new ArrayList<>();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -66,7 +67,8 @@ public class WorkflowDefinitionScanner {
                 readOnly = false;
                 mutable = true;
               }
-              params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz), stateInfo.readOnly() || readOnly, mutable));
+              params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz),
+                  readOnly || stateInfo.readOnly(), mutable));
               break;
             }
           }
@@ -87,6 +89,7 @@ public class WorkflowDefinitionScanner {
     return knownImmutableTypes.contains(type);
   }
 
+  @SuppressFBWarnings(value = "URV_UNRELATED_RETURN_VALUES", justification = "return values are unrelated")
   Object defaultValue(StateVar stateInfo, Class<?> clazz) {
     if (clazz.isPrimitive()) {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
@@ -116,7 +119,7 @@ public class WorkflowDefinitionScanner {
       return NextAction.class.equals(returnType) || Void.TYPE.equals(returnType);
     }
 
-    private boolean hasStateExecutionParameter(Class<?>[] parameterTypes) {
+    private boolean hasStateExecutionParameter(Class<?>... parameterTypes) {
       return parameterTypes.length >= 1 && StateExecution.class.equals(parameterTypes[0]);
     }
   }

@@ -1,6 +1,7 @@
 package io.nflow.rest.v1.converter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,9 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import io.nflow.rest.v1.msg.State;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Settings;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.TransitionDelays;
+import io.nflow.rest.v1.msg.State;
 
 @Component
 public class ListWorkflowDefinitionConverter {
@@ -43,7 +44,8 @@ public class ListWorkflowDefinitionConverter {
       State state = states.get(entry.getKey());
       state.onFailure = entry.getValue().name();
     }
-    resp.states = states.values().toArray(new State[states.values().size()]);
+    Collection<State> values = states.values();
+    resp.states = values.toArray(new State[values.size()]);
 
     WorkflowSettings workflowSettings = definition.getSettings();
     TransitionDelays transitionDelays = new TransitionDelays();

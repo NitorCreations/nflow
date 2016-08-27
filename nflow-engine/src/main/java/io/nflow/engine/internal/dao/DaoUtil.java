@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.springframework.dao.DataAccessException;
+import org.joda.time.base.BaseDateTime;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class DaoUtil {
@@ -19,7 +19,7 @@ public class DaoUtil {
     // prevent instantiation
   }
 
-  public static Timestamp toTimestamp(DateTime time) {
+  public static Timestamp toTimestamp(BaseDateTime time) {
     return time == null ? null : new Timestamp(time.getMillis());
   }
 
@@ -29,7 +29,7 @@ public class DaoUtil {
 
   static final class FirstColumnLengthExtractor implements ResultSetExtractor<Integer> {
     @Override
-    public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public Integer extractData(ResultSet rs) throws SQLException {
       return rs.getMetaData().getColumnDisplaySize(1);
     }
   }
@@ -46,7 +46,7 @@ public class DaoUtil {
     }
 
     @Override
-    public List<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public List<String> extractData(ResultSet rs) throws SQLException {
       ResultSetMetaData metadata = rs.getMetaData();
       int columnCount = metadata.getColumnCount();
       List<String> columnNames = new ArrayList<>(columnCount);

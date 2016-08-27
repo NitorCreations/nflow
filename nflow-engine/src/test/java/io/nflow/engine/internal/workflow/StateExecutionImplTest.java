@@ -5,8 +5,8 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -85,17 +86,17 @@ public class StateExecutionImplTest {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
         .setBusinessKey("business").setParentWorkflowId(123).build();
     execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor);
-    assertThat(execution.getWakeUpParentWorkflowStates(), is(nullValue()));
+    assertThat(execution.getWakeUpParentWorkflowStates().isPresent(), is(false));
     execution.wakeUpParentWorkflow();
-    assertThat(execution.getWakeUpParentWorkflowStates(), is(emptyArray()));
+    assertThat(execution.getWakeUpParentWorkflowStates().get(), is(empty()));
     execution.wakeUpParentWorkflow("state1", "state2");
-    assertThat(execution.getWakeUpParentWorkflowStates(), is(arrayContaining("state1", "state2")));
+    assertThat(execution.getWakeUpParentWorkflowStates().get(), contains("state1", "state2"));
   }
 
   @Test
   public void nonChildWorkflowCannotWakeUpParent() {
     execution.wakeUpParentWorkflow();
-    assertThat(execution.getWakeUpParentWorkflowStates(), is(nullValue()));
+    assertThat(execution.getWakeUpParentWorkflowStates(), is(Optional.empty()));
   }
 
   @Test

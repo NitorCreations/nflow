@@ -8,20 +8,13 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import io.nflow.engine.internal.workflow.StateExecutionImpl;
 
 public class WorkflowDefinitionTest {
   @Rule
@@ -68,31 +61,6 @@ public class WorkflowDefinitionTest {
         containsInAnyOrder(TestDefinitionWithStateTypes.State.initial, TestDefinitionWithStateTypes.State.done,
             TestDefinitionWithStateTypes.State.state1, TestDefinitionWithStateTypes.State.state2,
             TestDefinitionWithStateTypes.State.error));
-  }
-
-  @Test
-  public void handleRetryMaxRetriesExceededHaveFailureState() {
-    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1);
-    verify(execution).setNextState(TestDefinition.TestState.failed);
-    verify(execution).setNextStateReason(any(String.class));
-    verify(execution).setNextActivation(any(DateTime.class));
-  }
-
-  @Test
-  public void handleRetryMaxRetriesExceededNotHaveFailureState() {
-    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestDefinition.TestState.start2);
-    verify(execution).setNextState(TestDefinition.TestState.error);
-    verify(execution).setNextStateReason(any(String.class));
-    verify(execution).setNextActivation(any(DateTime.class));
-  }
-
-  private StateExecutionImpl handleRetryMaxRetriesExceeded(TestDefinition.TestState currentState) {
-    TestDefinition def = new TestDefinition("x", currentState);
-    StateExecutionImpl execution = mock(StateExecutionImpl.class);
-    when(execution.getRetries()).thenReturn(def.getSettings().maxRetries);
-    when(execution.getCurrentStateName()).thenReturn(currentState.name());
-    def.handleRetry(execution);
-    return execution;
   }
 
   @Test

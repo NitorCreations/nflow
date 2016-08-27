@@ -1,0 +1,14 @@
+<FindBugsFilter>
+  <Match>
+    <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS" />
+  </Match>
+  <Match>
+    <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CHECKED" />
+  </Match>
+  <Match>
+    <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING" />
+  </Match>
+  <Match>
+    <Bug pattern="IMC_IMMATURE_CLASS_NO_EQUALS" />
+  </Match>
+</FindBugsFilter>

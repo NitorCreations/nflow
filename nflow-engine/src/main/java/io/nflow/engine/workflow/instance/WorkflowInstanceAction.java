@@ -8,7 +8,9 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
+
 
 /**
  * An execution of a workflow instance state.
@@ -253,6 +255,7 @@ public class WorkflowInstanceAction extends ModelObject {
      * Build the workflow instance action.
      * @return The workflow instance action.
      */
+    @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
     public WorkflowInstanceAction build() {
       if (type == null) {
         throw new IllegalStateException("Missing type");

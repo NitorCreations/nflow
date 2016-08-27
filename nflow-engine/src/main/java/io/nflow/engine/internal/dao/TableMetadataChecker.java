@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -33,9 +32,11 @@ public class TableMetadataChecker {
       throw new IllegalArgumentException(format("Source table %s has more columns than destination table %s", sourceTable,
           destinationTable));
     }
-    if (!destMetadataMap.keySet().containsAll(sourceMetadataMap.keySet())) {
-      Set<String> missingColumns = new LinkedHashSet<>(sourceMetadataMap.keySet());
-      missingColumns.removeAll(destMetadataMap.keySet());
+    Set<String> sourceKeySet = sourceMetadataMap.keySet();
+    Set<String> destKeySet = destMetadataMap.keySet();
+    if (!destKeySet.containsAll(sourceKeySet)) {
+      Set<String> missingColumns = new LinkedHashSet<>(sourceKeySet);
+      missingColumns.removeAll(destKeySet);
       throw new IllegalArgumentException(format("Destination table %s is missing columns %s that are present in source table %s",
           destinationTable, missingColumns, sourceTable));
     }
@@ -64,7 +65,7 @@ public class TableMetadataChecker {
     private final Map<String, String> typeAliases = typeAliases();
 
     @Override
-    public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException {
       ResultSetMetaData metadata = rs.getMetaData();
       Map<String, ColumnMetadata> metadataMap = new LinkedHashMap<>();
       for (int col = 1; col <= metadata.getColumnCount(); col++) {

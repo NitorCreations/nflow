@@ -1,6 +1,5 @@
 package io.nflow.tests.demo;
 
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -12,7 +11,7 @@ public class SpringApplicationContext implements ApplicationContextAware {
 
   @Override
   @SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "test code")
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(ApplicationContext applicationContext) {
     SpringApplicationContext.applicationContext = applicationContext;
   }
 }

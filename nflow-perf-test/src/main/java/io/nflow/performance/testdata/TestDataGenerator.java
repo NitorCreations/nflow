@@ -33,8 +33,8 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 /**
  * Generates imaginary workflow instances with action history based on the workflow definitions that are deployed to the
@@ -163,7 +163,7 @@ public class TestDataGenerator {
     for (WorkflowInstanceAction action : result) {
       Map<String, String> updatedStateVariables = new HashMap<>();
       if (random.nextInt(2) > 0) {
-        updatedStateVariables.put(Integer.toString(nextActionId), "\"" + randomUUID().toString() + "\"");
+        updatedStateVariables.put(Integer.toString(nextActionId), "\"" + randomUUID() + "\"");
       }
       resultWithActionIds.add(new WorkflowInstanceAction.Builder(action).setId(nextActionId++)
           .setUpdatedStateVariables(updatedStateVariables).build());

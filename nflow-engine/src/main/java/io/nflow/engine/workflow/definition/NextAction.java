@@ -100,7 +100,7 @@ public class NextAction extends ModelObject {
 
   private static void assertFinalState(WorkflowState state) {
     if (!state.getType().isFinal()) {
-      throw new InvalidNextActionException("Cannot stop in a state that is not final");
+      throw new InvalidNextActionException("Cannot stop in state " + state.name() + " because it is not final");
     }
   }
 
