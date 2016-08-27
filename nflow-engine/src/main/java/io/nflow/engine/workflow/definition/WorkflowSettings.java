@@ -8,6 +8,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.joda.time.DateTime.now;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
@@ -39,6 +41,14 @@ public class WorkflowSettings extends ModelObject {
    * Maximum retry attempts.
    */
   public final int maxRetries;
+  /**
+   * Maximum number of subsequent state executions before forcing a short transition delay.
+   */
+  public final int maxSubsequentStateExecutions;
+  /**
+   * Maximum number of subsequent state executions before forcing a short transition delay, per state.
+   */
+  public final Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -46,6 +56,8 @@ public class WorkflowSettings extends ModelObject {
     this.shortTransitionDelay = builder.shortTransitionDelay;
     this.immediateTransitionDelay = builder.immediateTransitionDelay;
     this.maxRetries = builder.maxRetries;
+    this.maxSubsequentStateExecutions = builder.maxSubsequentStateExecutions;
+    this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
   }
 
   /**
@@ -58,6 +70,8 @@ public class WorkflowSettings extends ModelObject {
     int shortTransitionDelay = (int) SECONDS.toMillis(30);
     int immediateTransitionDelay = 0;
     int maxRetries = 17;
+    int maxSubsequentStateExecutions = 100;
+    Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
 
     /**
      * Set the maximum delay on execution retry after an error.
@@ -120,6 +134,32 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
+     * Set maximum number of subsequent state executions before forcing a short transition delay.
+     *
+     * @param maxSubsequentStateExecutions
+     *          Maximum number of subsequent state executions.
+     * @return this.
+     */
+    public Builder setMaxSubsequentStateExecutions(int maxSubsequentStateExecutions) {
+      this.maxSubsequentStateExecutions = maxSubsequentStateExecutions;
+      return this;
+    }
+
+    /**
+     * Set maximum number of subsequent state executions before forcing a short transition delay for given state.
+     *
+     * @param state
+     *          The state for which the limit is applied.
+     * @param maxSubsequentStateExecutions
+     *          Maximum number of subsequent state executions.
+     * @return this.
+     */
+    public Builder setMaxSubsequentStateExecutions(WorkflowState state, int maxSubsequentStateExecutions) {
+      this.maxSubsequentStateExecutionsPerState.put(state, maxSubsequentStateExecutions);
+      return this;
+    }
+
+    /**
      * Create workflow settings object.
      *
      * @return Workflow settings.
@@ -169,4 +209,15 @@ public class WorkflowSettings extends ModelObject {
   public DateTime getShortTransitionActivation() {
     return now().plusMillis(shortTransitionDelay);
   }
+
+  /**
+   * Return the maximum number of subsequent state executions before forcing a short transition delay.
+   * @param state The state for which the limit is checked.
+   *
+   * @return The maximum number of subsequent state executions.
+   */
+  public int getMaxSubsequentStateExecutions(WorkflowState state) {
+    return maxSubsequentStateExecutionsPerState.getOrDefault(state, maxSubsequentStateExecutions);
+  }
+
 }
