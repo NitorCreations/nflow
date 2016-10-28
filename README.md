@@ -16,15 +16,15 @@ Create a Maven project. Add the following to your  `pom.xml`. nFlow is available
 
 ```xml
 <dependency>
-  <groupId>com.nitorcreations</groupId>
+  <groupId>io.nflow</groupId>
   <artifactId>nflow-jetty</artifactId>
-  <version>3.3.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 Create a class for starting nFlow in embedded Jetty using H2 memory database.
 
 ```java
-import com.nitorcreations.nflow.jetty.StartNflow;
+import io.nflow.jetty.StartNflow;
 
 public class App {
   public static void main(String[] args) throws Exception {
