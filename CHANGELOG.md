@@ -5,7 +5,7 @@
 - Require Java 8 (e.g. Java 7 is not supported anymore)
 - Wake up parent workflow only if it is in expected state
 
-** Details **
+**Details**
 - nflow-engine:
   - Add human-readable toString method to all DTO classes
   - When waking up parent workflow, expected states can be defined. If the state is not as expected, parent workflow is not woken up.
