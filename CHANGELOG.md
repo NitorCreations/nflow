@@ -1,3 +1,17 @@
+## 4.0.0 (2016-10-28)
+
+**Highlights**
+- Rename com.nitorcreations.nflow package to io.nflow
+- Require Java 8 (e.g. Java 7 is not supported anymore)
+- Wake up parent workflow only if it is in expected state
+
+** Details **
+- nflow-engine:
+  - Add human-readable toString method to all DTO classes
+  - When waking up parent workflow, expected states can be defined. If the state is not as expected, parent workflow is not woken up.
+- nflow-jetty:
+  - Use nFlow Explorer version 1.2.3
+
 ## 3.3.0 (2016-05-27)
 
 **Highlights**
