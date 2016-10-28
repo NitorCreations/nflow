@@ -1,5 +1,10 @@
 # nFlow Explorer change log
 
+1.2.3 2016-10-28
+================
+
+* Show text indicating no results instead of empty lists
+
 1.2.2 2016-05-27
 ================
 
