@@ -431,7 +431,7 @@ public class WorkflowInstance extends ModelObject {
     /**
      * Put a state variable to the state variables map if the optional value is present.
      * @param key The name of the variable.
-     * @param value The optional value of the variable, serialized by object mapper.
+     * @param optionalValue The optional value of the variable, serialized by object mapper.
      * @return this.
      */
     @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
