@@ -429,7 +429,8 @@ public class WorkflowInstance extends ModelObject {
     }
 
     /**
-     * Put a state variable to the state variables map if the optional value is present.
+     * Put a state variable to the state variables map if the optional value is present. If the optionalValue is empty, existing
+     * state variable value is not changed.
      * @param key The name of the variable.
      * @param optionalValue The optional value of the variable, serialized by object mapper.
      * @return this.
