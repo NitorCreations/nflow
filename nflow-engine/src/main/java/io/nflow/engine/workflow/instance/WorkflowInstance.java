@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.joda.time.DateTime;
 
@@ -406,6 +407,7 @@ public class WorkflowInstance extends ModelObject {
      * @return this.
      */
     public Builder putStateVariable(String key, String value) {
+      assertNotNull(value, "State variable " + key + " value cannot be null");
       this.stateVariables.put(key, value);
       return this;
     }
@@ -421,8 +423,27 @@ public class WorkflowInstance extends ModelObject {
       if (mapper == null) {
         throw new IllegalStateException("WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
       }
+      assertNotNull(value, "State variable " + key + " value cannot be null");
       this.stateVariables.put(key, mapper.convertFromObject(key, value));
       return this;
+    }
+
+    /**
+     * Put a state variable to the state variables map if the optional value is present. If the optionalValue is empty, existing
+     * state variable value is not changed.
+     * @param key The name of the variable.
+     * @param optionalValue The optional value of the variable, serialized by object mapper.
+     * @return this.
+     */
+    @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
+    public Builder putStateVariable(String key, Optional<?> optionalValue) {
+      return optionalValue.map(value -> putStateVariable(key, value)).orElse(this);
+    }
+
+    private void assertNotNull(Object value, String reason) {
+      if (value == null) {
+        throw new IllegalArgumentException(reason);
+      }
     }
 
     /**
