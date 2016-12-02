@@ -1,5 +1,6 @@
 package io.nflow.engine.workflow.definition;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
@@ -48,5 +49,27 @@ public class WorkflowSettingsTest {
       assertThat(delay, greaterThanOrEqualTo(prevDelay));
       prevDelay = delay;
     }
+  }
+
+  @Test
+  public void getMaxSubsequentStateExecutionsReturns100ByDefault() {
+    WorkflowSettings s = new WorkflowSettings.Builder().build();
+    assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.State.begin), is(equalTo(100)));
+  }
+
+  @Test
+  public void getMaxSubsequentStateExecutionsReturnsValueDefinedForTheState() {
+    int executionsDefault = 200;
+    int executionsForBegin = 300;
+    WorkflowSettings s = new WorkflowSettings.Builder().setMaxSubsequentStateExecutions(executionsDefault)
+        .setMaxSubsequentStateExecutions(TestWorkflow.State.begin, executionsForBegin).build();
+    assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.State.begin), is(equalTo(executionsForBegin)));
+  }
+
+  @Test
+  public void getMaxSubsequentStateExecutionsReturnsGivenDefaultValueWhenNotDefinedForState() {
+    int executionsDefault = 200;
+    WorkflowSettings s = new WorkflowSettings.Builder().setMaxSubsequentStateExecutions(executionsDefault).build();
+    assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.State.begin), is(equalTo(executionsDefault)));
   }
 }
