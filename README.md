@@ -42,3 +42,6 @@ Note! Starting from 4.0.0 release, nFlow requires Java 8 or newer. Older release
 ## <a name="components"></a>Ok, I'm interested!
 
 For a more thorough getting started guide, configurations, license information etc. checkout the [nFlow wiki pages](https://github.com/NitorCreations/nflow/wiki)! You can also look into a short [slide deck](https://github.com/NitorCreations/nflow/raw/master/nflow-documentation/presentations/nflow_presentation.pdf).
+
+Discussion and questions are welcome to our forum [nflow-users](https://groups.google.com/forum/#!forum/nflow-users) in Google Groups.
+
