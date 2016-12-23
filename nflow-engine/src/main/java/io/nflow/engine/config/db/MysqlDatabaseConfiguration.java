@@ -46,6 +46,10 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
    * @param env The Spring environment.
    * @return The database initializer.
    */
+  public MysqlDatabaseConfiguration(String dbType) {
+    super(dbType);
+  }
+
   @Bean
   @Override
   @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
