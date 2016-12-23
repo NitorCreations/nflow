@@ -31,8 +31,7 @@ public class MariadbDatabaseConfiguration extends MysqlDatabaseConfiguration {
 
   @Bean
   @Override
-  @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
-      justification = "extracting major and minor version from splitted string, exception message is ok")
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();

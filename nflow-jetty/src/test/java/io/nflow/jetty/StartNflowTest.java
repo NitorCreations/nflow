@@ -1,13 +1,13 @@
 package io.nflow.jetty;
 
 import static io.nflow.engine.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.MARIADB;
 import static io.nflow.engine.config.Profiles.MYSQL;
 import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -67,12 +67,18 @@ public class StartNflowTest {
 
   @Test
   @Disabled
+  public void startNflowJettyMariadb() throws Exception {
+    startStop(initJettyStart(MARIADB));
+  }
+
+  @Test
+  @Disabled
   public void startNflowJettyPostgreSQL() throws Exception {
     startStop(initJettyStart(POSTGRESQL));
   }
 
   @Configurable
   static class DummyContext {
-
   }
+
 }
