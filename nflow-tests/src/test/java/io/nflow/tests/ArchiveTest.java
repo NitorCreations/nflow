@@ -36,6 +36,8 @@ public class ArchiveTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
+  // private static final int CREATE_TIMEOUT = 30_000;
+  // private static final int ARCHIVE_TIMEOUT = 15_000;
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
       .springContextClass(ArchiveConfiguration.class).build();
