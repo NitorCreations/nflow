@@ -204,7 +204,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-service-description</artifactId>
+      <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
     </dependency>
     <dependency>
       <groupId>io.swagger</groupId>

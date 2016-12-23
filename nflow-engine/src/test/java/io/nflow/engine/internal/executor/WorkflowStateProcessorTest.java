@@ -13,6 +13,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
@@ -20,10 +21,11 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -40,8 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +56,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.env.MockEnvironment;
@@ -176,9 +181,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(
+        MockitoHamcrest.argThat(
             matchesWorkflowInstance(inProgress, ExecuteTestWorkflow.State.process, 0, is("Scheduled by previous state start"))),
-        argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, is("Process after delay"), 0, stateExecution)),
+        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(ExecuteTestWorkflow.State.start, is("Process after delay"), 0, stateExecution)),
         childWorkflows.capture(), workflows.capture(), eq(true));
     assertThat(childWorkflows.getValue().get(0), is(newChildWorkflow));
     assertThat(workflows.getValue().get(0), is(newWorkflow));
@@ -190,8 +195,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
-        argThat(
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
+        MockitoHamcrest.argThat(
             matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0, stateExecutionFailed)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
@@ -271,7 +276,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-            argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"))));
+            MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"))));
   }
 
   @Test
@@ -281,9 +286,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
+        MockitoHamcrest.argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
             nullValue(DateTime.class))),
-        argThat(matchesWorkflowInstanceAction(SimpleTestWorkflow.State.beforeManual, is("Move to manual state."),
+        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(SimpleTestWorkflow.State.beforeManual, is("Move to manual state."),
             simpleWf.getSettings().maxRetries, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
@@ -333,7 +338,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
             is(skipped))));
   }
 
@@ -345,7 +350,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
     verify(listener1, times(2)).process(any(ListenerContext.class), any(ListenerChain.class));
-    verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
+    verify(listener1).afterFailure(any(ListenerContext.class), isNull());
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
@@ -476,8 +481,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterProcessing(any(ListenerContext.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
+        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
 
@@ -494,8 +499,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
     verifyNoMoreInteractions(listener1);
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
-        argThat(
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
+        MockitoHamcrest.argThat(
             matchesWorkflowInstanceAction(FailingTestWorkflow.State.start, containsString("test-fail"), 0, stateExecutionFailed)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
@@ -508,9 +513,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(finished, FailingTestWorkflow.State.noMethodEndState, 0,
+        MockitoHamcrest.argThat(matchesWorkflowInstance(finished, FailingTestWorkflow.State.noMethodEndState, 0,
             is("Stopped in state noMethodEndState"), is(nullValue(DateTime.class)))),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.nextStateNoMethod,
+        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.nextStateNoMethod,
             is("Go to end state that has no method"), 0, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
@@ -521,8 +526,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
+        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
 
@@ -542,7 +547,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(),
-        argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, is("Finished"), 0, stateExecution)),
+        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, is("Finished"), 0, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
 
     assertThat((String) lastArgs.get(0), is("Str"));
@@ -560,18 +565,22 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     assertThat(state.get("hello"), is("[1,2,3]"));
   }
 
-  private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state,
+  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state,
       int retries, Matcher<String> stateTextMatcher) {
     return matchesWorkflowInstance(status, state, retries, stateTextMatcher, Matchers.any(DateTime.class));
   }
 
-  private ArgumentMatcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowInstanceStatus status,
+  private Matcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowInstanceStatus status,
       final WorkflowState state, final int retries, final Matcher<String> stateTextMatcher,
       final Matcher<DateTime> nextActivationMatcher) {
-    return new ArgumentMatcher<WorkflowInstance>() {
+    return new TypeSafeMatcher<WorkflowInstance>() {
       @Override
-      public boolean matches(Object argument) {
-        WorkflowInstance i = (WorkflowInstance) argument;
+      public void describeTo(Description description) {
+
+      }
+
+      @Override
+      protected boolean matchesSafely(WorkflowInstance i) {
         assertThat(i, notNullValue());
         assertThat(i.status, is(status));
         assertThat(i.state, is(state.name()));
@@ -583,12 +592,16 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     };
   }
 
-  private ArgumentMatcher<WorkflowInstanceAction> matchesWorkflowInstanceAction(final WorkflowState state,
+  private Matcher<WorkflowInstanceAction> matchesWorkflowInstanceAction(final WorkflowState state,
       final Matcher<String> stateTextMatcher, final int retryNo, final WorkflowActionType type) {
-    return new ArgumentMatcher<WorkflowInstanceAction>() {
+    return new TypeSafeMatcher<WorkflowInstanceAction>() {
       @Override
-      public boolean matches(Object argument) {
-        WorkflowInstanceAction a = (WorkflowInstanceAction) argument;
+      public void describeTo(Description description) {
+
+      }
+
+      @Override
+      protected boolean matchesSafely(WorkflowInstanceAction a) {
         assertThat(a, notNullValue());
         assertThat(a.state, is(state.name()));
         assertThat(a.stateText, stateTextMatcher);
@@ -603,11 +616,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   private ArgumentMatcher<List<WorkflowInstance>> isEmptyWorkflowList() {
         return new ArgumentMatcher<List<WorkflowInstance>>() {
             @Override
-            public boolean matches(Object argument) {
-                @SuppressWarnings("unchecked")
-                List<WorkflowInstance> a = (List<WorkflowInstance>) argument;
-                assertThat(a, notNullValue());
-                assertThat(a.isEmpty(), is(true));
+            public boolean matches(List<WorkflowInstance> a) {
+                assertThat(a, empty());
                 return true;
             }
         };
@@ -644,10 +654,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verifyNoMoreInteractions(listener1, listener2);
   }
 
-  static final class IsTestFailException extends ArgumentMatcher<Throwable> {
+  static final class IsTestFailException implements ArgumentMatcher<Throwable> {
     @Override
-    public boolean matches(Object argument) {
-      Throwable t = (RuntimeException) argument;
+    public boolean matches(Throwable t) {
       assertThat(t.getMessage(), is("test-fail"));
       return true;
     }
@@ -673,7 +682,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"))));
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"))));
   }
 
   @Test
@@ -809,7 +818,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
-    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
     when(executionMock.getRetries()).thenReturn(0);
 
     executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);

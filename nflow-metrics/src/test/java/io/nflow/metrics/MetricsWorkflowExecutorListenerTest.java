@@ -1,5 +1,6 @@
 package io.nflow.metrics;
 
+import static io.nflow.engine.internal.config.Profiles.H2;
 import static io.nflow.engine.internal.config.Profiles.JMX;
 import static io.nflow.engine.internal.config.Profiles.METRICS;
 import static org.junit.Assert.assertEquals;
@@ -8,6 +9,10 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.internal.config.Profiles;
+import io.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -15,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
@@ -53,6 +59,7 @@ public class MetricsWorkflowExecutorListenerTest {
         MockEnvironment env = new MockEnvironment();
         env.addActiveProfile(METRICS);
         env.addActiveProfile(JMX);
+        env.addActiveProfile(H2);
         return env;
       }
     };
@@ -119,6 +126,17 @@ public class MetricsWorkflowExecutorListenerTest {
       when(dao.getExecutorGroup()).thenReturn("foobarName");
       when(dao.getExecutorId()).thenReturn(0);
       return dao;
+    }
+
+    @Bean
+    public SQLVariants SQLVariants() {
+      return mock(SQLVariants.class);
+    }
+
+    @Bean
+    @NFlow
+    public JdbcTemplate jdbcTemplate() {
+      return mock(JdbcTemplate.class);
     }
   }
 }

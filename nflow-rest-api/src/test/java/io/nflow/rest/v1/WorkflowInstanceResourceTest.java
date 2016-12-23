@@ -10,13 +10,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.util.Collections;
 
@@ -30,14 +30,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
-import io.nflow.rest.v1.WorkflowInstanceResource;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -70,20 +69,20 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void createWorkflowInstanceWorks() {
-    when(workflowInstances.insertWorkflowInstance(any(WorkflowInstance.class))).thenReturn(1);
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
+    WorkflowInstance inst = mock(WorkflowInstance.class);
+    when(createWorkflowConverter.convert(req)).thenReturn(inst);
+    when(workflowInstances.insertWorkflowInstance(inst)).thenReturn(1);
     Response r = resource.createWorkflowInstance(req);
     assertThat(r.getStatus(), is(201));
     assertThat(r.getHeaderString("Location"), is("1"));
     verify(createWorkflowConverter).convert(req);
     verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
     verify(workflowInstances).getWorkflowInstance(1);
-    verify(createWorkflowConverter).convert(any(WorkflowInstance.class));
   }
 
   @Test
   public void whenUpdatingWithoutParametersNothingHappens() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
@@ -91,7 +90,6 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void whenUpdatingMessageStateTextIsUpdated() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
     resource.updateWorkflowInstance(3, req);
@@ -103,7 +101,6 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void whenUpdatingStateUpdateWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
     resource.updateWorkflowInstance(3, req);
@@ -114,7 +111,6 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void whenUpdatingStateWithDescriptionUpdateWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
     req.actionDescription = "description";
@@ -126,7 +122,6 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void whenUpdatingNextActivationTimeUpdateWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014,11,12,17,55,0);
     resource.updateWorkflowInstance(3, req);
@@ -138,7 +133,6 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void whenUpdatingNextActivationTimeWithDescriptionUpdateWorkflowInstanceWorks() {
-    when(workflowInstances.getWorkflowInstance(3)).thenReturn(i);
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
