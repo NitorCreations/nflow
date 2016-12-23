@@ -21,7 +21,7 @@ import io.nflow.engine.internal.config.NFlow;
 
 @Profile(MARIADB)
 @Configuration
-public class MariadbDatabaseConfiguration extends MysqlDatabaseConfiguration {
+public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   private static final Logger logger = getLogger(MariadbDatabaseConfiguration.class);
 
   public MariadbDatabaseConfiguration() {
@@ -44,4 +44,8 @@ public class MariadbDatabaseConfiguration extends MysqlDatabaseConfiguration {
     return new DatabaseInitializer("mysql", nflowDataSource, env);
   }
 
+  @Bean
+  public SQLVariants sqlVariants() {
+    return new MySQLVariants();
+  }
 }
