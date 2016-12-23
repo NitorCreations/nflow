@@ -22,11 +22,10 @@ import io.nflow.engine.internal.config.NFlow;
 @Profile(MARIADB)
 @Configuration
 public class MariadbDatabaseConfiguration extends MysqlDatabaseConfiguration {
-  private static final String DB_TYPE = "mariadb";
   private static final Logger logger = getLogger(MariadbDatabaseConfiguration.class);
 
   public MariadbDatabaseConfiguration() {
-    super(DB_TYPE);
+    super("mariadb");
   }
 
   @Bean
@@ -42,7 +41,7 @@ public class MariadbDatabaseConfiguration extends MysqlDatabaseConfiguration {
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain mariadb version", e);
     }
-    return new DatabaseInitializer(DB_TYPE, nflowDataSource, env);
+    return new DatabaseInitializer("mysql", nflowDataSource, env);
   }
 
 }
