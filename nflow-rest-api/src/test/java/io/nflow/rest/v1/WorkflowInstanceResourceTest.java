@@ -35,8 +35,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -54,8 +54,6 @@ public class WorkflowInstanceResourceTest {
 
   @Mock
   private ListWorkflowInstanceConverter listWorkflowConverter;
-
-  private final WorkflowInstance i = new WorkflowInstance.Builder().setId(2).build();
 
   private WorkflowInstanceResource resource;
 

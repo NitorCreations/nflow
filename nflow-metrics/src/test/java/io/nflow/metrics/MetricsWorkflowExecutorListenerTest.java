@@ -9,10 +9,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.nflow.engine.internal.config.NFlow;
-import io.nflow.engine.internal.config.Profiles;
-import io.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
-import io.nflow.engine.internal.storage.db.SQLVariants;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -26,15 +22,15 @@ import org.springframework.mock.env.MockEnvironment;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
+import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.dao.ExecutorDao;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.HealthCheckService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.metrics.MetricsWorkflowExecutorListener;
-import io.nflow.metrics.NflowMetricsContext;
 
 
 public class MetricsWorkflowExecutorListenerTest {
