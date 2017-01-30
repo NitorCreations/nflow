@@ -5,6 +5,7 @@ import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROT
 
 import javax.sql.DataSource;
 
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -54,6 +55,17 @@ public abstract class DatabaseConfiguration {
   @Bean
   @NFlow
   public DataSource nflowDatasource(Environment env, BeanFactory appCtx) {
+    Object metricRegistry = null;
+    try {
+      Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
+      metricRegistry = appCtx.getBean(metricClass);
+    } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
+      // ignored - metrics is an optional dependency
+    }
+    return nflowDatasource(env, metricRegistry);
+  }
+
+  public DataSource nflowDatasource(Environment env, Object metricRegistry) {
     String url = property(env, "url");
     logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
@@ -65,20 +77,10 @@ public abstract class DatabaseConfiguration {
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
     config.setIdleTimeout(property(env, "idle_timeout_seconds", Long.class) * 1000);
     config.setAutoCommit(true);
-    setMetricRegistryIfBeanFoundOnClassPath(config, appCtx);
-    return new HikariDataSource(config);
-  }
-
-  private void setMetricRegistryIfBeanFoundOnClassPath(HikariConfig config, BeanFactory appCtx) {
-    try {
-      Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
-      Object metricRegistry = appCtx.getBean(metricClass);
-      if (metricRegistry != null) {
-        config.setMetricRegistry(metricRegistry);
-      }
-    } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
-      // ignored - metrics is an optional dependency
+    if (metricRegistry != null) {
+      config.setMetricRegistry(metricRegistry);
     }
+    return new HikariDataSource(config);
   }
 
   /**
@@ -160,5 +162,7 @@ public abstract class DatabaseConfiguration {
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
+
+  public abstract SQLVariants sqlVariants();
 
 }

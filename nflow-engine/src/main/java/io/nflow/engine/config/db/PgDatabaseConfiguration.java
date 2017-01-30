@@ -30,6 +30,7 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
    * @return SQL variants optimized for PostgreSQL.
    */
   @Bean
+  @Override
   public SQLVariants sqlVariants() {
     return new PostgreSQLVariants();
   }

@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -83,6 +84,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
  */
 @Component
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
+@Singleton
 public class WorkflowInstanceDao {
 
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();

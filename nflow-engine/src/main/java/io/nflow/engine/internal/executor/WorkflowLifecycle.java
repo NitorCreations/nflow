@@ -1,21 +1,21 @@
 package io.nflow.engine.internal.executor;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.io.IOException;
-import java.util.concurrent.ThreadFactory;
-
-import javax.inject.Inject;
-
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.service.WorkflowDefinitionService;
 import org.slf4j.Logger;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.service.WorkflowDefinitionService;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.io.IOException;
+import java.util.concurrent.ThreadFactory;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
+@Singleton
 public class WorkflowLifecycle implements SmartLifecycle {
   private static final Logger logger = getLogger(WorkflowLifecycle.class);
 

@@ -79,6 +79,11 @@
       <email>timo.tiuraniemi@nitor.com</email>
       <organization>Nitor Creations</organization>
     </developer>
+    <developer>
+      <name>Chen Jing</name>
+      <email>chen.jing@nitor.fi</email>
+      <organization>Nitor Creations</organization>
+    </developer>
   </developers>
   <modules>
     <module>nflow-engine</module>
@@ -104,6 +109,7 @@
     <findbugs-annotations.version>3.0.1u2</findbugs-annotations.version>
     <findbugs-contrib.version>6.6.1</findbugs-contrib.version>
     <findbugs.version>3.0.1</findbugs.version>
+    <guice.version>4.1.0</guice.version>
     <h2.version>1.4.197</h2.version>
     <hamcrest.version>1.3</hamcrest.version>
     <hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
@@ -544,6 +550,12 @@
         <groupId>com.nitorcreations</groupId>
         <artifactId>matchers</artifactId>
         <version>${nitor-matchers.version}</version>
+      </dependency>
+      <!-- guice -->
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice</artifactId>
+        <version>${guice.version}</version>
       </dependency>
       <!-- spring -->
       <dependency>

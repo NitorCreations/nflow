@@ -80,6 +80,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
    * @return SQL variants optimized for MySQL.
    */
   @Bean
+  @Override
   public SQLVariants sqlVariants() {
     return new MySQLVariants();
   }
