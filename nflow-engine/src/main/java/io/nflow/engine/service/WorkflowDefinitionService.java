@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
@@ -23,6 +24,7 @@ import io.nflow.engine.workflow.definition.WorkflowState;
  * Service for managing workflow definitions.
  */
 @Component
+@Singleton
 public class WorkflowDefinitionService {
 
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);

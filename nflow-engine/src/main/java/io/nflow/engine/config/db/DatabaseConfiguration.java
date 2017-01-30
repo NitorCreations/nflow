@@ -23,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 
 /**
  * Base class for different database configurations.
@@ -171,4 +172,7 @@ public abstract class DatabaseConfiguration {
   protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
     // no common checks for all databases
   }
+
+  public abstract SQLVariants sqlVariants();
+
 }
