@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
@@ -57,7 +57,7 @@ public class StatisticsResourceTest {
   @Test
   public void getWorkflowDefinitionStatisticsDelegatesToStatisticsService() {
     Map<String, Map<String, WorkflowDefinitionStatistics>> statsMap = emptyMap();
-    when(service.getWorkflowDefinitionStatistics("dummy", null, null, null, null)).thenReturn(statsMap);
+    when(service.getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)).thenReturn(statsMap);
     when(converter.convert(statsMap)).thenReturn(new WorkflowDefinitionStatisticsResponse());
 
     WorkflowDefinitionStatisticsResponse statistics = resource.getStatistics("dummy", createdAfter, createdBefore,

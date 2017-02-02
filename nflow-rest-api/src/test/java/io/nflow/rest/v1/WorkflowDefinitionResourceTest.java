@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyCollectionOf;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -23,14 +23,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import io.nflow.rest.v1.WorkflowDefinitionResource;
 import io.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 
@@ -65,7 +64,7 @@ public class WorkflowDefinitionResourceTest {
   public void listWorkflowDefinitionsFindsExistingDefinition() {
     Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("dummy"));
     assertThat(ret.size(), is(1));
-    verify(workflowDefinitionDao, never()).queryStoredWorkflowDefinitions(anyCollectionOf(String.class));
+    verify(workflowDefinitionDao, never()).queryStoredWorkflowDefinitions(anyCollection());
   }
 
   @Test
@@ -88,11 +87,10 @@ public class WorkflowDefinitionResourceTest {
   public void listWorkflowDefinitionsFindsExistingAndStoredDefinitionsWithoutArguments() {
     StoredWorkflowDefinition storedDefinitionDummy = mock(StoredWorkflowDefinition.class);
     StoredWorkflowDefinition storedDefinitionNew = mock(StoredWorkflowDefinition.class);
-    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollectionOf(String.class))).thenReturn(
+    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(
         asList(storedDefinitionDummy, storedDefinitionNew));
     ListWorkflowDefinitionResponse storedResponseDummy = mock(ListWorkflowDefinitionResponse.class, "dbDummy");
     ListWorkflowDefinitionResponse storedResponseNew = mock(ListWorkflowDefinitionResponse.class, "dbNew");
-    when(converter.convert(storedDefinitionDummy)).thenReturn(storedResponseDummy);
     storedDefinitionDummy.type = "dummy";
     when(converter.convert(storedDefinitionNew)).thenReturn(storedResponseNew);
     storedDefinitionNew.type = "new";
@@ -104,7 +102,7 @@ public class WorkflowDefinitionResourceTest {
   @Test
   public void listWorkflowDefinitionsFindsExistingAndStoredDefinitionsWithDbType() {
     StoredWorkflowDefinition storedDefinitionNew = mock(StoredWorkflowDefinition.class);
-    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollectionOf(String.class))).thenReturn(
+    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(
         asList(storedDefinitionNew));
     ListWorkflowDefinitionResponse storedResponseNew = mock(ListWorkflowDefinitionResponse.class, "dbNew");
     when(converter.convert(storedDefinitionNew)).thenReturn(storedResponseNew);

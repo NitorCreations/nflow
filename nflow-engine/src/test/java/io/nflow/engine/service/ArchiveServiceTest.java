@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.ArchiveDao;
 
@@ -46,7 +46,6 @@ public class ArchiveServiceTest {
   public void archivingContinuesUntilEmptyListOfArchivableIsReturned() {
     doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listArchivableWorkflows(limit, 10);
     when(dao.archiveWorkflows(dataList)).thenReturn(dataList.size());
-    when(dao.archiveWorkflows(emptyList)).thenReturn(emptyList.size());
     int archived = service.archiveWorkflows(limit, 10);
     assertEquals(dataList.size() * 3, archived);
     verify(dao).ensureValidArchiveTablesExist();

@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 

@@ -4,7 +4,7 @@ import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

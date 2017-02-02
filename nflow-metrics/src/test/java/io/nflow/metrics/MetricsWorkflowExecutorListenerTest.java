@@ -1,5 +1,6 @@
 package io.nflow.metrics;
 
+import static io.nflow.engine.internal.config.Profiles.H2;
 import static io.nflow.engine.internal.config.Profiles.JMX;
 import static io.nflow.engine.internal.config.Profiles.METRICS;
 import static org.junit.Assert.assertEquals;
@@ -15,20 +16,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.env.MockEnvironment;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
+import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.dao.ExecutorDao;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.HealthCheckService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.metrics.MetricsWorkflowExecutorListener;
-import io.nflow.metrics.NflowMetricsContext;
 
 
 public class MetricsWorkflowExecutorListenerTest {
@@ -53,6 +55,7 @@ public class MetricsWorkflowExecutorListenerTest {
         MockEnvironment env = new MockEnvironment();
         env.addActiveProfile(METRICS);
         env.addActiveProfile(JMX);
+        env.addActiveProfile(H2);
         return env;
       }
     };
@@ -119,6 +122,17 @@ public class MetricsWorkflowExecutorListenerTest {
       when(dao.getExecutorGroup()).thenReturn("foobarName");
       when(dao.getExecutorId()).thenReturn(0);
       return dao;
+    }
+
+    @Bean
+    public SQLVariants SQLVariants() {
+      return mock(SQLVariants.class);
+    }
+
+    @Bean
+    @NFlow
+    public JdbcTemplate jdbcTemplate() {
+      return mock(JdbcTemplate.class);
     }
   }
 }

@@ -7,29 +7,37 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.dao.ArchiveDao;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.HealthCheckDao;
 import io.nflow.engine.internal.dao.StatisticsDao;
+import io.nflow.engine.internal.dao.TableMetadataChecker;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
@@ -45,6 +53,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
   @ComponentScan(basePackageClasses = SpringDummyTestWorkflow.class)
   static class ContextConfiguration {
     @Bean
+    @Primary
     public Environment env() {
       return new MockEnvironment().withProperty("nflow.definition.persist", "true");
     }
@@ -88,6 +97,45 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     public HealthCheckDao healthCheckDao() {
       return mock(HealthCheckDao.class);
+    }
+
+    @Bean
+    @NFlow
+    public JdbcTemplate jdbcTemplate() {
+      return mock(JdbcTemplate.class);
+    }
+
+    @Bean
+    @NFlow
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate() {
+      return mock(NamedParameterJdbcTemplate.class);
+    }
+
+    @Bean
+    public TableMetadataChecker tableMetadataChecker() {
+      return mock(TableMetadataChecker.class);
+    }
+
+    @Bean
+    public SQLVariants SQLVariants() {
+      return mock(SQLVariants.class);
+    }
+
+    @Bean
+    @NFlow
+    public ObjectMapper objectMapper() {
+      return mock(ObjectMapper.class);
+    }
+
+    @Bean
+    @NFlow
+    public TransactionTemplate transactionTemplate() {
+      return mock(TransactionTemplate.class);
+    }
+
+    @Bean
+    public WorkflowInstanceExecutor workflowInstanceExecutor() {
+      return mock(WorkflowInstanceExecutor.class);
     }
   }
 
