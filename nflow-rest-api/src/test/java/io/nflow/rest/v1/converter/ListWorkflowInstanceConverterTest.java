@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +34,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
@@ -55,7 +55,7 @@ public class ListWorkflowInstanceConverterTest {
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
         .setBusinessKey("businessKey").setParentWorkflowId(942).setParentActionId(842).setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(asList(a)).setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2))
-        .setModified(now().minusHours(1)).setRetries(42).setStateVariables(stateVariables).build();
+        .setModified(now().minusHours(1)).setRetries(42).setStateVariables(stateVariables).setSignal(Optional.of(42)).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
@@ -86,6 +86,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.modified, is(i.modified));
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
+    assertThat(resp.signal, is(i.signal.get()));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId))));
   }
@@ -102,7 +103,7 @@ public class ListWorkflowInstanceConverterTest {
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
             .setBusinessKey("businessKey").setParentWorkflowId(942).setParentActionId(842).setExternalId("externalId").setState("cState").setStateText("cState desc")
             .setNextActivation(now()).setActions(asList(a)).setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2))
-            .setModified(now().minusHours(1)).setRetries(42).build();
+        .setModified(now().minusHours(1)).setRetries(42).setSignal(Optional.empty()).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
@@ -132,6 +133,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.modified, is(i.modified));
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
+    assertThat(resp.signal, is(nullValue()));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
             a.executionStart, a.executionEnd, a.executorId, expectedStateVariables))));
   }

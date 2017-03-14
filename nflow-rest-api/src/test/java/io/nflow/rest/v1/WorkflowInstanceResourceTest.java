@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
@@ -37,10 +38,12 @@ import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -243,4 +246,33 @@ public class WorkflowInstanceResourceTest {
     verify(workflowInstances).listWorkflowInstances(any(QueryWorkflowInstances.class));
     assertEquals(resp1, result);
   }
+
+  @Test
+  public void setSignalWorks() {
+    SetSignalRequest req = new SetSignalRequest();
+    req.signal = 42;
+    req.reason = "testing";
+    when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
+
+    Response response = resource.setSignal(99, req);
+
+    verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
+    assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    assertThat(response.readEntity(String.class), is("Signal was set successfully"));
+  }
+
+  @Test
+  public void setSignalReturnsOkWhenSignalIsNotUpdated() {
+    SetSignalRequest req = new SetSignalRequest();
+    req.signal = null;
+    req.reason = "testing";
+    when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
+
+    Response response = resource.setSignal(99, req);
+
+    verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
+    assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    assertThat(response.readEntity(String.class), is("Signal was not set"));
+  }
+
 }

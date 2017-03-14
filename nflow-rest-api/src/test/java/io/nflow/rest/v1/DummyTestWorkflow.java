@@ -5,6 +5,9 @@ import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -51,4 +54,12 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
   public void error(StateExecution execution) {}
 
   public void end(StateExecution execution) {}
+
+  @Override
+  public Map<Integer, String> getSupportedSignals() {
+    Map<Integer, String> signals = new HashMap<>();
+    signals.put(2, "two");
+    signals.put(1, "one");
+    return signals;
+  }
 }
