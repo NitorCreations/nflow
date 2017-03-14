@@ -62,6 +62,7 @@ import io.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVar
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
@@ -823,6 +824,50 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
   }
 
+  @Test
+  public void settingSignalInsertsAction() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setBusinessKey("setSignalTest").build();
+    int instanceId = dao.insertWorkflowInstance(i);
+
+    dao.setSignal(instanceId, Optional.of(42), "testing", WorkflowActionType.externalChange);
+
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().setBusinessKey("setSignalTest").setIncludeActions(true)
+        .build();
+    i = dao.queryWorkflowInstances(q).get(0);
+    assertThat(i.signal, is(Optional.of(42)));
+    assertThat(i.actions.size(), is(1));
+    WorkflowInstanceAction action = i.actions.get(0);
+    assertThat(action.stateText, is("testing"));
+    assertThat(action.type, is(WorkflowActionType.externalChange));
+    assertThat(dao.getSignal(instanceId), is(Optional.of(42)));
+  }
+
+  @Test
+  public void clearingSignalInsertsAction() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setBusinessKey("clearSignalTest").build();
+    int instanceId = dao.insertWorkflowInstance(i);
+
+    dao.setSignal(instanceId, Optional.of(42), "testing", WorkflowActionType.externalChange);
+
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().setBusinessKey("clearSignalTest").setIncludeActions(true)
+        .build();
+    i = dao.queryWorkflowInstances(q).get(0);
+    assertThat(i.signal, is(Optional.of(42)));
+    assertThat(i.actions.size(), is(1));
+    assertThat(dao.getSignal(instanceId), is(Optional.of(42)));
+
+    dao.setSignal(instanceId, Optional.empty(), "cleared", WorkflowActionType.externalChange);
+
+    q = new QueryWorkflowInstances.Builder().setBusinessKey("clearSignalTest").setIncludeActions(true).build();
+    i = dao.queryWorkflowInstances(q).get(0);
+    assertThat(i.signal, is(Optional.empty()));
+    assertThat(i.actions.size(), is(2));
+    WorkflowInstanceAction action = i.actions.get(0);
+    assertThat(action.stateText, is("cleared"));
+    assertThat(action.type, is(WorkflowActionType.externalChange));
+    assertThat(dao.getSignal(instanceId), is(Optional.empty()));
+  }
+
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
     assertThat(i1.type, equalTo(i2.type));
     assertThat(i1.executorId, equalTo(i2.executorId));
@@ -840,6 +885,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       assertTrue(i2.childWorkflows.containsKey(key));
       assertThat(i2.childWorkflows.get(key), is(entry.getValue()));
     }
+    assertThat(i1.signal, equalTo(i2.signal));
   }
 
   private int addWorkflowAction(int workflowId, final WorkflowInstance instance) {

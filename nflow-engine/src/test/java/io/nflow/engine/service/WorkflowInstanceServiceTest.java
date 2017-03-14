@@ -4,7 +4,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,6 +38,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Rule
@@ -155,6 +157,20 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     QueryWorkflowInstances query = mock(QueryWorkflowInstances.class);
     when(workflowInstanceDao.queryWorkflowInstances(query)).thenReturn(result);
     assertEquals(result, service.listWorkflowInstances(query));
+  }
+
+  @Test
+  public void getSignalWorks() {
+    when(workflowInstanceDao.getSignal(99)).thenReturn(Optional.of(42));
+
+    assertThat(service.getSignal(99), is(Optional.of(42)));
+  }
+
+  @Test
+  public void setSignalWorks() {
+    service.setSignal(99, Optional.of(42), "testing", WorkflowActionType.stateExecution);
+
+    verify(workflowInstanceDao).setSignal(99, Optional.of(42), "testing", WorkflowActionType.stateExecution);
   }
 
 }

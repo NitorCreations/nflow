@@ -2,6 +2,9 @@ package io.nflow.engine.service;
 
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
@@ -49,4 +52,13 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
   public NextAction CreateLoan(StateExecution execution) {
     return stopInState(DummyTestState.end, "Finished");
   }
+
+  @Override
+  public Map<Integer, String> getSupportedSignals() {
+    Map<Integer, String> signals = new HashMap<>();
+    signals.put(2, "number two");
+    signals.put(1, "number one");
+    return signals;
+  }
+
 }

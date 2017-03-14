@@ -27,6 +27,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StateExecutionImplTest {
@@ -208,6 +209,25 @@ public class StateExecutionImplTest {
     Data defaultData = new Data(42, "foobar");
 
     assertThat(execution.getVariable("foo", Data.class, defaultData), is(defaultData));
+  }
+
+  @Test
+  public void getSignalWorks() {
+    when(workflowDao.getSignal(instance.id)).thenReturn(Optional.of(42));
+
+    assertThat(execution.getSignal(), is(Optional.of(42)));
+  }
+
+  @Test
+  public void setSignalWorks() {
+    execution.setSignal(Optional.of(42), "testing");
+
+    verify(workflowDao).setSignal(instance.id, Optional.of(42), "testing", WorkflowActionType.stateExecution);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void setSignalRejectsNull() {
+    execution.setSignal(null, "testing");
   }
 
   static class Data {

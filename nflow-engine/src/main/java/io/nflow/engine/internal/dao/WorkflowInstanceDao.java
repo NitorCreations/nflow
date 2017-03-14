@@ -775,7 +775,7 @@ public class WorkflowInstanceDao {
           .setModified(toDateTime(rs.getTimestamp("modified"))) //
           .setStarted(toDateTime(rs.getTimestamp("started"))) //
           .setExecutorGroup(rs.getString("executor_group")) //
-          .setSignal(ofNullable(rs.getInt("workflow_signal"))).build();
+          .setSignal(ofNullable(getInt(rs, "workflow_signal"))).build();
     }
   }
 

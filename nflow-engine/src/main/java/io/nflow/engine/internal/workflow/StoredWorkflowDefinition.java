@@ -40,9 +40,15 @@ public class StoredWorkflowDefinition extends ModelObject {
     }
   }
 
-  public static class Signal extends ModelObject {
+  public static class Signal extends ModelObject implements Comparable<Signal> {
     public Integer value;
     public String description;
+
+    @Override
+    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
+    public int compareTo(Signal o) {
+      return value.compareTo(o.value);
+    }
   }
 
 }
