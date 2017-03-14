@@ -16,7 +16,8 @@ create table if not exists nflow_workflow (
   retries int not null default 0,
   created timestamp not null default current_timestamp,
   modified timestamp not null default current_timestamp,
-  executor_group varchar(64) not null
+  executor_group varchar(64) not null,
+  workflow_signal int
 );
 create trigger if not exists nflow_workflow_modified before update on nflow_workflow for each row call "io.nflow.engine.internal.storage.db.H2ModifiedColumnTrigger";
 
@@ -97,7 +98,8 @@ create table if not exists nflow_archive_workflow (
   retries int not null,
   created timestamp not null,
   modified timestamp not null,
-  executor_group varchar(64) not null
+  executor_group varchar(64) not null,
+  workflow_signal int
 );
 
 create unique index if not exists nflow_archive_workflow_uniq on nflow_archive_workflow (type, external_id, executor_group);

@@ -1,6 +1,7 @@
 package io.nflow.engine.workflow.definition;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -259,4 +260,15 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     }
     return nextAction.getNextState() == getErrorState();
   }
+
+  /**
+   * Return signals supported by this workflow. Default implementation returns empty map, override this in your workflow
+   * definition that supports signals.
+   *
+   * @return Signals and their descriptions.
+   */
+  public Map<Integer, String> getSupportedSignals() {
+    return emptyMap();
+  }
+
 }

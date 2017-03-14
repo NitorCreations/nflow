@@ -16,6 +16,7 @@ import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Settings;
+import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Signal;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.TransitionDelays;
 import io.nflow.rest.v1.msg.State;
 
@@ -58,6 +59,13 @@ public class ListWorkflowDefinitionConverter {
     settings.maxRetries = workflowSettings.maxRetries;
     resp.settings = settings;
 
+    resp.supportedSignals = definition.getSupportedSignals().entrySet().stream().map(entry -> {
+      Signal signal = new Signal();
+      signal.value = entry.getKey();
+      signal.description = entry.getValue();
+      return signal;
+    }).toArray(size -> new Signal[size]);
+
     return resp;
   }
 
@@ -74,6 +82,12 @@ public class ListWorkflowDefinitionConverter {
       states.add(tmp);
     }
     resp.states = states.toArray(new State[states.size()]);
+    resp.supportedSignals = storedDefinition.supportedSignals.stream().map(s -> {
+      Signal signal = new Signal();
+      signal.value = s.value;
+      signal.description = s.description;
+      return signal;
+    }).toArray(size -> new Signal[size]);
     return resp;
   }
 }

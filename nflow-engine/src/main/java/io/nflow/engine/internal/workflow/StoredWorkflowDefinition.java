@@ -7,10 +7,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 
 public class StoredWorkflowDefinition extends ModelObject {
+
   public String type;
   public String description;
   public String onError;
   public List<State> states;
+  public List<Signal> supportedSignals = new ArrayList<>();
 
   @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
   public static class State extends ModelObject implements Comparable<State> {
@@ -37,4 +39,10 @@ public class StoredWorkflowDefinition extends ModelObject {
       return type.compareTo(state.type);
     }
   }
+
+  public static class Signal extends ModelObject {
+    public Integer value;
+    public String description;
+  }
+
 }

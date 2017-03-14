@@ -3,8 +3,10 @@ package io.nflow.rest.v1;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.noContent;
+import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -39,12 +41,14 @@ import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.rest.config.NflowCors;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -174,6 +178,16 @@ public class WorkflowInstanceResource {
 
   private List<String> parseIncludes(String include) {
     return asList(trimToEmpty(include).split(","));
+  }
+
+  @PUT
+  @Path("/{id}/signal")
+  @ApiOperation(value = "Set workflow instance signal value", notes = "The service may be used for example to interrupt executing workflow instance.")
+  @ApiResponses({ @ApiResponse(code = 200, message = "When operation was successful") })
+  public Response setSignal(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+      @Valid @ApiParam("New signal value") SetSignalRequest req) {
+    boolean updated = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
+    return (updated ? ok("Signal was set successfully") : ok("Signal was not set")).build();
   }
 
 }

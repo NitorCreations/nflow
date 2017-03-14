@@ -10,6 +10,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.lang.Math.min;
 import static java.util.Collections.sort;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.joda.time.DateTime.now;
@@ -24,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,10 +34,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
@@ -159,7 +163,7 @@ public class WorkflowInstanceDao {
       Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
           instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
           instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
-          toTimestamp(instance.nextActivation) };
+          toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
       Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
       for (Entry<String, String> var : instance.stateVariables.entrySet()) {
@@ -178,8 +182,8 @@ public class WorkflowInstanceDao {
 
   String insertWorkflowInstanceSql() {
     return "insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
-        + "executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?, "
-        + sqlVariants.workflowStatus() + ", ?, ?, ?)";
+        + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, "
+        + sqlVariants.workflowStatus() + ", ?, ?, ?, ?)";
   }
 
   String insertWorkflowInstanceStateSql() {
@@ -211,6 +215,11 @@ public class WorkflowInstanceDao {
               ps.setString(p++, instance.state);
               ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
               ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+              if (instance.signal.isPresent()) {
+                ps.setInt(p++, instance.signal.get());
+              } else {
+                ps.setNull(p++, Types.INTEGER);
+              }
               return ps;
             }
           }, keyHolder);
@@ -765,7 +774,8 @@ public class WorkflowInstanceDao {
           .setCreated(toDateTime(rs.getTimestamp("created"))) //
           .setModified(toDateTime(rs.getTimestamp("modified"))) //
           .setStarted(toDateTime(rs.getTimestamp("started"))) //
-          .setExecutorGroup(rs.getString("executor_group")).build();
+          .setExecutorGroup(rs.getString("executor_group")) //
+          .setSignal(ofNullable(rs.getInt("workflow_signal"))).build();
     }
   }
 
@@ -812,4 +822,28 @@ public class WorkflowInstanceDao {
       return actionStates;
     }
   }
+
+  public Optional<Integer> getSignal(Integer workflowInstanceId) {
+    return ofNullable(
+        jdbc.queryForObject("select workflow_signal from nflow_workflow where id = ?", Integer.class, workflowInstanceId));
+  }
+
+  @Transactional
+  public boolean setSignal(Integer workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
+    boolean updated = jdbc.update("update nflow_workflow set workflow_signal = ? where id = ?", signal.orElse(null),
+        workflowInstanceId) > 0;
+    if (updated) {
+      DateTime now = DateTime.now();
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder() //
+          .setWorkflowInstanceId(workflowInstanceId) //
+          .setExecutionStart(now) //
+          .setExecutionEnd(now) //
+          .setState(getWorkflowInstanceState(workflowInstanceId)) //
+          .setStateText(reason) //
+          .setType(actionType).build();
+      insertWorkflowInstanceAction(action);
+    }
+    return updated;
+  }
+
 }

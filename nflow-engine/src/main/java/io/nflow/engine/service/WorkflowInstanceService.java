@@ -4,6 +4,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -18,6 +19,7 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 /**
  * Service for managing workflow instances.
@@ -119,4 +121,26 @@ public class WorkflowInstanceService {
   public Collection<WorkflowInstance> listWorkflowInstances(QueryWorkflowInstances query) {
     return workflowInstanceDao.queryWorkflowInstances(query);
   }
+
+  /**
+   * Return current signal value for given workflow instance.
+   * @param workflowInstanceId Workflow instance id.
+   * @return Current signal value.
+   */
+  public Optional<Integer> getSignal(Integer workflowInstanceId) {
+    return workflowInstanceDao.getSignal(workflowInstanceId);
+  }
+
+  /**
+   * Set signal value for given workflow instance.
+   * @param workflowInstanceId Workflow instance id.
+   * @param signal New value for the signal.
+   * @param reason The reason for setting the signal.
+   * @param actionType The type of workflow action that is stored to instance actions.
+   * @return True when signal was set, false otherwise.
+   */
+  public boolean setSignal(Integer workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
+    return workflowInstanceDao.setSignal(workflowInstanceId, signal, reason, actionType);
+  }
+
 }
