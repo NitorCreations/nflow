@@ -11,12 +11,12 @@ module.exports = function (spec) {
   spec.hasClasses = function(element, expected) {
     return element.getAttribute('class').then(function (classAttr) {
       var actual = classAttr.split(' ');
-      return _.every(expected, function(cls) { return _.contains(actual, cls); } );
+      return _.every(expected, function(cls) { return _.includes(actual, cls); } );
     });
   };
 
   spec.isDisplayed = function(element) {
-    return element.then(function(e) { return e.isDisplayed(); }, function() { return false; } );
+    return element.isDisplayed();
   };
 
   spec.getValue = function(element) {

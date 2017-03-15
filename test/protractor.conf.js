@@ -1,8 +1,9 @@
 // conf.js
 exports.config = {
   baseUrl: 'http://localhost:9001',
-  directConnect: true,
+  directConnect: false,
   specs: ['it/**/*.spec.js'],
+  seleniumAddress: 'http://localhost:4444/wd/hub',
 
   capabilities: {
     browserName: 'chrome',
