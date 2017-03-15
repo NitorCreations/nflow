@@ -1,5 +1,6 @@
 package io.nflow.engine.service;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
@@ -8,6 +9,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -26,6 +28,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
  */
 @Component
 public class WorkflowInstanceService {
+
+  private static final Logger logger = getLogger(WorkflowInstanceService.class);
 
   @Inject
   private WorkflowDefinitionService workflowDefinitionService;
@@ -140,7 +144,17 @@ public class WorkflowInstanceService {
    * @return True when signal was set, false otherwise.
    */
   public boolean setSignal(Integer workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
+    signal.ifPresent(signalValue -> {
+      AbstractWorkflowDefinition<?> definition = getDefinition(workflowInstanceId);
+      if (!definition.getSupportedSignals().containsKey(signalValue)) {
+        logger.warn("Setting unsupported signal value {} to instance {}.", signalValue, workflowInstanceId);
+      }
+    });
     return workflowInstanceDao.setSignal(workflowInstanceId, signal, reason, actionType);
+  }
+
+  private AbstractWorkflowDefinition<?> getDefinition(Integer workflowInstanceId) {
+    return workflowDefinitionService.getWorkflowDefinition(workflowInstanceDao.getWorkflowInstanceType(workflowInstanceId));
   }
 
 }

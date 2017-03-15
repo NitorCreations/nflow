@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -42,13 +43,16 @@ public class StateExecutionImplTest {
   WorkflowInstanceDao workflowDao;
   @Mock
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  @Mock
+  WorkflowInstanceService workflowInstanceService;
   ArgumentCaptor<QueryWorkflowInstances> queryCaptor = ArgumentCaptor.forClass(QueryWorkflowInstances.class);
 
   @Before
   public void setup() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
             .setBusinessKey("business").build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor);
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+        workflowInstanceService);
     executionInterface = execution;
   }
 
@@ -86,7 +90,8 @@ public class StateExecutionImplTest {
   public void wakeUpParentWorkflowSetsWakeUpStates() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
         .setBusinessKey("business").setParentWorkflowId(123).build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor);
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+        workflowInstanceService);
     assertThat(execution.getWakeUpParentWorkflowStates().isPresent(), is(false));
     execution.wakeUpParentWorkflow();
     assertThat(execution.getWakeUpParentWorkflowStates().get(), is(empty()));
@@ -222,7 +227,7 @@ public class StateExecutionImplTest {
   public void setSignalWorks() {
     execution.setSignal(Optional.of(42), "testing");
 
-    verify(workflowDao).setSignal(instance.id, Optional.of(42), "testing", WorkflowActionType.stateExecution);
+    verify(workflowInstanceService).setSignal(instance.id, Optional.of(42), "testing", WorkflowActionType.stateExecution);
   }
 
   @Test(expected = IllegalArgumentException.class)

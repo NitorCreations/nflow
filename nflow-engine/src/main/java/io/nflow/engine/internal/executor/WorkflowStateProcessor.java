@@ -116,7 +116,7 @@ class WorkflowStateProcessor implements Runnable {
     int subsequentStateExecutions = 0;
     while (instance.status == executing) {
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
-          workflowInstancePreProcessor);
+          workflowInstancePreProcessor, workflowInstances);
       ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       WorkflowState state;

@@ -12,12 +12,14 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +36,7 @@ import org.mockito.Mockito;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -168,9 +171,39 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void setSignalWorks() {
+    when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
+    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
+    when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
+
     service.setSignal(99, Optional.of(42), "testing", WorkflowActionType.stateExecution);
 
     verify(workflowInstanceDao).setSignal(99, Optional.of(42), "testing", WorkflowActionType.stateExecution);
+    verify(workflowInstanceDao).getWorkflowInstanceType(99);
+    verify(workflowDefinitions).getWorkflowDefinition("type");
+  }
+
+  @Test
+  public void setSignalWorksWithUnsupportedSignal() {
+    when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
+    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
+    when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
+
+    service.setSignal(99, Optional.of(1), "testing", WorkflowActionType.stateExecution);
+
+    verify(workflowInstanceDao).setSignal(99, Optional.of(1), "testing", WorkflowActionType.stateExecution);
+    verify(workflowInstanceDao).getWorkflowInstanceType(99);
+    verify(workflowDefinitions).getWorkflowDefinition("type");
+  }
+
+  @Test
+  public void resetSignalDoesNotQueryWorkflowDefinition() {
+    service.setSignal(99, Optional.empty(), "testing", WorkflowActionType.stateExecution);
+
+    verify(workflowInstanceDao).setSignal(99, Optional.empty(), "testing", WorkflowActionType.stateExecution);
+    verify(workflowInstanceDao, never()).getWorkflowInstanceType(99);
+    verify(workflowDefinitions, never()).getWorkflowDefinition(anyString());
   }
 
 }

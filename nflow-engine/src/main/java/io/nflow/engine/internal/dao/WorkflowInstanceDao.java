@@ -846,4 +846,8 @@ public class WorkflowInstanceDao {
     return updated;
   }
 
+  public String getWorkflowInstanceType(Integer workflowInstanceId) {
+    return jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, workflowInstanceId);
+  }
+
 }
