@@ -3,6 +3,7 @@ package io.nflow.engine.internal.dao;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.sort;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -35,6 +36,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinition.Signal;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
@@ -140,6 +142,12 @@ public class WorkflowDefinitionDao {
     }
     resp.states = new ArrayList<>(states.values());
     sort(resp.states);
+    resp.supportedSignals = definition.getSupportedSignals().entrySet().stream().map(entry -> {
+      Signal signal = new Signal();
+      signal.value = entry.getKey();
+      signal.description = entry.getValue();
+      return signal;
+    }).sorted().collect(toList());
     return resp;
   }
 

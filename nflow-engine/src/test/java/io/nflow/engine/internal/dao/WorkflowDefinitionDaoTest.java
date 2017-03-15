@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
@@ -54,6 +55,10 @@ public class WorkflowDefinitionDaoTest extends BaseDaoTest {
     for (int i = 0; i < convertedOriginal.states.size(); i++) {
       assertThat(stored.states.get(i), reflectEquals(convertedOriginal.states.get(i)));
     }
+    assertThat(stored.supportedSignals.size(), is(convertedOriginal.supportedSignals.size()));
+    for (int i = 0; i < convertedOriginal.supportedSignals.size(); i++) {
+      assertThat(stored.supportedSignals.get(i), reflectEquals(convertedOriginal.supportedSignals.get(i)));
+    }
   }
 
   @Test
@@ -81,6 +86,18 @@ public class WorkflowDefinitionDaoTest extends BaseDaoTest {
         }
       }
       assertThat("Not found match for state " + convertedState.id, foundMatchingState, is(true));
+    }
+    assertThat(convertedOriginal.supportedSignals.size(), is(original.getSupportedSignals().size()));
+    for (StoredWorkflowDefinition.Signal convertedSignal : convertedOriginal.supportedSignals) {
+      boolean foundMatchingSignal = false;
+      for (Entry<Integer, String> originalSignal : original.getSupportedSignals().entrySet()) {
+        if (originalSignal.getKey().equals(convertedSignal.value)) {
+          assertThat(convertedSignal.description, is(originalSignal.getValue()));
+          foundMatchingSignal = true;
+          break;
+        }
+      }
+      assertThat("Not found match for signal " + convertedSignal.value, foundMatchingSignal, is(true));
     }
   }
 }

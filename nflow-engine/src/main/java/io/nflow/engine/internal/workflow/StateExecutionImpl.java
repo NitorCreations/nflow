@@ -16,10 +16,12 @@ import org.springframework.util.Assert;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.model.ModelObject;
+import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class StateExecutionImpl extends ModelObject implements StateExecution {
 
@@ -28,6 +30,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowDao;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  private final WorkflowInstanceService workflowInstanceService;
   private DateTime nextActivation;
   private String nextState;
   private String nextStateReason;
@@ -42,11 +45,12 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private String[] wakeUpParentStates;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
-      WorkflowInstancePreProcessor workflowInstancePreProcessor) {
+      WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
     this.instance = instance;
     this.objectMapper = objectMapper;
     this.workflowDao = workflowDao;
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
+    this.workflowInstanceService = workflowInstanceService;
   }
 
   public DateTime getNextActivation() {
@@ -241,4 +245,16 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   public boolean createAction() {
     return createAction;
   }
+
+  @Override
+  public Optional<Integer> getSignal() {
+    return workflowDao.getSignal(instance.id);
+  }
+
+  @Override
+  public void setSignal(Optional<Integer> signal, String reason) {
+    Assert.notNull(signal, "signal can not be null, use Optional.empty() to clear the signal value");
+    workflowInstanceService.setSignal(instance.id, signal, reason, WorkflowActionType.stateExecution);
+  }
+
 }

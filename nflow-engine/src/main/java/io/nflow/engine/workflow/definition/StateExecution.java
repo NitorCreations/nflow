@@ -1,6 +1,7 @@
 package io.nflow.engine.workflow.definition;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -145,5 +146,20 @@ public interface StateExecution {
    * @param createAction Whether action should be created or not.
    */
   void setCreateAction(boolean createAction);
+
+  /**
+   * Return the signal value from database if it has been set, otherwise return empty.
+   *
+   * @return The signal value.
+   */
+  Optional<Integer> getSignal();
+
+  /**
+   * Set the signal value to the database. Use Optional.empty() to clear the signal value.
+   *
+   * @param signal Signal value to be set.
+   * @param reason The reason for setting the signal.
+   */
+  void setSignal(Optional<Integer> signal, String reason);
 
 }

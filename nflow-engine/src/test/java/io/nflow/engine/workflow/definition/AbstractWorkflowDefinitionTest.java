@@ -5,6 +5,7 @@ import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
@@ -159,4 +160,11 @@ public class AbstractWorkflowDefinitionTest {
     assertThat(wf.getDescription(), is("description"));
     assertThat(wf.getInitialState(), is(TestWorkflow.State.begin));
   }
+
+  @Test
+  public void getSupportedSignalsReturnsEmptyMap() {
+    TestWorkflow wf = new TestWorkflow();
+    assertThat(wf.getSupportedSignals(), is(emptyMap()));
+  }
+
 }

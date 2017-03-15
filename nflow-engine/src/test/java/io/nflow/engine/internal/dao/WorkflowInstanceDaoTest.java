@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -61,6 +62,7 @@ import io.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVar
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
@@ -539,11 +541,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState")
         .setStateText("update text").setRootWorkflowId(9283).setParentWorkflowId(110).setParentActionId(421)
         .setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43).putStateVariable("A", "B")
-        .putStateVariable("C", "D").build();
+        .putStateVariable("C", "D").setSignal(Optional.of(1)).build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(
-            "with wf as (insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, executor_group, status, state, state_text, next_activation) values (?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?) returning id), ins11 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), ins13 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf) select wf.id from wf",
+        "with wf as (insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf) select wf.id from wf",
             sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
@@ -559,6 +561,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) wf.state));
     assertThat(args.getAllValues().get(i++), is((Object) wf.stateText));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(wf.nextActivation.getMillis())));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.signal.get()));
     assertThat(args.getAllValues().get(i++), is((Object) "A"));
     assertThat(args.getAllValues().get(i++), is((Object) "B"));
     assertThat(args.getAllValues().get(i++), is((Object) "C"));
@@ -821,6 +824,50 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
   }
 
+  @Test
+  public void settingSignalInsertsAction() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setBusinessKey("setSignalTest").build();
+    int instanceId = dao.insertWorkflowInstance(i);
+
+    dao.setSignal(instanceId, Optional.of(42), "testing", WorkflowActionType.externalChange);
+
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().setBusinessKey("setSignalTest").setIncludeActions(true)
+        .build();
+    i = dao.queryWorkflowInstances(q).get(0);
+    assertThat(i.signal, is(Optional.of(42)));
+    assertThat(i.actions.size(), is(1));
+    WorkflowInstanceAction action = i.actions.get(0);
+    assertThat(action.stateText, is("testing"));
+    assertThat(action.type, is(WorkflowActionType.externalChange));
+    assertThat(dao.getSignal(instanceId), is(Optional.of(42)));
+  }
+
+  @Test
+  public void clearingSignalInsertsAction() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setBusinessKey("clearSignalTest").build();
+    int instanceId = dao.insertWorkflowInstance(i);
+
+    dao.setSignal(instanceId, Optional.of(42), "testing", WorkflowActionType.externalChange);
+
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().setBusinessKey("clearSignalTest").setIncludeActions(true)
+        .build();
+    i = dao.queryWorkflowInstances(q).get(0);
+    assertThat(i.signal, is(Optional.of(42)));
+    assertThat(i.actions.size(), is(1));
+    assertThat(dao.getSignal(instanceId), is(Optional.of(42)));
+
+    dao.setSignal(instanceId, Optional.empty(), "cleared", WorkflowActionType.externalChange);
+
+    q = new QueryWorkflowInstances.Builder().setBusinessKey("clearSignalTest").setIncludeActions(true).build();
+    i = dao.queryWorkflowInstances(q).get(0);
+    assertThat(i.signal, is(Optional.empty()));
+    assertThat(i.actions.size(), is(2));
+    WorkflowInstanceAction action = i.actions.get(0);
+    assertThat(action.stateText, is("cleared"));
+    assertThat(action.type, is(WorkflowActionType.externalChange));
+    assertThat(dao.getSignal(instanceId), is(Optional.empty()));
+  }
+
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
     assertThat(i1.type, equalTo(i2.type));
     assertThat(i1.executorId, equalTo(i2.executorId));
@@ -838,6 +885,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       assertTrue(i2.childWorkflows.containsKey(key));
       assertThat(i2.childWorkflows.get(key), is(entry.getValue()));
     }
+    assertThat(i1.signal, equalTo(i2.signal));
   }
 
   private int addWorkflowAction(int workflowId, final WorkflowInstance instance) {

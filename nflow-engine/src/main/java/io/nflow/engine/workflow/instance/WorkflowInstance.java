@@ -142,6 +142,11 @@ public class WorkflowInstance extends ModelObject {
   public final String executorGroup;
 
   /**
+   * The signal raised for this workflow instance.
+   */
+  public final Optional<Integer> signal;
+
+  /**
    * Child workflow instance IDs created by this workflow instance, grouped by instance action ID.
    */
   public Map<Integer, List<Integer>> childWorkflows;
@@ -168,6 +173,7 @@ public class WorkflowInstance extends ModelObject {
     this.modified = builder.modified;
     this.started = builder.started;
     this.executorGroup = builder.executorGroup;
+    this.signal = builder.signal;
   }
 
   /**
@@ -214,6 +220,7 @@ public class WorkflowInstance extends ModelObject {
     DateTime started;
     DateTime modified;
     String executorGroup;
+    Optional<Integer> signal = Optional.empty();
 
     private ObjectStringMapper mapper;
 
@@ -256,6 +263,7 @@ public class WorkflowInstance extends ModelObject {
       this.created = copy.created;
       this.modified = copy.modified;
       this.executorGroup = copy.executorGroup;
+      this.signal = copy.signal;
     }
 
     /**
@@ -503,6 +511,16 @@ public class WorkflowInstance extends ModelObject {
      */
     public Builder setExecutorGroup(String executorGroup) {
       this.executorGroup = executorGroup;
+      return this;
+    }
+
+    /**
+     * Set the signal value.
+     * @param signal The signal value.
+     * @return this.
+     */
+    public Builder setSignal(Optional<Integer> signal) {
+      this.signal = signal;
       return this;
     }
 

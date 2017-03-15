@@ -24,9 +24,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StateExecutionImplTest {
@@ -41,13 +43,16 @@ public class StateExecutionImplTest {
   WorkflowInstanceDao workflowDao;
   @Mock
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  @Mock
+  WorkflowInstanceService workflowInstanceService;
   ArgumentCaptor<QueryWorkflowInstances> queryCaptor = ArgumentCaptor.forClass(QueryWorkflowInstances.class);
 
   @Before
   public void setup() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
             .setBusinessKey("business").build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor);
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+        workflowInstanceService);
     executionInterface = execution;
   }
 
@@ -85,7 +90,8 @@ public class StateExecutionImplTest {
   public void wakeUpParentWorkflowSetsWakeUpStates() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
         .setBusinessKey("business").setParentWorkflowId(123).build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor);
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+        workflowInstanceService);
     assertThat(execution.getWakeUpParentWorkflowStates().isPresent(), is(false));
     execution.wakeUpParentWorkflow();
     assertThat(execution.getWakeUpParentWorkflowStates().get(), is(empty()));
@@ -208,6 +214,25 @@ public class StateExecutionImplTest {
     Data defaultData = new Data(42, "foobar");
 
     assertThat(execution.getVariable("foo", Data.class, defaultData), is(defaultData));
+  }
+
+  @Test
+  public void getSignalWorks() {
+    when(workflowDao.getSignal(instance.id)).thenReturn(Optional.of(42));
+
+    assertThat(execution.getSignal(), is(Optional.of(42)));
+  }
+
+  @Test
+  public void setSignalWorks() {
+    execution.setSignal(Optional.of(42), "testing");
+
+    verify(workflowInstanceService).setSignal(instance.id, Optional.of(42), "testing", WorkflowActionType.stateExecution);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void setSignalRejectsNull() {
+    execution.setSignal(null, "testing");
   }
 
   static class Data {

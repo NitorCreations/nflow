@@ -47,6 +47,7 @@ public class ListWorkflowInstanceConverter {
     resp.modified = instance.modified;
     resp.started = instance.started;
     resp.retries = instance.retries;
+    resp.signal = instance.signal.orElse(null);
     if (query.includeActions) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
