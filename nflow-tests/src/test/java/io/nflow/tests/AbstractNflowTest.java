@@ -26,6 +26,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
@@ -72,6 +73,13 @@ public abstract class AbstractNflowTest {
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
     return getInstanceResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables").get(
         ListWorkflowInstanceResponse.class);
+  }
+
+  protected String setSignal(int instanceId, int signal, String reason) {
+    SetSignalRequest request = new SetSignalRequest();
+    request.signal = signal;
+    request.reason = reason;
+    return getInstanceResource(instanceId).path("signal").put(request, String.class);
   }
 
   private WebClient getInstanceResource(int instanceId) {
