@@ -235,6 +235,20 @@ public class StateExecutionImplTest {
     execution.setSignal(null, "testing");
   }
 
+  @Test
+  public void getParentIdReturnsEmptyWhenParentWorkflowIdIsNull() {
+    assertThat(execution.getParentId(), is(Optional.empty()));
+  }
+
+  @Test
+  public void getParentIdReturnsParentWorkflowId() {
+    instance = new WorkflowInstance.Builder().setParentWorkflowId(42).build();
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+        workflowInstanceService);
+
+    assertThat(execution.getParentId(), is(Optional.of(42)));
+  }
+
   static class Data {
     public final int number;
     public final String text;
