@@ -39,7 +39,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -59,9 +58,6 @@ public class WorkflowInstanceResourceTest {
   @Mock
   private ListWorkflowInstanceConverter listWorkflowConverter;
 
-  @Mock
-  private WorkflowInstanceFactory workflowInstanceFactory;
-
   private WorkflowInstanceResource resource;
 
   @Rule
@@ -69,9 +65,7 @@ public class WorkflowInstanceResourceTest {
 
   @Before
   public void setup() {
-    resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
-        workflowInstanceFactory);
-    when(workflowInstanceFactory.newWorkflowInstanceBuilder()).thenReturn(new WorkflowInstance.Builder());
+    resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter);
   }
 
   @Test

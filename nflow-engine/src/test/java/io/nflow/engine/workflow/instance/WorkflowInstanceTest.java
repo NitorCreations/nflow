@@ -47,41 +47,4 @@ public class WorkflowInstanceTest {
 
     assertThat(instance.stateVariables.get("key"), is(equalTo("value")));
   }
-
-  @Test(expected = IllegalStateException.class)
-  public void getTypedStateVariableFailsWithoutObjectMapper() {
-    WorkflowInstance instance = new WorkflowInstance.Builder().build();
-
-    instance.getStateVariable("key", Long.class);
-  }
-
-  @Test
-  public void getStateVariableWorks() {
-    WorkflowInstance instance = new WorkflowInstance.Builder().putStateVariable("key", "value").build();
-
-    assertThat(instance.getStateVariable("key"), is("value"));
-  }
-
-  @Test
-  public void getStateVariableWithDefaultValueWorks() {
-    WorkflowInstance instance = new WorkflowInstance.Builder().build();
-
-    assertThat(instance.getStateVariable("key", "defaultValue"), is("defaultValue"));
-  }
-
-  @Test
-  public void getTypedStateVariableWorks() {
-    WorkflowInstance instance = new WorkflowInstance.Builder(mapper).putStateVariable("key", 42L).build();
-    when(mapper.convertToObject(Long.class, "key", null)).thenReturn(42L);
-
-    assertThat(instance.getStateVariable("key", Long.class), is(42L));
-  }
-
-  @Test
-  public void getTypedStateVariableWithDefaultValueWorks() {
-    WorkflowInstance instance = new WorkflowInstance.Builder(mapper).build();
-
-    assertThat(instance.getStateVariable("key", Long.class, 99L), is(99L));
-  }
-
 }

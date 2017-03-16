@@ -42,7 +42,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.config.NflowCors;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
@@ -67,7 +66,6 @@ public class WorkflowInstanceResource {
   private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
-  private final WorkflowInstanceFactory workflowInstanceFactory;
   public static final String currentStateVariables = "currentStateVariables";
   public static final String actions = "actions";
   public static final String actionStateVariables = "actionStateVariables";
@@ -80,11 +78,10 @@ public class WorkflowInstanceResource {
 
   @Inject
   public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
-      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory) {
+      ListWorkflowInstanceConverter listWorkflowConverter) {
     this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
-    this.workflowInstanceFactory = workflowInstanceFactory;
   }
 
   @PUT
@@ -106,8 +103,7 @@ public class WorkflowInstanceResource {
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
-        .setNextActivation(req.nextActivationTime);
+    WorkflowInstance.Builder builder = new WorkflowInstance.Builder().setId(id).setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
     if (!isEmpty(req.state)) {
       builder.setState(req.state);

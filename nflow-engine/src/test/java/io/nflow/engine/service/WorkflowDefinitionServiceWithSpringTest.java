@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.dao.ArchiveDao;
 import io.nflow.engine.internal.dao.ExecutorDao;
@@ -42,7 +41,6 @@ import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles("nflow-engine-test")
@@ -139,12 +137,6 @@ public class WorkflowDefinitionServiceWithSpringTest {
     public WorkflowInstanceExecutor workflowInstanceExecutor() {
       return mock(WorkflowInstanceExecutor.class);
     }
-
-    @Bean
-    public WorkflowInstanceFactory workflowInstanceFactory() {
-      return mock(WorkflowInstanceFactory.class);
-    }
-
   }
 
   @Autowired

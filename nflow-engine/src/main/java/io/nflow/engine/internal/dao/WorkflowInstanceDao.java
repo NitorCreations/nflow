@@ -72,7 +72,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
@@ -91,7 +90,6 @@ public class WorkflowInstanceDao {
   ExecutorDao executorInfo;
   SQLVariants sqlVariants;
   private WorkflowInstanceExecutor workflowInstanceExecutor;
-  WorkflowInstanceFactory workflowInstanceFactory;
   private long workflowInstanceQueryMaxResults;
   private long workflowInstanceQueryMaxResultsDefault;
   private long workflowInstanceQueryMaxActions;
@@ -137,11 +135,6 @@ public class WorkflowInstanceDao {
   @Inject
   public void setWorkflowInstanceExecutor(WorkflowInstanceExecutor workflowInstanceExecutor) {
     this.workflowInstanceExecutor = workflowInstanceExecutor;
-  }
-
-  @Inject
-  public void setWorkflowInstanceFactory(WorkflowInstanceFactory workflowInstanceFactory) {
-    this.workflowInstanceFactory = workflowInstanceFactory;
   }
 
   @PostConstruct
@@ -760,10 +753,10 @@ public class WorkflowInstanceDao {
     return jdbc.queryForObject("select state from nflow_workflow where id = ?", String.class, workflowInstanceId);
   }
 
-  class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
+  static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
     @Override
     public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return workflowInstanceFactory.newWorkflowInstanceBuilder() //
+      return new WorkflowInstance.Builder() //
           .setId(rs.getInt("id")) //
           .setExecutorId(getInt(rs, "executor_id")) //
           .setRootWorkflowId(getInt(rs, "root_workflow_id")) //
