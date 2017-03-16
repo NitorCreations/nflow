@@ -141,7 +141,7 @@
           var errorStateId = definition.onError;
           _.forEach(definition.states, function(state) {
             if (state.id !== errorStateId && !state.onFailure && state.type !== 'end' &&
-              !_.contains(state.transitions, errorStateId)) {
+              !_.includes(state.transitions, errorStateId)) {
               g.addEdge(null, state.id, errorStateId, createEdgeStyle(workflow, state, errorStateId, true));
             }
           });

@@ -13,7 +13,7 @@ describe('front page', function() {
   beforeEach(function() { frontPage.get(); });
 
   it('has list of workflow definitions', function() {
-    expect(frontPage.getDefinitions()).toEqual(_.pluck(fixture.wfs, 'name'));
+    expect(frontPage.getDefinitions()).toEqual(_.map(fixture.wfs, 'name'));
   });
 
   it('provides navigation to workflow definitions', function() {

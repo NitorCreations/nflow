@@ -15,6 +15,8 @@ module.exports = function (grunt) {
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
+  var serveStatic = require('serve-static');
+
   // Configurable paths for the application
   var appConfig = {
     src: 'src',
@@ -76,12 +78,12 @@ module.exports = function (grunt) {
           open: true,
           middleware: function (connect) {
             return [
-              connect.static('.tmp'),
+              serveStatic('.tmp'),
               connect().use(
                 '/bower_components',
-                connect.static('./bower_components')
+                serveStatic('./bower_components')
               ),
-              connect.static(appConfig.src)
+              serveStatic(appConfig.src)
             ];
           }
         }
@@ -91,13 +93,13 @@ module.exports = function (grunt) {
           port: 9001,
           middleware: function (connect) {
             return [
-              connect.static('.tmp'),
-              connect.static('test'),
+              serveStatic('.tmp'),
+              serveStatic('test'),
               connect().use(
                 '/bower_components',
-                connect.static('./bower_components')
+                serveStatic('./bower_components')
               ),
-              connect.static(appConfig.src)
+              serveStatic(appConfig.src)
             ];
           }
         }
@@ -124,7 +126,8 @@ module.exports = function (grunt) {
       },
       all: {
         src: [
-          'Gruntfile.js',
+          // jshint doesn't allow selenium_standalone task name
+          // 'Gruntfile.js',
           '<%= yeoman.src %>/app/**/*.js'
         ]
       },
@@ -379,6 +382,24 @@ module.exports = function (grunt) {
         'svgmin'
       ]
     },
+
+    selenium_standalone: {
+      options: {
+        stopOnExit: true
+      },
+      seleniumTask: {
+        seleniumVersion: '2.53.0',
+        seleniumDownloadURL: 'http://selenium-release.storage.googleapis.com',
+        drivers: {
+          chrome: {
+            version: '2.24',
+            arch: process.arch,
+            baseURL: 'http://chromedriver.storage.googleapis.com'
+          }
+        }
+      }
+    },
+
     protractor: {
       options: {
         configFile: 'test/protractor.conf.js', // Default config file
@@ -441,6 +462,8 @@ module.exports = function (grunt) {
       'concurrent:test',
       'autoprefixer',
       'connect:test',
+      'selenium_standalone:seleniumTask:install',
+      'selenium_standalone:seleniumTask:start',
       'protractor'
     ]);
   });
