@@ -20,8 +20,10 @@ import io.nflow.engine.internal.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
 import io.nflow.engine.internal.storage.db.H2DatabaseConfiguration.H2SQLVariants;
+import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
-@PropertySource({"classpath:junit.properties"})
+@PropertySource({ "classpath:junit.properties" })
 @EnableTransactionManagement
 @Import(H2DatabaseConfiguration.class)
 public class DaoTestConfiguration {
@@ -83,5 +85,9 @@ public class DaoTestConfiguration {
     return new WorkflowInstanceExecutor(10, 1, 5, 10, 10, new CustomizableThreadFactory("junit-"));
   }
 
-}
+  @Bean
+  public WorkflowInstanceFactory workflowInstanceFactory() {
+    return new WorkflowInstanceFactory(new ObjectStringMapper(objectMapper()));
+  }
 
+}

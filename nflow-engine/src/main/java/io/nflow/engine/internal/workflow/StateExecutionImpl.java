@@ -103,7 +103,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   @SuppressWarnings("unchecked")
   public <T> T getVariable(String name, Class<T> type, T defaultValue) {
     if (instance.stateVariables.containsKey(name)) {
-      return (T) objectMapper.convertToObject(type, name, getVariable(name));
+      return (T) objectMapper.convertToObject(type, name, instance.stateVariables.get(name));
     }
     return defaultValue;
   }

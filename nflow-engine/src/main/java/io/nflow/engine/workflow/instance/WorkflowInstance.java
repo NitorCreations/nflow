@@ -151,6 +151,8 @@ public class WorkflowInstance extends ModelObject {
    */
   public Map<Integer, List<Integer>> childWorkflows;
 
+  ObjectStringMapper mapper;
+
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.executorId = builder.executorId;
@@ -174,6 +176,7 @@ public class WorkflowInstance extends ModelObject {
     this.started = builder.started;
     this.executorGroup = builder.executorGroup;
     this.signal = builder.signal;
+    this.mapper = builder.mapper;
   }
 
   /**
@@ -192,6 +195,33 @@ public class WorkflowInstance extends ModelObject {
       }
     }
     return changedVariables;
+  }
+
+  public String getStateVariable(String name) {
+    return getStateVariable(name, (String) null);
+  }
+
+  public <T> T getStateVariable(String name, Class<T> valueType) {
+    return getStateVariable(name, valueType, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T getStateVariable(String name, Class<T> valueType, T defaultValue) {
+    if (mapper == null) {
+      throw new IllegalStateException(
+          "WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
+    }
+    if (stateVariables.containsKey(name)) {
+      return (T) mapper.convertToObject(valueType, name, stateVariables.get(name));
+    }
+    return defaultValue;
+  }
+
+  public String getStateVariable(String name, String defaultValue) {
+    if (stateVariables.containsKey(name)) {
+      return stateVariables.get(name);
+    }
+    return defaultValue;
   }
 
   /**
@@ -221,8 +251,7 @@ public class WorkflowInstance extends ModelObject {
     DateTime modified;
     String executorGroup;
     Optional<Integer> signal = Optional.empty();
-
-    private ObjectStringMapper mapper;
+    ObjectStringMapper mapper;
 
     /**
      * Create a workflow instance builder.
@@ -264,6 +293,7 @@ public class WorkflowInstance extends ModelObject {
       this.modified = copy.modified;
       this.executorGroup = copy.executorGroup;
       this.signal = copy.signal;
+      this.mapper = copy.mapper;
     }
 
     /**
