@@ -162,4 +162,11 @@ public interface StateExecution {
    */
   void setSignal(Optional<Integer> signal, String reason);
 
+  /**
+   * Return the parent workflow instance id if this is a child workflow, otherwise return empty.
+   *
+   * @return The parent workflow instance id or empty.
+   */
+  Optional<Integer> getParentId();
+
 }

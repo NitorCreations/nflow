@@ -257,4 +257,9 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     workflowInstanceService.setSignal(instance.id, signal, reason, WorkflowActionType.stateExecution);
   }
 
+  @Override
+  public Optional<Integer> getParentId() {
+    return Optional.ofNullable(instance.parentWorkflowId);
+  }
+
 }
