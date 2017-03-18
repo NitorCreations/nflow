@@ -1,8 +1,8 @@
 <section>
-  <div class="alert alert-info" role="alert" ng-hide="ctrl.workflow.stateVariables.length">
+  <div class="alert alert-info test-state-variables-no-variables" role="alert" ng-hide="ctrl.workflow.stateVariables">
     No state variables
   </div>
-  <table ng-show="ctrl.workflow.stateVariables.length" class="table table-striped table-hover">
+  <table ng-show="ctrl.workflow.stateVariables" class="table table-striped table-hover test-state-variables-has-variables">
     <thead>
     <tr><th>Variable</th><th>Value</th></tr>
     </thead>
