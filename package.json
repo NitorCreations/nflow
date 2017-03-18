@@ -45,6 +45,7 @@
     "karma-ng-html2js-preprocessor": "1.0.0",
     "karma-phantomjs-launcher": "1.0.1",
     "karma-sinon": "1.0.5",
+    "karma-spec-reporter": "0.0.30",
     "load-grunt-tasks": "^3.4.0",
     "moment": "2.13.0",
     "phantomjs-prebuilt": "2.1.7",
