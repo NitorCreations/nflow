@@ -11,6 +11,7 @@
     api.get = get;
     api.update = update;
     api.query = query;
+    api.signal = signal;
 
     function get(workflowId) {
       return $http({
@@ -23,6 +24,16 @@
     function update(workflowId, data) {
       return $http({
         url: config.nflowUrl + '/v1/workflow-instance/' + workflowId,
+        method: 'PUT',
+        data: data,
+      }).then(function(response) {
+        return response.data;
+      });
+    }
+
+    function signal(workflowId, data) {
+      return $http({
+        url: config.nflowUrl + '/v1/workflow-instance/' + workflowId + '/signal',
         method: 'PUT',
         data: data,
       }).then(function(response) {

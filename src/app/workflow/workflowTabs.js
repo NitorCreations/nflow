@@ -4,7 +4,8 @@
   var m = angular.module('nflowExplorer.workflow.tabs', [
    'nflowExplorer.workflow.tabs.actionHistory',
    'nflowExplorer.workflow.tabs.stateVariables',
-   'nflowExplorer.workflow.tabs.manage'
+   'nflowExplorer.workflow.tabs.manageState',
+   'nflowExplorer.workflow.tabs.manageSignal'
   ]);
 
   m.directive('workflowTabs', function() {
