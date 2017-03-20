@@ -5,6 +5,7 @@
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nflowExplorer.workflowDefinition.tabs.workflowStatisticsTable',
+    'nflowExplorer.workflowDefinition.tabs.workflowSignalsTable',
     'nvd3',
   ]);
 
