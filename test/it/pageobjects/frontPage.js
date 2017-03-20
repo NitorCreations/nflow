@@ -4,7 +4,7 @@ module.exports = function (spec) {
   var that = require('./base')(spec);
 
   spec.view = $('section.wd-front-page');
-  spec.definitionTypes = $$('dt a');
+  spec.definitionTypes = $$('tr > td:first-child');
 
   that.get = function () {
     browser.get('/');

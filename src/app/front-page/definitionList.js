@@ -16,6 +16,10 @@
     };
   });
 
-  m.controller('DefinitionListCtrl', function() {});
+  m.controller('DefinitionListCtrl', function($scope, $location) {
+    $scope.showDefinition = function(type) {
+      $location.path('workflow-definition/' + type);
+    };
+  });
 
 })();
