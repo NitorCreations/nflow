@@ -2,7 +2,6 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.workflowDefinition', [
-    'nflowExplorer.workflowDefinition.graph',
     'nflowExplorer.workflowDefinition.tabs'
   ]);
 
