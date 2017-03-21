@@ -26,7 +26,8 @@ public class DemoServer {
 
   private static void insertDemoWorkflows() {
     WorkflowInstanceService workflowInstanceService = applicationContext.getBean(WorkflowInstanceService.class);
-    WorkflowInstance instance = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).setState("begin").build();
+    WorkflowInstance instance = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE)
+        .setState(DemoWorkflow.State.begin.name()).build();
     int id = workflowInstanceService.insertWorkflowInstance(instance);
     instance = workflowInstanceService.getWorkflowInstance(id);
     WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance).setType(externalChange).setExecutionEnd(now())
@@ -35,11 +36,11 @@ public class DemoServer {
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addIds(id).setIncludeActions(true).build();
     instance = workflowInstanceService.listWorkflowInstances(query).iterator().next();
     int actionId = instance.actions.get(0).id;
-    WorkflowInstance child = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).setState("begin")
+    WorkflowInstance child = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).setState(DemoWorkflow.State.begin.name())
         .setParentActionId(actionId).setParentWorkflowId(id).build();
     workflowInstanceService.insertWorkflowInstance(child);
-    instance = new WorkflowInstance.Builder().setType(SLOW_WORKFLOW_TYPE).setState("begin").setSignal(Optional.of(1))
-        .setNextActivation(null).build();
+    instance = new WorkflowInstance.Builder().setType(SLOW_WORKFLOW_TYPE).setSignal(Optional.of(1)).setNextActivation(null)
+        .build();
     workflowInstanceService.insertWorkflowInstance(instance);
   }
 }

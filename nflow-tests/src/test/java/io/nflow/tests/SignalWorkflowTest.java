@@ -62,7 +62,8 @@ public class SignalWorkflowTest extends AbstractNflowTest {
 
   @Test
   public void t03_interruptWorkflowWithSignal() {
-    assertThat(setSignal(resp.id, 42, "Setting signal 42 via REST API"), is("Signal was set successfully"));
+    assertThat(setSignal(resp.id, SlowWorkflow.SIGNAL_INTERRUPT, "Setting signal via REST API"),
+        is("Signal was set successfully"));
   }
 
   @Test
@@ -82,7 +83,7 @@ public class SignalWorkflowTest extends AbstractNflowTest {
     ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
     assertThat(wf.actions.size(), is(4));
     Action action = wf.actions.get(0);
-    assertThat(action.stateText, is("Interrupted with signal 42, moving to interrupted state"));
+    assertThat(action.stateText, is("Interrupted with signal 1, moving to interrupted state"));
     assertThat(action.state, is(SlowWorkflow.State.process.name()));
     assertThat(action.type, is(WorkflowActionType.stateExecution.name()));
     action = wf.actions.get(1);
@@ -90,7 +91,7 @@ public class SignalWorkflowTest extends AbstractNflowTest {
     assertThat(action.state, is(SlowWorkflow.State.process.name()));
     assertThat(action.type, is(WorkflowActionType.stateExecution.name()));
     action = wf.actions.get(2);
-    assertThat(action.stateText, is("Setting signal 42 via REST API"));
+    assertThat(action.stateText, is("Setting signal via REST API"));
     assertThat(action.state, is(SlowWorkflow.State.process.name()));
     assertThat(action.type, is(WorkflowActionType.externalChange.name()));
   }
