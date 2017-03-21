@@ -4,6 +4,7 @@ import static com.nitorcreations.Matchers.reflectEquals;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -202,6 +203,27 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.stateText, is(i.stateText));
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.actions, nullValue());
+  }
+
+  @Test
+  public void convertWithEmptyActionsWorks() {
+    WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
+        .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
+        .setNextActivation(now()).build();
+
+    ListWorkflowInstanceResponse resp = converter.convert(i,
+        new QueryWorkflowInstances.Builder().setIncludeActions(true).build());
+
+    assertThat(resp.id, is(i.id));
+    assertThat(resp.status, is(i.status.name()));
+    assertThat(resp.stateVariables, is((Map<String, Object>) null));
+    assertThat(resp.type, is(i.type));
+    assertThat(resp.businessKey, is(i.businessKey));
+    assertThat(resp.externalId, is(i.externalId));
+    assertThat(resp.state, is(i.state));
+    assertThat(resp.stateText, is(i.stateText));
+    assertThat(resp.nextActivation, is(i.nextActivation));
+    assertThat(resp.actions, is(emptyList()));
   }
 
   @Test

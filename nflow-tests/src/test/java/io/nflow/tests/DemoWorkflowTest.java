@@ -2,9 +2,11 @@ package io.nflow.tests;
 
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
@@ -68,4 +70,25 @@ public class DemoWorkflowTest extends AbstractNflowTest {
         .query("status", "finished").query("status", "manual").get(ListWorkflowInstanceResponse[].class);
     assertThat(instances.length, greaterThanOrEqualTo(1));
   }
+
+  @Test
+  public void t04_queryWorkflowWithActionsReturnsEmptyActions() {
+    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
+    req.type = "demo";
+    req.businessKey = "2";
+    resp = createWorkflowInstance(req);
+
+    ListWorkflowInstanceResponse instance = getWorkflowInstance(resp.id);
+
+    assertThat(instance.actions, is(empty()));
+  }
+
+  @Test
+  public void t05_queryWorkflowWithoutActionsReturnsNullActions() {
+    ListWorkflowInstanceResponse instance = fromClient(workflowInstanceResource, true).path(Integer.toString(resp.id))
+        .get(ListWorkflowInstanceResponse.class);
+
+    assertThat(instance.actions, is(nullValue()));
+  }
+
 }
