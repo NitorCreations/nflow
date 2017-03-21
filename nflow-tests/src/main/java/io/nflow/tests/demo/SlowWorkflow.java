@@ -6,6 +6,8 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +19,7 @@ import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
 
-  public static final String WORKFLOW_TYPE = "slowWorkflow";
+  public static final String SLOW_WORKFLOW_TYPE = "slowWorkflow";
 
   public static enum State implements WorkflowState {
     begin(start), process(normal), interrupted(end), done(end), error(manual);
@@ -40,7 +42,7 @@ public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
   }
 
   public SlowWorkflow() {
-    super(WORKFLOW_TYPE, State.begin, State.error);
+    super(SLOW_WORKFLOW_TYPE, State.begin, State.error);
     permit(State.begin, State.process);
     permit(State.process, State.done);
   }
@@ -60,4 +62,10 @@ public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
     }
     return moveToState(State.done, "Go to done state");
   }
+
+  @Override
+  public Map<Integer, String> getSupportedSignals() {
+    return Collections.singletonMap(1, "Interrupted");
+  }
+
 }

@@ -1,6 +1,6 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.demo.SlowWorkflow.WORKFLOW_TYPE;
+import static io.nflow.tests.demo.SlowWorkflow.SLOW_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
@@ -41,7 +41,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   @Test
   public void t01_submitSlowWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.type = WORKFLOW_TYPE;
+    req.type = SLOW_WORKFLOW_TYPE;
     resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
   }
