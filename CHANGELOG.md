@@ -1,3 +1,22 @@
+## 4.1.0 (2017-mm-dd)
+
+**Highlights**
+- Support workflow instance signals (see details below)
+- Make MAX_SUBSEQUENT_STATE_EXECUTIONS configurable per workflow definition
+- Workflow instance builder now supports putting state variables with optional value
+- Add typed getStateVariable methods to WorkflowInstance (similar to StateExecution.getStateVariable methods)
+- Add method to get the (optional) parent workflow instance id to StateExecution
+
+**Details**
+- nflow-engine:
+  - Support for getting and setting workflow instance signal value. Signals may be used by workflow state implementations, for example for interrupting long running workflow state executions. Workflow definitions may document supported signal values. When an unsupported signal value is set, a warning is logged.
+- nflow-jetty:
+  - Use nFlow Explorer version 1.2.4 (support for workflow instance signals)
+- nflow-rest-api:
+  - Support for getting and setting workflow instance signal value
+  - Support for getting supported signal values of workflow definition
+  - When getting workflow actions, return empty array instead of null when instance has no actions
+
 ## 4.0.0 (2016-10-28)
 
 **Highlights**
