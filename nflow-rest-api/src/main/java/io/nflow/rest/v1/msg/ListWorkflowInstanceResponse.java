@@ -1,9 +1,13 @@
 package io.nflow.rest.v1.msg;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
@@ -51,6 +55,7 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   public int retries;
 
   @ApiModelProperty("Action history of the workflow instance")
+  @JsonInclude(NON_NULL)
   public List<Action> actions;
 
   @ApiModelProperty(value = "Workflow instance creation timestamp", required = true)
