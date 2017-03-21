@@ -3,10 +3,19 @@
   <div class="alert alert-info" role="alert" ng-hide="ctrl.definitions.length">
     No workflow definitions registered
   </div>
-  <div id="workflowDefinitionsList" ng-show="ctrl.definitions.length" class="row marketing">
-    <dl ng-repeat="definition in ctrl.definitions">
-      <dt><a ui-sref="workflow-definition({type: definition.type})">{{definition.type}}</a></dt>
-      <dd>{{definition.description}}</dd>
-    </dl>
-  </div>
+  <table id="workflowDefinitionsList" class="table table-striped table-hover" ng-show="ctrl.definitions.length">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="definition in ctrl.definitions" ng-click="showDefinition(definition.type)">
+        <td>{{definition.type}}</td>
+        <td ng-show="definition.description">{{definition.description}}</td>
+        <td ng-hide="definition.description"><i>No description</i></td>
+      </tr>
+    </tbody>
+  </table>
 </div>

@@ -1,13 +1,13 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.workflow.tabs.manage', [
+  var m = angular.module('nflowExplorer.workflow.tabs.manageState', [
     'nflowExplorer.workflow.graph',
     'nflowExplorer.services',
     'ui.router'
   ]);
 
-  m.directive('workflowTabManage', function() {
+  m.directive('workflowTabManageState', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -16,13 +16,13 @@
         workflow: '='
       },
       bindToController: true,
-      controller: 'WorkflowManageCtrl',
+      controller: 'WorkflowManageStateCtrl',
       controllerAs: 'ctrl',
-      templateUrl: 'app/workflow/tabs/manage.html'
+      templateUrl: 'app/workflow/tabs/manageState.html'
     };
   });
 
-  m.controller('WorkflowManageCtrl', function($state, WorkflowService, WorkflowGraphApi) {
+  m.controller('WorkflowManageStateCtrl', function($state, WorkflowService, WorkflowGraphApi) {
     var model = {};
     model.timeUnits = ['minutes', 'hours', 'days'];
     model.timeUnit = model.timeUnits[0];

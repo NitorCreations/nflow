@@ -1,5 +1,8 @@
 <section>
-  <table id="action-history" class="table table-striped table-hover">
+  <div class="alert alert-info" role="alert" ng-hide="ctrl.workflow.actions.length">
+    No actions
+  </div>
+  <table id="action-history" class="table table-striped table-hover" ng-show="ctrl.workflow.actions.length">
     <thead>
     <th>No</th>
     <th>State</th>

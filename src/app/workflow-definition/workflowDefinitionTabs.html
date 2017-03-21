@@ -27,5 +27,9 @@
     <tab heading="Radiator" select="ctrl.startRadiator()">
       <div ng-include="'app/workflow-stats/workflowStats.html'"></div>
     </tab>
+
+    <tab heading="Supported signals" ng-show="ctrl.definition.supportedSignals && ctrl.definition.supportedSignals.length">
+      <workflow-signals-table definition='ctrl.definition'></workflow-signals-table>
+    </tab>
   </tabset>
 </div>

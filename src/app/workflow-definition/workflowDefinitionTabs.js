@@ -4,6 +4,8 @@
   var _metaStatuses = ['queued', 'sleeping', 'executing', 'manual'];
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
+    'nflowExplorer.workflowDefinition.tabs.workflowStatisticsTable',
+    'nflowExplorer.workflowDefinition.tabs.workflowSignalsTable',
     'nvd3',
   ]);
 
@@ -314,31 +316,6 @@
 
     function startRadiator() {
       $rootScope.$broadcast('startRadiator');
-    }
-  });
-
-
-  /** <workflow-definition-tabs></workflow-definition-tabs> */
-  m.directive('workflowStatisticsTable', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        definition: '=',
-      },
-      bindToController: true,
-      controller: 'WorkflowStatisticsTable',
-      controllerAs: 'ctrl',
-      templateUrl: 'app/workflow-definition/workflowStatisticsTable.html'
-    };
-  });
-  m.controller('WorkflowStatisticsTable', function(WorkflowDefinitionGraphApi) {
-    var self = this;
-    self.isStateSelected = isStateSelected;
-    self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
-
-    function isStateSelected(state) {
-      return state.id === WorkflowDefinitionGraphApi.selectedNode;
     }
   });
 })();
