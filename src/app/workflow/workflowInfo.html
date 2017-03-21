@@ -8,7 +8,7 @@
   Created: <strong title="{{ctrl.workflow.created | fromNow}}">{{ctrl.workflow.created | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
   Started: <strong title="{{ctrl.workflow.started | fromNow}}">{{ctrl.workflow.started | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
   Modified: <strong title="{{ctrl.workflow.modified | fromNow}}">{{ctrl.workflow.modified | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
-  Current state: <strong class="wd-active-state" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
+  Current state: <strong class="wd-active-state clickable" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
   <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span><br/>
   Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
   <div ng-show="ctrl.workflow.signal">
