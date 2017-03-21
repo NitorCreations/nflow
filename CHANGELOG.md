@@ -1,5 +1,12 @@
 # nFlow Explorer change log
 
+1.2.4 2017-03-21
+================
+
+* Show text indicating no actions instead of empty table
+* Support workflow signals: show supported signals for workflow definition, show current signal for instance, support setting the signal value
+* Requires nFlow 4.0.1
+
 1.2.3 2016-10-28
 ================
 
