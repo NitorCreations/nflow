@@ -13,7 +13,7 @@
     <th>Duration</th>
     </thead>
     <tbody>
-    <tr class="wd-action-{{ctrl.workflow.actions.length - $index}}"
+    <tr class="wd-action-{{ctrl.workflow.actions.length - $index}} clickable"
         ng-class="{
                 success: action.type === 'stateExecution',
                 danger: action.type === 'stateExecutionFailed',

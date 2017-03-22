@@ -267,3 +267,8 @@ ul.listing {
 .nvd3 rect[height="1"] {
   display: none !important;
 }
+
+/* for clickable things */
+.clickable {
+  cursor: pointer;
+}

@@ -30,7 +30,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-class="{highlight: ctrl.isStateSelected(state)}" class="wd-state-{{state.id}}"
+      <tr ng-class="{highlight: ctrl.isStateSelected(state)}" class="wd-state-{{state.id}} clickable"
           ng-repeat="state in ctrl.definition.states" ng-click="ctrl.selectNode(state.id)">
         <td title="{{state.description}}">{{state.id}}</td>
         <td class="numeric">{{state.stateStatistics.created.allInstances | nullToZero}}</td>
