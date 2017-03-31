@@ -6,6 +6,7 @@
 - Workflow instance builder now supports putting state variables with optional value
 - Add typed getStateVariable methods to WorkflowInstance (similar to StateExecution.getStateVariable methods)
 - Add method to get the (optional) parent workflow instance id to StateExecution
+- Fix https://github.com/NitorCreations/nflow/issues/217
 
 **Details**
 - nflow-engine:
