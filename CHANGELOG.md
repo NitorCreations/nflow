@@ -1,8 +1,8 @@
-## 4.1.0 (2017-mm-dd)
+## 4.1.0 (2017-03-31)
 
 **Highlights**
 - Support workflow instance signals (see details below)
-- Make MAX_SUBSEQUENT_STATE_EXECUTIONS configurable per workflow definition
+- Make MAX_SUBSEQUENT_STATE_EXECUTIONS configurable per workflow definition and state
 - Workflow instance builder now supports putting state variables with optional value
 - Add typed getStateVariable methods to WorkflowInstance (similar to StateExecution.getStateVariable methods)
 - Add method to get the (optional) parent workflow instance id to StateExecution
