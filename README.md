@@ -18,7 +18,7 @@ Create a Maven project. Add the following to your  `pom.xml`. nFlow is available
 <dependency>
   <groupId>io.nflow</groupId>
   <artifactId>nflow-jetty</artifactId>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 Create a class for starting nFlow in embedded Jetty using H2 memory database.
@@ -37,7 +37,7 @@ Point your browser to [http://localhost:7500/doc/](http://localhost:7500/doc/) a
 
 See the next sections for creating your own workflow definitions.
 
-Note! Starting from 4.0.0 release, nFlow requires Java 8 or newer. Older releases require Java 7 or newer.
+Note! Starting from 4.1.0 release, nFlow requires Java 8 or newer. Older releases require Java 7 or newer.
 
 ## <a name="components"></a>Ok, I'm interested!
 
