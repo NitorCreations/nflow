@@ -17,6 +17,7 @@ create table nflow_workflow (
   modified timestamp default current_timestamp not null,
   executor_group varchar(64) not null,
   workflow_signal int,
+  started timestamp null,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group),
   constraint status_enum check (status in ('created', 'executing', 'inProgress', 'finished', 'manual'))
 )
@@ -158,6 +159,7 @@ create table nflow_archive_workflow (
   modified timestamp not null,
   executor_group varchar(64) not null,
   workflow_signal int,
+  started timestamp null,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 )
 /
