@@ -19,9 +19,10 @@ import static org.springframework.util.StringUtils.isEmpty;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -35,6 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -95,7 +97,7 @@ public class WorkflowInstanceResource {
       @Valid @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
     int id = workflowInstances.insertWorkflowInstance(instance);
-    instance = workflowInstances.getWorkflowInstance(id);
+    instance = workflowInstances.getWorkflowInstance(id, false, true, false, false, null);
     return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
 
@@ -149,12 +151,15 @@ public class WorkflowInstanceResource {
       @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    Collection<ListWorkflowInstanceResponse> instances = listWorkflowInstances(asList(id), Collections.<String>emptyList(), null, null,
-        Collections.<String> emptyList(), Collections.<WorkflowInstanceStatus> emptyList(), null, null, include, 1L, maxActions);
-    if (instances.isEmpty()) {
+    Set<String> includes = parseIncludes(include);
+    try {
+      WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes.contains(childWorkflows),
+          includes.contains(currentStateVariables), includes.contains(actions), includes.contains(actionStateVariables),
+          maxActions);
+      return listWorkflowConverter.convert(instance, includes);
+    } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
       throw new NotFoundException(format("Workflow instance %s not found", id));
     }
-    return instances.iterator().next();
   }
 
   @GET
@@ -171,7 +176,7 @@ public class WorkflowInstanceResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    List<String> includes = parseIncludes(include);
+    Set<String> includes = parseIncludes(include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder() //
         .addIds(ids.toArray(new Integer[ids.size()])) //
         .addTypes(types.toArray(new String[types.size()])) //
@@ -190,13 +195,13 @@ public class WorkflowInstanceResource {
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
-      resp.add(listWorkflowConverter.convert(instance, q));
+      resp.add(listWorkflowConverter.convert(instance, includes));
     }
     return resp;
   }
 
-  private List<String> parseIncludes(String include) {
-    return asList(trimToEmpty(include).split(","));
+  private Set<String> parseIncludes(String include) {
+    return new HashSet<>(asList(trimToEmpty(include).split(",")));
   }
 
   @PUT

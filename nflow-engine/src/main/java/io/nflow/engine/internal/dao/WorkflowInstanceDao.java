@@ -9,6 +9,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.lang.Math.min;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
@@ -81,7 +82,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class WorkflowInstanceDao {
 
-  static final Map<String, String> EMPTY_STATE_MAP = Collections.<String, String> emptyMap();
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
   static final Logger logger = getLogger(WorkflowInstanceDao.class);
 
@@ -484,13 +484,21 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql.toString(), args) == 1;
   }
 
-  public WorkflowInstance getWorkflowInstance(int id) {
+  public WorkflowInstance getWorkflowInstance(int id, boolean includeChildWorkflowIds, boolean includeCurrentStateVariables,
+      boolean includeActions, boolean includeActionStateVariables, Long maxActions) {
     String sql = "select w.*, "
         + "(select min(execution_start) from nflow_workflow_action a where a.workflow_id = w.id) as started "
         + "from nflow_workflow w where w.id = ?";
     WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
-    fillState(instance);
-    fillChildWorkflows(instance);
+    if (includeCurrentStateVariables) {
+      fillState(instance);
+    }
+    if (includeChildWorkflowIds) {
+      fillChildWorkflowIds(instance);
+    }
+    if (includeActions) {
+      fillActions(instance, includeActionStateVariables, maxActions);
+    }
     return instance;
   }
 
@@ -676,13 +684,13 @@ public class WorkflowInstanceDao {
     }
     if (query.includeChildWorkflows) {
       for (final WorkflowInstance instance : ret) {
-        fillChildWorkflows(instance);
+        fillChildWorkflowIds(instance);
       }
     }
     return ret;
   }
 
-  private void fillChildWorkflows(final WorkflowInstance instance) {
+  private void fillChildWorkflowIds(final WorkflowInstance instance) {
     jdbc.query("select parent_action_id, id from nflow_workflow where parent_workflow_id = ?", new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -796,7 +804,7 @@ public class WorkflowInstanceDao {
     @Override
     public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
       int actionId = rs.getInt("id");
-      Map<String, String> actionState = actionStates.containsKey(actionId) ? actionStates.get(actionId) : EMPTY_STATE_MAP;
+      Map<String, String> actionState = actionStates.getOrDefault(actionId, emptyMap());
       return new WorkflowInstanceAction.Builder() //
           .setId(rs.getInt("id")) //
           .setWorkflowInstanceId(rs.getInt("workflow_id")) //

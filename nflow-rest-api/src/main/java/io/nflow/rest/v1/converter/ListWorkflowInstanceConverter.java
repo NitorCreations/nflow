@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -18,9 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.rest.v1.WorkflowInstanceResource;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
@@ -31,7 +32,7 @@ public class ListWorkflowInstanceConverter {
   @Inject
   private ObjectMapper nflowRestObjectMapper;
 
-  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, QueryWorkflowInstances query) {
+  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<String> includes) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
     resp.status = instance.status.name();
@@ -48,10 +49,10 @@ public class ListWorkflowInstanceConverter {
     resp.started = instance.started;
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
-    if (query.includeActions) {
+    if (includes.contains(WorkflowInstanceResource.actions)) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
-        if (query.includeActionStateVariables) {
+        if (includes.contains(WorkflowInstanceResource.actionStateVariables)) {
           resp.actions.add(new Action(action.id, action.type.name(), action.state, action.stateText, action.retryNo,
               action.executionStart, action.executionEnd, action.executorId, stateVariablesToJson(action.updatedStateVariables)));
         } else {
@@ -60,10 +61,10 @@ public class ListWorkflowInstanceConverter {
         }
       }
     }
-    if (query.includeCurrentStateVariables) {
+    if (includes.contains(WorkflowInstanceResource.currentStateVariables)) {
       resp.stateVariables = stateVariablesToJson(instance.stateVariables);
     }
-    if (query.includeChildWorkflows) {
+    if (includes.contains(WorkflowInstanceResource.childWorkflows)) {
       resp.childWorkflows = instance.childWorkflows;
     }
     return resp;

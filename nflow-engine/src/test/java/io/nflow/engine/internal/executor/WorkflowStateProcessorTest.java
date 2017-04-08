@@ -12,8 +12,8 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
@@ -24,8 +24,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -174,7 +174,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void runWorkflowThroughOneSuccessfulState() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     when(workflowInstancePreProcessor.process(newChildWorkflow)).thenReturn(newChildWorkflow);
     when(workflowInstancePreProcessor.process(newWorkflow)).thenReturn(newWorkflow);
 
@@ -192,7 +192,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void runWorkflowThroughOneFailedState() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
@@ -205,7 +205,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void runWorkflowThroughToFailureState() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start")
         .setRetries(failingWf.getSettings().maxRetries).build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), eq(true));
@@ -227,7 +227,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void workflowStatusIsSetToExecutingWhenNextStateIsProcessedImmediately() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -247,7 +247,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void actionIsNotCreatedWhenCreateActionIsSetToFalse() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("processing").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -258,7 +258,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void workflowStatusIsSetToFinishedForFinalStates() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), anyBoolean());
@@ -271,7 +271,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void instanceWithUnsupportedStateIsRescheduled() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("invalid").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -283,7 +283,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void workflowStatusIsSetToManualForManualStates() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("beforeManual")
         .setRetries(simpleWf.getSettings().maxRetries).build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         MockitoHamcrest.argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
@@ -297,7 +297,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void maxRetryIsObeyedForManualRetry() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("retryingState")
         .setRetries(failingWf.getSettings().maxRetries).build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), eq(true));
@@ -323,7 +323,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     DateTime now = now();
     final DateTime skipped = now.plusHours(1);
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setNextActivation(now).setState("start").setStateText("myStateText").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         workflowInstancePreProcessor, env, processingInstances, listener);
@@ -345,7 +345,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void goToErrorStateWhenStateMethodReturnsNull() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("processReturnNull").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     filterChain(listener1);
     executor.run();
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
@@ -386,7 +386,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void goToErrorStateWhenNextStateIsNull() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("processReturnNullNextState").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
     verify(listener1, times(2)).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -414,7 +414,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void doNothingWhenNotifyingParentWithoutParentWorkflowId() {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(List.class));
   }
@@ -422,7 +422,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void whenWakingUpParentWorkflowSucceeds() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(true);
     executor.run();
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
@@ -431,7 +431,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void whenWakingUpParentWorkflowFails() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(false);
     executor.run();
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
@@ -444,7 +444,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -470,7 +470,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void continueProcessingWhenListenerThrowsException() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("retryingState").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     doThrow(RuntimeException.class).when(listener1).beforeProcessing(any(ListenerContext.class));
     doThrow(RuntimeException.class).when(listener1).afterProcessing(any(ListenerContext.class));
 
@@ -489,7 +489,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void continueProcessingWhenAfterFailureListenerThrowsException() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     doThrow(RuntimeException.class).when(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
 
     executor.run();
@@ -508,7 +508,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void clearNextActivationWhenMovingToStateThatHasNoMethod() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("nextStateNoMethod").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -523,7 +523,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void keepCurrentStateOnRetry() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("retryingState").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
@@ -542,7 +542,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }};
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("process")
         .setStateVariables(startState).build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -625,7 +625,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void beforeAndAfterListenersAreExecutedForSuccessfulProcessing() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -641,7 +641,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void failureListenersAreExecutedAfterFailure() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -665,7 +665,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void instanceIsRemovedFromProcessingInstancesAfterExecution() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -676,7 +676,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void instanceWithUnsupportedTypeIsRescheduled() {
     WorkflowInstance instance = executingInstanceBuilder().setType("test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
     when(workflowDefinitions.getWorkflowDefinition("test")).thenReturn(null);
 
     executor.run();
@@ -688,7 +688,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToErrorState() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -716,7 +716,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 
@@ -737,7 +737,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
-    when(workflowInstances.getWorkflowInstance(instance.id)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(instance.id, true, true, false, false, null)).thenReturn(instance);
 
     executor.run();
 

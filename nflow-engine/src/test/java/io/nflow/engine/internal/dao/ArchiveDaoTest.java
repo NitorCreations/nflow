@@ -183,7 +183,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
   private void assertActiveWorkflowsRemoved(List<Integer> workflowIds) {
     for (int id : workflowIds) {
       try {
-        workflowInstanceDao.getWorkflowInstance(id);
+        workflowInstanceDao.getWorkflowInstance(id, false, false, false, false, null);
         fail("Expected workflow " + id + " to be removed");
       } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
         // expected exception
@@ -300,7 +300,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     assertTrue(id > 0);
     DateTime modified = instance.modified;
     updateModified(id, modified);
-    WorkflowInstance dbInstance = workflowInstanceDao.getWorkflowInstance(id);
+    WorkflowInstance dbInstance = workflowInstanceDao.getWorkflowInstance(id, false, false, false, false, null);
     assertEquals(modified, dbInstance.modified);
     return id;
   }

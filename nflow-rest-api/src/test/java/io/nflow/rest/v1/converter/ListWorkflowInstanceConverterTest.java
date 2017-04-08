@@ -5,6 +5,9 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static jersey.repackaged.com.google.common.collect.Sets.newHashSet;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -32,9 +35,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.rest.v1.WorkflowInstanceResource;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
@@ -67,8 +70,8 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("foo", node1);
     expectedStateVariables.put("bar", nodeQuux);
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder()
-            .setIncludeActions(true).setIncludeCurrentStateVariables(true).build());
+    ListWorkflowInstanceResponse resp = converter.convert(i,
+        newHashSet(WorkflowInstanceResource.actions, WorkflowInstanceResource.currentStateVariables));
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -115,8 +118,8 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("foo", node1);
     expectedStateVariables.put("bar", nodeQuux);
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder()
-            .setIncludeActions(true).setIncludeActionStateVariables(true).build());
+    ListWorkflowInstanceResponse resp = converter.convert(i,
+        newHashSet(WorkflowInstanceResource.actions, WorkflowInstanceResource.actionStateVariables));
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -147,7 +150,8 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(asList(a)).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet());
+
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
     assertThat(resp.type, is(i.type));
@@ -171,7 +175,8 @@ public class ListWorkflowInstanceConverterTest {
         .setNextActivation(now()).setActions(Arrays.asList(a))
         .build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet());
+
     assertThat(resp.id, is(i.id));
     assertThat(resp.stateVariables, is((Map<String, Object>)null));
     assertThat(resp.type, is(i.type));
@@ -192,7 +197,8 @@ public class ListWorkflowInstanceConverterTest {
         .setNextActivation(now()).setActions(Arrays.asList(a))
         .setStateVariables(new LinkedHashMap<String, String>()). build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().build());
+    ListWorkflowInstanceResponse resp = converter.convert(i, singleton(WorkflowInstanceResource.currentStateVariables));
+
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
     assertThat(resp.stateVariables, is((Map<String, Object>)null));
@@ -212,7 +218,7 @@ public class ListWorkflowInstanceConverterTest {
         .setNextActivation(now()).build();
 
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        new QueryWorkflowInstances.Builder().setIncludeActions(true).build());
+        newHashSet(WorkflowInstanceResource.actions, WorkflowInstanceResource.actionStateVariables));
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -245,7 +251,7 @@ public class ListWorkflowInstanceConverterTest {
     when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException(null, "bad data"));
     when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException(null, "bad data"));
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(true).build());
+    ListWorkflowInstanceResponse resp = converter.convert(i, singleton(WorkflowInstanceResource.currentStateVariables));
 
     verify(nflowObjectMapper).readTree(value1);
     verify(nflowObjectMapper).readTree(value2);

@@ -50,12 +50,32 @@ public class WorkflowInstanceService {
   }
 
   /**
-   * Return the workflow instance matching the given id.
+   * Return the workflow instance matching the given id. Fetches child workflows and current state variables but does not fetch
+   * actions.
    * @param id Workflow instance id.
    * @return The workflow instance, or null if not found.
+   * @deprecated Use getWorkflowInstance(int id, boolean includeChildWorkflows, boolean includeCurrentStateVariables,
+      boolean includeActions, boolean includeActionStateVariables, Long maxActions) instead.
    */
+  @Deprecated
   public WorkflowInstance getWorkflowInstance(int id) {
-    return workflowInstanceDao.getWorkflowInstance(id);
+    return getWorkflowInstance(id, true, true, false, false, null);
+  }
+
+  /**
+   * Return the workflow instance matching the given id.
+   * @param id Workflow instance id.
+   * @param includeChildWorkflowIds Include child workflow IDs.
+   * @param includeCurrentStateVariables Include current state variables of the workflow instance.
+   * @param includeActions Include actions.
+   * @param includeActionStateVariables Include state variables of actions.
+   * @param maxActions Maximum number of actions
+   * @return The workflow instance, or null if not found.
+   */
+  public WorkflowInstance getWorkflowInstance(int id, boolean includeChildWorkflowIds, boolean includeCurrentStateVariables,
+      boolean includeActions, boolean includeActionStateVariables, Long maxActions) {
+    return workflowInstanceDao.getWorkflowInstance(id, includeChildWorkflowIds, includeCurrentStateVariables, includeActions,
+        includeActionStateVariables, maxActions);
   }
 
   /**
@@ -92,7 +112,7 @@ public class WorkflowInstanceService {
     if (instance.state == null) {
       builder.setStatus(null);
     } else {
-      String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
+      String type = workflowInstanceDao.getWorkflowInstanceType(instance.id);
       AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
       builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
     }
