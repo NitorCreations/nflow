@@ -49,8 +49,8 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     req.type = "creditApplicationProcess";
     req.startState = CreditApplicationWorkflow.State.previewCreditApplication.toString();
     req.businessKey = UUID.randomUUID().toString();
-    req.requestData = (new ObjectMapper()).valueToTree(
-            new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l)));
+    req.stateVariables.put("requestData", (new ObjectMapper()).valueToTree(
+            new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
     req.externalId = UUID.randomUUID().toString();
     resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());

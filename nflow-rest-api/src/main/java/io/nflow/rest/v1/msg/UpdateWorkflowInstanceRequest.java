@@ -1,5 +1,8 @@
 package io.nflow.rest.v1.msg;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -19,4 +22,8 @@ public class UpdateWorkflowInstanceRequest extends ModelObject {
 
   @ApiModelProperty("Description of the action")
   public String actionDescription;
+
+  @ApiModelProperty("State variables to be added or updated.")
+  public Map<String, Object> stateVariables = new HashMap<>();
+
 }

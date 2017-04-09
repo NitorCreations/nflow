@@ -43,7 +43,8 @@ public class PerfTestClient {
     request.businessKey = randomUUID().toString();
     request.externalId = randomUUID().toString();
     try {
-      request.requestData = objectMapper.readTree("{\"customerId\":\"CUST123\",\"amount\":100.0,\"simulation\":false}");
+      request.stateVariables.put("requestData",
+          objectMapper.readTree("{\"customerId\":\"CUST123\",\"amount\":100.0,\"simulation\":false}"));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

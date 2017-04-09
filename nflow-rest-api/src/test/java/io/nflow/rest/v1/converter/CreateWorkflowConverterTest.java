@@ -1,32 +1,32 @@
 package io.nflow.rest.v1.converter;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateWorkflowConverterTest {
 
-  @Mock
-  private ObjectStringMapper objectMapper;
+  @Spy
+  private final ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
 
   private CreateWorkflowConverter converter;
 
@@ -35,21 +35,27 @@ public class CreateWorkflowConverterTest {
     converter = new CreateWorkflowConverter(new WorkflowInstanceFactory(objectMapper));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void convertAndValidateWorks() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.activationTime = DateTime.now();
     req.businessKey = "businessKey";
     req.externalId = "externalId";
-    req.requestData = mock(JsonNode.class);
+    req.requestData = new TextNode("requestData");
     req.type = "wfType";
     req.startState = "startState";
+    req.stateVariables.put("foo", "bar");
+    req.stateVariables.put("textNode", new TextNode("text"));
     WorkflowInstance i = converter.convert(req);
     assertThat(i.nextActivation, equalTo(req.activationTime));
     assertThat(i.businessKey, equalTo(req.businessKey));
     assertThat(i.externalId, equalTo(req.externalId));
     assertThat(i.type, equalTo(req.type));
     assertThat(i.state, equalTo("startState"));
+    assertThat(i.stateVariables.get("requestData"), is("\"requestData\""));
+    assertThat(i.stateVariables.get("foo"), is("bar"));
+    assertThat(i.stateVariables.get("textNode"), is("\"text\""));
   }
 
   @Test

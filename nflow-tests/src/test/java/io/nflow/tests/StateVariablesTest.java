@@ -51,7 +51,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
-    createRequest.requestData = new ObjectMapper().readTree("{\"test\":5}");
+    createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
     createResponse = createWorkflowInstance(createRequest);
     assertThat(createResponse.id, notNullValue());
   }

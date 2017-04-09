@@ -115,7 +115,7 @@ public class ArchiveTest extends AbstractNflowTest {
   private int createWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = FibonacciWorkflow.WORKFLOW_TYPE;
-    req.requestData = nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3));
+    req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3)));
     CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
         CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());

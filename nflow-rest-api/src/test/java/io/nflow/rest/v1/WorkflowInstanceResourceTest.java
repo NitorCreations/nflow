@@ -30,9 +30,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -67,11 +73,15 @@ public class WorkflowInstanceResourceTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Captor
+  private ArgumentCaptor<WorkflowInstance> workflowInstanceCaptor;
+
   @Before
   public void setup() {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory);
-    when(workflowInstanceFactory.newWorkflowInstanceBuilder()).thenReturn(new WorkflowInstance.Builder());
+    when(workflowInstanceFactory.newWorkflowInstanceBuilder())
+        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
   }
 
   @Test
@@ -147,6 +157,19 @@ public class WorkflowInstanceResourceTest {
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
         (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+  }
+
+  @Test
+  public void whenUpdatingStateVariablesUpdateWorkflowInstanceWorks() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.stateVariables.put("foo", "bar");
+    req.stateVariables.put("textNode", new TextNode("text"));
+    resource.updateWorkflowInstance(3, req);
+    verify(workflowInstances).updateWorkflowInstance(workflowInstanceCaptor.capture(),
+        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API updated state variables."))));
+    WorkflowInstance instance = workflowInstanceCaptor.getValue();
+    assertThat(instance.getStateVariable("foo"), is("bar"));
+    assertThat(instance.getStateVariable("textNode"), is("\"text\""));
   }
 
   @SuppressWarnings("unchecked")

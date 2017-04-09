@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -118,12 +119,26 @@ public class WorkflowInstanceResource {
     if (req.nextActivationTime != null && isBlank(req.actionDescription)) {
       msg += "API changed nextActivationTime to " + req.nextActivationTime + ". ";
     }
+    if (!req.stateVariables.isEmpty()) {
+      for (Entry<String, Object> entry : req.stateVariables.entrySet()) {
+        Object value = entry.getValue();
+        if (value instanceof String) {
+          builder.putStateVariable(entry.getKey(), (String) value);
+        } else {
+          builder.putStateVariable(entry.getKey(), value);
+        }
+      }
+      if (isBlank(req.actionDescription)) {
+        msg += "API updated state variables. ";
+      }
+    }
     if (msg.isEmpty()) {
       return noContent().build();
     }
     WorkflowInstance instance = builder.setStateText(msg).build();
-    boolean updated = workflowInstances.updateWorkflowInstance(instance, new WorkflowInstanceAction.Builder(instance)
-        .setType(externalChange).setStateText(trimToNull(msg)).setExecutionEnd(now()).build());
+    WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance).setType(externalChange)
+        .setStateText(trimToNull(msg)).setExecutionEnd(now()).build();
+    boolean updated = workflowInstances.updateWorkflowInstance(instance, action);
     return (updated ? noContent() : status(CONFLICT)).build();
   }
 
