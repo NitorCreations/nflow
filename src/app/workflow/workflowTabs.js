@@ -5,6 +5,7 @@
    'nflowExplorer.workflow.tabs.actionHistory',
    'nflowExplorer.workflow.tabs.stateVariables',
    'nflowExplorer.workflow.tabs.manageState',
+   'nflowExplorer.workflow.tabs.manageVariables',
    'nflowExplorer.workflow.tabs.manageSignal'
   ]);
 
