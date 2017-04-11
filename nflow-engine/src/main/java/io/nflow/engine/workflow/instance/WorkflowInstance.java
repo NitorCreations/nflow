@@ -131,8 +131,7 @@ public class WorkflowInstance extends ModelObject {
   public final DateTime modified;
 
   /**
-   * Time when workflow processing was started, that is, time when processing of first
-   * action started.
+   * Time when workflow processing was started, that is, time when processing of first state method started.
    */
   public final DateTime started;
 
@@ -294,6 +293,7 @@ public class WorkflowInstance extends ModelObject {
       this.executorGroup = copy.executorGroup;
       this.signal = copy.signal;
       this.mapper = copy.mapper;
+      this.started = copy.started;
     }
 
     /**
@@ -556,10 +556,12 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Create the workflow instance object.
+     *
      * @return The workflow instance.
      */
     public WorkflowInstance build() {
       return new WorkflowInstance(this);
     }
+
   }
 }

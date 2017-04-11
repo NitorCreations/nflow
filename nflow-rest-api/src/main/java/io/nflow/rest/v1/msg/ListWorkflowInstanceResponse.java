@@ -64,7 +64,7 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   @ApiModelProperty(value = "Workflow instance latest modification timestamp", required = true)
   public DateTime modified;
 
-  @ApiModelProperty("Time when workflow processing started (=start time of the first action)")
+  @ApiModelProperty("Time when workflow processing started")
   public DateTime started;
 
   @ApiModelProperty("Child workflow instance IDs created by this instance, grouped by instance action ID")

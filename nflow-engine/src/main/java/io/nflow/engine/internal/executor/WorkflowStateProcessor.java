@@ -8,6 +8,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
@@ -16,7 +17,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -202,12 +202,13 @@ class WorkflowStateProcessor implements Runnable {
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     if (execution.isStateProcessInvoked()) {
       actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
+      WorkflowInstanceAction action = actionBuilder.build();
+      builder.setStarted(action.executionStart);
       if (execution.isFailed()) {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            Collections.<WorkflowInstance> emptyList(), Collections.<WorkflowInstance> emptyList(), true);
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), action, emptyList(), emptyList(), true);
       } else {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            execution.getNewChildWorkflows(), execution.getNewWorkflows(), execution.createAction());
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), action, execution.getNewChildWorkflows(),
+            execution.getNewWorkflows(), execution.createAction());
         processSuccess(execution, instance);
       }
     } else {
