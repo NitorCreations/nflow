@@ -81,7 +81,7 @@ public class WorkflowInstanceService {
    * If the state of the instance is not null, the status of the instance is updated based on the new state.
    * If the state of the instance is null, neither state nor status are updated.
    * @param instance The instance to be updated.
-   * @param action The action to be inserted. Can be null.
+   * @param action The action to be inserted.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional

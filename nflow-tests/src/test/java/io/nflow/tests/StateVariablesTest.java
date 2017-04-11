@@ -1,6 +1,7 @@
 package io.nflow.tests;
 
 import static java.util.Collections.singletonMap;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +25,7 @@ import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.StateWorkflow;
 import io.nflow.tests.demo.StateWorkflow.State;
 import io.nflow.tests.runner.NflowServerRule;
@@ -51,7 +53,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
-    createRequest.requestData = new ObjectMapper().readTree("{\"test\":5}");
+    createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
     createResponse = createWorkflowInstance(createRequest);
     assertThat(createResponse.id, notNullValue());
   }
@@ -74,6 +76,18 @@ public class StateVariablesTest extends AbstractNflowTest {
     assertState(listResponse.actions, 2, StateWorkflow.State.state4, null, null);
     assertState(listResponse.actions, 1, StateWorkflow.State.state5, null, "bar3");
     assertState(listResponse.actions, 0, StateWorkflow.State.done, null, null);
+  }
+
+  @Test
+  public void t03_updateStateVariable() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.stateVariables.put("testUpdate", "testValue");
+
+    updateWorkflowInstance(createResponse.id, req);
+
+    ListWorkflowInstanceResponse response = getWorkflowInstance(createResponse.id);
+    assertEquals(7, response.actions.size());
+    assertThat(response.actions.get(0).updatedStateVariables.get("testUpdate"), is("testValue"));
   }
 
   private void assertState(List<Action> actions, int index, State state, String variable1, String variable2) {

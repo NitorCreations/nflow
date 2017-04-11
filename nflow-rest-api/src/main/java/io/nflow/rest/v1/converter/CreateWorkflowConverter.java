@@ -2,6 +2,8 @@ package io.nflow.rest.v1.converter;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
+import java.util.Map.Entry;
+
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ public class CreateWorkflowConverter {
     this.factory = factory;
   }
 
+  @SuppressWarnings("deprecation")
   public WorkflowInstance convert(CreateWorkflowInstanceRequest req) {
     WorkflowInstance.Builder builder = factory.newWorkflowInstanceBuilder().setType(req.type).setBusinessKey(req.businessKey)
         .setExternalId(req.externalId);
@@ -28,6 +31,14 @@ public class CreateWorkflowConverter {
     }
     if (isNotEmpty(req.startState)) {
       builder.setState(req.startState);
+    }
+    for (Entry<String, Object> entry : req.stateVariables.entrySet()) {
+      Object value = entry.getValue();
+      if (value instanceof String) {
+        builder.putStateVariable(entry.getKey(), (String) value);
+      } else {
+        builder.putStateVariable(entry.getKey(), value);
+      }
     }
     if (req.requestData != null) {
       builder.putStateVariable("requestData", req.requestData);
