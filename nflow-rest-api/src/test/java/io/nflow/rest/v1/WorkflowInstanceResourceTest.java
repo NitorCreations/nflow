@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -95,7 +97,7 @@ public class WorkflowInstanceResourceTest {
     assertThat(r.getHeaderString("Location"), is("1"));
     verify(createWorkflowConverter).convert(req);
     verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
-    verify(workflowInstances).getWorkflowInstance(1, false, true, false, false, null);
+    verify(workflowInstances).getWorkflowInstance(1, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
   }
 
   @Test
@@ -220,7 +222,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingNonExistingWorkflowThrowsNotFoundException() {
     thrown.expect(NotFoundException.class);
-    when(workflowInstances.getWorkflowInstance(42, false, false, false, false, null))
+    when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null))
         .thenThrow(EmptyResultDataAccessException.class);
     resource.fetchWorkflowInstance(42, null, null);
   }
@@ -229,11 +231,11 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingExistingWorkflowWorks() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
-    when(workflowInstances.getWorkflowInstance(42, false, false, false, false, null)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null);
-    verify(workflowInstances).getWorkflowInstance(42, false, false, false, false, null);
+    verify(workflowInstances).getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null);
     assertEquals(resp, result);
   }
 
@@ -241,12 +243,12 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingExistingWorkflowWorksWithAllIncludes() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
-    when(workflowInstances.getWorkflowInstance(42, true, true, true, true, 10L)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, EnumSet.allOf(WorkflowInstanceInclude.class), 10L)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
         "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L);
-    verify(workflowInstances).getWorkflowInstance(42, true, true, true, true, 10L);
+    verify(workflowInstances).getWorkflowInstance(42, EnumSet.allOf(WorkflowInstanceInclude.class), 10L);
     assertEquals(resp, result);
   }
 

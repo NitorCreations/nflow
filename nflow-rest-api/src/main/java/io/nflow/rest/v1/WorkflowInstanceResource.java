@@ -4,6 +4,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toCollection;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.ok;
@@ -19,6 +20,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -39,6 +41,7 @@ import javax.ws.rs.core.Response;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -97,7 +100,7 @@ public class WorkflowInstanceResource {
       @Valid @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
     int id = workflowInstances.insertWorkflowInstance(instance);
-    instance = workflowInstances.getWorkflowInstance(id, false, true, false, false, null);
+    instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
     return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
 
@@ -151,11 +154,11 @@ public class WorkflowInstanceResource {
       @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    Set<String> includes = parseIncludes(include);
+    Set<WorkflowInstanceInclude> includes = parseIncludeSet(include);
+    // TODO: move to include parameters in next major version
+    includes.add(WorkflowInstanceInclude.STARTED);
     try {
-      WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes.contains(childWorkflows),
-          includes.contains(currentStateVariables), includes.contains(actions), includes.contains(actionStateVariables),
-          maxActions);
+      WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions);
       return listWorkflowConverter.convert(instance, includes);
     } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
       throw new NotFoundException(format("Workflow instance %s not found", id));
@@ -189,15 +192,36 @@ public class WorkflowInstanceResource {
         .setIncludeCurrentStateVariables(includes.contains(currentStateVariables)) //
         .setIncludeActions(includes.contains(actions)) //
         .setIncludeActionStateVariables(includes.contains(actionStateVariables)) //
-        .setMaxResults(maxResults) //
+        .setMaxResults(maxResults) // // TODO: move to include parameters in next major version
+
         .setMaxActions(maxActions) //
         .setIncludeChildWorkflows(includes.contains(childWorkflows)).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
+    Set<WorkflowInstanceInclude> parseIncludeSet = parseIncludeSet(include);
+    // TODO: move to include parameters in next major version
+    parseIncludeSet.add(WorkflowInstanceInclude.STARTED);
     for (WorkflowInstance instance : instances) {
-      resp.add(listWorkflowConverter.convert(instance, includes));
+      resp.add(listWorkflowConverter.convert(instance, parseIncludeSet));
     }
     return resp;
+  }
+
+  private Set<WorkflowInstanceInclude> parseIncludeSet(String include) {
+    return asList(trimToEmpty(include).split(",")).stream().map(i -> {
+      switch (i) {
+      case childWorkflows:
+        return WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
+      case currentStateVariables:
+        return WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
+      case actions:
+        return WorkflowInstanceInclude.ACTIONS;
+      case actionStateVariables:
+        return WorkflowInstanceInclude.ACTION_STATE_VARIABLES;
+      default:
+        return null;
+      }
+    }).filter(i -> i != null).collect(toCollection(HashSet::new));
   }
 
   private Set<String> parseIncludes(String include) {

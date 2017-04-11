@@ -2,6 +2,7 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -183,7 +184,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
   private void assertActiveWorkflowsRemoved(List<Integer> workflowIds) {
     for (int id : workflowIds) {
       try {
-        workflowInstanceDao.getWorkflowInstance(id, false, false, false, false, null);
+        workflowInstanceDao.getWorkflowInstance(id, emptySet(), null);
         fail("Expected workflow " + id + " to be removed");
       } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
         // expected exception
@@ -300,7 +301,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     assertTrue(id > 0);
     DateTime modified = instance.modified;
     updateModified(id, modified);
-    WorkflowInstance dbInstance = workflowInstanceDao.getWorkflowInstance(id, false, false, false, false, null);
+    WorkflowInstance dbInstance = workflowInstanceDao.getWorkflowInstance(id, emptySet(), null);
     assertEquals(modified, dbInstance.modified);
     return id;
   }

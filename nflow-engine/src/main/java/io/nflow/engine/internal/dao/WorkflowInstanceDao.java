@@ -12,6 +12,7 @@ import static java.lang.Math.min;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.joda.time.DateTime.now;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -68,6 +70,7 @@ import io.nflow.engine.internal.executor.InstanceInfo;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.model.ModelObject;
+import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -484,20 +487,22 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql.toString(), args) == 1;
   }
 
-  public WorkflowInstance getWorkflowInstance(int id, boolean includeChildWorkflowIds, boolean includeCurrentStateVariables,
-      boolean includeActions, boolean includeActionStateVariables, Long maxActions) {
-    String sql = "select w.*, "
-        + "(select min(execution_start) from nflow_workflow_action a where a.workflow_id = w.id) as started "
-        + "from nflow_workflow w where w.id = ?";
-    WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
-    if (includeCurrentStateVariables) {
+  public WorkflowInstance getWorkflowInstance(int id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
+    String sql = "select * from nflow_workflow w where w.id = ?";
+    WorkflowInstance.Builder builder = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
+    if (includes.contains(WorkflowInstanceInclude.STARTED)) {
+      builder.setStarted(toDateTime(jdbc
+          .queryForObject("select min(execution_start) from nflow_workflow_action where workflow_id = ?", Timestamp.class, id)));
+    }
+    WorkflowInstance instance = builder.build();
+    if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       fillState(instance);
     }
-    if (includeChildWorkflowIds) {
+    if (includes.contains(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS)) {
       fillChildWorkflowIds(instance);
     }
-    if (includeActions) {
-      fillActions(instance, includeActionStateVariables, maxActions);
+    if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {
+      fillActions(instance, includes.contains(WorkflowInstanceInclude.ACTION_STATE_VARIABLES), maxActions);
     }
     return instance;
   }
@@ -673,7 +678,8 @@ public class WorkflowInstanceDao {
     sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
     sql = sqlVariants.limit(sql, ":limit");
     params.addValue("limit", getMaxResults(query.maxResults));
-    List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
+    List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream().map(b -> b.build())
+        .collect(toList());
     for (WorkflowInstance instance : ret) {
       fillState(instance);
     }
@@ -768,9 +774,9 @@ public class WorkflowInstanceDao {
     return jdbc.queryForObject("select state from nflow_workflow where id = ?", String.class, workflowInstanceId);
   }
 
-  class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance> {
+  class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance.Builder> {
     @Override
-    public WorkflowInstance mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public WorkflowInstance.Builder mapRow(ResultSet rs, int rowNum) throws SQLException {
       return workflowInstanceFactory.newWorkflowInstanceBuilder() //
           .setId(rs.getInt("id")) //
           .setExecutorId(getInt(rs, "executor_id")) //
@@ -788,9 +794,8 @@ public class WorkflowInstanceDao {
           .setRetries(rs.getInt("retries")) //
           .setCreated(toDateTime(rs.getTimestamp("created"))) //
           .setModified(toDateTime(rs.getTimestamp("modified"))) //
-          .setStarted(toDateTime(rs.getTimestamp("started"))) //
           .setExecutorGroup(rs.getString("executor_group")) //
-          .setSignal(ofNullable(getInt(rs, "workflow_signal"))).build();
+          .setSignal(ofNullable(getInt(rs, "workflow_signal")));
     }
   }
 

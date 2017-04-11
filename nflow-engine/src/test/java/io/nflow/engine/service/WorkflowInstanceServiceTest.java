@@ -20,8 +20,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,15 +80,18 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void getWorkflowInstanceDeprecated() {
     WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
-    when(workflowInstanceDao.getWorkflowInstance(42, true, true, false, false, null)).thenReturn(instance);
+    when(workflowInstanceDao.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
+        WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED), null)).thenReturn(instance);
     assertEquals(instance, service.getWorkflowInstance(42));
   }
 
   @Test
   public void getWorkflowInstance() {
     WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
-    when(workflowInstanceDao.getWorkflowInstance(42, true, false, true, false, 10L)).thenReturn(instance);
-    assertEquals(instance, service.getWorkflowInstance(42, true, false, true, false, 10L));
+    @SuppressWarnings("unchecked")
+    Set<WorkflowInstanceInclude> includes = Mockito.mock(Set.class);
+    when(workflowInstanceDao.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
+    assertEquals(instance, service.getWorkflowInstance(42, includes, 10L));
   }
 
   @Test
