@@ -811,7 +811,7 @@ public class WorkflowInstanceDao {
       int actionId = rs.getInt("id");
       Map<String, String> actionState = actionStates.getOrDefault(actionId, emptyMap());
       return new WorkflowInstanceAction.Builder() //
-          .setId(rs.getInt("id")) //
+          .setId(actionId) //
           .setWorkflowInstanceId(rs.getInt("workflow_id")) //
           .setExecutorId(rs.getInt("executor_id")) //
           .setType(WorkflowActionType.valueOf(rs.getString("type"))) //
