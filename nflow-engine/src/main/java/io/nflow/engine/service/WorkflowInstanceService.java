@@ -4,8 +4,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -50,12 +52,27 @@ public class WorkflowInstanceService {
   }
 
   /**
-   * Return the workflow instance matching the given id.
+   * Return the workflow instance matching the given id. Fetches child workflows and current state variables but does not fetch
+   * actions.
    * @param id Workflow instance id.
    * @return The workflow instance, or null if not found.
+   * @deprecated Use getWorkflowInstance(int id, Set&lt;WorkflowInstanceInclude&gt; includes, Long maxActions) instead.
    */
+  @Deprecated
   public WorkflowInstance getWorkflowInstance(int id) {
-    return workflowInstanceDao.getWorkflowInstance(id);
+    return getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
+        WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED), null);
+  }
+
+  /**
+   * Return the workflow instance matching the given id.
+   * @param id Workflow instance id.
+   * @param includes Set of properties to be loaded.
+   * @param maxActions Maximum number of actions to be loaded.
+   * @return The workflow instance, or null if not found.
+   */
+  public WorkflowInstance getWorkflowInstance(int id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
+    return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions);
   }
 
   /**
@@ -92,7 +109,7 @@ public class WorkflowInstanceService {
     if (instance.state == null) {
       builder.setStatus(null);
     } else {
-      String type = workflowInstanceDao.getWorkflowInstance(instance.id).type;
+      String type = workflowInstanceDao.getWorkflowInstanceType(instance.id);
       AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
       builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
     }

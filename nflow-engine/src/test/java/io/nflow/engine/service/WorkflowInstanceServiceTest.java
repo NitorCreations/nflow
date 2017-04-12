@@ -20,8 +20,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,11 +76,22 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     setCurrentMillisSystem();
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  public void getWorkflowInstanceDeprecated() {
+    WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
+    when(workflowInstanceDao.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
+        WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED), null)).thenReturn(instance);
+    assertEquals(instance, service.getWorkflowInstance(42));
+  }
+
   @Test
   public void getWorkflowInstance() {
     WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
-    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(instance);
-    assertEquals(instance, service.getWorkflowInstance(42));
+    @SuppressWarnings("unchecked")
+    Set<WorkflowInstanceInclude> includes = Mockito.mock(Set.class);
+    when(workflowInstanceDao.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
+    assertEquals(instance, service.getWorkflowInstance(42, includes, 10L));
   }
 
   @Test
@@ -106,7 +119,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
     when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class))).thenReturn(true);
-    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
+    when(workflowInstanceDao.getWorkflowInstanceType(42)).thenReturn(i.type);
     assertThat(service.updateWorkflowInstance(i, a), is(true));
     verify(workflowInstanceDao).updateNotRunningWorkflowInstance(stored.capture());
     assertThat(stored.getValue().status, is(inProgress));
@@ -141,7 +154,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).build();
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(i)).thenReturn(false);
-    when(workflowInstanceDao.getWorkflowInstance(42)).thenReturn(i);
+    when(workflowInstanceDao.getWorkflowInstanceType(42)).thenReturn(i.type);
     assertThat(service.updateWorkflowInstance(i, a), is(false));
     verify(workflowInstanceDao, never()).insertWorkflowInstanceAction(any(WorkflowInstance.class),
         any(WorkflowInstanceAction.class));

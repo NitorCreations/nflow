@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -18,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.msg.Action;
@@ -31,7 +32,7 @@ public class ListWorkflowInstanceConverter {
   @Inject
   private ObjectMapper nflowRestObjectMapper;
 
-  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, QueryWorkflowInstances query) {
+  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<WorkflowInstanceInclude> includes) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
     resp.status = instance.status.name();
@@ -45,13 +46,15 @@ public class ListWorkflowInstanceConverter {
     resp.nextActivation = instance.nextActivation;
     resp.created = instance.created;
     resp.modified = instance.modified;
-    resp.started = instance.started;
+    if (includes.contains(WorkflowInstanceInclude.STARTED)) {
+      resp.started = instance.started;
+    }
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
-    if (query.includeActions) {
+    if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
-        if (query.includeActionStateVariables) {
+        if (includes.contains(WorkflowInstanceInclude.ACTION_STATE_VARIABLES)) {
           resp.actions.add(new Action(action.id, action.type.name(), action.state, action.stateText, action.retryNo,
               action.executionStart, action.executionEnd, action.executorId, stateVariablesToJson(action.updatedStateVariables)));
         } else {
@@ -60,10 +63,10 @@ public class ListWorkflowInstanceConverter {
         }
       }
     }
-    if (query.includeCurrentStateVariables) {
+    if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       resp.stateVariables = stateVariablesToJson(instance.stateVariables);
     }
-    if (query.includeChildWorkflows) {
+    if (includes.contains(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS)) {
       resp.childWorkflows = instance.childWorkflows;
     }
     return resp;

@@ -17,6 +17,7 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
+import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -105,7 +107,10 @@ class WorkflowStateProcessor implements Runnable {
 
   private void runImpl() {
     logger.debug("Starting.");
-    WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId);
+    WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId,
+        EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES,
+            WorkflowInstanceInclude.STARTED),
+        null);
     logIfLagging(instance);
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
