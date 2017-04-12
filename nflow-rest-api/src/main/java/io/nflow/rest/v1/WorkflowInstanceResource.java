@@ -204,8 +204,7 @@ public class WorkflowInstanceResource {
         .setIncludeCurrentStateVariables(includeStrings.contains(currentStateVariables)) //
         .setIncludeActions(includeStrings.contains(actions)) //
         .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables)) //
-        .setMaxResults(maxResults) // // TODO: move to include parameters in next major version
-
+        .setMaxResults(maxResults) //
         .setMaxActions(maxActions) //
         .setIncludeChildWorkflows(includeStrings.contains(childWorkflows)).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
