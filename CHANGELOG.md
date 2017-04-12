@@ -1,5 +1,12 @@
 # nFlow Explorer change log
 
+1.2.5 yyyy-MM-dd
+================
+
+* Change cursor to pointer when over clickable elements
+* Support setting state variable for workflow instance
+* Requires nFlow 4.1.1
+
 1.2.4 2017-03-21
 ================
 
