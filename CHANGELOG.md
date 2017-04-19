@@ -1,4 +1,4 @@
-## 4.1.1 (yyyy-MM-dd)
+## 4.2.0 (yyyy-MM-dd)
 
 **Highlights**
 - Set state variables when inserting or updating workflow instance via REST API
