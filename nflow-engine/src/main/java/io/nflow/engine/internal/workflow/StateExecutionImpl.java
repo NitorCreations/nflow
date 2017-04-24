@@ -1,11 +1,11 @@
 package io.nflow.engine.internal.workflow;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.notNull;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -221,7 +221,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   public Optional<List<String>> getWakeUpParentWorkflowStates() {
-    return Optional.ofNullable(wakeUpParentStates).map(s -> asList(s));
+    return Optional.ofNullable(wakeUpParentStates).map(Arrays::asList);
   }
 
   @Override

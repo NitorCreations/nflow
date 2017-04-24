@@ -30,7 +30,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-
+@SuppressWarnings("unused")
 public class WorkflowDefinitionScannerTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();

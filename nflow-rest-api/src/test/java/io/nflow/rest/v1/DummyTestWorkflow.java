@@ -47,13 +47,15 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
     permit(error, end);
   }
 
-  public NextAction start(StateExecution execution) {
+  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
     return moveToState(end, "Go to end state");
   }
 
-  public void error(StateExecution execution) {}
+  public void error(@SuppressWarnings("unused") StateExecution execution) {
+  }
 
-  public void end(StateExecution execution) {}
+  public void end(@SuppressWarnings("unused") StateExecution execution) {
+  }
 
   @Override
   public Map<Integer, String> getSupportedSignals() {

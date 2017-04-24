@@ -113,13 +113,13 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
     return moveToState(State.done, "All is good");
   }
 
-  public void done(StateExecution execution, @StateVar(value = "requestData") FiboData fiboData,
+  public void done(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = "requestData") FiboData fiboData,
       @StateVar(value = "result") int result) {
     logger.info("We are done: fibonacci({}) == {}", fiboData.n, result);
   }
 
-  public void error(StateExecution execution, @StateVar(value = "requestData") FiboData fiboData,
-      @StateVar(value = "result") int result) {
+  public void error(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = "requestData") FiboData fiboData,
+      @SuppressWarnings("unused") @StateVar(value = "result") int result) {
     logger.error("Failed to compute F({})", fiboData.n);
   }
 

@@ -46,11 +46,11 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     permit(State.process, State.done);
   }
 
-  public NextAction begin(StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
     return moveToState(State.process, "Go to process state");
   }
 
-  public NextAction process(StateExecution execution) {
+  public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Go to done state");
   }
 }

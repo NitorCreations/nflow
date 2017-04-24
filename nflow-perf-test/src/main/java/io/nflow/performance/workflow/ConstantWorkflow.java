@@ -65,7 +65,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
     return moveToState(ConstantState.quickState, "Time for quickness");
   }
 
-  public NextAction quickState(StateExecution execution) {
+  public NextAction quickState(@SuppressWarnings("unused") StateExecution execution) {
     try {
       Thread.sleep(10);
     } catch (@SuppressWarnings("unused") InterruptedException e) {
@@ -87,11 +87,11 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
     throw new RuntimeException("Retry count " + retryCount + ". Retrying");
   }
 
-  public NextAction scheduleState(StateExecution execution) {
+  public NextAction scheduleState(@SuppressWarnings("unused") StateExecution execution) {
     return moveToStateAfter(ConstantState.slowState, now().plusSeconds(3), "Schedule some action");
   }
 
-  public NextAction slowState(StateExecution execution) {
+  public NextAction slowState(@SuppressWarnings("unused") StateExecution execution) {
     try {
       Thread.sleep(500);
     } catch (@SuppressWarnings("unused") InterruptedException e) {
@@ -100,7 +100,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
     return NextAction.stopInState(ConstantState.end, "Goto end");
   }
 
-  public void error(StateExecution execution) {
+  public void error(@SuppressWarnings("unused") StateExecution execution) {
     logger.error("should not happen");
   }
 }

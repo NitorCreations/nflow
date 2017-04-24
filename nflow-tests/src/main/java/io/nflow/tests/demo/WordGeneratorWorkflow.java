@@ -86,12 +86,12 @@ public class WordGeneratorWorkflow extends WorkflowDefinition<WordGeneratorWorkf
     return State.values()[State.values().length - 1];
   }
 
-  public NextAction start(StateExecution execution) {
+  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
     State newState = randState();
     return moveToState(newState, "Go to state " + newState);
   }
 
-  public void error(StateExecution execution) {
+  public void error(@SuppressWarnings("unused") StateExecution execution) {
     logger.error("Finished with error");
   }
 

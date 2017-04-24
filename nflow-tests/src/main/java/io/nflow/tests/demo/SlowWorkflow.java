@@ -48,7 +48,7 @@ public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
     permit(State.process, State.done);
   }
 
-  public NextAction begin(StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
     return moveToState(State.process, "Go to process state");
   }
 

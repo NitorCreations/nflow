@@ -65,7 +65,7 @@ public class AbstractWorkflowDefinitionTest {
   }
 
   static class TestWorkflow3 extends TestWorkflow {
-    public NextAction done(StateExecution execution) {
+    public NextAction done(@SuppressWarnings("unused") StateExecution execution) {
       return stopInState(State.done, "Done");
     }
   }
@@ -96,7 +96,7 @@ public class AbstractWorkflowDefinitionTest {
       }
     }
 
-    public void begin(StateExecution execution) {
+    public void begin(@SuppressWarnings("unused") StateExecution execution) {
       // do nothing
     }
   }

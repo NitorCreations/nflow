@@ -26,7 +26,7 @@ public class WorkflowInstance extends ModelObject {
   /**
    * Describes the status for workflow instance.
    */
-  public static enum WorkflowInstanceStatus {
+  public enum WorkflowInstanceStatus {
     /** Workflow instance has been created but the processing has not been started yet */
     created,
     /** Workflow instance processing has been started */

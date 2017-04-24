@@ -930,33 +930,35 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       throw new RuntimeException("test-fail");
     }
 
-    public NextAction process(StateExecution execution) {
+    public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
       throw new RuntimeException("test-fail2");
     }
 
-    public NextAction processReturnNull(StateExecution execution) {
+    public NextAction processReturnNull(@SuppressWarnings("unused") StateExecution execution) {
       return null;
     }
 
-    public NextAction retryingState(StateExecution execution) {
+    public NextAction retryingState(@SuppressWarnings("unused") StateExecution execution) {
       return retryAfter(now().plusYears(1), "Retrying");
     }
 
-    public NextAction processReturnNullNextState(StateExecution execution) {
+    public NextAction processReturnNullNextState(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(null, "This should fail");
     }
 
-    public void failure(StateExecution execution) {}
+    public void failure(@SuppressWarnings("unused") StateExecution execution) {
+    }
 
-    public NextAction nextStateNoMethod(StateExecution execution) {
+    public NextAction nextStateNoMethod(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.noMethodEndState, "Go to end state that has no method");
     }
 
-    public NextAction invalidNextState(StateExecution execution) {
+    public NextAction invalidNextState(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(SimpleTestWorkflow.State.illegalStateChange, "illegal next state");
     }
 
-    public void error(StateExecution execution) {}
+    public void error(@SuppressWarnings("unused") StateExecution execution) {
+    }
   }
 
 
@@ -991,7 +993,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       }
     }
 
-    public NextAction beforeManual(StateExecution execution) {
+    public NextAction beforeManual(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.manualState, "Move to manual state.");
     }
 
@@ -1005,11 +1007,11 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       return stopInState(State.end, "Finished.");
     }
 
-    public NextAction illegalStateChange(StateExecution execution) {
+    public NextAction illegalStateChange(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.start, "illegal state change");
     }
 
-    public void error(StateExecution execution) {
+    public void error(@SuppressWarnings("unused") StateExecution execution) {
       System.err.println("Executing error state");
     }
   }
@@ -1047,7 +1049,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       return moveToState(State.end, "Wake up parent");
     }
 
-    public NextAction start(StateExecution execution) {
+    public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.wakeParent, "Move to notifyParent.");
     }
 

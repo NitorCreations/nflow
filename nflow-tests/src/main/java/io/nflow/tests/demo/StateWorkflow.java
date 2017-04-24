@@ -64,32 +64,37 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
     permit(state5, done);
   }
 
-  public NextAction state1(StateExecution execution, @StateVar(value = "variable1", instantiateIfNotExists = true) Variable variable1) {
+  public NextAction state1(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "variable1", instantiateIfNotExists = true) Variable variable1) {
     variable1.value = "foo1";
     return moveToState(state2, "variable1 is set to " + variable1.value);
   }
 
-  public NextAction state2(StateExecution execution, @StateVar(value = "variable2", instantiateIfNotExists = true) Variable variable2) {
+  public NextAction state2(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "variable2", instantiateIfNotExists = true) Variable variable2) {
     variable2.value = "bar1";
     return moveToState(state3, "variable1 is set to " + variable2.value);
   }
 
-  public NextAction state3(StateExecution execution, @StateVar(value = "variable2") Variable variable2) {
+  public NextAction state3(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "variable2") Variable variable2) {
     variable2.value = "bar2";
     return moveToState(state4, "variable2 is set to " + variable2.value);
   }
 
-  public NextAction state4(StateExecution execution, @StateVar(value = "variable1") Variable variable1,
+  public NextAction state4(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "variable1") Variable variable1,
       @StateVar(value = "variable2") Variable variable2) {
     return moveToState(state5, format("variable1=%s variable2=%s", variable1, variable2));
   }
 
-  public NextAction state5(StateExecution execution, @StateVar(value = "variable2") Variable variable2) {
+  public NextAction state5(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "variable2") Variable variable2) {
     variable2.value = "bar3";
     return moveToState(done, "variable2 is set to " + variable2.value);
   }
 
-  public void done(StateExecution execution) {
+  public void done(@SuppressWarnings("unused") StateExecution execution) {
     System.out.println("StateWorkflow done.");
   }
 

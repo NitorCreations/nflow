@@ -200,47 +200,40 @@ public class WorkflowInstanceDao {
     return "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value)";
   }
 
+  @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
+      "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
   private int insertWorkflowInstanceWithTransaction(final WorkflowInstance instance) {
-    return transaction.execute(new TransactionCallback<Integer>() {
-      @Override
-      public Integer doInTransaction(TransactionStatus status) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-          jdbc.update(new PreparedStatementCreator() {
-            @Override
-            @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-                "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
-            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-              PreparedStatement ps;
-              int p = 1;
-              ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
-              ps.setString(p++, instance.type);
-              ps.setObject(p++, instance.rootWorkflowId);
-              ps.setObject(p++, instance.parentWorkflowId);
-              ps.setObject(p++, instance.parentActionId);
-              ps.setString(p++, instance.businessKey);
-              ps.setString(p++, instance.externalId);
-              ps.setString(p++, executorInfo.getExecutorGroup());
-              ps.setString(p++, instance.status.name());
-              ps.setString(p++, instance.state);
-              ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
-              ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
-              if (instance.signal.isPresent()) {
-                ps.setInt(p++, instance.signal.get());
-              } else {
-                ps.setNull(p++, Types.INTEGER);
-              }
-              return ps;
-            }
-          }, keyHolder);
-        } catch (DuplicateKeyException e) {
-          logger.warn("Failed to insert workflow instance", e);
-          return -1;
-        }
-        int id = keyHolder.getKey().intValue();
-        insertVariables(id, 0, instance.stateVariables);
-        return id;
+    return transaction.execute(status -> {
+      KeyHolder keyHolder = new GeneratedKeyHolder();
+      try {
+        jdbc.update((PreparedStatementCreator) connection -> {
+          int p = 1;
+          PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
+          ps.setString(p++, instance.type);
+          ps.setObject(p++, instance.rootWorkflowId);
+          ps.setObject(p++, instance.parentWorkflowId);
+          ps.setObject(p++, instance.parentActionId);
+          ps.setString(p++, instance.businessKey);
+          ps.setString(p++, instance.externalId);
+          ps.setString(p++, executorInfo.getExecutorGroup());
+          ps.setString(p++, instance.status.name());
+          ps.setString(p++, instance.state);
+          ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
+          ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
+          if (instance.signal.isPresent()) {
+            ps.setInt(p++, instance.signal.get());
+          } else {
+            ps.setNull(p++, Types.INTEGER);
+          }
+          return ps;
+        }, keyHolder);
+      } catch (DuplicateKeyException e) {
+        logger.warn("Failed to insert workflow instance", e);
+        return -1;
       }
+      int id = keyHolder.getKey().intValue();
+      insertVariables(id, 0, instance.stateVariables);
+      return id;
     });
   }
 
@@ -678,8 +671,8 @@ public class WorkflowInstanceDao {
     sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
     sql = sqlVariants.limit(sql, ":limit");
     params.addValue("limit", getMaxResults(query.maxResults));
-    List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream().map(b -> b.build())
-        .collect(toList());
+    List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
+        .map(WorkflowInstance.Builder::build).collect(toList());
     for (WorkflowInstance instance : ret) {
       fillState(instance);
     }
