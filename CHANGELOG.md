@@ -1,6 +1,6 @@
 # nFlow Explorer change log
 
-1.2.5 yyyy-MM-dd
+1.2.5 2017-05-16
 ================
 
 * Change cursor to pointer when over clickable elements
