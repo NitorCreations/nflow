@@ -54,7 +54,7 @@ import io.nflow.rest.v1.WorkflowInstanceResource;
 public class NflowJettyConfiguration {
 
   @Inject
-  Environment env;
+  private Environment env;
 
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
@@ -69,7 +69,7 @@ public class NflowJettyConfiguration {
         statisticsResource,
         archiveResource
         ));
-    factory.setAddress('/' + factory.getAddress());
+    factory.setAddress(env.getProperty("nflow.api.basepath", '/' + factory.getAddress()));
     factory.setProviders(asList(
         jsonProvider(nflowRestObjectMapper),
         validationExceptionMapper(),
