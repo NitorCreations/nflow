@@ -37,7 +37,7 @@ Point your browser to [http://localhost:7500/doc/](http://localhost:7500/doc/) a
 
 See the next sections for creating your own workflow definitions.
 
-Note! Starting from 4.2.0 release, nFlow requires Java 8 or newer. Older releases require Java 7 or newer.
+Note! Starting from 4.0.0 release, nFlow requires Java 8 or newer. Older releases require Java 7 or newer.
 
 ## <a name="components"></a>Ok, I'm interested!
 
