@@ -1,4 +1,4 @@
-## 4.2.0 (yyyy-MM-dd)
+## 4.2.0 (2017-05-16)
 
 **Highlights**
 - Set state variables when inserting or updating workflow instance via REST API
@@ -9,6 +9,7 @@
   - Control which properties are loaded when getting workflow instance with WorkflowInstanceService: workflow started timestamp, child workflow identifiers, current state variables, actions and action state variables.
 - nflow-jetty:
   - Use nFlow Explorer version 1.2.5 (support for setting workflow instance state variables)
+  - Fix https://github.com/NitorCreations/nflow/issues/212: make JAXRS server address configurable
 - nflow-rest-api:
   - Set state variables when inserting or updating workflow instance
 
