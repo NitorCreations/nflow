@@ -5,7 +5,7 @@
 
 * Change cursor to pointer when over clickable elements
 * Support setting state variable for workflow instance
-* Requires nFlow 4.1.1
+* Requires nFlow 4.2.0
 
 1.2.4 2017-03-21
 ================
