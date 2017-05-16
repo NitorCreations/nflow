@@ -1,7 +1,5 @@
 package io.nflow.engine.internal.dao;
 
-import java.sql.ResultSet;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -18,12 +16,7 @@ public class HealthCheckDao {
 
   @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "jdbc is injected")
   public void checkDatabaseConnection() {
-    jdbc.query("select status, type from nflow_workflow where id = 0", new ResultSetExtractor<Object>() {
-      @Override
-      public Object extractData(ResultSet resultSet) {
-        return null;
-      }
-    });
+    jdbc.query("select status, type from nflow_workflow where id = 0", (ResultSetExtractor<Object>) resultSet -> null);
   }
 
   @Inject

@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
-import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -46,41 +45,39 @@ public class WorkflowDefinitionScanner {
 
   public Map<String, WorkflowStateMethod> getStateMethods(Class<?> definition) {
     final Map<String, WorkflowStateMethod> methods = new LinkedHashMap<>();
-    doWithMethods(definition, new MethodCallback() {
-      @Override
-      public void doWith(Method method) {
-        List<StateParameter> params = new ArrayList<>();
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-        for (int i = 1; i < genericParameterTypes.length; ++i) {
-          for (Annotation a : parameterAnnotations[i]) {
-            if (StateVar.class.equals(a.annotationType())) {
-              StateVar stateInfo = (StateVar) a;
-              Type type = genericParameterTypes[i];
-              Class<?> clazz = parameterTypes[i];
-              boolean mutable = false;
-              boolean readOnly = isReadOnly(type);
-              if (Mutable.class.isAssignableFrom(clazz)) {
-                ParameterizedType pType = (ParameterizedType) type;
-                type = pType.getActualTypeArguments()[0];
-                readOnly = false;
-                mutable = true;
-              }
-              params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz),
-                  readOnly || stateInfo.readOnly(), mutable));
-              break;
+    doWithMethods(definition, method -> {
+      List<StateParameter> params = new ArrayList<>();
+      Type[] genericParameterTypes = method.getGenericParameterTypes();
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+      for (int i = 1; i < genericParameterTypes.length; ++i) {
+        for (Annotation a : parameterAnnotations[i]) {
+          if (StateVar.class.equals(a.annotationType())) {
+            StateVar stateInfo = (StateVar) a;
+            Type type = genericParameterTypes[i];
+            Class<?> clazz = parameterTypes[i];
+            boolean mutable = false;
+            boolean readOnly = isReadOnly(type);
+            if (Mutable.class.isAssignableFrom(clazz)) {
+              ParameterizedType pType = (ParameterizedType) type;
+              type = pType.getActualTypeArguments()[0];
+              readOnly = false;
+              mutable = true;
             }
+            params.add(new StateParameter(stateInfo.value(), type, defaultValue(stateInfo, clazz),
+                readOnly || stateInfo.readOnly(), mutable));
+            break;
           }
         }
-        if (params.size() != genericParameterTypes.length - 1) {
-          throw new IllegalStateException("Not all parameter names could be resolved for " + method + ". Maybe missing @StateVar annotation?");
-        }
-        if (methods.containsKey(method.getName())) {
-          throw new IllegalStateException("Method " + method + " was overloaded. Overloading state methods is not allowed.");
-        }
-        methods.put(method.getName(), new WorkflowStateMethod(method, params.toArray(new StateParameter[params.size()])));
       }
+      if (params.size() != genericParameterTypes.length - 1) {
+        throw new IllegalStateException(
+            "Not all parameter names could be resolved for " + method + ". Maybe missing @StateVar annotation?");
+      }
+      if (methods.containsKey(method.getName())) {
+        throw new IllegalStateException("Method " + method + " was overloaded. Overloading state methods is not allowed.");
+      }
+      methods.put(method.getName(), new WorkflowStateMethod(method, params.toArray(new StateParameter[params.size()])));
     }, new WorkflowTransitionMethod());
     return methods;
   }

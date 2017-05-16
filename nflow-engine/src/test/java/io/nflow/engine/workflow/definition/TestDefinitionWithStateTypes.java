@@ -36,15 +36,16 @@ public class TestDefinitionWithStateTypes extends WorkflowDefinition<TestDefinit
     permit(State.state2, State.done);
   }
 
-  public NextAction initial(StateExecution execution) {
+  public NextAction initial(@SuppressWarnings("unused") StateExecution execution) {
     return null;
   }
 
-  public NextAction state1(StateExecution execution, @StateVar("arg") String param) {
+  public NextAction state1(@SuppressWarnings("unused") StateExecution execution,
+      @SuppressWarnings("unused") @StateVar("arg") String param) {
     return null;
   }
 
-  public NextAction state2(StateExecution execution) {
+  public NextAction state2(@SuppressWarnings("unused") StateExecution execution) {
     return null;
   }
 }

@@ -67,25 +67,32 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     permit(finishCreditApplication, done);
   }
 
-  public NextAction createCreditApplication(StateExecution execution, @StateVar(value="requestData", readOnly=true) CreditApplication request, @StateVar(instantiateIfNotExists=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction createCreditApplication(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "requestData", readOnly = true) CreditApplication request,
+      @StateVar(instantiateIfNotExists = true, value = VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     return moveToState(acceptCreditApplication, "Credit application created");
   }
 
-  public NextAction previewCreditApplication(StateExecution execution, @StateVar(value="requestData", readOnly=false) CreditApplication request, @StateVar(instantiateIfNotExists=true, value=VAR_KEY) WorkflowInfo info) {
+  public NextAction previewCreditApplication(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "requestData", readOnly = false) CreditApplication request,
+      @StateVar(instantiateIfNotExists = true, value = VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for persisting credit application using request data");
     info.applicationId = "abc" + request.customerId;
     request.simulation = true;
     return moveToState(acceptCreditApplication, "Credit application previewed");
   }
 
-  public void acceptCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void acceptCreditApplication(StateExecution execution,
+      @SuppressWarnings("unused") @StateVar(value = VAR_KEY) WorkflowInfo info) {
     System.err.println(execution.getVariable("diipa", Boolean.class));
     logger.info("IRL: descheduling workflow instance, next state set externally");
   }
 
-  public NextAction grantLoan(StateExecution execution, @StateVar(value="requestData", readOnly=true) CreditApplication request, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction grantLoan(@SuppressWarnings("unused") StateExecution execution,
+      @StateVar(value = "requestData", readOnly = true) CreditApplication request,
+      @SuppressWarnings("unused") @StateVar(value = VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for granting a loan");
     if (request.simulation) {
       logger.info("STUPID USER");
@@ -94,16 +101,19 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
     throw new RuntimeException("Failed to create loan");
   }
 
-  public NextAction finishCreditApplication(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public NextAction finishCreditApplication(@SuppressWarnings("unused") StateExecution execution,
+      @SuppressWarnings("unused") @StateVar(value = VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: external service call for updating credit application status");
     return moveToState(done, "Credit application finished");
   }
 
-  public void done(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void done(@SuppressWarnings("unused") StateExecution execution,
+      @SuppressWarnings("unused") @StateVar(value = VAR_KEY) WorkflowInfo info) {
     logger.info("Credit application process ended");
   }
 
-  public void error(StateExecution execution, @StateVar(value=VAR_KEY) WorkflowInfo info) {
+  public void error(@SuppressWarnings("unused") StateExecution execution,
+      @SuppressWarnings("unused") @StateVar(value = VAR_KEY) WorkflowInfo info) {
     logger.info("IRL: some UI should poll for workflows that have reached error state");
   }
 

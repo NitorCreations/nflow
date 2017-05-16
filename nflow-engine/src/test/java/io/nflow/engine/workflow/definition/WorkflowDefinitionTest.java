@@ -156,21 +156,21 @@ public class WorkflowDefinitionTest {
       permit(TestState.start2, TestState.done);
     }
 
-    public NextAction start1(StateExecution execution) {
+    public NextAction start1(@SuppressWarnings("unused") StateExecution execution) {
       return null;
     }
 
-    public NextAction start2(StateExecution execution) {
+    public NextAction start2(@SuppressWarnings("unused") StateExecution execution) {
       return null;
     }
 
-    public void done(StateExecution execution) {
+    public void done(@SuppressWarnings("unused") StateExecution execution) {
     }
 
-    public void failed(StateExecution execution) {
+    public void failed(@SuppressWarnings("unused") StateExecution execution) {
     }
 
-    public void error(StateExecution execution) {
+    public void error(@SuppressWarnings("unused") StateExecution execution) {
     }
   }
 }

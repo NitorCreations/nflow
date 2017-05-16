@@ -39,7 +39,7 @@ public class SpringDummyTestWorkflow extends WorkflowDefinition<SpringDummyTestW
     permit(SpringDummyTestState.start, SpringDummyTestState.end);
   }
 
-  public NextAction start(StateExecution execution) {
+  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
     return moveToState(SpringDummyTestState.end, "Go to end state");
   }
 }

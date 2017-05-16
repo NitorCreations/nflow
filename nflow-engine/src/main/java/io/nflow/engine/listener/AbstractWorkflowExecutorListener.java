@@ -6,7 +6,7 @@ import io.nflow.engine.workflow.definition.NextAction;
  * AbstractWorkflowExecutorListener implement WorkflowExecutorListener with no-op/defaults
  * method implementations. A subclasses can override just the methods it is interested in.
  */
-abstract public class AbstractWorkflowExecutorListener implements WorkflowExecutorListener {
+public abstract class AbstractWorkflowExecutorListener implements WorkflowExecutorListener {
 
   /**
    * Does nothing.

@@ -34,15 +34,15 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
     }
   }
 
-  public NextAction begin(StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Done");
   }
 
-  public NextAction process(StateExecution execution) {
+  public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Done");
   }
 
-  public NextAction startWithoutFailure(StateExecution execution) {
+  public NextAction startWithoutFailure(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Done");
   }
 }

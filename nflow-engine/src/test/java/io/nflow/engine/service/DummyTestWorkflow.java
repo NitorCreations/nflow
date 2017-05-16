@@ -39,17 +39,18 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
     permit(DummyTestState.alternativeStart, DummyTestState.end);
   }
 
-  public NextAction start(StateExecution execution) {
+  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(DummyTestState.end, "Finished");
   }
 
-  public void end(StateExecution execution) {}
+  public void end(@SuppressWarnings("unused") StateExecution execution) {
+  }
 
-  public NextAction alternativeStart(StateExecution execution) {
+  public NextAction alternativeStart(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(DummyTestState.end, "Finished");
   }
 
-  public NextAction CreateLoan(StateExecution execution) {
+  public NextAction CreateLoan(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(DummyTestState.end, "Finished");
   }
 

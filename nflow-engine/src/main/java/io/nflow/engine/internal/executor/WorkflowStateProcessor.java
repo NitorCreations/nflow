@@ -336,7 +336,7 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  abstract private class StateHandler {
+  private abstract class StateHandler {
     protected final WorkflowInstance instance;
     protected final AbstractWorkflowDefinition<?> definition;
     protected final StateExecutionImpl execution;
@@ -350,7 +350,7 @@ class WorkflowStateProcessor implements Runnable {
       this.currentState = currentState;
     }
 
-    abstract protected NextAction getNextAction(WorkflowStateMethod method, Object... args);
+    protected abstract NextAction getNextAction(WorkflowStateMethod method, Object... args);
 
     public NextAction processState() {
       WorkflowStateMethod method = definition.getMethod(instance.state);

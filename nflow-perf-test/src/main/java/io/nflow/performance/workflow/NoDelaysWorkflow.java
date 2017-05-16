@@ -44,23 +44,23 @@ public class NoDelaysWorkflow extends WorkflowDefinition<NoDelaysWorkflow.QuickS
     permit(QuickState.state5, QuickState.end);
   }
 
-  public NextAction state1(StateExecution execution) {
+  public NextAction state1(@SuppressWarnings("unused") StateExecution execution) {
     return NextAction.moveToState(QuickState.state2, "");
   }
 
-  public NextAction state2(StateExecution execution) {
+  public NextAction state2(@SuppressWarnings("unused") StateExecution execution) {
     return NextAction.moveToState(QuickState.state3, "");
   }
 
-  public NextAction state3(StateExecution execution) {
+  public NextAction state3(@SuppressWarnings("unused") StateExecution execution) {
     return NextAction.moveToState(QuickState.state4, "");
   }
 
-  public NextAction state4(StateExecution execution) {
+  public NextAction state4(@SuppressWarnings("unused") StateExecution execution) {
     return NextAction.moveToState(QuickState.state5, "");
   }
 
-  public NextAction state5(StateExecution execution) {
+  public NextAction state5(@SuppressWarnings("unused") StateExecution execution) {
     return NextAction.stopInState(QuickState.end, "");
   }
 
