@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<title>nFlow - A Java framework for managing workflows</title>
+
+<link rel="icon" type="image/png" href="landing-page/favicon.ico">
+
+<!-- Bootstrap Core CSS -->
+<link href="landing-page/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="landing-page/css/landing-page.css" rel="stylesheet">
+
+<!-- Custom Fonts -->
+<link href="landing-page/font-awesome/css/font-awesome.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic"
+	rel="stylesheet" type="text/css">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+	<!-- Navigation -->
+	<nav class="navbar navbar-default navbar-fixed-top topnav"
+		role="navigation">
+		<div class="container topnav">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+					data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand topnav" href="#"><img
+					style="width: 85px;" src="landing-page/img/nflow_logo.svg" /></a>
+			</div>
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse"
+				id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#features">Features</a></li>
+					<li><a href="#success-stories">Success Stories</a></li>
+					<li><a href="#simple-workflow">A Simple Workflow</a></li>
+					<li><a href="#contact">Contact</a></li>
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container -->
+	</nav>
+
+
+	<!-- Header -->
+	<a name="about"></a>
+	<div class="intro-header">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="intro-message">
+						<h1>nFlow</h1>
+						<h3>A Java framework for managing workflows</h3>
+						<hr class="intro-divider">
+						<ul class="list-inline intro-social-buttons">
+							<li><a
+								href="https://github.com/NitorCreations/nflow#getting-started"
+								class="btn btn-default btn-lg"><span class="network-name">Getting
+										started</span></a></li>
+							<li><a href="https://github.com/NitorCreations/nflow/wiki"
+								class="btn btn-default btn-lg"><span class="network-name">Documentation</span></a>
+							</li>
+							<li><a href="https://github.com/NitorCreations/nflow"
+								class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i>
+									<span class="network-name">Github</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.intro-header -->
+
+	<!-- Page Content -->
+
+	<a name="features"></a>
+	<div class="content-section-a">
+
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-5 col-sm-6">
+					<hr class="section-heading-spacer">
+					<div class="clearfix"></div>
+					<h2 class="section-heading">Microservices Orchestration</h2>
+					<p class="lead">Trending REST-based microservice architecture
+						does not provide standardized solutions for composing services
+						into reliable business processes.</p>
+					<p class="lead">nFlow fills this gap by providing a framework
+						for implementing workflows based on ideas like idempotent retry
+						and finite state machine.</p>
+				</div>
+				<div class="col-lg-5 col-lg-offset-2 col-sm-6">
+					<img class="img-responsive"
+						src="landing-page/img/process_graph.png" alt="">
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.content-section-a -->
+
+	<div class="content-section-b">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
+					<hr class="section-heading-spacer">
+					<div class="clearfix"></div>
+					<h2 class="section-heading">Highly Modular</h2>
+					<p class="lead">You can cherry-pick the modules that are
+						relevant for your use case.</p>
+					<p class="lead">The minimum pre-requirements for embedding
+						nFlow engine to your application are Spring Framework core and a
+						relational database (PostgreSQL, MySQL, Oracle, H2).</p>
+				</div>
+				<div class="col-lg-5 col-sm-pull-6 col-sm-6">
+					<img class="img-responsive" style="width: 400px"
+						src="landing-page/img/nflow_stack.png" alt="">
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.content-section-b -->
+
+	<div class="content-section-a">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-5 col-sm-6">
+					<hr class="section-heading-spacer">
+					<div class="clearfix"></div>
+					<h2 class="section-heading">Fault Tolerant</h2>
+					<p class="lead">You can deploy nFlow engine to multiple servers
+						that share the same workflow instances.</p>
+					<p class="lead">Workflow instances are recovered by the other
+						nodes, if a server crashes in the middle of workflow processing.
+						Workflow states are retried automatically if an unexpected error
+						occurs.</p>
+				</div>
+				<div class="col-lg-5 col-lg-offset-2 col-sm-6">
+					<img class="img-responsive"
+						src="landing-page/img/fault_tolerance.png" alt="">
+				</div>
+			</div>
+			<a name="success-stories"></a>
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.content-section-a -->
+
+	<div class="banner">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-12">
+					<h2>Success Stories</h2>
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.banner -->
+
+	<div class="content-section-a">
+
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-10 col-sm-12">
+					<hr class="section-heading-spacer">
+					<div class="clearfix"></div>
+					<h2 class="section-heading">Order Management</h2>
+					<p class="lead">Order management workflows for a big media
+						company are managed by nFlow. For example, the order delivery
+						workflow contains 10+ integrations that are modeled as workflow
+						states. Workflow execution can be monitored through nFlow Explorer
+						and each state is automatically retried until the desired outcome
+						is reached.</p>
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.content-section-a -->
+
+	<div class="content-section-b">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-10 col-sm-12">
+					<hr class="section-heading-spacer">
+					<div class="clearfix"></div>
+					<h2 class="section-heading">Customer Feedback</h2>
+					<p class="lead">Each new customer feedback starts a workflow
+						that orchestrates machine learning-based feedback analysis,
+						notification sending and other preprocessing tasks. New customer
+						feedback can submitted regardless of the status of the backend
+						systems.</p>
+				</div>
+			</div>
+		</div>
+		<!-- /.container -->
+	</div>
+	<!-- /.content-section-b -->
+
+	<div class="content-section-a">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-10 col-sm-12">
+					<hr class="section-heading-spacer">
+					<div class="clearfix"></div>
+					<h2 class="section-heading">Distributed Batch Processes</h2>
+					<p class="lead">Modeling batch processes (e.g. organizational
+						data synchronization, email-box polling) as workflows enabled
+						their scheduling within a pool of servers instead of single point
+						of failure.</p>
+				</div>
+			</div>
+			<a name="simple-workflow"></a>
+		</div>
+		<!-- /.container -->
+	</div>
+	<!-- /.content-section-a -->
+
+	<div class="banner">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-12">
+					<h2>A Simple Workflow</h2>
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.banner -->
+
+	<div class="content-section-b">
+
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-10 col-sm-12">
+					<p class="lead">The following fully working example illustrates
+						how a workflow is defined. The definition contains both the
+						workflow structure and the workflow implementation. nFlow Explorer
+						uses the structure for visualizing the workflow. nFlow engine uses
+						the implementation for executing workflow instances.</p>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-lg-6 col-sm-7">
+					<div class="clearfix"></div>
+					<pre>
+public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
+
+  public static enum State implements WorkflowState {
+    begin(start), process(normal),  done(end), error(manual);
+
+    private WorkflowStateType type;
+
+    private State(WorkflowStateType type) {
+      this.type = type;
+    }
+
+    public WorkflowStateType getType() {
+      return type;
+    }
+
+    public String getDescription() {
+      return name();
+    }
+  }
+
+  public DemoWorkflow() {
+    super("demo", State.begin, State.error);
+    permit(State.begin, State.process);
+    permit(State.process, State.done);
+  }
+
+  public NextAction begin(StateExecution execution) {
+    return moveToState(State.process, "To process state");
+  }
+
+  public NextAction process(StateExecution execution) {
+    return stopInState(State.done, "To done state");
+  }
+}
+                    
+					</pre>
+				</div>
+				<div class="col-lg-4 col-lg-offset-1 col-sm-5">
+					<img class="img-responsive pull-left"
+						src="landing-page/img/demo_workflow.svg" alt="">
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.content-section-a -->
+
+	<a name="contact"></a>
+	<div class="banner">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-12">
+					<h2>Contact</h2>
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.banner -->
+
+
+	<div class="content-section-a">
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-10 col-sm-12">
+					<div class="clearfix"></div>
+					<p class="lead">
+						Post a question to <a href="mailto:nflow-users@googlegroups.com">Google
+							groups</a>
+					</p>
+					<p class="lead">
+						Submit an issue to <a
+							href="https://github.com/NitorCreations/nflow/issues">Github</a>
+					</p>
+					<p class="lead">
+						For commercial support, contact <a href="mailto:sales@nitor.fi">Nitor
+							sales</a>
+					</p>
+				</div>
+			</div>
+
+		</div>
+		<!-- /.container -->
+
+	</div>
+	<!-- /.content-section-b -->
+
+
+	<!-- Footer -->
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<ul class="list-inline">
+						<li><a href="#about">Home</a></li>
+						<li class="footer-menu-divider">&sdot;</li>
+						<li><a href="#features">Features</a></li>
+						<li class="footer-menu-divider">&sdot;</li>
+						<li><a href="#success-stories">Success Stories</a></li>
+						<li class="footer-menu-divider">&sdot;</li>
+						<li><a href="#simple-workflow">A Simple Workflow</a></li>
+						<li class="footer-menu-divider">&sdot;</li>
+						<li><a href="#contact">Contact</a></li>
+					</ul>
+					<!--p class="copyright text-muted small">Copyright &copy; Your Company 2014. All Rights Reserved</p-->
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- jQuery -->
+	<script src="landing-page/js/jquery.js"></script>
+
+	<!-- Bootstrap Core JavaScript -->
+	<script src="landing-page/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
