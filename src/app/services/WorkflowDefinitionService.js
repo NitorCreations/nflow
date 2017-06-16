@@ -2,40 +2,35 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.services.WorkflowDefinitionService', [
-    'ngResource',
+    'nflowExplorer.services.RestHelper',
   ]);
 
-  m.service('WorkflowDefinitionService', function WorkflowDefinitionService(config, $resource, $http, $cacheFactory) {
+  m.service('WorkflowDefinitionService', function WorkflowDefinitionService(config, RestHelper, $cacheFactory) {
     var api = this;
     api.get = get;
     api.list = list;
     api.getStats = getStats;
 
     var getCache = $cacheFactory('workflow-definition');
-    function get(type) {
-      var resource = $resource(config.nflowUrl + '/v1/workflow-definition',
-        {type: '@type'},
-        {'get': {isArray: true,
-          method:  'GET',
-          cache: getCache} });
 
-      return resource.get({type: type}).$promise;
+    function get(type) {
+      return RestHelper.query({
+        path: '/v1/workflow-definition',
+        cache: getCache
+      }, {type: type});
     }
 
     var listCache = $cacheFactory('workflow-definition-list');
-    function list() {
-      var resource = $resource(config.nflowUrl + '/v1/workflow-definition',
-        {type: '@type'},
-        {'query': {isArray: true,
-          method:  'GET',
-          cache: listCache} });
 
-      return resource.query().$promise;
+    function list() {
+      return RestHelper.query({
+        path: '/v1/workflow-definition',
+        cache: listCache
+      });
     }
 
     function getStats(type) {
-      var stats = $resource(config.nflowUrl + '/v1/statistics/workflow/:type', {type: '@type'});
-      return stats.get({type: type}).$promise;
+      return RestHelper.get({path: '/v1/statistics/workflow/:type'}, {type: type}, {type: '@type'});
     }
 
   });

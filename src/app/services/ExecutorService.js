@@ -2,9 +2,10 @@
   'use strict';
   var m = angular.module('nflowExplorer.services.ExecutorService', [
     'nflowExplorer.config',
+    'nflowExplorer.services.RestHelper',
   ]);
 
-  m.service('ExecutorService', function ExecutorService(config, $http, $interval) {
+  m.service('ExecutorService', function ExecutorService(config, RestHelper, $interval) {
     var started = false;
 
     var api = this;
@@ -13,11 +14,7 @@
     api.executors = [];
 
     function list() {
-      return $http({
-        url: config.nflowUrl + '/v1/workflow-executor'
-      }).then(function (response) {
-        return response.data;
-      });
+      return RestHelper.query({path: '/v1/workflow-executor'});
     }
 
     function start() {

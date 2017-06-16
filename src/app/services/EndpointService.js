@@ -22,6 +22,7 @@
       config.selectedEndpoint = endpoint;
       config.nflowUrl = endpoint.apiUrl;
       config.nflowApiDocs = endpoint.docUrl;
+      config.withCredentials = endpoint.withCredentials;
 
       try {
         $window.localStorage.setItem('nflow.endpoint', endpoint.id);

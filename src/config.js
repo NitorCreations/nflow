@@ -3,6 +3,7 @@ var Config = function() {
   // these get overwritten in EndpointService
   this.nflowUrl = 'http://localhost:7500/api/nflow';
   this.nflowApiDocs = 'http://localhost:7500/doc/';
+  this.withCredentials = false;
 
   this.nflowEndpoints = [
     {
