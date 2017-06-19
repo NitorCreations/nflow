@@ -5,7 +5,6 @@ var po = require('./pageobjects/pageobjects');
 describe('endpoint selection', function () {
   var menu = po.menu({});
   var frontPage = po.frontPage({});
-  var aboutPage = po.aboutPage({});
 
   beforeEach(function() { frontPage.get(); });
 
@@ -48,7 +47,7 @@ describe('endpoint selection', function () {
 
   describe('selecting nBank endpoint', function() {
     beforeEach(function() {
-      aboutPage.get();
+      menu.toAbout();
       menu.clickEndpointSelection();
       menu.selectEndpoint('nbank');
     });
