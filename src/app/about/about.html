@@ -1,8 +1,11 @@
-<h2>nFlow Explorer</h2>
-<p>See <a href="http://nflow.io/">nflow.io</a> for more details about nFlow.</p>
-<p>For support, please send a message to nFlow <a href="https://groups.google.com/forum/#!forum/nflow-users">mailing list</a>.</p>
+<section class="wd-about">
+  <h2>nFlow Explorer</h2>
+  <p>See <a href="http://nflow.io/">nflow.io</a> for more details about nFlow.</p>
+  <p>For support, please send a message to nFlow <a href="https://groups.google.com/forum/#!forum/nflow-users">mailing list</a>.</p>
 
-<h3>Settings</h3>
-<p>This nFlow Explorer uses the nFlow API running at <strong><a href="{{nflowUrl()}}">{{nflowUrl()}}</a></strong>.</p>
-<p>There may be API documentation available at <strong><a href="{{nflowApiDocs()}}">{{nflowApiDocs()}}</a></strong>.</p>
-
+  <h3>Settings</h3>
+  <p>This nFlow Explorer uses the nFlow API running at <strong><a href="{{nflowUrl()}}">{{nflowUrl()}}</a></strong>.</p>
+  <div ng-show="nflowApiDocs()">
+    <p>nFlow API documentation available at <strong><a href="{{nflowApiDocs()}}">{{nflowApiDocs()}}</a></strong>.</p>
+  </div>
+</section>
