@@ -14,8 +14,8 @@ var Config = function() {
     {
       id: 'nbank',
       title: 'nBank at nflow.io',
-      apiUrl: 'http://bank.nflow.io/nflow/api/nflow',
-      docUrl: 'http://bank.nflow.io/nflow/doc/'
+      apiUrl: 'https://bank.nflow.io/nflow/api/nflow',
+      docUrl: 'https://bank.nflow.io/nflow/doc/'
     },
   ];
 
