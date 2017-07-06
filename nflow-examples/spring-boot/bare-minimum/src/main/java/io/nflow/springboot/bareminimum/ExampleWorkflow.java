@@ -1,16 +1,16 @@
 package io.nflow.springboot.bareminimum;
 
-import org.joda.time.DateTime;
-
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
+import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static io.nflow.springboot.bareminimum.ExampleWorkflow.State.error;
 import static io.nflow.springboot.bareminimum.ExampleWorkflow.State.repeat;
+import static org.joda.time.DateTime.now;
 
 public class ExampleWorkflow extends WorkflowDefinition<ExampleWorkflow.State> {
 
@@ -48,6 +48,6 @@ public class ExampleWorkflow extends WorkflowDefinition<ExampleWorkflow.State> {
   public NextAction repeat(StateExecution execution) {
     System.out.println("Counter: " + execution.getVariable(VAR_COUNTER));
     execution.setVariable(VAR_COUNTER, execution.getVariable(VAR_COUNTER, Integer.class) + 1);
-    return NextAction.moveToStateAfter(repeat, DateTime.now().plusSeconds(10), "Next iteration");
+    return moveToStateAfter(repeat, now().plusSeconds(10), "Next iteration");
   }
 }
