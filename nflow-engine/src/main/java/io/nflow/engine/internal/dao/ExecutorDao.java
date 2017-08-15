@@ -17,7 +17,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
@@ -55,7 +54,7 @@ public class ExecutorDao {
   String executorGroupCondition;
   int timeoutSeconds;
   int executorId = -1;
-  int hostMaxLength;
+  int hostMaxLength = -1;
 
   @Inject
   public void setEnvironment(Environment env) {
@@ -75,9 +74,11 @@ public class ExecutorDao {
     this.jdbc = nflowJdbcTemplate;
   }
 
-  @PostConstruct
-  public void findHostMaxLength() {
-    hostMaxLength = jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor);
+  private int getHostMaxLength() {
+    if (hostMaxLength == -1) {
+      hostMaxLength = jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor);
+    }
+    return hostMaxLength;
   }
 
   private static String createWhereCondition(String group) {
@@ -123,7 +124,7 @@ public class ExecutorDao {
     final String host;
     final int pid;
     try {
-      host = left(getLocalHost().getCanonicalHostName(), hostMaxLength);
+      host = left(getLocalHost().getCanonicalHostName(), getHostMaxLength());
       pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     } catch (UnknownHostException | NumberFormatException ex) {
       throw new RuntimeException("Failed to obtain host name and pid of running jvm", ex);
