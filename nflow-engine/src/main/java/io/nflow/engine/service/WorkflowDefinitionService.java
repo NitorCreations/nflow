@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -82,7 +81,6 @@ public class WorkflowDefinitionService {
    * @throws IOException when workflow definitions can not be read from the resource.
    * @throws ReflectiveOperationException when the workflow definition can not be instantiated.
    */
-  @PostConstruct
   public void postProcessWorkflowDefinitions() throws IOException, ReflectiveOperationException {
     if (nonSpringWorkflowsListing == null) {
       logger.info("No non-Spring workflow definitions");

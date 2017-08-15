@@ -39,7 +39,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
@@ -99,8 +98,8 @@ public class WorkflowInstanceDao {
   private long workflowInstanceQueryMaxResultsDefault;
   private long workflowInstanceQueryMaxActions;
   private long workflowInstanceQueryMaxActionsDefault;
-  int instanceStateTextLength;
-  int actionStateTextLength;
+  int instanceStateTextLength = -1;
+  int actionStateTextLength = -1;
 
   @Inject
   public void setSqlVariants(SQLVariants sqlVariants) {
@@ -147,10 +146,18 @@ public class WorkflowInstanceDao {
     this.workflowInstanceFactory = workflowInstanceFactory;
   }
 
-  @PostConstruct
-  public void findColumnMaxLengths() {
-    instanceStateTextLength = jdbc.query("select state_text from nflow_workflow where 1 = 0", firstColumnLengthExtractor);
-    actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
+  private int getInstanceStateTextLength() {
+    if (instanceStateTextLength == -1) {
+      instanceStateTextLength = jdbc.query("select state_text from nflow_workflow where 1 = 0", firstColumnLengthExtractor);
+    }
+    return instanceStateTextLength;
+  }
+
+  int getActionStateTextLength() {
+    if (actionStateTextLength == -1) {
+      actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
+    }
+    return actionStateTextLength;
   }
 
   public int insertWorkflowInstance(WorkflowInstance instance) {
@@ -172,7 +179,7 @@ public class WorkflowInstanceDao {
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
       Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
           instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
-          instance.status.name(), instance.state, abbreviate(instance.stateText, instanceStateTextLength),
+          instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
           toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
       Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
@@ -218,7 +225,7 @@ public class WorkflowInstanceDao {
           ps.setString(p++, executorInfo.getExecutorGroup());
           ps.setString(p++, instance.status.name());
           ps.setString(p++, instance.state);
-          ps.setString(p++, abbreviate(instance.stateText, instanceStateTextLength));
+          ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
           ps.setTimestamp(p++, toTimestamp(instance.nextActivation));
           if (instance.signal.isPresent()) {
             ps.setInt(p++, instance.signal.get());
@@ -320,7 +327,7 @@ public class WorkflowInstanceDao {
     // using sqlVariants.nextActivationUpdate() requires that nextActivation is used 3 times
     Timestamp nextActivation = toTimestamp(instance.nextActivation);
     return jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
-        abbreviate(instance.stateText, instanceStateTextLength), nextActivation, nextActivation, nextActivation,
+        abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
         instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, instance.id);
   }
 
@@ -398,9 +405,10 @@ public class WorkflowInstanceDao {
     // using sqlVariants.nextActivationUpdate() requires that nextActivation is added 3 times
     Timestamp nextActivation = toTimestamp(instance.nextActivation);
     Object[] fixedValues = new Object[] { instance.status.name(), instance.state,
-        abbreviate(instance.stateText, instanceStateTextLength), nextActivation, nextActivation, nextActivation,
+        abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
         instance.status == executing ? executorId : null, instance.retries, instance.id, executorId, action.type.name(),
-        action.state, abbreviate(action.stateText, actionStateTextLength), action.retryNo, toTimestamp(action.executionStart),
+        action.state, abbreviate(action.stateText, getActionStateTextLength()), action.retryNo,
+        toTimestamp(action.executionStart),
         toTimestamp(action.executionEnd) };
     int pos = fixedValues.length;
     Object[] args = Arrays.copyOf(fixedValues, pos + changedStateVariables.size() * 2);
@@ -753,7 +761,7 @@ public class WorkflowInstanceDao {
         p.setInt(field++, executorInfo.getExecutorId());
         p.setString(field++, action.type.name());
         p.setString(field++, action.state);
-        p.setString(field++, abbreviate(action.stateText, actionStateTextLength));
+        p.setString(field++, abbreviate(action.stateText, getActionStateTextLength()));
         p.setInt(field++, action.retryNo);
         p.setTimestamp(field++, toTimestamp(action.executionStart));
         p.setTimestamp(field++, toTimestamp(action.executionEnd));
