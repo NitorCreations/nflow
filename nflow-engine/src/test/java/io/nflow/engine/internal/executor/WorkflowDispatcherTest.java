@@ -45,6 +45,7 @@ import edu.umd.cs.mtc.MultithreadedTestCase;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.listener.WorkflowExecutorListener;
+import io.nflow.engine.service.WorkflowDefinitionService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowDispatcherTest {
@@ -54,6 +55,8 @@ public class WorkflowDispatcherTest {
   MockEnvironment env = new MockEnvironment();
   @Mock
   WorkflowInstanceDao workflowInstances;
+  @Mock
+  WorkflowDefinitionService workflowDefinitions;
   @Mock
   ExecutorDao executorDao;
   @Mock
@@ -73,7 +76,7 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stuckThreadThreshold.seconds", "60");
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
-    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, executorDao, env);
+    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
     logger.addAppender(mockAppender);
   }
@@ -87,7 +90,7 @@ public class WorkflowDispatcherTest {
   @Test(expected = BeanCreationException.class)
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
     when(executorDao.isTransactionSupportEnabled()).thenReturn(false);
-    new WorkflowDispatcher(executor, workflowInstances, executorFactory, executorDao, env);
+    new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
   }
 
   @Test
@@ -228,7 +231,7 @@ public class WorkflowDispatcherTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(executor);
-        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, executorDao, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
       }
 
       public void threadDispatcher() {

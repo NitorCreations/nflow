@@ -2,6 +2,7 @@ package io.nflow.engine.internal.executor;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -18,6 +19,7 @@ import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.PeriodicLogger;
+import io.nflow.engine.service.WorkflowDefinitionService;
 
 @Component
 @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "rand does not need to be secure")
@@ -32,6 +34,7 @@ public class WorkflowDispatcher implements Runnable {
   private final WorkflowInstanceExecutor executor;
   private final WorkflowInstanceDao workflowInstances;
   private final WorkflowStateProcessorFactory stateProcessorFactory;
+  private final WorkflowDefinitionService workflowDefinitions;
   private final ExecutorDao executorDao;
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
@@ -40,10 +43,12 @@ public class WorkflowDispatcher implements Runnable {
   @Inject
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
   public WorkflowDispatcher(WorkflowInstanceExecutor executor, WorkflowInstanceDao workflowInstances,
-      WorkflowStateProcessorFactory stateProcessorFactory, ExecutorDao executorDao, Environment env) {
+      WorkflowStateProcessorFactory stateProcessorFactory, WorkflowDefinitionService workflowDefinitions, ExecutorDao executorDao,
+      Environment env) {
     this.executor = executor;
     this.workflowInstances = workflowInstances;
     this.stateProcessorFactory = stateProcessorFactory;
+    this.workflowDefinitions = workflowDefinitions;
     this.executorDao = executorDao;
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
@@ -56,6 +61,7 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Starting.");
     try {
+      workflowDefinitions.postProcessWorkflowDefinitions();
       while (!shutdownRequested) {
         try {
           executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
@@ -80,6 +86,8 @@ public class WorkflowDispatcher implements Runnable {
           sleep(false);
         }
       }
+    } catch (IOException | ReflectiveOperationException e) {
+      logger.error("Fetching workflow definitions failed", e);
     } finally {
       shutdownPool();
       executorDao.markShutdown();
