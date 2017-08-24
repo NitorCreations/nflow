@@ -8,6 +8,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
@@ -68,6 +69,8 @@ class WorkflowStateProcessor implements Runnable {
   final String illegalStateChangeAction;
   private final int unknownWorkflowTypeRetryDelay;
   private final int unknownWorkflowStateRetryDelay;
+  private final int stateSaveRetryDelay;
+  private boolean stateSaveRetryEnabled = true;
   private final Map<Integer, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
   private Thread thread;
@@ -87,6 +90,7 @@ class WorkflowStateProcessor implements Runnable {
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
+    stateSaveRetryDelay = env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Integer.class);
   }
 
   @Override
@@ -205,6 +209,29 @@ class WorkflowStateProcessor implements Runnable {
         .setStateText(getStateText(instance, execution)) //
         .setState(execution.getNextState()) //
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
+    do {
+      try {
+        return persistWorkflowInstanceState(execution, instance, actionBuilder, builder);
+      } catch (Exception ex) {
+        logger.error("Failed to save workflow instance new state, retrying after {} seconds", stateSaveRetryDelay, ex);
+        try {
+          Thread.sleep(SECONDS.toMillis(stateSaveRetryDelay));
+        } catch (@SuppressWarnings("unused") InterruptedException ok) {
+        }
+      }
+    } while (stateSaveRetryEnabled);
+    throw new IllegalStateException("Failed to save workflow instance new state");
+  }
+
+  /**
+   * For unit testing only
+   */
+  void setStateSaveRetryEnabled(boolean stateSaveRetryEnabled) {
+    this.stateSaveRetryEnabled = stateSaveRetryEnabled;
+  }
+
+  private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance, WorkflowInstanceAction.Builder actionBuilder,
+      WorkflowInstance.Builder builder) {
     if (execution.isStateProcessInvoked()) {
       actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
       if (execution.isFailed()) {

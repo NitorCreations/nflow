@@ -11,6 +11,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -160,6 +163,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.illegal.state.change.action", "fail");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
+    env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
+
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
@@ -830,6 +835,21 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     verify(executionMock, never()).setNextState(any(TestWorkflow.State.class));
     verify(executionMock).setNextActivation(tomorrow);
+  }
+
+  @Test
+  public void saveStateRetryAfterFailedPersistence() throws InterruptedException {
+    WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    doThrow(new RuntimeException("some failure")).when(workflowInstanceDao).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
+
+    ExecutorService executorService = newSingleThreadExecutor();
+    newSingleThreadExecutor().submit(executor);
+    Thread.sleep(1500);
+    executor.setStateSaveRetryEnabled(false);
+    executorService.shutdownNow();
+
+    verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
   }
 
   public static class Pojo {
