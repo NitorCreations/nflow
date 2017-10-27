@@ -2,18 +2,20 @@ package io.nflow.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import io.github.robwin.swagger2markup.Swagger2MarkupConverter;
+import io.github.swagger2markup.Swagger2MarkupConverter;
 import io.nflow.tests.runner.NflowServerRule;
 
 public class Swagger2MarkupTest extends AbstractNflowTest {
 
-  private static final String SWAGGER2_MARKUP_ASCIIDOC_DIR = "src/main/asciidoc/swagger2markup";
+  private static final Path SWAGGER2_MARKUP_ASCIIDOC_DIR = Paths.get("src/main/asciidoc/swagger2markup");
 
   @ClassRule
   public static NflowServerRule server = new NflowServerRule.Builder().build();
@@ -23,11 +25,12 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
   }
 
   @Test
-  public void convertRemoteSwaggerToAsciiDoc() throws IOException {
-    Swagger2MarkupConverter.from(server.getHttpAddress() + "/api/swagger.json").build().intoFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
+  public void convertRemoteSwaggerToAsciiDoc() throws MalformedURLException {
+    Swagger2MarkupConverter.from(new URL(server.getHttpAddress() + "/api/swagger.json")).build()
+        .toFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
 
-    // Then validate that three AsciiDoc files have been created
-    String[] files = new File(SWAGGER2_MARKUP_ASCIIDOC_DIR).list();
-    assertEquals(4, files.length);
+    // Then validate that the right number of AsciiDoc files have been created
+    String[] files = SWAGGER2_MARKUP_ASCIIDOC_DIR.toFile().list();
+    assertEquals(5, files.length);
   }
 }

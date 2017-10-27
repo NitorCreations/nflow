@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
@@ -57,6 +58,6 @@ public class EngineConfiguration {
     if (filename != null) {
       return new ClassPathResource(filename);
     }
-    return null;
+    return new ByteArrayResource(new byte[0]);
   }
 }
