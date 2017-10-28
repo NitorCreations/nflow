@@ -1,44 +1,39 @@
-package io.nflow.rest.v1.jaxrs;
+package io.nflow.rest.v1.springweb;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_PATH;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.Collection;
-import static java.util.stream.Collectors.toList;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import io.nflow.engine.service.WorkflowExecutorService;
-import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.ListWorkflowExecutorConverter;
 import io.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Path(NFLOW_WORKFLOW_EXECUTOR_PATH)
-@Consumes(APPLICATION_JSON)
-@Produces(APPLICATION_JSON)
+@RestController
+@RequestMapping(value = NFLOW_WORKFLOW_EXECUTOR_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow workflow executor management")
 @Component
-@NflowCors
 public class WorkflowExecutorResource {
 
   private final WorkflowExecutorService workflowExecutors;
   private final ListWorkflowExecutorConverter converter;
 
-  @Inject
+  @Autowired
   public WorkflowExecutorResource(WorkflowExecutorService workflowExecutors, ListWorkflowExecutorConverter converter) {
     this.workflowExecutors = workflowExecutors;
     this.converter = converter;
   }
 
-  @GET
+  @GetMapping
   @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
   public Collection<ListWorkflowExecutorResponse> listWorkflowExecutors() {
     return workflowExecutors.getWorkflowExecutors().stream().map(executor -> converter.convert(executor)).collect(toList());

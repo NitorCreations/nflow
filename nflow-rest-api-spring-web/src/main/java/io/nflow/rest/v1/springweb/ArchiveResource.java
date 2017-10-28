@@ -1,39 +1,35 @@
-package io.nflow.rest.v1.jaxrs;
+package io.nflow.rest.v1.springweb;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_ARCHIVE_PATH;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import io.nflow.engine.service.ArchiveService;
-import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.msg.ArchiveRequest;
 import io.nflow.rest.v1.msg.ArchiveResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@Path(NFLOW_ARCHIVE_PATH)
-@Consumes(APPLICATION_JSON)
-@Produces(APPLICATION_JSON)
+@RestController
+@RequestMapping(value = NFLOW_ARCHIVE_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow archiving")
 @Component
-@NflowCors
 public class ArchiveResource {
 
-  @Inject
+  @Autowired
   private ArchiveService archiveService;
 
-  @POST
+  @PostMapping(consumes = APPLICATION_JSON_VALUE)
   @ApiOperation("Archive workflow instances synchronously")
   public ArchiveResponse archiveWorkflows(
-      @ApiParam(value = "Parameters for the archiving process", required = true) ArchiveRequest request) {
+      @RequestBody @ApiParam(value = "Parameters for the archiving process", required = true) ArchiveRequest request) {
     ArchiveResponse response = new ArchiveResponse();
     response.archivedWorkflows = archiveService.archiveWorkflows(request.olderThan, request.batchSize);
     return response;
