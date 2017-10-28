@@ -84,8 +84,10 @@
     </developer>
   </developers>
   <modules>
-    <module>nflow-rest-api</module>
     <module>nflow-engine</module>
+    <module>nflow-rest-api-common</module>
+    <module>nflow-rest-api-jax-rs</module>
+    <module>nflow-server-common</module>
     <module>nflow-jetty</module>
     <module>nflow-tests</module>
     <module>nflow-metrics</module>
@@ -391,8 +393,10 @@
       </activation>
       <id>allModules</id>
       <modules>
-        <module>nflow-rest-api</module>
         <module>nflow-engine</module>
+        <module>nflow-rest-api-common</module>
+        <module>nflow-rest-api-jax-rs</module>
+        <module>nflow-server-common</module>
         <module>nflow-jetty</module>
         <module>nflow-tests</module>
         <module>nflow-metrics</module>
@@ -451,7 +455,17 @@
       </dependency>
       <dependency>
         <groupId>io.nflow</groupId>
-        <artifactId>nflow-rest-api</artifactId>
+        <artifactId>nflow-rest-api-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.nflow</groupId>
+        <artifactId>nflow-rest-api-jax-rs</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.nflow</groupId>
+        <artifactId>nflow-server-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

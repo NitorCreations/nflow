@@ -56,7 +56,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.jetty.config.NflowJettyConfiguration;
 import io.nflow.jetty.servlet.MetricsServletContextListener;
 import io.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
-import io.nflow.jetty.spring.NflowStandardEnvironment;
+import io.nflow.server.spring.NflowStandardEnvironment;
 
 @SuppressFBWarnings(value = { "UPM_UNCALLED_PRIVATE_METHOD", "UUF_UNUSED_FIELD" }, justification = "FindBugs bug")
 public class StartNflow
