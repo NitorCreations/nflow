@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.storage.db;
 
-import static io.nflow.engine.internal.storage.db.OracleDatabaseConfiguration.DB_TYPE_ORACLE;
+import static io.nflow.engine.config.db.OracleDatabaseConfiguration.DB_TYPE_ORACLE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;

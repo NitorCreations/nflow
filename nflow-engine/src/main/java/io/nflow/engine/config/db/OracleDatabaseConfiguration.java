@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.storage.db;
+package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.ORACLE;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -20,6 +20,8 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
+import io.nflow.engine.internal.storage.db.DatabaseInitializer;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 @Profile(ORACLE)

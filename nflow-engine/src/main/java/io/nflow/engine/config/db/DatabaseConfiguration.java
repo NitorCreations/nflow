@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.storage.db;
+package io.nflow.engine.config.db;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.nflow.engine.config.NFlow;
+import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 
 public abstract class DatabaseConfiguration {
   public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";

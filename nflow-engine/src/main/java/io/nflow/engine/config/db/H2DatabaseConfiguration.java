@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.storage.db;
+package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.H2;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 @Profile(H2)

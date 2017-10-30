@@ -60,7 +60,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.internal.storage.db.PgDatabaseConfiguration.PostgreSQLVariants;
+import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;

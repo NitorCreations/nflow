@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.storage.db;
+package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.POSTGRESQL;
 
@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 @Profile(POSTGRESQL)
