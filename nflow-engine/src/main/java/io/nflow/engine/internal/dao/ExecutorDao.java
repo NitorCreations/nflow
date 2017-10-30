@@ -54,7 +54,7 @@ public class ExecutorDao {
   String executorGroupCondition;
   int timeoutSeconds;
   int executorId = -1;
-  int hostMaxLength = -1;
+  int hostMaxLength;
 
   @Inject
   public void setEnvironment(Environment env) {
@@ -62,6 +62,8 @@ public class ExecutorDao {
     this.executorGroupCondition = createWhereCondition(executorGroup);
     timeoutSeconds = env.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
     keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
+    // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
+    hostMaxLength = env.getProperty("nflow.executor.host.length", Integer.class, -1);
   }
 
   @Inject

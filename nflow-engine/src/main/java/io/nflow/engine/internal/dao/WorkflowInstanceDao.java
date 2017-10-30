@@ -98,8 +98,8 @@ public class WorkflowInstanceDao {
   private long workflowInstanceQueryMaxResultsDefault;
   private long workflowInstanceQueryMaxActions;
   private long workflowInstanceQueryMaxActionsDefault;
-  int instanceStateTextLength = -1;
-  int actionStateTextLength = -1;
+  int instanceStateTextLength;
+  int actionStateTextLength;
 
   @Inject
   public void setSqlVariants(SQLVariants sqlVariants) {
@@ -134,6 +134,9 @@ public class WorkflowInstanceDao {
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
         Long.class);
+    // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
+    instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
+    actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
   }
 
   @Inject
