@@ -29,7 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.dao.ArchiveDao;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.HealthCheckDao;

@@ -1,6 +1,6 @@
 package io.nflow.metrics;
 
-import static io.nflow.engine.internal.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.JMX;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;

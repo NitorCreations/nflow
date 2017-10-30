@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.storage.db;
 
-import static io.nflow.engine.internal.config.Profiles.POSTGRESQL;
+import static io.nflow.engine.config.Profiles.POSTGRESQL;
 
 import java.sql.Types;
 

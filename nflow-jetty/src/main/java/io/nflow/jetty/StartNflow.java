@@ -1,6 +1,6 @@
 package io.nflow.jetty;
 
-import static io.nflow.engine.internal.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.JMX;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.list;

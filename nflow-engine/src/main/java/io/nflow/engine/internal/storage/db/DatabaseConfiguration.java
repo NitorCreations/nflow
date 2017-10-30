@@ -20,7 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 
 public abstract class DatabaseConfiguration {
   public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";

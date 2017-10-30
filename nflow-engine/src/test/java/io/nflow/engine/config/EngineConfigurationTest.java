@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.config;
+package io.nflow.engine.config;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -21,6 +21,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
 @RunWith(MockitoJUnitRunner.class)

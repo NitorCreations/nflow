@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.config;
+package io.nflow.engine.config;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

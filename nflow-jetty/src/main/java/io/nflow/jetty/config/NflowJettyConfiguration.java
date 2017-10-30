@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.BadRequestExceptionMapper;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
 import io.nflow.jetty.mapper.NotFoundExceptionMapper;

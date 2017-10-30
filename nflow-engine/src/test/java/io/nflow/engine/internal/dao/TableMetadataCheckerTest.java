@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.config.Profiles.H2;
+import static io.nflow.engine.config.Profiles.H2;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;

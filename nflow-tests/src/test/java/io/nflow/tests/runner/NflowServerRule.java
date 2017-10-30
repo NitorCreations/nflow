@@ -1,6 +1,6 @@
 package io.nflow.tests.runner;
 
-import static io.nflow.engine.internal.config.Profiles.POSTGRESQL;
+import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.right;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;

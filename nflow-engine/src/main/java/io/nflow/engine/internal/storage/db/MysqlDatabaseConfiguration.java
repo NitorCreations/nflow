@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.storage.db;
 
-import static io.nflow.engine.internal.config.Profiles.MYSQL;
+import static io.nflow.engine.config.Profiles.MYSQL;
 import static java.lang.Integer.parseInt;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -20,7 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 @Profile(MYSQL)

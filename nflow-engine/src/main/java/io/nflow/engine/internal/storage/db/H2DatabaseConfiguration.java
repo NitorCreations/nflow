@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.storage.db;
 
-import static io.nflow.engine.internal.config.Profiles.H2;
+import static io.nflow.engine.config.Profiles.H2;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.sql.SQLException;

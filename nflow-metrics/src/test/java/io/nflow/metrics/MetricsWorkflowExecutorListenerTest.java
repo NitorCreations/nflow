@@ -1,8 +1,8 @@
 package io.nflow.metrics;
 
-import static io.nflow.engine.internal.config.Profiles.H2;
-import static io.nflow.engine.internal.config.Profiles.JMX;
-import static io.nflow.engine.internal.config.Profiles.METRICS;
+import static io.nflow.engine.config.Profiles.H2;
+import static io.nflow.engine.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.METRICS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -22,7 +22,7 @@ import org.springframework.mock.env.MockEnvironment;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.listener.WorkflowExecutorListener;

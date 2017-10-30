@@ -1,6 +1,6 @@
 package io.nflow.tests;
 
-import static io.nflow.engine.internal.config.Profiles.MYSQL;
+import static io.nflow.engine.config.Profiles.MYSQL;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;

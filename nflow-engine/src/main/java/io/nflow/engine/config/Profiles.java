@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.config;
+package io.nflow.engine.config;
 
 public abstract class Profiles {
   public static final String H2 = "nflow.db.h2";

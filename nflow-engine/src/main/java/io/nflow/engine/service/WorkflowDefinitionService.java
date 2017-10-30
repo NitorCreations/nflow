@@ -20,7 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;

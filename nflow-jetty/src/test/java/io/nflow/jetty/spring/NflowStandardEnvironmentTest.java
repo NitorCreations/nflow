@@ -1,6 +1,6 @@
 package io.nflow.jetty.spring;
 
-import static io.nflow.engine.internal.config.Profiles.H2;
+import static io.nflow.engine.config.Profiles.H2;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static org.hamcrest.Matchers.is;

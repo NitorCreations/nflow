@@ -10,7 +10,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 
 @Component
 public class WorkflowLifecycle implements SmartLifecycle {

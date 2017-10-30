@@ -1,8 +1,8 @@
 package io.nflow.jetty;
 
-import static io.nflow.engine.internal.config.Profiles.JMX;
-import static io.nflow.engine.internal.config.Profiles.MYSQL;
-import static io.nflow.engine.internal.config.Profiles.POSTGRESQL;
+import static io.nflow.engine.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.MYSQL;
+import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -13,9 +13,6 @@ import static org.junit.Assert.fail;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Configurable;
-
-import io.nflow.jetty.JettyServerContainer;
-import io.nflow.jetty.StartNflow;
 
 public class StartNflowTest {
   @Test
