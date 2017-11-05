@@ -3,6 +3,11 @@
 User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 ***
 
+## Screenshots
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition-list.png" width="240" height="180">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition.png" width="240" height="180">|
+|-|-|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-list.png" width="240" height="180">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance.png" width="240" height="180">|
+
 ## Demo
 
 http://bank.nflow.io/nflow/explorer/
