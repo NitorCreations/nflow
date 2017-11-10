@@ -23,15 +23,34 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 
+/**
+ * Base class for different database configurations.
+ */
 public abstract class DatabaseConfiguration {
+
+  /**
+   * Name of the nFlow database initializer bean.
+   */
   public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
+
   private static final Logger logger = getLogger(DatabaseConfiguration.class);
+
   private final String dbType;
 
+  /**
+   * Creates a new configuration with given database type.
+   * @param dbType Defines the database creation script and configuration properties to be used.
+   */
   protected DatabaseConfiguration(String dbType) {
     this.dbType = dbType;
   }
 
+  /**
+   * Creates the datasource bean for nFlow.
+   * @param env The Spring environment for getting the configuration property values.
+   * @param appCtx The application context for searching Metrics registry bean.
+   * @return The datasource for nFlow.
+   */
   @Bean
   @NFlow
   public DataSource nflowDatasource(Environment env, BeanFactory appCtx) {
@@ -62,6 +81,11 @@ public abstract class DatabaseConfiguration {
     }
   }
 
+  /**
+   * Creates a JDBC template using nFlow datasource.
+   * @param nflowDataSource The nFlow datasource.
+   * @return A JDBC template.
+   */
   @Bean
   @NFlow
   @Scope(SCOPE_PROTOTYPE)
@@ -70,6 +94,11 @@ public abstract class DatabaseConfiguration {
     return new JdbcTemplate(nflowDataSource);
   }
 
+  /**
+   * Creates a named parameter JDBC template using nFlow datasource.
+   * @param nflowDataSource The nFlow datasource.
+   * @return A named parameter JDBC template.
+   */
   @Bean
   @NFlow
   @Scope(SCOPE_PROTOTYPE)
@@ -78,16 +107,35 @@ public abstract class DatabaseConfiguration {
     return new NamedParameterJdbcTemplate(nflowDataSource);
   }
 
+  /**
+   * Creates a transaction template.
+   * @param platformTransactionManager Transaction manager to be used.
+   * @return A transaction template.
+   */
   @Bean
   @NFlow
   public TransactionTemplate nflowTransactionTemplate(PlatformTransactionManager platformTransactionManager) {
     return new TransactionTemplate(platformTransactionManager);
   }
 
+  /**
+   * Get a database configuration string property from the environment, or if the generic property is not defined, the property
+   * based on the database type.
+   * @param env The Spring environment.
+   * @param key The property key.
+   * @return The property value.
+   */
   protected String property(Environment env, String key) {
     return property(env, key, String.class);
   }
 
+  /**
+   * Get the database configuration property of given type from the environment, or if the generic property is not defined, the
+   * property based on the database type.
+   * @param env The Spring environment.
+   * @param key The property key.
+   * @return The property value.
+   */
   protected <T> T property(Environment env, String key, Class<T> type) {
     T val = env.getProperty("nflow.db." + key, type);
     if (val == null) {
@@ -99,9 +147,16 @@ public abstract class DatabaseConfiguration {
     return val;
   }
 
+  /**
+   * Creates the nFlow database initializer.
+   * @param dataSource The nFlow datasource.
+   * @param env The Spring environment.
+   * @return The database initializer.
+   */
   @Bean(name = NFLOW_DATABASE_INITIALIZER)
   @NFlow
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
+
 }

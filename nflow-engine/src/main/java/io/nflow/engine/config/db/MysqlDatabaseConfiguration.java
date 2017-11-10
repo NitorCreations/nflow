@@ -25,15 +25,27 @@ import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
+/**
+ * Configuration for MySQL database.
+ */
 @Profile(MYSQL)
 @Configuration
 public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
   private static final Logger logger = getLogger(MysqlDatabaseConfiguration.class);
 
+  /**
+   * Create a new instance.
+   */
   public MysqlDatabaseConfiguration() {
     super("mysql");
   }
 
+  /**
+   * Creates the nFlow database initializer. Selects correct database creation script based on database version.
+   * @param dataSource The nFlow datasource.
+   * @param env The Spring environment.
+   * @return The database initializer.
+   */
   @Bean
   @Override
   @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
@@ -63,27 +75,47 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     return new DatabaseInitializer(dbType, nflowDataSource, env);
   }
 
+  /**
+   * Creates the SQL variants for MySQL database.
+   * @return SQL variants optimized for MySQL.
+   */
   @Bean
   public SQLVariants sqlVariants() {
     return new MySQLVariants();
   }
 
+  /**
+   * SQL variants optimized for MySQL.
+   */
   public static class MySQLVariants implements SQLVariants {
+
+    /**
+     * Returns SQL representing the current database time plus given amount of seconds.
+     */
     @Override
     public String currentTimePlusSeconds(int seconds) {
       return "from_unixtime(unix_timestamp() + " + seconds + ")";
     }
 
+    /**
+     * Returns false as MySQL does not support update returning clause.
+     */
     @Override
     public boolean hasUpdateReturning() {
       return false;
     }
 
+    /**
+     * Returns false as MySQL does not support updateable CTEs.
+     */
     @Override
     public boolean hasUpdateableCTE() {
       return false;
     }
 
+    /**
+     * Returns SQL representing the next activation time of the workflow instance.
+     */
     @Override
     public String nextActivationUpdate() {
       return "(case "
@@ -92,36 +124,57 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
           + "else least(?, external_next_activation) end)";
     }
 
+    /**
+     * Returns the SQL representation for given workflow instance status.
+     */
     @Override
     public String workflowStatus(WorkflowInstanceStatus status) {
       return "'" + status.name() + "'";
     }
 
+    /**
+     * Returns SQL representing the workflow instance status parameter.
+     */
     @Override
     public String workflowStatus() {
       return "?";
     }
 
+    /**
+     * Returns SQL representing the action type parameter.
+     */
     @Override
     public String actionType() {
       return "?";
     }
 
+    /**
+     * Returns empty string as casting to text is not needed in MySQL.
+     */
     @Override
     public String castToText() {
       return "";
     }
 
+    /**
+     * Returns SQL for a query with a limit of results.
+     */
     @Override
     public String limit(String query, String limit) {
       return query + " limit " + limit;
     }
 
+    /**
+     * Returns the SQL type for long text.
+     */
     @Override
     public int longTextType() {
       return Types.VARCHAR;
     }
 
+    /**
+     * Returns true as MySQL suppports batch updates.
+     */
     @Override
     public boolean useBatchUpdate() {
       return true;

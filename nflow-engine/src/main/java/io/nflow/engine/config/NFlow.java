@@ -11,6 +11,9 @@ import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
+/**
+ * Marker annotation for nFlow.
+ */
 @Target({ FIELD, PARAMETER, TYPE, METHOD })
 @Retention(RUNTIME)
 @Qualifier

@@ -11,35 +11,61 @@ import org.springframework.context.annotation.Profile;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
+/**
+ * Configuration for PostgreSQL database.
+ */
 @Profile(POSTGRESQL)
 @Configuration
 public class PgDatabaseConfiguration extends DatabaseConfiguration {
+
+  /**
+   * Create a new instance.
+   */
   public PgDatabaseConfiguration() {
     super("postgresql");
   }
 
-
+  /**
+   * Creates the SQL variants for PostgreSQL database.
+   * @return SQL variants optimized for PostgreSQL.
+   */
   @Bean
   public SQLVariants sqlVariants() {
     return new PostgreSQLVariants();
   }
 
+  /**
+   * SQL variants optimized for PostgreSQL.
+   */
   public static class PostgreSQLVariants implements SQLVariants {
+
+    /**
+     * Returns SQL representing the current database time plus given amount of seconds.
+     */
     @Override
     public String currentTimePlusSeconds(int seconds) {
       return "current_timestamp + interval '" + seconds + " second'";
     }
 
+    /**
+     * Returns true as PostgreSQL supports update returning clause.
+     */
     @Override
     public boolean hasUpdateReturning() {
       return true;
     }
 
+    /**
+     * Returns true as PostgreSQL supports updateable CTEs.
+     */
     @Override
     public boolean hasUpdateableCTE() {
       return true;
     }
 
+    /**
+     * Returns SQL representing the next activation time of the workflow instance.
+     */
     @Override
     public String nextActivationUpdate() {
       return "(case "
@@ -48,36 +74,57 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
           + "else least(?::timestamptz, external_next_activation) end)";
     }
 
+    /**
+     * Returns the SQL representation for given workflow instance status.
+     */
     @Override
     public String workflowStatus(WorkflowInstanceStatus status) {
       return "'" + status.name() + "'::workflow_status";
     }
 
+    /**
+     * Returns SQL representing the workflow instance status parameter.
+     */
     @Override
     public String workflowStatus() {
       return "?::workflow_status";
     }
 
+    /**
+     * Returns SQL representing the action type parameter.
+     */
     @Override
     public String actionType() {
       return "?::action_type";
     }
 
+    /**
+     * Returns string for casting value to text.
+     */
     @Override
     public String castToText() {
       return "::text";
     }
 
+    /**
+     * Returns SQL for a query with a limit of results.
+     */
     @Override
     public String limit(String query, String limit) {
       return query + " limit " + limit;
     }
 
+    /**
+     * Returns the SQL type for long text.
+     */
     @Override
     public int longTextType() {
       return Types.VARCHAR;
     }
 
+    /**
+     * Returns true as PostgreSQL suppports batch updates.
+     */
     @Override
     public boolean useBatchUpdate() {
       return true;
