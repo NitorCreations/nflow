@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.config;
+package io.nflow.engine.internal.executor;
 
 import static java.lang.Boolean.TRUE;
 import static org.hamcrest.Matchers.is;
@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 
-import io.nflow.engine.internal.executor.WorkflowDispatcher;
 import io.nflow.engine.service.WorkflowDefinitionService;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.config.Profiles.H2;
+import static io.nflow.engine.config.Profiles.H2;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.joda.time.DateTime.now;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.StateExecution;

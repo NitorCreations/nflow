@@ -1,6 +1,6 @@
 package io.nflow.jetty.spring;
 
-import static io.nflow.engine.internal.config.Profiles.H2;
+import static io.nflow.engine.config.Profiles.H2;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 

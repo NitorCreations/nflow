@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.config;
+package io.nflow.engine.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Runtime.getRuntime;
@@ -17,12 +17,23 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
+/**
+ * The main Spring configuration class for nFlow engine.
+ */
 @Configuration
 @ComponentScan("io.nflow.engine")
 public class EngineConfiguration {
 
+  /**
+   * Creates a workflow instance executor for processing workflow instances.
+   *
+   * @param nflowThreadFactory Thread factory to be used for creating instance executor threads.
+   * @param env The Spring environment.
+   * @return Workflow instance executor.
+   */
   @Bean
   public WorkflowInstanceExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
     int threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * getRuntime().availableProcessors());
@@ -34,6 +45,10 @@ public class EngineConfiguration {
         nflowThreadFactory);
   }
 
+  /**
+   * Creates a thread factory for creating instance executor threads.
+   * @return Instance executor thread factory.
+   */
   @Bean
   @NFlow
   public ThreadFactory nflowThreadFactory() {
@@ -42,6 +57,10 @@ public class EngineConfiguration {
     return factory;
   }
 
+  /**
+   * Creates an object mapper for serializing and deserializing workflow instance state variables to and from database.
+   * @return Object mapper.
+   */
   @Bean
   @NFlow
   public ObjectMapper nflowObjectMapper() {
@@ -51,6 +70,11 @@ public class EngineConfiguration {
     return mapper;
   }
 
+  /**
+   * Creates a resource for listing workflows that are not defined as Spring beans.
+   * @param env The Spring environment.
+   * @return A resource representing the file that contains a list of workflow class names.
+   */
   @Bean
   @NFlow
   public AbstractResource nflowNonSpringWorkflowsListing(Environment env) {

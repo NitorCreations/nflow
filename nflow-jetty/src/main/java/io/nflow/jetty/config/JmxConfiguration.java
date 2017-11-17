@@ -1,6 +1,6 @@
 package io.nflow.jetty.config;
 
-import static io.nflow.engine.internal.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.JMX;
 import static java.lang.Boolean.TRUE;
 
 import org.apache.cxf.Bus;

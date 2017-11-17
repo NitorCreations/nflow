@@ -16,10 +16,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.internal.storage.db.H2DatabaseConfiguration;
-import io.nflow.engine.internal.storage.db.H2DatabaseConfiguration.H2SQLVariants;
+import io.nflow.engine.config.db.H2DatabaseConfiguration;
+import io.nflow.engine.config.db.H2DatabaseConfiguration.H2SQLVariants;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 

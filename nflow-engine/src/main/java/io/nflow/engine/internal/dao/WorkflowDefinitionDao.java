@@ -33,7 +33,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition.Signal;

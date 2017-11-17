@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.config;
+package io.nflow.engine.internal.executor;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,7 +12,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.internal.executor.WorkflowDispatcher;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.service.WorkflowDefinitionService;
 
 @Component

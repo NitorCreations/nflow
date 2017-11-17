@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 

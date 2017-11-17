@@ -1,8 +1,8 @@
 package io.nflow.tests.runner;
 
-import static io.nflow.engine.internal.config.Profiles.MYSQL;
-import static io.nflow.engine.internal.config.Profiles.ORACLE;
-import static io.nflow.engine.internal.config.Profiles.POSTGRESQL;
+import static io.nflow.engine.config.Profiles.MYSQL;
+import static io.nflow.engine.config.Profiles.ORACLE;
+import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static java.lang.System.getenv;
 import static org.apache.commons.lang3.StringUtils.containsAny;
 import static org.junit.Assume.assumeTrue;

@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Import;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nflow.engine.internal.config.EngineConfiguration;
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.EngineConfiguration;
+import io.nflow.engine.config.NFlow;
 
 @Configuration
 @Import({ EngineConfiguration.class, NflowRestApiPropertiesConfiguration.class })

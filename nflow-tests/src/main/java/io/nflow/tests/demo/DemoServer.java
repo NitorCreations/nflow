@@ -1,6 +1,6 @@
 package io.nflow.tests.demo;
 
-import static io.nflow.engine.internal.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.JMX;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static io.nflow.tests.demo.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.SlowWorkflow.SLOW_WORKFLOW_TYPE;
