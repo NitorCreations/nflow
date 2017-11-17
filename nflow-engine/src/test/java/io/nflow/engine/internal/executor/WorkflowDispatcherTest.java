@@ -68,6 +68,7 @@ public class WorkflowDispatcherTest {
 
   @Before
   public void setup() {
+    env.setProperty("nflow.autoinit", "true");
     env.setProperty("nflow.dispatcher.sleep.ms", "0");
     env.setProperty("nflow.dispatcher.executor.queue.wait_until_threshold", "0");
     env.setProperty("nflow.illegal.state.change.action", "ignore");

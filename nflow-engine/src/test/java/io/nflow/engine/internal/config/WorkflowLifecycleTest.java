@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 
 import io.nflow.engine.internal.executor.WorkflowDispatcher;
+import io.nflow.engine.service.WorkflowDefinitionService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowLifecycleTest {
@@ -29,14 +31,17 @@ public class WorkflowLifecycleTest {
   private Environment env;
   @Mock
   private Thread dispatcherThread;
+  @Mock
+  private WorkflowDefinitionService workflowDefinitions;
 
   private WorkflowLifecycle lifecycle;
 
   @Before
-  public void setup() {
+  public void setup() throws IOException, ReflectiveOperationException {
+    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(TRUE);
     when(env.getRequiredProperty("nflow.autostart", Boolean.class)).thenReturn(TRUE);
     when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
-    lifecycle = new WorkflowLifecycle(dispatcher, threadFactory, env);
+    lifecycle = new WorkflowLifecycle(workflowDefinitions, dispatcher, threadFactory, env);
   }
 
   @Test
