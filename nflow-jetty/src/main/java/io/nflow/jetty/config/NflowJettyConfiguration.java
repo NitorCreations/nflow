@@ -38,14 +38,14 @@ import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.BadRequestExceptionMapper;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
 import io.nflow.jetty.mapper.NotFoundExceptionMapper;
-import io.nflow.rest.config.CorsHeaderContainerResponseFilter;
-import io.nflow.rest.config.DateTimeParamConverterProvider;
 import io.nflow.rest.config.RestConfiguration;
-import io.nflow.rest.v1.ArchiveResource;
-import io.nflow.rest.v1.StatisticsResource;
-import io.nflow.rest.v1.WorkflowDefinitionResource;
-import io.nflow.rest.v1.WorkflowExecutorResource;
-import io.nflow.rest.v1.WorkflowInstanceResource;
+import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
+import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
+import io.nflow.rest.v1.jaxrs.ArchiveResource;
+import io.nflow.rest.v1.jaxrs.StatisticsResource;
+import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
+import io.nflow.rest.v1.jaxrs.WorkflowExecutorResource;
+import io.nflow.rest.v1.jaxrs.WorkflowInstanceResource;
 
 @Configuration
 @ComponentScan("io.nflow.jetty")
