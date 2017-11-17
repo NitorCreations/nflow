@@ -9,14 +9,12 @@ import io.nflow.tests.runner.NflowServerRule;
 
 public class SkipAutoStartTest extends AbstractNflowTest {
 
-  // Because nflow.db.create_on_startup is false, no tables are created, which
-  // causes failures if SQL statements are issued during bean initialization.
-  // We need a valid database connection because connection to the database using
-  // a database driver is done during bean initialization in the
-  // DatabaseConfiguration class.
+  // When nflow.autoinit, nflow.autostart and nflow.db.create_on_startup are false
+  // no database access should happen. This test fails if SQL statements are
+  // issued during bean initialization.
   @ClassRule
   public static NflowServerRule server = new NflowServerRule.Builder()
-      .prop("nflow.autostart", "false").prop("nflow.db.create_on_startup", "false")
+      .prop("nflow.autoinit", "false").prop("nflow.autostart", "false").prop("nflow.db.create_on_startup", "false")
     .build();
 
   public SkipAutoStartTest() {
