@@ -42,7 +42,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
 
   /**
    * Creates the nFlow database initializer. Selects correct database creation script based on database version.
-   * @param dataSource The nFlow datasource.
+   * @param nflowDataSource The nFlow datasource.
    * @param env The Spring environment.
    * @return The database initializer.
    */

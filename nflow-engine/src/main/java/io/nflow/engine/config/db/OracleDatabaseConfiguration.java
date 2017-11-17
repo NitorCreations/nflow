@@ -44,7 +44,7 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 
   /**
    * Creates the nFlow database initializer.
-   * @param dataSource The nFlow datasource.
+   * @param nflowDataSource The nFlow datasource.
    * @param env The Spring environment.
    * @return The database initializer.
    */

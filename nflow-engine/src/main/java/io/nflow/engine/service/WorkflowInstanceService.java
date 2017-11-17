@@ -4,7 +4,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,19 +48,6 @@ public class WorkflowInstanceService {
     this.workflowDefinitionService = workflowDefinitionService;
     this.workflowInstanceDao = workflowInstanceDao;
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
-  }
-
-  /**
-   * Return the workflow instance matching the given id. Fetches child workflows and current state variables but does not fetch
-   * actions.
-   * @param id Workflow instance id.
-   * @return The workflow instance, or null if not found.
-   * @deprecated Use getWorkflowInstance(int id, Set&lt;WorkflowInstanceInclude&gt; includes, Long maxActions) instead.
-   */
-  @Deprecated
-  public WorkflowInstance getWorkflowInstance(int id) {
-    return getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
-        WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED), null);
   }
 
   /**

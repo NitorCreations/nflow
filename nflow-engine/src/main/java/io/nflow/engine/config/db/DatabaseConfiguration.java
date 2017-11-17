@@ -132,8 +132,10 @@ public abstract class DatabaseConfiguration {
   /**
    * Get the database configuration property of given type from the environment, or if the generic property is not defined, the
    * property based on the database type.
+   * @param <T> The Property value type.
    * @param env The Spring environment.
    * @param key The property key.
+   * @param type The property value type.
    * @return The property value.
    */
   protected <T> T property(Environment env, String key, Class<T> type) {

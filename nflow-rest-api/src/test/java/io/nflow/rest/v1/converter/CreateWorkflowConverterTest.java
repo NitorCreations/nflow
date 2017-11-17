@@ -35,14 +35,12 @@ public class CreateWorkflowConverterTest {
     converter = new CreateWorkflowConverter(new WorkflowInstanceFactory(objectMapper));
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void convertAndValidateWorks() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.activationTime = DateTime.now();
     req.businessKey = "businessKey";
     req.externalId = "externalId";
-    req.requestData = new TextNode("requestData");
     req.type = "wfType";
     req.startState = "startState";
     req.stateVariables.put("foo", "bar");
@@ -53,7 +51,6 @@ public class CreateWorkflowConverterTest {
     assertThat(i.externalId, equalTo(req.externalId));
     assertThat(i.type, equalTo(req.type));
     assertThat(i.state, equalTo("startState"));
-    assertThat(i.stateVariables.get("requestData"), is("\"requestData\""));
     assertThat(i.stateVariables.get("foo"), is("bar"));
     assertThat(i.stateVariables.get("textNode"), is("\"text\""));
   }

@@ -22,7 +22,6 @@ public class CreateWorkflowConverter {
     this.factory = factory;
   }
 
-  @SuppressWarnings("deprecation")
   public WorkflowInstance convert(CreateWorkflowInstanceRequest req) {
     WorkflowInstance.Builder builder = factory.newWorkflowInstanceBuilder().setType(req.type).setBusinessKey(req.businessKey)
         .setExternalId(req.externalId);
@@ -39,9 +38,6 @@ public class CreateWorkflowConverter {
       } else {
         builder.putStateVariable(entry.getKey(), value);
       }
-    }
-    if (req.requestData != null) {
-      builder.putStateVariable("requestData", req.requestData);
     }
     return builder.build();
   }

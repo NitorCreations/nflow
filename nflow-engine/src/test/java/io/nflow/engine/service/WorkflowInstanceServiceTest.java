@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -74,15 +73,6 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @After
   public void reset() {
     setCurrentMillisSystem();
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void getWorkflowInstanceDeprecated() {
-    WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
-    when(workflowInstanceDao.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
-        WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED), null)).thenReturn(instance);
-    assertEquals(instance, service.getWorkflowInstance(42));
   }
 
   @Test
