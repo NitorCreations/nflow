@@ -26,6 +26,6 @@ public class RestConfigurationTest {
   @Test
   public void nflowRestObjectMapperInstantiated() {
     ObjectMapper restMapper = configuration.nflowRestObjectMapper(new ObjectMapper());
-    assertThat(restMapper.getSerializationConfig().hasMapperFeatures(WRITE_DATES_AS_TIMESTAMPS.getMask()), is(true));
+    assertThat(restMapper.getSerializationConfig().hasSerializationFeatures(WRITE_DATES_AS_TIMESTAMPS.getMask()), is(false));
   }
 }

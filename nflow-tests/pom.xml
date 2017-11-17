@@ -12,7 +12,7 @@
   <parent>
     <groupId>io.nflow</groupId>
     <artifactId>nflow-root</artifactId>
-    <version>4.2.1-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
   <dependencies>
     <dependency>
@@ -36,7 +36,7 @@
       <artifactId>annotations</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.github.robwin</groupId>
+      <groupId>io.github.swagger2markup</groupId>
       <artifactId>swagger2markup</artifactId>
     </dependency>
     <dependency>
@@ -72,6 +72,13 @@
       <artifactId>postgresql-embedded</artifactId>
     </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <id>pentaho-repo</id>
+      <name>pentaho-repo</name>
+      <url>https://public.nexus.pentaho.org/content/groups/omni/</url>
+    </repository>
+  </repositories>
   <profiles>
     <profile>
       <id>oracle</id>
