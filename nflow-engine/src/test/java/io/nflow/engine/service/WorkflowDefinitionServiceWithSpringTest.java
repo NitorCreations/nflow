@@ -63,7 +63,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     @NFlow
     public AbstractResource nflowNonSpringWorkflowsListing() {
-      return null;
+      return mock(AbstractResource.class);
     }
 
     @Bean

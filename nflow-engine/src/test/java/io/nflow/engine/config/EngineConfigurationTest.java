@@ -2,10 +2,10 @@ package io.nflow.engine.config;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
 import org.joda.time.DateTime;
@@ -51,14 +51,14 @@ public class EngineConfigurationTest {
   }
 
   @Test
-  public void nonSpringWorkflowsListingNotInstantiated() {
-    assertThat(configuration.nflowNonSpringWorkflowsListing(environment), nullValue());
+  public void nonSpringWorkflowsListingNotInstantiated() throws IOException {
+    assertEquals(configuration.nflowNonSpringWorkflowsListing(environment).contentLength(), 0L);
   }
 
   @Test
   public void nonSpringWorkflowsListingInstantiationAttempted() {
     environment.withProperty("nflow.non_spring_workflows_filename", "dummy");
-    assertThat(configuration.nflowNonSpringWorkflowsListing(environment), notNullValue());
+    assertEquals(configuration.nflowNonSpringWorkflowsListing(environment).getFilename(), "dummy");
   }
 
   @Test
