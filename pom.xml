@@ -77,6 +77,11 @@
       <email>edvard.fonsell@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
+    <developer>
+      <name>Timo Tiuraniemi</name>
+      <email>timo.tiuraniemi@nitor.com</email>
+      <organization>Nitor Creations</organization>
+    </developer>
   </developers>
   <modules>
     <module>nflow-rest-api</module>
