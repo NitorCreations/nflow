@@ -34,13 +34,13 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
 
   @Test
   public void t01_canFetchMetrics() {
-    URI uri = URI.create("http://localhost:" + server.getPort() + "/metrics/metrics");
+    URI uri = URI.create("http://localhost:" + server.getPort() + "/nflow/metrics/metrics");
     makeRequest(uri);
   }
 
   @Test
   public void t02_canFetchHealthChecks() {
-    URI uri = URI.create("http://localhost:" + server.getPort() + "/metrics/healthcheck");
+    URI uri = URI.create("http://localhost:" + server.getPort() + "/nflow/metrics/healthcheck");
     makeRequest(uri);
   }
 

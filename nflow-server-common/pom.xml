@@ -75,7 +75,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.outputDirectory}/static/doc</outputDirectory>
+              <outputDirectory>${project.build.outputDirectory}/nflow-ui-assets/doc</outputDirectory>
               <overwrite>false</overwrite>
               <resources>
                 <resource>
@@ -95,7 +95,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
+              <outputDirectory>${project.build.outputDirectory}/nflow-ui-assets/explorer</outputDirectory>
               <overwrite>false</overwrite>
               <resources>
                 <resource>
