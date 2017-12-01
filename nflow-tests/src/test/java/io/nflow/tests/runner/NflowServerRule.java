@@ -6,7 +6,7 @@ import static org.apache.commons.lang3.StringUtils.right;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.junit.Assert.assertTrue;
-import static ru.yandex.qatools.embed.postgresql.distribution.Version.V9_6_2;
+import static ru.yandex.qatools.embed.postgresql.distribution.Version.V10_0;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -133,7 +133,7 @@ public class NflowServerRule extends ExternalResource {
   private void startDb() throws IOException {
     if (profiles.contains(POSTGRESQL)) {
       PostgresStarter<PostgresExecutable, PostgresProcess> runtime = PostgresStarter.getDefaultInstance();
-      PostgresConfig config = new PostgresConfig(V9_6_2, new AbstractPostgresConfig.Net(),
+      PostgresConfig config = new PostgresConfig(V10_0, new AbstractPostgresConfig.Net(),
           new AbstractPostgresConfig.Storage("nflow"), new AbstractPostgresConfig.Timeout(),
           new AbstractPostgresConfig.Credentials("nflow", "nflow"));
       PostgresExecutable exec = runtime.prepare(config);

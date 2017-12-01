@@ -9,7 +9,7 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 import javax.inject.Inject;
 
 import org.apache.cxf.bus.spring.SpringBus;
-import org.apache.cxf.feature.LoggingFeature;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.springframework.context.annotation.Bean;
