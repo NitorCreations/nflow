@@ -18,7 +18,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
   private static final Logger logger = getLogger(NflowStandardEnvironment.class);
 
   public NflowStandardEnvironment(Map<String, Object> overrideProperties) {
-    getPropertySources().addLast(new MapPropertySource("override", overrideProperties));
+    getPropertySources().addFirst(new MapPropertySource("override", overrideProperties));
     addExternalPropertyResource();
     String env = getProperty("env", "local");
     addActiveProfile(env);
