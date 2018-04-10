@@ -9,6 +9,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
 import static java.lang.Math.min;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static java.util.Optional.ofNullable;
@@ -463,7 +464,7 @@ public class WorkflowInstanceDao {
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then ")
-        .append("least(current_timestamp, coalesce(next_activation, current_timestamp)) else next_activation end), ")
+        .append("case when " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp") + " then next_activation else current_timestamp end else next_activation end), ")
         .append("external_next_activation = current_timestamp where ").append(executorInfo.getExecutorGroupCondition())
         .append(" and id = ? and next_activation is not null");
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);
@@ -539,7 +540,8 @@ public class WorkflowInstanceDao {
 
   String whereConditionForInstanceUpdate() {
     return "where executor_id is null and status in (" + sqlVariants.workflowStatus(created) + ", "
-        + sqlVariants.workflowStatus(inProgress) + ") and next_activation <= current_timestamp and "
+        + sqlVariants.workflowStatus(inProgress) + ") and "
+        + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp") + " and "
         + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
   }
 
@@ -559,9 +561,12 @@ public class WorkflowInstanceDao {
         List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
           @Override
           public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new OptimisticLockKey(rs.getInt("id"), rs.getTimestamp("modified"));
+            return new OptimisticLockKey(rs.getInt("id"), sqlVariants.getTimestamp(rs, "modified"));
           }
         });
+        if (instances.isEmpty()) {
+          return emptyList();
+        }
         sort(instances);
         List<Integer> ids = new ArrayList<>(instances.size());
         if (sqlVariants.useBatchUpdate()) {
@@ -619,9 +624,9 @@ public class WorkflowInstanceDao {
 
   private static class OptimisticLockKey extends ModelObject implements Comparable<OptimisticLockKey> {
     public final int id;
-    public final Timestamp modified;
+    public final Object modified;
 
-    public OptimisticLockKey(int id, Timestamp modified) {
+    public OptimisticLockKey(int id, Object modified) {
       this.id = id;
       this.modified = modified;
     }
