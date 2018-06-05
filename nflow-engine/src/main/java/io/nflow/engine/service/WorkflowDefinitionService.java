@@ -34,15 +34,13 @@ public class WorkflowDefinitionService {
 
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
-  private final AbstractResource nonSpringWorkflowsListing;
+  private AbstractResource nonSpringWorkflowsListing;
   private final Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
 
   @Inject
-  public WorkflowDefinitionService(@NFlow AbstractResource nflowNonSpringWorkflowsListing,
-      WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
-    this.nonSpringWorkflowsListing = nflowNonSpringWorkflowsListing;
+  public WorkflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
     this.workflowDefinitionDao = workflowDefinitionDao;
     this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
   }
@@ -51,11 +49,16 @@ public class WorkflowDefinitionService {
    * Add given workflow definitions to the managed definitions.
    * @param workflowDefinitions The workflow definitions to be added.
    */
-  @Autowired(required=false)
+  @Autowired(required = false)
   public void setWorkflowDefinitions(Collection<WorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
     for (AbstractWorkflowDefinition<? extends WorkflowState> wd : workflowDefinitions) {
       addWorkflowDefinition(wd);
     }
+  }
+
+  @Autowired(required = false)
+  public void setWorkflowDefinitions(@NFlow AbstractResource nflowNonSpringWorkflowsListing) {
+    this.nonSpringWorkflowsListing = nflowNonSpringWorkflowsListing;
   }
 
   /**
