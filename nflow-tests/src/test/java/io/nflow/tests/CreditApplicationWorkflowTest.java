@@ -63,7 +63,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "grantLoan";
-    fromClient(workflowInstanceResource, true).path(resp.id).put(ureq);
+    fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq);
   }
 
   @Test(timeout = 5000)

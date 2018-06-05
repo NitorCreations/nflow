@@ -96,7 +96,7 @@ public class StatisticsTest extends AbstractNflowTest {
   public void t06_updateNextActivationToPast() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now().minusMinutes(5);
-    Response response = fromClient(workflowInstanceResource, true).path(resp.id).put(req);
+    Response response = fromClient(workflowInstanceIdResource, true).path(resp.id).put(req);
     assertThat(response.getStatusInfo().getFamily(), is(Family.SUCCESSFUL));
   }
 

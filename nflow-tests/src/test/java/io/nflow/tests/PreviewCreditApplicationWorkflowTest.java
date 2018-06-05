@@ -70,7 +70,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "grantLoan";
-    Response response = fromClient(workflowInstanceResource, true).path(resp.id).put(ureq);
+    Response response = fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq);
     assertThat(response.getStatusInfo().getFamily(), is(Family.SUCCESSFUL));
   }
 
