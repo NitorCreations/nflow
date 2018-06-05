@@ -20,7 +20,7 @@
     }
 
     function update(workflowId, data) {
-      return RestHelper.update('/v1/workflow-instance/' + workflowId, data);
+      return RestHelper.update('/v1/workflow-instance/id/' + workflowId, data);
     }
 
     function signal(workflowId, data) {
