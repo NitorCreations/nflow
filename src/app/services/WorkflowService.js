@@ -15,7 +15,7 @@
 
     function get(workflowId) {
       return RestHelper.get({
-        path: '/v1/workflow-instance/' + workflowId + '?include=actions,currentStateVariables,actionStateVariables'
+        path: '/v1/workflow-instance/id/' + workflowId + '?include=actions,currentStateVariables,actionStateVariables'
       });
     }
 

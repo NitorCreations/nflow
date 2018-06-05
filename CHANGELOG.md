@@ -3,7 +3,7 @@
 1.2.6 2018-mm-dd
 ================
 
-* Use new path for workflow instance update
+* Use new path for workflow instance get and update
 * Requires nFlow 4.2.1
 
 1.2.5 2017-05-16
