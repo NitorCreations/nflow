@@ -101,7 +101,7 @@ public class WorkflowDefinitionService {
         logger.info("Preparing workflow {}", row);
         @SuppressWarnings("unchecked")
         Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
-        addWorkflowDefinition(clazz.newInstance());
+        addWorkflowDefinition(clazz.getDeclaredConstructor().newInstance());
       }
     }
   }
