@@ -148,16 +148,16 @@
     <mockito.version>2.18.0</mockito.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>5.1.46</mysql.version>
-    <netty.version>4.1.14.Final</netty.version>
+    <netty.version>4.1.25.Final</netty.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>42.2.2</postgresql.version>
     <postgresql-embedded.version>2.9</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.netty.version>0.7.6.RELEASE</reactor.netty.version>
+    <reactor.netty.version>0.7.8.RELEASE</reactor.netty.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <spring.version>5.0.5.RELEASE</spring.version>
+    <spring.version>5.0.7.RELEASE</spring.version>
     <swagger.version>1.5.18</swagger.version>
     <swagger2markup.version>1.3.2</swagger2markup.version>
     <validation.api.version>2.0.1.Final</validation.api.version>
