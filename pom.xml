@@ -113,8 +113,11 @@
     <jackson.version>2.9.6</jackson.version>
     <jackson-databind.version>2.9.6</jackson-databind.version>
     <javassist.version>3.22.0-GA</javassist.version>
+    <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <javax.ws.rs.version>2.1</javax.ws.rs.version>
+    <jaxb-api.version>2.3.0</jaxb-api.version>
+    <jaxws-api.version>2.3.0</jaxws-api.version>
     <jersey.version>2.27</jersey.version>
     <jetty.version>9.4.11.v20180605</jetty.version>
     <jodatime.version>2.10</jodatime.version>
@@ -396,6 +399,33 @@
     </plugins>
   </build>
   <profiles>
+    <profile>
+      <activation>
+        <jdk>9</jdk>
+      </activation>
+      <id>java9</id>
+      <properties>
+        <jdk.version>9</jdk.version>
+      </properties>
+    </profile>
+    <profile>
+      <activation>
+        <jdk>10</jdk>
+      </activation>
+      <id>java10</id>
+      <properties>
+        <jdk.version>10</jdk.version>
+      </properties>
+    </profile>
+    <profile>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <id>java11</id>
+      <properties>
+        <jdk.version>11</jdk.version>
+      </properties>
+    </profile>
     <profile>
       <activation>
         <property>
@@ -795,6 +825,22 @@
         <artifactId>javassist</artifactId>
         <version>${javassist.version}</version>
         <scope>runtime</scope>
+      </dependency>
+      <!-- moved to external deps in java 9 -->
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>${javax.annotation-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>${jaxb-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.xml.ws</groupId>
+        <artifactId>jaxws-api</artifactId>
+        <version>${jaxws-api.version}</version>
       </dependency>
       <!-- testing -->
       <dependency>
