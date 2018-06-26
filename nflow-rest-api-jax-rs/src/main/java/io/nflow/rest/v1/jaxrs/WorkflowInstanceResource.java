@@ -93,7 +93,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   }
 
   @PUT
-  @Path("/{id}")
+  @Path("/id/{id}")
   @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
       + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
@@ -105,7 +105,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   }
 
   @GET
-  @Path("/{id}")
+  @Path("/id/{id}")
   @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathParam("id") int id,

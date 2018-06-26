@@ -9,14 +9,13 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-import io.nflow.jetty.mapper.BadRequestExceptionMapper;
-
 public class BadRequestExceptionMapperTest {
   BadRequestExceptionMapper mapper = new BadRequestExceptionMapper();
 
   @Test
   public void badRequestExceptionResultInStatusBadRequest() {
-    Response response = mapper.toResponse(new BadRequestException());
-    assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
+    try (Response response = mapper.toResponse(new BadRequestException())) {
+      assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
+    }
   }
 }

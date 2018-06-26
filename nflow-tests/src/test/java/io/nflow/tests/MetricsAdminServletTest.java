@@ -47,7 +47,8 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
   private void makeRequest(URI uri) {
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(uri);
-    Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
-    assertEquals(200, response.getStatus());
+    try (Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get()) {
+      assertEquals(200, response.getStatus());
+    }
   }
 }

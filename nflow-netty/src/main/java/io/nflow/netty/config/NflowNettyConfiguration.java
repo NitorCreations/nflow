@@ -17,7 +17,7 @@ import io.nflow.engine.config.NFlow;
 import io.nflow.rest.config.RestConfiguration;
 
 @Configuration
-@ComponentScan("ios.nflow.rest.v1.springweb")
+@ComponentScan("io.nflow.rest.v1.springweb")
 @Import(RestConfiguration.class)
 @EnableTransactionManagement
 @EnableWebFlux

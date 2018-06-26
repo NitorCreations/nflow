@@ -9,14 +9,13 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-import io.nflow.jetty.mapper.NotFoundExceptionMapper;
-
 public class NotFoundExceptionMapperTest {
   NotFoundExceptionMapper mapper = new NotFoundExceptionMapper();
 
   @Test
   public void notFoundExceptionResultInStatusNotFound() {
-    Response response = mapper.toResponse(new NotFoundException());
-    assertThat(response.getStatus(), is(NOT_FOUND.getStatusCode()));
+    try (Response response = mapper.toResponse(new NotFoundException())) {
+      assertThat(response.getStatus(), is(NOT_FOUND.getStatusCode()));
+    }
   }
 }

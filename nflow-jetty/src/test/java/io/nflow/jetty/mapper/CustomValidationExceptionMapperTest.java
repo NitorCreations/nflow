@@ -22,8 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
-
 @RunWith(MockitoJUnitRunner.class)
 public class CustomValidationExceptionMapperTest {
 
@@ -47,9 +45,10 @@ public class CustomValidationExceptionMapperTest {
 
     ConstraintViolationException cex = mock(ConstraintViolationException.class);
     when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
-    Response resp = exceptionMapper.toResponse(cex);
-    assertThat(resp.getStatus(), is(BAD_REQUEST_400));
-    assertThat(resp.getEntity().toString(), is("violationPath: violationMessage"));
+    try (Response resp = exceptionMapper.toResponse(cex)) {
+      assertThat(resp.getStatus(), is(BAD_REQUEST_400));
+      assertThat(resp.getEntity().toString(), is("violationPath: violationMessage"));
+    }
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -65,14 +64,16 @@ public class CustomValidationExceptionMapperTest {
 
     ConstraintViolationException cex = mock(ResponseConstraintViolationException.class);
     when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
-    Response resp = exceptionMapper.toResponse(cex);
-    assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+    try (Response resp = exceptionMapper.toResponse(cex)) {
+      assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+    }
   }
 
   @Test
   public void otherExceptionsCauseInternalServerException() {
     ValidationException cex = mock(ValidationException.class);
-    Response resp = exceptionMapper.toResponse(cex);
-    assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+    try (Response resp = exceptionMapper.toResponse(cex)) {
+      assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+    }
   }
 }

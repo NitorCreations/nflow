@@ -39,6 +39,7 @@ import io.nflow.tests.runner.SkipTestMethodsAfterFirstFailureRule;
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
+  protected WebClient workflowInstanceIdResource;
   protected WebClient workflowDefinitionResource;
   protected WebClient statisticsResource;
 
@@ -59,6 +60,12 @@ public abstract class AbstractNflowTest {
   }
 
   @Inject
+  public void setWorkflowInstanceIdResource(@Named("workflowInstanceId") WebClient client) {
+    String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
+    this.workflowInstanceIdResource = fromClient(client, true).to(newUri, false);
+  }
+
+  @Inject
   public void setWorkflowDefinitionResource(@Named("workflowDefinition") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowDefinitionResource = fromClient(client, true).to(newUri, false);
@@ -71,7 +78,7 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
-    return getInstanceResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables").get(
+    return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables").get(
         ListWorkflowInstanceResponse.class);
   }
 
@@ -84,6 +91,11 @@ public abstract class AbstractNflowTest {
 
   private WebClient getInstanceResource(int instanceId) {
     WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
+    return client;
+  }
+
+  private WebClient getInstanceIdResource(int instanceId) {
+    WebClient client = fromClient(workflowInstanceIdResource, true).path(Integer.toString(instanceId));
     return client;
   }
 
@@ -144,7 +156,7 @@ public abstract class AbstractNflowTest {
   }
 
   protected String updateWorkflowInstance(int instanceId, UpdateWorkflowInstanceRequest request) {
-    return getInstanceResource(instanceId).put(request, String.class);
+    return getInstanceIdResource(instanceId).put(request, String.class);
   }
 
   private <T> T makeWorkflowInstanceQuery(CreateWorkflowInstanceRequest request, Class<T> responseClass) {

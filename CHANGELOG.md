@@ -1,3 +1,12 @@
+## 5.0.0 (2018-mm-dd)
+
+**Highlights**
+- Fix to work with Spring Boot 2.x
+
+**Details**
+- nflow-rest-api-jax-rs:
+  - Change endpoint paths for workflow instance: /v1/workflow-instance/{id} -> /v1/workflow-instance/id/{id}
+
 ## 4.2.0 (2017-05-16)
 
 **Highlights**

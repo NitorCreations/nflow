@@ -50,7 +50,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
-import io.nflow.rest.v1.jaxrs.WorkflowInstanceResource;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
@@ -84,7 +83,7 @@ public class WorkflowInstanceResourceTest {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory);
     when(workflowInstanceFactory.newWorkflowInstanceBuilder())
-        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
+    .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
   }
 
   @Test
@@ -93,12 +92,13 @@ public class WorkflowInstanceResourceTest {
     WorkflowInstance inst = mock(WorkflowInstance.class);
     when(createWorkflowConverter.convert(req)).thenReturn(inst);
     when(workflowInstances.insertWorkflowInstance(inst)).thenReturn(1);
-    Response r = resource.createWorkflowInstance(req);
-    assertThat(r.getStatus(), is(201));
-    assertThat(r.getHeaderString("Location"), is("1"));
-    verify(createWorkflowConverter).convert(req);
-    verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
-    verify(workflowInstances).getWorkflowInstance(1, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+    try (Response r = resource.createWorkflowInstance(req)) {
+      assertThat(r.getStatus(), is(201));
+      assertThat(r.getHeaderString("Location"), is("1"));
+      verify(createWorkflowConverter).convert(req);
+      verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
+      verify(workflowInstances).getWorkflowInstance(1, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+    }
   }
 
   @Test
@@ -115,8 +115,8 @@ public class WorkflowInstanceResourceTest {
     resource.updateWorkflowInstance(3, req);
 
     verify(workflowInstances).updateWorkflowInstance(
-            (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
-            (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("my desc"))));
+        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
+        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("my desc"))));
   }
 
   @Test
@@ -181,20 +181,20 @@ public class WorkflowInstanceResourceTest {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
         asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
-      hasField("ids", contains(42)),
-      hasField("types", contains("type")),
-      hasField("parentWorkflowId", is(99)),
-      hasField("parentActionId", is(88)),
-      hasField("states", contains("state")),
-      hasField("statuses", contains(WorkflowInstanceStatus.created)),
-      hasField("businessKey", equalTo("businessKey")),
-      hasField("externalId", equalTo("externalId")),
-      hasField("includeActions", equalTo(false)),
-      hasField("includeCurrentStateVariables", equalTo(false)),
-      hasField("includeActionStateVariables", equalTo(false)),
-      hasField("includeChildWorkflows", equalTo(false)),
-      hasField("maxResults", equalTo(null)),
-      hasField("maxActions", equalTo(null)))));
+        hasField("ids", contains(42)),
+        hasField("types", contains("type")),
+        hasField("parentWorkflowId", is(99)),
+        hasField("parentActionId", is(88)),
+        hasField("states", contains("state")),
+        hasField("statuses", contains(WorkflowInstanceStatus.created)),
+        hasField("businessKey", equalTo("businessKey")),
+        hasField("externalId", equalTo("externalId")),
+        hasField("includeActions", equalTo(false)),
+        hasField("includeCurrentStateVariables", equalTo(false)),
+        hasField("includeActionStateVariables", equalTo(false)),
+        hasField("includeChildWorkflows", equalTo(false)),
+        hasField("maxResults", equalTo(null)),
+        hasField("maxActions", equalTo(null)))));
   }
 
   @SuppressWarnings("unchecked")
@@ -204,27 +204,27 @@ public class WorkflowInstanceResourceTest {
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
         "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
-      hasField("ids", contains(42)),
-      hasField("types", contains("type")),
-      hasField("parentWorkflowId", is(99)),
-      hasField("parentActionId", is(88)),
-      hasField("states", contains("state")),
-      hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
-      hasField("businessKey", equalTo("businessKey")),
-      hasField("externalId", equalTo("externalId")),
-      hasField("includeActions", equalTo(true)),
-      hasField("includeCurrentStateVariables", equalTo(true)),
-      hasField("includeActionStateVariables", equalTo(true)),
-      hasField("includeChildWorkflows", equalTo(true)),
-      hasField("maxResults", equalTo(1L)),
-      hasField("maxActions", equalTo(1L)))));
+        hasField("ids", contains(42)),
+        hasField("types", contains("type")),
+        hasField("parentWorkflowId", is(99)),
+        hasField("parentActionId", is(88)),
+        hasField("states", contains("state")),
+        hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
+        hasField("businessKey", equalTo("businessKey")),
+        hasField("externalId", equalTo("externalId")),
+        hasField("includeActions", equalTo(true)),
+        hasField("includeCurrentStateVariables", equalTo(true)),
+        hasField("includeActionStateVariables", equalTo(true)),
+        hasField("includeChildWorkflows", equalTo(true)),
+        hasField("maxResults", equalTo(1L)),
+        hasField("maxActions", equalTo(1L)))));
   }
 
   @Test
   public void fetchingNonExistingWorkflowThrowsNotFoundException() {
     thrown.expect(NotFoundException.class);
     when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null))
-        .thenThrow(EmptyResultDataAccessException.class);
+    .thenThrow(EmptyResultDataAccessException.class);
     resource.fetchWorkflowInstance(42, null, null);
   }
 
@@ -260,11 +260,11 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
 
-    Response response = resource.setSignal(99, req);
-
-    verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
-    assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
-    assertThat(response.readEntity(String.class), is("Signal was set successfully"));
+    try (Response response = resource.setSignal(99, req)) {
+      verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
+      assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+      assertThat(response.readEntity(String.class), is("Signal was set successfully"));
+    }
   }
 
   @Test
@@ -274,11 +274,11 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
 
-    Response response = resource.setSignal(99, req);
-
-    verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
-    assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
-    assertThat(response.readEntity(String.class), is("Signal was not set"));
+    try (Response response = resource.setSignal(99, req)) {
+      verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
+      assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+      assertThat(response.readEntity(String.class), is("Signal was not set"));
+    }
   }
 
 }

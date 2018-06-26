@@ -45,7 +45,8 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream(dummyTestClassname.getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    service = new WorkflowDefinitionService(nonSpringWorkflowListing, workflowDefinitionDao, env);
+    service = new WorkflowDefinitionService(workflowDefinitionDao, env);
+    service.setWorkflowDefinitions(nonSpringWorkflowListing);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(0)));
     service.postProcessWorkflowDefinitions();
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
@@ -80,7 +81,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void nonSpringWorkflowsAreOptional() throws Exception {
-    service = new WorkflowDefinitionService(null, workflowDefinitionDao, env);
+    service = new WorkflowDefinitionService(workflowDefinitionDao, env);
     service.postProcessWorkflowDefinitions();
     assertEquals(0, service.getWorkflowDefinitions().size());
   }

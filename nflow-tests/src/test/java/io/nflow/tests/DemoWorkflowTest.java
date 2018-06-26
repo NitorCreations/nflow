@@ -85,7 +85,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
 
   @Test
   public void t05_queryWorkflowWithoutActionsReturnsNullActions() {
-    ListWorkflowInstanceResponse instance = fromClient(workflowInstanceResource, true).path(Integer.toString(resp.id))
+    ListWorkflowInstanceResponse instance = fromClient(workflowInstanceIdResource, true).path(Integer.toString(resp.id))
         .get(ListWorkflowInstanceResponse.class);
 
     assertThat(instance.actions, is(nullValue()));
