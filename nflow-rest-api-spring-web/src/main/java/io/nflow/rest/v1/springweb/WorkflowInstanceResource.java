@@ -74,7 +74,7 @@ public class WorkflowInstanceResource extends ResourceBase {
     return ResponseEntity.created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
   }
 
-  @PutMapping(path = "/{id}", consumes = APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/id/{id}", consumes = APPLICATION_JSON_VALUE)
   @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
       + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
@@ -85,7 +85,7 @@ public class WorkflowInstanceResource extends ResourceBase {
     return (updated ? ResponseEntity.noContent() : ResponseEntity.status(HttpStatus.CONFLICT)).build();
   }
 
-  @GetMapping(path = "/{id}")
+  @GetMapping(path = "/id/{id}")
   @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
   public ResponseEntity<ListWorkflowInstanceResponse> fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathVariable("id") int id,
