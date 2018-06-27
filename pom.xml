@@ -89,8 +89,8 @@
     <module>nflow-rest-api-jax-rs</module>
     <module>nflow-rest-api-spring-web</module>
     <module>nflow-server-common</module>
-    <module>nflow-netty</module>
     <module>nflow-jetty</module>
+    <module>nflow-netty</module>
     <module>nflow-tests</module>
     <module>nflow-metrics</module>
     <module>nflow-perf-test</module>
