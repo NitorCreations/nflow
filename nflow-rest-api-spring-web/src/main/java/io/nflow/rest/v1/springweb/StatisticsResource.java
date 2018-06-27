@@ -42,11 +42,12 @@ public class StatisticsResource {
   @ApiOperation("Get workflow definition statistics")
   public WorkflowDefinitionStatisticsResponse getStatistics(
       @PathVariable("type") @ApiParam(value = "Workflow definition type", required = true) String type,
-      @RequestParam("createdAfter") @ApiParam("Include only workflow instances created after given time") DateTime createdAfter,
-      @RequestParam("createdBefore") @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
-      @RequestParam("modifiedAfter") @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
-      @RequestParam("modifiedBefore") @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
-    return statisticsConverter.convert(statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter,
+      @RequestParam(value = "createdAfter", required = false) @ApiParam("Include only workflow instances created after given time") DateTime createdAfter,
+      @RequestParam(value = "createdBefore", required = false) @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
+      @RequestParam(value = "modifiedAfter", required = false) @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
+      @RequestParam(value = "modifiedBefore", required = false) @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
+    return statisticsConverter.convert(
+        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter,
         modifiedBefore));
   }
 }
