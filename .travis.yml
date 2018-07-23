@@ -1,24 +1,23 @@
+dist: trusty
 language: java
 jdk:
   - oraclejdk8
+  - oraclejdk10
 env:
   global:
   - BUILD_SYSTEM=travis
   matrix:
-  - SPRING_PROFILES_ACTIVE=nflow.db.h2
-  - SPRING_PROFILES_ACTIVE=nflow.db.postgresql
-  - SPRING_PROFILES_ACTIVE=nflow.db.mysql
+  - DB=h2
+  - DB=postgresql
+  - DB=mysql
+  - DB=sqlserver
 addons:
-  postgresql: "9.4"
+  postgresql: "9.6"
+services:
+  - docker
 before_script:
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c "create user nflow with password 'nflow';" -U postgres; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ postgre ]]; then psql -c "create database nflow owner nflow;" -U postgres; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "create database nflow character set utf8mb4;" -u root; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "create user 'nflow'@'%' identified by 'nflow';" -u root; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "create user 'nflow'@'localhost' identified by 'nflow';" -u root; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "grant all on nflow.* TO 'nflow'@'%';" -u root; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "grant all on nflow.* TO 'nflow'@'localhost';" -u root; fi
-  - if [[ "$SPRING_PROFILES_ACTIVE" =~ mysql ]]; then mysql -v -e "flush privileges;" -u root; fi
+  - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
+  - ./travis/setup-db-$DB.sh
 after_script:
   - for i in nflow-*/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
 notifications:
