@@ -54,16 +54,16 @@ public class ArchiveDao {
                     "select w.id id from nflow_workflow w, " +
                     "(" + sqlVariants.limit(
                     "  select parent.id from nflow_workflow parent " +
-                    "  where parent.next_activation is null and parent.modified <= ? " +
+                    "  where parent.next_activation is null and " + sqlVariants.dateLtEqDiff("parent.modified", "?") +
                     "  and parent.root_workflow_id is null " +
                     "  and not exists(" +
                     "    select 1 from nflow_workflow child where child.root_workflow_id = parent.id " +
-                    "      and (child.modified > ? or child.next_activation is not null)" +
+                    "      and (" + sqlVariants.dateLtEqDiff("?", "child.modified") + " or child.next_activation is not null)" +
                     "  )" +
                     "  order by modified asc ", String.valueOf(maxRows)) +
                     ") as archivable_parent " +
                     "where archivable_parent.id = w.id or archivable_parent.id = w.root_workflow_id",
-            new ArchivableWorkflowsRowMapper(), toTimestamp(before), toTimestamp(before));
+            new ArchivableWorkflowsRowMapper(), sqlVariants.toTimestampObject(before), sqlVariants.toTimestampObject(before));
   }
 
   @Transactional

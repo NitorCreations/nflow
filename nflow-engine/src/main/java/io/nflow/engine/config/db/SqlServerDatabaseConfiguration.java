@@ -2,16 +2,21 @@ package io.nflow.engine.config.db;
 
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 import static io.nflow.engine.config.Profiles.SQLSERVER;
+import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static java.lang.Class.*;
 
 /**
@@ -43,14 +48,25 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
   public static class SQLServerVariants implements SQLVariants {
 
     private static final Method getDateTimeOffsetMethod;
+    private static final Method setDateTimeOffsetMethod;
+    private static final Method getTimestampMethod;
+    private static final Method createDateTimeOffsetMethod;
+
+    private static final Class<?> sqlServerDateTimeOffset;
     private static final Class<?> sqlServerResultSet;
+    private static final Class<?> sqlServerPreparedStatement;
 
     static {
       try {
+        sqlServerDateTimeOffset = forName("microsoft.sql.DateTimeOffset");
         sqlServerResultSet = forName("com.microsoft.sqlserver.jdbc.ISQLServerResultSet42");
+        sqlServerPreparedStatement = forName("com.microsoft.sqlserver.jdbc.ISQLServerPreparedStatement42");
         getDateTimeOffsetMethod = sqlServerResultSet.getMethod("getDateTimeOffset", String.class);
+        setDateTimeOffsetMethod = sqlServerPreparedStatement.getMethod("setDateTimeOffset", Integer.TYPE, sqlServerDateTimeOffset);
+        getTimestampMethod = sqlServerDateTimeOffset.getMethod("getTimestamp");
+        createDateTimeOffsetMethod = sqlServerDateTimeOffset.getMethod("valueOf", Timestamp.class, Integer.TYPE);
       } catch (Exception e) {
-        throw new RuntimeException("Could not find required getDateTimeOffset method from sqlserver jdbc driver");
+        throw new RuntimeException("Could not find required getDateTimeOffset method from sqlserver jdbc driver", e);
       }
     }
 
@@ -81,7 +97,7 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
 
     @Override
     public String dateLtEqDiff(String next_activation, String current_timestamp) {
-      return "datediff_big(ms, " + next_activation + ", " + current_timestamp + ") <= 0";
+      return "datediff_big(ms, " + next_activation + ", " + current_timestamp + ") >= 0";
     }
 
     @Override
@@ -90,6 +106,40 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
         return getDateTimeOffsetMethod.invoke(rs.unwrap(sqlServerResultSet), columnName);
       } catch (Exception e) {
         throw new SQLException("Failed to invoke getDateTimeOffset on ResultSet ", e);
+      }
+    }
+
+    @Override
+    public DateTime getDateTime(ResultSet rs, String columnName) throws SQLException {
+      try {
+        Object dateTimeOffset = getDateTimeOffsetMethod.invoke(rs.unwrap(sqlServerResultSet), columnName);
+        if (dateTimeOffset == null) {
+          return null;
+        }
+        return toDateTime((Timestamp) getTimestampMethod.invoke(dateTimeOffset));
+      } catch (Exception e) {
+        throw new SQLException("Failed to invoke getDateTimeOffset on ResultSet", e);
+      }
+    }
+
+    @Override
+    public void setDateTime(PreparedStatement ps, int columnNumber, DateTime timestamp) throws SQLException {
+      try {
+        setDateTimeOffsetMethod.invoke(ps.unwrap(sqlServerPreparedStatement), columnNumber, toTimestampObject(timestamp));
+      } catch (Exception e) {
+        throw new SQLException("Failed to invoke setDateTimeOffset on PreparedStatement", e);
+      }
+    }
+
+    @Override
+    public Object toTimestampObject(DateTime timestamp) {
+      if (timestamp == null) {
+        return null;
+      }
+      try {
+        return createDateTimeOffsetMethod.invoke(null, toTimestamp(timestamp), 0);
+      } catch (Exception e) {
+        throw new RuntimeException("Failed to create DateTimeOffset instance", e);
       }
     }
 

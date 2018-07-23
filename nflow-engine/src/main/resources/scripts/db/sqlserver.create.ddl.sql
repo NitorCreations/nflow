@@ -15,8 +15,8 @@ create table nflow_workflow (
   external_next_activation datetimeoffset(3),
   executor_id int,
   retries int not null default 0,
-  created datetimeoffset(3) not null default current_timestamp,
-  modified datetimeoffset(3) not null default current_timestamp,
+  created datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
+  modified datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
@@ -24,7 +24,7 @@ create table nflow_workflow (
 
 create trigger nflow_workflow_modified_trigger on nflow_workflow after update as
 begin
-  update nflow_workflow set modified = current_timestamp
+  update nflow_workflow set modified = SYSDATETIMEOFFSET()
   from nflow_workflow wf inner join inserted i on wf.id = i.id
 end;
 
@@ -65,7 +65,7 @@ create table nflow_executor (
   host varchar(253) not null,
   pid int not null,
   executor_group varchar(64),
-  started datetimeoffset(3) not null default current_timestamp,
+  started datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   active datetimeoffset(3) not null,
   expires datetimeoffset(3) not null
 );
@@ -74,8 +74,8 @@ create table nflow_workflow_definition (
   type varchar(64) not null,
   definition_sha1 varchar(40) not null,
   definition text not null,
-  created datetimeoffset(3) not null default current_timestamp,
-  modified datetimeoffset(3) not null default current_timestamp,
+  created datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
+  modified datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified_by int not null,
   executor_group varchar(64) not null,
   primary key (type, executor_group)
@@ -83,7 +83,7 @@ create table nflow_workflow_definition (
 
 create trigger nflow_workflow_definition_modified_trigger on nflow_workflow_definition after update as
 begin
-  update nflow_workflow_definition set modified = current_timestamp
+  update nflow_workflow_definition set modified = SYSDATETIMEOFFSET()
   from nflow_workflow_definition df inner join inserted i on df.type = i.type and df.executor_group = i.executor_group
 end;
 
