@@ -6,6 +6,8 @@
 **Details**
 - nflow-rest-api-jax-rs:
   - Change endpoint paths for workflow instance: /v1/workflow-instance/{id} -> /v1/workflow-instance/id/{id}
+- nflow-server-common:
+  - Use nFlow Explorer version 1.2.6 (nFlow REST API path changes)
 
 ## 4.2.0 (2017-05-16)
 
