@@ -1,10 +1,10 @@
 # nFlow Explorer change log
 
-1.2.6 2018-mm-dd
+1.2.6 2018-08-24
 ================
 
 * Use new path for workflow instance get and update
-* Requires nFlow 4.2.1
+* Requires nFlow 5.0.0
 
 1.2.5 2017-05-16
 ================
