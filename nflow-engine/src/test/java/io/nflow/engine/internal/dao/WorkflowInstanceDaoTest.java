@@ -46,6 +46,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
 import org.junit.Rule;
@@ -77,6 +78,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   TransactionTemplate transaction;
   @Inject
   WorkflowInstanceExecutor workflowInstanceExecutor;
+  @Inject
+  SQLVariants sqlVariant;
   List<WorkflowInstance> noChildWorkflows = emptyList();
   List<WorkflowInstance> emptyWorkflows = emptyList();
   Map<String, String> emptyVars = emptyMap();
@@ -836,7 +839,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(status, is(inProgress.name()));
 
     List<WorkflowInstanceAction> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(Collections.<Integer, Map<String, String>> emptyMap()), id);
+        new WorkflowInstanceActionRowMapper(sqlVariant, Collections.<Integer, Map<String, String>> emptyMap()), id);
     assertThat(actions.size(), is(1));
     WorkflowInstanceAction workflowInstanceAction = actions.get(0);
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
@@ -849,7 +852,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(executorId, is(nullValue()));
 
     actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(Collections.<Integer, Map<String, String>> emptyMap()), id);
+        new WorkflowInstanceActionRowMapper(sqlVariant, Collections.<Integer, Map<String, String>> emptyMap()), id);
     assertThat(actions.size(), is(1));
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));

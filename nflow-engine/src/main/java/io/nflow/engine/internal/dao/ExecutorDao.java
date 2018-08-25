@@ -167,9 +167,9 @@ public class ExecutorDao {
         int id = rs.getInt("id");
         String host = rs.getString("host");
         int pid = rs.getInt("pid");
-        DateTime started = toDateTime(rs.getTimestamp("started"));
-        DateTime active = toDateTime(rs.getTimestamp("active"));
-        DateTime expires = toDateTime(rs.getTimestamp("expires"));
+        DateTime started = sqlVariants.getDateTime(rs, "started");
+        DateTime active = sqlVariants.getDateTime(rs, "active");
+        DateTime expires = sqlVariants.getDateTime(rs, "expires");
         return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires);
       }
     }, executorGroup);

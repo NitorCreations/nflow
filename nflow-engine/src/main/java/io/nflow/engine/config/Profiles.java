@@ -26,6 +26,11 @@ public abstract class Profiles {
   public static final String POSTGRESQL = "nflow.db.postgresql";
 
   /**
+   * Profile to enable SQL Server database.
+   */
+  public static final String SQLSERVER = "nflow.db.sqlserver";
+
+  /**
    * Profile to enable JMX services.
    */
   public static final String JMX = "jmx";
