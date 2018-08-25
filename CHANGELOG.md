@@ -2,6 +2,7 @@
 
 **Highlights**
 - Fix to work with Spring Boot 2.x
+- Support for MS SQL database
 
 **Details**
 - nflow-rest-api-jax-rs:
