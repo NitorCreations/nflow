@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.springweb;
 
+import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_STATISTICS_PATH;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -22,7 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
-@RequestMapping(value = NFLOW_STATISTICS_PATH, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_STATISTICS_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow statistics")
 @Component
 public class StatisticsResource {

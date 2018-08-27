@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public class StartNflow {
     });
 
     // Add also properties that are not optional, i.e. don't start with "--"
-    Arrays.asList(args).stream().filter(value -> !value.startsWith("--")).forEach(value -> argsMap.put(value, null));
+    Stream.of(args).filter(value -> !value.startsWith("--")).forEach(value -> argsMap.put(value, null));
 
     // Create context
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
@@ -102,27 +103,22 @@ public class StartNflow {
     // Start netty
     HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();
     ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
-    int port = getPort(mainConfiguration);
-    String host = getHost(mainConfiguration);
+    int port = getProperty(mainConfiguration, "port").map(Integer::valueOf).orElse(DEFAULT_SERVER_PORT);
+    String host = getProperty(mainConfiguration, "host").orElse(DEFAULT_SERVER_HOST);
     HttpServer.create(host, port).newHandler(adapter).block();
     long end = currentTimeMillis();
 
     // Log info
     logger.info("Successfully started Netty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0,
         Arrays.toString(env.getActiveProfiles()));
-    logger.info("API available at http://{}:{}/nflow/v1", host, port);
+    logger.info("API available at http://{}:{}/{}", host, port, context.getEnvironment().getProperty("nflow.rest.path.prefix"));
+    logger.info("UI available at http://{}:{}/nflow/ui", host, port);
 
     return context;
   }
 
-  private String getHost(Optional<ResourcePropertySource> mainConfiguration) {
-    return mainConfiguration.isPresent() && mainConfiguration.get().containsProperty("host")
-        ? (String) mainConfiguration.get().getProperty("host") : DEFAULT_SERVER_HOST;
-  }
-
-  private Integer getPort(Optional<ResourcePropertySource> mainConfiguration) {
-    return mainConfiguration.isPresent() && mainConfiguration.get().containsProperty("port")
-        ? Integer.valueOf((String) mainConfiguration.get().getProperty("port")) : DEFAULT_SERVER_PORT;
+  private Optional<String> getProperty(Optional<ResourcePropertySource> configuration, String propertyName) {
+    return Optional.ofNullable(configuration.map(config -> (String) config.getProperty(propertyName)).orElse(null));
   }
 
   private Optional<ResourcePropertySource> initMainConfiguration(Optional<String> mainConfigurationClasspath,

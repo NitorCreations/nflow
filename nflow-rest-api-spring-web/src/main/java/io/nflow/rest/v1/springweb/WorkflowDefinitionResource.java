@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.springweb;
 
+import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_DEFINITION_PATH;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -22,7 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
-@RequestMapping(value = NFLOW_WORKFLOW_DEFINITION_PATH, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_DEFINITION_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow workflow definition management")
 @Component
 public class WorkflowDefinitionResource extends ResourceBase {

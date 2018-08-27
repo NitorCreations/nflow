@@ -69,7 +69,10 @@ public class NflowJettyConfiguration {
         statisticsResource,
         archiveResource
         ));
-    factory.setAddress(env.getProperty("nflow.api.basepath", '/' + factory.getAddress()));
+    String factoryAddress = factory.getAddress();
+    if (!factoryAddress.startsWith("/")) {
+      factory.setAddress('/' + factoryAddress);
+    }
     factory.setProviders(asList(
         jsonProvider(nflowRestObjectMapper),
         validationExceptionMapper(),
@@ -87,7 +90,8 @@ public class NflowJettyConfiguration {
 
   private Feature swaggerFeature() {
     Swagger2Feature feature = new Swagger2Feature();
-    feature.setBasePath(env.getProperty("nflow.swagger.basepath", "/api"));
+    feature.setBasePath("/nflow/api");
+    feature.setScan(true);
     feature.setContact("nFlow community (nflow-users@googlegroups.com)");
     feature.setDescription(
         "nFlow REST API provides services for managing workflow instances and querying metadata (statistics, workflow "

@@ -26,7 +26,7 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
 
   @Test
   public void convertRemoteSwaggerToAsciiDoc() throws MalformedURLException {
-    Swagger2MarkupConverter.from(new URL(server.getHttpAddress() + "/api/swagger.json")).build()
+    Swagger2MarkupConverter.from(new URL(server.getHttpAddress() + "/nflow/api/swagger.json")).build()
         .toFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
 
     // Then validate that the right number of AsciiDoc files have been created

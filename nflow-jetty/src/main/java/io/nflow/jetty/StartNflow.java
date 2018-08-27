@@ -107,10 +107,10 @@ public class StartNflow
     JettyServerContainer startedServer = new JettyServerContainer(server);
     port = startedServer.getPort();
     logger.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
-    logger.info("API available at http://{}:{}/api/", host, port);
-    logger.info("Swagger available at http://{}:{}/doc/", host, port);
-    logger.info("Explorer available at http://{}:{}/explorer/", host, port);
-    logger.info("Metrics and health checks available at http://{}:{}/metrics/", host, port);
+    logger.info("API available at http://{}:{}/nflow/api/", host, port);
+    logger.info("Swagger available at http://{}:{}/nflow/ui/doc/", host, port);
+    logger.info("Explorer available at http://{}:{}/nflow/ui/explorer/", host, port);
+    logger.info("Metrics and health checks available at http://{}:{}/nflow/metrics/", host, port);
     return startedServer;
   }
 
@@ -125,13 +125,13 @@ public class StartNflow
   }
 
   protected void setupCxf(final ServletContextHandler context) {
-    ServletHolder servlet = context.addServlet(CXFServlet.class, "/api/*");
+    ServletHolder servlet = context.addServlet(CXFServlet.class, "/nflow/api/*");
     servlet.setDisplayName("nflow-cxf-services");
     servlet.setInitOrder(1);
   }
 
   protected void setupMetricsAdminServlet(ServletContextHandler context) {
-    ServletHolder servlet = context.addServlet(AdminServlet.class, "/metrics/*");
+    ServletHolder servlet = context.addServlet(AdminServlet.class, "/nflow/metrics/*");
     context.addEventListener(new MetricsServletContextListener());
     servlet.setDisplayName("nflow-metrics-admin-servlet");
     servlet.setInitOrder(2);
@@ -169,30 +169,46 @@ public class StartNflow
     // workaround for a jetty bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=364936
     Resource.setDefaultUseCaches(false);
 
-    List<String> resources = new ArrayList<>();
+    List<String> extraResources = new ArrayList<>();
     for (String path : extraStaticResources) {
       File f = new File(path);
       if (f.isDirectory()) {
-        resources.add(f.getCanonicalFile().toURI().toURL().toString());
+        extraResources.add(f.getCanonicalFile().toURI().toURL().toString());
       }
     }
-    // add all resource roots locations from classpath
+    // add all 'static' resource roots locations from classpath
     for (URL url : list(this.getClass().getClassLoader().getResources("static"))) {
-      resources.add(url.toString());
+      extraResources.add(url.toString());
     }
-
-    logger.info("Static resources served from {}", resources);
-    context.setBaseResource(new ResourceCollection(resources.toArray(new String[resources.size()])));
+    if (!extraResources.isEmpty()) {
+      context.setBaseResource(new ResourceCollection(extraResources.toArray(new String[extraResources.size()])));
+      logger.info("Extra static resources served from {}", extraResources);
+    }
     context.setWelcomeFiles(new String[] { "index.html", "service.json" });
 
+    // add one 'nflow-ui-static' resource root
+    String nflowUiResourceBase;
+    List<URL> nflowUiResources = list(this.getClass().getClassLoader().getResources("nflow-ui-assets"));
+    if (nflowUiResources.isEmpty()) {
+      throw new RuntimeException("Could not find 'nflow-ui-assets' resource from classpath");
+    } else if (nflowUiResources.size() > 1) {
+      throw new RuntimeException(
+          "Found more than one (" + nflowUiResources.size() + ") 'nflow-ui-assets' resources from classpath");
+    } else {
+      nflowUiResourceBase = nflowUiResources.get(0).toString();
+    }
+    logger.info("nFlow UI static resources served from {}", nflowUiResourceBase);
+
     ServletHolder holder = new ServletHolder(new DefaultServlet());
+    holder.setInitParameter("resourceBase", nflowUiResourceBase);
+    holder.setInitParameter("pathInfoOnly", "true");
     holder.setInitParameter("dirAllowed", "false");
     holder.setInitParameter("gzip", "true");
     holder.setInitParameter("acceptRanges", "false");
     holder.setDisplayName("nflow-static");
     holder.setInitOrder(1);
 
-    context.addServlet(holder, "/*");
+    context.addServlet(holder, "/nflow/ui/*");
 
     MimeTypes mimeTypes = context.getMimeTypes();
     mimeTypes.addMimeMapping("ttf", "application/font-sfnt");
@@ -203,6 +219,7 @@ public class StartNflow
     mimeTypes.addMimeMapping("html", "text/html; charset=utf-8");
     mimeTypes.addMimeMapping("css", "text/css; charset=utf-8");
     mimeTypes.addMimeMapping("js", "application/javascript; charset=utf-8");
+
     return context;
   }
 

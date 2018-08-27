@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.springweb;
 
+import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -45,7 +46,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(value = NFLOW_WORKFLOW_INSTANCE_PATH, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_INSTANCE_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow workflow instance management")
 @Component
 public class WorkflowInstanceResource extends ResourceBase {
