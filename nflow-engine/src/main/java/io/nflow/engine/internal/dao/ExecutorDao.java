@@ -1,7 +1,6 @@
 package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
-import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static java.net.InetAddress.getLocalHost;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.apache.commons.lang3.StringUtils.trimToNull;

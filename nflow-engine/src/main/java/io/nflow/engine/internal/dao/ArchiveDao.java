@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -11,15 +10,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import io.nflow.engine.internal.storage.db.SQLVariants;
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.nflow.engine.config.NFlow;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 
 @Named
 public class ArchiveDao {
