@@ -23,6 +23,8 @@ module.exports = function (grunt) {
     dist: 'dist'
   };
 
+  const nodeSass = require('node-sass');
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -184,6 +186,7 @@ module.exports = function (grunt) {
     // Compiles Sass to CSS
     sass: {
       options: {
+        implementation: nodeSass,
         sourceMap: false,
         imagePath: '<%= yeoman.src %>/images',
         includePaths: ['bower_components']
