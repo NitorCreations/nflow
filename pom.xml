@@ -149,7 +149,6 @@
     <mssql.version>7.0.0.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>8.0.12</mysql.version>
-    <netty.version>4.1.25.Final</netty.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>42.2.4</postgresql.version>
