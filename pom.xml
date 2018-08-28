@@ -34,9 +34,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <prerequisites>
-    <maven>3.2</maven>
-  </prerequisites>
   <scm>
     <developerConnection>scm:git:git@github.com:NitorCreations/nflow-explorer.git</developerConnection>
     <connection>scm:git:git@github.com:NitorCreations/nflow-explorer.git</connection>
@@ -61,8 +58,8 @@
     <maven-install.version>2.5.2</maven-install.version>
     <maven-site.version>3.7.1</maven-site.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
-    <node.version>v8.11.2</node.version> <!-- https://nodejs.org/en/download/releases/ -->
-    <npm.version>5.6.0</npm.version> <!-- https://github.com/npm/npm/releases -->
+    <node.version>v8.11.4</node.version> <!-- https://nodejs.org/en/download/releases/ -->
+    <npm.version>6.4.0</npm.version> <!-- https://github.com/npm/cli/releases -->
     <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
   </properties>
   <build>
@@ -117,6 +114,9 @@
               <goal>npm</goal>
             </goals>
             <phase>generate-sources</phase>
+            <configuration>
+              <arguments>--color ci</arguments>
+            </configuration>
           </execution>
           <execution>
             <id>bower install</id>
@@ -132,7 +132,7 @@
             </goals>
             <phase>generate-resources</phase>
             <configuration>
-              <arguments>${grunt.target} --force</arguments>
+              <arguments>${grunt.target} --color --force</arguments>
             </configuration>
           </execution>
         </executions>
