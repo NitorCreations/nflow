@@ -1,11 +1,9 @@
 package io.nflow.engine.config.db;
 
-import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
-import org.joda.time.DateTime;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import static io.nflow.engine.config.Profiles.SQLSERVER;
+import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static java.lang.Class.forName;
 
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
@@ -14,10 +12,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import static io.nflow.engine.config.Profiles.SQLSERVER;
-import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
-import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
-import static java.lang.Class.*;
+import org.joda.time.DateTime;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
  * Configuration for SQL Server database.
@@ -59,8 +60,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     static {
       try {
         sqlServerDateTimeOffset = forName("microsoft.sql.DateTimeOffset");
-        sqlServerResultSet = forName("com.microsoft.sqlserver.jdbc.ISQLServerResultSet42");
-        sqlServerPreparedStatement = forName("com.microsoft.sqlserver.jdbc.ISQLServerPreparedStatement42");
+        sqlServerResultSet = forName("com.microsoft.sqlserver.jdbc.ISQLServerResultSet");
+        sqlServerPreparedStatement = forName("com.microsoft.sqlserver.jdbc.ISQLServerPreparedStatement");
         getDateTimeOffsetMethod = sqlServerResultSet.getMethod("getDateTimeOffset", String.class);
         setDateTimeOffsetMethod = sqlServerPreparedStatement.getMethod("setDateTimeOffset", Integer.TYPE, sqlServerDateTimeOffset);
         getTimestampMethod = sqlServerDateTimeOffset.getMethod("getTimestamp");
