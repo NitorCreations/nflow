@@ -1,5 +1,10 @@
 # nFlow Explorer change log
 
+1.2.7 2018-09-08
+================
+
+* Update dependencies (security issue in old lodash version)
+
 1.2.6 2018-08-24
 ================
 
