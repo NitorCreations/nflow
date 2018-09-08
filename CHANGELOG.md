@@ -1,14 +1,14 @@
 ## 5.0.0 (2018-mm-dd)
 
 **Highlights**
-- Fix to work with Spring Boot 2.x
+- Fix to work with Spring Boot 2.x and Spring 5.x
 - Support for MS SQL database
 
 **Details**
 - nflow-rest-api-jax-rs:
   - Change endpoint paths for workflow instance: /v1/workflow-instance/{id} -> /v1/workflow-instance/id/{id}
 - nflow-server-common:
-  - Use nFlow Explorer version 1.2.6 (nFlow REST API path changes)
+  - Use nFlow Explorer version 1.2.7 (nFlow REST API path changes)
 
 ## 4.2.0 (2017-05-16)
 
