@@ -3,12 +3,38 @@
 **Highlights**
 - Fix to work with Spring Boot 2.x and Spring 5.x
 - Support for MS SQL database
+- Support REST API based on spring-web in addition to JAX-RS.
+- Experimental support for the [Netty server](https://netty.io/)
+
+**Breaking changes**
+- Renamed JAX-RS REST API project from `nflow-rest-api` to `nflow-rest-api-jax-rs`.
+  - By default, the JAX-RS paths were changed from `/nflow/v1/*` to `/v1/*`.
+- `nflow-jetty` now serves all paths under `/nflow/*`. The new paths are as follows:
+  - /nflow/api/v1           -> API v1 (was: /api/nflow/v1)
+  - /nflow/api/swagger.json -> Swagger config (was: /api/swagger.json)
+  - /nflow/ui               -> nFlow statics assets 
+  - /nflow/ui/explorer      -> nFlow UI (was: /explorer)
+  - /nflow/ui/doc           -> Swagger UI (was: /doc)
+  - /nflow/metrics          -> metrics and health checks (was: /metrics)
+- Removed the following `nflow-jetty` configuration properties:
+  - `nflow.swagger.basepath`
+  - `nflow.api.basepath`
+- `nflow-jetty` Swagger UI no longer by default searches the entire classpath for Swagger annotations.
+  - The behaviour can be controlled via the parameter `nflow.swagger.packages`.
 
 **Details**
-- nflow-rest-api-jax-rs:
+- Split nflow-rest-api into `nflow-rest-api-jax-rs` and `nflow-rest-api-spring-web` to reflect the targeted framework
+- Add configuration parameter `nflow.autoinit` (defaults to true) that can be used to prevent database access on Spring inialization.
+- `nflow-rest-api-jax-rs`:
   - Change endpoint paths for workflow instance: /v1/workflow-instance/{id} -> /v1/workflow-instance/id/{id}
-- nflow-server-common:
+- `nflow-server-common`:
   - Use nFlow Explorer version 1.2.7 (nFlow REST API path changes)
+- Experimental new module `nflow-netty`
+  - Based on [Spring WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux) and Netty.
+  - Serves a limited subset of `nflow-jetty` paths with REST API under `/nflow/api/v1` and nflow explorer under `/nflow/ui/explorer`.
+- `nflow-jetty`
+  - Added configuration parameter `nflow.swagger.packages` (defaults to `io.nflow.rest`), that controls which packages are searched for Swagger annotations.
+  - Removed parameters `nflow.swagger.basepath` and `nflow.api.basepath` as everything is now prefixed under `/nflow/*`, which should remove the need to control the basepaths.
 
 ## 4.2.0 (2017-05-16)
 
