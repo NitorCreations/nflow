@@ -89,12 +89,12 @@ git checkout gh-pages
 git pull --rebase
 
 mv target/site/apidocs apidocs/v$RELEASE_VERSION
-sed -i "2s/.*/redirect_to: \/nflow\/apidocs\/v$RELEASE_VERSION\//" apidocs/current/index.html
+sed -i "2s/.*/redirect_to: \/apidocs\/v$RELEASE_VERSION\//" apidocs/current/index.html
 git add apidocs/current/index.html apidocs/v$RELEASE_VERSION
 git commit -m "updated javadocs for version $RELEASE_VERSION"
 
 mv nflow-tests/target/rest-api-docs rest-apidocs/v$RELEASE_VERSION
-sed -i "2s/.*/redirect_to: \/nflow\/rest-apidocs\/v$RELEASE_VERSION\//" rest-apidocs/current/index.html
+sed -i "2s/.*/redirect_to: \/rest-apidocs\/v$RELEASE_VERSION\//" rest-apidocs/current/index.html
 git add rest-apidocs/current/index.html rest-apidocs/v$RELEASE_VERSION
 git commit -m "updated REST API documentation for version $RELEASE_VERSION"
 
