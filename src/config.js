@@ -1,16 +1,16 @@
 'use strict';
 var Config = function() {
   // these get overwritten in EndpointService
-  this.nflowUrl = 'http://localhost:7500/api/nflow';
-  this.nflowApiDocs = 'http://localhost:7500/doc/';
+  this.nflowUrl = 'http://localhost:7500/nflow/api';
+  this.nflowApiDocs = 'http://localhost:7500/nflow/ui/doc/';
   this.withCredentials = false;
 
   this.nflowEndpoints = [
     {
       id: 'localhost',
       title: 'local nflow instance',
-      apiUrl: 'http://localhost:7500/api/nflow',
-      docUrl: 'http://localhost:7500/doc/'
+      apiUrl: 'http://localhost:7500/nflow/api',
+      docUrl: 'http://localhost:7500/nflow/ui/doc/'
     },
     {
       id: 'nbank',

@@ -11,16 +11,16 @@
         definition: '=',
         workflow: '='
       },
-      bindToController: true,
       controller: 'WorkflowGraphCtrl',
       controllerAs: 'ctrl',
       template: '<div class="svg-container"><svg id="workflowSvg"/></div>'
     };
   });
 
-  m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi, Graph) {
+  m.controller('WorkflowGraphCtrl', function ($rootScope, WorkflowGraphApi, Graph, $scope) {
     var self = this;
-
+    self.definition = $scope.definition;
+    self.workflow = $scope.workflow;
     initialize();
 
     function initialize() {

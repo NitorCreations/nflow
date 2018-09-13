@@ -15,14 +15,13 @@
         definition: '=',
         workflow: '='
       },
-      bindToController: true,
       controller: 'WorkflowManageStateCtrl',
       controllerAs: 'ctrl',
       templateUrl: 'app/workflow/tabs/manageState.html'
     };
   });
 
-  m.controller('WorkflowManageStateCtrl', function($state, WorkflowService, WorkflowGraphApi) {
+  m.controller('WorkflowManageStateCtrl', function($state, WorkflowService, WorkflowGraphApi, $scope) {
     var model = {};
     model.timeUnits = ['minutes', 'hours', 'days'];
     model.timeUnit = model.timeUnits[0];
@@ -30,6 +29,8 @@
 
     var self = this;
     self.model = model;
+    self.definition = $scope.definition;
+    self.workflow = $scope.workflow;
 
     self.updateWorkflow = updateWorkflow;
 

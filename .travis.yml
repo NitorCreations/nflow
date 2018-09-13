@@ -1,11 +1,7 @@
 language: node_js
-before_install:
-  - "export DISPLAY=:99.0"
-  - sh travis/run-nflow-server.sh
-  - "sh -e /etc/init.d/xvfb start"
 
 node_js:
-  - '4.1'
+  - '8.12.0'
 env:
   - CXX=g++-4.8
 addons:
@@ -13,15 +9,13 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - google-chrome-stable
       - g++-4.8
 
 before_script:
   - 'npm install -g bower grunt-cli'
   - 'npm install'
   - 'bower install'
-  - 'node_modules/protractor/bin/webdriver-manager update'
-script: grunt && grunt itest
+script: grunt
 notifications:
   flowdock:
     secure: QbIGfsj64a2Ms5y/aTO0PUAVBRv9mKxAwLFj5NxWACEVxm1JKZvrQ4ov/8XbVRbRl96sMIoWPox7Gu++ZgLjb7w+jeiCvWLwJwRDxlCgsYvb4hAcPXlNBO7SF4kcUifPfJpaDsb3EThUUK8EtsI5aOxvCqGKMChTDoQnej3kc0o=
