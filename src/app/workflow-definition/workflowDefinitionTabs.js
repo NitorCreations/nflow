@@ -32,7 +32,7 @@
     self.startRadiator = startRadiator;
     self.definition = $scope.definition;
 
-    var width = 450, height = 400;
+    var width = 650, height = 400;
     self.options = {chart: {
       // multiBarHorizontalChart get ugly colors due to https://github.com/novus/nvd3/issues/916
                 type: 'multiBarChart',
@@ -49,7 +49,7 @@
                 height: height,
                 width: width,
                 margin : {
-                    top: 20,
+                    top: 50,
                     right: 20,
                     bottom: 160,
                     left: 45
