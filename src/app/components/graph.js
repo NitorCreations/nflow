@@ -202,7 +202,7 @@
               if(_.size(actions) < 2) { return false; }
 
               var prevState = _.first(actions).state;
-              var found =  _.find(_.rest(actions), function(action) {
+              var found =  _.find(_.tail(actions), function(action) {
                 if (prevState === state.id && action.state === transition) { return true; }
                 prevState = action.state;
               });
