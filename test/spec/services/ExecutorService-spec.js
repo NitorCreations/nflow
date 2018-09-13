@@ -15,11 +15,12 @@ describe('Service: ExecutorService', function () {
 
     url = config.nflowUrl + '/v1/workflow-executor';
     pollInterval = config.radiator.pollPeriod * 1000;
+    $httpBackend.whenGET(/app.*/).respond(200, '');
   }));
 
   afterEach(function() {
-    $httpBackend.verifyNoOutstandingExpectation();
-    $httpBackend.verifyNoOutstandingRequest();
+    $httpBackend.verifyNoOutstandingExpectation(false);
+    $httpBackend.verifyNoOutstandingRequest(false);
   });
 
   it('initially has no executors', function () {

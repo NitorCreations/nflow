@@ -27,7 +27,6 @@
       q.type = _.result(self.model.definition, 'type');
       q.state = _.result(self.model.state, 'id');
       _.defaults(q, _.omit(self.model, ['definition', 'state']));
-
       return omitNonValues(q);
     }
 
@@ -48,7 +47,7 @@
     }
 
     function omitNonValues(object) {
-      return _.omit(object, function (v) { return _.isUndefined(v) || _.isNull(v); });
+      return _.omitBy(object, function (v) { return _.isUndefined(v) || _.isNull(v); });
     }
 
     function nonValueToNull(v) {
