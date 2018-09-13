@@ -10,7 +10,6 @@
       scope: {
         definition: '='
       },
-      bindToController: true,
       controller: 'WorkflowDefinitionGraphCtrl',
       controllerAs: 'ctrl',
       templateUrl: 'app/workflow-definition/workflowDefinitionGraph.html'
@@ -24,7 +23,7 @@
     var self = this;
     self.savePng = savePng;
     self.saveSvg = saveSvg;
-
+    self.definition = $scope.definition;
     initialize();
 
     function initialize() {

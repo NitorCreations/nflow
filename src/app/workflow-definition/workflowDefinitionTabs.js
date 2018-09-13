@@ -17,7 +17,6 @@
       scope: {
         definition: '='
       },
-      bindToController: true,
       controller: 'WorkflowDefinitionTabsCtrl',
       controllerAs: 'ctrl',
       templateUrl: 'app/workflow-definition/workflowDefinitionTabs.html'
@@ -31,6 +30,7 @@
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
+    self.definition = $scope.definition;
 
     var width = 450, height = 400;
     self.options = {chart: {
