@@ -10,12 +10,11 @@
       var defer = $q.defer();
       // links are relative to displayed page
       $http.get('styles/data/graph.css', {withCredentials: !!config.withCredentials})
-        .success(function(data) {
+        .then(function(data) {
           $rootScope.graph = {};
           $rootScope.graph.css=data;
           defer.resolve();
-        })
-        .error(function() {
+        }, function() {
           console.warn('Failed to load graph.css');
           $rootScope.graph = {};
           defer.resolve();
