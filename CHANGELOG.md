@@ -1,4 +1,9 @@
-## 5.0.0 (2018-mm-dd)
+## 5.0.1 (2018-09-14)
+
+**Highlights**
+- Use [nFlow Explorer version 1.2.8](https://github.com/NitorCreations/nflow-explorer/releases/tag/v1.2.8)
+
+## 5.0.0 (2018-09-11)
 
 **Highlights**
 - Fix to work with Spring Boot 2.x and Spring 5.x
