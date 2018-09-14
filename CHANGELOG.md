@@ -1,5 +1,19 @@
 # nFlow Explorer change log
 
+1.2.8 2018-09-14
+================
+
+* Remove fragile browser tests from Travis
+* Remove grunt-google-cdn dependency thereby removing vulnerable dependencies
+* Upgrade nodejs 4.1 -> 8.12.0
+* Fix graphs (invalid digraph dependency, broken looking bar chart)
+* Fix graph css retrieval (changed  api)
+* Fix changed Lodash rest() to tail()
+* Fix broken initializations for directive scope
+* Removed deprecated success-function https://stackoverflow.com/questions/41169385/http-get-success-is-not-a-function
+* Fix default local nFlow endpoints config
+* Fix unit tests after dependency update
+
 1.2.7 2018-09-08
 ================
 
