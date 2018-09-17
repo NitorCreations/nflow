@@ -1,51 +1,21 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.nitorcreations</groupId>
   <artifactId>nflow-explorer</artifactId>
-  <version>1.2.8</version>
   <packaging>pom</packaging>
   <name>nflow-explorer</name>
   <description>nFlow Explorer</description>
-  <url>https://github.com/NitorCreations/nflow-explorer</url>
-  <inceptionYear>2014</inceptionYear>
+  <url>http://nflow.io</url>
   <organization>
-    <name>Nitor Creations Oy</name>
+    <name>Nitor Creations</name>
     <url>http://www.nitorcreations.com</url>
   </organization>
-  <developers>
-    <developer>
-      <name>Juha Syrjälä</name>
-      <email>juha.syrjala@nitorcreations.com</email>
-    </developer>
-    <developer>
-      <name>Esa Puttonen</name>
-      <email>esa.puttonen@nitorcreations.com</email>
-    </developer>
-    <developer>
-      <name>Edvard Fonsell</name>
-      <email>edvard.fonsell@nitorcreations.com</email>
-    </developer>
-  </developers>
-  <licenses>
-    <license>
-      <name>European Union Public Licence V. 1.1</name>
-      <url>https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <developerConnection>scm:git:git@github.com:NitorCreations/nflow-explorer.git</developerConnection>
-    <connection>scm:git:git@github.com:NitorCreations/nflow-explorer.git</connection>
-    <url>https://github.com/NitorCreations/nflow-explorer</url>
-    <tag>HEAD</tag>
-  </scm>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
+  <parent>
+    <artifactId>nflow-root</artifactId>
+    <groupId>io.nflow</groupId>
+    <version>5.0.2-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
