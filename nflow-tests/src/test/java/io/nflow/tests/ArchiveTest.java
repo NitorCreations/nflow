@@ -24,8 +24,8 @@ import org.springframework.context.annotation.ComponentScan;
 import io.nflow.engine.service.ArchiveService;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.tests.demo.DemoWorkflow;
-import io.nflow.tests.demo.FibonacciWorkflow;
+import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)

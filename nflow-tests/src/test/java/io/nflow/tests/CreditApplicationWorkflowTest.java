@@ -22,7 +22,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import io.nflow.tests.demo.CreditApplicationWorkflow;
+import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)

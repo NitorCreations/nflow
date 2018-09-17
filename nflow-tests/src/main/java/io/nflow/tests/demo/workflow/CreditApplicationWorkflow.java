@@ -1,16 +1,16 @@
-package io.nflow.tests.demo;
+package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static io.nflow.tests.demo.CreditApplicationWorkflow.State.acceptCreditApplication;
-import static io.nflow.tests.demo.CreditApplicationWorkflow.State.createCreditApplication;
-import static io.nflow.tests.demo.CreditApplicationWorkflow.State.done;
-import static io.nflow.tests.demo.CreditApplicationWorkflow.State.error;
-import static io.nflow.tests.demo.CreditApplicationWorkflow.State.finishCreditApplication;
-import static io.nflow.tests.demo.CreditApplicationWorkflow.State.grantLoan;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.acceptCreditApplication;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.createCreditApplication;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.done;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.error;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.finishCreditApplication;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.grantLoan;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.math.BigDecimal;
@@ -61,6 +61,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
 
   public CreditApplicationWorkflow() {
     super("creditApplicationProcess", createCreditApplication, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0).setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
+    setDescription("Mock workflow that makes credit decision, creates loan, deposits the money and updates credit application");
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
     permit(acceptCreditApplication, finishCreditApplication);

@@ -1,7 +1,7 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.demo.DemoWorkflow.DEMO_WORKFLOW_TYPE;
-import static io.nflow.tests.demo.StateWorkflow.STATE_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.StateWorkflow.STATE_WORKFLOW_TYPE;
 import static org.junit.Assert.fail;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.springframework.context.annotation.Bean;
 
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import io.nflow.tests.demo.DemoWorkflow;
-import io.nflow.tests.demo.StateWorkflow;
+import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.StateWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)

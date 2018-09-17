@@ -1,4 +1,4 @@
-package io.nflow.tests.demo;
+package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
@@ -54,6 +54,7 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
 
   public FibonacciWorkflow() {
     super(WORKFLOW_TYPE, State.begin, State.error);
+    setDescription("Fibonacci series generator using recursive process. Each step is handled by a new child workflow.");
     permit(State.begin, State.nMinus2);
     permit(State.nMinus2, State.nMinus1);
     permit(State.nMinus2, State.poll);

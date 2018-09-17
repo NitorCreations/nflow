@@ -1,6 +1,6 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.demo.SlowWorkflow.SLOW_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.SlowWorkflow.SLOW_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.is;
@@ -19,8 +19,8 @@ import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.tests.demo.DemoWorkflow;
-import io.nflow.tests.demo.SlowWorkflow;
+import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.SlowWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)

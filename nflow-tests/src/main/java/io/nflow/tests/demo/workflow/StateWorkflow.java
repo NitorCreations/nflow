@@ -1,19 +1,21 @@
-package io.nflow.tests.demo;
+package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static io.nflow.tests.demo.StateWorkflow.State.done;
-import static io.nflow.tests.demo.StateWorkflow.State.error;
-import static io.nflow.tests.demo.StateWorkflow.State.state1;
-import static io.nflow.tests.demo.StateWorkflow.State.state2;
-import static io.nflow.tests.demo.StateWorkflow.State.state3;
-import static io.nflow.tests.demo.StateWorkflow.State.state4;
-import static io.nflow.tests.demo.StateWorkflow.State.state5;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.done;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.error;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.state1;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.state2;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.state3;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.state4;
+import static io.nflow.tests.demo.workflow.StateWorkflow.State.state5;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
+
+import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -22,6 +24,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
+@Component
 public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
 
   public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
@@ -57,6 +60,7 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
   public StateWorkflow() {
     super(STATE_WORKFLOW_TYPE, state1, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
         .setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
+    setDescription("Workflow for testing state variables");
     permit(state1, state2);
     permit(state2, state3);
     permit(state3, state4);

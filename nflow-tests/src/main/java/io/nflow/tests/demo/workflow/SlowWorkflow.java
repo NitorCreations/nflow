@@ -1,4 +1,4 @@
-package io.nflow.tests.demo;
+package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
@@ -44,6 +44,7 @@ public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
 
   public SlowWorkflow() {
     super(SLOW_WORKFLOW_TYPE, State.begin, State.error);
+    setDescription("Workflow for testing a state that has a long execution time");
     permit(State.begin, State.process);
     permit(State.process, State.done);
   }

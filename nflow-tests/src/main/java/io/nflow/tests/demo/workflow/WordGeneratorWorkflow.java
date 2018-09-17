@@ -1,4 +1,4 @@
-package io.nflow.tests.demo;
+package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
@@ -55,6 +55,7 @@ public class WordGeneratorWorkflow extends WorkflowDefinition<WordGeneratorWorkf
 
   protected WordGeneratorWorkflow(String flowName, WorkflowSettings settings) {
     super(flowName, State.start, State.error, settings);
+    setDescription("Generate random words");
     for (State originState : State.values()) {
       for (State targetState : State.values()) {
         if (originState == State.end || originState == State.error || targetState == State.error) {

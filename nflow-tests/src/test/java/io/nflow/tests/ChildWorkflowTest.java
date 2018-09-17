@@ -14,7 +14,7 @@ import org.junit.Test;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.tests.demo.FibonacciWorkflow;
+import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
