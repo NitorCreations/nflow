@@ -1,0 +1,21 @@
+<section class="wd-workflow-info">
+  <div ng-show="ctrl.parentWorkflow">Parent workflow:
+    <a ui-sref="workflow({id: ctrl.parentWorkflow.id})">{{ctrl.parentWorkflow.type}} ({{ctrl.parentWorkflow.id}})</a>
+  </div>
+  <div ng-show="ctrl.childWorkflows.length">Child workflows:
+    <strong><a ui-sref="search({parentWorkflowId: ctrl.workflow.id})">{{ctrl.childWorkflows.length}}</a></strong>
+  </div>
+  Created: <strong title="{{ctrl.workflow.created | fromNow}}">{{ctrl.workflow.created | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+  Started: <strong title="{{ctrl.workflow.started | fromNow}}">{{ctrl.workflow.started | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+  Modified: <strong title="{{ctrl.workflow.modified | fromNow}}">{{ctrl.workflow.modified | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+  Current state: <strong class="wd-active-state clickable" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
+  <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span><br/>
+  Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
+  <div ng-show="ctrl.workflow.signal">
+    Current signal: <strong title="See supported signals tab in workflow definition">{{ctrl.workflow.signal}}</strong><br/>
+  </div>
+  Next activation: <strong title={{ctrl.workflow.nextActivation}}>{{ctrl.workflow.nextActivation | fromNowOrNever}}</strong>
+  <div>Workflow id: <strong>{{ctrl.workflow.id}}</strong></div>
+  <div ng-show="ctrl.workflow.businessKey">Business key: <code>{{ctrl.workflow.businessKey}}</code></div>
+  <div ng-show="ctrl.workflow.externalId">External id: <code>{{ctrl.workflow.externalId}}</code></div>
+</section>

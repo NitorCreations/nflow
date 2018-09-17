@@ -1,0 +1,29 @@
+<section>
+  <form class="form-horizontal with-padding" role="form">
+    <fieldset>
+      <legend>
+        Send signal
+      </legend>
+      <div class="form-group">
+        <label class="col-md-3 control-label" for="signal">Signal</label>
+        <div class="col-md-9">
+          <select class="selectwidthauto form-control" id="signal" ng-model="ctrl.model.signal"
+                  ng-options="signal as signal.description for signal in ctrl.definition.supportedSignals track by signal.value">
+            <option value="">-- Select signal --</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-3 control-label" for="signalReason">Signal reason</label>
+        <div class="col-md-9">
+          <input class="form-control" id="signalReason" ng-model="ctrl.model.signalReason"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-3 col-md-9">
+          <button class="selectwidthauto btn btn-default" ng-disabled="!ctrl.model.signal" ng-click="ctrl.signalWorkflow()">Send</button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</section>

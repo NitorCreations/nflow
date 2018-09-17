@@ -1,0 +1,12 @@
+<div class="btn-group endpoint-selection" ng-if="ctrl.endpoints && ctrl.endpoints.length > 1">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      {{ctrl.selectedEndpoint.title}} <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li ng-repeat="option in ctrl.endpoints" ng-if="option.id != ctrl.selectedEndpoint.id">
+      <a id="select-endpoint-{{option.id}}" ng-click="ctrl.endpointChange(option.id)">
+        {{option.title}}
+      </a>
+    </li>
+  </ul>
+</div>
