@@ -1,3 +1,8 @@
+## 5.0.2 (2018-mm-dd)
+
+**Highlights**
+- Merge nFlow Explorer to nFlow repository
+
 ## 5.0.1 (2018-09-14)
 
 **Highlights**
