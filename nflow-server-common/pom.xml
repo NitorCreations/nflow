@@ -17,7 +17,6 @@
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <nflow.explorer.version>1.2.8</nflow.explorer.version>
     <swagger.ui.version>2.2.8</swagger.ui.version>
   </properties>
   <build>
@@ -35,9 +34,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.nitorcreations</groupId>
+                  <groupId>io.nflow</groupId>
                   <artifactId>nflow-explorer</artifactId>
-                  <version>${nflow.explorer.version}</version>
+                  <version>${project.version}</version>
                   <type>tar.gz</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/explorer</outputDirectory>

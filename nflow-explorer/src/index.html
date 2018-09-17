@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <title>nFlow Explorer</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="shortcut icon" href="favicon.ico" />
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
+    <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/dagre.css">
+    <!-- endbuild -->
+  </head>
+
+  <!--(if target !dist)><!-->
+  <body ng-app="nflowExplorer">
+  <!--<!(endif)-->
+  <!--(if target dist)>
+  <body ng-app="nflowExplorer" ng-strict-di>
+  <!(endif)-->
+
+    <!--[if lt IE 7]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <layout></layout>
+
+    <!-- build:js(.) app/oldieshim.js -->
+    <!--[if lt IE 9]>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.js"></script>
+    <![endif]-->
+    <!-- endbuild -->
+
+    <!-- build:js(.) app/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/json3/lib/json3.js"></script>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap-sass/assets/javascripts/bootstrap.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-touch/angular-touch.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/momentjs/moment.js"></script>
+    <script src="bower_components/lodash/lodash.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/nvd3/build/nv.d3.js"></script>
+    <script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+    <script src="bower_components/dygraphs/dygraph-combined.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!--
+      See https://github.com/cpettitt/dagre-d3/issues/102dagre-d3 0.2.9 repo is corrupted. Here is a local copy
+      <script src="external/dagre-d3/js/dagre-d3.js"></script>
+    -->
+    <script src="external/dagre-d3/js/dagre-d3.min.js"></script>
+    <script src="external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js"></script>
+
+    <script src="config.js"></script>
+    <!-- build:js({.tmp,src}) app/app.js -->
+    <script src="app/util.js"></script>
+
+    <script src="app/app.js"></script>
+    <script src="app/about/about.js"></script>
+
+    <script src="app/config/index.js"></script>
+    <script src="app/config/console.js"></script>
+    <script src="app/config/routes.js"></script>
+
+    <script src="app/components/index.js"></script>
+    <script src="app/components/constants.js"></script>
+    <script src="app/components/filters.js"></script>
+    <script src="app/components/graph.js"></script>
+    <script src="app/components/util.js"></script>
+    <script src="app/components/endpointSelection/endpointSelection.js"></script>
+
+    <script src="app/executors/executors.js"></script>
+    <script src="app/executors/executorTable.js"></script>
+    <script src="app/front-page/frontPage.js"></script>
+    <script src="app/front-page/definitionList.js"></script>
+    <script src="app/layout/layout.js"></script>
+    <script src="app/search/criteriaModel.js"></script>
+    <script src="app/search/search.js"></script>
+    <script src="app/search/searchForm.js"></script>
+    <script src="app/search/searchResult.js"></script>
+
+    <script src="app/services/index.js"></script>
+    <script src="app/services/RestHelper.js"></script>
+    <script src="app/services/EndpointService.js"></script>
+    <script src="app/services/ExecutorService.js"></script>
+    <script src="app/services/GraphService.js"></script>
+    <script src="app/services/Time.js"></script>
+    <script src="app/services/WorkflowDefinitionService.js"></script>
+    <script src="app/services/WorkflowStatsPoller.js"></script>
+    <script src="app/services/WorkflowService.js"></script>
+
+    <script src="app/workflow/workflow.js"></script>
+    <script src="app/workflow/workflowGraph.js"></script>
+    <script src="app/workflow/workflowInfo.js"></script>
+    <script src="app/workflow/workflowTabs.js"></script>
+    <script src="app/workflow/tabs/actionHistory.js"></script>
+    <script src="app/workflow/tabs/manageState.js"></script>
+    <script src="app/workflow/tabs/manageVariables.js"></script>
+    <script src="app/workflow/tabs/manageSignal.js"></script>
+    <script src="app/workflow/tabs/stateVariables.js"></script>
+    <script src="app/workflow-definition/workflowDefinition.js"></script>
+    <script src="app/workflow-definition/workflowDefinitionGraph.js"></script>
+    <script src="app/workflow-definition/workflowDefinitionTabs.js"></script>
+    <script src="app/workflow-definition/tabs/workflowSignalsTable.js"></script>
+    <script src="app/workflow-definition/tabs/workflowStatisticsTable.js"></script>
+    <script src="app/workflow-stats/workflowStats.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>

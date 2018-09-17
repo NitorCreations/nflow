@@ -1,0 +1,165 @@
+/** Styling for nFlow workflow graphs
+workflow_definition.html / workflow.html
+
+This file will be embedded inside generated SVG.
+
+See app.js how this file is loaded (resolve:).
+*/
+
+.graph-background {
+  fill: white;
+  pointer-events: all;
+}
+
+/**
+Node styles
+-----------
+Generated svg looks like this
+
+
+<g class="node-normal"  transform="translate(...)">
+  <rect><!--this is background for node--></rect>
+  <g transform="translate(-100,-9.5)">
+    <text text-anchor="left">
+     <tspan dy="1em" x="1"><!-- node text goes here --></tspan>
+    </text>
+  </g>
+  <title><!-- tooltip goes here --></title>
+</g>
+*/
+/* changing font or font size may require code changes to have right size boxes */
+.node-normal, .node-manual, .node-start, .node-end {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  fill: black;
+  opacity: 1; cursor: pointer;
+}
+
+.node-start > rect, .node-manual > rect, .node-normal > rect, .node-end > rect, .node-error > rect {
+  stroke-width: 1.5px;
+  stroke: black;
+  fill: white;
+}
+.node-start > rect {
+  fill: LightBlue;
+}
+
+.node-normal > rect {
+  fill: white;
+}
+
+.node-manual > rect {
+  fill: yellow;
+}
+
+.node-error > rect {
+  fill: pink;
+}
+
+.node-end > rect {
+  fill: LightGreen;
+}
+
+
+.node-normal.selected > rect, .node-manual.selected > rect, .node-error.selected > rect, .node-start.selected > rect, .node-end.selected > rect {
+  stroke-width: 3px;
+}
+
+.node-active > rect{
+  stroke-width: 3px;
+}
+
+.node-active.selected {
+  stroke-width: 4px;
+}
+
+.node-passive{
+  fill: gray;
+}
+
+.node-passive > rect{
+  stroke: gray;
+}
+
+
+/**
+Edge styles
+------------
+Basic edge types are
+- normal: normal transition
+- error: error transition
+- unexpected: any transition not part of workflow definition. Unexpected is always active.
+
+Edges may be one of:
+- <none>: with workflow definition
+- passive: when transition has not been used by workflow instance
+- active: when transition has been used by workflow instance
+
+Edge may be also be selected.
+
+So error edge, that has not been used and is selected is indicated like this
+
+class="edge-error edge-passive selected"
+
+If you need new colors for arrowheads see graph.js, addArrowheadMarker()
+*/
+.edge-normal, .edge-error, .edge-unexpected {
+  stroke-width: 1px;
+  fill: none;
+  stroke: black;
+  marker-end: url(#arrowhead);
+}
+
+.edge-normal {
+  stroke: black;
+  marker-end: url(#arrowhead);
+  fill: none;
+}
+
+.edge-error {
+  stroke: black;
+  stroke-dasharray: 5,5;
+  marker-end: url(#arrowhead);
+  fill: none;
+}
+
+.edge-unexpected {
+  stroke: red;
+  fill: none;
+  marker-end: url(#arrowhead-red);
+}
+
+.edge-normal.edge-active, .edge-error.edge-active, .edge-unexpected.edge-active {
+  stroke-width: 2px;
+}
+
+.edge-passive {
+  stroke: gray;
+  marker-end: url(#arrowhead-gray);
+}
+
+.edge-normal.selected, .edge-error.selected, .edge-unexpected.selected {
+  stroke-width: 2px;
+}
+
+.edge-active.selected {
+  stroke-width: 4px;
+}
+
+.edge-passive.selected {
+  stroke: gray;
+}
+
+
+/* retries */
+.retry-indicator {
+  fill: orange;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+
+/* */
+g.current-state > g > text {
+  text-decoration: underline;
+}

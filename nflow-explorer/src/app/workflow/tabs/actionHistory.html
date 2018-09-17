@@ -1,0 +1,42 @@
+<section>
+  <div class="alert alert-info" role="alert" ng-hide="ctrl.workflow.actions.length">
+    No actions
+  </div>
+  <table id="action-history" class="table table-striped table-hover" ng-show="ctrl.workflow.actions.length">
+    <thead>
+    <th>No</th>
+    <th>State</th>
+    <th>Description</th>
+    <th>Retries</th>
+    <th>Started</th>
+    <th>Finished</th>
+    <th>Duration</th>
+    </thead>
+    <tbody>
+    <tr class="wd-action-{{ctrl.workflow.actions.length - $index}} clickable"
+        ng-class="{
+                success: action.type === 'stateExecution',
+                danger: action.type === 'stateExecutionFailed',
+                info: action.type === 'externalChange',
+                warning: action.type === 'recovery'
+                }"
+        ng-repeat="action in ctrl.workflow.actions"
+        ng-click="ctrl.selectAction(action.state)">
+      <td>{{ctrl.workflow.actions.length - $index}}</td>
+      <td>{{action.state}}</td>
+      <td><div>{{action.stateText}}</div>
+        <div ng-if="ctrl.childWorkflowFromAction(action).length" >
+          <strong>Child workflows</strong>
+          <ul ng-repeat="childWorkflow in ctrl.childWorkflowFromAction(action)">
+            <li><small><a ui-sref="workflow({id: childWorkflow.id})">{{childWorkflow.type}} ({{childWorkflow.id}})</a></small></li>
+          </ul>
+        </div>
+      </td>
+      <td>{{action.retryNo}}</td>
+      <td>{{action.executionStartTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td>{{action.executionEndTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td>{{ctrl.duration(action)}}</td>
+    </tr>
+    </tbody>
+  </table>
+</section>

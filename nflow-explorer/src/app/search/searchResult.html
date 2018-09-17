@@ -1,0 +1,38 @@
+<div>
+  <h2>Workflows</h2>
+  <div class="alert alert-info" role="alert" ng-hide="ctrl.results.length">
+    No workflow instances found
+  </div>
+  <table ng-show="ctrl.results.length" id="search-result" class="table table-striped table-hover">
+    <thead>
+    <th>Id</th>
+    <th>Workflow type</th>
+    <th>State</th>
+    <th>State text</th>
+    <th>Status</th>
+    <th>Business key</th>
+    <th>External id</th>
+    <th>Retries</th>
+    <th>Created</th>
+    <th>Started</th>
+    <th>Modified</th>
+    <th>Next activation</th>
+    </thead>
+    <tbody>
+    <tr ng-repeat="result in ctrl.results" ng-class="ctrl.getStateClass(result)">
+      <td><a ui-sref="workflow({id: result.id})">{{result.id}}</a></td>
+      <td><a ui-sref="workflow({id: result.id})">{{result.type}}</a></td>
+      <td>{{result.state}}</td>
+      <td>{{result.stateText}}</td>
+      <td>{{result.status}}</td>
+      <td>{{result.businessKey}}</td>
+      <td>{{result.externalId}}</td>
+      <td>{{result.retries}}</td>
+      <td title="{{result.created | fromNowOrNever}}">{{result.created | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td title="{{result.started | fromNowOrNever}}">{{result.started | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td title="{{result.modified | fromNowOrNever}}">{{result.modified | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td title="{{result.nextActivation | fromNowOrNever}}">{{result.nextActivation | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
