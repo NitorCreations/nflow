@@ -38,9 +38,10 @@
 
     function initialize() {
       defaultNextState(self.workflow.state);
-
       WorkflowGraphApi.registerOnSelectNodeListener(function(nodeId) {
-        defaultNextState(nodeId);
+        $scope.$apply(function() {
+          defaultNextState(nodeId);
+        });
       });
     }
 
