@@ -15,8 +15,8 @@
     "momentjs": "2.9.0",
     "lodash": "4.17.10",
     "angular-nvd3": "1.0.9",
-    "d3": "3.5.17",
-    "dygraphs": "1.1.0"
+    "dygraphs": "1.1.0",
+    "dagre-d3": "0.6.1"
   },
   "devDependencies": {
     "angular-mocks": "1.7.3",
