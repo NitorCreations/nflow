@@ -18,7 +18,7 @@ Generated svg looks like this
 
 
 <g class="node-normal"  transform="translate(...)">
-  <ellipse><!--this is background for node--></ellipse>
+  <rect><!--this is background for node--></rect>
   <g transform="translate(-100,-9.5)">
     <text text-anchor="left">
      <tspan dy="1em" x="1"><!-- node text goes here --></tspan>
@@ -35,28 +35,28 @@ Generated svg looks like this
   opacity: 1; cursor: pointer;
 }
 
-.node-start > ellipse, .node-manual > ellipse, .node-normal > ellipse, .node-end > ellipse, .node-error > ellipse {
+.node-start > rect, .node-manual > rect, .node-normal > rect, .node-end > rect, .node-error > rect {
   stroke-width: 1.5px;
   stroke: black;
   fill: white;
 }
-.node-start > ellipse {
+.node-start > rect {
   fill: LightBlue;
 }
 
-.node-manual > ellipse {
+.node-manual > rect {
   fill: yellow;
 }
 
-.node-error > ellipse {
+.node-error > rect {
   fill: pink;
 }
 
-.node-end > ellipse {
+.node-end > rect {
   fill: LightGreen;
 }
 
-.node-normal.selected > ellipse, .node-manual.selected > ellipse, .node-error.selected > ellipse, .node-start.selected > ellipse, .node-end.selected > ellipse {
+.node-normal.selected > rect, .node-manual.selected > rect, .node-error.selected > rect, .node-start.selected > rect, .node-end.selected > rect {
   stroke-width: 3px;
 }
 
@@ -64,7 +64,7 @@ Generated svg looks like this
   fill: gray;
 }
 
-.node-passive > ellipse {
+.node-passive > rect {
   stroke: gray;
 }
 
@@ -137,7 +137,7 @@ g.current-state > g > g > text {
   text-decoration: underline;
 }
 
-.node ellipse {
+.node rect {
   stroke: #333;
   fill: white;
   stroke-width: 1.5px;

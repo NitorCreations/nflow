@@ -95,14 +95,16 @@
         }
 
         function createNodeAttributes(state, workflow) {
-          var nodeStyle = {};
-          nodeStyle['class'] = resolveStyleClass();
-          nodeStyle.retries = calculateRetries();
-          nodeStyle.state = state;
-          nodeStyle.label = state.id;
-          nodeStyle.id = nodeDomId(state.id);
-          nodeStyle.shape = 'ellipse';
-          return nodeStyle;
+          return {
+            rx: 5,
+            ry: 5,
+            class: resolveStyleClass(),
+            retries: calculateRetries(),
+            state: state,
+            label: state.id,
+            id: nodeDomId(state.id),
+            shape: 'rect'
+          };
 
           function resolveStyleClass() {
             var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
@@ -205,7 +207,7 @@
         function drawRetryIndicator() {
           // fetch sizes for node rects => needed for calculating right edge for rect
           var nodeCoords = {};
-          nodes.selectAll('ellipse').each(function (nodeName) {
+          nodes.selectAll('rect').each(function (nodeName) {
             var t = d3.select(this);
             nodeCoords[nodeName] = {x: t.attr('x'), y: t.attr('y')};
           });
