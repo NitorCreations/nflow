@@ -1,8 +1,10 @@
 <div>
   <tabset>
     <tab heading="Active instances" >
-      <div ng-if="ctrl.data">
-        <nvd3 options='ctrl.options' data='ctrl.data' config='{refreshDataOnly: true}'></nvd3>
+      <p/>
+      <div ng-if="data">
+        <canvas class="chart chart-horizontal-bar" chart-data="data" chart-labels="labels"
+                chart-options="options" chart-series="series"></canvas>
       </div>
     </tab>
 
