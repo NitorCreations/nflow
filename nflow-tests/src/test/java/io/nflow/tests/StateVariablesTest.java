@@ -26,8 +26,8 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import io.nflow.tests.demo.StateWorkflow;
-import io.nflow.tests.demo.StateWorkflow.State;
+import io.nflow.tests.demo.workflow.StateWorkflow;
+import io.nflow.tests.demo.workflow.StateWorkflow.State;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)

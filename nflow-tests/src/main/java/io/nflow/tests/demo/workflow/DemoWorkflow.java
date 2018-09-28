@@ -1,4 +1,4 @@
-package io.nflow.tests.demo;
+package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
@@ -42,6 +42,7 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
 
   public DemoWorkflow() {
     super(DEMO_WORKFLOW_TYPE, State.begin, State.error);
+    setDescription("Simple demo workflow: start -> process -> end");
     permit(State.begin, State.process);
     permit(State.process, State.done);
   }

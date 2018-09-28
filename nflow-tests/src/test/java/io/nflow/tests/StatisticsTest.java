@@ -1,6 +1,6 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.demo.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
