@@ -1,6 +1,5 @@
 (function () {
   'use strict';
-  var _metaStatuses = ['sleeping', 'queued', 'executing', 'manual'];
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nflowExplorer.workflowDefinition.tabs.workflowStatisticsTable',
@@ -23,8 +22,15 @@
 
   m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi,
                                                       WorkflowStatsPoller) {
+
+    var self = this;
+    self._metaStatuses = ['sleeping', 'queued', 'executing', 'manual'];
+    self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
+    self.isStateSelected = isStateSelected;
+    self.startRadiator = startRadiator;
+
     $scope.type = 'StackedBar';
-    $scope.series = _metaStatuses;
+    $scope.series = self._metaStatuses;
     $scope.options = {
       scales: {
         xAxes: [{
@@ -32,17 +38,13 @@
           ticks: {
             min: 0,
             stepSize: 1
-          },
+          }
         }],
         yAxes: [{
           stacked: true
         }]
       }
     };
-    var self = this;
-    self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
-    self.isStateSelected = isStateSelected;
-    self.startRadiator = startRadiator;
     self.definition = $scope.definition;
 
     initialize();
@@ -91,29 +93,35 @@
     }
 
     function barChartData(labels, definitionStateStatistics) {
-      var data = Array(_metaStatuses.length).fill().map(function() {
-        return Array(labels.length).fill(0);
-      });
+      var data = zeros([self._metaStatuses.length, labels.length]);
       for (var i=0; i<labels.length; i++) {
         var s = definitionStateStatistics[labels[i]];
         if (s) {
-          for (var j=0; j<_metaStatuses.length; j++) {
-            if (_metaStatuses[j] === 'sleeping') {
+          for (var j=0; j<self._metaStatuses.length; j++) {
+            if (self._metaStatuses[j] === 'sleeping') {
               data[j][i] = (s.created.allInstances - s.created.queuedInstances) +
                 (s.inProgress.allInstances - s.inProgress.queuedInstances);
-            } else if (_metaStatuses[j] === 'queued') {
+            } else if (self._metaStatuses[j] === 'queued') {
               data[j][i] = s.created.queuedInstances + s.inProgress.queuedInstances;
-            } else if (_metaStatuses[j] === 'manual') {
+            } else if (self._metaStatuses[j] === 'manual') {
               data[j][i] = s.manual.allInstances;
-            } else if (_metaStatuses[j] === 'executing') {
+            } else if (self._metaStatuses[j] === 'executing') {
               data[j][i] = s.executing.allInstances;
             } else {
-              console.error('Unknown metastatus ' + _metaStatuses[j]);
+              console.error('Unknown metastatus ' + self._metaStatuses[j]);
             }
           }
         }
       }
       return data;
+    }
+
+    function zeros(dimensions) {
+      var array = [];
+      for (var i = 0; i < dimensions[0]; ++i) {
+        array.push(dimensions.length === 1 ? 0 : zeros(dimensions.slice(1)));
+      }
+      return array;
     }
 
     function startRadiator() {
