@@ -142,3 +142,12 @@ g.current-state > g > g > text {
   fill: white;
   stroke-width: 1.5px;
 }
+
+/*
+dagre-d3 hard-codes nodes to have class 'label', which makes style definitions from bootstrap-sass to leak to the graph.
+Resetting the leaked styles here.
+*/
+.label {
+  font-size: 100%;
+  font-weight: normal;
+}
