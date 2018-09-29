@@ -237,6 +237,7 @@
         var zoom = d3.zoom().on('zoom', function() {
           svgGroup.attr('transform', d3.event.transform);
         });
+        svgRoot.call(zoom);
         var aspectRatio = graph.graph().height / graph.graph().width;
         var availableWidth = parseInt(svgRoot.style('width').replace(/px/, ''));
         svgRoot.attr('height', Math.max(Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio) + 60, 300));
