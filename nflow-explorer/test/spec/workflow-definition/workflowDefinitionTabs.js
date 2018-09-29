@@ -20,7 +20,7 @@ describe('Controller: WorkflowDefinitionTabsCtrl', function () {
     var ctrl;
 
     it('Stats with manual states only are filtered', function () {
-      stubStatePoller({
+      stubStatePoller(WorkflowStatsPoller, {
         done: createStatsForState(0,0,0,0,0,0,1)
       });
       ctrl = getCtrl(WorkflowStatsPoller, $scope);
@@ -29,7 +29,7 @@ describe('Controller: WorkflowDefinitionTabsCtrl', function () {
     });
 
     it('Instances are summed correctly for metastates', function () {
-      stubStatePoller({
+      stubStatePoller(WorkflowStatsPoller, {
         state1: createStatsForState(2,1,4,3,5,6,7)
       });
       ctrl = getCtrl(WorkflowStatsPoller, $scope);
@@ -38,7 +38,7 @@ describe('Controller: WorkflowDefinitionTabsCtrl', function () {
     });
 
     it('All non-end definition states are shown regardless of stats', function () {
-      stubStatePoller({
+      stubStatePoller(WorkflowStatsPoller, {
         state1: createStatsForState(1,0,0,0,0,0,0)
       });
       $scope.definition = {
@@ -62,37 +62,6 @@ describe('Controller: WorkflowDefinitionTabsCtrl', function () {
       $scope: $scope,
       WorkflowStatsPoller: WorkflowStatsPoller
     });
-  }
-
-  function stubStatePoller(stats) {
-    sinon.stub(WorkflowStatsPoller, 'getLatest').callsFake(function() {
-      return {
-        stateStatistics: stats
-      };
-    });
-    sinon.stub(WorkflowStatsPoller, 'start').callsFake(function() {});
-  }
-
-  function createStatsForState(cai, cqi, ipai, ipqi, eai, mai, fai) {
-    return {
-      created: {
-        allInstances: cai,
-        queuedInstances: cqi
-      },
-      inProgress: {
-        allInstances: ipai,
-        queuedInstances: ipqi
-      },
-      executing: {
-        allInstances: eai
-      },
-      manual: {
-        allInstances: mai
-      },
-      finished: {
-        allInstances: fai
-      }
-    };
   }
 
 });

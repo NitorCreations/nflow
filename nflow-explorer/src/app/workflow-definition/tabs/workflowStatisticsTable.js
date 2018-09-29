@@ -59,7 +59,7 @@
       _.forEach(_.keys(stats.stateStatistics), function (stateName) {
         var state = stats.stateStatistics[stateName];
         stats.stateStatisticsTotal.allInstances += state.created.allInstances + state.inProgress.allInstances + state.manual.allInstances +
-          state.manual.allInstances + state.finished.allInstances;
+          state.executing.allInstances + state.finished.allInstances;
         stats.stateStatisticsTotal.created.allInstances += state.created.allInstances;
         stats.stateStatisticsTotal.created.queuedInstances += state.created.queuedInstances;
         stats.stateStatisticsTotal.inProgress.allInstances += state.inProgress.allInstances;
@@ -71,4 +71,4 @@
     }
 
   });
-  })();
+})();
