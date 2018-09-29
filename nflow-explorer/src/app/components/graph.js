@@ -181,12 +181,10 @@
       var svgRoot = initSvg(canvasSelector, embedCSS);
       svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
       var svgGroup = svgRoot.append('g');
-      svgGroup.attr('transform', 'translate(20, 20)');
       var render = new dagreD3.render();
       render(svgGroup, graph);
-      svgRoot.attr('height', graph.graph().height + 60);
-      svgRoot.attr('width', graph.graph().width + 60);
       decorateNodes(canvasSelector, graph, nodeSelectedCallBack);
+      setupAndApplyZoom(graph, svgRoot, svgGroup);
 
       function initSvg(canvasSelector, embedCSS) {
         var svgRoot = d3.select(canvasSelector);
@@ -220,12 +218,10 @@
               var c = nodeCoords[nodeId];
               var t = d3.select(this);
               t.attr('transform', 'translate(' + (- c.x) + ',-4)');
-
               t.append('ellipse')
                 .attr('cx', 10).attr('cy', -5)
                 .attr('rx', 20).attr('ry', 10)
                 .attr('class', 'retry-indicator');
-
               t.append('text').append('tspan').text(node.retries);
               t.append('title').text('State was retried ' + node.retries + ' times.');
             }
@@ -235,6 +231,17 @@
         function buildTitle(state) {
           return _.capitalize(state.type) + ' state\n' + state.description;
         }
+      }
+
+      function setupAndApplyZoom(graph, svgRoot, svgGroup) {
+        var zoom = d3.zoom().on('zoom', function() {
+          svgGroup.attr('transform', d3.event.transform);
+        });
+        var aspectRatio = graph.graph().height / graph.graph().width;
+        var availableWidth = parseInt(svgRoot.style('width').replace(/px/, ''));
+        svgRoot.attr('height', Math.max(Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio) + 60, 300));
+        var zoomScale = Math.min(availableWidth / (graph.graph().width + 70), 1);
+        svgRoot.call(zoom.transform, d3.zoomIdentity.scale(zoomScale).translate(35, 30));
       }
 
     }
