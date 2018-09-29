@@ -28,6 +28,7 @@
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
+    self.definition = $scope.definition;
 
     $scope.type = 'StackedBar';
     $scope.series = self._metaStatuses;
@@ -45,7 +46,7 @@
         }]
       }
     };
-    self.definition = $scope.definition;
+    $scope.stats = {};
 
     initialize();
 
@@ -67,11 +68,11 @@
     }
 
     function updateStateExecutionGraph(type) {
-      var stats = WorkflowStatsPoller.getLatest(type);
+      $scope.stats = WorkflowStatsPoller.getLatest(type);
       if (!self.definition) {
         console.debug('Definition not loaded yet');
-      } else if (stats) {
-        var definitionStateStatistics = stats.stateStatistics || {};
+      } else if ($scope.stats) {
+        var definitionStateStatistics = $scope.stats.stateStatistics || {};
         $scope.labels = barChartLabels(definitionStateStatistics);
         $scope.data = barChartData($scope.labels, definitionStateStatistics);
       }
