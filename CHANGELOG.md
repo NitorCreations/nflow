@@ -1,7 +1,15 @@
 ## 5.0.2 (2018-mm-dd)
 
 **Highlights**
+- Multiple bug fixes to nFlow Explorer, including Google Chrome crash fix
 - Merge nFlow Explorer to nFlow repository
+
+**Details**
+- nFlow Explorer
+  - Fix Google Chrome crash on workflow graph visualization (e.g. switching between parent and child workflow instances crashed Chrome)
+  - Fix interaction between selected workflow graph node, action history row and manage state selection
+  - Fix execution phases -graph in radiator of workflow definition
+  - Bar chart in active instances of workflow definition: vertical to horizontal orientation, removed filters and formatting options
 
 ## 5.0.1 (2018-09-14)
 
