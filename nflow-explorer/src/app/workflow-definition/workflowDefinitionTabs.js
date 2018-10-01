@@ -1,12 +1,9 @@
 (function () {
   'use strict';
-  var _statusNames = ['created', 'inProgress', 'executing', 'finished', 'manual'];
-  var _metaStatuses = ['queued', 'sleeping', 'executing', 'manual'];
 
   var m = angular.module('nflowExplorer.workflowDefinition.tabs', [
     'nflowExplorer.workflowDefinition.tabs.workflowStatisticsTable',
-    'nflowExplorer.workflowDefinition.tabs.workflowSignalsTable',
-    'nvd3',
+    'nflowExplorer.workflowDefinition.tabs.workflowSignalsTable'
   ]);
 
   /** <workflow-definition-tabs></workflow-definition-tabs> */
@@ -24,60 +21,32 @@
   });
 
   m.controller('WorkflowDefinitionTabsCtrl', function($rootScope, $scope, WorkflowDefinitionGraphApi,
-                                                      WorkflowStatsPoller, $timeout) {
+                                                      WorkflowStatsPoller) {
+
     var self = this;
-    self.hasStatistics = false;
+    self._metaStatuses = ['sleeping', 'queued', 'executing', 'manual'];
     self.selectNode = WorkflowDefinitionGraphApi.onSelectNode;
     self.isStateSelected = isStateSelected;
     self.startRadiator = startRadiator;
     self.definition = $scope.definition;
 
-    var width = 650, height = 400;
-    self.options = {chart: {
-      // multiBarHorizontalChart get ugly colors due to https://github.com/novus/nvd3/issues/916
-                type: 'multiBarChart',
-                callback: function(chart) {
-                  chart.container.setAttribute('preserveAspectRatio', 'xMinYMin');
-                  var c = Math.min(width, height);
-                  chart.container.setAttribute('viewBox', '0 0 '+ c +' ' + c );
-                  $timeout(function(){
-                    // TODO: kludge workaround for https://github.com/krispo/angular-nvd3/issues/100
-                    chart.stacked(true);
-                    chart.update();
-                  });
-                },
-                height: height,
-                width: width,
-                margin : {
-                    top: 50,
-                    right: 20,
-                    bottom: 160,
-                    left: 45
-                },
-                noData: 'No workflow instances in active states. There may be finished instances.',
-                x: function(d) { return d.label; },
-                y: function(d) { return d.value; },
-                clipEdge: true,
-                staggerLabels: false,
-                reduceXTicks: false,
-                showControls: true,
-                duration: 0,
-                transitionDuration: 0,
-                // TODO this doesn't work
-                stacked: true,
-                xAxis: {
-                    showMaxMin: false,
-                    rotateLabels: 25,
-                },
-                yAxis: {
-                    axisLabel: 'Workflow instances',
-                    axisLabelDistance: 40,
-                    tickFormat: function(d) {
-                        return d3.format(',d')(d);
-                    }
-                }
-            }
+    $scope.type = 'StackedBar';
+    $scope.series = self._metaStatuses;
+    $scope.options = {
+      scales: {
+        xAxes: [{
+          stacked: true,
+          ticks: {
+            min: 0,
+            stepSize: 1
+          }
+        }],
+        yAxes: [{
+          stacked: true
+        }]
+      }
     };
+    $scope.stats = {};
 
     initialize();
 
@@ -88,7 +57,9 @@
       WorkflowStatsPoller.start(self.definition.type);
       // poller broadcasts when events change
       $scope.$on('workflowStatsUpdated', function (scope, type) {
-        if (type === self.definition.type) { updateStateExecutionGraph(type); }
+        if (type === self.definition.type) {
+          updateStateExecutionGraph(type);
+        }
       });
     }
 
@@ -96,222 +67,62 @@
       return state.id === WorkflowDefinitionGraphApi.selectedNode;
     }
 
-    /**
-     * Output:
-     * [
-     *  {
-     *    key: 'Status1Name',
-     *    values: [
-     *      {label: 'state1', value: 7},
-     *      {label: 'state2', value: 2},
-     *      ...
-     *    ]
-     *   },{
-     *    key: 'Status2Name',
-     *    values: [
-     *      {label: 'state1', value: 3},
-     *      {label: 'state2', value: 92},
-     *      ...
-     *    ]
-     *   }, ...
-     *  ]
-     *
-     *  Number of rows in values must be equal in all categories.
-     *  Labels must be same and in same order in all categories.
-     */
-    function statsToData(definition, stats) {
-      var data = {};
-      var definitionStateIds = _.map(definition.states, function(state) {
-        return state.id;
-      });
-      var statsStateIds = Object.keys(stats.stateStatistics);
-      // add any extra state present in stats, but not present in definition
-      var allStateIds = definitionStateIds.concat(_.filter(statsStateIds, function(state) {
-        return !_.includes(definitionStateIds, state);
-      }));
-
-      var activeStateIds = _.filter(allStateIds, function(stateId) {
-        // remove states that are know to be end states
-        var definitionState = _.find(definition.states, {id: stateId});
-        if(!definitionState) {
-          return true;
-        }
-        if(definitionState.type === 'end') {
-          return false;
-        }
-        return true;
-      });
-      var allStatusNames = _metaStatuses;
-      _.forEach(allStatusNames, function(statusName) {
-        if(!data[statusName]) {
-          data[statusName] = {
-            key: _.startCase(statusName),
-            values: _.map(activeStateIds, function(stateId) {
-              return {
-                label: stateId,
-                value: 0,
-              };
-            }),
-          };
-        }
-      });
-      _.forEach(stats.stateStatistics, function(stateStats, stateId) {
-        if(!_.includes(activeStateIds, stateId)) {
-          return;
-        }
-        _.forEach(stateStats, function(statistics, statusName) {
-          addInstanceCountsToMetaStatuses(stateId, statusName, statistics, data);
-        });
-      });
-      return _.values(data);
-    }
-
-    function addInstanceCountsToMetaStatuses(stateId, statusName, statistics, data) {
-        var valueForStatus;
-        if (statusName === 'created' || statusName === 'inProgress') {
-            var queued = statistics.queuedInstances || 0;
-            var all = statistics.allInstances || 0;
-            var nonQueued = all - queued;
-            valueForStatus = _.find(data.sleeping.values, { label: stateId });
-            valueForStatus.value += nonQueued;
-            valueForStatus = _.find(data.queued.values, { label: stateId });
-            valueForStatus.value += queued;
-        } else if (statusName === 'manual') {
-            valueForStatus = _.find(data.manual.values, { label: stateId });
-            valueForStatus.value = statistics.allInstances || 0;
-        } else if (statusName === 'executing') {
-            valueForStatus = _.find(data.executing.values, { label: stateId });
-            valueForStatus.value = statistics.allInstances || 0;
-        }
-    }
-
     function updateStateExecutionGraph(type) {
-      var stats = WorkflowStatsPoller.getLatest(type);
+      $scope.stats = WorkflowStatsPoller.getLatest(type);
       if (!self.definition) {
         console.debug('Definition not loaded yet');
-        return;
-      }
-      if (stats) {
-        processStats(self.definition, stats);
-        if(Object.keys(stats).length === 0) {
-          return;
-        }
-        self.data = statsToData(self.definition, stats);
+      } else if ($scope.stats) {
+        var definitionStateStatistics = $scope.stats.stateStatistics || {};
+        $scope.labels = barChartLabels(definitionStateStatistics);
+        $scope.data = barChartData($scope.labels, definitionStateStatistics);
       }
     }
 
-    /**
-     * Compute list of all status names.
-     * We want to show all statuses, including those that API doesn't return
-     * and new statuses that API may return in future.
-     */
-    function getStatusNames(stats) {
-      var names = [].concat(_statusNames);
-      names.concat(_.flatten(_.map(stats, function(stat){
-        return _.keys(stat);
-      })));
-      return _.uniq(names);
+    function barChartLabels(definitionStateStatistics) {
+      var stateNamesFromStatistics = [];
+      _.forEach(_.keys(definitionStateStatistics), function(stateName) {
+        var s = definitionStateStatistics[stateName];
+        if (s.created.allInstances || s.created.queuedInstances || s.inProgress.allInstances ||
+          s.inProgress.queuedInstances || s.executing.allInstances || s.manual.allInstances) {
+          stateNamesFromStatistics.push(stateName);
+        }
+      });
+      var stateNamesFromDefinition = _.map(_.reject(self.definition.states, {type: 'end'}), 'id');
+      var labels = _.union(stateNamesFromStatistics, stateNamesFromDefinition);
+      labels.sort();
+      return labels;
     }
 
-    // TODO move to service
-    /**
-     * Output:
-     *
-     *
-     * Modifies definition:
-     * Adds definition.stateStatisticsTotal and definition.states[stateId].stats
-     *
-     * definition.stateStatisticsTotal = {
-     *   totalInstances: 1231,
-     *   totalQueued: 102,
-     *   created: {
-     *     allInstances: 91,
-     *     queuedInstances: 29,
-     *   },
-     *   executing: {
-     *     allInstances: 21,
-     *     queuedInstances: 0,
-     *   },
-     *   ...
-     * }
-     *
-     * definition.states[stateId].stats = {
-     *   totalInstances: 10,
-     *   queuedInstances: 3
-     *   created: {
-     *     allInstances: 4,
-     *     queuedInstances: 3,
-     *   },
-     *   executing: {
-     *     allInstances: 2,
-     *     queuedInstances: 1,
-     *   },
-     *   ...
-     * }
-     */
-    function processStats(definition, stats) {
-      var allStatusNames = getStatusNames(stats);
-      var totalStats = {allInstances: 0, queuedInstances: 0};
-      _.forEach(allStatusNames, function(name) {
-        totalStats[name] = {
-          allInstances: 0,
-          queuedInstances: 0,
-        };
-      });
-
-      if (!stats.stateStatistics) {
-        stats.stateStatistics = {};
+    function barChartData(labels, definitionStateStatistics) {
+      var data = zeros([self._metaStatuses.length, labels.length]);
+      for (var i=0; i<labels.length; i++) {
+        var s = definitionStateStatistics[labels[i]];
+        if (s) {
+          for (var j=0; j<self._metaStatuses.length; j++) {
+            if (self._metaStatuses[j] === 'sleeping') {
+              data[j][i] = (s.created.allInstances - s.created.queuedInstances) +
+                (s.inProgress.allInstances - s.inProgress.queuedInstances);
+            } else if (self._metaStatuses[j] === 'queued') {
+              data[j][i] = s.created.queuedInstances + s.inProgress.queuedInstances;
+            } else if (self._metaStatuses[j] === 'manual') {
+              data[j][i] = s.manual.allInstances;
+            } else if (self._metaStatuses[j] === 'executing') {
+              data[j][i] = s.executing.allInstances;
+            } else {
+              console.error('Unknown metastatus ' + self._metaStatuses[j]);
+            }
+          }
+        }
       }
-      _.forEach(definition.states, function (state) {
-        var id = state.id;
+      return data;
+    }
 
-        state.stateStatistics = stats.stateStatistics[id] || {};
-
-        // TODO calculate correctly, remove non active
-        state.stateStatistics.allInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
-          return a + b.allInstances;
-        }, 0);
-        state.stateStatistics.queuedInstances = _.reduce(_.values(state.stateStatistics), function (a, b) {
-          return a + b.queuedInstances || 0;
-        }, 0);
-
-        // calculate totals
-        _.forEach(allStatusNames, function (stat) {
-          if(state.stateStatistics[stat]) {
-            var allInstances = state.stateStatistics[stat].allInstances || 0;
-            var queuedInstances = state.stateStatistics[stat].queuedInstances || 0;
-            totalStats[stat].allInstances += allInstances;
-            totalStats[stat].queuedInstances += queuedInstances;
-            totalStats.allInstances += allInstances;
-            totalStats.queuedInstances += queuedInstances;
-          }
-        });
-        function queued(stats) {
-          if(!stats) {
-            return 0;
-          }
-          return stats.queuedInstances;
-        }
-        function sleeping(stats) {
-          if(!stats) {
-            return 0;
-          }
-          return stats.allInstances - stats.queuedInstances;
-        }
-
-        state.stateStatistics.queued = {
-          allInstances: queued(state.stateStatistics.created) +
-            queued(state.stateStatistics.inProgress)
-        };
-        state.stateStatistics.sleeping = {
-          allInstances: sleeping(state.stateStatistics.created) +
-            sleeping(state.stateStatistics.inProgress)
-        };
-      });
-
-
-      definition.stateStatisticsTotal = totalStats;
-      return stats;
+    function zeros(dimensions) {
+      var array = [];
+      for (var i = 0; i < dimensions[0]; ++i) {
+        array.push(dimensions.length === 1 ? 0 : zeros(dimensions.slice(1)));
+      }
+      return array;
     }
 
     function startRadiator() {

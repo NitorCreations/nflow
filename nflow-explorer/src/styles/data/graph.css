@@ -28,7 +28,7 @@ Generated svg looks like this
 </g>
 */
 /* changing font or font size may require code changes to have right size boxes */
-.node-normal, .node-manual, .node-start, .node-end {
+.node-normal, .node-manual, .node-start, .node-end, .node-error {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   fill: black;
@@ -44,10 +44,6 @@ Generated svg looks like this
   fill: LightBlue;
 }
 
-.node-normal > rect {
-  fill: white;
-}
-
 .node-manual > rect {
   fill: yellow;
 }
@@ -60,24 +56,15 @@ Generated svg looks like this
   fill: LightGreen;
 }
 
-
 .node-normal.selected > rect, .node-manual.selected > rect, .node-error.selected > rect, .node-start.selected > rect, .node-end.selected > rect {
   stroke-width: 3px;
 }
 
-.node-active > rect{
-  stroke-width: 3px;
-}
-
-.node-active.selected {
-  stroke-width: 4px;
-}
-
-.node-passive{
+.node-passive {
   fill: gray;
 }
 
-.node-passive > rect{
+.node-passive > rect {
   stroke: gray;
 }
 
@@ -103,53 +90,39 @@ class="edge-error edge-passive selected"
 
 If you need new colors for arrowheads see graph.js, addArrowheadMarker()
 */
-.edge-normal, .edge-error, .edge-unexpected {
+.edge-normal, .edge-error {
   stroke-width: 1px;
-  fill: none;
   stroke: black;
-  marker-end: url(#arrowhead);
 }
 
-.edge-normal {
-  stroke: black;
-  marker-end: url(#arrowhead);
-  fill: none;
+.edge-unexpected {
+  stroke: red;
 }
 
 .edge-error {
   stroke: black;
   stroke-dasharray: 5,5;
-  marker-end: url(#arrowhead);
-  fill: none;
 }
 
-.edge-unexpected {
-  stroke: red;
-  fill: none;
-  marker-end: url(#arrowhead-red);
-}
-
-.edge-normal.edge-active, .edge-error.edge-active, .edge-unexpected.edge-active {
+.edge-normal.active, .edge-error.active, .edge-unexpected {
   stroke-width: 2px;
-}
-
-.edge-passive {
-  stroke: gray;
-  marker-end: url(#arrowhead-gray);
 }
 
 .edge-normal.selected, .edge-error.selected, .edge-unexpected.selected {
   stroke-width: 2px;
 }
 
-.edge-active.selected {
-  stroke-width: 4px;
+.edge-normal.active.selected, .edge-error.active.selected, .edge-unexpected.selected {
+  stroke-width: 3px;
 }
 
-.edge-passive.selected {
-  stroke: gray;
+.arrowhead-normal {
+  fill: black;
 }
 
+.arrowhead-unexpected {
+  fill: red;
+}
 
 /* retries */
 .retry-indicator {
@@ -160,6 +133,21 @@ If you need new colors for arrowheads see graph.js, addArrowheadMarker()
 
 
 /* */
-g.current-state > g > text {
+g.current-state > g > g > text {
   text-decoration: underline;
+}
+
+.node rect {
+  stroke: #333;
+  fill: white;
+  stroke-width: 1.5px;
+}
+
+/*
+dagre-d3 hard-codes nodes to have class 'label', which makes style definitions from bootstrap-sass to leak to the graph.
+Resetting the leaked styles here.
+*/
+.label {
+  font-size: 100%;
+  font-weight: normal;
 }

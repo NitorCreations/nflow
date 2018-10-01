@@ -126,12 +126,12 @@ angular.module('nflowExplorer.workflowStats', [])
         }));
       });
       queued = sum(_.map(stats, function(s) {
-        return s.created ? s.created.queuedInstances : 0 +
-              s.inProgress ? s.inProgress.queuedInstances : 0;
+        return (s.created ? s.created.queuedInstances : 0) +
+          (s.inProgress ? s.inProgress.queuedInstances : 0);
       }));
       sleeping = sum(_.map(stats, function(s) {
-        return s.created ? s.created.allInstances - s.created.queuedInstances : 0 +
-              s.inProgress ? s.inProgress.allInstances - s.inProgress.queuedInstances : 0;
+        return (s.created ? s.created.allInstances - s.created.queuedInstances : 0) +
+          (s.inProgress ? s.inProgress.allInstances - s.inProgress.queuedInstances : 0);
       }));
       return [time].concat([queued, sleeping]).concat(values);
     });

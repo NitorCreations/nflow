@@ -44,9 +44,13 @@
 
       self.nodeSelected = function(nodeId) {
         console.debug('Selecting node ' + nodeId);
-        if (selectedNode) { Graph.setNodeSelected(g, selectedNode, false); }
-        if (nodeId) { Graph.setNodeSelected(g, nodeId, true); }
-        selectedNode = nodeId;
+        if (selectedNode) {
+          Graph.setNodeSelected(g, selectedNode, false);
+        }
+        if (g.hasNode(nodeId)) {
+          Graph.setNodeSelected(g, nodeId, true);
+          selectedNode = nodeId;
+        }
       };
 
       return self;

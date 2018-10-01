@@ -31,16 +31,29 @@
     self.model = model;
     self.definition = $scope.definition;
     self.workflow = $scope.workflow;
-
     self.updateWorkflow = updateWorkflow;
+
+    $scope.safeApply = function(fn) {
+      var phase = this.$root.$$phase;
+      if(phase === '$apply' || phase === '$digest') {
+        if(fn && (typeof(fn) === 'function')) {
+          fn();
+        }
+      } else {
+        this.$apply(fn);
+      }
+    };
 
     initialize();
 
     function initialize() {
       defaultNextState(self.workflow.state);
-
       WorkflowGraphApi.registerOnSelectNodeListener(function(nodeId) {
-        defaultNextState(nodeId);
+        // Triggered by angular event (e.g. select row from action history) or non angular event (click node directly).
+        // Without $apply non angular events don't trigger digest and the state box is updated lazily.
+        $scope.safeApply(function() {
+          defaultNextState(nodeId);
+        });
       });
     }
 

@@ -20,6 +20,7 @@
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap',
+    'chart.js'
   ]);
 
   m.run(function (EndpointService, ExecutorService) {

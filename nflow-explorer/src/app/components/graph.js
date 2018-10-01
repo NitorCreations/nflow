@@ -14,15 +14,14 @@
     };
 
     function setNodeSelected(graph, nodeId, isTrue) {
-      _.each(graph.predecessors(nodeId), function(prev) { setEdgeSelected(prev, nodeId); });
-      _.each(graph.successors(nodeId), function(next) { setEdgeSelected(nodeId, next); });
+      _.each(graph.nodeEdges(nodeId), function(edge) {
+        setSelected('#' + edgeDomId(edge.v, edge.w));
+      });
       setSelected('#' + nodeDomId(nodeId));
 
-      function setEdgeSelected(source, target) {
-        _.each(graph.incidentEdges(source, target), function(edgeId) { setSelected('#' + edgeDomId(edgeId)); });
+      function setSelected(selector) {
+        d3.select(selector).classed('selected', isTrue);
       }
-
-      function setSelected(selector) { d3.select(selector).classed('selected', isTrue); }
     }
 
     function markCurrentState(workflow) {
@@ -68,7 +67,7 @@
     }
 
     function workflowDefinitionGraph(definition, workflow) {
-      var g = new dagreD3.Digraph();
+      var g = new dagreD3.graphlib.Graph().setGraph({});
       // NOTE: all nodes must be added to graph before edges
       addNodes();
       addEdges();
@@ -77,34 +76,47 @@
       function addNodes() {
         addNodesThatArePresentInWorkflowDefinition();
         addNodesThatAreNotPresentInWorkflowDefinition();
-        return;
 
         function addNodesThatArePresentInWorkflowDefinition() {
-          _.forEach(definition.states, function(state) { g.addNode(state.id, createNodeStyle(state, workflow)); });
+          _.forEach(definition.states, function(state) {
+              g.setNode(state.id, createNodeAttributes(state, workflow));
+          });
         }
 
         function addNodesThatAreNotPresentInWorkflowDefinition() {
-          _.chain(_.result(workflow, 'actions'))
-            .filter(function(action) { return !g._nodes(action.state); })
-            .forEach(function(action) { g.addNode(action.state, createNodeStyle({name: action.state}, workflow)); })
-          ;
+          //workflow && workflow.actions.push({id: 999999, state: 'dummy'}); // for testing
+          (_.result(workflow, 'actions') || [])
+            .filter(function(action) {
+              return !g.hasNode(action.state);
+            })
+            .forEach(function(action) {
+              g.setNode(action.state, createNodeAttributes({id: action.state}, workflow));
+            });
         }
 
-        function createNodeStyle(state, workflow) {
-          var nodeStyle = {};
-          nodeStyle['class'] = resolveStyleClass();
-          nodeStyle.retries = calculateRetries();
-          nodeStyle.state = state;
-          nodeStyle.label = state.id;
-          return nodeStyle;
+        function createNodeAttributes(state, workflow) {
+          return {
+            rx: 5,
+            ry: 5,
+            class: resolveStyleClass(),
+            retries: calculateRetries(),
+            state: state,
+            label: state.id,
+            id: nodeDomId(state.id),
+            shape: 'rect'
+          };
 
           function resolveStyleClass() {
             var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
-            if(workflow && !isActiveNode()) { cssClass += ' node-passive'; }
+            if (workflow && isPassiveNode()) {
+              cssClass += ' node-passive';
+            }
             return cssClass;
 
-            function isActiveNode() {
-              return workflow.state === state.id || !_.isUndefined(_.find(workflow.actions, 'state', state.id));
+            function isPassiveNode() {
+              return workflow.state !== state.id && _.isUndefined(_.find(workflow.actions, function(action) {
+                return action.state === state.id;
+              }));
             }
           }
 
@@ -121,112 +133,58 @@
 
       function addEdges() {
         addEdgesThatArePresentInWorkflowDefinition();
-        addEdgesToGenericOnErrorState();
-        addEdgesThatAreNotPresentInWorkflowDefinition();
-        return;
+        if (workflow) {
+          addEdgesThatAreNotPresentInWorkflowDefinition();
+        }
 
         function addEdgesThatArePresentInWorkflowDefinition() {
           _.forEach(definition.states, function(state) {
             _.forEach(state.transitions, function(transition) {
-              g.addEdge(null, state.id, transition, createEdgeStyle(workflow, state, transition));
+              setEdge(state.id, transition, 'normal');
             });
-
-            if (state.onFailure) {
-              g.addEdge(null, state.id, state.onFailure, createEdgeStyle(workflow, state, state.onFailure, true));
-            }
-          });
-        }
-
-        function addEdgesToGenericOnErrorState() {
-          var errorStateId = definition.onError;
-          _.forEach(definition.states, function(state) {
-            if (state.id !== errorStateId && !state.onFailure && state.type !== 'end' &&
-              !_.includes(state.transitions, errorStateId)) {
-              g.addEdge(null, state.id, errorStateId, createEdgeStyle(workflow, state, errorStateId, true));
+            var failureState = state.onFailure || definition.onError;
+            if (state.type !== 'end' && failureState !== state.id) {
+              setEdge(state.id, failureState, 'error');
             }
           });
         }
 
         function addEdgesThatAreNotPresentInWorkflowDefinition() {
-          if(!workflow) {
-            return;
-          }
-          var activeEdges = {};
           var sourceState = null;
           var actions = workflow.actions.slice().reverse();
+          actions.push({state: workflow.state});
           _.each(actions, function(action) {
-            if(!activeEdges[action.state]) {
-              activeEdges[action.state] = {};
-            }
-            if(!sourceState) {
-              sourceState = action.state;
-              return;
-            }
-
-            // do not include retries
-            if(sourceState !== action.state) {
-              activeEdges[sourceState][action.state] = true;
+            if (sourceState && sourceState !== action.state) {
+              if (!g.hasEdge(sourceState, action.state)) {
+                setEdge(sourceState, action.state, 'unexpected');
+              } else {
+                var edgeAttributes = g.edge(sourceState, action.state);
+                edgeAttributes.class = edgeAttributes.class + ' active';
+              }
             }
             sourceState = action.state;
           });
-
-          // handle last action -> currentAction, do not include retries
-          var lastAction = _.last(actions);
-          if(lastAction && lastAction.state !== workflow.state) {
-            activeEdges[lastAction.state][workflow.state] = true;
-          }
-
-          _.each(activeEdges, function(targetObj, source) {
-            _.each(Object.keys(targetObj), function(target) {
-              if(!target) { return; }
-              if(!g.inEdges(target, source).length) {
-                g.addEdge(null, source, target,
-                  {'class': 'edge-unexpected edge-active'});
-              }
-            });
-          });
         }
 
-        function createEdgeStyle(workflow, state, transition, genericError) {
-          return { 'class': resolveStyleClass() };
-
-          function resolveStyleClass() {
-            var cssStyle = 'edge-' + (genericError ? 'error' : 'normal');
-            if (workflow) {
-              cssStyle += ' edge-' + (isActiveTransition(state, transition) ? 'active' : 'passive');
-            }
-            return cssStyle;
-
-            function isActiveTransition(state, transition) {
-              var actions = workflow.actions.slice().reverse();
-              if(_.size(actions) < 2) { return false; }
-
-              var prevState = _.first(actions).state;
-              var found =  _.find(_.tail(actions), function(action) {
-                if (prevState === state.id && action.state === transition) { return true; }
-                prevState = action.state;
-              });
-
-              return !_.isUndefined(found) || _.last(actions).state === state.id && workflow.state === transition;
-            }
-          }
+        function setEdge(state, transition, style) {
+          g.setEdge(state, transition, {
+            id: edgeDomId(state, transition),
+            class: 'edge-' + style,
+            arrowheadClass: 'arrowhead-' + style,
+            curve: d3.curveBasis
+          });
         }
       }
     }
 
     function drawWorkflowDefinition(graph, canvasSelector, nodeSelectedCallBack, embedCSS) {
-      var renderer = new dagreD3.Renderer();
-
-      drawNodes(renderer, graph, nodeSelectedCallBack);
-      drawEdges(renderer);
-
       var svgRoot = initSvg(canvasSelector, embedCSS);
-      var layout = initLayout(renderer, graph, svgRoot);
-      drawArrows(canvasSelector);
-
-      configureSvg(nodeSelectedCallBack, svgRoot, layout);
-
-      return layout;
+      svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
+      var svgGroup = svgRoot.append('g');
+      var render = new dagreD3.render();
+      render(svgGroup, graph);
+      decorateNodes(canvasSelector, graph, nodeSelectedCallBack);
+      setupAndApplyZoom(graph, svgRoot, svgGroup);
 
       function initSvg(canvasSelector, embedCSS) {
         var svgRoot = d3.select(canvasSelector);
@@ -236,124 +194,67 @@
         return svgRoot;
       }
 
-      function configureSvg(nodeSelectedCallBack, svgRoot, layout) {
-        configureOverlay();
-        disableZoomPan();
-        configureSize();
+      function decorateNodes(canvasSelector, g, nodeSelectedCallBack) {
+        // note: always operate on the first canvas, as there can be two present in DOM
+        // simultaneously during UI state transitions
+        var nodes = d3.select(canvasSelector).selectAll('.nodes > g');
+        nodes.append('title').text(function(nodeId){ return buildTitle(g.node(nodeId).state); });
+        nodes.attr('id', function(nodeId) { return nodeDomId(nodeId); });
+        nodes.attr('class', function(nodeId) { return g.node(nodeId)['class']; });
+        nodes.on('click', function(nodeId) { nodeSelectedCallBack(nodeId); });
+        drawRetryIndicator();
 
-        function configureOverlay() {
-          var svgBackground = svgRoot.select('rect.overlay');
-          svgBackground.attr('style', '');
-          svgBackground.attr('class', 'graph-background');
-          svgBackground.on('click', function() {
-            // event handler for clicking outside nodes
-            nodeSelectedCallBack(null);
+        function drawRetryIndicator() {
+          // fetch sizes for node rects => needed for calculating right edge for rect
+          var nodeCoords = {};
+          nodes.selectAll('rect').each(function (nodeName) {
+            var t = d3.select(this);
+            nodeCoords[nodeName] = {x: t.attr('x'), y: t.attr('y')};
+          });
+
+          // orange ellipse with retry count
+          var retryGroup = nodes.append('g');
+          retryGroup.each(function(nodeId) {
+            var node = g.node(nodeId);
+            if (node.retries > 0) {
+              var c = nodeCoords[nodeId];
+              var t = d3.select(this);
+              t.attr('transform', 'translate(' + (- c.x) + ',-4)');
+              t.append('ellipse')
+                .attr('cx', 10).attr('cy', -5)
+                .attr('rx', 20).attr('ry', 10)
+                .attr('class', 'retry-indicator');
+              t.append('text').append('tspan').text(node.retries);
+              t.append('title').text('State was retried ' + node.retries + ' times.');
+            }
           });
         }
 
-        function disableZoomPan() {
-          // panning off
-          svgRoot.on('mousedown.zoom', null);
-          svgRoot.on('mousemove.zoom', null);
-          // zooming off
-          svgRoot.on('dblclick.zoom', null);
-          svgRoot.on('touchstart.zoom', null);
-          svgRoot.on('wheel.zoom', null);
-          svgRoot.on('mousewheel.zoom', null);
-          svgRoot.on('MozMousePixelScroll.zoom', null);
-        }
-
-        function configureSize() {
-          svgRoot.attr('preserveAspectRatio', 'xMinYMin meet');
-          svgRoot.attr('viewBox', '0 0 ' + (layout.graph().width+40) + ' ' + (layout.graph().height+40));
+        function buildTitle(state) {
+          return _.capitalize(state.type) + ' state\n' + state.description;
         }
       }
 
-      function initLayout(renderer, graph, svgRoot) {
-        var svgGroup = svgRoot.append('g');
-        svgGroup.attr('transform', 'translate(20, 20)');
-        return  renderer.run(graph, svgGroup);
-      }
-
-      function drawNodes(renderer, graph, nodeSelectedCallBack) {
-        var oldDrawNodes = renderer.drawNodes();
-        renderer.drawNodes(function(g, root) {
-          var nodes = oldDrawNodes(graph, root);
-          nodes.attr('style', function() { return 'opacity: 1; cursor: pointer;'; });
-          nodes.append('title').text(function(nodeId){ return buildTitle(g.node(nodeId).state); });
-          nodes.attr('id', function(nodeId) { return nodeDomId(nodeId); });
-          nodes.attr('class', function(nodeId) { return g.node(nodeId)['class']; });
-          nodes.on('click', function(nodeId) { nodeSelectedCallBack(nodeId); });
-          drawRetryIndicator();
-          return nodes;
-
-          function drawRetryIndicator() {
-            // fetch sizes for node rects => needed for calculating right edge for rect
-            var nodeCoords = {};
-            nodes.selectAll('rect').each(function (nodeName) {
-              var t = d3.select(this);
-              nodeCoords[nodeName] = {x: t.attr('x'), y: t.attr('y')};
-            });
-
-            // orange ellipse with retry count
-            var retryGroup = nodes.append('g');
-            retryGroup.each(function(nodeId) {
-              var node = g.node(nodeId);
-              if (node.retries > 0) {
-                var c = nodeCoords[nodeId];
-                var t = d3.select(this);
-                t.attr('transform', 'translate(' + (- c.x) + ',-4)');
-
-                t.append('ellipse')
-                  .attr('cx', 10).attr('cy', -5)
-                  .attr('rx', 20).attr('ry', 10)
-                  .attr('class', 'retry-indicator');
-
-                t.append('text').append('tspan').text(node.retries);
-                t.append('title').text('State was retried ' + node.retries + ' times.');
-              }
-            });
-          }
-
-          function buildTitle(state) { return _.capitalize(state.type) + ' state\n' + state.description; }
+      function setupAndApplyZoom(graph, svgRoot, svgGroup) {
+        var zoom = d3.zoom().on('zoom', function() {
+          svgGroup.attr('transform', d3.event.transform);
         });
+        svgRoot.call(zoom);
+        var aspectRatio = graph.graph().height / graph.graph().width;
+        var availableWidth = parseInt(svgRoot.style('width').replace(/px/, ''));
+        svgRoot.attr('height', Math.max(Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio) + 60, 300));
+        var zoomScale = Math.min(availableWidth / (graph.graph().width + 70), 1);
+        svgRoot.call(zoom.transform, d3.zoomIdentity.scale(zoomScale).translate(35, 30));
       }
 
-      function drawEdges(renderer) {
-        var oldDrawEdgePaths = renderer.drawEdgePaths();
-        renderer.drawEdgePaths(function(g, root) {
-          var edges = oldDrawEdgePaths(g, root);
-          edges.selectAll('*')
-            .attr('id', function(edgeId) { return edgeDomId(edgeId); })
-            .attr('class', function(edgeId) { return g._edges[edgeId].value.class; });
-          return edges;
-        });
-      }
-
-      function drawArrows(canvasSelector) {
-        addArrowheadMarker(canvasSelector, 'arrowhead-gray', 'gray');
-        addArrowheadMarker(canvasSelector, 'arrowhead-red', 'red');
-      }
-
-      function addArrowheadMarker(canvasSelector, id, color) {
-        d3.select(canvasSelector).select('defs')
-          .append('marker')
-          .attr('id', id)
-          .attr('viewBox', '0 0 10 10')
-          .attr('refX', 8)
-          .attr('refY', '5')
-          .attr('markerUnits', 'strokeWidth')
-          .attr('markerWidth', '8')
-          .attr('markerHeight', '5')
-          .attr('orient', 'auto')
-          .attr('fill', color)
-          .append('path')
-          .attr('d', 'M 0 0 L 10 5 L 0 10 z');
-      }
     }
 
-    function nodeDomId(nodeId) { return 'node_' + nodeId; }
+    function nodeDomId(nodeId) {
+      return 'node_' + nodeId;
+    }
 
-    function edgeDomId(edgeId) { return 'edge' + edgeId; }
+    function edgeDomId(srcNodeId, trgNodeId) {
+      return 'edge-' + srcNodeId + '-' + trgNodeId;
+    }
   });
 })();

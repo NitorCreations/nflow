@@ -25,7 +25,7 @@
       <td>{{ctrl.workflow.actions.length - $index}}</td>
       <td>{{action.state}}</td>
       <td><div>{{action.stateText}}</div>
-        <div ng-if="ctrl.childWorkflowFromAction(action).length" >
+        <div ng-click="$event.stopPropagation();" ng-if="ctrl.childWorkflowFromAction(action).length" >
           <strong>Child workflows</strong>
           <ul ng-repeat="childWorkflow in ctrl.childWorkflowFromAction(action)">
             <li><small><a ui-sref="workflow({id: childWorkflow.id})">{{childWorkflow.type}} ({{childWorkflow.id}})</a></small></li>
