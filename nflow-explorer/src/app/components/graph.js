@@ -195,7 +195,9 @@
       }
 
       function decorateNodes(canvasSelector, g, nodeSelectedCallBack) {
-        var nodes = d3.selectAll(canvasSelector + ' .nodes > g');
+        // note: always operate on the first canvas, as there can be two present in DOM
+        // simultaneously during UI state transitions
+        var nodes = d3.select(canvasSelector).selectAll('.nodes > g');
         nodes.append('title').text(function(nodeId){ return buildTitle(g.node(nodeId).state); });
         nodes.attr('id', function(nodeId) { return nodeDomId(nodeId); });
         nodes.attr('class', function(nodeId) { return g.node(nodeId)['class']; });
