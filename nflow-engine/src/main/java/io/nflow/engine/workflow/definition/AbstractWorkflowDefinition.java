@@ -45,7 +45,6 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
-    Assert.isTrue(errorState.getType().isFinal(), "errorState must be a final state");
     this.type = type;
     this.initialState = initialState;
     this.errorState = errorState;

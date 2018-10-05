@@ -46,15 +46,6 @@ public class WorkflowDefinitionTest {
   }
 
   @Test
-  public void errorStateMustBeFinalState() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("errorState must be a final state");
-    new WorkflowDefinition<TestDefinition.TestState>("nonFinalErrorState", TestDefinition.TestState.start1,
-        TestDefinition.TestState.start1) {
-    };
-  }
-
-  @Test
   public void getStatesWorks() {
     TestDefinitionWithStateTypes def = new TestDefinitionWithStateTypes("x", TestDefinitionWithStateTypes.State.initial);
     assertThat(def.getStates(),
