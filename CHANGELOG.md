@@ -5,6 +5,8 @@
 - Merge nFlow Explorer to nFlow repository
 
 **Details**
+- `nflow-engine`
+  - Allow non-final error states in workflow definitions
 - nFlow Explorer
   - Fix Google Chrome crash on workflow graph visualization (e.g. switching between parent and child workflow instances crashed Chrome)
   - Fix interaction between selected workflow graph node, action history row and manage state selection
