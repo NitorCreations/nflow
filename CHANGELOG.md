@@ -12,6 +12,7 @@
   - Fix interaction between selected workflow graph node, action history row and manage state selection
   - Fix execution phases -graph in radiator of workflow definition
   - Bar chart in active instances of workflow definition: vertical to horizontal orientation, removed filters and formatting options
+  - Enable pan and zoom in workflow graphs
 
 ## 5.0.1 (2018-09-14)
 
