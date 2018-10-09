@@ -193,6 +193,7 @@
         maxZoom: 100,
         minZoom: 0.01,
         mouseWheelZoomEnabled: false,
+        panEnabled: zoomEnabled,
         zoomEnabled: zoomEnabled
       });
 
