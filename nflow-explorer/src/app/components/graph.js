@@ -184,7 +184,18 @@
       var render = new dagreD3.render();
       render(svgGroup, graph);
       decorateNodes(canvasSelector, graph, nodeSelectedCallBack);
-      setupAndApplyZoom(graph, svgRoot, svgGroup);
+      var zoomEnabled = initHeightAndScale(graph, svgRoot, svgGroup);
+      svgPanZoom(canvasSelector, {
+        center: false,
+        controlIconsEnabled: zoomEnabled,
+        dblClickZoomEnabled: zoomEnabled,
+        fit: false,
+        maxZoom: 100,
+        minZoom: 0.01,
+        mouseWheelZoomEnabled: false,
+        panEnabled: zoomEnabled,
+        zoomEnabled: zoomEnabled
+      });
 
       function initSvg(canvasSelector, embedCSS) {
         var svgRoot = d3.select(canvasSelector);
@@ -235,16 +246,13 @@
         }
       }
 
-      function setupAndApplyZoom(graph, svgRoot, svgGroup) {
-        var zoom = d3.zoom().on('zoom', function() {
-          svgGroup.attr('transform', d3.event.transform);
-        });
-        svgRoot.call(zoom);
+      function initHeightAndScale(graph, svgRoot, svgGroup) {
         var aspectRatio = graph.graph().height / graph.graph().width;
         var availableWidth = parseInt(svgRoot.style('width').replace(/px/, ''));
         svgRoot.attr('height', Math.max(Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio) + 60, 300));
         var zoomScale = Math.min(availableWidth / (graph.graph().width + 70), 1);
-        svgRoot.call(zoom.transform, d3.zoomIdentity.scale(zoomScale).translate(35, 30));
+        svgGroup.attr('transform', 'translate(35,30) scale(' + zoomScale + ')');
+        return zoomScale !== 1;
       }
 
     }
