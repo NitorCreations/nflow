@@ -184,14 +184,16 @@
       var render = new dagreD3.render();
       render(svgGroup, graph);
       decorateNodes(canvasSelector, graph, nodeSelectedCallBack);
-      var initialZoomScale = initHeightAndScale(graph, svgRoot, svgGroup);
+      var zoomEnabled = initHeightAndScale(graph, svgRoot, svgGroup);
       svgPanZoom(canvasSelector, {
         center: false,
-        controlIconsEnabled: initialZoomScale !== 1,
+        controlIconsEnabled: zoomEnabled,
+        dblClickZoomEnabled: zoomEnabled,
         fit: false,
         maxZoom: 100,
         minZoom: 0.01,
-        mouseWheelZoomEnabled: false
+        mouseWheelZoomEnabled: false,
+        zoomEnabled: zoomEnabled
       });
 
       function initSvg(canvasSelector, embedCSS) {
@@ -249,7 +251,7 @@
         svgRoot.attr('height', Math.max(Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio) + 60, 300));
         var zoomScale = Math.min(availableWidth / (graph.graph().width + 70), 1);
         svgGroup.attr('transform', 'translate(35,30) scale(' + zoomScale + ')');
-        return zoomScale;
+        return zoomScale !== 1;
       }
 
     }
