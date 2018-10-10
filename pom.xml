@@ -156,7 +156,7 @@
     <postgresql-embedded.version>2.9</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.netty.version>0.7.9.RELEASE</reactor.netty.version>
+    <reactor.netty.version>0.8.0.RELEASE</reactor.netty.version>
     <slf4j.version>1.7.25</slf4j.version>
     <spring.version>5.1.0.RELEASE</spring.version>
     <swagger.version>1.5.21</swagger.version>
@@ -678,7 +678,7 @@
       </dependency>
       <!-- netty -->
       <dependency>
-        <groupId>io.projectreactor.ipc</groupId>
+        <groupId>io.projectreactor.netty</groupId>
         <artifactId>reactor-netty</artifactId>
         <version>${reactor.netty.version}</version>
       </dependency>
