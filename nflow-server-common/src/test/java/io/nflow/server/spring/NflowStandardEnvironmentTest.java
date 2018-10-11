@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.core.env.Profiles;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NflowStandardEnvironmentTest {
@@ -70,7 +71,7 @@ public class NflowStandardEnvironmentTest {
   public void profilesPropertyEnablesSpringProfiles() {
     setProperty("profiles", "plain.test.profile,other.test.profile");
     NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());
-    assertThat(environment.acceptsProfiles("plain.test.profile", "other.test.profile"), is(true));
+    assertThat(environment.acceptsProfiles(Profiles.of("plain.test.profile", "other.test.profile")), is(true));
   }
 
   @Test
@@ -84,6 +85,6 @@ public class NflowStandardEnvironmentTest {
   @Test
   public void databaseProfileDefaultsToH2() {
     NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());
-    assertThat(environment.acceptsProfiles(H2), is(true));
+    assertThat(environment.acceptsProfiles(Profiles.of(H2)), is(true));
   }
 }

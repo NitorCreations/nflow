@@ -22,7 +22,7 @@ import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
 import io.nflow.netty.config.NflowNettyConfiguration;
 import io.nflow.server.spring.NflowStandardEnvironment;
-import reactor.ipc.netty.http.server.HttpServer;
+import reactor.netty.http.server.HttpServer;
 
 public class StartNflow {
 
@@ -105,7 +105,7 @@ public class StartNflow {
     ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
     int port = getProperty(mainConfiguration, "port").map(Integer::valueOf).orElse(DEFAULT_SERVER_PORT);
     String host = getProperty(mainConfiguration, "host").orElse(DEFAULT_SERVER_HOST);
-    HttpServer.create(host, port).newHandler(adapter).block();
+    HttpServer.create().host(host).port(port).handle(adapter).bind().block();
     long end = currentTimeMillis();
 
     // Log info
