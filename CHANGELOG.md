@@ -13,6 +13,8 @@
   - Fix execution phases -graph in radiator of workflow definition
   - Bar chart in active instances of workflow definition: vertical to horizontal orientation, removed filters and formatting options
   - Enable pan and zoom in workflow graphs
+- Run tests in Travis CI also with OpenJDK 11
+- Upgraded Spring to version 5.1.0.RELEASE
 
 ## 5.0.1 (2018-09-14)
 
