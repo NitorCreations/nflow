@@ -1,9 +1,11 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.components.graph', []);
+  var m = angular.module('nflowExplorer.components.graph', [
+    'nflowExplorer.components.svgPanZoom'
+  ]);
 
-  m.factory('Graph', function() {
+  m.factory('Graph', function(svgPanZoom) {
     return {
       setNodeSelected: setNodeSelected,
       markCurrentState: markCurrentState,
@@ -185,17 +187,20 @@
       render(svgGroup, graph);
       decorateNodes(canvasSelector, graph, nodeSelectedCallBack);
       var zoomEnabled = initHeightAndScale(graph, svgRoot, svgGroup);
-      svgPanZoom(canvasSelector, {
+      var panZoom = svgPanZoom(canvasSelector, {
         center: false,
         controlIconsEnabled: zoomEnabled,
         dblClickZoomEnabled: zoomEnabled,
-        fit: false,
+        fit: true,
         maxZoom: 100,
         minZoom: 0.01,
         mouseWheelZoomEnabled: false,
         panEnabled: zoomEnabled,
         zoomEnabled: zoomEnabled
       });
+      // zooming out a bit adds some padding after fit=true
+      // https://github.com/ariutta/svg-pan-zoom/issues/78
+      panZoom.zoomOut(0.01);
 
       function initSvg(canvasSelector, embedCSS) {
         var svgRoot = d3.select(canvasSelector);
@@ -249,9 +254,13 @@
       function initHeightAndScale(graph, svgRoot, svgGroup) {
         var aspectRatio = graph.graph().height / graph.graph().width;
         var availableWidth = parseInt(svgRoot.style('width').replace(/px/, ''));
-        svgRoot.attr('height', Math.max(Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio) + 60, 300));
-        var zoomScale = Math.min(availableWidth / (graph.graph().width + 70), 1);
-        svgGroup.attr('transform', 'translate(35,30) scale(' + zoomScale + ')');
+        var zoomScale = Math.min(availableWidth / graph.graph().width, 1);
+        var aspectRatioHeight = Math.min(availableWidth * aspectRatio, graph.graph().width * aspectRatio);
+        if (zoomScale !== 1) {
+          aspectRatioHeight = Math.max(aspectRatioHeight, 400);
+        }
+        svgRoot.attr('height', aspectRatioHeight);
+        svgGroup.attr('transform', 'scale(' + zoomScale + ')');
         return zoomScale !== 1;
       }
 
