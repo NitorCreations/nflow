@@ -12,7 +12,7 @@
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>io.nflow</groupId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.1.0</version>
   </parent>
   <properties>
     <EMPTY></EMPTY>
