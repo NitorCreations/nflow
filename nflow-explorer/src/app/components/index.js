@@ -8,6 +8,7 @@
     'nflowExplorer.components.filters',
     'nflowExplorer.components.graph',
     'nflowExplorer.components.util',
+    'nflowExplorer.components.svgPanZoom'
   ]);
 
 })();
