@@ -39,12 +39,16 @@
 
     function executorClass(executor, now) {
       now = now || Time.currentMoment();
-      if(!executor.expires) { // has never been active
+      if (executor.stopped) {
+        return;
+      }
 
-        if(moment(executor.started).add(1, 'days').isBefore(now)) { // dead
+      if (!executor.expires) { // has never been active
+
+        if (moment(executor.started).add(1, 'days').isBefore(now)) { // dead
           return;
         }
-        if(moment(executor.started).add(1, 'hours').isBefore(now)) { // expired
+        if (moment(executor.started).add(1, 'hours').isBefore(now)) { // expired
           return 'warning';
         }
         return 'success'; // alive
