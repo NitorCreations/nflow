@@ -1,4 +1,9 @@
-## 5.0.2 (2018-mm-dd)
+## 5.1.1 (future release)
+
+**Details**
+- Travis CI no longer runs tests with Oracle JDK 10. Only oraclejdk8 and openjdk11 are currently running Travis CI tests.
+
+## 5.1.0 (2018-10-18)
 
 **Highlights**
 - Multiple bug fixes to nFlow Explorer, including Google Chrome crash fix
