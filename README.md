@@ -12,7 +12,7 @@ nFlow is a light-weight and modular solution for orchestrating processes using J
 
 ## <a name="one-minute-guide"></a>1 Minute Guide
 
-Create a Maven project. Add the following to your  `pom.xml`. nFlow is available in Maven central repository. 
+Create a Maven project. Add the following to your  `pom.xml`. nFlow is available in the [Maven Central Repository](https://search.maven.org/search?q=g:io.nflow). 
 
 ```xml
 <dependency>
