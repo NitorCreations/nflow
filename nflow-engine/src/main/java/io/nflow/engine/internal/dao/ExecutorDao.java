@@ -169,15 +169,18 @@ public class ExecutorDao {
         DateTime started = sqlVariants.getDateTime(rs, "started");
         DateTime active = sqlVariants.getDateTime(rs, "active");
         DateTime expires = sqlVariants.getDateTime(rs, "expires");
-        return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires);
+        DateTime stopped = sqlVariants.getDateTime(rs, "stopped");
+        return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires, stopped);
       }
     }, executorGroup);
   }
 
   public void markShutdown() {
     try {
-      jdbc.update("update nflow_executor set expires=current_timestamp where executor_group = ? and id = ?", executorGroup,
-          getExecutorId());
+      jdbc.update("update nflow_executor " +
+                      "set expires=current_timestamp, stopped=current_timestamp " +
+                      "where executor_group = ? and id = ?",
+              executorGroup, getExecutorId());
     } catch (DataAccessException e) {
       logger.warn("Failed to mark executor as expired", e);
     }

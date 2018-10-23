@@ -31,4 +31,7 @@ public class ListWorkflowExecutorResponse extends ModelObject {
 
   @ApiModelProperty(value = "Time after which the executor is considered as crashed", required=true)
   public DateTime expires;
+
+  @ApiModelProperty(value = "Time when the executor was stopped", required=true)
+  public DateTime stopped;
 }
