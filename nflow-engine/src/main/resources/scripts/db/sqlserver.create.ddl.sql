@@ -67,7 +67,8 @@ create table nflow_executor (
   executor_group varchar(64),
   started datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   active datetimeoffset(3) not null,
-  expires datetimeoffset(3) not null
+  expires datetimeoffset(3) not null,
+  stopped datetimeoffset(3)
 );
 
 create table nflow_workflow_definition (
