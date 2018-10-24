@@ -1,4 +1,7 @@
-## 5.1.1 (future release)
+## 5.2.0 (future release)
+
+**Highlight**
+- Add `stopped` field to executor data. In database, REST API and nFlow Explorer. Requires database migration.
 
 **Details**
 - Travis CI no longer runs tests with Oracle JDK 10. Only oraclejdk8 and openjdk11 are currently running Travis CI tests.
