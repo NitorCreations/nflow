@@ -1,6 +1,8 @@
 package io.nflow.engine.internal.dao;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -47,6 +49,7 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(executor.started, is(crashedNodeStartTime));
     assertThat(executor.active, is(crashedNodeStartTime.plusSeconds(1)));
     assertThat(executor.expires, is(crashedNodeStartTime.plusHours(1)));
+    assertThat(executor.stopped, is(nullValue()));
   }
 
   @Test
@@ -58,6 +61,9 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
     dao.markShutdown();
 
-    assertThat(dao.getExecutors().get(0).expires.isAfterNow(), is(false));
+    WorkflowExecutor executor = dao.getExecutors().get(0);
+    assertThat(executor.expires.isAfterNow(), is(false));
+    assertThat(executor.stopped, is(notNullValue()));
+    assertThat(executor.stopped.isAfterNow(), is(false));
   }
 }

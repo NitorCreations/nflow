@@ -38,6 +38,10 @@ public class WorkflowExecutor extends ModelObject {
    * Time after which the executor is considered dead.
    */
   public final DateTime expires;
+  /**
+   * Time when the executor was stopped.
+   */
+  public final DateTime stopped;
 
   /**
    * Creates a new workflow executor description.
@@ -49,8 +53,10 @@ public class WorkflowExecutor extends ModelObject {
    * @param started Time when the executor was started
    * @param active Time when the executor last updated that it is active
    * @param expires Time after which the executor is considered dead
+   * @param stopped Time when the executor was stopped
    */
-  public WorkflowExecutor(int id, String host, int pid, String executorGroup, DateTime started, DateTime active, DateTime expires) {
+  public WorkflowExecutor(int id, String host, int pid, String executorGroup, DateTime started, DateTime active,
+                          DateTime expires, DateTime stopped) {
     this.id = id;
     this.host = host;
     this.pid = pid;
@@ -58,5 +64,6 @@ public class WorkflowExecutor extends ModelObject {
     this.started = started;
     this.active = active;
     this.expires = expires;
+    this.stopped = stopped;
   }
 }

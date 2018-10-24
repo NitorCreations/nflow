@@ -17,6 +17,7 @@ public class ListWorkflowExecutorConverter {
     resp.started = executor.started;
     resp.active = executor.active;
     resp.expires = executor.expires;
+    resp.stopped = executor.stopped;
     return resp;
   }
 }

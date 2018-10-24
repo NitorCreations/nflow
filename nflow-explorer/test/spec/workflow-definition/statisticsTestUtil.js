@@ -1,3 +1,5 @@
+'use strict';
+
 function stubStatePoller(WorkflowStatsPoller, stats) {
   sinon.stub(WorkflowStatsPoller, 'getLatest').callsFake(function() {
     return {

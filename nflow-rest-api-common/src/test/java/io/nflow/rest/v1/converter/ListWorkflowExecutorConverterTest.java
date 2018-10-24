@@ -19,8 +19,8 @@ public class ListWorkflowExecutorConverterTest {
 
   @Test
   public void convertWorks() {
-    WorkflowExecutor executor = new WorkflowExecutor(1, "host", 2, "executorGroup", now(), now().plusMinutes(1), now()
-        .plusMinutes(15));
+    WorkflowExecutor executor = new WorkflowExecutor(1, "host", 2, "executorGroup", now(),
+            now().plusMinutes(1), now().plusMinutes(15), now().minusSeconds(7));
 
     ListWorkflowExecutorResponse resp = converter.convert(executor);
 
@@ -31,5 +31,6 @@ public class ListWorkflowExecutorConverterTest {
     assertThat(resp.started, is(executor.started));
     assertThat(resp.active, is(executor.active));
     assertThat(resp.expires, is(executor.expires));
+    assertThat(resp.stopped, is(executor.stopped));
   }
 }

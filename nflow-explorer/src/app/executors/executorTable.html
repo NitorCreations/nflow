@@ -8,6 +8,7 @@
       <th>Process ID</th>
       <th>Executor group</th>
       <th>Started</th>
+      <th>Stopped</th>
       <th>Activity heartbeat</th>
       <th>Heartbeat expires</th>
     </tr>
@@ -20,6 +21,7 @@
       <td>{{executor.pid}}</td>
       <td>{{executor.executorGroup}}</td>
       <td title="{{executor.started | date:'medium'}}">{{executor.started | fromNow}}</td>
+      <td title="{{executor.stopped | date:'medium'}}">{{executor.stopped | fromNow}}</td>
       <td title="{{executor.active | date:'medium'}}">{{executor.active | fromNow}}</td>
       <td title="{{executor.expires | date:'medium'}}">{{executor.expires | fromNow}}</td>
     </tr>
