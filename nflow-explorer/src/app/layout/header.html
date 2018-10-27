@@ -1,4 +1,9 @@
 <header ng-hide="ctrl.radiator">
+  <div ng-show="ctrl.returnUrl" class="container-fluid">
+    <div class="col-md-12">
+      <a class="pull-right" ng-href="{{ctrl.returnUrl}}">{{ctrl.returnUrlLabel}}</a>
+    </div>
+  </div>
   <div class="container-fluid">
     <div class="row vertical-align">
       <div class="col-md-2">
