@@ -5,6 +5,7 @@
 
 **Details**
 - Travis CI no longer runs tests with Oracle JDK 10. Only oraclejdk8 and openjdk11 are currently running Travis CI tests.
+- Upgraded Spring to version 5.1.2.RELEASE
 
 ## 5.1.0 (2018-10-18)
 
