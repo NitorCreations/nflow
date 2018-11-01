@@ -6,6 +6,7 @@
 **Details**
 - Travis CI no longer runs tests with Oracle JDK 10. Only oraclejdk8 and openjdk11 are currently running Travis CI tests.
 - Upgraded Spring to version 5.1.2.RELEASE
+- Explorer displays a link in the header based on `returnUrl` and `returnUrlLabel` parameters in the Explorer opening URL
 
 ## 5.1.0 (2018-10-18)
 
