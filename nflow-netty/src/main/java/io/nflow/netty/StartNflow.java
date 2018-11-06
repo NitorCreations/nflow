@@ -1,12 +1,17 @@
 package io.nflow.netty;
 
+import static java.util.Arrays.asList;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -28,55 +33,11 @@ public class StartNflow {
 
   private static final Logger logger = LoggerFactory.getLogger(StartNflow.class);
 
-  public static final String DEFAULT_SERVER_CONFIGURATION = "application.properties";
-  public static final String DEFAULT_SERVER_HOST = "localhost";
-  public static final Integer DEFAULT_SERVER_PORT = 7500;
+  private final Set<Class<?>> annotatedContextClasses = new LinkedHashSet<>();
 
-  private final Optional<Class<?>> springMainClass;
+  private final List<ResourcePropertySource> propertiesSources = new LinkedList<>();
 
   public static void main(String[] args) throws Exception {
-    new StartNflow().startNetty(args, Optional.empty());
-  }
-
-  public StartNflow() {
-    springMainClass = Optional.empty();
-  }
-
-  public StartNflow(Class<?> springMainClass) {
-    this.springMainClass = Optional.of(springMainClass);
-  }
-
-  public ApplicationContext startNetty() throws IOException {
-    return startNetty(true, true, true, Optional.empty());
-  }
-
-  public ApplicationContext startNetty(boolean createDatabase, boolean autoInitNflow, boolean autoStartNflow)
-      throws IOException {
-    return startNetty(new String[] {}, createDatabase, autoInitNflow, autoStartNflow,
-        Optional.of(DEFAULT_SERVER_CONFIGURATION));
-  }
-
-  public ApplicationContext startNetty(boolean createDatabase, boolean autoInitNflow, boolean autoStartNflow,
-      Optional<String> mainConfigurationClasspath) throws IOException {
-    return startNetty(new String[] {}, createDatabase, autoInitNflow, autoStartNflow, mainConfigurationClasspath);
-  }
-
-  public ApplicationContext startNetty(String[] args, boolean createDatabase, boolean autoInitNflow,
-      boolean autoStartNflow) throws IOException {
-    return startNetty(args, createDatabase, autoInitNflow, autoStartNflow, Optional.of(DEFAULT_SERVER_CONFIGURATION));
-  }
-
-  public ApplicationContext startNetty(String[] args, boolean createDatabase, boolean autoInitNflow,
-      boolean autoStartNflow, Optional<String> mainConfigurationClasspath) throws IOException {
-    String[] customArgs = Arrays.copyOf(args, args.length + 3);
-    customArgs[customArgs.length - 3] = "--nflow.db.create_on_startup=" + createDatabase;
-    customArgs[customArgs.length - 2] = "--nflow.autostart=" + autoStartNflow;
-    customArgs[customArgs.length - 1] = "--nflow.autoinit=" + autoInitNflow;
-    return startNetty(customArgs, mainConfigurationClasspath);
-  }
-
-  public ApplicationContext startNetty(String[] args, Optional<String> mainConfigurationClasspath) throws IOException {
-    long start = currentTimeMillis();
     Map<String, Object> argsMap = new HashMap<>();
 
     // Add optional arguments to map, using Spring's helper class
@@ -88,23 +49,55 @@ public class StartNflow {
     // Add also properties that are not optional, i.e. don't start with "--"
     Stream.of(args).filter(value -> !value.startsWith("--")).forEach(value -> argsMap.put(value, null));
 
+    new StartNflow().startNetty(argsMap);
+  }
+
+  public StartNflow registerSpringContext(Class<?> ... springContextClass) {
+    annotatedContextClasses.addAll(asList(springContextClass));
+    return this;
+  }
+
+  public StartNflow registerSpringClasspathPropertySource(String ... springPropertiesPath) throws IOException {
+    for(String path : springPropertiesPath) {
+      propertiesSources.add(new ResourcePropertySource(path));
+    }
+    return this;
+  }
+
+  public StartNflow registerSpringPropertySource(ResourcePropertySource ... springPropertySource) {
+    propertiesSources.addAll(asList(springPropertySource));
+    return this;
+  }
+
+  public ApplicationContext startNetty(int port, String env, String profiles) throws Exception {
+    return startNetty(port, env, profiles, new LinkedHashMap<>());
+  }
+
+  public ApplicationContext startNetty(int port, String env, String profiles, Map<String, Object> properties) throws Exception {
+    properties.put("port", port);
+    properties.put("env", env);
+    properties.put("profiles", profiles);
+    return startNetty(properties);
+  }
+
+  public ApplicationContext startNetty(Map<String, Object> properties) throws Exception {
+    long start = currentTimeMillis();
+
     // Create context
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    NflowStandardEnvironment env = new NflowStandardEnvironment(argsMap);
-    Optional<ResourcePropertySource> mainConfiguration = initMainConfiguration(mainConfigurationClasspath, env);
+    NflowStandardEnvironment env = new NflowStandardEnvironment(properties);
+    propertiesSources.stream().forEach(propertiesSource -> env.getPropertySources().addLast(propertiesSource));
     context.setEnvironment(env);
-    if (springMainClass.isPresent()) {
-      context.register(DelegatingWebFluxConfiguration.class, NflowNettyConfiguration.class, springMainClass.get());
-    } else {
-      context.register(DelegatingWebFluxConfiguration.class, NflowNettyConfiguration.class);
-    }
+    annotatedContextClasses.add(DelegatingWebFluxConfiguration.class);
+    annotatedContextClasses.add(NflowNettyConfiguration.class);
+    context.register(annotatedContextClasses.stream().toArray(Class<?>[] ::new));
     context.refresh();
 
     // Start netty
     HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();
     ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
-    int port = getProperty(mainConfiguration, "port").map(Integer::valueOf).orElse(DEFAULT_SERVER_PORT);
-    String host = getProperty(mainConfiguration, "host").orElse(DEFAULT_SERVER_HOST);
+    int port = env.getRequiredProperty("port", Integer.class);
+    String host = env.getRequiredProperty("host");
     HttpServer.create().host(host).port(port).handle(adapter).bind().block();
     long end = currentTimeMillis();
 
@@ -117,17 +110,4 @@ public class StartNflow {
     return context;
   }
 
-  private Optional<String> getProperty(Optional<ResourcePropertySource> configuration, String propertyName) {
-    return Optional.ofNullable(configuration.map(config -> (String) config.getProperty(propertyName)).orElse(null));
-  }
-
-  private Optional<ResourcePropertySource> initMainConfiguration(Optional<String> mainConfigurationClasspath,
-      NflowStandardEnvironment env) throws IOException {
-    if (mainConfigurationClasspath.isPresent()){
-      ResourcePropertySource mainConfiguration = new ResourcePropertySource(mainConfigurationClasspath.get());
-      env.getPropertySources().addLast(mainConfiguration);
-      return Optional.of(mainConfiguration);
-    }
-    return Optional.empty();
-  }
 }
