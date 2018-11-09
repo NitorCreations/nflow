@@ -1,10 +1,10 @@
 package io.nflow.netty;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
@@ -12,8 +12,7 @@ public class StartNflowTest {
 
   @Test
   public void startNflowNetty() throws Exception {
-    StartNflow startNflow = new StartNflow()
-        .registerSpringContext(this.getClass())
+    StartNflow startNflow = new StartNflow().registerSpringContext(this.getClass())
         .registerSpringClasspathPropertySource("external.properties");
     Map<String, Object> properties = new HashMap<>();
     properties.put("nflow.db.create_on_startup", false);

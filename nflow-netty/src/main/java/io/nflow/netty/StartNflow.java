@@ -52,19 +52,19 @@ public class StartNflow {
     new StartNflow().startNetty(argsMap);
   }
 
-  public StartNflow registerSpringContext(Class<?> ... springContextClass) {
+  public StartNflow registerSpringContext(Class<?>... springContextClass) {
     annotatedContextClasses.addAll(asList(springContextClass));
     return this;
   }
 
-  public StartNflow registerSpringClasspathPropertySource(String ... springPropertiesPath) throws IOException {
-    for(String path : springPropertiesPath) {
+  public StartNflow registerSpringClasspathPropertySource(String... springPropertiesPath) throws IOException {
+    for (String path : springPropertiesPath) {
       propertiesSources.add(new ResourcePropertySource(path));
     }
     return this;
   }
 
-  public StartNflow registerSpringPropertySource(ResourcePropertySource ... springPropertySource) {
+  public StartNflow registerSpringPropertySource(ResourcePropertySource... springPropertySource) {
     propertiesSources.addAll(asList(springPropertySource));
     return this;
   }
@@ -90,7 +90,7 @@ public class StartNflow {
     context.setEnvironment(env);
     annotatedContextClasses.add(DelegatingWebFluxConfiguration.class);
     annotatedContextClasses.add(NflowNettyConfiguration.class);
-    context.register(annotatedContextClasses.stream().toArray(Class<?>[] ::new));
+    context.register(annotatedContextClasses.stream().toArray(Class<?>[]::new));
     context.refresh();
 
     // Start netty
