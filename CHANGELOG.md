@@ -2,6 +2,7 @@
 
 **Highlight**
 - Add `stopped` field to executor data. In database, REST API and nFlow Explorer. Requires database migration.
+- Support Azure AD authentication in Explorer (see `nflow-explorer/src/config.js` for configuration options)
 
 **Details**
 - Travis CI no longer runs tests with Oracle JDK 10. Only oraclejdk8 and openjdk11 are currently running Travis CI tests.
