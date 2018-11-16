@@ -33,8 +33,8 @@ module.exports = function(config) {
       'bower_components/bootstrap-sass/assets/javascripts/bootstrap.js',
       'bower_components/d3/d3.js',
 
-      'src/external/adal-angular/adal.js',
-      'src/external/adal-angular/adal-angular.js',
+      'src/external/adal-angular/adal-1.0.17.min.js',
+      'src/external/adal-angular/adal-angular-1.0.17.min.js',
       'src/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
       'src/config.js',
       'src/app/**/*.js',
