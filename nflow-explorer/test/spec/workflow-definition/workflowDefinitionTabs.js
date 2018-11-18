@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Controller: WorkflowDefinitionTabsCtrl', function () {
-  var $controller, $scope, $rootScope, WorkflowStatsPoller, definitionStateStats;
+  var $controller, $scope, $rootScope, WorkflowStatsPoller;
 
   beforeEach(module('nflowExplorer.workflowDefinition.tabs'));
   beforeEach(module('nflowExplorer.services.WorkflowStatsPoller'));
@@ -56,6 +56,48 @@ describe('Controller: WorkflowDefinitionTabsCtrl', function () {
       expect($scope.data).toEqual([[1,0],[0,0],[0,0],[0,0]]);
     });
   });
+
+  describe('Workflow stats poller lifecycle checks', function () {
+    var ctrl;
+    it('Poller stopped on $destroy', function() {
+      stubStatePoller(WorkflowStatsPoller, undefined);
+      var stopSpy = sinon.stub(WorkflowStatsPoller, 'stop').callsFake(function() {});
+      ctrl = getCtrl(WorkflowStatsPoller, $scope);
+      $scope.$broadcast('$destroy');
+      expect(stopSpy.called).toBe(true);
+    });
+  });
+
+  function stubStatePoller(WorkflowStatsPoller, stats) {
+    sinon.stub(WorkflowStatsPoller, 'getLatest').callsFake(function() {
+      return {
+        stateStatistics: stats
+      };
+    });
+    sinon.stub(WorkflowStatsPoller, 'start').callsFake(function() {});
+  }
+
+  function createStatsForState(cai, cqi, ipai, ipqi, eai, mai, fai) {
+    return {
+      created: {
+        allInstances: cai,
+        queuedInstances: cqi
+      },
+      inProgress: {
+        allInstances: ipai,
+        queuedInstances: ipqi
+      },
+      executing: {
+        allInstances: eai
+      },
+      manual: {
+        allInstances: mai
+      },
+      finished: {
+        allInstances: fai
+      }
+    };
+  }
 
   function getCtrl(WorkflowStatsPoller, $scope) {
     return $controller('WorkflowDefinitionTabsCtrl', {

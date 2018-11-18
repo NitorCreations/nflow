@@ -61,6 +61,9 @@
           updateStateExecutionGraph(type);
         }
       });
+      $scope.$on('$destroy', function() {
+        WorkflowStatsPoller.stop(self.definition.type);
+      });
     }
 
     function isStateSelected(state) {
