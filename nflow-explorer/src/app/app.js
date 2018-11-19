@@ -4,6 +4,7 @@
   var m = angular.module('nflowExplorer', [
     'nflowExplorer.about',
     'nflowExplorer.config',
+    'nflowExplorer.config.adal',
     'nflowExplorer.components',
     'nflowExplorer.frontPage',
     'nflowExplorer.layout',
@@ -20,7 +21,8 @@
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap',
-    'chart.js'
+    'chart.js',
+    'AdalAngular'
   ]);
 
   m.run(function (EndpointService, ExecutorService) {
