@@ -20,6 +20,16 @@ var Config = function() {
     },
   ];
 
+  // see: https://github.com/AzureAD/azure-activedirectory-library-for-js/wiki/Config-authentication-context#configurable-options
+  this.adal = {
+    // undocumented adal-option that controls authentication on globally
+    requireADLogin: false,
+    instance: 'https://login.microsoftonline.com/',
+    tenant: 'Enter_your_tenant_name_here_e.g._contoso.onmicrosoft.com',
+    clientId: 'Enter_your_client_ID_here_e.g._e9a5a8b6-8af7-4719-9821-0deef255f68e',
+    popUp: false
+  };
+
   this.radiator = {
     // poll period in seconds
     pollPeriod: 15,

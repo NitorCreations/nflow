@@ -31,10 +31,11 @@ module.exports = function(config) {
       'bower_components/momentjs/moment.js',
       'bower_components/lodash/lodash.js',
       'bower_components/bootstrap-sass/assets/javascripts/bootstrap.js',
-
-      'src/external/dagre-d3/js/dagre-d3.min.js',
-      'src/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
       'bower_components/d3/d3.js',
+
+      'src/external/adal-angular/adal-1.0.17.min.js',
+      'src/external/adal-angular/adal-angular-1.0.17.min.js',
+      'src/external/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
       'src/config.js',
       'src/app/**/*.js',
       'test/mock/**/*.js',
