@@ -10,6 +10,7 @@
 - Explorer displays a link in the header based on `returnUrl` and `returnUrlLabel` parameters in the Explorer opening URL
 - nflow-netty's StartNflow interface changed to match nflow-jetty's
 - Automatic refresh for workflow instance page in Explorer
+- Downgrade org.reclections:reflections to 0.9.10 due to excessive logging in nflow-jetty startup when using 0.9.11
 
 ## 5.1.0 (2018-10-18)
 
