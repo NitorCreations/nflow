@@ -1,6 +1,12 @@
+## 5.2.1 (yyyy-MM-dd)
+
+**Highlights**
+
+**Details**
+
 ## 5.2.0 (2018-11-20)
 
-**Highlight**
+**Highlights**
 - Add `stopped` field to executor data. In database, REST API and nFlow Explorer. Requires database migration.
 - Support Azure AD authentication in Explorer (see `nflow-explorer/src/config.js` for configuration options)
 
