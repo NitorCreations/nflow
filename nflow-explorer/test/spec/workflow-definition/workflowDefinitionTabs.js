@@ -57,6 +57,17 @@ describe('Controller: WorkflowDefinitionTabsCtrl', function () {
     });
   });
 
+  describe('Workflow stats poller lifecycle checks', function () {
+    var ctrl;
+    it('Poller stopped on $destroy', function() {
+      stubStatePoller(WorkflowStatsPoller, undefined);
+      var stopSpy = sinon.stub(WorkflowStatsPoller, 'stop').callsFake(function() {});
+      ctrl = getCtrl(WorkflowStatsPoller, $scope);
+      $scope.$broadcast('$destroy');
+      expect(stopSpy.called).toBe(true);
+    });
+  });
+
   function stubStatePoller(WorkflowStatsPoller, stats) {
     sinon.stub(WorkflowStatsPoller, 'getLatest').callsFake(function() {
       return {

@@ -9,6 +9,7 @@
 - Upgraded Spring to version 5.1.2.RELEASE
 - Explorer displays a link in the header based on `returnUrl` and `returnUrlLabel` parameters in the Explorer opening URL
 - nflow-netty's StartNflow interface changed to match nflow-jetty's
+- Automatic refresh for workflow instance page in Explorer
 
 ## 5.1.0 (2018-10-18)
 

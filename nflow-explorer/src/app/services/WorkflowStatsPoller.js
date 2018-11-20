@@ -45,6 +45,14 @@
       return false;
     };
 
+    this.stop = function(type) {
+      if (tasks[type]) {
+        console.info('Stop stats poller for ' + type);
+        $interval.cancel(tasks[type].poller);
+        tasks[type] = undefined;
+      }
+    };
+
     this.getLatest = function(type) {
       if(!tasks[type]) {
         return undefined;
