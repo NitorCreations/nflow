@@ -157,6 +157,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <reactor.netty.version>0.8.2.RELEASE</reactor.netty.version>
+    <!-- 0.9.11 not used because https://trello.com/c/ZEcAoiSq/406-remove-05-mb-of-exceptions-farted-out-when-starting-nflow-jetty -->
+    <reflections.version>0.9.10</reflections.version>
     <slf4j.version>1.7.25</slf4j.version>
     <spring.version>5.1.2.RELEASE</spring.version>
     <swagger.version>1.5.21</swagger.version>
@@ -813,6 +815,11 @@
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>${reflections.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
