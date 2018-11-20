@@ -1,4 +1,4 @@
-## 5.2.0 (future release)
+## 5.2.0 (2018-11-20)
 
 **Highlight**
 - Add `stopped` field to executor data. In database, REST API and nFlow Explorer. Requires database migration.
