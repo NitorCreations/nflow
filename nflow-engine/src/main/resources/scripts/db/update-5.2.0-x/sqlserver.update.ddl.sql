@@ -1,1 +1,1 @@
-alter table nflow_explorer add stopped datetimeoffset(3);
+alter table nflow_executor add stopped datetimeoffset(3);

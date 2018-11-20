@@ -1,1 +1,1 @@
-alter table nflow_explorer add stopped timestamp(3);
+alter table nflow_executor add stopped timestamp(3);
