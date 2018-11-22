@@ -58,8 +58,8 @@ public abstract class DatabaseConfiguration {
     logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
     config.setPoolName("nflow");
-    config.setDataSourceClassName(property(env, "driver"));
-    config.addDataSourceProperty("url", url);
+    config.setDriverClassName(property(env, "driver"));
+    config.setJdbcUrl(url);
     config.setUsername(property(env, "user"));
     config.setPassword(property(env, "password"));
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
