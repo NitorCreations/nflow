@@ -70,11 +70,6 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
               + "else least(?, external_next_activation) end)";
     }
 
-    @Override
-    public String dateLtEqDiff(String next_activation, String current_timestamp) {
-      return "datediff_big(ms, " + next_activation + ", " + current_timestamp + ") >= 0";
-    }
-
     /**
      * Returns the SQL representation for given workflow instance status.
      */
@@ -112,8 +107,10 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
      */
     @Override
     public String limit(String query, String limit) {
-      int idx = query.indexOf("select ");
-      return query.substring(0, idx + 7) + "top(" + limit + ") " + query.substring(idx + 7);
+      int fromIdx = query.lastIndexOf(" from ");
+      int orderByIdx = query.lastIndexOf(" order by");
+      String newQuery = query.substring(0, fromIdx) + " , row_number() OVER(" + query.substring(orderByIdx) + ") as row_number" + query.substring(fromIdx);
+      return "select * from (" + newQuery + ") q where q.row_number <= " + limit;
     }
 
     /**

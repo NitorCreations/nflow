@@ -73,9 +73,7 @@ public abstract class DatabaseConfiguration {
     try {
       Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
       Object metricRegistry = appCtx.getBean(metricClass);
-      if (metricRegistry != null) {
-        config.setMetricRegistry(metricRegistry);
-      }
+      config.setMetricRegistry(metricRegistry);
     } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
       // ignored - metrics is an optional dependency
     }

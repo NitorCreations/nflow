@@ -559,12 +559,8 @@ public class WorkflowInstanceDao {
       public List<Integer> doInTransaction(TransactionStatus transactionStatus) {
         String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(),
             Integer.toString(batchSize));
-        List<OptimisticLockKey> instances = jdbc.query(sql, new RowMapper<OptimisticLockKey>() {
-          @Override
-          public OptimisticLockKey mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new OptimisticLockKey(rs.getInt("id"), sqlVariants.getTimestamp(rs, "modified"));
-          }
-        });
+        List<OptimisticLockKey> instances = jdbc.query(sql, (rs, rowNum) ->
+                new OptimisticLockKey(rs.getInt("id"), sqlVariants.getTimestamp(rs, "modified")));
         if (instances.isEmpty()) {
           return emptyList();
         }
@@ -712,11 +708,7 @@ public class WorkflowInstanceDao {
       public void processRow(ResultSet rs) throws SQLException {
         int parentActionId = rs.getInt(1);
         int childWorkflowInstanceId = rs.getInt(2);
-        List<Integer> children = instance.childWorkflows.get(parentActionId);
-        if (children == null) {
-          children = new ArrayList<>();
-          instance.childWorkflows.put(parentActionId, children);
-        }
+        List<Integer> children = instance.childWorkflows.computeIfAbsent(parentActionId, ArrayList::new);
         children.add(childWorkflowInstanceId);
       }
     }, instance.id);
@@ -733,7 +725,7 @@ public class WorkflowInstanceDao {
     Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
         : EMPTY_ACTION_STATE_MAP;
     String limit = Long.toString(getMaxActions(maxActions));
-    String sql = sqlVariants.limit("select * from nflow_workflow_action where workflow_id = ? order by id desc", limit);
+    String sql = sqlVariants.limit("select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc", limit);
     instance.actions.addAll(jdbc.query(sql, new WorkflowInstanceActionRowMapper(sqlVariants, actionStates), instance.id));
   }
 
