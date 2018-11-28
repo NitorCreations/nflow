@@ -3,6 +3,7 @@
 **Highlights**
 
 **Details**
+- Upgraded Spring to version 5.1.3.RELEASE
 
 ## 5.2.0 (2018-11-20)
 
