@@ -7,10 +7,10 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 * Replacement for [business process engine](https://www.techopedia.com/definition/26689/business-process-engine-bpe)
 * Persistent [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine)
 
-Key features and benefits
+**Key features and benefits**
 
 * Non-declarative - workflow structure is defined as code
-* Visualization - workflow structure and instances can be visualized in (nFlow Explorer)[https://github.com/NitorCreations/nflow/tree/master/nflow-explorer]
+* Visualization - workflow structure and instances can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer)
 * Embeddable and modular - usually embedded into your application as a library, but a full-blown standalone server and add-on libraries are also provided
 * High availability - multiple JVMs can share a database and optionally also workflow instances
 * Fault tolerant - workflow instances are recovered after JVM crashes
