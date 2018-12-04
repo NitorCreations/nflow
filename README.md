@@ -1,12 +1,22 @@
 <img src="https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo-no-borders.png" height="100" width="195" />
 
-nFlow is a light-weight and modular solution for orchestrating processes using Java. Non-exhaustive list of nFlow usage scenarios:
+nFlow is a battle-proven solution for orchestrating business processes. Depending on where you're coming from, you can view nFlow as any of the following:
 
-* **Orchestration of microservices:** trending REST-based microservice architecture does not provide standardized solutions for composing services into reliable business processes. nFlow fills this gap by providing a framework for implementing workflows based on ideas like [idempotent retry](http://www.servicedesignpatterns.com/WebServiceInfrastructures/IdempotentRetry) and [finite state machine](http://en.wikipedia.org/wiki/Finite-state_machine).
+* Microservices orchestrator (as in [Saga-pattern](https://microservices.io/patterns/data/saga.html))
+* Guaranteed delivery computing
+* Replacement for [business process engine](https://www.techopedia.com/definition/26689/business-process-engine-bpe)
+* Persistent [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine)
 
-* **Traditional business process engine:** although nFlow does not implement (bloated) BPMN/BPEL standards, it can be utilized as a superfast business process engine that runs on application server of your choice and starts in seconds instead of minutes. nFlow workflow definitions and instances can be visualized and managed in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer) user interface.
+**Key features**
 
-* **Asynchronous backend dispatcher:** submit tasks from UI to nFlow that executes or forwards them realiably following [Request/Acknowledge pattern](http://servicedesignpatterns.com/ClientServiceInteractions/RequestAcknowledge). nFlow engine can be embedded to your UI applications or run as an external service.
+* Non-declarative &mdash; workflows are defined as code
+* Visualization &mdash; workflows can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer)
+* Embeddable &mdash; usually embedded as a library, but a standalone server is also provided
+* High availability &mdash; the same workflows can be processed by multiple deployments
+* Fault tolerant &mdash; automatic recovery if runtime environment crashes
+* Atomic state updates &mdash; uses and requires a relational database for atomic state updates and locking
+* Multiple databases supported &mdash; PostgreSQL, MySQL, Oracle, Microsoft SQL Server, H2
+* Open Source under EUPL
 
 # <a name="getting-started"></a>Getting Started
 
