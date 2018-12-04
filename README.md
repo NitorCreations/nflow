@@ -12,8 +12,8 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 * Non-declarative &mdash; workflows are defined as code
 * Visualization &mdash; workflows can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer)
 * Embeddable &mdash; usually embedded as a library, but a standalone server is also provided
-* High availability &mdash; workflows can be shared by multiple deployments
-* Fault tolerant &mdash; automatic recovery after runtime environment crashes
+* High availability &mdash; workflows can be processed by multiple deployments
+* Fault tolerant &mdash; automatic recovery if runtime environment crashes
 * Atomic state updates &mdash; uses and requires a relational database for atomic state updates and locking
 * Multiple databases supported &mdash; PostgreSQL, MySQL, Oracle, Microsoft SQL Server, H2
 * Open Source under EUPL
