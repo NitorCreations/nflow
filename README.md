@@ -7,7 +7,7 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 * Replacement for [business process engine](https://www.techopedia.com/definition/26689/business-process-engine-bpe)
 * Persistent [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine)
 
-**Key features and benefits**
+**Key features**
 
 * Non-declarative &mdash; workflows are defined as code
 * Visualization &mdash; workflows can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer)
