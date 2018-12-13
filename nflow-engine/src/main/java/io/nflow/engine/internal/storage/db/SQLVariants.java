@@ -1,14 +1,13 @@
 package io.nflow.engine.internal.storage.db;
 
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
-import org.joda.time.DateTime;
+import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
+import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
-import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import org.joda.time.DateTime;
 
 public interface SQLVariants {
   String currentTimePlusSeconds(int seconds);
@@ -51,5 +50,9 @@ public interface SQLVariants {
 
   default Object toTimestampObject(DateTime timestamp) {
     return toTimestamp(timestamp);
+  }
+
+  default Object tuneTimestampForDb(Object timestamp) {
+    return timestamp;
   }
 }

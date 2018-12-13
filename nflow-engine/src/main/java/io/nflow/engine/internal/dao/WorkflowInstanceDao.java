@@ -578,7 +578,7 @@ public class WorkflowInstanceDao {
         boolean raceConditionDetected = false;
         for (OptimisticLockKey instance : instances) {
           int updated = jdbc.update(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null",
-              instance.id, instance.modified);
+              instance.id, sqlVariants.tuneTimestampForDb(instance.modified));
           if (updated == 1) {
             ids.add(instance.id);
           } else {
@@ -594,7 +594,7 @@ public class WorkflowInstanceDao {
       private void updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances, List<Integer> ids) {
         List<Object[]> batchArgs = new ArrayList<>(instances.size());
         for (OptimisticLockKey instance : instances) {
-          batchArgs.add(new Object[] { instance.id, instance.modified });
+          batchArgs.add(new Object[] { instance.id, sqlVariants.tuneTimestampForDb(instance.modified) });
           ids.add(instance.id);
         }
         int[] updateStatuses = jdbc
@@ -682,8 +682,7 @@ public class WorkflowInstanceDao {
     conditions.add("w.executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
     sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
-    sql = sqlVariants.limit(sql, ":limit");
-    params.addValue("limit", getMaxResults(query.maxResults));
+    sql = sqlVariants.limit(sql, String.valueOf(getMaxResults(query.maxResults)));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
         .map(WorkflowInstance.Builder::build).collect(toList());
     for (WorkflowInstance instance : ret) {

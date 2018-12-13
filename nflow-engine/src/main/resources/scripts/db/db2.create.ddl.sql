@@ -101,8 +101,8 @@ create table nflow_workflow_definition (
 -- - remove recursive foreign keys
 
 create table nflow_archive_workflow (
-  id int primary key generated always as identity,
-  status varchar(32)  not null,
+  id int not null primary key,
+  status varchar(32) not null,
   type varchar(64) not null,
   root_workflow_id integer,
   parent_workflow_id integer,
@@ -123,7 +123,7 @@ create table nflow_archive_workflow (
 );
 
 create table nflow_archive_workflow_action (
-  id int primary key generated always as identity,
+  id int not null primary key,
   workflow_id int not null,
   executor_id int not null,
   type varchar(32)  not null,
