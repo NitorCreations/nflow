@@ -118,7 +118,7 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
      * Returns SQL for a query with a limit of results.
      */
     @Override
-    public String limit(String query, String limit) {
+    public String limit(String query, long limit) {
       // note: limit must be a number, because NamedJdbcTemplate does not set variables (e.g. :limit) here
       return query + " fetch first " + limit + " rows only";
     }

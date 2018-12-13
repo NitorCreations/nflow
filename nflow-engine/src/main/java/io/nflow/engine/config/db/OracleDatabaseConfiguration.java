@@ -160,7 +160,7 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
      * Returns SQL for a query with a limit of results.
      */
     @Override
-    public String limit(String query, String limit) {
+    public String limit(String query, long limit) {
       return "select * from (" + query + ") where rownum <= " + limit;
     }
 

@@ -26,7 +26,7 @@ public interface SQLVariants {
 
   String castToText();
 
-  String limit(String query, String limit);
+  String limit(String query, long limit);
 
   int longTextType();
 

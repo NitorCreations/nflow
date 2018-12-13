@@ -548,7 +548,7 @@ public class WorkflowInstanceDao {
 
   private List<Integer> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
     String sql = updateInstanceForExecutionQuery() + " where id in ("
-        + sqlVariants.limit("select id from nflow_workflow " + whereConditionForInstanceUpdate(), Integer.toString(batchSize))
+        + sqlVariants.limit("select id from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize)
         + ") and executor_id is null returning id";
     return jdbc.queryForList(sql, Integer.class);
   }
@@ -557,8 +557,7 @@ public class WorkflowInstanceDao {
     return transaction.execute(new TransactionCallback<List<Integer>>() {
       @Override
       public List<Integer> doInTransaction(TransactionStatus transactionStatus) {
-        String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(),
-            Integer.toString(batchSize));
+        String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
         List<OptimisticLockKey> instances = jdbc.query(sql, (rs, rowNum) ->
                 new OptimisticLockKey(rs.getInt("id"), sqlVariants.getTimestamp(rs, "modified")));
         if (instances.isEmpty()) {
@@ -682,7 +681,7 @@ public class WorkflowInstanceDao {
     conditions.add("w.executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
     sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
-    sql = sqlVariants.limit(sql, String.valueOf(getMaxResults(query.maxResults)));
+    sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
         .map(WorkflowInstance.Builder::build).collect(toList());
     for (WorkflowInstance instance : ret) {
@@ -723,8 +722,8 @@ public class WorkflowInstanceDao {
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long maxActions) {
     Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
         : EMPTY_ACTION_STATE_MAP;
-    String limit = Long.toString(getMaxActions(maxActions));
-    String sql = sqlVariants.limit("select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc", limit);
+    String sql = sqlVariants.limit("select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc",
+            getMaxActions(maxActions));
     instance.actions.addAll(jdbc.query(sql, new WorkflowInstanceActionRowMapper(sqlVariants, actionStates), instance.id));
   }
 
