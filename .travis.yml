@@ -11,6 +11,7 @@ env:
   - DB=postgresql
   - DB=mysql
   - DB=sqlserver
+  - DB=db2
 addons:
   postgresql: "9.6"
 services:
@@ -18,6 +19,8 @@ services:
 before_script:
   - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
   - ./travis/setup-db-$DB.sh
+script:
+  - mvn test -B -P $DB
 after_script:
   - for i in nflow-*/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
 notifications:
