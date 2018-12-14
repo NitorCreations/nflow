@@ -57,8 +57,9 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     Long propsTimeZoneOffsetHours = HOURS.convert(
             TimeZone.getTimeZone(property(env, "timezone")).getOffset(currentTimeMillis()), MILLISECONDS);
     if (!Objects.equals(dbTimeZoneOffsetHours, propsTimeZoneOffsetHours)) {
-      throw new RuntimeException("Database has unexpected time zone - hour offset DB2: " + dbTimeZoneOffsetHours +
-            ", properties: " + propsTimeZoneOffsetHours);
+      throw new RuntimeException("Database has unexpected time zone - hour offset in DB2 is " + dbTimeZoneOffsetHours +
+            " but the expected hour offset based on timezone-property is " + propsTimeZoneOffsetHours +
+            ". Change the timezone-property to match with your DB2 time zone.");
     }
   }
 

@@ -22,17 +22,11 @@ create table nflow_workflow (
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
 
--- create or replace function update_modified() returns trigger language plpgsql as '
--- begin
---   if NEW.modified = OLD.modified then
---     NEW.modified := now();
---   end if;
---   return NEW;
--- end;
--- ';
-
--- drop trigger if exists update_nflow_modified on nflow_workflow;
--- create trigger update_nflow_modified before update on nflow_workflow for each row execute procedure update_modified();
+create or replace trigger nflow_workflow_update_modified
+  before update on nflow_workflow
+  referencing new as n
+  for each row
+  set modified = current timestamp;
 
 drop index nflow_workflow_activation;
 create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
@@ -88,12 +82,13 @@ create table nflow_workflow_definition (
   primary key (type, executor_group)
 );
 
--- drop trigger if exists update_nflow_definition_modified on nflow_workflow_definition;
--- create trigger update_nflow_definition_modified before update on nflow_workflow_definition for each row execute procedure update_modified();
-
+create or replace trigger nflow_workflow_definition_update_modified
+  before update on nflow_workflow_definition
+  referencing new as n
+  for each row
+  set modified = current timestamp;
 
 -- Archive tables
--- - no default values
 -- - no default values
 -- - no triggers
 -- - no auto increments
