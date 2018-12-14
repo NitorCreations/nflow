@@ -2,23 +2,28 @@ package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.DB2;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
+
+import javax.sql.DataSource;
+
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
  * Configuration for DB2 database. Note: tested only using DB2 Express-C (Docker: ibmcom/db2express-c).
@@ -43,6 +48,18 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   @Bean
   public SQLVariants sqlVariants(Environment env) {
     return new Db2SQLVariants(property(env, "timezone"));
+  }
+
+  @Override
+  protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
+    JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+    Long dbTimeZoneOffsetHours = jdbc.queryForObject("select current timezone from sysibm.sysdummy1", Long.class);
+    Long propsTimeZoneOffsetHours = HOURS.convert(
+            TimeZone.getTimeZone(property(env, "timezone")).getOffset(currentTimeMillis()), MILLISECONDS);
+    if (!Objects.equals(dbTimeZoneOffsetHours, propsTimeZoneOffsetHours)) {
+      throw new RuntimeException("Database has unexpected time zone - hour offset DB2: " + dbTimeZoneOffsetHours +
+            ", properties: " + propsTimeZoneOffsetHours);
+    }
   }
 
   /**
@@ -177,7 +194,7 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     private long timeZoneMismatchInMillis() {
-      long now = System.currentTimeMillis();
+      long now = currentTimeMillis();
       return TimeZone.getDefault().getOffset(now) - TimeZone.getTimeZone(dbTimeZoneId).getOffset(now);
     }
   }

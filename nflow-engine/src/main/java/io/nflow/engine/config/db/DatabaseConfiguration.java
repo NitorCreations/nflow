@@ -66,7 +66,9 @@ public abstract class DatabaseConfiguration {
     config.setIdleTimeout(property(env, "idle_timeout_seconds", Long.class) * 1000);
     config.setAutoCommit(true);
     setMetricRegistryIfBeanFoundOnClassPath(config, appCtx);
-    return new HikariDataSource(config);
+    DataSource nflowDataSource = new HikariDataSource(config);
+    checkDatabaseConfiguration(env, nflowDataSource);
+    return nflowDataSource;
   }
 
   private void setMetricRegistryIfBeanFoundOnClassPath(HikariConfig config, BeanFactory appCtx) {
@@ -159,4 +161,12 @@ public abstract class DatabaseConfiguration {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
 
+  /**
+   * Checks that the database is configured as nFlow expects.
+   * @param env The Spring environment.
+   * @param dataSource The nFlow datasource.
+   */
+  protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
+    // no common checks for all databases
+  }
 }
