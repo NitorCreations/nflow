@@ -9,7 +9,6 @@
 
 **Details**
 - Upgraded Spring to version 5.1.3.RELEASE
-- Currently DB2 database must be configured to UTC time zone
 
 ## 5.2.0 (2018-11-20)
 

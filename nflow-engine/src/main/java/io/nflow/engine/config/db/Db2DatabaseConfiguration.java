@@ -2,8 +2,6 @@ package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.DB2;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -12,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -20,6 +18,7 @@ import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 /**
  * Configuration for DB2 database. Note: tested only using DB2 Express-C (Docker: ibmcom/db2express-c).
@@ -38,17 +37,24 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
   /**
    * Creates the SQL variants for DB2.
+   * @param env The Spring environment for getting the configuration property values.
    * @return SQL variants optimized for DB2.
    */
   @Bean
-  public SQLVariants sqlVariants() {
-    return new Db2SQLVariants();
+  public SQLVariants sqlVariants(Environment env) {
+    return new Db2SQLVariants(property(env, "timezone"));
   }
 
   /**
    * SQL variants optimized for DB2.
    */
   public static class Db2SQLVariants implements SQLVariants {
+
+    private final ZoneId dbTimeZoneId;
+
+    public Db2SQLVariants(String dbTimeZoneIdStr) {
+      dbTimeZoneId = ZoneId.of(dbTimeZoneIdStr);
+    }
 
     /**
      * Returns SQL representing the current database time plus given amount of seconds.
@@ -142,14 +148,14 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public Object getTimestamp(ResultSet rs, String columnName) throws SQLException {
       return Optional.ofNullable(rs.getTimestamp(columnName))
-          .map(ts -> new Timestamp(ts.getTime() + timeZoneOffsetInMillis()))
+          .map(ts -> new Timestamp(ts.getTime() + timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
     @Override
     public DateTime getDateTime(ResultSet rs, String columnName) throws SQLException {
       return Optional.ofNullable(rs.getTimestamp(columnName))
-          .map(ts -> new DateTime(ts.getTime() + timeZoneOffsetInMillis()))
+          .map(ts -> new DateTime(ts.getTime() + timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
@@ -160,16 +166,19 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
     @Override
     public Object toTimestampObject(DateTime timestamp) {
-      return timestamp == null ? null : new Timestamp(timestamp.getMillis() - timeZoneOffsetInMillis());
+      return Optional.ofNullable(timestamp)
+          .map(ts -> new Timestamp(timestamp.getMillis() - timeZoneMismatchInMillis()))
+          .orElse(null);
     }
 
     @Override
     public Object tuneTimestampForDb(Object timestamp) {
-      return new Timestamp(((Timestamp)timestamp).getTime() - timeZoneOffsetInMillis());
+      return new Timestamp(((Timestamp)timestamp).getTime() - timeZoneMismatchInMillis());
     }
 
-    private long timeZoneOffsetInMillis() {
-      return MILLISECONDS.convert(OffsetDateTime.now().getOffset().getTotalSeconds(), SECONDS);
+    private long timeZoneMismatchInMillis() {
+      long now = System.currentTimeMillis();
+      return TimeZone.getDefault().getOffset(now) - TimeZone.getTimeZone(dbTimeZoneId).getOffset(now);
     }
   }
 }
