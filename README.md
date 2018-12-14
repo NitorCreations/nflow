@@ -15,7 +15,7 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 * High availability &mdash; the same workflows can be processed by multiple deployments
 * Fault tolerant &mdash; automatic recovery if runtime environment crashes
 * Atomic state updates &mdash; uses and requires a relational database for atomic state updates and locking
-* Multiple databases supported &mdash; PostgreSQL, MySQL, Oracle, Microsoft SQL Server, H2
+* Multiple databases supported &mdash; PostgreSQL, MySQL, Oracle, Microsoft SQL Server, DB2, H2
 * Open Source under EUPL
 
 # <a name="getting-started"></a>Getting Started
