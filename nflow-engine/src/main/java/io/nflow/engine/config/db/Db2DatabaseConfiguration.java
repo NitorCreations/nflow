@@ -27,7 +27,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 
 /**
  * Configuration for DB2 database. Note: tested only using DB2 Express-C (Docker: ibmcom/db2express-c).
- * DB2 database must be configured to UTC time zone, otherwise nFlow will fail to function correctly.
  */
 @Profile(DB2)
 @Configuration
