@@ -58,24 +58,24 @@ public abstract class DatabaseConfiguration {
     logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
     config.setPoolName("nflow");
-    config.setDataSourceClassName(property(env, "driver"));
-    config.addDataSourceProperty("url", url);
+    config.setDriverClassName(property(env, "driver"));
+    config.setJdbcUrl(url);
     config.setUsername(property(env, "user"));
     config.setPassword(property(env, "password"));
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
     config.setIdleTimeout(property(env, "idle_timeout_seconds", Long.class) * 1000);
     config.setAutoCommit(true);
     setMetricRegistryIfBeanFoundOnClassPath(config, appCtx);
-    return new HikariDataSource(config);
+    DataSource nflowDataSource = new HikariDataSource(config);
+    checkDatabaseConfiguration(env, nflowDataSource);
+    return nflowDataSource;
   }
 
   private void setMetricRegistryIfBeanFoundOnClassPath(HikariConfig config, BeanFactory appCtx) {
     try {
       Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
       Object metricRegistry = appCtx.getBean(metricClass);
-      if (metricRegistry != null) {
-        config.setMetricRegistry(metricRegistry);
-      }
+      config.setMetricRegistry(metricRegistry);
     } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
       // ignored - metrics is an optional dependency
     }
@@ -161,4 +161,12 @@ public abstract class DatabaseConfiguration {
     return new DatabaseInitializer(dbType, dataSource, env);
   }
 
+  /**
+   * Checks that the database is configured as nFlow expects.
+   * @param env The Spring environment.
+   * @param dataSource The nFlow datasource.
+   */
+  protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
+    // no common checks for all databases
+  }
 }

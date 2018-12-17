@@ -7,4 +7,5 @@ target
 .idea
 *.iml
 **/.DS_Store
-
+db2jcc4.jar
+ojdbc7.jar

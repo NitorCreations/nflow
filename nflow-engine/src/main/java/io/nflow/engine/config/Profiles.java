@@ -6,6 +6,11 @@ package io.nflow.engine.config;
 public abstract class Profiles {
 
   /**
+   * Profile to enable DB2 database.
+   */
+  public static final String DB2 = "nflow.db.db2";
+
+  /**
    * Profile to enable H2 database.
    */
   public static final String H2 = "nflow.db.h2";

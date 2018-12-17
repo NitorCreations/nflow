@@ -1,6 +1,11 @@
-## 5.2.1 (yyyy-MM-dd)
+## 5.3.0 (yyyy-MM-dd)
 
 **Highlights**
+- Add experimental DB2 support
+
+**Breaking changes**
+- nFlow `Datasource` uses now underlying database specific `Driver`s instead of `DataSource`s.
+  Make a corresponding change, if you have customized `nflow.db.*.driver` parameters.
 
 **Details**
 - Upgraded Spring to version 5.1.3.RELEASE

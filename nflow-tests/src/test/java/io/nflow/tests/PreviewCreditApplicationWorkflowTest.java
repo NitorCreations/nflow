@@ -16,6 +16,7 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.joda.time.DateTime;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -42,6 +43,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
 
   private static CreateWorkflowInstanceRequest req;
   private static CreateWorkflowInstanceResponse resp;
+  private static DateTime wfModifiedAtAcceptCreditApplication;
 
   @Test
   public void t01_createCreditApplicationWorkflow() {
@@ -62,6 +64,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     do {
       response = getWorkflowInstance(resp.id, "acceptCreditApplication");
     } while (response.nextActivation != null);
+    wfModifiedAtAcceptCreditApplication = response.modified;
     assertTrue(response.stateVariables.containsKey("info"));
   }
 
@@ -81,6 +84,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     do {
       response = getWorkflowInstance(resp.id, "done");
     } while (response.nextActivation != null);
+    assertTrue("nflow_workflow.modified should be updated", response.modified.isAfter(wfModifiedAtAcceptCreditApplication));
   }
 
   @Test

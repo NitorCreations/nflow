@@ -190,7 +190,7 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
      * Returns SQL for a query with a limit of results.
      */
     @Override
-    public String limit(String query, String limit) {
+    public String limit(String query, long limit) {
       int idx = query.indexOf("select ");
       return query.substring(0, idx + 7) + "top(" + limit + ") " + query.substring(idx + 7);
     }
