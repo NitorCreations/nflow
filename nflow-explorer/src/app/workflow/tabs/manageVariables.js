@@ -21,7 +21,7 @@
     };
   });
 
-  m.controller('WorkflowManageVariablesCtrl', function($state, WorkflowService) {
+  m.controller('WorkflowManageVariablesCtrl', function($state, WorkflowService, toastr) {
     var model = {};
     var self = this;
     self.model = model;
@@ -32,14 +32,21 @@
       var request = {};
       if (model.variableName && model.variableValue) {
         request.stateVariables = {};
-        request.stateVariables[model.variableName] = model.variableValue; 
+        request.stateVariables[model.variableName] = model.variableValue;
       }
       if (model.actionDescription) {
         request.actionDescription = model.actionDescription;
       }
-      WorkflowService.update(self.workflow.id, request).then(refresh);
+      WorkflowService.update(self.workflow.id, request).then(updateSuccess, updateFailed);
     }
 
-    function refresh() { $state.reload(); }
+    function updateSuccess() {
+      toastr.success('Workflow instance variables updated');
+      $state.reload();
+    }
+
+    function updateFailed() {
+      toastr.error('Workflow instance variables update failed');
+    }
   });
 })();

@@ -21,7 +21,7 @@
     };
   });
 
-  m.controller('WorkflowManageStateCtrl', function($state, WorkflowService, WorkflowGraphApi, $scope) {
+  m.controller('WorkflowManageStateCtrl', function($state, WorkflowService, WorkflowGraphApi, $scope, toastr) {
     var model = {};
     model.timeUnits = ['minutes', 'hours', 'days'];
     model.timeUnit = model.timeUnits[0];
@@ -77,9 +77,16 @@
         request.actionDescription = model.actionDescription;
       }
 
-      WorkflowService.update(self.workflow.id, request).then(refresh);
+      WorkflowService.update(self.workflow.id, request).then(updatedSuccess, updateFailed);
     }
 
-    function refresh() { $state.reload(); }
+    function updatedSuccess() {
+      toastr.success('Workflow instance state updated');
+      $state.reload();
+    }
+
+    function updateFailed() {
+      toastr.error('Workflow instance state update failed');
+    }
   });
 })();

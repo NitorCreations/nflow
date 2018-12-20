@@ -21,7 +21,7 @@
     };
   });
 
-  m.controller('WorkflowManageSignalCtrl', function($state, WorkflowService) {
+  m.controller('WorkflowManageSignalCtrl', function($state, WorkflowService, toastr) {
     var model = {};
     var self = this;
     self.model = model;
@@ -32,9 +32,16 @@
         signal: model.signal.value,
         reason: model.signalReason
       };
-      WorkflowService.signal(self.workflow.id, request).then(refresh);
+      WorkflowService.signal(self.workflow.id, request).then(updatedSuccess, updateFailed);
     }
 
-    function refresh() { $state.reload(); }
+    function updatedSuccess() {
+      toastr.success('Workflow instance signal updated');
+      $state.reload();
+    }
+
+    function updateFailed() {
+      toastr.error('Workflow instance signal update failed');
+    }
   });
 })();
