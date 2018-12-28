@@ -727,7 +727,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int parentWorkflowId = dao.insertWorkflowInstance(i1);
     assertThat(parentWorkflowId, not(equalTo(-1)));
 
-    int parentActionId = addWorkflowAction(parentWorkflowId, i1, started);
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1, started, started.plusMillis(100));
     WorkflowInstance createdInstance = dao.getWorkflowInstance(parentWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class),
         null);
     checkSameWorkflowInfo(i1, createdInstance);
@@ -758,7 +758,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     assertThat(createdWorkflow.nextActivation, equalTo(scheduled));
 
-    int parentActionId = addWorkflowAction(parentWorkflowId, i1, now);
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1, now, now.plusMillis(100));
     assertThat(parentActionId, not(equalTo(-1)));
 
     int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
@@ -783,7 +783,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     assertThat(createdWorkflow.nextActivation, equalTo(scheduled));
 
-    int parentActionId = addWorkflowAction(parentWorkflowId, i1, now);
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1, now, now.plusMillis(100));
     assertThat(parentActionId, not(equalTo(-1)));
 
     int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
@@ -808,7 +808,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     assertThat(createdWorkflow.nextActivation, equalTo(scheduled));
 
-    int parentActionId = addWorkflowAction(parentWorkflowId, i1, now);
+    int parentActionId = addWorkflowAction(parentWorkflowId, i1, now, now.plusMillis(100));
     assertThat(parentActionId, not(equalTo(-1)));
 
     int subWorkflowId = addSubWorkflow(parentWorkflowId, parentActionId);
@@ -903,6 +903,22 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getSignal(instanceId), is(Optional.empty()));
   }
 
+  @Test
+  public void deleteExpiredWorkflowHistory() {
+    WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
+    int workflowId = dao.insertWorkflowInstance(i1);
+    addWorkflowAction(workflowId, new WorkflowInstance.Builder(i1).putStateVariable("deletedVariable", "deletedValue").build(), now(), now());
+    addWorkflowAction(workflowId, new WorkflowInstance.Builder(i1).putStateVariable("preservedVariable", "preservedValue").build(), now(), now().plusDays(1));
+
+    assertThat(dao.deleteWorkflowInstanceHistory(workflowId, 0), equalTo(1));
+
+    i1 = dao.getWorkflowInstance(workflowId, EnumSet.allOf(WorkflowInstanceInclude.class), null);
+    assertThat(i1.getStateVariable("requestData"), equalTo("{ \"parameter\": \"abc\" }"));
+    assertThat(i1.getStateVariable("deletedVariable"), is(nullValue()));
+    assertThat(i1.getStateVariable("preservedVariable"), equalTo("preservedValue"));
+    assertThat(i1.actions.size(), equalTo(1));
+  }
+
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
     assertThat(i1.type, equalTo(i2.type));
     assertThat(i1.executorId, equalTo(i2.executorId));
@@ -924,9 +940,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i1.started, equalTo(i2.started));
   }
 
-  private int addWorkflowAction(int workflowId, final WorkflowInstance instance, DateTime started) {
+  private int addWorkflowAction(int workflowId, final WorkflowInstance instance, DateTime started, DateTime ended) {
     final WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
-        .setExecutionEnd(started.plusMillis(100)).setRetryNo(1).setType(stateExecution).setState("test")
+        .setExecutionEnd(ended).setRetryNo(1).setType(stateExecution).setState("test")
         .setStateText("state text")
         .setWorkflowInstanceId(workflowId).build();
     int actionId = transaction.execute(new TransactionCallback<Integer>() {

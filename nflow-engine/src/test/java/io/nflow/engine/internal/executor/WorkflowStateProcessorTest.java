@@ -85,6 +85,7 @@ import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.TestWorkflow;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -852,6 +853,36 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
   }
 
+  @Test
+  public void cleanupWorkflowInstanceHistoryNotExecutedBasedOnTime() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    setCurrentMillisFixed((currentTimeMillis() / 10) * 10 + 1);
+    executor.run();
+
+    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+  }
+
+  @Test
+  public void cleanupWorkflowInstanceHistoryNotExecutedBasedOnSettings() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    setCurrentMillisFixed((currentTimeMillis() / 10) * 10);
+    executor.run();
+
+    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+  }
+
+  @Test
+  public void cleanupWorkflowInstanceHistoryExecutedOnEvenTenMilliseconds() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    setCurrentMillisFixed((currentTimeMillis() / 10) * 10);
+    executor.run();
+
+    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfter);
+  }
+
   public static class Pojo {
     public String field;
     public boolean test;
@@ -863,7 +894,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       WorkflowDefinition<ExecuteTestWorkflow.State> {
 
     protected ExecuteTestWorkflow() {
-      super("test", State.start, State.error);
+      super("test", State.start, State.error, new WorkflowSettings.Builder().setHistoryDeletableAfter(86400000).build());
       permit(State.start, State.process, State.error);
       permit(State.process, State.done, State.error);
     }
