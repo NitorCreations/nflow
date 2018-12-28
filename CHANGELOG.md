@@ -9,6 +9,7 @@
 
 **Details**
 - Upgraded Spring to version 5.1.3.RELEASE
+- Workflow instance history (actions, states) cleanup as part of state processing, configurable through `WorkflowSettings`
 
 ## 5.2.0 (2018-11-20)
 
