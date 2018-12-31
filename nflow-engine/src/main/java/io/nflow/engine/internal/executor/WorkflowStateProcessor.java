@@ -301,9 +301,9 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings) {
-    if (settings.historyDeletableAfter != null && roughlyEveryTenthTime()) {
-      logger.debug("Cleaning workflow history older than {} milliseconds", settings.historyDeletableAfter);
-      workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfter);
+    if (settings.historyDeletableAfterHours != null && roughlyEveryTenthTime()) {
+      logger.debug("Cleaning workflow history older than {} hours", settings.historyDeletableAfterHours);
+      workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
     }
   }
 

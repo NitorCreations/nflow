@@ -880,7 +880,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     setCurrentMillisFixed((currentTimeMillis() / 10) * 10);
     executor.run();
 
-    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfter);
+    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfterHours);
   }
 
   public static class Pojo {
@@ -894,7 +894,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       WorkflowDefinition<ExecuteTestWorkflow.State> {
 
     protected ExecuteTestWorkflow() {
-      super("test", State.start, State.error, new WorkflowSettings.Builder().setHistoryDeletableAfter(86400000).build());
+      super("test", State.start, State.error, new WorkflowSettings.Builder().setHistoryDeletableAfterHours(1).build());
       permit(State.start, State.process, State.error);
       permit(State.process, State.done, State.error);
     }

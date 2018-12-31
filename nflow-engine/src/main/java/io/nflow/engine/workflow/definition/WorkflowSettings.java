@@ -51,9 +51,9 @@ public class WorkflowSettings extends ModelObject {
   public final Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState;
   /**
    * Delay after which workflow instance history (actions, states) can be deleted from database by nFlow.
-   * Unit is milliseconds.
+   * Unit is hours.
    */
-  public final Integer historyDeletableAfter;
+  public final Integer historyDeletableAfterHours;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -63,7 +63,7 @@ public class WorkflowSettings extends ModelObject {
     this.maxRetries = builder.maxRetries;
     this.maxSubsequentStateExecutions = builder.maxSubsequentStateExecutions;
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
-    this.historyDeletableAfter = builder.historyDeletableAfter;
+    this.historyDeletableAfterHours = builder.historyDeletableAfterHours;
   }
 
   /**
@@ -78,7 +78,7 @@ public class WorkflowSettings extends ModelObject {
     int maxRetries = 17;
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
-    Integer historyDeletableAfter;
+    Integer historyDeletableAfterHours;
 
     /**
      * Set the maximum delay on execution retry after an error.
@@ -170,12 +170,12 @@ public class WorkflowSettings extends ModelObject {
      * Set the delay after which workflow history (actions, states) can be deleted from the database by nFlow.
      * The default value (<code>null</code>) indicates that history is not deletable.
      *
-     * @param historyDeletableAfter
-     *          Delay in milliseconds.
+     * @param historyDeletableAfterHours
+     *          Delay in hours.
      * @return this.
      */
-    public Builder setHistoryDeletableAfter(Integer historyDeletableAfter) {
-      this.historyDeletableAfter = historyDeletableAfter;
+    public Builder setHistoryDeletableAfterHours(Integer historyDeletableAfterHours) {
+      this.historyDeletableAfterHours = historyDeletableAfterHours;
       return this;
     }
 
