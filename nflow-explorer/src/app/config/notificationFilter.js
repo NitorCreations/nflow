@@ -6,22 +6,18 @@
     return {
       responseError: function(rejection) {
         var toastr = $injector.get('toastr');
+        var toastrConfig = {
+          timeOut: 0
+        };
         if (rejection.status === -1) {
-          toastr.error('Check network connection and CORS settings', 'REST API request aborted by browser', {
-            timeOut: 0
-          });
+          toastr.error('Check network connection, CORS settings and ensure that nFlow REST API is running',
+              'REST API request aborted by browser', toastrConfig);
         } else if (rejection.status === 401 || rejection.status === 403) {
-          toastr.error('Authentication failed', {
-            timeOut: 0
-          });
+          toastr.error('Authentication failed', toastrConfig);
         } else if (rejection.status === 404) {
-          toastr.error('Check that your URL is valid', 'Page not found', {
-            timeOut: 0
-          });
+          toastr.error('Check that your URL is valid', 'Page not found', toastrConfig);
         } else if (rejection.status >= 500) {
-          toastr.error('Internal server error', {
-            timeOut: 0
-          });
+          toastr.error('Internal server error', toastrConfig);
         }
         return $q.reject(rejection);
       }
