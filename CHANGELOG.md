@@ -8,6 +8,7 @@
   Make a corresponding change, if you have customized `nflow.db.*.driver` parameters.
 
 **Details**
+- Popup notifications from workflow instance updates, network and authentication issues in Explorer
 - Upgraded Spring to version 5.1.3.RELEASE
 
 ## 5.2.0 (2018-11-20)

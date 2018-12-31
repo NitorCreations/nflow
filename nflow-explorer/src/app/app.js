@@ -22,12 +22,19 @@
     'ngTouch',
     'ui.bootstrap',
     'chart.js',
-    'AdalAngular'
+    'AdalAngular',
+    'toastr'
   ]);
 
   m.run(function (EndpointService, ExecutorService) {
     EndpointService.init();
     ExecutorService.start();
+  });
+
+  m.config(function (toastrConfig) {
+    angular.extend(toastrConfig, {
+      preventOpenDuplicates: true
+    });
   });
 
 })();
