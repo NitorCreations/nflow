@@ -24,6 +24,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -43,9 +44,11 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.IntStream;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -121,6 +124,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Mock
   StateExecutionImpl executionMock;
 
+  @Mock
+  Random rnd;
+
   @Captor
   ArgumentCaptor<WorkflowInstance> update;
 
@@ -176,6 +182,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     filterChain(listener1);
     filterChain(listener2);
     when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
+    when(rnd.nextInt(anyInt())).thenReturn(0);
+    executor.setRandom(rnd);
   }
 
   @After
@@ -854,30 +862,29 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void cleanupWorkflowInstanceHistoryNotExecutedBasedOnTime() {
+  public void cleanupWorkflowInstanceHistoryNotExecutedRoughlyNineTimesOfTen() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    setCurrentMillisFixed((currentTimeMillis() / 10) * 10 + 1);
-    executor.run();
-
-    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+    IntStream.range(1, 10).forEach(i -> {
+      when(rnd.nextInt(anyInt())).thenReturn(i);
+      executor.run();
+      verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+    });
   }
 
   @Test
   public void cleanupWorkflowInstanceHistoryNotExecutedBasedOnSettings() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    setCurrentMillisFixed((currentTimeMillis() / 10) * 10);
     executor.run();
 
     verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
   }
 
   @Test
-  public void cleanupWorkflowInstanceHistoryExecutedOnEvenTenMilliseconds() {
+  public void cleanupWorkflowInstanceHistoryExecutedRoughlyOneTimeofTen() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    setCurrentMillisFixed((currentTimeMillis() / 10) * 10);
     executor.run();
 
     verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfterHours);
