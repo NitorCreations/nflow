@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.junit.Assert.assertThat;
 
@@ -34,6 +35,7 @@ public class WorkflowSettingsTest {
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));
+    assertThat(s.historyDeletableAfterHours, is(nullValue()));
   }
 
   @Test

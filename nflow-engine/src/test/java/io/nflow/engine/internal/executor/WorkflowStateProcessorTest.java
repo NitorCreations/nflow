@@ -24,6 +24,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -43,9 +44,11 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.IntStream;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -85,6 +88,7 @@ import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.TestWorkflow;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -119,6 +123,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Mock
   StateExecutionImpl executionMock;
+
+  @Mock
+  Random rnd;
 
   @Captor
   ArgumentCaptor<WorkflowInstance> update;
@@ -175,6 +182,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     filterChain(listener1);
     filterChain(listener2);
     when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
+    when(rnd.nextInt(anyInt())).thenReturn(0);
+    executor.setRandom(rnd);
   }
 
   @After
@@ -852,6 +861,35 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
   }
 
+  @Test
+  public void cleanupWorkflowInstanceHistoryNotExecutedRoughlyNineTimesOfTen() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    IntStream.range(1, 10).forEach(i -> {
+      when(rnd.nextInt(anyInt())).thenReturn(i);
+      executor.run();
+      verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+    });
+  }
+
+  @Test
+  public void cleanupWorkflowInstanceHistoryNotExecutedBasedOnSettings() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    executor.run();
+
+    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+  }
+
+  @Test
+  public void cleanupWorkflowInstanceHistoryExecutedRoughlyOneTimeofTen() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    executor.run();
+
+    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfterHours);
+  }
+
   public static class Pojo {
     public String field;
     public boolean test;
@@ -863,7 +901,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       WorkflowDefinition<ExecuteTestWorkflow.State> {
 
     protected ExecuteTestWorkflow() {
-      super("test", State.start, State.error);
+      super("test", State.start, State.error, new WorkflowSettings.Builder().setHistoryDeletableAfterHours(1).build());
       permit(State.start, State.process, State.error);
       permit(State.process, State.done, State.error);
     }

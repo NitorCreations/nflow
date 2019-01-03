@@ -872,4 +872,20 @@ public class WorkflowInstanceDao {
     return jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, workflowInstanceId);
   }
 
+  @Transactional
+  public int deleteWorkflowInstanceHistory(Integer workflowInstanceId, Integer historyDeletableAfterHours) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("workflowId", workflowInstanceId);
+    params.addValue("deleteUpToTime", sqlVariants.toTimestampObject(now().minusHours(historyDeletableAfterHours)));
+    Integer maxActionId = namedJdbc.queryForObject(
+        "select max(id) from nflow_workflow_action where workflow_id = :workflowId and " +
+        sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Integer.class);
+    int deletedActions = 0;
+    if (maxActionId != null) {
+      params.addValue("maxActionId", maxActionId);
+      namedJdbc.update("delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId", params);
+      deletedActions = namedJdbc.update("delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId", params);
+    }
+    return deletedActions;
+  }
 }
