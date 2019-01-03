@@ -1,4 +1,10 @@
-## 5.3.0 (yyyy-MM-dd)
+## 5.3.1 (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.3.0 (2019-01-03)
 
 **Highlights**
 - Add experimental DB2 support
