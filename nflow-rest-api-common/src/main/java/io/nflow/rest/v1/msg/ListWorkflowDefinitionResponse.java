@@ -38,6 +38,9 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
     @ApiModelProperty(value = "Maximum retries for a state before moving to failure", required = true)
     public int maxRetries;
 
+    @ApiModelProperty(value = "Delay after which workflow instance history (actions, states) can be deleted from database", required = false)
+    public Integer historyDeletableAfterHours;
+
   }
 
   public static class TransitionDelays extends ModelObject {

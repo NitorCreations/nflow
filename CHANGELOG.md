@@ -1,8 +1,8 @@
 ## 5.3.1 (future release)
 
-**Highlights**
-
 **Details**
+- Expose workflow instance history cleanup delay in REST API and show it in Explorer (workflow definition -> settings)
+- Preserve actions that are parent actions for child workflows in workflow history cleanup (otherwise cascade foreign key deletes also the children)
 
 ## 5.3.0 (2019-01-03)
 

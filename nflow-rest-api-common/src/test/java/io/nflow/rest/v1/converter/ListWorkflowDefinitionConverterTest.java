@@ -54,6 +54,7 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat((int)resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
     assertThat((int)resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));
     assertThat(resp.settings.maxRetries, is(def.getSettings().maxRetries));
+    assertThat(resp.settings.historyDeletableAfterHours, is(def.getSettings().historyDeletableAfterHours));
   }
 
   private State getResponseState(DummyTestWorkflow.State workflowState, List<String> nextStateNames, String errorStateName) {
