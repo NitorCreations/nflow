@@ -103,3 +103,11 @@ prompt_continue "push JavaDoc and REST API documentation ($RELEASE_VERSION) in g
 git push
 git checkout master
 
+prompt_continue "prepare CHANGELOG.md for $SNAPSHOT_VERSION"
+
+CURRENT_DATE=$(date +%F)
+sed -i "1s/.*/## $RELEASE_VERSION ($CURRENT_DATE)/" CHANGELOG.md
+sed -i "1s/^/## $SNAPSHOT_VERSION (future release)\n\n**Highlights**\n\n**Details**\n\n/" CHANGELOG.md
+
+git commit -am "prepare changelog for $SNAPSHOT_VERSION"
+git push
