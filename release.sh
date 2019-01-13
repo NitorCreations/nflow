@@ -56,7 +56,7 @@ prompt_continue "set version $RELEASE_VERSION to local git repository"
 
 mvn versions:set -DnewVersion=$RELEASE_VERSION
 sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" README.md
-git commit -am "release $RELEASE_VERSION"
+git commit -am "release $RELEASE_VERSION [ci skip]"
 
 prompt_continue "push version $RELEASE_VERSION to remote git repository"
 
@@ -74,7 +74,7 @@ git push --tags
 prompt_continue "set version $SNAPSHOT_VERSION to local git repository"
 
 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
-git commit -am "prepare for release $SNAPSHOT_VERSION"
+git commit -am "prepare for release $SNAPSHOT_VERSION [ci skip]"
 
 prompt_continue "push version $SNAPSHOT_VERSION to remote git repository"
 

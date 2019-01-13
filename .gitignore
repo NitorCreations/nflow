@@ -1,6 +1,7 @@
 **/.*~
 *~
 .classpath
+.github_api_token
 .project
 /*/*log
 target
