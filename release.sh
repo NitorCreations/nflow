@@ -24,6 +24,7 @@ fi
 if [[ $# -lt 3 ]]; then
   echo "Usage: `basename $0` <previous_release_version_number> <new_release_version_number> <next_snapshot_version_number> [<gpg_passphrase>]"
   echo "Example: `basename $0` 2.0.0 2.1.0 2.1.1 mypassphrase"
+  echo "For automated Github API release: place Github API token with repos-authorization to .github_api_token file"
   exit 1
 fi
 
@@ -111,3 +112,25 @@ sed -i "1s/^/## $SNAPSHOT_VERSION (future release)\n\n**Highlights**\n\n**Detail
 
 git commit -am "prepare changelog for $SNAPSHOT_VERSION"
 git push
+
+if [[ -e .github_api_token ]]; then
+  prompt_continue "Creating Github API release for $RELEASE_VERSION"
+  RELEASE_DESC_START=$(grep -n "## $RELEASE_VERSION" CHANGELOG.md | cut -f1 -d:)
+  RELEASE_DESC_END=$(grep -n "## $PREVIOUS_VERSION" CHANGELOG.md | cut -f1 -d:)
+  RELEASE_DESC=$(cat CHANGELOG.md | awk -v desc_start="$RELEASE_DESC_START" -v desc_end="$RELEASE_DESC_END" 'NR > desc_start+1 && NR < desc_end-1 {printf "%s\\n", $0}')
+  GITHUB_API_TOKEN=$(cat .github_api_token)
+  curl -v -X POST -H "Authorization: token $GITHUB_API_TOKEN" -H "Content-Type: application/json" https://api.github.com/repos/NitorCreations/nflow/releases \
+  --data @<(cat <<EOF
+  {
+    "tag_name": "$RELEASE_VERSION",
+    "target_commitish": "master",
+    "name": "v$RELEASE_VERSION",
+    "body": "$RELEASE_DESC",
+    "draft": false,
+    "prerelease": false
+  }
+EOF
+)
+else
+  echo "Github API token not found (.github_api_token -file), make Github release manually"
+fi
