@@ -1,4 +1,10 @@
-## 5.3.1 (future release)
+## 5.3.2-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.3.1 (2019-01-13)
 
 **Details**
 - Expose workflow instance history cleanup delay in REST API and show it in Explorer (workflow definition -> settings)
