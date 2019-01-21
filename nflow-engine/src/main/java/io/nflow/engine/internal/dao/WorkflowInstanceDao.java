@@ -13,6 +13,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -884,9 +885,12 @@ public class WorkflowInstanceDao {
     if (maxActionId != null) {
       params.addValue("maxActionId", maxActionId);
       namedJdbc.update("delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId", params);
+      List<Integer> referredActionIds = namedJdbc.queryForList(
+          "select parent_action_id from nflow_workflow where parent_workflow_id = :workflowId", params, Integer.class);
+      params.addValue("referredActionIds", referredActionIds.stream().map(String::valueOf).collect(joining(",")));
       deletedActions = namedJdbc.update(
-          "delete from nflow_workflow_action a where a.workflow_id = :workflowId and a.id <= :maxActionId and not exists " +
-          "(select 1 from nflow_workflow w where w.parent_workflow_id = a.workflow_id and w.parent_action_id = a.id)", params);
+          "delete from nflow_workflow_action a where a.workflow_id = :workflowId and a.id <= :maxActionId and a.id not in (:referredActionIds)",
+          params);
     }
     return deletedActions;
   }
