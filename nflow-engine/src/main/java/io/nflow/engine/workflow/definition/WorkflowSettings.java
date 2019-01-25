@@ -56,7 +56,10 @@ public class WorkflowSettings extends ModelObject {
    * Unit is hours.
    */
   public final Integer historyDeletableAfterHours;
-
+  /**
+   * Condition to check if workflow instance history should be deleted (unless forced via StateExecution). Ignored if historyDeletableAfterHours is not set.
+   * By default, returns true roughly every tenth time.
+   */
   public final BooleanSupplier deleteHistoryCondition;
 
   WorkflowSettings(Builder builder) {
@@ -89,7 +92,7 @@ public class WorkflowSettings extends ModelObject {
 
       @Override
       public boolean getAsBoolean() {
-        return historyDeletableAfterHours != null && roughlyEveryTenthTime();
+        return roughlyEveryTenthTime();
       }
 
       private boolean roughlyEveryTenthTime() {
@@ -271,9 +274,8 @@ public class WorkflowSettings extends ModelObject {
   }
 
   /**
-   * Return true if workflow instance history should be deleted. Called by WorkflowStateProcessor after processing a state. With
-   * default settings, returns false. If historyDeletableAfterHours is set, returns true roughly every tenth time. To fully
-   * control this, set deleteHistoryCondition.
+   * Return true if workflow instance history should be deleted. Called by WorkflowStateProcessor after processing a state if historyDeletableAfterHours is
+   * set. With default settings, returns true roughly every tenth time. To override, set deleteHistoryCondition.
    *
    * @return True if workflow instance history should be deleted.
    */

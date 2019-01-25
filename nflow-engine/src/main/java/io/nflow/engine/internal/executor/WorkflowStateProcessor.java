@@ -151,7 +151,7 @@ class WorkflowStateProcessor implements Runnable {
           processAfterFailureListeners(listenerContext, execution.getThrown());
         } else {
           processAfterListeners(listenerContext);
-          optionallyCleanupWorkflowInstanceHistory(definition.getSettings());
+          optionallyCleanupWorkflowInstanceHistory(definition.getSettings(), execution);
         }
         subsequentStateExecutions = busyLoopPrevention(state, settings, subsequentStateExecutions, execution);
         instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
@@ -300,8 +300,9 @@ class WorkflowStateProcessor implements Runnable {
     return new SkippedStateHandler(nextAction, instance, definition, execution, state).processState();
   }
 
-  private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings) {
-    if (settings.deleteWorkflowInstanceHistory()) {
+  private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings, StateExecutionImpl execution) {
+    if (settings.historyDeletableAfterHours != null
+        && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
       logger.debug("Cleaning workflow history older than {} hours", settings.historyDeletableAfterHours);
       workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
     }

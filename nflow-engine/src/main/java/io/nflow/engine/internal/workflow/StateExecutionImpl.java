@@ -43,6 +43,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private final List<WorkflowInstance> newWorkflows = new LinkedList<>();
   private boolean createAction = true;
   private String[] wakeUpParentStates;
+  private boolean historyCleaningForced = false;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
@@ -260,6 +261,15 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   @Override
   public Optional<Integer> getParentId() {
     return Optional.ofNullable(instance.parentWorkflowId);
+  }
+
+  @Override
+  public void setHistoryCleaningForced(boolean historyCleaningForced) {
+    this.historyCleaningForced = historyCleaningForced;
+  }
+
+  public boolean isHistoryCleaningForced() {
+    return historyCleaningForced;
   }
 
 }

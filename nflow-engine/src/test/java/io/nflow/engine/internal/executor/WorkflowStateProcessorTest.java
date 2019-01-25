@@ -139,6 +139,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<ExecuteTestWorkflow.State> executeWf = new ExecuteTestWorkflow();
 
+  WorkflowDefinition<ForceCleaningTestWorkflow.State> forceWf = new ForceCleaningTestWorkflow();
+
   WorkflowDefinition<SimpleTestWorkflow.State> simpleWf = new SimpleTestWorkflow();
 
   WorkflowDefinition<FailingTestWorkflow.State> failingWf = new FailingTestWorkflow();
@@ -170,6 +172,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
+    doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition("force-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
     doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition("failing-test");
     doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
@@ -854,12 +857,21 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void cleanupWorkflowInstanceHistoryNotExecutedBasedOnSettings() {
+  public void deleteWorkflowInstanceHistoryNotExecutedWithDefaultSettings() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     executor.run();
 
     verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+  }
+
+  @Test
+  public void deleteWorkflowInstanceHistoryExecutedWhenForced() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("force-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    executor.run();
+
+    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, forceWf.getSettings().historyDeletableAfterHours);
   }
 
   @Test
@@ -1004,6 +1016,39 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
+  public static class ForceCleaningTestWorkflow extends WorkflowDefinition<ForceCleaningTestWorkflow.State> {
+
+    protected ForceCleaningTestWorkflow() {
+      super("test", State.start, State.error, new WorkflowSettings.Builder().setHistoryDeletableAfterHours(2).setDeleteHistoryCondition(() -> false).build());
+      permit(State.start, State.done, State.error);
+    }
+
+    public static enum State implements WorkflowState {
+      start(WorkflowStateType.start), done(WorkflowStateType.end), error(WorkflowStateType.manual);
+
+      private WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+
+      @Override
+      public String getDescription() {
+        return name();
+      }
+    }
+
+    public NextAction start(StateExecution execution) {
+      execution.setHistoryCleaningForced(true);
+      return moveToState(State.done, "Done.");
+    }
+
+  }
 
   public static class SimpleTestWorkflow extends WorkflowDefinition<SimpleTestWorkflow.State> {
 

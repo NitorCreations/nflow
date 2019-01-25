@@ -82,8 +82,8 @@ public class WorkflowSettingsTest {
   }
 
   @Test
-  public void deleteHistoryReturnsFalseRoughlyNineTimesOfTenWhenHistoryDeletableAfterHoursIsSet() {
-    WorkflowSettings.Builder b = new WorkflowSettings.Builder().setHistoryDeletableAfterHours(1);
+  public void deleteHistoryReturnsFalseRoughlyNineTimesOfTenByDefault() {
+    WorkflowSettings.Builder b = new WorkflowSettings.Builder();
     b.rnd = mock(Random.class);
     WorkflowSettings s = b.build();
 
@@ -94,13 +94,6 @@ public class WorkflowSettingsTest {
       when(b.rnd.nextInt(anyInt())).thenReturn(i);
       assertThat(s.deleteHistoryCondition.getAsBoolean(), is(false));
     });
-  }
-
-  @Test
-  public void deleteHistoryReturnFalseWithDefaultSettings() {
-    WorkflowSettings s = new WorkflowSettings.Builder().build();
-
-    assertThat(s.deleteHistoryCondition.getAsBoolean(), is(false));
   }
 
   @Test

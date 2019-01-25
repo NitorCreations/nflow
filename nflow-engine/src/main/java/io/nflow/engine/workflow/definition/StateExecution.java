@@ -140,12 +140,20 @@ public interface StateExecution {
   WorkflowInstance.Builder workflowInstanceBuilder();
 
   /**
-   * Control if action is created when workflow instance is update to the database after state processing. By default the action
+   * Control if action is created when workflow instance is updated to the database after state processing. By default the action
    * is created. Additionally, the action is always created when new workflows or child workflows are created or when the state
    * variables are updated, regardless of this setting.
    * @param createAction Whether action should be created or not.
    */
   void setCreateAction(boolean createAction);
+
+  /**
+   * Set to true to force workflow instance history cleaning when workflow instance is updated to the database after state processing. By default (or if set to
+   * false) the cleaning is done according to workflow definition settings. Cleaning also requires WorkflowSettings.setHistoryDeletableAfterHours to be set.
+   *
+   * @param historyCleaningForced Whether history cleaning should be forced or not.
+   */
+  void setHistoryCleaningForced(boolean historyCleaningForced);
 
   /**
    * Return the signal value from database if it has been set, otherwise return empty.
