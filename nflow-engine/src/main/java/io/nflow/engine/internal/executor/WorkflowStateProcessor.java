@@ -22,7 +22,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -75,7 +74,6 @@ class WorkflowStateProcessor implements Runnable {
   private final Map<Integer, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
   private Thread thread;
-  private Random rnd = new Random();
 
   WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
@@ -303,14 +301,10 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings) {
-    if (settings.historyDeletableAfterHours != null && roughlyEveryTenthTime()) {
+    if (settings.deleteWorkflowInstanceHistory()) {
       logger.debug("Cleaning workflow history older than {} hours", settings.historyDeletableAfterHours);
       workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
     }
-  }
-
-  private boolean roughlyEveryTenthTime() {
-    return rnd.nextInt(10) == 0;
   }
 
   static class ExecutorListenerChain implements ListenerChain {
@@ -558,7 +552,4 @@ class WorkflowStateProcessor implements Runnable {
     return sb;
   }
 
-  void setRandom(Random rnd) {
-    this.rnd = rnd;
-  }
 }

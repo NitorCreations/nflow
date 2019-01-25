@@ -7,6 +7,12 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Random;
+import java.util.stream.IntStream;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -74,4 +80,34 @@ public class WorkflowSettingsTest {
     WorkflowSettings s = new WorkflowSettings.Builder().setMaxSubsequentStateExecutions(executionsDefault).build();
     assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.State.begin), is(equalTo(executionsDefault)));
   }
+
+  @Test
+  public void deleteHistoryReturnsFalseRoughlyNineTimesOfTenWhenHistoryDeletableAfterHoursIsSet() {
+    WorkflowSettings.Builder b = new WorkflowSettings.Builder().setHistoryDeletableAfterHours(1);
+    b.rnd = mock(Random.class);
+    WorkflowSettings s = b.build();
+
+    when(b.rnd.nextInt(anyInt())).thenReturn(0);
+    assertThat(s.deleteHistoryCondition.getAsBoolean(), is(true));
+
+    IntStream.range(1, 10).forEach(i -> {
+      when(b.rnd.nextInt(anyInt())).thenReturn(i);
+      assertThat(s.deleteHistoryCondition.getAsBoolean(), is(false));
+    });
+  }
+
+  @Test
+  public void deleteHistoryReturnFalseWithDefaultSettings() {
+    WorkflowSettings s = new WorkflowSettings.Builder().build();
+
+    assertThat(s.deleteHistoryCondition.getAsBoolean(), is(false));
+  }
+
+  @Test
+  public void deleteHistoryConditionIsApplied() {
+    WorkflowSettings s = new WorkflowSettings.Builder().setDeleteHistoryCondition(() -> true).build();
+
+    assertThat(s.deleteHistoryCondition.getAsBoolean(), is(true));
+  }
+
 }
