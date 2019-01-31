@@ -78,8 +78,8 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
-    return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables").get(
-        ListWorkflowInstanceResponse.class);
+    return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables,childWorkflows")
+        .get(ListWorkflowInstanceResponse.class);
   }
 
   protected String setSignal(int instanceId, int signal, String reason) {

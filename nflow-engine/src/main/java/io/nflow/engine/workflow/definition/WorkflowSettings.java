@@ -10,6 +10,8 @@ import static org.joda.time.DateTime.now;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
 
@@ -54,6 +56,11 @@ public class WorkflowSettings extends ModelObject {
    * Unit is hours.
    */
   public final Integer historyDeletableAfterHours;
+  /**
+   * Condition to check if workflow instance history should be deleted (unless forced via StateExecution). Ignored if historyDeletableAfterHours is not set.
+   * By default, returns true roughly every tenth time.
+   */
+  public final BooleanSupplier deleteHistoryCondition;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -64,6 +71,7 @@ public class WorkflowSettings extends ModelObject {
     this.maxSubsequentStateExecutions = builder.maxSubsequentStateExecutions;
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
     this.historyDeletableAfterHours = builder.historyDeletableAfterHours;
+    this.deleteHistoryCondition = builder.deleteHistoryCondition;
   }
 
   /**
@@ -79,6 +87,19 @@ public class WorkflowSettings extends ModelObject {
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
     Integer historyDeletableAfterHours;
+    Random rnd = new Random();
+    BooleanSupplier deleteHistoryCondition = new BooleanSupplier() {
+
+      @Override
+      public boolean getAsBoolean() {
+        return roughlyEveryTenthTime();
+      }
+
+      private boolean roughlyEveryTenthTime() {
+        return rnd.nextInt(10) == 0;
+      }
+
+    };
 
     /**
      * Set the maximum delay on execution retry after an error.
@@ -180,6 +201,18 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
+     * Set the condition to be checked to decide if workflow instance history should be deleted.
+     *
+     * @param deleteHistoryCondition
+     *          Function to be called.
+     * @return this.
+     */
+    public Builder setDeleteHistoryCondition(BooleanSupplier deleteHistoryCondition) {
+      this.deleteHistoryCondition = deleteHistoryCondition;
+      return this;
+    }
+
+    /**
      * Create workflow settings object.
      *
      * @return Workflow settings.
@@ -238,6 +271,16 @@ public class WorkflowSettings extends ModelObject {
    */
   public int getMaxSubsequentStateExecutions(WorkflowState state) {
     return maxSubsequentStateExecutionsPerState.getOrDefault(state, maxSubsequentStateExecutions);
+  }
+
+  /**
+   * Return true if workflow instance history should be deleted. Called by WorkflowStateProcessor after processing a state if historyDeletableAfterHours is
+   * set. With default settings, returns true roughly every tenth time. To override, set deleteHistoryCondition.
+   *
+   * @return True if workflow instance history should be deleted.
+   */
+  public boolean deleteWorkflowInstanceHistory() {
+    return deleteHistoryCondition.getAsBoolean();
   }
 
 }
