@@ -3,6 +3,7 @@
 **Highlights**
 
 **Details**
+- Fix workflow history cleanup to work also with MySQL 5.7
 
 ## 5.3.1 (2019-01-13)
 
