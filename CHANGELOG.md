@@ -4,6 +4,7 @@
 
 **Details**
 - Fix workflow history cleanup to work also with MySQL 5.7
+- Upgraded Spring to version 5.1.4.RELEASE
 
 ## 5.3.1 (2019-01-13)
 
