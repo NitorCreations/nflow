@@ -304,11 +304,11 @@ class WorkflowStateProcessor implements Runnable {
     try {
       if (settings.historyDeletableAfterHours != null
           && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
-        logger.info("Cleaning workflow history older than {} hours", settings.historyDeletableAfterHours);
+        logger.info("Cleaning workflow instance {} history older than {} hours", instanceId, settings.historyDeletableAfterHours);
         workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
       }
     } catch (Throwable t) {
-      logger.error("Failure in workflow instance history cleanup", t);
+      logger.error("Failure in workflow instance " + instanceId + " history cleanup", t);
     }
   }
 
