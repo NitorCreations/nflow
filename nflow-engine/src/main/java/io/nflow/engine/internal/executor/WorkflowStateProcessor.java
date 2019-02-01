@@ -231,8 +231,8 @@ class WorkflowStateProcessor implements Runnable {
     this.stateSaveRetryEnabled = stateSaveRetryEnabled;
   }
 
-  private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance, WorkflowInstanceAction.Builder actionBuilder,
-      WorkflowInstance.Builder builder) {
+  private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
+      WorkflowInstanceAction.Builder actionBuilder, WorkflowInstance.Builder builder) {
     if (execution.isStateProcessInvoked()) {
       actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
       if (execution.isFailed()) {
@@ -301,10 +301,14 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings, StateExecutionImpl execution) {
-    if (settings.historyDeletableAfterHours != null
-        && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
-      logger.debug("Cleaning workflow history older than {} hours", settings.historyDeletableAfterHours);
-      workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
+    try {
+      if (settings.historyDeletableAfterHours != null
+          && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
+        logger.info("Cleaning workflow history older than {} hours", settings.historyDeletableAfterHours);
+        workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
+      }
+    } catch (Throwable t) {
+      logger.error("Failure in workflow instance history cleanup", t);
     }
   }
 
