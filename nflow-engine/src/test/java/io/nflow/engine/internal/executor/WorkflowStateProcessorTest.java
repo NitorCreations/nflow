@@ -141,6 +141,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<ForceCleaningTestWorkflow.State> forceWf = new ForceCleaningTestWorkflow();
 
+  WorkflowDefinition<FailCleaningTestWorkflow.State> failCleaningWf = new FailCleaningTestWorkflow();
+
   WorkflowDefinition<SimpleTestWorkflow.State> simpleWf = new SimpleTestWorkflow();
 
   WorkflowDefinition<FailingTestWorkflow.State> failingWf = new FailingTestWorkflow();
@@ -173,6 +175,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     setCurrentMillisFixed(currentTimeMillis());
     doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition("force-test");
+    doReturn(failCleaningWf).when(workflowDefinitions).getWorkflowDefinition("fail-cleaning-test");
     doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
     doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition("failing-test");
     doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
@@ -875,12 +878,22 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void cleanupWorkflowInstanceHistoryExecutedBasedOnSettings() {
+  public void deleteWorkflowInstanceHistoryExecutedBasedOnSettings() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     executor.run();
 
     verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfterHours);
+  }
+
+  @Test
+  public void handleDeleteWorkflowInstanceHistoryFailures() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("fail-cleaning-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    executor.run();
+
+    verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture(),
+        workflows.capture(), anyBoolean());
   }
 
   public static class Pojo {
@@ -1045,6 +1058,42 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(StateExecution execution) {
       execution.setHistoryCleaningForced(true);
+      return moveToState(State.done, "Done.");
+    }
+
+  }
+
+  public static class FailCleaningTestWorkflow extends WorkflowDefinition<FailCleaningTestWorkflow.State> {
+
+    protected FailCleaningTestWorkflow() {
+      super("test", State.start, State.error,
+          new WorkflowSettings.Builder().setHistoryDeletableAfterHours(0).setDeleteHistoryCondition(() -> {
+            throw new RuntimeException();
+          }).build());
+      permit(State.start, State.done, State.error);
+    }
+
+    public static enum State implements WorkflowState {
+      start(WorkflowStateType.start), done(WorkflowStateType.end), error(WorkflowStateType.manual);
+
+      private WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+
+      @Override
+      public String getDescription() {
+        return name();
+      }
+    }
+
+    public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.done, "Done.");
     }
 
