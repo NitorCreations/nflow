@@ -886,10 +886,15 @@ public class WorkflowInstanceDao {
       namedJdbc.update("delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId", params);
       List<Integer> referredActionIds = namedJdbc.queryForList(
           "select parent_action_id from nflow_workflow where parent_workflow_id = :workflowId", params, Integer.class);
-      params.addValue("referredActionIds", referredActionIds);
-      deletedActions = namedJdbc.update(
-          "delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId and id not in (:referredActionIds)",
-          params);
+      if (referredActionIds.isEmpty()) {
+        deletedActions = namedJdbc
+            .update("delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId", params);
+      } else {
+        params.addValue("referredActionIds", referredActionIds);
+        deletedActions = namedJdbc.update(
+            "delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId and id not in (:referredActionIds)",
+            params);
+      }
     }
     return deletedActions;
   }
