@@ -1,12 +1,9 @@
 ## 5.3.3-SNAPSHOT (future release)
 
-**Highlights**
-
 **Details**
+- Build using correct Java class version (was broken in 5.3.2)
 
 ## 5.3.2 (2019-02-04)
-
-**Highlights**
 
 **Details**
 - Fix workflow history cleanup to work also with MySQL 5.7
