@@ -13,7 +13,7 @@
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>io.nflow</groupId>
-    <version>5.3.3</version>
+    <version>5.3.4-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <properties>
