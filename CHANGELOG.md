@@ -1,4 +1,10 @@
-## 5.3.2-SNAPSHOT (future release)
+## 5.3.3-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.3.2 (2019-02-04)
 
 **Highlights**
 
