@@ -17,12 +17,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.springframework.util.ReflectionUtils.MethodFilter;
@@ -38,9 +33,20 @@ public class WorkflowDefinitionScanner {
 
   private static final Logger logger = getLogger(WorkflowDefinitionScanner.class);
 
-  private static final Set<Type> knownImmutableTypes = new LinkedHashSet<>();
-  {
-    knownImmutableTypes.addAll(asList(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class, BigDecimal.class, BigInteger.class, Enum.class));
+  private static final Set<Object> boxedPrimitiveTypes;
+  static {
+    Set<Object> set = new LinkedHashSet<>();
+    set.addAll(asList(Boolean.class, Byte.class, Integer.class, Long.class, Float.class, Double.class));
+    boxedPrimitiveTypes = Collections.unmodifiableSet(set);
+  }
+
+  private static final Set<Type> knownImmutableTypes;
+  static {
+    Set<Type> set = new LinkedHashSet<>();
+    set.addAll(asList(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class,
+            Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE,
+            Float.class, Double.TYPE, Double.class, String.class, BigDecimal.class, BigInteger.class, Enum.class));
+    knownImmutableTypes = Collections.unmodifiableSet(set);
   }
 
   public Map<String, WorkflowStateMethod> getStateMethods(Class<?> definition) {
@@ -88,7 +94,10 @@ public class WorkflowDefinitionScanner {
 
   @SuppressFBWarnings(value = "URV_UNRELATED_RETURN_VALUES", justification = "return values are unrelated")
   Object defaultValue(StateVar stateInfo, Class<?> clazz) {
-    if (clazz.isPrimitive()) {
+    if (clazz == char.class || clazz == Character.class) {
+      return Character.valueOf((char) 0);
+    }
+    if (clazz.isPrimitive() || boxedPrimitiveTypes.contains(clazz)) {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
     }
     if (stateInfo != null && stateInfo.instantiateIfNotExists()) {
