@@ -1,4 +1,10 @@
-## 5.3.3-SNAPSHOT (future release)
+## 5.3.4-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.3.3 (2019-02-04)
 
 **Details**
 - Build using correct Java class version (was broken in 5.3.2)
