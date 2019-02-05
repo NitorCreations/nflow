@@ -118,6 +118,18 @@ public class WorkflowDefinitionScannerTest {
   }
 
   @Test
+  public void instantiateWithShort() {
+    Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ShortObjectWorkflow.class);
+    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertNotNull(methods.get("end").params[0].nullValue);
+    assertThat(methods.get("end").params[0], stateParam("paramPrimitive", short.class, true, false));
+
+    StateParameter param = methods.get("end").params[1];
+    assertThat(param, stateParam("paramBoxed", Short.class, true, false));
+    assertEquals(Short.valueOf((short)0), param.nullValue);
+  }
+
+  @Test
   public void instantiateWithInteger() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(IntegerObjectWorkflow.class);
     assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
@@ -290,6 +302,16 @@ public class WorkflowDefinitionScannerTest {
     public NextAction end(StateExecution exec,
                           @StateVar(value = "paramPrimitive", instantiateIfNotExists = true) char paramPrimitive,
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Character paramBoxed) { return null; }
+  }
+
+  public static class ShortObjectWorkflow extends WorkflowDefinition<ScannerState> {
+    public ShortObjectWorkflow() {
+      super("instantiateNull", ScannerState.start, ScannerState.end);
+    }
+    public NextAction start(StateExecution exec) { return null; }
+    public NextAction end(StateExecution exec,
+                          @StateVar(value = "paramPrimitive", instantiateIfNotExists = true) short paramPrimitive,
+                          @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Short paramBoxed) { return null; }
   }
 
   public static class IntegerObjectWorkflow extends WorkflowDefinition<ScannerState> {

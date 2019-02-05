@@ -37,7 +37,7 @@ public class WorkflowDefinitionScanner {
   private static final Logger logger = getLogger(WorkflowDefinitionScanner.class);
 
   private static final Set<Class<?>> boxedPrimitiveTypes = Stream
-          .of(Boolean.class, Byte.class, Integer.class, Long.class, Float.class, Double.class)
+          .of(Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class)
           .collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));
 
   private static final Set<Type> knownImmutableTypes = Stream
