@@ -3,6 +3,7 @@
 **Highlights**
 
 **Details**
+- Support boxed primitives (Integer, Float etc) with @StateVar
 
 ## 5.3.3 (2019-02-04)
 
