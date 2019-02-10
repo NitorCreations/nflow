@@ -13,7 +13,7 @@
     "angular-touch": "1.7.3",
     "angular-ui-router": "1.0.20",
     "momentjs": "2.9.0",
-    "lodash": "4.17.10",
+    "lodash": "4.17.11",
     "dygraphs": "1.1.0",
     "dagre-d3": "0.6.1",
     "angular-chart.js": "1.1.1",

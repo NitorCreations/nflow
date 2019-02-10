@@ -4,6 +4,8 @@
 
 **Details**
 - Support boxed primitives (Integer, Float etc) with @StateVar
+- nFlow Explorer: Library updates to `lodash` 4.17.11 and `moment` 2.24.0
+  Earlier lodash versions had this security vulnerability: https://nvd.nist.gov/vuln/detail/CVE-2018-16487
 
 ## 5.3.3 (2019-02-04)
 
