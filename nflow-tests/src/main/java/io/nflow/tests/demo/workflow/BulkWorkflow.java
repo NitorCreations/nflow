@@ -47,9 +47,10 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
 
   public static final String BULK_WORKFLOW_TYPE = "bulk";
+  public static final String VAR_CHILD_DATA = "childData";
+  public static final String VAR_CONCURRENCY = "concurrency";
 
-  private final static EnumSet<WorkflowInstanceStatus> RUNNING_STATES = complementOf(EnumSet.of(finished, created));
-
+  private static final EnumSet<WorkflowInstanceStatus> RUNNING_STATES = complementOf(EnumSet.of(finished, created));
   private static final Logger logger = getLogger(BulkWorkflow.class);
 
   @Inject
@@ -86,7 +87,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
     this(BULK_WORKFLOW_TYPE);
   }
 
-  public NextAction splitWork(StateExecution execution, @StateVar(value = "requestData", readOnly = true) JsonNode data) {
+  public NextAction splitWork(StateExecution execution, @StateVar(value = VAR_CHILD_DATA, readOnly = true) JsonNode data) {
     boolean childrenFound = splitWorkImpl(execution, data);
     if (childrenFound) {
       return moveToState(waitForChildrenToFinish, "Running");
@@ -107,7 +108,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   }
 
   public NextAction waitForChildrenToFinish(StateExecution execution,
-      @StateVar(value = "concurrency", readOnly = true) int concurrency) {
+      @StateVar(value = VAR_CONCURRENCY, readOnly = true) int concurrency) {
     List<WorkflowInstance> childWorkflows = execution.getAllChildWorkflows();
     long running = childWorkflows.stream().filter(this::isRunning).count();
     long completed = childWorkflows.stream().filter(this::isFinished).count();

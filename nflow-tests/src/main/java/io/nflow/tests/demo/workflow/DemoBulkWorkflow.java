@@ -1,10 +1,10 @@
 package io.nflow.tests.demo.workflow;
 
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
-import static java.util.Collections.singletonMap;
+import static java.util.stream.StreamSupport.stream;
+import static org.joda.time.DateTime.now;
 
-import java.util.stream.Stream;
-
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,7 +29,7 @@ public class DemoBulkWorkflow extends BulkWorkflow {
     if (data.size() == 0) {
       return false;
     }
-    execution.addChildWorkflows(Stream.of(data).map(this::createInstance).toArray(WorkflowInstance[]::new));
+    execution.addChildWorkflows(stream(data.spliterator(), false).map(this::createInstance).toArray(WorkflowInstance[]::new));
     return true;
   }
 
@@ -37,8 +37,18 @@ public class DemoBulkWorkflow extends BulkWorkflow {
     return new WorkflowInstance.Builder() //
         .setType(DEMO_WORKFLOW_TYPE) //
         .setNextActivation(null) //
-        .setStateVariables(singletonMap("requestData", childData.asText())) //
+        .putStateVariable("requestData", childData.asText()) //
         .build();
+  }
+
+  @Override
+  protected DateTime waitForChildrenUntil() {
+    return now().plusSeconds(10);
+  }
+
+  @Override
+  protected DateTime waitForChildrenToCompleteUntil() {
+    return now().plusSeconds(10);
   }
 
 }

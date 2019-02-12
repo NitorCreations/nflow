@@ -51,8 +51,9 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     return moveToState(State.process, "Go to process state");
   }
 
-  public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction process(StateExecution execution) {
     execution.wakeUpParentWorkflow();
     return stopInState(State.done, "Go to done state");
   }
+
 }
