@@ -61,6 +61,10 @@ public class WorkflowSettings extends ModelObject {
    * By default, returns true roughly every tenth time.
    */
   public final BooleanSupplier deleteHistoryCondition;
+  /**
+   * If true, automatically wake up parent workflow instance when an instance goes to end state.
+   */
+  public final boolean wakeupParentWhenFinished;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -72,6 +76,7 @@ public class WorkflowSettings extends ModelObject {
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
     this.historyDeletableAfterHours = builder.historyDeletableAfterHours;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
+    this.wakeupParentWhenFinished = builder.wakeupParentWhenFinished;
   }
 
   /**
@@ -87,6 +92,7 @@ public class WorkflowSettings extends ModelObject {
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
     Integer historyDeletableAfterHours;
+    boolean wakeupParentWhenFinished;
     Random rnd = new Random();
     BooleanSupplier deleteHistoryCondition = new BooleanSupplier() {
 
@@ -209,6 +215,17 @@ public class WorkflowSettings extends ModelObject {
      */
     public Builder setDeleteHistoryCondition(BooleanSupplier deleteHistoryCondition) {
       this.deleteHistoryCondition = deleteHistoryCondition;
+      return this;
+    }
+
+    /**
+     * Set to true to automatically wake up parent workflow instance when an instance goes to end state.
+     *
+     * @param wakeupParentWhenFinished True to wake up parent automatically
+     * @return this.
+     */
+    public Builder setWakeupParentWhenFinished(boolean wakeupParentWhenFinished) {
+      this.wakeupParentWhenFinished = wakeupParentWhenFinished;
       return this;
     }
 

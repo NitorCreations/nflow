@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
@@ -41,7 +42,7 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
   }
 
   public DemoWorkflow() {
-    super(DEMO_WORKFLOW_TYPE, State.begin, State.error);
+    super(DEMO_WORKFLOW_TYPE, State.begin, State.error, new WorkflowSettings.Builder().setWakeupParentWhenFinished(true).build());
     setDescription("Simple demo workflow: start -> process -> end");
     permit(State.begin, State.process);
     permit(State.process, State.done);
@@ -51,8 +52,7 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     return moveToState(State.process, "Go to process state");
   }
 
-  public NextAction process(StateExecution execution) {
-    execution.wakeUpParentWorkflow();
+  public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Go to done state");
   }
 

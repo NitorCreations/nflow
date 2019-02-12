@@ -35,7 +35,6 @@ import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -56,7 +55,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   @Inject
   WorkflowInstanceService instanceService;
 
-  public enum State implements WorkflowState {
+  public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
     splitWork(start), waitForChildrenToFinish(normal), done(end), error(manual);
 
     private WorkflowStateType type;
