@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +91,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
     if (childrenFound) {
       return moveToState(waitForChildrenToFinish, "Running");
     }
-    return retryAfter(now().plusMinutes(1), "Waiting for child workflows");
+    return retryAfter(waitForChildrenUntil(), "Waiting for child workflows");
   }
 
   protected boolean splitWorkImpl(StateExecution execution, @SuppressWarnings("unused") JsonNode data) {
@@ -99,6 +100,10 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
           "No child workflows found - either add them before starting the parent or implement splitWorkflowImpl");
     }
     return true;
+  }
+
+  protected DateTime waitForChildrenUntil() {
+    return now().plusMinutes(1);
   }
 
   public NextAction waitForChildrenToFinish(StateExecution execution,
@@ -115,7 +120,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
       logger.info("Started " + toStart + " child workflows");
     }
     long progress = completed * 100 / childWorkflows.size();
-    return retryAfter(now().plusMinutes(15), "Waiting for child workflows to complete - " + progress + "% done");
+    return retryAfter(waitForChildrenToCompleteUntil(), "Waiting for child workflows to complete - " + progress + "% done");
   }
 
   private void wakeup(WorkflowInstance instance) {
@@ -132,6 +137,10 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
 
   private boolean isInInitialState(WorkflowInstance instance) {
     return instance.status == created;
+  }
+
+  protected DateTime waitForChildrenToCompleteUntil() {
+    return now().plusMinutes(15);
   }
 
 }
