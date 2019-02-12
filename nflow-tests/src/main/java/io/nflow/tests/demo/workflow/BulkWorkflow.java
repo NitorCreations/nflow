@@ -1,22 +1,5 @@
 package io.nflow.tests.demo.workflow;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.definition.NextAction;
-import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.StateVar;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
-import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import java.util.EnumSet;
-import java.util.List;
-
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
@@ -36,12 +19,36 @@ import static java.util.EnumSet.complementOf;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.definition.NextAction;
+import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowState;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+
 /**
  * Bulk child workflow executor that does not overflow the system.
  */
 @Component
 public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
+
   public static final String BULK_WORKFLOW_TYPE = "bulk";
+
+  private final static EnumSet<WorkflowInstanceStatus> RUNNING_STATES = complementOf(EnumSet.of(finished, created));
+
   private static final Logger logger = getLogger(BulkWorkflow.class);
 
   @Inject
@@ -86,43 +93,45 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
     return retryAfter(now().plusMinutes(1), "Waiting for child workflows");
   }
 
-  protected boolean splitWorkImpl(StateExecution execution, JsonNode data) {
+  protected boolean splitWorkImpl(StateExecution execution, @SuppressWarnings("unused") JsonNode data) {
     if (execution.getAllChildWorkflows().isEmpty()) {
-      // if (DateTime.now() - execution.getStartTime() < MINUTES.toMillis(5)) { return false; }
-      throw new RuntimeException("No child workflows found - either add them before starting the parent or implement splitWorkflowImpl");
+      throw new RuntimeException(
+          "No child workflows found - either add them before starting the parent or implement splitWorkflowImpl");
     }
     return true;
   }
 
-  private final static EnumSet<WorkflowInstanceStatus> RUNNING_STATES = complementOf(EnumSet.of(finished, created));
-
-  protected boolean isRunning(WorkflowInstance child) {
-    return RUNNING_STATES.contains(child.status);
-  }
-
-  public NextAction waitForChildrenToFinish(StateExecution execution, @StateVar(value = "concurrency", readOnly = true) int concurrency) {
+  public NextAction waitForChildrenToFinish(StateExecution execution,
+      @StateVar(value = "concurrency", readOnly = true) int concurrency) {
     List<WorkflowInstance> childWorkflows = execution.getAllChildWorkflows();
-    int running = 0, completed = 0;
-    for (WorkflowInstance child : childWorkflows) {
-      if (child.status == finished) {
-        completed++;
-      } else if (isRunning(child)) {
-        running++;
-      }
-    }
+    long running = childWorkflows.stream().filter(this::isRunning).count();
+    long completed = childWorkflows.stream().filter(this::isFinished).count();
     if (completed == childWorkflows.size()) {
       return moveToState(done, "All children completed");
     }
-    int toStart = min(max(1, concurrency) - running, childWorkflows.size() - completed);
+    long toStart = min(max(1, concurrency) - running, childWorkflows.size() - completed);
     if (toStart > 0) {
-      childWorkflows.stream()
-              .filter(child -> child.status == created)
-              .limit(toStart)
-              .map(child -> child.id)
-              .forEach(id -> instanceService.wakeupWorkflowInstance(id, emptyList()));
+      childWorkflows.stream().filter(this::isInInitialState).limit(toStart).forEach(this::wakeup);
       logger.info("Started " + toStart + " child workflows");
     }
-    int progress = completed * 100 / childWorkflows.size();
+    long progress = completed * 100 / childWorkflows.size();
     return retryAfter(now().plusMinutes(15), "Waiting for child workflows to complete - " + progress + "% done");
   }
+
+  private void wakeup(WorkflowInstance instance) {
+    instanceService.wakeupWorkflowInstance(instance.id, emptyList());
+  }
+
+  private boolean isRunning(WorkflowInstance instance) {
+    return RUNNING_STATES.contains(instance.status);
+  }
+
+  private boolean isFinished(WorkflowInstance instance) {
+    return instance.status == finished;
+  }
+
+  private boolean isInInitialState(WorkflowInstance instance) {
+    return instance.status == created;
+  }
+
 }
