@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 
 import org.joda.time.DateTime;
@@ -61,6 +62,19 @@ public class CreateWorkflowConverterTest {
     req.type = "wfType";
     WorkflowInstance i = converter.convert(req);
     assertThat(i.nextActivation, notNullValue(DateTime.class));
+    assertThat(i.businessKey, nullValue(String.class));
+    assertThat(i.externalId, nullValue(String.class));
+    assertThat(i.type, equalTo(req.type));
+  }
+
+  @Test
+  public void nextActivationIsSetToNullWhenInstanceIsNotActivated() {
+    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
+    req.type = "wfType";
+    req.activationTime = now();
+    req.activate = false;
+    WorkflowInstance i = converter.convert(req);
+    assertThat(i.nextActivation, nullValue(DateTime.class));
     assertThat(i.businessKey, nullValue(String.class));
     assertThat(i.externalId, nullValue(String.class));
     assertThat(i.type, equalTo(req.type));
