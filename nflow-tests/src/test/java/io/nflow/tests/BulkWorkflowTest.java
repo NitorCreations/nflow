@@ -3,12 +3,18 @@ package io.nflow.tests;
 import static io.nflow.tests.demo.workflow.BulkWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.naturalOrder;
+import static java.util.stream.Collectors.toList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
+import java.util.List;
+
+import org.joda.time.DateTime;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -53,7 +59,12 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   public void t02_waitForBulkToFinish() throws InterruptedException {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(workflowId, done.name());
     assertThat(instance.childWorkflows.size(), equalTo(1));
-    assertThat(instance.childWorkflows.get(1).size(), equalTo(10));
+    List<Integer> childWorkflowIds = instance.childWorkflows.get(1);
+    assertThat(childWorkflowIds.size(), equalTo(10));
+    List<ListWorkflowInstanceResponse> children = childWorkflowIds.stream().map(this::getWorkflowInstance).collect(toList());
+    DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();
+    DateTime maxStarted = children.stream().map(child -> child.started).max(naturalOrder()).get();
+    assertThat(minFinished, lessThan(maxStarted));
   }
 
 }
