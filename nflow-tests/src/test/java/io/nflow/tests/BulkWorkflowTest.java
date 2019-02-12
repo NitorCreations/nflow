@@ -59,7 +59,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   public void t02_waitForBulkToFinish() throws InterruptedException {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(workflowId, done.name());
     assertThat(instance.childWorkflows.size(), equalTo(1));
-    List<Integer> childWorkflowIds = instance.childWorkflows.get(1);
+    List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
     assertThat(childWorkflowIds.size(), equalTo(10));
     List<ListWorkflowInstanceResponse> children = childWorkflowIds.stream().map(this::getWorkflowInstance).collect(toList());
     DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();
