@@ -110,8 +110,15 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   public NextAction waitForChildrenToFinish(StateExecution execution,
       @StateVar(value = VAR_CONCURRENCY, readOnly = true) int concurrency) {
     List<WorkflowInstance> childWorkflows = execution.getAllChildWorkflows();
-    long running = childWorkflows.stream().filter(this::isRunning).count();
-    long completed = childWorkflows.stream().filter(this::isFinished).count();
+    long completed = 0;
+    long running = 0;
+    for (WorkflowInstance child : childWorkflows) {
+      if (child.status == finished) {
+        completed++;
+      } else if (isRunning(child)) {
+        running++;
+      }
+    }
     if (completed == childWorkflows.size()) {
       return moveToState(done, "All children completed");
     }
@@ -128,12 +135,8 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
     instanceService.wakeupWorkflowInstance(instance.id, emptyList());
   }
 
-  private boolean isRunning(WorkflowInstance instance) {
+  protected boolean isRunning(WorkflowInstance instance) {
     return RUNNING_STATES.contains(instance.status);
-  }
-
-  private boolean isFinished(WorkflowInstance instance) {
-    return instance.status == finished;
   }
 
   private boolean isInInitialState(WorkflowInstance instance) {
