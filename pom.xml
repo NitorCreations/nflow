@@ -151,7 +151,7 @@
     <mockito.version>2.23.4</mockito.version>
     <mssql.version>7.2.1.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
-    <mysql.version>8.0.14</mysql.version>
+    <mysql.version>8.0.15</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
     <node.version>v8.11.4</node.version> <!-- https://nodejs.org/en/download/releases/ -->
     <npm.version>6.4.0</npm.version> <!-- https://github.com/npm/cli/releases -->
