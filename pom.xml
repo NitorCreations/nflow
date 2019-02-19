@@ -165,7 +165,7 @@
     <reflections.version>0.9.11</reflections.version>
     <slf4j.version>1.7.26</slf4j.version>
     <spring.version>5.1.4.RELEASE</spring.version>
-    <swagger.version>1.5.21</swagger.version>
+    <swagger.version>1.5.22</swagger.version>
     <swagger2markup.version>1.3.3</swagger2markup.version>
     <validation.api.version>2.0.1.Final</validation.api.version>
     <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
