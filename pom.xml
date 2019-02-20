@@ -106,7 +106,7 @@
     <findbugs.version>3.0.1</findbugs.version>
     <frontend-maven.version>1.6</frontend-maven.version>
     <h2.version>1.4.197</h2.version>
-    <hamcrest.version>1.3</hamcrest.version>
+    <hamcrest.version>2.1</hamcrest.version>
     <hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
     <hikaricp.version>3.3.1</hikaricp.version>
     <jackson.version>2.9.8</jackson.version>
@@ -861,6 +861,25 @@
       </dependency>
       <!-- testing -->
       <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- needed for junit4 -->
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
@@ -882,12 +901,6 @@
         <groupId>org.glassfish.jersey.inject</groupId>
         <artifactId>jersey-hk2</artifactId>
         <version>${jersey.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
-        <version>${hamcrest.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
