@@ -7,6 +7,18 @@
 - nFlow Explorer: Library updates to `lodash` 4.17.11 and `moment` 2.24.0
   Earlier lodash versions had this security vulnerability: https://nvd.nist.gov/vuln/detail/CVE-2018-16487
 - Use select distinct when getting preserved actions while cleaning workflow instance history
+- Dependency and plugin updates:
+    - slf4j 1.7.26
+    - spring 5.1.5.RELEASE
+    - hamcrest 2.1
+    - reactor.netty 0.8.5.RELEASE
+    - swagger 1.5.22
+    - mockito 2.24.5
+    - io.dropwizard.metrics 4.0.5
+    - mysql-connector-java 8.0.15
+    - mssql-jdbc 7.2.1.jre8
+    - hikaricp 3.3.1
+    - maven-surefire 2.22.1
 
 ## 5.3.3 (2019-02-04)
 
