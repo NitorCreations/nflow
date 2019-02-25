@@ -206,8 +206,8 @@ class WorkflowStateProcessor implements Runnable {
       execution.setNextActivation(null);
     }
     WorkflowState nextState = definition.getState(execution.getNextState());
-    if (definition.getSettings().wakeupParentWhenFinished && nextState.getType() == WorkflowStateType.end
-        && instance.parentWorkflowId != null) {
+    if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end
+        && definition.getSettings().wakeupParentWhenFinished) {
       execution.wakeUpParentWorkflow();
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance) //
