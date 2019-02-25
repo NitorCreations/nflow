@@ -35,6 +35,7 @@ import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -76,7 +77,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   }
 
   protected BulkWorkflow(String type) {
-    super(type, splitWork, error);
+    super(type, splitWork, error, new WorkflowSettings.Builder().setMaxRetries(Integer.MAX_VALUE).build());
     setDescription("Executes child workflows in bulk but gracefully without effecting non-bulk tasks.");
     permit(splitWork, waitForChildrenToFinish);
     permit(waitForChildrenToFinish, done);
@@ -103,7 +104,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   }
 
   protected DateTime waitForChildrenUntil() {
-    return now().plusMinutes(1);
+    return now().plusHours(1);
   }
 
   public NextAction waitForChildrenToFinish(StateExecution execution,
