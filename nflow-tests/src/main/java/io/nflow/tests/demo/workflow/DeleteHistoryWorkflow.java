@@ -52,12 +52,11 @@ public class DeleteHistoryWorkflow extends WorkflowDefinition<DeleteHistoryWorkf
   public NextAction begin(StateExecution execution) {
     WorkflowInstance childWorkflow = new WorkflowInstance.Builder().setType(TYPE).build();
     execution.addChildWorkflows(childWorkflow);
-    execution.setVariable("deletedVariable", "value");
+    execution.setVariable("notDeletedVariable", "value");
     return moveToState(State.process, "Begin");
   }
 
-  public NextAction process(StateExecution execution) {
-    execution.setVariable("anotherDeletedVariable", "value");
+  public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
     return moveToState(State.done, "Process");
   }
 
