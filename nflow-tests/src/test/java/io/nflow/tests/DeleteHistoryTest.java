@@ -4,7 +4,6 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
@@ -57,7 +56,7 @@ public class DeleteHistoryTest extends AbstractNflowTest {
     assertThat(instance.actions.size(), is(2));
     assertThat(instance.actions.get(0).state, is(equalTo("done")));
     assertThat(instance.actions.get(1).state, is(equalTo("begin")));
-    assertThat(instance.stateVariables, is(nullValue()));
+    assertThat(instance.stateVariables.size(), is(1));
   }
 
 }

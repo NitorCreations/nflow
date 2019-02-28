@@ -46,7 +46,6 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import io.nflow.engine.internal.storage.db.SQLVariants;
 import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
 import org.junit.Rule;
@@ -59,9 +58,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -907,20 +907,24 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void deleteExpiredWorkflowHistory() {
     WorkflowInstance parentWorkflow = constructWorkflowInstanceBuilder().build();
     int parentWorkflowId = dao.insertWorkflowInstance(parentWorkflow);
-    int addChildActionId = addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).build(), now(), now());
-    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId).setParentActionId(addChildActionId).build();
+    int addChildActionId = addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).build(), now(),
+        now());
+    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId)
+        .setParentActionId(addChildActionId).build();
     int childWorkflowId = dao.insertWorkflowInstance(childWorkflow);
-    addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).putStateVariable("deletedVariable", "deletedValue").build(), now(), now());
-    addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).putStateVariable("preservedVariable", "preservedValue").build(), now(), now().plusDays(1));
+    addWorkflowAction(parentWorkflowId,
+        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "deletedValue").build(), now(),
+        now().minusDays(1));
+    addWorkflowAction(parentWorkflowId,
+        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "preservedValue").build(), now(), now());
 
     assertThat(dao.deleteWorkflowInstanceHistory(parentWorkflowId, 0), equalTo(1));
 
     parentWorkflow = dao.getWorkflowInstance(parentWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class), null);
     assertThat(parentWorkflow.getStateVariable("requestData"), equalTo("{ \"parameter\": \"abc\" }"));
-    assertThat(parentWorkflow.getStateVariable("deletedVariable"), is(nullValue()));
-    assertThat(parentWorkflow.getStateVariable("preservedVariable"), equalTo("preservedValue"));
+    assertThat(parentWorkflow.getStateVariable("variable"), equalTo("preservedValue"));
     assertThat(parentWorkflow.actions.size(), equalTo(2));
-    childWorkflow = dao.getWorkflowInstance(childWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class), null);
+    childWorkflow = dao.getWorkflowInstance(childWorkflowId, emptySet(), null);
     assertThat(childWorkflow.parentWorkflowId, equalTo(parentWorkflowId));
   }
 
@@ -947,8 +951,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   private int addWorkflowAction(int workflowId, final WorkflowInstance instance, DateTime started, DateTime ended) {
     final WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
-        .setExecutionEnd(ended).setRetryNo(1).setType(stateExecution).setState("test")
-        .setStateText("state text")
+        .setExecutionEnd(ended).setRetryNo(1).setType(stateExecution).setState("test").setStateText("state text")
         .setWorkflowInstanceId(workflowId).build();
     int actionId = transaction.execute(new TransactionCallback<Integer>() {
       @Override
