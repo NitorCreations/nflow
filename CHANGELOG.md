@@ -19,6 +19,7 @@
     - mssql-jdbc 7.2.1.jre8
     - hikaricp 3.3.1
     - maven-surefire 2.22.1
+    - h2 1.4.198
 - Fix workflow history cleanup to keep the actions that hold the latest values of state variables
 
 ## 5.3.3 (2019-02-04)
