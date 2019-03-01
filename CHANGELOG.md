@@ -4,7 +4,7 @@
 
 **Details**
 - Support boxed primitives (Integer, Float etc) with @StateVar
-- nFlow Explorer: Library updates to `lodash` 4.17.11 and `moment` 2.24.0
+- nFlow Explorer: Library updates to `lodash` 4.17.11, `moment` 2.24.0 and `extend` 3.0.2
   Earlier lodash versions had this security vulnerability: https://nvd.nist.gov/vuln/detail/CVE-2018-16487
 - Use select distinct when getting preserved actions while cleaning workflow instance history
 - Dependency and plugin updates:
