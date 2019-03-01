@@ -41,9 +41,6 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
     @ApiModelProperty(value = "Delay after which workflow instance history (actions, states) can be deleted from database", required = false)
     public Integer historyDeletableAfterHours;
 
-    @ApiModelProperty(value = "True if parent workflow instance is automatically woken up when instance goes to end state", required = false)
-    public boolean wakeupParentWhenFinished;
-
   }
 
   public static class TransitionDelays extends ModelObject {

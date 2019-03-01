@@ -1,6 +1,6 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.demo.workflow.BulkWorkflow.State.done;
+import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.naturalOrder;
@@ -20,10 +20,11 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.springframework.context.annotation.ComponentScan;
 
+import io.nflow.engine.workflow.definition.BulkWorkflow;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.tests.demo.workflow.BulkWorkflow;
+import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
 
 @FixMethodOrder(NAME_ASCENDING)
@@ -38,7 +39,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     super(server);
   }
 
-  @ComponentScan(basePackageClasses = BulkWorkflow.class)
+  @ComponentScan(basePackageClasses = DemoBulkWorkflow.class)
   static class Configuration {
     // for component scanning only
   }

@@ -78,6 +78,7 @@ import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.definition.BulkWorkflow;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -433,7 +434,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void doNothingWhenNotifyingParentWithoutParentWorkflowId() {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+
     executor.run();
+
     verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(List.class));
   }
 
@@ -441,8 +444,15 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void whenWakingUpParentWorkflowSucceeds() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    when(workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId)).thenReturn("parentType");
+    when(workflowInstanceDao.getWorkflowInstanceState(instance.parentWorkflowId)).thenReturn("parentState");
+    TestDefinition parentDefinition = mock(TestDefinition.class);
+    doReturn(parentDefinition).when(workflowDefinitions).getWorkflowDefinition("parentType");
+    when(parentDefinition.getState("parentState")).thenReturn(TestDefinition.TestState.start1);
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(true);
+
     executor.run();
+
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
   }
 
@@ -450,9 +460,34 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void whenWakingUpParentWorkflowFails() {
     WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    when(workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId)).thenReturn("parentType");
+    when(workflowInstanceDao.getWorkflowInstanceState(instance.parentWorkflowId)).thenReturn("parentState");
+    TestDefinition parentDefinition = mock(TestDefinition.class);
+    doReturn(parentDefinition).when(workflowDefinitions).getWorkflowDefinition("parentType");
+    when(parentDefinition.getState("parentState")).thenReturn(TestDefinition.TestState.start1);
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(false);
+
     executor.run();
+
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
+  }
+
+  @Test
+  public void finishingChildWakesParentAutomaticallyWhenParentIsInWaitState() {
+    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("simple-test").setState("processing")
+        .build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    when(workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId)).thenReturn(BulkWorkflow.BULK_WORKFLOW_TYPE);
+    when(workflowInstanceDao.getWorkflowInstanceState(instance.parentWorkflowId))
+        .thenReturn(BulkWorkflow.State.waitForChildrenToFinish.name());
+    BulkWorkflow parentDefinition = new BulkWorkflow();
+    doReturn(parentDefinition).when(workflowDefinitions).getWorkflowDefinition(BulkWorkflow.BULK_WORKFLOW_TYPE);
+    when(workflowInstanceDao.wakeUpWorkflowExternally(999, new ArrayList<String>())).thenReturn(true);
+
+    executor.run();
+
+    verify(workflowInstanceDao).wakeUpWorkflowExternally(999, new ArrayList<String>());
+
   }
 
   @Test

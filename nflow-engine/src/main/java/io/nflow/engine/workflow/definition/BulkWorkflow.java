@@ -1,17 +1,17 @@
-package io.nflow.tests.demo.workflow;
+package io.nflow.engine.workflow.definition;
 
+import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
+import static io.nflow.engine.workflow.definition.BulkWorkflow.State.error;
+import static io.nflow.engine.workflow.definition.BulkWorkflow.State.splitWork;
+import static io.nflow.engine.workflow.definition.BulkWorkflow.State.waitForChildrenToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.wait;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
-import static io.nflow.tests.demo.workflow.BulkWorkflow.State.done;
-import static io.nflow.tests.demo.workflow.BulkWorkflow.State.error;
-import static io.nflow.tests.demo.workflow.BulkWorkflow.State.splitWork;
-import static io.nflow.tests.demo.workflow.BulkWorkflow.State.waitForChildrenToFinish;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Collections.emptyList;
@@ -31,12 +31,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.definition.NextAction;
-import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.StateVar;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowSettings;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -57,7 +51,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   WorkflowInstanceService instanceService;
 
   public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    splitWork(start), waitForChildrenToFinish(normal), done(end), error(manual);
+    splitWork(start), waitForChildrenToFinish(wait), done(end), error(manual);
 
     private WorkflowStateType type;
 
