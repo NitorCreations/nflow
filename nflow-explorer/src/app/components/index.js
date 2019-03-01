@@ -5,6 +5,7 @@
 
     'nflowExplorer.components.endpointSelection',
     'nflowExplorer.components.constants',
+    'nflowExplorer.components.customContent',
     'nflowExplorer.components.filters',
     'nflowExplorer.components.graph',
     'nflowExplorer.components.util',

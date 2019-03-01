@@ -36,4 +36,39 @@ var Config = function() {
     // max number of items to keep in memory
     maxHistorySize: 10000
   };
+
+  /**
+   * Generate custom content for workflow definition details page.
+   * Optional function that returns either a string or a Promise
+   * that resolves to a string. The string is added to the page DOM.
+   * See customInstanceContent for example.
+   */
+  this.customDefinitionContent = function(definition) {
+    return null;
+  };
+
+  /**
+   * Generate custom content for workflow instance details page.
+   * Optional function that returns either a string or a Promise
+   * that resolves to a string. The string is added to the page DOM.
+   *
+   * The intended purpose is:
+   * - to create links to external, which contain additional data about the workflow.
+   *   e.g.
+   *   ```
+   *   return '<a href="https://cms.service.com/content/' + workflow.businessKey + '">Open CMS</a>'
+   *   ```
+   * - fetch additional data from external systems and display it in the in nFlow Explorer UI:
+   *   ```
+   *   return fetch('https://api.service.com/content/' + workflow.businessKey)
+   *            .then(result => {
+   *              return result.json()
+   *                .then(data => data.contentTitle)
+   *            })
+   *   ```
+   */
+  this.customInstanceContent = function(definition, workflow, parentWorkflow) {
+    return null;
+  };
+
 };
