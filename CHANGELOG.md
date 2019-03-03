@@ -2,7 +2,7 @@
 
 **Highlights**
 - Introduce BulkWorkflow which can be used or extended to handle mass of child workflows without overloading the system
-- Allow child workflows to automatically wake up parent workflow instance when they enter end state (can be enabled via workflow settings)
+- Child workflow instances automatically wake up the parent when the parent is in a wait state and the child enters an end state
 - Allow creating workflows via REST API with null activation time (by setting activate = false) 
 
 **Details**
