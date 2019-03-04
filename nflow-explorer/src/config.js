@@ -67,7 +67,7 @@ var Config = function() {
    *            })
    *   ```
    */
-  this.customInstanceContent = function(definition, workflow, parentWorkflow) {
+  this.customInstanceContent = function(definition, workflow, parentWorkflow, childWorkflows) {
     return null;
   };
 
