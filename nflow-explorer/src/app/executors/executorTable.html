@@ -20,10 +20,10 @@
       <td>{{executor.host}}</td>
       <td>{{executor.pid}}</td>
       <td>{{executor.executorGroup}}</td>
-      <td title="{{executor.started | date:'medium'}}">{{executor.started | fromNow}}</td>
-      <td title="{{executor.stopped | date:'medium'}}">{{executor.stopped | fromNow}}</td>
-      <td title="{{executor.active | date:'medium'}}">{{executor.active | fromNow}}</td>
-      <td title="{{executor.expires | date:'medium'}}">{{executor.expires | fromNow}}</td>
+      <td title="{{executor.started | date:'yyyy-MM-dd HH:mm:ss'}}">{{executor.started | fromNow}}</td>
+      <td title="{{executor.stopped | date:'yyyy-MM-dd HH:mm:ss'}}">{{executor.stopped | fromNow}}</td>
+      <td title="{{executor.active | date:'yyyy-MM-dd HH:mm:ss'}}">{{executor.active | fromNow}}</td>
+      <td title="{{executor.expires | date:'yyyy-MM-dd HH:mm:ss'}}">{{executor.expires | fromNow}}</td>
     </tr>
     </tbody>
   </table>
