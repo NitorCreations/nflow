@@ -1,7 +1,9 @@
 package io.nflow.tests;
 
+import static io.nflow.engine.workflow.definition.BulkWorkflow.BULK_WORKFLOW_TYPE;
 import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
@@ -9,11 +11,13 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.List;
 
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import org.joda.time.DateTime;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -26,6 +30,8 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
+
+import javax.ws.rs.core.Response;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class BulkWorkflowTest extends AbstractNflowTest {
@@ -45,7 +51,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t01_startBulkWorkflow() {
+  public void t01_startDemoBulkWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DEMO_BULK_WORKFLOW_TYPE;
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
@@ -66,6 +72,40 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();
     DateTime maxStarted = children.stream().map(child -> child.started).max(naturalOrder()).get();
     assertThat(minFinished, lessThan(maxStarted));
+  }
+
+  @Test
+  public void t11_createBulkWorkflow() {
+    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
+    req.type = BULK_WORKFLOW_TYPE;
+    req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
+    req.activate = false;
+    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
+            CreateWorkflowInstanceResponse.class);
+    assertThat(resp.id, notNullValue());
+    workflowId = resp.id;
+
+    for (int i=0; i<10; ++i) {
+      CreateWorkflowInstanceRequest child = new CreateWorkflowInstanceRequest();
+      child.type = DEMO_WORKFLOW_TYPE;
+      child.activate = false;
+      child.parentWorkflowId = workflowId;
+      resp = fromClient(workflowInstanceResource, true).put(child, CreateWorkflowInstanceResponse.class);
+      assertThat(resp.id, notNullValue());
+    }
+  }
+
+  @Test
+  public void t12_startBulkWorkflow() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.nextActivationTime = now();
+    Response resp = fromClient(workflowInstanceResource, true).path("id").path(workflowId).put(req, Response.class);
+    assertThat(resp.getStatus(), equalTo(204));
+  }
+
+  @Test(timeout = 30000)
+  public void t13_waitForBulkToFinish() throws InterruptedException {
+    t02_waitForBulkToFinish();
   }
 
 }

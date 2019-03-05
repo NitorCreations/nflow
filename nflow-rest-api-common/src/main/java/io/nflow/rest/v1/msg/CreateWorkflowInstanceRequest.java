@@ -40,7 +40,10 @@ public class CreateWorkflowInstanceRequest extends ModelObject {
   public DateTime activationTime;
 
   @ApiModelProperty("Set to false to force activationTime to null. Default is true.")
-  public boolean activate = true;
+  public Boolean activate;
+
+  @ApiModelProperty("Create the workflow as a child of the given parent workflow.")
+  public Integer parentWorkflowId;
 
   @ApiModelProperty("State variables to be set for the new workflow instance.")
   public Map<String, Object> stateVariables = new HashMap<>();
