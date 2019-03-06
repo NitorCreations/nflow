@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.core.io.support.ResourcePropertySource;
@@ -35,6 +36,8 @@ public class StartNflow {
 
   private final Set<Class<?>> annotatedContextClasses = new LinkedHashSet<>();
 
+  private final List<ApplicationListener<?>> applicationListeners = new LinkedList<>();
+
   private final List<ResourcePropertySource> propertiesSources = new LinkedList<>();
 
   public static void main(String[] args) throws Exception {
@@ -52,20 +55,25 @@ public class StartNflow {
     new StartNflow().startNetty(argsMap);
   }
 
-  public StartNflow registerSpringContext(Class<?>... springContextClass) {
-    annotatedContextClasses.addAll(asList(springContextClass));
+  public StartNflow registerSpringContext(Class<?>... springContextClasses) {
+    annotatedContextClasses.addAll(asList(springContextClasses));
     return this;
   }
 
-  public StartNflow registerSpringClasspathPropertySource(String... springPropertiesPath) throws IOException {
-    for (String path : springPropertiesPath) {
+  public StartNflow registerSpringApplicationListener(ApplicationListener<?>... applicationListeners) {
+    this.applicationListeners.addAll(asList(applicationListeners));
+    return this;
+  }
+
+  public StartNflow registerSpringClasspathPropertySource(String... springPropertiesPaths) throws IOException {
+    for (String path : springPropertiesPaths) {
       propertiesSources.add(new ResourcePropertySource(path));
     }
     return this;
   }
 
-  public StartNflow registerSpringPropertySource(ResourcePropertySource... springPropertySource) {
-    propertiesSources.addAll(asList(springPropertySource));
+  public StartNflow registerSpringPropertySource(ResourcePropertySource... springPropertySources) {
+    propertiesSources.addAll(asList(springPropertySources));
     return this;
   }
 
@@ -91,6 +99,7 @@ public class StartNflow {
     annotatedContextClasses.add(DelegatingWebFluxConfiguration.class);
     annotatedContextClasses.add(NflowNettyConfiguration.class);
     context.register(annotatedContextClasses.stream().toArray(Class<?>[]::new));
+    applicationListeners.forEach(applicationListener -> context.addApplicationListener(applicationListener));
     context.refresh();
 
     // Start netty
