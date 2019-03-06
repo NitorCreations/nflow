@@ -3,14 +3,14 @@ package io.nflow.metrics;
 import static io.nflow.engine.config.Profiles.H2;
 import static io.nflow.engine.config.Profiles.JMX;
 import static io.nflow.engine.config.Profiles.METRICS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +47,8 @@ public class MetricsWorkflowExecutorListenerTest {
 
   ListenerContext context2 = new WorkflowExecutorListener.ListenerContext(
       definition, instance2, stateExecution);
-  @Before
+
+  @BeforeEach
   public void setup() {
     ctx = new AnnotationConfigApplicationContext(Config.class) {
       @Override

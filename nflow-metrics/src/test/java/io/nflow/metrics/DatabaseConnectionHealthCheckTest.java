@@ -1,22 +1,20 @@
 package io.nflow.metrics;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.codahale.metrics.health.HealthCheck;
 
 import io.nflow.engine.service.HealthCheckService;
-import io.nflow.metrics.DatabaseConnectionHealthCheck;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DatabaseConnectionHealthCheckTest {
   HealthCheckService healthCheckService = mock(HealthCheckService.class);
   DatabaseConnectionHealthCheck check;
 
-  @Before
+  @BeforeEach
   public void setup() {
      check = new DatabaseConnectionHealthCheck(healthCheckService);
   }
