@@ -3,12 +3,11 @@ package io.nflow.tests;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,10 +15,8 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
+import io.nflow.tests.extension.NflowServerConfig;
 import org.joda.time.DateTime;
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,13 +26,15 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
-import io.nflow.tests.runner.NflowServerRule;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-@FixMethodOrder(NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
 
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().build();
+  public static NflowServerConfig server = new NflowServerConfig.Builder().build();
 
   public PreviewCreditApplicationWorkflowTest() {
     super(server);
@@ -46,7 +45,8 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
   private static DateTime wfModifiedAtAcceptCreditApplication;
 
   @Test
-  public void t01_createCreditApplicationWorkflow() {
+  @Order(1)
+  public void createCreditApplicationWorkflow() {
     req = new CreateWorkflowInstanceRequest();
     req.type = "creditApplicationProcess";
     req.startState = CreditApplicationWorkflow.State.previewCreditApplication.toString();
@@ -58,8 +58,9 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test(timeout = 5000)
-  public void t02_checkAcceptCreditApplicationReached() throws InterruptedException {
+  @Test // (timeout = 5000)
+  @Order(2)
+  public void checkAcceptCreditApplicationReached() throws InterruptedException {
     ListWorkflowInstanceResponse response;
     do {
       response = getWorkflowInstance(resp.id, "acceptCreditApplication");
@@ -69,7 +70,8 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t03_moveToGrantLoanState() {
+  @Order(3)
+  public void moveToGrantLoanState() {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "grantLoan";
@@ -78,17 +80,19 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     }
   }
 
-  @Test(timeout = 5000)
-  public void t04_checkDoneStateReached() throws InterruptedException {
+  @Test // (timeout = 5000)
+  @Order(4)
+  public void checkDoneStateReached() throws InterruptedException {
     ListWorkflowInstanceResponse response;
     do {
       response = getWorkflowInstance(resp.id, "done");
     } while (response.nextActivation != null);
-    assertTrue("nflow_workflow.modified should be updated", response.modified.isAfter(wfModifiedAtAcceptCreditApplication));
+    assertTrue(response.modified.isAfter(wfModifiedAtAcceptCreditApplication), "nflow_workflow.modified should be updated");
   }
 
   @Test
-  public void t05_checkWorkflowInstanceActions() {
+  @Order(5)
+  public void checkWorkflowInstanceActions() {
     int i = 1;
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
         new Action(i++, stateExecution.name(), "done", "", 0, null, null, 0),

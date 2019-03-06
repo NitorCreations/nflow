@@ -1,26 +1,25 @@
 package io.nflow.tests;
 
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import io.nflow.tests.extension.NflowServerConfig;
 
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
-import io.nflow.tests.runner.NflowServerRule;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-@FixMethodOrder(NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ChildWorkflowTest extends AbstractNflowTest {
-    @ClassRule
-    public static NflowServerRule server = new NflowServerRule.Builder().build();
+    public static NflowServerConfig server = new NflowServerConfig.Builder().build();
 
     private static int workflowId;
 
@@ -29,7 +28,8 @@ public class ChildWorkflowTest extends AbstractNflowTest {
     }
 
     @Test
-    public void t01_startFibonacciWorkflow() {
+    @Order(1)
+    public void startFibonacciWorkflow() {
         CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
         req.type = "fibonacci";
         req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
@@ -38,8 +38,9 @@ public class ChildWorkflowTest extends AbstractNflowTest {
         workflowId = resp.id;
     }
 
-    @Test(timeout = 30000)
-    public void t02_checkFibonacciWorkflowComputesCorrectResult() throws InterruptedException {
+    @Test // (timeout = 30000)
+    @Order(2)
+    public void checkFibonacciWorkflowComputesCorrectResult() throws InterruptedException {
         ListWorkflowInstanceResponse response = getWorkflowInstance(workflowId, FibonacciWorkflow.State.done.name());
         assertTrue(response.stateVariables.containsKey("result"));
         assertEquals(8, response.stateVariables.get("result"));

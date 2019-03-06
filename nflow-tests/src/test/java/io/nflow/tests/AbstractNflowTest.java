@@ -12,10 +12,14 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Rule;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,10 +36,8 @@ import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
-import io.nflow.tests.runner.NflowServerRule;
-import io.nflow.tests.runner.SkipTestMethodsAfterFirstFailureRule;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith({SkipTestMethodsAfterFirstFailureExtension.class})
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
@@ -43,14 +45,10 @@ public abstract class AbstractNflowTest {
   protected WebClient workflowDefinitionResource;
   protected WebClient statisticsResource;
 
-  @Rule
-  public final SkipTestMethodsAfterFirstFailureRule failFastRule;
+  private final NflowServerConfig server;
 
-  private final NflowServerRule server;
-
-  public AbstractNflowTest(NflowServerRule server) {
+  public AbstractNflowTest(NflowServerConfig server) {
     this.server = server;
-    this.failFastRule = new SkipTestMethodsAfterFirstFailureRule(getClass());
   }
 
   @Inject
