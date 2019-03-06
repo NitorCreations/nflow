@@ -3,8 +3,8 @@ package io.nflow.jetty.mapper;
 import static java.util.Arrays.asList;
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
 import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,17 +17,18 @@ import javax.validation.ValidationException;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.validation.ResponseConstraintViolationException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
 public class CustomValidationExceptionMapperTest {
 
   private CustomValidationExceptionMapper exceptionMapper;
 
-  @Before
+  @BeforeEach
   public void setup() {
     exceptionMapper = new CustomValidationExceptionMapper();
   }

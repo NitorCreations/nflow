@@ -7,14 +7,16 @@ import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Configurable;
 
 public class StartNflowTest {
+
   @Test
   public void startNflowJettyToRandomFreeLocalPort() throws Exception {
     JettyServerContainer jetty = initJettyStart(0, JMX);
@@ -37,7 +39,7 @@ public class StartNflowTest {
       }
       sleep(50);
     }
-    assertTrue("Jetty did not start in 5 seconds", jetty.isStarted());
+    assertTrue(jetty.isStarted(), "Jetty did not start in 5 seconds");
     sleep(100);
     jetty.stop();
     for (int i = 0; i < 10000; i+=50) {
@@ -49,7 +51,7 @@ public class StartNflowTest {
     fail("Jetty did not stop gracefully in 10 seconds");
   }
 
-  @Ignore(value = "Not used generally to avoid port conflicts")
+  @Disabled(value = "Not used generally to avoid port conflicts")
   @Test
   public void startNflowJettyToPredefinedPort() throws Exception {
     JettyServerContainer jetty = initJettyStart(7505, "");
@@ -58,13 +60,13 @@ public class StartNflowTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void startNflowJettyMysql() throws Exception {
     startStop(initJettyStart(MYSQL));
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void startNflowJettyPostgreSQL() throws Exception {
     startStop(initJettyStart(POSTGRESQL));
   }
