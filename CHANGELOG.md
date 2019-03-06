@@ -1,9 +1,10 @@
 ## 5.4.0-SNAPSHOT (future release)
 
 **Highlights**
-- Introduce BulkWorkflow which can be used or extended to handle mass of child workflows without overloading the system
-- Child workflow instances automatically wake up the parent when the parent is in a wait state and the child enters an end state
-- Allow creating workflows via REST API with null activation time (by setting activate = false) 
+- Introduce BulkWorkflow which can be used or extended to handle mass of child workflows without overloading the system.
+- Introduce new workflow instance state type `wait`. Child workflow instances automatically wake up the parent when the parent is in a `wait` state and the child enters an `end` state.
+- Allow creating workflows via REST API with null activation time (by setting `activate = false`).
+- Allow creating child workflows via REST API (by setting `parentWorkflowId`).
 
 **Details**
 - Support boxed primitives (Integer, Float etc) with @StateVar
