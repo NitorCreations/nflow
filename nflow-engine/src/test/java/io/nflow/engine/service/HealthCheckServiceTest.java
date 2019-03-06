@@ -2,21 +2,21 @@ package io.nflow.engine.service;
 
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.HealthCheckDao;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HealthCheckServiceTest {
   @Mock
   private HealthCheckDao dao;
   private HealthCheckService service;
 
-  @Before
+  @BeforeEach
   public void setup() {
     service = new HealthCheckService(dao);
   }
