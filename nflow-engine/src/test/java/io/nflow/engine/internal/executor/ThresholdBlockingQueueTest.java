@@ -50,7 +50,7 @@ public class ThresholdBlockingQueueTest {
 
   @Test
   public void doesNotWaitIfQueueIsAlreadyBelowThreshold() throws InterruptedException {
-    assertTimeout(ofMillis(5000), () -> q.waitUntilQueueSizeLowerThanThreshold(new DateTime().plusMinutes(1)));
+    assertTimeout(ofMillis(5000), () -> q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusMinutes(1)));
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ThresholdBlockingQueueTest {
       Callable<Integer> tester = new Callable<Integer>() {
         @Override
         public Integer call() throws Exception {
-          q.waitUntilQueueSizeLowerThanThreshold(new DateTime().plusMinutes(1));
+          q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusMinutes(1));
           return q.size();
         }
       };
@@ -91,7 +91,7 @@ public class ThresholdBlockingQueueTest {
       Callable<Integer> tester = new Callable<Integer>() {
         @Override
         public Integer call() throws Exception {
-          q.waitUntilQueueSizeLowerThanThreshold(new DateTime().plusSeconds(3));
+          q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusSeconds(3));
           return q.size();
         }
       };

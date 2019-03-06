@@ -1,7 +1,9 @@
 package io.nflow.engine.internal.storage.db;
 
 import static io.nflow.engine.config.Profiles.H2;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -41,9 +43,9 @@ public class DatabaseInitializerTest {
 
   @Test
   public void unsupportedDatabaseTypeIdentified() {
-    IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class,
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
             () -> new DatabaseInitializer("a2", ds, environmentCreateOnStartup("true")));
-    assertThat(thrown.getMessage(), CoreMatchers.containsString("No ddl script found"));
+    assertThat(thrown.getMessage(), containsString("No ddl script found"));
   }
 
   private MockEnvironment environmentCreateOnStartup(String value) {
