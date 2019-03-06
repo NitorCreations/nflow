@@ -41,6 +41,8 @@ public class BulkWorkflowTest extends AbstractNflowTest {
 
   private static int workflowId;
 
+  private static int childrenCount;
+
   public BulkWorkflowTest() {
     super(server);
   }
@@ -55,7 +57,9 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DEMO_BULK_WORKFLOW_TYPE;
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
-    req.stateVariables.put(BulkWorkflow.VAR_CHILD_DATA, nflowObjectMapper().valueToTree(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)));
+    List<Integer> childData = asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    childrenCount = childData.size();
+    req.stateVariables.put(BulkWorkflow.VAR_CHILD_DATA, nflowObjectMapper().valueToTree(childData));
     CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
         CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
@@ -64,14 +68,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
 
   @Test(timeout = 30000)
   public void t02_waitForBulkToFinish() throws InterruptedException {
-    ListWorkflowInstanceResponse instance = getWorkflowInstance(workflowId, done.name());
-    assertThat(instance.childWorkflows.size(), equalTo(1));
-    List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
-    assertThat(childWorkflowIds.size(), equalTo(10));
-    List<ListWorkflowInstanceResponse> children = childWorkflowIds.stream().map(this::getWorkflowInstance).collect(toList());
-    DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();
-    DateTime maxStarted = children.stream().map(child -> child.started).max(naturalOrder()).get();
-    assertThat(minFinished, lessThan(maxStarted));
+    waitForBulkToFinish();
   }
 
   @Test
@@ -81,11 +78,11 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
     req.activate = false;
     CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-            CreateWorkflowInstanceResponse.class);
+        CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
     workflowId = resp.id;
 
-    for (int i=0; i<10; ++i) {
+    for (int i = 0; i < childrenCount; ++i) {
       CreateWorkflowInstanceRequest child = new CreateWorkflowInstanceRequest();
       child.type = DEMO_WORKFLOW_TYPE;
       child.activate = false;
@@ -106,7 +103,18 @@ public class BulkWorkflowTest extends AbstractNflowTest {
 
   @Test(timeout = 30000)
   public void t13_waitForBulkToFinish() throws InterruptedException {
-    t02_waitForBulkToFinish();
+    waitForBulkToFinish();
+  }
+
+  private void waitForBulkToFinish() throws InterruptedException {
+    ListWorkflowInstanceResponse instance = getWorkflowInstance(workflowId, done.name());
+    assertThat(instance.childWorkflows.size(), equalTo(1));
+    List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
+    assertThat(childWorkflowIds.size(), equalTo(childrenCount));
+    List<ListWorkflowInstanceResponse> children = childWorkflowIds.stream().map(this::getWorkflowInstance).collect(toList());
+    DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();
+    DateTime maxStarted = children.stream().map(child -> child.started).max(naturalOrder()).get();
+    assertThat(minFinished, lessThan(maxStarted));
   }
 
 }
