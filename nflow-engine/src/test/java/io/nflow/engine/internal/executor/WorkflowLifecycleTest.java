@@ -1,8 +1,8 @@
 package io.nflow.engine.internal.executor;
 
 import static java.lang.Boolean.TRUE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,16 +10,16 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
 import io.nflow.engine.service.WorkflowDefinitionService;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorkflowLifecycleTest {
 
   @Mock
@@ -35,7 +35,7 @@ public class WorkflowLifecycleTest {
 
   private WorkflowLifecycle lifecycle;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException, ReflectiveOperationException {
     when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(TRUE);
     when(env.getRequiredProperty("nflow.autostart", Boolean.class)).thenReturn(TRUE);
