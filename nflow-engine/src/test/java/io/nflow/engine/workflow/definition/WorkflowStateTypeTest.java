@@ -1,12 +1,11 @@
 package io.nflow.engine.workflow.definition;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowStateTypeTest {
 

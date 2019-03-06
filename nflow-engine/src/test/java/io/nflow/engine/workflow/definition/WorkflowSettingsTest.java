@@ -1,12 +1,12 @@
 package io.nflow.engine.workflow.definition;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,19 +16,19 @@ import java.util.stream.IntStream;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowSettingsTest {
   DateTime now = new DateTime(2014, 10, 22, 20, 44, 0);
 
-  @Before
+  @BeforeEach
   public void setup() {
     DateTimeUtils.setCurrentMillisFixed(now.getMillis());
   }
 
-  @After
+  @AfterEach
   public void teardown() {
     DateTimeUtils.setCurrentMillisSystem();
   }
