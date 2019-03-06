@@ -120,7 +120,9 @@
     <jersey.version>2.28</jersey.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
     <jodatime.version>2.10.1</jodatime.version>
-    <junit.version>4.12</junit.version>
+    <junit4.version>4.12</junit4.version>
+    <junit5.version>5.4.0</junit5.version>
+    <mockito-junit-jupiter.version>2.25.0</mockito-junit-jupiter.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.2.3</logback-classic.version>
     <maven-assembly.version>3.1.1</maven-assembly.version>
@@ -882,7 +884,25 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
+        <version>${junit4.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito-junit-jupiter.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
