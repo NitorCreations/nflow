@@ -1,11 +1,7 @@
 package io.nflow.tests.extension;
 
 import static io.nflow.engine.config.Profiles.POSTGRESQL;
-import static org.apache.commons.lang3.StringUtils.defaultString;
-import static org.apache.commons.lang3.StringUtils.right;
-import static org.apache.commons.lang3.StringUtils.substringAfterLast;
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.yandex.qatools.embed.postgresql.distribution.Version.V11_1;
 
 import java.io.IOException;
@@ -15,12 +11,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 
 import io.nflow.jetty.JettyServerContainer;
 import io.nflow.jetty.StartNflow;
+import org.junit.jupiter.api.Assertions;
 import ru.yandex.qatools.embed.postgresql.PostgresExecutable;
 import ru.yandex.qatools.embed.postgresql.PostgresProcess;
 import ru.yandex.qatools.embed.postgresql.PostgresStarter;
@@ -143,7 +137,7 @@ public class NflowServerConfig {
             startNflow.registerSpringContext(springContextClass);
         }
         nflowJetty = startNflow.startJetty(port.get(), env, profiles, props);
-        assertTrue("Jetty did not start", nflowJetty.isStarted());
+        assertTrue(nflowJetty.isStarted(), "Jetty did not start");
         port.set(nflowJetty.getPort());
     }
 
@@ -154,7 +148,7 @@ public class NflowServerConfig {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        assertTrue("Jetty did not stop", nflowJetty.isStopped());
+        assertTrue(nflowJetty.isStopped(), "Jetty did not stop");
     }
 
     @Override
