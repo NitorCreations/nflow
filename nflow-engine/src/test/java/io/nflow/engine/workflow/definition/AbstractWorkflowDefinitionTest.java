@@ -6,34 +6,31 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static java.util.Collections.emptyMap;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AbstractWorkflowDefinitionTest {
 
   private final TestWorkflow workflow = new TestWorkflow();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Before
+  @BeforeEach
   public void setup() {
     setCurrentMillisFixed(DateTime.now().getMillis());
   }
 
-  @After
+  @AfterEach
   public void reset() {
     setCurrentMillisSystem();
   }
@@ -45,9 +42,9 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void onlyOneFailureStateCanBeDefined() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Different failureState 'failed' already defined for originState 'process'");
-    new TestWorkflow2().permitDifferentFailure();
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new TestWorkflow2().permitDifferentFailure());
+    assertThat(thrown.getMessage(), containsString("Different failureState 'failed' already defined for originState 'process'"));
   }
 
   static class TestWorkflow2 extends TestWorkflow {
@@ -138,17 +135,16 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void nonFinalStateMethodMustReturnNextAction() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value");
-    new TestWorkflow3();
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new TestWorkflow3());
+    assertThat(thrown.getMessage(), containsString("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value"));
   }
 
   @Test
   public void finalStateMethodMustReturnVoid() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown
-        .expectMessage("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction");
-    new TestWorkflow4();
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new TestWorkflow4());
+    assertThat(thrown.getMessage(), containsString("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction"));
   }
 
   @Test
