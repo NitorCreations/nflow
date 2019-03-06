@@ -1,8 +1,8 @@
 package io.nflow.engine.internal.dao;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import javax.inject.Inject;
 
 public class HealthCheckDaoTest extends BaseDaoTest {
 

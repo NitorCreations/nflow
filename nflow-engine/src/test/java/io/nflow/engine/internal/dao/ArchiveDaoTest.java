@@ -3,9 +3,9 @@ package io.nflow.engine.internal.dao;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import io.nflow.engine.model.ModelObject;
@@ -202,14 +202,14 @@ public class ArchiveDaoTest extends BaseDaoTest {
   private void assertActiveActionsRemoved(List<Integer> actionIds) {
     for (int actionId : actionIds) {
       int found = rowCount("select 1 from nflow_workflow_action where id = ?", actionId);
-      assertEquals("Found unexpected action " + actionId + " in nflow_workflow_action", 0, found);
+      assertEquals(0, found, "Found unexpected action " + actionId + " in nflow_workflow_action");
     }
   }
 
   private void assertArchiveActionsExist(List<Integer> actionIds) {
     for (int actionId : actionIds) {
       int found = rowCount("select 1 from nflow_archive_workflow_action where id = ?", actionId);
-      assertEquals("Action " + actionId + " not found in nflow_archive_workflow_action", 1, found);
+      assertEquals(1, found, "Action " + actionId + " not found in nflow_archive_workflow_action");
     }
   }
 
@@ -217,7 +217,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     for (StateKey stateKey : stateKeys) {
       int found = rowCount("select 1 from nflow_workflow_state where workflow_id = ? and action_id = ? and state_key = ?",
           stateKey.workflowId, stateKey.actionId, stateKey.stateKey);
-      assertEquals("Found unexpected state variable " + stateKey + " in nflow_workflow_state", 0, found);
+      assertEquals(0, found, "Found unexpected state variable " + stateKey + " in nflow_workflow_state");
     }
   }
 
@@ -226,7 +226,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
       int found = rowCount(
           "select 1 from nflow_archive_workflow_state where workflow_id = ? and action_id = ? and state_key = ?",
           stateKey.workflowId, stateKey.actionId, stateKey.stateKey);
-      assertEquals("State variable " + stateKey + " not found in nflow_archive_workflow_state", 1, found);
+      assertEquals(1, found, "State variable " + stateKey + " not found in nflow_archive_workflow_state");
     }
   }
 

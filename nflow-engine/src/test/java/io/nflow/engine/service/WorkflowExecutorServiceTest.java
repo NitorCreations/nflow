@@ -1,22 +1,22 @@
 package io.nflow.engine.service;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorkflowExecutorServiceTest extends BaseNflowTest {
 
   private WorkflowExecutorService service;
@@ -26,7 +26,7 @@ public class WorkflowExecutorServiceTest extends BaseNflowTest {
   @Mock
   private WorkflowExecutor executor;
 
-  @Before
+  @BeforeEach
   public void setup() {
     when(executorDao.getExecutors()).thenReturn(asList(executor));
     service = new WorkflowExecutorService(executorDao);

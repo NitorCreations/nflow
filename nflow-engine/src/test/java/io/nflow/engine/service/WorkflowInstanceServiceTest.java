@@ -4,31 +4,27 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -45,8 +41,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class WorkflowInstanceServiceTest extends BaseNflowTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+
   @Mock
   private WorkflowDefinitionService workflowDefinitions;
   @Mock
@@ -62,15 +57,15 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   private WorkflowInstanceService service;
 
-  @Before
+  @BeforeEach
   public void setup() {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
-    doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
+    lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowDefinitions, workflowInstanceDao, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
   }
 
-  @After
+  @AfterEach
   public void reset() {
     setCurrentMillisSystem();
   }
@@ -96,11 +91,10 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void insertWorkflowInstanceWhenPreprocessorThrowsCausesException() {
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("preprocessor reject");
     WorkflowInstance i = constructWorkflowInstanceBuilder().setType("nonexistent").build();
     when(workflowInstancePreProcessor.process(i)).thenThrow(new RuntimeException("preprocessor reject"));
-    service.insertWorkflowInstance(i);
+    RuntimeException thrown = assertThrows(RuntimeException.class, () -> service.insertWorkflowInstance(i));
+    assertThat(thrown.getMessage(), containsString("preprocessor reject"));
   }
 
   @Test
@@ -119,11 +113,10 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void updateWorkflowInstanceThrowsExceptionWhenActionIsNull() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(is("Workflow instance action can not be null"));
     WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
     WorkflowInstanceAction a = null;
-    service.updateWorkflowInstance(i, a);
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> service.updateWorkflowInstance(i, a));
+    assertThat(thrown.getMessage(), is("Workflow instance action can not be null"));
   }
 
   @Test

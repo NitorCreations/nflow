@@ -12,6 +12,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -22,22 +23,12 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -53,11 +44,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
@@ -97,9 +86,11 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
 
 public class WorkflowStateProcessorTest extends BaseNflowTest {
 
+  /** XXX TODO implement with junit 5
+   * https://stackoverflow.com/questions/47041313/junit-5-global-timeout
   @Rule
   public Timeout timeoutPerMethod = Timeout.seconds(5);
-
+   */
   @Mock
   WorkflowDefinitionService workflowDefinitions;
 
@@ -164,7 +155,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
       WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED);
 
-  @Before
+  @BeforeEach
   public void setup() {
     processingInstances = new ConcurrentHashMap<>();
     env.setProperty("nflow.illegal.state.change.action", "fail");
@@ -175,18 +166,18 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
-    doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
-    doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition("force-test");
-    doReturn(failCleaningWf).when(workflowDefinitions).getWorkflowDefinition("fail-cleaning-test");
-    doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
-    doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition("failing-test");
-    doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
+    lenient().doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
+    lenient().doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition("force-test");
+    lenient().doReturn(failCleaningWf).when(workflowDefinitions).getWorkflowDefinition("fail-cleaning-test");
+    lenient().doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
+    lenient().doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition("failing-test");
+    lenient().doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
     filterChain(listener1);
     filterChain(listener2);
-    when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
+    lenient().when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     setCurrentMillisSystem();
   }
@@ -394,7 +385,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   private void filterChain(WorkflowExecutorListener listener) {
-    doAnswer(new Answer<Object>() {
+    lenient().doAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocation) {
         ListenerContext context = (ListenerContext) invocation.getArguments()[0];

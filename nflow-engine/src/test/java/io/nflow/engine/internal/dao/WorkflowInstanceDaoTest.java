@@ -17,6 +17,7 @@ import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
@@ -24,13 +25,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -48,10 +45,9 @@ import javax.inject.Inject;
 
 import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.transaction.TransactionStatus;
@@ -83,8 +79,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   List<WorkflowInstance> noChildWorkflows = emptyList();
   List<WorkflowInstance> emptyWorkflows = emptyList();
   Map<String, String> emptyVars = emptyMap();
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void roundTripTest() {
@@ -498,7 +492,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void postgreSQLUpdateWithoutActionIsNotAllowed() throws InterruptedException {
-    thrown.expect(IllegalArgumentException.class);
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
@@ -507,7 +500,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null)).setStatus(inProgress)
             .setState("updateState").setStateText("update text").build();
     sleep(1);
-    dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows, emptyWorkflows, false);
+    assertThrows(IllegalArgumentException.class,
+            () -> dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows, emptyWorkflows, false));
   }
 
   @Test
@@ -651,8 +645,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     d.setWorkflowInstanceExecutor(workflowInstanceExecutor);
     d.setSqlVariants(new PostgreSQLVariants());
     ExecutorDao eDao = mock(ExecutorDao.class);
-    when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
-    when(eDao.getExecutorId()).thenReturn(42);
+    lenient().when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
+    lenient().when(eDao.getExecutorId()).thenReturn(42);
     d.setExecutorDao(eDao);
     d.setJdbcTemplate(j);
     d.instanceStateTextLength = 128;
@@ -675,8 +669,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     threads[0].join();
     threads[1].join();
     assertThat(pollers[0].returnSize + pollers[1].returnSize, is(batchSize));
-    assertTrue("Race condition should happen", pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition
-        || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize));
+    assertTrue(pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition
+        || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize), "Race condition should happen");
   }
 
   @Test

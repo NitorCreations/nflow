@@ -1,17 +1,17 @@
 package io.nflow.engine.internal.executor;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.mock.env.MockEnvironment;
 
@@ -42,7 +42,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   WorkflowStateProcessorFactory factory;
   private static final int STUCK_THREAD_THRESHOLD = 5;
 
-  @Before
+  @BeforeEach
   public void setup() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
