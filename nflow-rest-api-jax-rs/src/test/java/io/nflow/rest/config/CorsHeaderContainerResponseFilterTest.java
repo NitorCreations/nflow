@@ -3,25 +3,25 @@ package io.nflow.rest.config;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CorsHeaderContainerResponseFilterTest {
 
   @Mock
@@ -35,13 +35,13 @@ public class CorsHeaderContainerResponseFilterTest {
   private static final String HOST = "example.com";
   private static final String HEADERS = "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept";
 
-  @Before
+  @BeforeEach
   public void setup() {
     when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(HOST);
     when(env.getRequiredProperty("nflow.rest.allow.headers")).thenReturn(HEADERS);
     when(env.getRequiredProperty("nflow.rest.cors.enabled", Boolean.class)).thenReturn(TRUE);
     filter = new CorsHeaderContainerResponseFilter(env);
-    when(responseContext.getHeaders()).thenReturn(headerMap);
+    lenient().when(responseContext.getHeaders()).thenReturn(headerMap);
   }
 
   @Test
