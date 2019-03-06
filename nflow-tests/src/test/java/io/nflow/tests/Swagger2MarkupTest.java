@@ -10,8 +10,11 @@ import java.nio.file.Paths;
 import io.nflow.tests.extension.NflowServerConfig;
 
 import io.github.swagger2markup.Swagger2MarkupConverter;
+import io.nflow.tests.extension.NflowServerExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(NflowServerExtension.class)
 public class Swagger2MarkupTest extends AbstractNflowTest {
 
   private static final Path SWAGGER2_MARKUP_ASCIIDOC_DIR = Paths.get("src/main/asciidoc/swagger2markup");

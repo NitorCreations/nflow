@@ -13,6 +13,7 @@ import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
 import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,7 +34,7 @@ import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith({SpringExtension.class})
+@ExtendWith({SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class})
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;

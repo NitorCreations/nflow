@@ -15,11 +15,13 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.engine.service.ArchiveService;
@@ -28,6 +30,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 
+@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ArchiveTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;

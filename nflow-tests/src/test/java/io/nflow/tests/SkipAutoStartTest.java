@@ -18,8 +18,10 @@ public class SkipAutoStartTest extends AbstractNflowTest {
   // no database access should happen. This test fails if SQL statements are
   // issued during bean initialization.
   public static NflowServerConfig server = new NflowServerConfig.Builder()
-      .prop("nflow.autoinit", "false").prop("nflow.autostart", "false").prop("nflow.db.create_on_startup", "false")
-    .build();
+          .prop("nflow.autoinit", "false")
+          .prop("nflow.autostart", "false")
+          .prop("nflow.db.create_on_startup", "false")
+          .build();
 
   public SkipAutoStartTest() {
     super(server);
@@ -28,7 +30,7 @@ public class SkipAutoStartTest extends AbstractNflowTest {
   @Test
   @Order(1)
   public void startServerButNotNflow() {
-    assertNotNull(server.getInstanceName());
+    assertNotNull(server.getHttpAddress());
   }
 
 }

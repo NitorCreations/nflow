@@ -9,10 +9,12 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
@@ -23,6 +25,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
 import io.nflow.tests.demo.workflow.SlowWorkflow;
 
+@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SignalWorkflowTest extends AbstractNflowTest {
 

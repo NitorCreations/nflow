@@ -12,11 +12,14 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
+import io.nflow.tests.extension.NflowServerExtension;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ChildWorkflowTest extends AbstractNflowTest {
     public static NflowServerConfig server = new NflowServerConfig.Builder().build();

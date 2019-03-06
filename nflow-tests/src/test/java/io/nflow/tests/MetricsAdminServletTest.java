@@ -11,11 +11,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MetricsAdminServletTest extends AbstractNflowTest {
 
