@@ -2,7 +2,7 @@ package io.nflow.engine.internal.executor;
 
 import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeast;
@@ -98,6 +98,8 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void exceptionDuringDispatcherExecutionCausesRetry() throws Throwable {
+    // TODO MultithreadedTestCase depends on junit4
+    // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc, last updated 2009
     @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {

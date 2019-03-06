@@ -86,10 +86,11 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
 
 public class WorkflowStateProcessorTest extends BaseNflowTest {
 
-  /** XXX TODO implement with junit 5
+  /**
+   * TODO junit5 doesn't have global timeouts yet
    * https://stackoverflow.com/questions/47041313/junit-5-global-timeout
-  @Rule
-  public Timeout timeoutPerMethod = Timeout.seconds(5);
+   * @Rule
+   * public Timeout timeoutPerMethod = Timeout.seconds(5);
    */
   @Mock
   WorkflowDefinitionService workflowDefinitions;

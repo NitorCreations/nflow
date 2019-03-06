@@ -5,12 +5,9 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -18,14 +15,9 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
 
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.CustomMatcher;
-import org.hamcrest.Matchers;
-import org.junit.Rule;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
