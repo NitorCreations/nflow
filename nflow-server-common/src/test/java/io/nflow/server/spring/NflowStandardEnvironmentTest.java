@@ -3,35 +3,32 @@ package io.nflow.server.spring;
 import static io.nflow.engine.config.Profiles.H2;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.core.env.AbstractEnvironment.IGNORE_GETENV_PROPERTY_NAME;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Profiles;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NflowStandardEnvironmentTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Before
+  @BeforeEach
   public void setup() {
     setProperty("env", "junit");
     setProperty(IGNORE_GETENV_PROPERTY_NAME, "true");
   }
 
-  @After
+  @AfterEach
   public void cleanup() {
     clearProperty("env");
     clearProperty("profiles");
@@ -60,11 +57,11 @@ public class NflowStandardEnvironmentTest {
     assertThat(environment.getProperty("nflow.executor.group"), is("externallyDefinedExecutorGroup"));
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test
   public void missingExternalPropertiesException() {
     Map<String, Object> overrideProperties = new HashMap<>();
     overrideProperties.put("nflow.external.config", "/missing.properties");
-    new NflowStandardEnvironment(overrideProperties);
+    assertThrows(RuntimeException.class, () -> new NflowStandardEnvironment(overrideProperties));
   }
 
   @Test
@@ -76,10 +73,10 @@ public class NflowStandardEnvironmentTest {
 
   @Test
   public void multipleDatabaseProfilesPrevented() {
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("Multiple nflow.db profiles defined");
     setProperty("profiles", "nflow.db.profile1,nflow.db.profile2");
-    new NflowStandardEnvironment(new HashMap<String, Object>());
+
+    RuntimeException thrown = assertThrows(RuntimeException.class, () -> new NflowStandardEnvironment(new HashMap<String, Object>()));
+    assertThat(thrown.getMessage(), CoreMatchers.containsString("Multiple nflow.db profiles defined"));
   }
 
   @Test
