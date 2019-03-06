@@ -1,5 +1,8 @@
 # nFlow Explorer change log
 
+nFlow Explorer has been merged to main nFlow repository. Changes to nFlow Explorer are documented to root `CHANGELOG.md`
+in the future.
+
 1.2.8 2018-09-14
 ================
 

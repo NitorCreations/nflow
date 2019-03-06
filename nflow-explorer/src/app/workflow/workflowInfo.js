@@ -2,7 +2,8 @@
   'use strict';
 
   var m = angular.module('nflowExplorer.workflow.info', [
-    'nflowExplorer.workflow.graph'
+    'nflowExplorer.components',
+    'nflowExplorer.workflow.graph',
   ]);
 
   m.directive('workflowInfo', function() {
@@ -13,6 +14,7 @@
         workflow: '=',
         parentWorkflow: '=',
         childWorkflows: '=',
+        definition: '=',
       },
       bindToController: true,
       controller: 'WorkflowInfoCtrl',
@@ -21,10 +23,11 @@
     };
   });
 
-  m.controller('WorkflowInfoCtrl', function(WorkflowGraphApi) {
+  m.controller('WorkflowInfoCtrl', function(WorkflowGraphApi, config) {
     var self = this;
     self.currentStateTime = currentStateTime;
     self.selectAction = WorkflowGraphApi.onSelectNode;
+    self.contentGenerator = config.customInstanceContent;
 
     function currentStateTime() {
       return _.result(self, 'modified', '');

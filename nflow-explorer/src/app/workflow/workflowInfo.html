@@ -18,4 +18,5 @@
   <div>Workflow id: <strong>{{ctrl.workflow.id}}</strong></div>
   <div ng-show="ctrl.workflow.businessKey">Business key: <code>{{ctrl.workflow.businessKey}}</code></div>
   <div ng-show="ctrl.workflow.externalId">External id: <code>{{ctrl.workflow.externalId}}</code></div>
+  <custom-content func="ctrl.contentGenerator(ctrl.definition, ctrl.workflow, ctrl.parentWorkflow, ctrl.childWorkflows)"></custom-content>
 </section>
