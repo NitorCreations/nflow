@@ -4,7 +4,6 @@ import static io.nflow.engine.workflow.definition.BulkWorkflow.BULK_WORKFLOW_TYP
 import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
-import static java.util.Arrays.asList;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
@@ -16,6 +15,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.ws.rs.core.Response;
 
@@ -41,7 +41,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
 
   private static int workflowId;
 
-  private static int childrenCount;
+  private static final int CHILDREN_COUNT = 10;
 
   public BulkWorkflowTest() {
     super(server);
@@ -57,8 +57,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DEMO_BULK_WORKFLOW_TYPE;
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
-    List<Integer> childData = asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-    childrenCount = childData.size();
+    List<Integer> childData = IntStream.rangeClosed(1, CHILDREN_COUNT).boxed().collect(toList());
     req.stateVariables.put(BulkWorkflow.VAR_CHILD_DATA, nflowObjectMapper().valueToTree(childData));
     CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
         CreateWorkflowInstanceResponse.class);
@@ -82,7 +81,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
     workflowId = resp.id;
 
-    for (int i = 0; i < childrenCount; ++i) {
+    for (int i = 0; i < CHILDREN_COUNT; ++i) {
       CreateWorkflowInstanceRequest child = new CreateWorkflowInstanceRequest();
       child.type = DEMO_WORKFLOW_TYPE;
       child.activate = false;
@@ -110,7 +109,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(workflowId, done.name());
     assertThat(instance.childWorkflows.size(), equalTo(1));
     List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
-    assertThat(childWorkflowIds.size(), equalTo(childrenCount));
+    assertThat(childWorkflowIds.size(), equalTo(CHILDREN_COUNT));
     List<ListWorkflowInstanceResponse> children = childWorkflowIds.stream().map(this::getWorkflowInstance).collect(toList());
     DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();
     DateTime maxStarted = children.stream().map(child -> child.started).max(naturalOrder()).get();
