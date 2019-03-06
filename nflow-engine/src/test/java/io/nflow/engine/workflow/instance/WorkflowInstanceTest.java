@@ -1,18 +1,18 @@
 package io.nflow.engine.workflow.instance;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Test;
-
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowInstanceTest {
 
@@ -24,14 +24,16 @@ public class WorkflowInstanceTest {
     assertThat(instance.nextActivation, is(not(nullValue())));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void putStateVariableObjectDoesNotAcceptNullValue() {
-    new WorkflowInstance.Builder(mapper).putStateVariable("key", (Object) null);
+    assertThrows(IllegalArgumentException.class,
+            () -> new WorkflowInstance.Builder(mapper).putStateVariable("key", (Object) null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void putStateVariableStringDoesNotAcceptNullValue() {
-    new WorkflowInstance.Builder().putStateVariable("key", (String) null);
+    assertThrows(IllegalArgumentException.class,
+            () -> new WorkflowInstance.Builder().putStateVariable("key", (String) null));
   }
 
   @Test
@@ -48,11 +50,12 @@ public class WorkflowInstanceTest {
     assertThat(instance.stateVariables.get("key"), is(equalTo("value")));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void getTypedStateVariableFailsWithoutObjectMapper() {
-    WorkflowInstance instance = new WorkflowInstance.Builder().build();
-
-    instance.getStateVariable("key", Long.class);
+    assertThrows(IllegalStateException.class, () -> {
+      WorkflowInstance instance = new WorkflowInstance.Builder().build();
+      instance.getStateVariable("key", Long.class);
+    });
   }
 
   @Test
