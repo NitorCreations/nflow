@@ -17,7 +17,8 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.List;
 
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import javax.ws.rs.core.Response;
+
 import org.joda.time.DateTime;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -28,10 +29,9 @@ import io.nflow.engine.workflow.definition.BulkWorkflow;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.runner.NflowServerRule;
-
-import javax.ws.rs.core.Response;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class BulkWorkflowTest extends AbstractNflowTest {
@@ -99,8 +99,9 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   public void t12_startBulkWorkflow() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now();
-    Response resp = fromClient(workflowInstanceResource, true).path("id").path(workflowId).put(req, Response.class);
-    assertThat(resp.getStatus(), equalTo(204));
+    try (Response resp = fromClient(workflowInstanceResource, true).path("id").path(workflowId).put(req, Response.class)) {
+      assertThat(resp.getStatus(), equalTo(204));
+    }
   }
 
   @Test(timeout = 30000)
