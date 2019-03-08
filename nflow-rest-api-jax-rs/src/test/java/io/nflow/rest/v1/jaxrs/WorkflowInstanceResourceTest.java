@@ -12,7 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.util.EnumSet;
@@ -29,7 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -169,7 +172,6 @@ public class WorkflowInstanceResourceTest {
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
@@ -191,7 +193,6 @@ public class WorkflowInstanceResourceTest {
         hasField("maxActions", equalTo(null)))));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
@@ -217,7 +218,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingNonExistingWorkflowThrowsNotFoundException() {
     when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null))
-            .thenThrow(EmptyResultDataAccessException.class);
+    .thenThrow(EmptyResultDataAccessException.class);
     assertThrows(NotFoundException.class, () -> resource.fetchWorkflowInstance(42, null, null));
   }
 

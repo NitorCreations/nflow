@@ -14,8 +14,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -29,6 +27,8 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 
 @ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -36,8 +36,6 @@ public class ArchiveTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
-  private static final int CREATE_TIMEOUT = 15000;
-  private static final int ARCHIVE_TIMEOUT = 15000;
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
       .springContextClass(ArchiveConfiguration.class).build();

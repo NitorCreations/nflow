@@ -5,15 +5,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -31,6 +29,8 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.StateWorkflow;
 import io.nflow.tests.demo.workflow.StateWorkflow.State;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 
 @ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -109,11 +109,10 @@ public class StateVariablesTest extends AbstractNflowTest {
     if (action.updatedStateVariables != null) {
       value = (Map<String, String>) action.updatedStateVariables.get(key);
     }
-
-    if (value == null && expectedValue == null) {
-      return;
+    if (value == null) {
+      assertNull(expectedValue);
+    } else {
+      assertEquals(expectedValue, value.get("value"));
     }
-    assertNotNull(value);
-    assertEquals(expectedValue, value.get("value"));
   }
 }

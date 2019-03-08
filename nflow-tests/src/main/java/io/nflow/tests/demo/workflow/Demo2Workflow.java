@@ -1,11 +1,17 @@
 package io.nflow.tests.demo.workflow;
 
-import io.nflow.engine.workflow.definition.*;
-import org.springframework.stereotype.Component;
-
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.*;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+
+import io.nflow.engine.workflow.definition.NextAction;
+import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowState;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class Demo2Workflow extends WorkflowDefinition<Demo2Workflow.State> {
 

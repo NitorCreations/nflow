@@ -1,16 +1,16 @@
 package io.nflow.tests.extension;
 
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NflowServerExtension implements BeforeAllCallback, AfterAllCallback {
     private static Logger logger = LoggerFactory.getLogger(NflowServerExtension.class);
@@ -39,7 +39,7 @@ public class NflowServerExtension implements BeforeAllCallback, AfterAllCallback
     }
 
     @Override
-    public void afterAll(ExtensionContext context) throws Exception {
+  public void afterAll(ExtensionContext context) {
         config.after();
     }
 

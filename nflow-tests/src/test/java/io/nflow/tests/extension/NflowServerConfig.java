@@ -14,7 +14,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import io.nflow.jetty.JettyServerContainer;
 import io.nflow.jetty.StartNflow;
-import org.junit.jupiter.api.Assertions;
 import ru.yandex.qatools.embed.postgresql.PostgresExecutable;
 import ru.yandex.qatools.embed.postgresql.PostgresProcess;
 import ru.yandex.qatools.embed.postgresql.PostgresStarter;

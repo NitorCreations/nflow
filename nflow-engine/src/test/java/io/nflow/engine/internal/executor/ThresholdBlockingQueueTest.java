@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.joda.time.DateTime;
@@ -49,12 +48,12 @@ public class ThresholdBlockingQueueTest {
   }
 
   @Test
-  public void doesNotWaitIfQueueIsAlreadyBelowThreshold() throws InterruptedException {
+  public void doesNotWaitIfQueueIsAlreadyBelowThreshold() {
     assertTimeout(ofMillis(5000), () -> q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusMinutes(1)));
   }
 
   @Test
-  public void waitsUntilQueueSizeLowerThanThreshold() throws InterruptedException, ExecutionException {
+  public void waitsUntilQueueSizeLowerThanThreshold() {
     assertTimeout(ofMillis(10000), () -> {
       q.put(100);
       q.put(200);
@@ -83,7 +82,7 @@ public class ThresholdBlockingQueueTest {
   }
 
   @Test
-  public void waitTimeoutWorks() throws InterruptedException, ExecutionException {
+  public void waitTimeoutWorks() {
     assertTimeout(ofMillis(10000), () -> {
       q.put(100);
       q.put(200);

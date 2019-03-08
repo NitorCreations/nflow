@@ -15,13 +15,13 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.rest.v1.DummyTestWorkflow;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Signal;
 import io.nflow.rest.v1.msg.State;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ListWorkflowDefinitionConverterTest {
@@ -33,7 +33,6 @@ public class ListWorkflowDefinitionConverterTest {
     converter = new ListWorkflowDefinitionConverter();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void convertWorks() {
     DummyTestWorkflow def = new DummyTestWorkflow();

@@ -16,8 +16,8 @@ public class StartNflowTest {
   public class TestApplicationListener implements ApplicationListener<ApplicationContextEvent> {
     public ApplicationContextEvent applicationContextEvent;
     @Override
-    public void onApplicationEvent(ApplicationContextEvent applicationContextEvent) {
-      this.applicationContextEvent = applicationContextEvent;
+    public void onApplicationEvent(ApplicationContextEvent event) {
+      applicationContextEvent = event;
     }
   }
 

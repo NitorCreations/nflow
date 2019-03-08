@@ -14,13 +14,12 @@ import javax.ws.rs.ext.ParamConverter;
 
 import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class DateTimeParamConverterProviderTest {
