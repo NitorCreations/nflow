@@ -39,7 +39,7 @@ public class NflowServerExtension implements BeforeAllCallback, AfterAllCallback
     }
 
     @Override
-  public void afterAll(ExtensionContext context) {
+    public void afterAll(ExtensionContext context) {
         config.after();
     }
 
