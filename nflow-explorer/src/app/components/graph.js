@@ -109,7 +109,7 @@
           };
 
           function resolveStyleClass() {
-            var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error'], state.type) ? state.type : 'normal');
+            var cssClass = 'node-' + (_.includes(['start', 'manual', 'end', 'error', 'wait'], state.type) ? state.type : 'normal');
             if (workflow && isPassiveNode()) {
               cssClass += ' node-passive';
             }
