@@ -14,6 +14,7 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -290,11 +291,13 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void instanceWithUnsupportedStateIsRescheduled() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("invalid").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    DateTime oneHourInFuture = now().plusHours(1);
 
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-            MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"))));
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0,
+            is("Unsupported workflow state"), greaterThanOrEqualTo(oneHourInFuture))));
   }
 
   @Test
@@ -590,7 +593,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private Matcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowInstanceStatus status,
       final WorkflowState state, final int retries, final Matcher<String> stateTextMatcher,
-      final Matcher<DateTime> nextActivationMatcher) {
+      final Matcher<? super DateTime> nextActivationMatcher) {
     return new TypeSafeMatcher<WorkflowInstance>() {
       @Override
       public void describeTo(Description description) {
@@ -696,11 +699,13 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     when(workflowDefinitions.getWorkflowDefinition("test")).thenReturn(null);
+    DateTime oneHourInFuture = now().plusHours(1);
 
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"))));
+        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0,
+            is("Unsupported workflow type"), greaterThanOrEqualTo(oneHourInFuture))));
   }
 
   @Test
