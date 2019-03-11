@@ -1,8 +1,13 @@
-## 5.3.4-SNAPSHOT (future release)
+## 5.4.0-SNAPSHOT (future release)
 
 **Highlights**
+- Introduce BulkWorkflow which can be used or extended to handle mass of child workflows without overloading the system.
+- Introduce new workflow instance state type `wait`. Child workflow instances automatically wake up the parent when the parent is in a `wait` state and the child enters an `end` state.
+- Allow creating workflows via REST API with null activation time (by setting `activate = false`).
+- Allow creating child workflows via REST API (by setting `parentWorkflowId`).
 
 **Details**
+- See `BulkWorkflowTest` and `DemoBulkWorkflow` for examples on how to use bulk workflows
 - Support boxed primitives (Integer, Float etc) with @StateVar
 - nFlow Explorer: Library updates to `lodash` 4.17.11, `moment` 2.24.0 and `extend` 3.0.2
   Earlier lodash versions had this security vulnerability: https://nvd.nist.gov/vuln/detail/CVE-2018-16487

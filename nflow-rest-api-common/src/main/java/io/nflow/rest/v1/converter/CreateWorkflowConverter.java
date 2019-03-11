@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.converter;
 
+import static java.lang.Boolean.FALSE;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.util.Map.Entry;
@@ -25,9 +26,14 @@ public class CreateWorkflowConverter {
   public WorkflowInstance convert(CreateWorkflowInstanceRequest req) {
     WorkflowInstance.Builder builder = factory.newWorkflowInstanceBuilder().setType(req.type).setBusinessKey(req.businessKey)
         .setExternalId(req.externalId);
-    if (req.activationTime != null) {
-      builder.setNextActivation(req.activationTime);
+    if (!FALSE.equals(req.activate)) {
+      if (req.activationTime != null) {
+        builder.setNextActivation(req.activationTime);
+      }
+    } else {
+      builder.setNextActivation(null);
     }
+    builder.setParentWorkflowId(req.parentWorkflowId);
     if (isNotEmpty(req.startState)) {
       builder.setState(req.startState);
     }

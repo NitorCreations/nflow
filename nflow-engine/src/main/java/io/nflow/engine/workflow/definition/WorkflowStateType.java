@@ -27,6 +27,12 @@ public enum WorkflowStateType {
   normal(false, WorkflowInstanceStatus.inProgress),
 
   /**
+   * State for waiting something outside this instance to happen, including (but not limited to) child workflow instances to go to
+   * end state. When a child workflow finishes and parent is in wait state, parent is automatically woken up.
+   */
+  wait(false, WorkflowInstanceStatus.inProgress),
+
+  /**
    * Final state of the workflow. Workflow execution is stopped.
    */
   end(true, WorkflowInstanceStatus.finished);

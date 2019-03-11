@@ -47,6 +47,7 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -204,9 +205,18 @@ class WorkflowStateProcessor implements Runnable {
       logger.debug("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
     }
+    WorkflowState nextState = definition.getState(execution.getNextState());
+    if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
+      String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
+      AbstractWorkflowDefinition<?> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
+      String parentCurrentState = workflowInstanceDao.getWorkflowInstanceState(instance.parentWorkflowId);
+      if (parentDefinition.getState(parentCurrentState).getType() == WorkflowStateType.wait) {
+        execution.wakeUpParentWorkflow();
+      }
+    }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance) //
         .setNextActivation(execution.getNextActivation()) //
-        .setStatus(getStatus(execution, definition.getState(execution.getNextState()))) //
+        .setStatus(getStatus(execution, nextState)) //
         .setStateText(getStateText(instance, execution)) //
         .setState(execution.getNextState()) //
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);

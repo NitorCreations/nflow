@@ -54,4 +54,5 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
   public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Go to done state");
   }
+
 }
