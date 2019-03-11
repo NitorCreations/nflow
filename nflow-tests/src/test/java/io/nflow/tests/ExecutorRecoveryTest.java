@@ -3,29 +3,31 @@ package io.nflow.tests;
 import static io.nflow.tests.demo.workflow.SlowWorkflow.SLOW_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import io.nflow.tests.extension.NflowServerConfig;
 
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.SlowWorkflow;
-import io.nflow.tests.runner.NflowServerRule;
+import io.nflow.tests.extension.NflowServerExtension;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@FixMethodOrder(NAME_ASCENDING)
+@ExtendWith(NflowServerExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExecutorRecoveryTest extends AbstractNflowTest {
 
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder()
+  public static NflowServerConfig server = new NflowServerConfig.Builder()
     .prop("nflow.executor.timeout.seconds", 1)
     .prop("nflow.executor.keepalive.seconds", 5)
     .prop("nflow.dispatcher.await.termination.seconds", 1)
@@ -39,7 +41,8 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t01_submitSlowWorkflow() {
+  @Order(1)
+  public void submitSlowWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = SLOW_WORKFLOW_TYPE;
     resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
@@ -47,7 +50,8 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t02_checkSlowWorkflowStarted() throws Exception {
+  @Order(2)
+  public void checkSlowWorkflowStarted() throws Exception {
     for (int i=0; i<5; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (wf != null && SlowWorkflow.State.process.name().equals(wf.state)) {
@@ -59,19 +63,22 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t03_stopServer() {
+  @Order(3)
+  public void stopServer() {
     // This does not actually stop the executor threads, because JVM does not exit.
     // Connection pool is closed though, so the workflow instance state cannot be updated by the stopped nflow engine.
     server.stopServer();
   }
 
   @Test
-  public void t04_restartServer() throws Exception {
+  @Order(4)
+  public void restartServer() throws Exception {
     server.startServer();
   }
 
   @Test
-  public void t05_checkSlowWorkflowFinishes() throws Exception {
+  @Order(5)
+  public void checkSlowWorkflowFinishes() throws Exception {
     for (int i=0; i<30; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (wf != null && SlowWorkflow.State.done.name().equals(wf.state)) {

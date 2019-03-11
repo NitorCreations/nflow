@@ -1,14 +1,14 @@
 package io.nflow.engine.workflow;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import io.nflow.engine.internal.executor.BaseNflowTest;
@@ -20,27 +20,23 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Mock
   private WorkflowDefinitionService workflowDefinitionService;
 
   private WorkflowInstancePreProcessor preProcessor;
 
-  @Before
+  @BeforeEach
   public void setup() {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
-    doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition("dummy");
+    lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition("dummy");
     preProcessor = new WorkflowInstancePreProcessor(workflowDefinitionService);
   }
 
   @Test
   public void wrongStartStateCausesException() {
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("Specified state [end] is not a start state.");
     WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
-    preProcessor.process(i);
+    RuntimeException thrown = assertThrows(RuntimeException.class, () -> preProcessor.process(i));
+    assertThat(thrown.getMessage(), containsString("Specified state [end] is not a start state."));
   }
 
   @Test
@@ -66,9 +62,8 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   @Test
   public void unsupportedTypeThrowsException() {
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("No workflow definition found for type [nonexistent]");
     WorkflowInstance i = constructWorkflowInstanceBuilder().setType("nonexistent").build();
-    preProcessor.process(i);
+    RuntimeException thrown = assertThrows(RuntimeException.class, () -> preProcessor.process(i));
+    assertThat(thrown.getMessage(), containsString("No workflow definition found for type [nonexistent]"));
   }
 }

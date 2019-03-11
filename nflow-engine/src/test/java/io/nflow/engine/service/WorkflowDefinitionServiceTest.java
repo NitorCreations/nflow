@@ -1,12 +1,14 @@
 package io.nflow.engine.service;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,10 +16,8 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -29,8 +29,6 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 
 public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Mock
   private ClassPathResource nonSpringWorkflowListing;
   @Mock
@@ -39,7 +37,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   private Environment env;
   private WorkflowDefinitionService service;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(true);
     String dummyTestClassname = DummyTestWorkflow.class.getName();
@@ -55,12 +53,11 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void initDuplicateWorkflows() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Both io.nflow.engine.service.DummyTestWorkflow and io.nflow.engine.service.DummyTestWorkflow define same workflow type: dummy");
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream((dummyTestClassname + "\n" + dummyTestClassname).getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    service.postProcessWorkflowDefinitions();
+    IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> service.postProcessWorkflowDefinitions());
+    assertThat(thrown.getMessage(), containsString("Both io.nflow.engine.service.DummyTestWorkflow and io.nflow.engine.service.DummyTestWorkflow define same workflow type: dummy"));
   }
 
   @Test

@@ -4,15 +4,15 @@ import static org.joda.time.DateTime.now;
 import static org.mockito.Mockito.verify;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.StatisticsDao;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StatisticsServiceTest {
 
   @InjectMocks

@@ -1,21 +1,22 @@
 package io.nflow.tests;
 
 import static java.util.Collections.singletonMap;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,12 +29,14 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.StateWorkflow;
 import io.nflow.tests.demo.workflow.StateWorkflow.State;
-import io.nflow.tests.runner.NflowServerRule;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 
-@FixMethodOrder(NAME_ASCENDING)
+@ExtendWith(NflowServerExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StateVariablesTest extends AbstractNflowTest {
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(TestConfiguration.class).build();
+
+  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(TestConfiguration.class).build();
   private static CreateWorkflowInstanceRequest createRequest;
   private static CreateWorkflowInstanceResponse createResponse;
 
@@ -48,8 +51,9 @@ public class StateVariablesTest extends AbstractNflowTest {
     }
   }
 
-  @Test(timeout = 5000)
-  public void t01_createStateWorkflow() throws JsonProcessingException, IOException {
+  @Test // (timeout = 5000)
+  @Order(1)
+  public void createStateWorkflow() throws JsonProcessingException, IOException {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
@@ -58,8 +62,9 @@ public class StateVariablesTest extends AbstractNflowTest {
     assertThat(createResponse.id, notNullValue());
   }
 
-  @Test(timeout = 5000)
-  public void t02_checkStateVariables() throws InterruptedException {
+  @Test // (timeout = 5000)
+  @Order(2)
+  public void checkStateVariables() throws InterruptedException {
     ListWorkflowInstanceResponse listResponse;
     do {
       listResponse = getWorkflowInstance(createResponse.id, "done");
@@ -79,7 +84,8 @@ public class StateVariablesTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t03_updateStateVariable() {
+  @Order(3)
+  public void updateStateVariable() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("testUpdate", "testValue");
 
@@ -103,11 +109,10 @@ public class StateVariablesTest extends AbstractNflowTest {
     if (action.updatedStateVariables != null) {
       value = (Map<String, String>) action.updatedStateVariables.get(key);
     }
-
-    if (value == null && expectedValue == null) {
-      return;
+    if (value == null) {
+      assertNull(expectedValue);
+    } else {
+      assertEquals(expectedValue, value.get("value"));
     }
-    assertNotNull(value);
-    assertEquals(expectedValue, value.get("value"));
   }
 }

@@ -1,22 +1,20 @@
 package io.nflow.rest.v1.converter;
 
 import static java.util.Collections.singletonMap;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
-import io.nflow.rest.v1.converter.StatisticsConverter;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse.StateStatistics;
+import org.junit.jupiter.api.Test;
 
 
 public class StatisticsConverterTest {

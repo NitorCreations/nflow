@@ -3,8 +3,8 @@ package io.nflow.engine.internal.dao;
 import static com.nitorcreations.Matchers.containsElementsInAnyOrder;
 import static com.nitorcreations.Matchers.reflectEquals;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
-import org.junit.Test;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.service.DummyTestWorkflow.DummyTestState;
 import io.nflow.engine.workflow.definition.WorkflowState;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowDefinitionDaoTest extends BaseDaoTest {
 

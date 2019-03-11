@@ -1,30 +1,27 @@
 package io.nflow.engine.config;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.env.MockEnvironment;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.mock.env.MockEnvironment;
-import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.nflow.engine.config.EngineConfiguration;
-import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EngineConfigurationTest {
 
   @Spy

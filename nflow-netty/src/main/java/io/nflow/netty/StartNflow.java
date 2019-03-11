@@ -60,8 +60,8 @@ public class StartNflow {
     return this;
   }
 
-  public StartNflow registerSpringApplicationListener(ApplicationListener<?>... applicationListeners) {
-    this.applicationListeners.addAll(asList(applicationListeners));
+  public StartNflow registerSpringApplicationListener(ApplicationListener<?>... listeners) {
+    this.applicationListeners.addAll(asList(listeners));
     return this;
   }
 

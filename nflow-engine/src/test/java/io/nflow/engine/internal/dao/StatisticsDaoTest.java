@@ -3,23 +3,22 @@ package io.nflow.engine.internal.dao;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
 
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StatisticsDaoTest extends BaseDaoTest {
 
@@ -28,7 +27,7 @@ public class StatisticsDaoTest extends BaseDaoTest {
   @Inject
   StatisticsDao statisticsDao;
 
-  @Before
+  @BeforeEach
   public void setup() {
     createInstance();
     createInstance();

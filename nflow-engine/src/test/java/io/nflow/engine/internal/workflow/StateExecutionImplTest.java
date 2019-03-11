@@ -5,9 +5,9 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,12 +16,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -29,8 +29,9 @@ import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StateExecutionImplTest {
   StateExecutionImpl execution;
   StateExecution executionInterface;
@@ -47,7 +48,7 @@ public class StateExecutionImplTest {
   WorkflowInstanceService workflowInstanceService;
   ArgumentCaptor<QueryWorkflowInstances> queryCaptor = ArgumentCaptor.forClass(QueryWorkflowInstances.class);
 
-  @Before
+  @BeforeEach
   public void setup() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
             .setBusinessKey("business").build();
@@ -230,9 +231,9 @@ public class StateExecutionImplTest {
     verify(workflowInstanceService).setSignal(instance.id, Optional.of(42), "testing", WorkflowActionType.stateExecution);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void setSignalRejectsNull() {
-    execution.setSignal(null, "testing");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> execution.setSignal(null, "testing"));
   }
 
   @Test

@@ -4,10 +4,12 @@ import static com.nitorcreations.Matchers.hasItemsOf;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -16,10 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.hamcrest.CustomMatcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
@@ -32,27 +32,27 @@ import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @SuppressWarnings("unused")
 public class WorkflowDefinitionScannerTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   WorkflowDefinitionScanner scanner;
 
-  @Before
+  @BeforeEach
   public void setup() {
     scanner = new WorkflowDefinitionScanner();
   }
+
   @Test
   public void overloadingStateMethodShouldThrowException() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("OverloadedStateMethodWorkflow.end");
-    thrown.expectMessage("Overloading state methods is not allowed.");
-    scanner.getStateMethods(OverloadedStateMethodWorkflow.class);
+    IllegalStateException thrown = assertThrows(IllegalStateException.class,
+            () -> scanner.getStateMethods(OverloadedStateMethodWorkflow.class));
+    assertThat(thrown.getMessage(), containsString("OverloadedStateMethodWorkflow.end"));
+    assertThat(thrown.getMessage(), containsString("Overloading state methods is not allowed."));
   }
+
   @Test
   public void missingStateVarAnnotationShouldThrowException() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("MissingStateVarWorkflow.end");
-    thrown.expectMessage("missing @StateVar annotation");
-    scanner.getStateMethods(MissingStateVarWorkflow.class);
+    IllegalStateException thrown = assertThrows(IllegalStateException.class,
+            () -> scanner.getStateMethods(MissingStateVarWorkflow.class));
+    assertThat(thrown.getMessage(), containsString("MissingStateVarWorkflow.end"));
+    assertThat(thrown.getMessage(), containsString("missing @StateVar annotation"));
   }
 
   @Test

@@ -1,6 +1,6 @@
 package io.nflow.rest;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,10 +10,10 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.simple.SimpleContainerFactory;
 import org.glassfish.jersey.simple.SimpleServer;
-import org.junit.Test;
 
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.v1.jaxrs.ArchiveResource;
+import org.junit.jupiter.api.Test;
 
 public class JerseyCompabilityTest {
 

@@ -8,25 +8,27 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 import io.nflow.engine.internal.executor.InvalidNextActionException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class NextActionTest {
 
-  @Test(expected = InvalidNextActionException.class)
+  @Test
   public void stopInStartStateThrowsException() {
-    NextAction.stopInState(TestState.initial, "stop reason");
+    Assertions.assertThrows(InvalidNextActionException.class,
+            () -> NextAction.stopInState(TestState.initial, "stop reason"));
   }
 
-  @Test(expected = InvalidNextActionException.class)
+  @Test
   public void stopInNormalStateThrowsException() {
-    NextAction.stopInState(TestState.state1, "stop reason");
+    Assertions.assertThrows(InvalidNextActionException.class,
+            () -> NextAction.stopInState(TestState.state1, "stop reason"));
   }
 
   @Test

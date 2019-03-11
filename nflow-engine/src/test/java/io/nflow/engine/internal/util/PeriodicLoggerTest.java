@@ -1,20 +1,20 @@
 package io.nflow.engine.internal.util;
 
+import org.joda.time.DateTimeUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import org.joda.time.DateTimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PeriodicLoggerTest {
     @Mock
     Logger logger;
@@ -23,13 +23,13 @@ public class PeriodicLoggerTest {
     Object[] params = new Object[]{new Object(), 1};
     final long now = 1443540008000L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         periodicLogger = new PeriodicLogger(logger, 60);
         setCurrentMillisFixed(now);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         DateTimeUtils.setCurrentMillisSystem();
     }

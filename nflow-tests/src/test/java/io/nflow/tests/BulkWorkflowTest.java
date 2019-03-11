@@ -7,12 +7,11 @@ import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -20,9 +19,11 @@ import java.util.stream.IntStream;
 import javax.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.engine.workflow.definition.BulkWorkflow;
@@ -31,13 +32,15 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
-import io.nflow.tests.runner.NflowServerRule;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 
-@FixMethodOrder(NAME_ASCENDING)
+@ExtendWith(NflowServerExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BulkWorkflowTest extends AbstractNflowTest {
 
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(Configuration.class).build();
+  public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
+      .springContextClass(Configuration.class).build();
 
   private static int workflowId;
 
@@ -53,6 +56,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
+  @Order(1)
   public void t01_startDemoBulkWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DEMO_BULK_WORKFLOW_TYPE;
@@ -65,12 +69,14 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     workflowId = resp.id;
   }
 
-  @Test(timeout = 30000)
+  @Test // (timeout = 30000)
+  @Order(2)
   public void t02_waitForBulkToFinish() throws InterruptedException {
     waitForBulkToFinish();
   }
 
   @Test
+  @Order(3)
   public void t11_createBulkWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = BULK_WORKFLOW_TYPE;
@@ -92,6 +98,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
+  @Order(4)
   public void t12_startBulkWorkflow() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now();
@@ -100,7 +107,8 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     }
   }
 
-  @Test(timeout = 30000)
+  @Test // (timeout = 30000)
+  @Order(5)
   public void t13_waitForBulkToFinish() throws InterruptedException {
     waitForBulkToFinish();
   }

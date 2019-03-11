@@ -9,18 +9,18 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.nflow.engine.internal.executor.BaseNflowTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes={DaoTestConfiguration.class})
 @ActiveProfiles(H2)
 public abstract class BaseDaoTest extends BaseNflowTest {
@@ -33,7 +33,7 @@ public abstract class BaseDaoTest extends BaseNflowTest {
 
   protected final DateTime crashedNodeStartTime = now().minusDays(1);
 
-  @After
+  @AfterEach
   public void truncateDb() {
     ResourceDatabasePopulator populator = populator();
     populator.addScript(new ClassPathResource("scripts/db/h2.truncate.sql"));

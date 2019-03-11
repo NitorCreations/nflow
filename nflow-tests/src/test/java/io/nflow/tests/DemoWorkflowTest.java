@@ -2,29 +2,32 @@ package io.nflow.tests;
 
 import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
-import io.nflow.tests.runner.NflowServerRule;
 
-@FixMethodOrder(NAME_ASCENDING)
+@ExtendWith(NflowServerExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DemoWorkflowTest extends AbstractNflowTest {
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(DemoConfiguration.class).build();
+
+  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(DemoConfiguration.class).build();
 
   private static CreateWorkflowInstanceResponse resp;
 
@@ -38,7 +41,8 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t01_startDemoWorkflow() {
+  @Order(1)
+  public void startDemoWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "demo";
     req.businessKey = "1";
@@ -46,8 +50,9 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test(timeout = 5000)
-  public void t02_queryDemoWorkflowHistory() throws Exception {
+  @Test // (timeout = 5000)
+  @Order(2)
+  public void queryDemoWorkflowHistory() throws Exception {
     ListWorkflowInstanceResponse wf = null;
     do {
       sleep(200);
@@ -65,14 +70,16 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t03_queryDemoWorkflowWithMultipleStatuses() {
+  @Order(3)
+  public void queryDemoWorkflowWithMultipleStatuses() {
     ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
         .query("status", "finished").query("status", "manual").get(ListWorkflowInstanceResponse[].class);
     assertThat(instances.length, greaterThanOrEqualTo(1));
   }
 
   @Test
-  public void t04_queryWorkflowWithActionsReturnsEmptyActions() {
+  @Order(4)
+  public void queryWorkflowWithActionsReturnsEmptyActions() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "demo";
     req.businessKey = "2";
@@ -84,7 +91,8 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t05_queryWorkflowWithoutActionsReturnsNullActions() {
+  @Order(5)
+  public void queryWorkflowWithoutActionsReturnsNullActions() {
     ListWorkflowInstanceResponse instance = fromClient(workflowInstanceIdResource, true).path(Integer.toString(resp.id))
         .get(ListWorkflowInstanceResponse.class);
 

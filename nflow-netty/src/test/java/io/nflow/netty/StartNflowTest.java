@@ -1,12 +1,12 @@
 package io.nflow.netty;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
@@ -16,8 +16,8 @@ public class StartNflowTest {
   public class TestApplicationListener implements ApplicationListener<ApplicationContextEvent> {
     public ApplicationContextEvent applicationContextEvent;
     @Override
-    public void onApplicationEvent(ApplicationContextEvent applicationContextEvent) {
-      this.applicationContextEvent = applicationContextEvent;
+    public void onApplicationEvent(ApplicationContextEvent event) {
+      applicationContextEvent = event;
     }
   }
 

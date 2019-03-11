@@ -1,48 +1,45 @@
 package io.nflow.engine.workflow.definition;
 
+import org.junit.jupiter.api.Test;
+
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 public class WorkflowDefinitionTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void initialStateIsRequired() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("initialState must not be null");
-    new WorkflowDefinition<TestDefinition.TestState>("withoutInitialState", null, TestDefinition.TestState.error) {
-    };
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new WorkflowDefinition<TestDefinition.TestState>("withoutInitialState",
+                    null, TestDefinition.TestState.error) {});
+    assertThat(thrown.getMessage(), containsString("initialState must not be null"));
   }
 
   @Test
   public void initialStateMustBeStartState() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("initialState must be a start state");
-    new WorkflowDefinition<TestDefinition.TestState>("nonStartInitialState", TestDefinition.TestState.done,
-        TestDefinition.TestState.error) {
-    };
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new WorkflowDefinition<TestDefinition.TestState>("nonStartInitialState",
+                    TestDefinition.TestState.done, TestDefinition.TestState.error) {});
+    assertThat(thrown.getMessage(), containsString("initialState must be a start state"));
   }
 
   @Test
   public void errorStateIsRequired() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("errorState must not be null");
-    new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState", TestDefinition.TestState.start1, null) {
-    };
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState",
+                    TestDefinition.TestState.start1, null) {});
+    assertThat(thrown.getMessage(), containsString("errorState must not be null"));
   }
 
   @Test
@@ -59,9 +56,9 @@ public class WorkflowDefinitionTest {
     new TestDefinition("x", TestDefinition.TestState.start1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void failsWhenInitialStateMethodDoesntExist() {
-    new TestDefinition("x", TestDefinition.TestState.notfound);
+    assertThrows(IllegalArgumentException.class, () -> new TestDefinition("x", TestDefinition.TestState.notfound));
   }
 
   @Test
@@ -70,27 +67,28 @@ public class WorkflowDefinitionTest {
         TestDefinition.TestState.done);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void failsWhenPermittingNonExistingOriginState() {
-    new TestDefinition("x", TestDefinition.TestState.start1).permit(TestDefinition.TestState.notfound,
-        TestDefinition.TestState.done);
+    assertThrows(IllegalArgumentException.class,
+            () -> new TestDefinition("x", TestDefinition.TestState.start1).permit(TestDefinition.TestState.notfound,
+            TestDefinition.TestState.done));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void failsWhenPermittingNonExistingTargetState() {
-    new TestDefinition("x", TestDefinition.TestState.start1).permit(TestDefinition.TestState.start1,
-        TestDefinition.TestState.notfound);
+    assertThrows(IllegalArgumentException.class,
+            () -> new TestDefinition("x", TestDefinition.TestState.start1).permit(TestDefinition.TestState.start1,
+                    TestDefinition.TestState.notfound));
   }
 
   @Test
   public void failsWhenFailureStateMethodDoesNotExist() {
     TestDefinition workflow = new TestDefinition("x", TestDefinition.TestState.start1);
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Class '" + workflow.getClass().getName()
-        + "' is missing non-final state handling method 'public NextAction notfound(StateExecution execution, ... args)'");
-
-    workflow.permit(TestDefinition.TestState.start1, TestDefinition.TestState.done, TestDefinition.TestState.notfound);
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> workflow.permit(TestDefinition.TestState.start1, TestDefinition.TestState.done, TestDefinition.TestState.notfound));
+    assertThat(thrown.getMessage(), containsString("Class '" + workflow.getClass().getName()
+            + "' is missing non-final state handling method 'public NextAction notfound(StateExecution execution, ... args)'"));
   }
 
   @Test

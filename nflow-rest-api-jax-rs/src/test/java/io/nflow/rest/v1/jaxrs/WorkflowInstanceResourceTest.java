@@ -3,14 +3,16 @@ package io.nflow.rest.v1.jaxrs;
 import static com.nitorcreations.Matchers.hasField;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,15 +27,13 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,7 +55,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorkflowInstanceResourceTest {
 
   @Mock
@@ -72,17 +72,14 @@ public class WorkflowInstanceResourceTest {
 
   private WorkflowInstanceResource resource;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Captor
   private ArgumentCaptor<WorkflowInstance> workflowInstanceCaptor;
 
-  @Before
+  @BeforeEach
   public void setup() {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory);
-    when(workflowInstanceFactory.newWorkflowInstanceBuilder())
+    lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
     .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
   }
 
@@ -175,7 +172,6 @@ public class WorkflowInstanceResourceTest {
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorks() {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
@@ -197,7 +193,6 @@ public class WorkflowInstanceResourceTest {
         hasField("maxActions", equalTo(null)))));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
@@ -222,10 +217,9 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void fetchingNonExistingWorkflowThrowsNotFoundException() {
-    thrown.expect(NotFoundException.class);
     when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null))
     .thenThrow(EmptyResultDataAccessException.class);
-    resource.fetchWorkflowInstance(42, null, null);
+    assertThrows(NotFoundException.class, () -> resource.fetchWorkflowInstance(42, null, null));
   }
 
   @SuppressWarnings("unchecked")

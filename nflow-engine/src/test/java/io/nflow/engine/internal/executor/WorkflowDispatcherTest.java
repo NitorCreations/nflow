@@ -2,7 +2,8 @@ package io.nflow.engine.internal.executor;
 
 import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
@@ -19,18 +20,18 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.mock.env.MockEnvironment;
@@ -47,7 +48,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.service.WorkflowDefinitionService;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorkflowDispatcherTest {
 
   WorkflowDispatcher dispatcher;
@@ -66,7 +67,7 @@ public class WorkflowDispatcherTest {
   @Captor
   ArgumentCaptor<ILoggingEvent> loggingEventCaptor;
 
-  @Before
+  @BeforeEach
   public void setup() {
     env.setProperty("nflow.autoinit", "true");
     env.setProperty("nflow.dispatcher.sleep.ms", "0");
@@ -83,20 +84,22 @@ public class WorkflowDispatcherTest {
     logger.addAppender(mockAppender);
   }
 
-  @After
+  @AfterEach
   public void teardown() {
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
     logger.detachAppender(mockAppender);
   }
 
-  @Test(expected = BeanCreationException.class)
+  @Test
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
     when(executorDao.isTransactionSupportEnabled()).thenReturn(false);
-    new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
+    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env));
   }
 
   @Test
   public void exceptionDuringDispatcherExecutionCausesRetry() throws Throwable {
+    // TODO MultithreadedTestCase depends on junit4
+    // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc, last updated 2009
     @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {
@@ -134,7 +137,7 @@ public class WorkflowDispatcherTest {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenThrow(new AssertionError()).thenReturn(ids(1));
         try {
           dispatcher.run();
-          Assert.fail("Error should stop the dispatcher");
+          Assertions.fail("Error should stop the dispatcher");
         } catch (AssertionError expected) {
           assertPoolIsShutdown(true);
         }
@@ -303,7 +306,7 @@ public class WorkflowDispatcherTest {
             return;
           }
         }
-        Assert.fail("Expected warning was not logged");
+        Assertions.fail("Expected warning was not logged");
       }
     }
     runOnce(new DispatcherLogsWarning());

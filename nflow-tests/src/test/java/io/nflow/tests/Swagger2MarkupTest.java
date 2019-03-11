@@ -1,24 +1,25 @@
 package io.nflow.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.nflow.tests.extension.NflowServerConfig;
 
 import io.github.swagger2markup.Swagger2MarkupConverter;
-import io.nflow.tests.runner.NflowServerRule;
+import io.nflow.tests.extension.NflowServerExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(NflowServerExtension.class)
 public class Swagger2MarkupTest extends AbstractNflowTest {
 
   private static final Path SWAGGER2_MARKUP_ASCIIDOC_DIR = Paths.get("src/main/asciidoc/swagger2markup");
 
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().build();
+  public static NflowServerConfig server = new NflowServerConfig.Builder().build();
 
   public Swagger2MarkupTest() {
     super(server);

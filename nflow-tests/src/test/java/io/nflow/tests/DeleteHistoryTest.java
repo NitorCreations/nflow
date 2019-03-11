@@ -1,27 +1,30 @@
 package io.nflow.tests;
 
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DeleteHistoryWorkflow;
-import io.nflow.tests.runner.NflowServerRule;
 
-@FixMethodOrder(NAME_ASCENDING)
+@ExtendWith(NflowServerExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DeleteHistoryTest extends AbstractNflowTest {
-  @ClassRule
-  public static NflowServerRule server = new NflowServerRule.Builder().springContextClass(DeleteHistoryConfiguration.class)
+
+  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(DeleteHistoryConfiguration.class)
       .build();
 
   private static CreateWorkflowInstanceResponse resp;
@@ -38,20 +41,23 @@ public class DeleteHistoryTest extends AbstractNflowTest {
   }
 
   @Test
-  public void t01_createWorkflowInstance() {
+  @Order(1)
+  public void createWorkflowInstance() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DeleteHistoryWorkflow.TYPE;
     resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, is(notNullValue()));
   }
 
-  @Test(timeout = 5000)
-  public void t02_getProcessedInstance() throws Exception {
+  @Test // (timeout = 5000)
+  @Order(2)
+  public void getProcessedInstance() throws Exception {
     instance = getWorkflowInstance(resp.id, DeleteHistoryWorkflow.State.done.name());
   }
 
   @Test
-  public void t03_checkInstanceHistoryIsDeleted() {
+  @Order(3)
+  public void checkInstanceHistoryIsDeleted() {
     assertThat(instance.childWorkflows.size(), is(1));
     assertThat(instance.actions.size(), is(2));
     assertThat(instance.actions.get(0).state, is(equalTo("done")));

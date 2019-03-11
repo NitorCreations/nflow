@@ -5,17 +5,17 @@ import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.rest.v1.DummyTestWorkflow;
@@ -23,17 +23,16 @@ import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Signal;
 import io.nflow.rest.v1.msg.State;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ListWorkflowDefinitionConverterTest {
 
   private ListWorkflowDefinitionConverter converter;
 
-  @Before
+  @BeforeEach
   public void setup() {
     converter = new ListWorkflowDefinitionConverter();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void convertWorks() {
     DummyTestWorkflow def = new DummyTestWorkflow();

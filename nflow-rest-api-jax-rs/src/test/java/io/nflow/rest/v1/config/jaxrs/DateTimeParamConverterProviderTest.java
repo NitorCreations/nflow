@@ -1,36 +1,33 @@
 package io.nflow.rest.v1.config.jaxrs;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.format.ISODateTimeFormat.dateTime;
 import static org.joda.time.format.ISODateTimeFormat.dateTimeNoMillis;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ext.ParamConverter;
 
+import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DateTimeParamConverterProviderTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   DateTimeParamConverterProvider provider;
   ParamConverter<DateTime> converter;
 
-  @Before
+  @BeforeEach
   public void setup() {
     provider = new DateTimeParamConverterProvider();
     converter = provider.getConverter(DateTime.class, String.class, null);
@@ -53,9 +50,8 @@ public class DateTimeParamConverterProviderTest {
 
   @Test
   public void convertInvalidDatetimeToString() {
-    thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Unrecognized date format: 2014/01/01");
-    converter.fromString("2014/01/01");
+    BadRequestException thrown = assertThrows(BadRequestException.class, () -> converter.fromString("2014/01/01"));
+    assertThat(thrown.getMessage(), CoreMatchers.containsString("Unrecognized date format: 2014/01/01"));
   }
 
   @Test

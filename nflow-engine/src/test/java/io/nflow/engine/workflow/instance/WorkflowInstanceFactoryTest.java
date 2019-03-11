@@ -2,24 +2,24 @@ package io.nflow.engine.workflow.instance;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.workflow.instance.WorkflowInstance.Builder;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorkflowInstanceFactoryTest {
   @Mock
   ObjectStringMapper objectMapper;
   WorkflowInstanceFactory factory;
 
-  @Before
+  @BeforeEach
   public void setup() {
     factory = new WorkflowInstanceFactory(objectMapper);
   }

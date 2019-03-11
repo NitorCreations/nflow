@@ -1,30 +1,29 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static java.util.Collections.emptyMap;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.rest.v1.converter.StatisticsConverter;
-import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StatisticsResourceTest {
 
   @InjectMocks

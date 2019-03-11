@@ -1,18 +1,18 @@
 package io.nflow.rest.v1.converter;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertThat;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -23,7 +23,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CreateWorkflowConverterTest {
 
   @Spy
@@ -31,7 +31,7 @@ public class CreateWorkflowConverterTest {
 
   private CreateWorkflowConverter converter;
 
-  @Before
+  @BeforeEach
   public void setup() {
     converter = new CreateWorkflowConverter(new WorkflowInstanceFactory(objectMapper));
   }

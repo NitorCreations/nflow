@@ -2,12 +2,12 @@ package io.nflow.jetty.mapper;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NotFoundExceptionMapperTest {
   NotFoundExceptionMapper mapper = new NotFoundExceptionMapper();
