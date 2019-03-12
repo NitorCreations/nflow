@@ -79,6 +79,11 @@
       <email>timo.tiuraniemi@nitor.com</email>
       <organization>Nitor Creations</organization>
     </developer>
+    <developer>
+      <name>Ilari Kontinen</name>
+      <email>ilari.kontinen@nitor.com</email>
+      <organization>Nitor Creations</organization>
+    </developer>
   </developers>
   <modules>
     <module>nflow-engine</module>
