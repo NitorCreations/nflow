@@ -27,8 +27,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.jmx.MBeanContainer;
+import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.NCSARequestLog;
+import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -235,15 +236,16 @@ public class StartNflow
     RequestLogHandler requestLogHandler = new RequestLogHandler();
     String directory = env.getProperty("nflow.jetty.accesslog.directory", "log");
     new File(directory).mkdir();
-    NCSARequestLog requestLog = new NCSARequestLog(Paths.get(directory, "yyyy_mm_dd.request.log").toString());
-    requestLog.setRetainDays(90);
-    requestLog.setAppend(true);
-    requestLog.setLogDateFormat("yyyy-MM-dd:HH:mm:ss Z");
-    requestLog.setExtended(true);
-    requestLog.setLogTimeZone(TimeZone.getDefault().getID());
-    requestLog.setPreferProxiedForAddress(true);
-    requestLog.setLogLatency(true);
-    requestLogHandler.setRequestLog(requestLog);
+
+    RequestLogWriter logWriter = new RequestLogWriter(Paths.get(directory, "yyyy_mm_dd.request.log").toString());
+    String timeZoneId = TimeZone.getDefault().getID();
+    logWriter.setTimeZone(timeZoneId);
+    logWriter.setRetainDays(90);
+    logWriter.setAppend(true);
+
+    // Copy-paste and modify CustomRequestLog.EXTENDED_NCSA_FORMAT to use custom timestamp and log latency
+    String logFormat = "%{client}a - %u %{yyyy-MM-dd:HH:mm:ss Z|" + timeZoneId + "}t \"%r\" %s %O \"%{Referer}i\" \"%{User-Agent}i\" %{ms}T";
+    requestLogHandler.setRequestLog(new CustomRequestLog(logWriter, logFormat));
     return requestLogHandler;
   }
 }
