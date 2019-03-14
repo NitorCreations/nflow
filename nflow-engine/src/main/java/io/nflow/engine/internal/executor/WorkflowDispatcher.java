@@ -29,7 +29,7 @@ public class WorkflowDispatcher implements Runnable {
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
   private volatile boolean shutdownRequested;
-  private boolean running = false;
+  private volatile boolean running = false;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;
