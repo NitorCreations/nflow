@@ -30,6 +30,7 @@
 - nFlow Explorer: Executors page to use standard time formatting in tooltips 
 - nFlow netty: Add support for registering Spring ApplicationListeners
 - nFlow jetty: Replace deprecated NCSARequestLog with CustomRequestLog
+- Fix `WorkflowLifecycle.stop()` blocking forever if `nflow.autostart=false` and `WorkflowLifecycle.start()` not called
 
 ## 5.3.3 (2019-02-04)
 
