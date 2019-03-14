@@ -29,6 +29,7 @@ public class WorkflowDispatcher implements Runnable {
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
   private volatile boolean shutdownRequested;
+  private boolean running = false;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;
@@ -67,6 +68,7 @@ public class WorkflowDispatcher implements Runnable {
       if (!autoInit) {
         workflowDefinitions.postProcessWorkflowDefinitions();
       }
+      running = true;
       while (!shutdownRequested) {
         try {
           executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
@@ -91,9 +93,11 @@ public class WorkflowDispatcher implements Runnable {
           sleep(false);
         }
       }
+
     } catch (IOException | ReflectiveOperationException e) {
       logger.error("Fetching workflow definitions failed", e);
     } finally {
+      running = false;
       shutdownPool();
       executorDao.markShutdown();
       logger.info("Shutdown finished.");
@@ -103,7 +107,12 @@ public class WorkflowDispatcher implements Runnable {
 
   public void shutdown() {
     shutdownRequested = true;
-    logger.info("Shutdown requested.");
+    if (running) {
+      logger.info("Shutdown requested.");
+    } else {
+      logger.info("Shutdown requested, but executor not running, exiting.");
+      return;
+    }
     try {
       // TODO use timeout?
       shutdownDone.await();
