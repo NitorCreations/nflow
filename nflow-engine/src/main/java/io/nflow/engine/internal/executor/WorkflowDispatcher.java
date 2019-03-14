@@ -121,6 +121,10 @@ public class WorkflowDispatcher implements Runnable {
     }
   }
 
+  public boolean isRunning() {
+    return running;
+  }
+
   private void shutdownPool() {
     try {
       executor.shutdown();

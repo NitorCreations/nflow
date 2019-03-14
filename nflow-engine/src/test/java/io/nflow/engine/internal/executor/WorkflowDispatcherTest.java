@@ -199,6 +199,19 @@ public class WorkflowDispatcherTest {
   }
 
   @Test
+  public void shutdownWithoutStart() throws Throwable {
+    @SuppressWarnings("unused")
+    class ShutdownWithoutStart extends MultithreadedTestCase {
+
+      public void threadShutdown() {
+        dispatcher.shutdown();
+        assertFalse(dispatcher.isRunning());
+      }
+    }
+    runOnce(new ShutdownWithoutStart());
+  }
+
+  @Test
   public void shutdownCanBeInterrupted() throws Throwable {
     @SuppressWarnings("unused")
     class ShutdownCanBeInterrupted extends MultithreadedTestCase {
