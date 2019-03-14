@@ -28,6 +28,7 @@
 - nFlow Explorer: Custom content to workflow definition and workflow instance pages. 
 - nFlow Explorer: Executors page to use standard time formatting in tooltips 
 - nFlow netty: Add support for registering Spring ApplicationListeners
+- Fix `WorkflowLifecycle.stop()` blocking forever if `nflow.autostart=false` and `WorkflowLifecycle.start()` not called
 
 ## 5.3.3 (2019-02-04)
 
