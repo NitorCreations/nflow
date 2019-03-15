@@ -66,7 +66,7 @@
     </developer>
     <developer>
       <name>Juha Syrjälä</name>
-      <email>juha.syrjala@nitor.fi</email>
+      <email>juha.syrjala@nitor.com</email>
       <organization>Nitor Creations</organization>
     </developer>
     <developer>
@@ -110,7 +110,7 @@
     <findbugs-contrib.version>6.6.1</findbugs-contrib.version>
     <findbugs.version>3.0.1</findbugs.version>
     <frontend-maven.version>1.6</frontend-maven.version>
-    <h2.version>1.4.197</h2.version>
+    <h2.version>1.4.199</h2.version>
     <hamcrest.version>2.1</hamcrest.version>
     <hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
     <hikaricp.version>3.3.1</hikaricp.version>

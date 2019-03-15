@@ -25,6 +25,7 @@
     - hikaricp 3.3.1
     - maven-surefire 2.22.1
     - jetty 9.4.15.v20190215
+    - h2 1.4.199
 - Fix workflow history cleanup to keep the actions that hold the latest values of state variables
 - nFlow Explorer: Custom content to workflow definition and workflow instance pages. 
 - nFlow Explorer: Executors page to use standard time formatting in tooltips 
