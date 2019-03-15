@@ -24,10 +24,12 @@
     - mssql-jdbc 7.2.1.jre8
     - hikaricp 3.3.1
     - maven-surefire 2.22.1
+    - jetty 9.4.15.v20190215
 - Fix workflow history cleanup to keep the actions that hold the latest values of state variables
 - nFlow Explorer: Custom content to workflow definition and workflow instance pages. 
 - nFlow Explorer: Executors page to use standard time formatting in tooltips 
 - nFlow netty: Add support for registering Spring ApplicationListeners
+- nFlow jetty: Replace deprecated NCSARequestLog with CustomRequestLog
 - Fix `WorkflowLifecycle.stop()` blocking forever if `nflow.autostart=false` and `WorkflowLifecycle.start()` not called
 
 ## 5.3.3 (2019-02-04)

@@ -79,6 +79,11 @@
       <email>timo.tiuraniemi@nitor.com</email>
       <organization>Nitor Creations</organization>
     </developer>
+    <developer>
+      <name>Ilari Kontinen</name>
+      <email>ilari.kontinen@nitor.com</email>
+      <organization>Nitor Creations</organization>
+    </developer>
   </developers>
   <modules>
     <module>nflow-engine</module>
@@ -118,7 +123,7 @@
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxws-api.version>2.3.1</jaxws-api.version>
     <jersey.version>2.28</jersey.version>
-    <jetty.version>9.4.14.v20181114</jetty.version>
+    <jetty.version>9.4.15.v20190215</jetty.version>
     <jodatime.version>2.10.1</jodatime.version>
     <junit4.version>4.12</junit4.version>
     <junit5.version>5.4.0</junit5.version>
