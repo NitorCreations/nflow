@@ -1,4 +1,10 @@
-## 5.4.1-SNAPSHOT (future release)
+## 5.4.2-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.4.1 (2019-03-18)
 
 **Highlights**
 - Introduce BulkWorkflow which can be used or extended to handle mass of child workflows without overloading the system.
