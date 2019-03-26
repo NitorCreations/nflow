@@ -52,7 +52,7 @@
     "protractor": "5.4.0",
     "protractor-http-mock": "^0.10.0",
     "serve-static": "1.13.2",
-    "sinon": "6.1.5",
+    "sinon": "7.3.0",
     "time-grunt": "2.0.0",
     "node-sass": "4.11.0"
   },
