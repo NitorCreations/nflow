@@ -4,7 +4,7 @@
   "dependencies": {
     "angular": "1.7.3",
     "json3": "3.3.2",
-    "es5-shim": "4.5.10",
+    "es5-shim": "4.5.12",
     "bootstrap-sass": "3.3.7",
     "angular-resource": "1.7.3",
     "angular-cookies": "1.7.3",
