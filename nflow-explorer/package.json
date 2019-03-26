@@ -54,7 +54,7 @@
     "serve-static": "1.13.2",
     "sinon": "6.1.5",
     "time-grunt": "1.4.0",
-    "node-sass": "4.9.3"
+    "node-sass": "4.11.0"
   },
   "engines": {
     "node": ">=8.9.0"
