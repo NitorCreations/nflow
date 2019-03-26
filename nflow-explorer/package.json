@@ -24,7 +24,7 @@
     "grunt-contrib-htmlmin": "3.0.0",
     "grunt-contrib-imagemin": "3.1.0",
     "grunt-contrib-jshint": "1.1.0",
-    "grunt-contrib-uglify": "3.4.0",
+    "grunt-contrib-uglify": "4.0.1",
     "grunt-contrib-watch": "1.1.0",
     "grunt-filerev": "2.3.1",
     "grunt-karma": "3.0.1",
