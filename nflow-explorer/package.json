@@ -33,7 +33,7 @@
     "grunt-protractor-runner": "5.0.0",
     "grunt-sass": "3.0.1",
     "grunt-selenium-standalone": "1.0.1",
-    "grunt-svgmin": "5.0.0",
+    "grunt-svgmin": "6.0.0",
     "grunt-targethtml": "0.2.6",
     "grunt-usemin": "3.1.1",
     "grunt-wiredep": "3.0.1",
