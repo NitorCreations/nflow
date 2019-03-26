@@ -49,7 +49,7 @@
     "load-grunt-tasks": "4.0.0",
     "moment": "2.24.0",
     "phantomjs-prebuilt": "2.1.16",
-    "protractor": "5.4.0",
+    "protractor": "6.0.0",
     "protractor-http-mock": "^0.10.0",
     "serve-static": "1.13.2",
     "sinon": "7.3.0",
