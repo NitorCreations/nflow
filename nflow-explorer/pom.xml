@@ -67,6 +67,16 @@
             <phase>process-sources</phase>
           </execution>
           <execution>
+            <id>grunt test</id>
+            <goals>
+              <goal>grunt</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>test --color</arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>grunt build</id>
             <goals>
               <goal>grunt</goal>
