@@ -3,6 +3,9 @@
 **Highlights**
 
 **Details**
+- Update libraries for nFlow Explorer. Includes fix for morgan library security issue.
+  - https://github.com/NitorCreations/nflow/network/alert/nflow-explorer/package-lock.json/morgan/open
+- Fix travis build to actually run unit tests for nflow-explorer module.
 
 ## 5.4.1 (2019-03-18)
 

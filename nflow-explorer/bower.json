@@ -2,26 +2,26 @@
   "name": "nflow-explorer",
   "version": "1.0.0",
   "dependencies": {
-    "angular": "1.7.3",
+    "angular": "1.7.8",
     "json3": "3.3.2",
-    "es5-shim": "4.5.10",
-    "bootstrap-sass": "3.3.7",
-    "angular-resource": "1.7.3",
-    "angular-cookies": "1.7.3",
-    "angular-sanitize": "1.7.3",
-    "angular-animate": "1.7.3",
-    "angular-touch": "1.7.3",
-    "angular-ui-router": "1.0.20",
+    "es5-shim": "4.5.12",
+    "bootstrap-sass": "3.4.1",
+    "angular-resource": "1.7.8",
+    "angular-cookies": "1.7.8",
+    "angular-sanitize": "1.7.8",
+    "angular-animate": "1.7.8",
+    "angular-touch": "1.7.8",
+    "angular-ui-router": "1.0.22",
     "momentjs": "2.9.0",
     "lodash": "4.17.11",
     "dygraphs": "1.1.0",
-    "dagre-d3": "0.6.1",
+    "dagre-d3": "0.6.3",
     "angular-chart.js": "1.1.1",
     "svg-pan-zoom": "3.6.0",
     "angular-toastr": "2.1.1"
   },
   "devDependencies": {
-    "angular-mocks": "1.7.3",
-    "angular-scenario": "1.7.3"
+    "angular-mocks": "1.7.8",
+    "angular-scenario": "1.7.8"
   }
 }

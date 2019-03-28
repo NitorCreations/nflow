@@ -32,6 +32,7 @@ module.exports = function(config) {
       'bower_components/lodash/lodash.js',
       'bower_components/bootstrap-sass/assets/javascripts/bootstrap.js',
       'bower_components/d3/d3.js',
+      'bower_components/angular-toastr/dist/angular-toastr.min.js',
 
       'src/external/adal-angular/adal-1.0.17.min.js',
       'src/external/adal-angular/adal-angular-1.0.17.min.js',
