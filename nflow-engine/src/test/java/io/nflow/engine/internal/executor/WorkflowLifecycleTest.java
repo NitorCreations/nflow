@@ -3,7 +3,9 @@ package io.nflow.engine.internal.executor;
 import static java.lang.Boolean.TRUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +41,7 @@ public class WorkflowLifecycleTest {
   public void setup() throws IOException, ReflectiveOperationException {
     when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(TRUE);
     when(env.getRequiredProperty("nflow.autostart", Boolean.class)).thenReturn(TRUE);
-    when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
+    lenient().when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
     lifecycle = new WorkflowLifecycle(workflowDefinitions, dispatcher, threadFactory, env);
   }
 
@@ -63,6 +65,16 @@ public class WorkflowLifecycleTest {
   public void stopStopsDispatcherThread() {
     lifecycle.stop();
     verify(dispatcher).shutdown();
+  }
+
+  @Test
+  public void restartRelaunchesDispatcherThread() {
+    lifecycle.start();
+    lifecycle.stop();
+    lifecycle.start();
+    verify(dispatcher).shutdown();
+    verify(threadFactory, times(2)).newThread(dispatcher);
+    verify(dispatcherThread, times(2)).start();
   }
 
   @Test

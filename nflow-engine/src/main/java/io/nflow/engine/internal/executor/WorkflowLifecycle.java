@@ -21,13 +21,17 @@ public class WorkflowLifecycle implements SmartLifecycle {
 
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowDispatcher dispatcher;
+  private final ThreadFactory nflowThreadFactory;
+  private final Environment env;
   private final boolean autoStart;
-  private final Thread dispatcherThread;
+  private Thread dispatcherThread;
 
   @Inject
   public WorkflowLifecycle(WorkflowDefinitionService workflowDefinitions, WorkflowDispatcher dispatcher,
       @NFlow ThreadFactory nflowThreadFactory, Environment env) throws IOException, ReflectiveOperationException {
     this.dispatcher = dispatcher;
+    this.nflowThreadFactory = nflowThreadFactory;
+    this.env = env;
     this.workflowDefinitions = workflowDefinitions;
     if (env.getRequiredProperty("nflow.autoinit", Boolean.class)) {
       this.workflowDefinitions.postProcessWorkflowDefinitions();
@@ -35,11 +39,6 @@ public class WorkflowLifecycle implements SmartLifecycle {
       logger.info("nFlow engine autoinit disabled (system property nflow.autoinit=false)");
     }
     autoStart = env.getRequiredProperty("nflow.autostart", Boolean.class);
-    dispatcherThread = nflowThreadFactory.newThread(dispatcher);
-    dispatcherThread.setName("nflow-dispatcher");
-    if (!autoStart) {
-      logger.info("nFlow engine autostart disabled (system property nflow.autostart=false)");
-    }
   }
 
   @Override
@@ -54,7 +53,10 @@ public class WorkflowLifecycle implements SmartLifecycle {
 
   @Override
   public void start() {
-    dispatcherThread.start();
+    if (dispatcherThread == null) {
+      dispatcherThread = createDispatcherThread();
+      dispatcherThread.start();
+    }
   }
 
   public void pause() {
@@ -71,17 +73,27 @@ public class WorkflowLifecycle implements SmartLifecycle {
 
   @Override
   public boolean isRunning() {
-    return dispatcherThread.isAlive();
+    return dispatcherThread != null && dispatcherThread.isAlive();
   }
 
   @Override
   public void stop() {
     dispatcher.shutdown();
+    dispatcherThread = null;
   }
 
   @Override
   public void stop(Runnable callback) {
     stop();
     callback.run();
+  }
+
+  private Thread createDispatcherThread() {
+    final Thread thread = nflowThreadFactory.newThread(dispatcher);
+    thread.setName("nflow-dispatcher");
+    if (!autoStart) {
+      logger.info("nFlow engine autostart disabled (system property nflow.autostart=false)");
+    }
+    return thread;
   }
 }

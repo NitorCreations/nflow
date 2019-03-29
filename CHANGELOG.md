@@ -7,6 +7,7 @@
    - jetty 9.4.17.v20190418
 - `nflow-engine`
   - Retry workflow state processing until all steps in nFlow-side are executed successfully. This will prevent workflow instances from being locked in `executing` status, if e.g. database connection fails after locking the instance and before querying the full workflow instance information (`WorkflowStateProcessor`).
+  - Fix bug with WorkflowLifecycle re-start throwing error.
 
 ## 5.5.0 (2019-04-04)
 
