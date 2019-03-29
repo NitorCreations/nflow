@@ -1,6 +1,6 @@
-package com.nitorcreations.nflow.engine.processing;
+package io.nflow.engine.processing;
 
-import com.nitorcreations.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.StateExecution;
 import org.joda.time.DateTime;
 
 public interface WorkflowProcessingInstance {

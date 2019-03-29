@@ -1,8 +1,8 @@
-package com.nitorcreations.nflow.engine.processing;
+package io.nflow.engine.processing;
 
 import static org.joda.time.DateTime.now;
 import org.joda.time.DateTime;
-import com.nitorcreations.nflow.engine.internal.executor.InvalidNextActionException;
+import io.nflow.engine.internal.executor.InvalidNextActionException;
 
 public class NextProcessingAction {
 

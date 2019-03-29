@@ -1,4 +1,4 @@
-package com.nitorcreations.nflow.engine.processing;
+package io.nflow.engine.processing;
 
 public interface WorkflowProcessingSettings {
   // TODO WorkflowProcessingInstance.getMaxRetries()

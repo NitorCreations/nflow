@@ -1,6 +1,6 @@
-package com.nitorcreations.nflow.engine.processing;
+package io.nflow.engine.processing;
 
-import com.nitorcreations.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 import java.util.List;
 
