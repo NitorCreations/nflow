@@ -24,7 +24,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
   private final ThreadFactory nflowThreadFactory;
   private final Environment env;
   private final boolean autoStart;
-  private Thread dispatcherThread;
+  private volatile Thread dispatcherThread;
 
   @Inject
   public WorkflowLifecycle(WorkflowDefinitionService workflowDefinitions, WorkflowDispatcher dispatcher,
@@ -52,7 +52,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
   }
 
   @Override
-  public void start() {
+  public synchronized void start() {
     if (dispatcherThread == null) {
       dispatcherThread = createDispatcherThread();
       dispatcherThread.start();
@@ -77,7 +77,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
   }
 
   @Override
-  public void stop() {
+  public synchronized void stop() {
     dispatcher.shutdown();
     dispatcherThread = null;
   }
