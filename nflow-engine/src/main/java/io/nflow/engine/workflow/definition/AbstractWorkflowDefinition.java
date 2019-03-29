@@ -270,4 +270,11 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     return emptyMap();
   }
 
+  /**
+   * Return WorkflowSettings
+   * @return workflowSettings
+   */
+  public WorkflowSettings getWorkflowSettings() {
+    return settings;
+  }
 }

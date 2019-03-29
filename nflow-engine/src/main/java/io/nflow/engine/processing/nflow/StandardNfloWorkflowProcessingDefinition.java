@@ -6,9 +6,12 @@ import io.nflow.engine.processing.WorkflowProcessingState;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Converts old-school nflow workflow style definition to a WorkflowProcessingDefinition.
+ */
 public class StandardNfloWorkflowProcessingDefinition implements WorkflowProcessingDefinition
 {
   private final AbstractWorkflowDefinition<? extends WorkflowState> definition;
@@ -47,14 +50,18 @@ public class StandardNfloWorkflowProcessingDefinition implements WorkflowProcess
 
   @Override
   public List<WorkflowProcessingState> getStates() {
-    // TODO loop over definition.getStates() and create WorkflowProcessingState objects
-    return Collections.emptyList();
+    List<WorkflowProcessingState> processingStates = new ArrayList<>();
+    for (WorkflowState state : definition.getStates()) {
+      WorkflowProcessingState processingState = new StandardNflowWorkflowProcessingState(definition, state);
+      processingStates.add(processingState);
+    }
+    return processingStates;
   }
 
   @Override
   public WorkflowProcessingState getState(String stateName) {
     // TODO Lookup from hashmap
-    for(WorkflowProcessingState state : getStates()) {
+    for (WorkflowProcessingState state : getStates()) {
       if(state.getName().equals(stateName)) {
         return state;
       }

@@ -7,6 +7,7 @@ import io.nflow.engine.processing.WorkflowProcessingInstance;
 import io.nflow.engine.processing.WorkflowProcessingSettings;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -22,8 +23,7 @@ public class StandardNflowWorkflowProcessingFactory extends AbstractWorkflowProc
   @Override
   public WorkflowProcessingInstance createInstance(WorkflowInstance instance) {
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
-    // TODO workflowSettings
-    WorkflowProcessingSettings settings = new WorkflowProcessingSettings() {};
+    WorkflowProcessingSettings settings = convertWorkflowSettings(definition.getSettings());
     WorkflowProcessingDefinition processDefinition = new StandardNfloWorkflowProcessingDefinition(definition, settings);
     return new StandardNflowWorkflowProcessingInstance(instance, processDefinition, definition, objectMapper);
   }
@@ -32,5 +32,10 @@ public class StandardNflowWorkflowProcessingFactory extends AbstractWorkflowProc
   public boolean appliesTo(WorkflowInstance instance) {
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     return definition != null;
+  }
+
+  private WorkflowProcessingSettings convertWorkflowSettings(WorkflowSettings settings) {
+    // TODO
+    return new WorkflowProcessingSettings() {};
   }
 }

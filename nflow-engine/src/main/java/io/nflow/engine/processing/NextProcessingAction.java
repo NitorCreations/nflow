@@ -4,6 +4,7 @@ import static org.joda.time.DateTime.now;
 import org.joda.time.DateTime;
 import io.nflow.engine.internal.executor.InvalidNextActionException;
 
+// TODO should this be interface?
 public class NextProcessingAction {
 
   private final DateTime activation;

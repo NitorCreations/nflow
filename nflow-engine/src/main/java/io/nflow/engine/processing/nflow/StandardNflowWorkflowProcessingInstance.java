@@ -1,7 +1,6 @@
 package io.nflow.engine.processing.nflow;
 
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
-import io.nflow.engine.internal.workflow.StateExecutionImpl;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod;
 import io.nflow.engine.processing.NextProcessingAction;
 import io.nflow.engine.processing.WorkflowProcessingDefinition;
@@ -46,15 +45,13 @@ public class StandardNflowWorkflowProcessingInstance implements WorkflowProcessi
   @Override
   public NextProcessingAction executeState(StateExecution stateExecution) {
     WorkflowStateMethod method = definition.getMethod(instance.state);
-    // TODO ugly cast for StateExecutionImpl
-    Object[] args = objectMapper.createArguments((StateExecutionImpl)stateExecution, method);
+    Object[] args = objectMapper.createArguments(stateExecution, method);
     NextAction nextAction = (NextAction) invokeMethod(method.method, definition, args);
     // TODO handle changes to StateVars
     WorkflowProcessingState state = processingDefinition.getState(nextAction.getNextState().name());
 
     // TODO handle exceptions etc
-    // TODO ugly cast for StateExecutionImpl
-    objectMapper.storeArguments((StateExecutionImpl)stateExecution, method, args);
+    objectMapper.storeArguments(stateExecution, method, args);
 
     return NextProcessingAction.moveToStateAfter(state, nextAction.getActivation(), nextAction.getReason());
   }
@@ -66,7 +63,8 @@ public class StandardNflowWorkflowProcessingInstance implements WorkflowProcessi
 
   @Override
   public DateTime nextRetryTime() {
-    // use default algo
+    // TODO use default algo
+    // or this should be part of engine?
     return null;
   }
 }
