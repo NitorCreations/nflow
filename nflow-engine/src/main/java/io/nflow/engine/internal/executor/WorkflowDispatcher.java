@@ -30,6 +30,7 @@ public class WorkflowDispatcher implements Runnable {
 
   private volatile boolean shutdownRequested;
   private volatile boolean running = false;
+  private volatile boolean paused = false;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;
@@ -70,27 +71,31 @@ public class WorkflowDispatcher implements Runnable {
       }
       running = true;
       while (!shutdownRequested) {
-        try {
-          executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
-
-          if (!shutdownRequested) {
-            if (executorDao.tick()) {
-              workflowInstances.recoverWorkflowInstancesFromDeadNodes();
-            }
-            int potentiallyStuckProcessors = stateProcessorFactory.getPotentiallyStuckProcessors();
-            if (potentiallyStuckProcessors > 0) {
-              periodicLogger.warn("{} of {} state processor threads are potentially stuck (processing longer than {} seconds)",
-                  potentiallyStuckProcessors, executor.getThreadCount(), stuckThreadThresholdSeconds);
-            }
-            dispatch(getNextInstanceIds());
-          }
-        } catch (PollingRaceConditionException pex) {
-          logger.info(pex.getMessage());
-          sleep(true);
-        } catch (@SuppressWarnings("unused") InterruptedException dropThrough) {
-        } catch (Exception e) {
-          logger.error("Exception in executing dispatcher - retrying after sleep period (" + e.getMessage() + ")", e);
+        if (paused) {
           sleep(false);
+        } else {
+          try {
+            executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
+
+            if (!shutdownRequested) {
+              if (executorDao.tick()) {
+                workflowInstances.recoverWorkflowInstancesFromDeadNodes();
+              }
+              int potentiallyStuckProcessors = stateProcessorFactory.getPotentiallyStuckProcessors();
+              if (potentiallyStuckProcessors > 0) {
+                periodicLogger.warn("{} of {} state processor threads are potentially stuck (processing longer than {} seconds)",
+                    potentiallyStuckProcessors, executor.getThreadCount(), stuckThreadThresholdSeconds);
+              }
+              dispatch(getNextInstanceIds());
+            }
+          } catch (PollingRaceConditionException pex) {
+            logger.info(pex.getMessage());
+            sleep(true);
+          } catch (@SuppressWarnings("unused") InterruptedException dropThrough) {
+          } catch (Exception e) {
+            logger.error("Exception in executing dispatcher - retrying after sleep period (" + e.getMessage() + ")", e);
+            sleep(false);
+          }
         }
       }
 
@@ -119,6 +124,14 @@ public class WorkflowDispatcher implements Runnable {
     } catch (@SuppressWarnings("unused") InterruptedException e) {
       logger.info("Shutdown interrupted.");
     }
+  }
+
+  public void pause() {
+    paused = true;
+  }
+
+  public void unpause() {
+    paused = false;
   }
 
   public boolean isRunning() {
