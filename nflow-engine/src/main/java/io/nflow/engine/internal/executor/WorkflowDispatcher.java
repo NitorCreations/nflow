@@ -123,6 +123,8 @@ public class WorkflowDispatcher implements Runnable {
       shutdownDone.await();
     } catch (@SuppressWarnings("unused") InterruptedException e) {
       logger.info("Shutdown interrupted.");
+    } finally {
+      shutdownRequested = false;
     }
   }
 
