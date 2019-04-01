@@ -65,6 +65,7 @@ public class WorkflowDispatcher implements Runnable {
   @Override
   public void run() {
     logger.info("Starting.");
+    executor.initialize();
     try {
       if (!autoInit) {
         workflowDefinitions.postProcessWorkflowDefinitions();

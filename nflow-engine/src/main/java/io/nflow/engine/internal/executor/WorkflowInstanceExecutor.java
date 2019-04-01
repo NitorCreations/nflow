@@ -13,19 +13,35 @@ import org.slf4j.Logger;
 public class WorkflowInstanceExecutor {
   private static final Logger logger = getLogger(WorkflowInstanceExecutor.class);
 
+  private volatile boolean needsInitialization = true;
   private final int awaitTerminationSeconds;
+  private final int maxQueueSize;
   private final int threadCount;
-  final ThreadPoolExecutor executor;
-  final ThresholdBlockingQueue<Runnable> queue;
+  private final int notifyThreshold;
+  private final int keepAliveSeconds;
+  private final ThreadFactory threadFactory;
+  ThreadPoolExecutor executor;
+  ThresholdBlockingQueue<Runnable> queue;
 
   public WorkflowInstanceExecutor(int maxQueueSize, int threadCount, int notifyThreshold, int awaitTerminationSeconds,
       int keepAliveSeconds,
       ThreadFactory threadFactory) {
-    queue = new ThresholdBlockingQueue<>(maxQueueSize, notifyThreshold);
-    executor = new ThreadPoolExecutor(threadCount, threadCount, keepAliveSeconds, SECONDS, queue, threadFactory);
-    executor.allowCoreThreadTimeOut(keepAliveSeconds > 0);
     this.awaitTerminationSeconds = awaitTerminationSeconds;
     this.threadCount = threadCount;
+    this.maxQueueSize = maxQueueSize;
+    this.notifyThreshold = notifyThreshold;
+    this.keepAliveSeconds = keepAliveSeconds;
+    this.threadFactory = threadFactory;
+    initialize();
+  }
+
+  public synchronized void initialize() {
+    if (needsInitialization) {
+      queue = new ThresholdBlockingQueue<>(maxQueueSize, notifyThreshold);
+      executor = new ThreadPoolExecutor(threadCount, threadCount, keepAliveSeconds, SECONDS, queue, threadFactory);
+      executor.allowCoreThreadTimeOut(keepAliveSeconds > 0);
+      needsInitialization = false;
+    }
   }
 
   public int getThreadCount() {
@@ -48,7 +64,7 @@ public class WorkflowInstanceExecutor {
     return queue.remainingCapacity();
   }
 
-  public void shutdown() {
+  public synchronized void shutdown() {
     executor.shutdown();
     try {
       if (!executor.awaitTermination(awaitTerminationSeconds, SECONDS)) {
@@ -57,6 +73,8 @@ public class WorkflowInstanceExecutor {
     } catch (@SuppressWarnings("unused") InterruptedException ex) {
       logger.warn("Interrupted while waiting for executor to terminate");
       currentThread().interrupt();
+    } finally {
+      needsInitialization = true;
     }
   }
 }
