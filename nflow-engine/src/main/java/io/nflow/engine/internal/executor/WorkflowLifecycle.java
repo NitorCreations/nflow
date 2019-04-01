@@ -22,7 +22,6 @@ public class WorkflowLifecycle implements SmartLifecycle {
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowDispatcher dispatcher;
   private final ThreadFactory nflowThreadFactory;
-  private final Environment env;
   private final boolean autoStart;
   private volatile Thread dispatcherThread;
 
@@ -31,7 +30,6 @@ public class WorkflowLifecycle implements SmartLifecycle {
       @NFlow ThreadFactory nflowThreadFactory, Environment env) throws IOException, ReflectiveOperationException {
     this.dispatcher = dispatcher;
     this.nflowThreadFactory = nflowThreadFactory;
-    this.env = env;
     this.workflowDefinitions = workflowDefinitions;
     if (env.getRequiredProperty("nflow.autoinit", Boolean.class)) {
       this.workflowDefinitions.postProcessWorkflowDefinitions();
