@@ -57,6 +57,18 @@ public class WorkflowLifecycle implements SmartLifecycle {
     dispatcherThread.start();
   }
 
+  public void pause() {
+    dispatcher.pause();
+  }
+
+  public void resume() {
+    dispatcher.resume();
+  }
+
+  public boolean isPaused() {
+    return dispatcher.isPaused();
+  }
+
   @Override
   public boolean isRunning() {
     return dispatcherThread.isAlive();

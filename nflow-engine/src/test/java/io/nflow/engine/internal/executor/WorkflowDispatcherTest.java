@@ -325,6 +325,15 @@ public class WorkflowDispatcherTest {
     runOnce(new DispatcherLogsWarning());
   }
 
+  @Test
+  public void pauseAndResumeWorks() {
+    assertEquals(dispatcher.isPaused(), false);
+    dispatcher.pause();
+    assertEquals(dispatcher.isPaused(), true);
+    dispatcher.resume();
+    assertEquals(dispatcher.isPaused(), false);
+  }
+
   void assertPoolIsShutdown(boolean isTrue) {
     assertEquals(isTrue, executor.executor.isShutdown());
   }
