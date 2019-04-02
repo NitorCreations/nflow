@@ -130,8 +130,12 @@ public class WorkflowDispatcher implements Runnable {
     paused = true;
   }
 
-  public void unpause() {
+  public void resume() {
     paused = false;
+  }
+
+  public boolean isPaused() {
+    return paused;
   }
 
   public boolean isRunning() {

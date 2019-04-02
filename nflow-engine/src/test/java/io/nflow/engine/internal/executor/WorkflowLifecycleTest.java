@@ -73,6 +73,16 @@ public class WorkflowLifecycleTest {
     verify(callback).run();
   }
 
+  @Test
+  public void pauseAndResumeWorks() {
+    lifecycle.pause();
+    verify(dispatcher).pause();
+    lifecycle.resume();
+    verify(dispatcher).resume();
+    lifecycle.isPaused();
+    verify(dispatcher).isPaused();
+  }
+
 //  @Test
 //  public void isRunningReturnsDispatcherThreadStatus() {
 //    when(dispatcherThread.isAlive()).thenReturn(true); // native method mocking would require PowerMock
