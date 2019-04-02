@@ -6,7 +6,7 @@
 - Update libraries for nFlow Explorer. Includes fix for morgan library security issue.
   - https://github.com/NitorCreations/nflow/network/alert/nflow-explorer/package-lock.json/morgan/open
 - Fix travis build to actually run unit tests for nflow-explorer module.
-- Add possibility to pause and resume WorkflowLifecycle.
+- Add possibility for an executor to temporarily stop polling for new workflow instances by invoking pause() on WorkflowLifecycle, and continue polling with resume().
 
 ## 5.4.1 (2019-03-18)
 
