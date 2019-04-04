@@ -1,4 +1,9 @@
-## 5.4.2-SNAPSHOT (future release)
+## 5.5.1-SNAPSHOT (future release)
+
+**Highlights**
+**Details**
+
+## 5.5.0 (2019-04-4)
 
 **Highlights**
 - Introduce possibility to temporarily stop polling for new workflow instances by invoking pause() on WorkflowLifecycle, continue polling with resume(), and check pause status with isPaused().
