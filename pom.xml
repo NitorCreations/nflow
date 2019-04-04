@@ -6,7 +6,7 @@
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
-  <version>5.5.0</version>
+  <version>5.5.1-SNAPSHOT</version>
   <url>http://nflow.io</url>
   <licenses>
     <license>
