@@ -1,12 +1,12 @@
 ## 5.4.2-SNAPSHOT (future release)
 
 **Highlights**
-
+- Introduce possibility to temporarily stop polling for new workflow instances by invoking pause() on WorkflowLifecycle, continue polling with resume(), and check pause status with isPaused().
 **Details**
 - Update libraries for nFlow Explorer. Includes fix for morgan library security issue.
   - https://github.com/NitorCreations/nflow/network/alert/nflow-explorer/package-lock.json/morgan/open
 - Fix travis build to actually run unit tests for nflow-explorer module.
-- Add possibility for an executor to temporarily stop polling for new workflow instances by invoking pause() on WorkflowLifecycle, and continue polling with resume().
+- Add pause(), resume() and isPaused() to WorkflowLifecycle, to pause and resume workflow instance polling in a running nFlow.
 
 ## 5.4.1 (2019-03-18)
 
