@@ -1,7 +1,10 @@
 ## 5.5.1-SNAPSHOT (future release)
 
-**Highlights**
 **Details**
+- Dependency and plugin updates:
+    - spring 5.1.6.RELEASE
+    - reactor.netty 0.8.6.RELEASE
+    - jetty 9.4.17.v20190418
 
 ## 5.5.0 (2019-04-04)
 
