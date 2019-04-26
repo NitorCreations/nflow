@@ -76,6 +76,7 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     env.setProperty("nflow.executor.stuckThreadThreshold.seconds", "60");
+    env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));

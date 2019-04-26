@@ -162,6 +162,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.illegal.state.change.action", "fail");
     env.setProperty("nflow.unknown.workflow.type.retry.delay.minutes", "60");
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
+    env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
 
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
@@ -877,6 +878,20 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
+  public void stateProcessingRetryAfterFailedGetWorkflow() throws InterruptedException {
+    WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
+    doThrow(new RuntimeException("some failure")).when(workflowInstances).getWorkflowInstance(instance.id, INCLUDES, null);
+
+    ExecutorService executorService = newSingleThreadExecutor();
+    newSingleThreadExecutor().submit(executor);
+    Thread.sleep(1500);
+    executor.setInternalRetryEnabled(false);
+    executorService.shutdownNow();
+
+    verify(workflowInstances, atLeast(2)).getWorkflowInstance(instance.id, INCLUDES, null);
+  }
+
+  @Test
   public void saveStateRetryAfterFailedPersistence() throws InterruptedException {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
@@ -885,7 +900,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     ExecutorService executorService = newSingleThreadExecutor();
     newSingleThreadExecutor().submit(executor);
     Thread.sleep(1500);
-    executor.setStateSaveRetryEnabled(false);
+    executor.setInternalRetryEnabled(false);
     executorService.shutdownNow();
 
     verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());

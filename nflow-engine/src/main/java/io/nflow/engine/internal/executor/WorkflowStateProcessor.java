@@ -70,8 +70,9 @@ class WorkflowStateProcessor implements Runnable {
   final String illegalStateChangeAction;
   private final int unknownWorkflowTypeRetryDelay;
   private final int unknownWorkflowStateRetryDelay;
+  private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
-  private boolean stateSaveRetryEnabled = true;
+  private boolean internalRetryEnabled = true;
   private final Map<Integer, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
   private Thread thread;
@@ -91,23 +92,28 @@ class WorkflowStateProcessor implements Runnable {
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
+    stateProcessingRetryDelay = env.getRequiredProperty("nflow.executor.stateProcessingRetryDelay.seconds", Integer.class);
     stateSaveRetryDelay = env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Integer.class);
   }
 
   @Override
   public void run() {
-    try {
-      MDC.put(MDC_KEY, String.valueOf(instanceId));
-      startTimeSeconds = currentTimeMillis() / 1000;
-      thread = currentThread();
-      processingInstances.put(instanceId, this);
-      runImpl();
-    } catch (Throwable ex) {
-      logger.error("Unexpected failure occurred", ex);
-    } finally {
-      processingInstances.remove(instanceId);
-      MDC.remove(MDC_KEY);
-    }
+    MDC.put(MDC_KEY, String.valueOf(instanceId));
+    startTimeSeconds = currentTimeMillis() / 1000;
+    thread = currentThread();
+    processingInstances.put(instanceId, this);
+    boolean stateProcessingFinished = false;
+    do {
+      try {
+        runImpl();
+        stateProcessingFinished = true;
+      } catch (Throwable ex) {
+        logger.error("Failed to process workflow instance, retrying after {} seconds", stateProcessingRetryDelay, ex);
+        sleepIgnoreInterrupted(stateProcessingRetryDelay);
+      }
+    } while (!stateProcessingFinished && internalRetryEnabled);
+    processingInstances.remove(instanceId);
+    MDC.remove(MDC_KEY);
   }
 
   private void runImpl() {
@@ -225,20 +231,17 @@ class WorkflowStateProcessor implements Runnable {
         return persistWorkflowInstanceState(execution, instance, actionBuilder, builder);
       } catch (Exception ex) {
         logger.error("Failed to save workflow instance new state, retrying after {} seconds", stateSaveRetryDelay, ex);
-        try {
-          Thread.sleep(SECONDS.toMillis(stateSaveRetryDelay));
-        } catch (@SuppressWarnings("unused") InterruptedException ok) {
-        }
+        sleepIgnoreInterrupted(stateSaveRetryDelay);
       }
-    } while (stateSaveRetryEnabled);
+    } while (internalRetryEnabled);
     throw new IllegalStateException("Failed to save workflow instance new state");
   }
 
   /**
    * For unit testing only
    */
-  void setStateSaveRetryEnabled(boolean stateSaveRetryEnabled) {
-    this.stateSaveRetryEnabled = stateSaveRetryEnabled;
+  void setInternalRetryEnabled(boolean internalRetryEnabled) {
+    this.internalRetryEnabled = internalRetryEnabled;
   }
 
   private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
@@ -319,6 +322,13 @@ class WorkflowStateProcessor implements Runnable {
       }
     } catch (Throwable t) {
       logger.error("Failure in workflow instance " + instanceId + " history cleanup", t);
+    }
+  }
+
+  private void sleepIgnoreInterrupted(int seconds) {
+    try {
+      Thread.sleep(SECONDS.toMillis(seconds));
+    } catch (@SuppressWarnings("unused") InterruptedException ok) {
     }
   }
 
