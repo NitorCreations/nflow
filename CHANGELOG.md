@@ -25,6 +25,8 @@
     - jackson 2.9.9
     - junit 5.4.1
     - mockito 2.27.0
+- `nflow-explorer`
+  - Dependency updates
 
 ## 5.6.0 (2019-05-21)
 
