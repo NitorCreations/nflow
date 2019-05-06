@@ -706,7 +706,7 @@ public class WorkflowInstanceDao {
       public void processRow(ResultSet rs) throws SQLException {
         int parentActionId = rs.getInt(1);
         int childWorkflowInstanceId = rs.getInt(2);
-        List<Integer> children = instance.childWorkflows.computeIfAbsent(parentActionId, ArrayList::new);
+        List<Integer> children = instance.childWorkflows.computeIfAbsent(parentActionId, k -> new ArrayList<>());
         children.add(childWorkflowInstanceId);
       }
     }, instance.id);
