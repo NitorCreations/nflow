@@ -146,7 +146,10 @@ public class ExecutorDao {
         return p;
       }
     }, keyHolder);
-    return keyHolder.getKey().intValue();
+    int executorId = keyHolder.getKey().intValue();
+    logger.info("Joined executor group {} as executor {} running on host {} with process id {}.",
+            executorGroup, executorId, host, pid);
+    return executorId;
   }
 
   public void updateActiveTimestamp() {
