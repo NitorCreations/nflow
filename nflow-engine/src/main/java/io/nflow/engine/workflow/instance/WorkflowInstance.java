@@ -291,6 +291,7 @@ public class WorkflowInstance extends ModelObject {
       this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;
+      this.started = copy.started;
       this.executorGroup = copy.executorGroup;
       this.signal = copy.signal;
       this.mapper = copy.mapper;
