@@ -1,6 +1,12 @@
-## 5.5.1-SNAPSHOT (future release)
+## 6.0.0-SNAPSHOT (future release)
+
+**Highlights**
+- BREAKING CHANGE: Optimize workflow instance loading from database.
+- BREAKING CHANGE: Merged AbstractWorkflowExecutorListener to WorkflowExecutorListener interface.
 
 **Details**
+- Optimize workflow instance loading from database. Instance start time needs to be queried manually when needed.
+- Merged AbstractWorkflowExecutorListener to WorkflowExecutorListener interface. The interface now contains the default implementations of the methods, that were previously implemented in the abstract class.
 - Dependency and plugin updates:
    - spring 5.1.6.RELEASE
    - reactor.netty 0.8.6.RELEASE
@@ -8,7 +14,7 @@
 - `nflow-engine`
   - Retry workflow state processing until all steps in nFlow-side are executed successfully. This will prevent workflow instances from being locked in `executing` status, if e.g. database connection fails after locking the instance and before querying the full workflow instance information (`WorkflowStateProcessor`).
   - Fix #306: create empty ArrayList with default initial size
-  - Log more executor details on startup  
+  - Log more executor details on startup
   
 ## 5.5.0 (2019-04-04)
 
