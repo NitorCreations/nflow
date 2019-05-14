@@ -131,12 +131,6 @@ public class WorkflowInstance extends ModelObject {
   public final DateTime modified;
 
   /**
-   * Time when workflow processing was started, that is, time when processing of first
-   * action started.
-   */
-  public final DateTime started;
-
-  /**
    * The name of the executor group for this workflow instance.
    */
   public final String executorGroup;
@@ -173,7 +167,6 @@ public class WorkflowInstance extends ModelObject {
     this.retries = builder.retries;
     this.created = builder.created;
     this.modified = builder.modified;
-    this.started = builder.started;
     this.executorGroup = builder.executorGroup;
     this.signal = builder.signal;
     this.mapper = builder.mapper;
@@ -247,7 +240,6 @@ public class WorkflowInstance extends ModelObject {
     final Map<Integer, List<Integer>> childWorkflows = new LinkedHashMap<>();
     int retries;
     DateTime created;
-    DateTime started;
     DateTime modified;
     String executorGroup;
     Optional<Integer> signal = Optional.empty();
@@ -521,16 +513,6 @@ public class WorkflowInstance extends ModelObject {
      */
     public Builder setModified(DateTime modified) {
       this.modified = modified;
-      return this;
-    }
-
-    /**
-     * Set the start timestamp.
-     * @param started Start time.
-     * @return this.
-     */
-    public Builder setStarted(DateTime started) {
-      this.started = started;
       return this;
     }
 

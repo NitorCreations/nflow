@@ -3,6 +3,7 @@ package io.nflow.rest.v1.jaxrs;
 import static com.nitorcreations.Matchers.hasField;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -217,20 +218,19 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void fetchingNonExistingWorkflowThrowsNotFoundException() {
-    when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null))
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
     .thenThrow(EmptyResultDataAccessException.class);
     assertThrows(NotFoundException.class, () -> resource.fetchWorkflowInstance(42, null, null));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void fetchingExistingWorkflowWorks() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
-    when(workflowInstances.getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
+    when(listWorkflowConverter.convert(instance, emptySet(), false, workflowInstances)).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null);
-    verify(workflowInstances).getWorkflowInstance(42, EnumSet.of(WorkflowInstanceInclude.STARTED), null);
+    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
     assertEquals(resp, result);
   }
 
@@ -240,9 +240,9 @@ public class WorkflowInstanceResourceTest {
     WorkflowInstance instance = mock(WorkflowInstance.class);
     when(workflowInstances.getWorkflowInstance(42, EnumSet.allOf(WorkflowInstanceInclude.class), 10L)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
+    when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(true), eq(workflowInstances))).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
-        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L);
+        "actions,currentStateVariables,actionStateVariables,childWorkflows,startTime", 10L);
     verify(workflowInstances).getWorkflowInstance(42, EnumSet.allOf(WorkflowInstanceInclude.class), 10L);
     assertEquals(resp, result);
   }

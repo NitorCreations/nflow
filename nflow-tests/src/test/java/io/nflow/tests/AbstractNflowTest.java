@@ -12,11 +12,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -32,7 +31,8 @@ import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
 @ExtendWith({SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class})
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
@@ -73,7 +73,8 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
-    return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables,childWorkflows")
+    return getInstanceIdResource(instanceId)
+        .query("include", "currentStateVariables,actions,actionStateVariables,childWorkflows,startTime")
         .get(ListWorkflowInstanceResponse.class);
   }
 

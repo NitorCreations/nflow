@@ -53,11 +53,15 @@ public abstract class ResourceBase {
   protected static final String actions = "actions";
   protected static final String actionStateVariables = "actionStateVariables";
   protected static final String childWorkflows = "childWorkflows";
+  protected static final String startTime = "startTime";
   protected static final String INCLUDE_PARAM_VALUES = currentStateVariables + "," + actions + "," + actionStateVariables + ","
-      + childWorkflows;
-  protected static final String INCLUDE_PARAM_DESC = "Data to include in response. " + currentStateVariables
-      + " = current stateVariables for worfklow, " + actions + " = state transitions, " + actionStateVariables
-      + " = state variable changes for actions, " + childWorkflows + " = map of created child workflow instance IDs by action ID";
+      + childWorkflows + "," + startTime;
+  protected static final String INCLUDE_PARAM_DESC = "Data to include in response. " //
+      + currentStateVariables + " = current stateVariables for worfklow, " //
+      + actions + " = state transitions, " //
+      + actionStateVariables + " = state variable changes for actions, " //
+      + childWorkflows + " = map of created child workflow instance IDs by action ID, " //
+      + startTime + " = start time of the workflow instance";
   private static final Map<String, WorkflowInstanceInclude> INCLUDE_STRING_TO_ENUM = unmodifiableMap(Stream
       .of(new SimpleEntry<>(currentStateVariables, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES),
           new SimpleEntry<>(actions, WorkflowInstanceInclude.ACTIONS),
@@ -151,18 +155,15 @@ public abstract class ResourceBase {
         .setIncludeChildWorkflows(includeStrings.contains(childWorkflows)).build();
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
-    Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
-    // TODO: move to include parameters in next major version
-    parseIncludeEnums.add(WorkflowInstanceInclude.STARTED);
+    Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(includeStrings);
     for (WorkflowInstance instance : instances) {
-      resp.add(listWorkflowConverter.convert(instance, parseIncludeEnums));
+      resp.add(listWorkflowConverter.convert(instance, parseIncludeEnums, includeStrings.contains(startTime), workflowInstances));
     }
     return resp;
   }
 
-  private Set<WorkflowInstanceInclude> parseIncludeEnums(String include) {
-    return parseIncludeStrings(include).map(INCLUDE_STRING_TO_ENUM::get).filter(Objects::nonNull)
-        .collect(toCollection(HashSet::new));
+  private Set<WorkflowInstanceInclude> parseIncludeEnums(Set<String> includeStrings) {
+    return includeStrings.stream().map(INCLUDE_STRING_TO_ENUM::get).filter(Objects::nonNull).collect(toCollection(HashSet::new));
   }
 
   private Stream<String> parseIncludeStrings(String include) {
@@ -172,11 +173,10 @@ public abstract class ResourceBase {
   public ListWorkflowInstanceResponse fetchWorkflowInstance(final int id, final String include, final Long maxActions,
       final WorkflowInstanceService workflowInstances,
       final ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
-    Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
-    // TODO: move to include parameters in next major version
-    includes.add(WorkflowInstanceInclude.STARTED);
+    Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
+    Set<WorkflowInstanceInclude> includes = parseIncludeEnums(includeStrings);
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions);
-    return listWorkflowConverter.convert(instance, includes);
+    return listWorkflowConverter.convert(instance, includes, includeStrings.contains(startTime), workflowInstances);
   }
 
 }

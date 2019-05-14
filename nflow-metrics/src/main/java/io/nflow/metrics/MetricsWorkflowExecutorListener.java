@@ -8,7 +8,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 
 import io.nflow.engine.internal.dao.ExecutorDao;
-import io.nflow.engine.listener.AbstractWorkflowExecutorListener;
+import io.nflow.engine.listener.WorkflowExecutorListener;
 
 /**
  * Compute following metrics on per state basis
@@ -19,8 +19,7 @@ import io.nflow.engine.listener.AbstractWorkflowExecutorListener;
  * <li>Retry count histograms</li>
  * </ul>
  */
-public class MetricsWorkflowExecutorListener extends
-        AbstractWorkflowExecutorListener {
+public class MetricsWorkflowExecutorListener implements WorkflowExecutorListener {
   private static final String EXECUTION_KEY = "nflow-metrics-execution";
   private final MetricRegistry metricRegistry;
   private final String nflowExecutorGroup;

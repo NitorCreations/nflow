@@ -2,6 +2,8 @@ package io.nflow.engine.internal.executor;
 
 import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -203,10 +205,9 @@ public class WorkflowDispatcherTest {
   public void shutdownWithoutStart() throws Throwable {
     @SuppressWarnings("unused")
     class ShutdownWithoutStart extends MultithreadedTestCase {
-
       public void threadShutdown() {
         dispatcher.shutdown();
-        assertFalse(dispatcher.isRunning());
+        assertThat(dispatcher.isRunning(), is(false));
       }
     }
     runOnce(new ShutdownWithoutStart());

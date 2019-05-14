@@ -1,5 +1,7 @@
 package io.nflow.engine.internal.executor;
 
+import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
+import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
@@ -28,7 +30,17 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -153,8 +165,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private final DateTime tomorrow = now().plusDays(1);
 
-  private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
-      WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED);
+  private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES);
 
   @BeforeEach
   public void setup() {

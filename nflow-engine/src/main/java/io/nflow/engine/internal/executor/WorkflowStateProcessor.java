@@ -1,5 +1,7 @@
 package io.nflow.engine.internal.executor;
 
+import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
+import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
@@ -36,12 +38,10 @@ import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod;
-import io.nflow.engine.listener.AbstractWorkflowExecutorListener;
 import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
-import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -119,9 +119,7 @@ class WorkflowStateProcessor implements Runnable {
   private void runImpl() {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId,
-        EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES,
-            WorkflowInstanceInclude.STARTED),
-        null);
+        EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
@@ -347,7 +345,7 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private class ProcessingExecutorListener extends AbstractWorkflowExecutorListener {
+  private class ProcessingExecutorListener implements WorkflowExecutorListener {
     private final WorkflowInstance instance;
     private final AbstractWorkflowDefinition<? extends WorkflowState> definition;
     private final StateExecutionImpl execution;

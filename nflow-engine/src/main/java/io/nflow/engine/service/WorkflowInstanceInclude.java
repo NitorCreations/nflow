@@ -6,11 +6,6 @@ package io.nflow.engine.service;
 public enum WorkflowInstanceInclude {
 
   /**
-   * The execution start date of the first action of the workflow instance (WorkflowInstance.started).
-   */
-  STARTED,
-
-  /**
    * The most recent values of all state variables (WorkflowInstance.stateVariables).
    */
   CURRENT_STATE_VARIABLES,

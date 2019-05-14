@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,6 +159,15 @@ public class WorkflowInstanceService {
 
   private AbstractWorkflowDefinition<?> getDefinition(Integer workflowInstanceId) {
     return workflowDefinitionService.getWorkflowDefinition(workflowInstanceDao.getWorkflowInstanceType(workflowInstanceId));
+  }
+
+  /**
+   * Return start time for given workflow instance.
+   * @param workflowInstanceId Workflow instance id.
+   * @return Start time.
+   */
+  public DateTime getStartTime(Integer workflowInstanceId) {
+    return workflowInstanceDao.getWorkflowInstanceStartTime(workflowInstanceId);
   }
 
 }

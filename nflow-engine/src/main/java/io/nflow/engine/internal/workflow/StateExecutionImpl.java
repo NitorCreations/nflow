@@ -272,4 +272,9 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return historyCleaningForced;
   }
 
+  @Override
+  public DateTime queryWorkflowInstanceStartTime() {
+    return workflowDao.getWorkflowInstanceStartTime(instance.id);
+  }
+
 }

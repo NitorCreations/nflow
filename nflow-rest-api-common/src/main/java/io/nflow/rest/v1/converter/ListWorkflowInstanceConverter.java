@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.msg.Action;
@@ -32,7 +33,8 @@ public class ListWorkflowInstanceConverter {
   @Inject
   private ObjectMapper nflowRestObjectMapper;
 
-  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<WorkflowInstanceInclude> includes) {
+  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<WorkflowInstanceInclude> includes,
+      boolean fetchStartTime, WorkflowInstanceService workflowInstances) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
     resp.status = instance.status.name();
@@ -46,8 +48,8 @@ public class ListWorkflowInstanceConverter {
     resp.nextActivation = instance.nextActivation;
     resp.created = instance.created;
     resp.modified = instance.modified;
-    if (includes.contains(WorkflowInstanceInclude.STARTED)) {
-      resp.started = instance.started;
+    if (fetchStartTime) {
+      resp.started = workflowInstances.getStartTime(instance.id);
     }
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);

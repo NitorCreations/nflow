@@ -3,6 +3,8 @@ package io.nflow.engine.workflow.definition;
 import java.util.List;
 import java.util.Optional;
 
+import org.joda.time.DateTime;
+
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -176,5 +178,12 @@ public interface StateExecution {
    * @return The parent workflow instance id or empty.
    */
   Optional<Integer> getParentId();
+
+  /**
+   * Query the start time from database, that is, the time when processing of the first action started.
+   *
+   * @return Time when workflow processing was started.
+   */
+  DateTime queryWorkflowInstanceStartTime();
 
 }

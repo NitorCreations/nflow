@@ -82,7 +82,9 @@ public interface WorkflowExecutorListener {
    * affect workflow processing.
    * @param listenerContext The listener context.
    */
-  void beforeProcessing(ListenerContext listenerContext);
+  default void beforeProcessing(ListenerContext listenerContext) {
+    // no-op
+  }
 
   /**
    * Processing chain.
@@ -104,14 +106,18 @@ public interface WorkflowExecutorListener {
    * @param chain The listener chain.
    * @return NextAction
    */
-  NextAction process(ListenerContext listenerContext, ListenerChain chain);
+  default NextAction process(ListenerContext listenerContext, ListenerChain chain) {
+    return chain.next(listenerContext);
+  }
 
   /**
    * Executed after state has been successfully processed and before persisting
    * state. Exceptions are logged but they do not affect workflow processing.
    * @param listenerContext The listener context.
    */
-  void afterProcessing(ListenerContext listenerContext);
+  default void afterProcessing(ListenerContext listenerContext) {
+    // no-op
+  }
 
   /**
    * Executed after state processing has failed and before persisting state.
@@ -119,5 +125,7 @@ public interface WorkflowExecutorListener {
    * @param listenerContext The listener context.
    * @param throwable The exception thrown by the state handler method.
    */
-  void afterFailure(ListenerContext listenerContext, Throwable throwable);
+  default void afterFailure(ListenerContext listenerContext, Throwable throwable) {
+    // no-op
+  }
 }

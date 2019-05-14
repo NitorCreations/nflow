@@ -496,10 +496,6 @@ public class WorkflowInstanceDao {
   public WorkflowInstance getWorkflowInstance(int id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
     String sql = "select * from nflow_workflow w where w.id = ?";
     WorkflowInstance.Builder builder = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
-    if (includes.contains(WorkflowInstanceInclude.STARTED)) {
-      builder.setStarted(toDateTime(jdbc
-          .queryForObject("select min(execution_start) from nflow_workflow_action where workflow_id = ?", Timestamp.class, id)));
-    }
     WorkflowInstance instance = builder.build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       fillState(instance);
@@ -511,6 +507,11 @@ public class WorkflowInstanceDao {
       fillActions(instance, includes.contains(WorkflowInstanceInclude.ACTION_STATE_VARIABLES), maxActions);
     }
     return instance;
+  }
+
+  public DateTime getWorkflowInstanceStartTime(int id) {
+    return toDateTime(
+        jdbc.queryForObject("select min(execution_start) from nflow_workflow_action where workflow_id = ?", Timestamp.class, id));
   }
 
   private void fillState(final WorkflowInstance instance) {

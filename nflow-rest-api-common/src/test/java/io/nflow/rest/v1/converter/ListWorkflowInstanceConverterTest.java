@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,23 +36,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ListWorkflowInstanceConverterTest {
   @Mock
   private ObjectMapper nflowObjectMapper;
+  @Mock
+  private WorkflowInstanceService workflowInstanceService;
   @InjectMocks
   private final ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
 
   @Test
   public void convertWithActionsWorks() throws IOException {
+    DateTime actionStart = now().minusDays(1);
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState")
-        .setStateText("oState desc").setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1))
+        .setStateText("oState desc").setRetryNo(1).setExecutionStart(actionStart).setExecutionEnd(now().plusDays(1))
         .setExecutorId(999).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
@@ -72,8 +76,11 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("foo", node1);
     expectedStateVariables.put("bar", nodeQuux);
 
+    when(workflowInstanceService.getStartTime(i.id)).thenReturn(actionStart);
+
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES));
+        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), true,
+        workflowInstanceService);
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -90,7 +97,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.created, is(i.created));
     assertThat(resp.modified, is(i.modified));
-    assertThat(resp.started, is(i.started));
+    assertThat(resp.started, is(actionStart));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(i.signal.get()));
     assertThat(resp.actions, contains(reflectEquals(
@@ -103,8 +110,9 @@ public class ListWorkflowInstanceConverterTest {
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
 
+    DateTime actionStart = now().minusDays(1);
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState")
-        .setStateText("oState desc").setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1))
+        .setStateText("oState desc").setRetryNo(1).setExecutionStart(actionStart).setExecutionEnd(now().plusDays(1))
         .setExecutorId(999).setUpdatedStateVariables(stateVariables).build();
 
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
@@ -122,8 +130,11 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("foo", node1);
     expectedStateVariables.put("bar", nodeQuux);
 
+    when(workflowInstanceService.getStartTime(i.id)).thenReturn(actionStart);
+
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES));
+        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES), true,
+        workflowInstanceService);
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -139,7 +150,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.nextActivation, is(i.nextActivation));
     assertThat(resp.created, is(i.created));
     assertThat(resp.modified, is(i.modified));
-    assertThat(resp.started, is(i.started));
+    assertThat(resp.started, is(actionStart));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(nullValue()));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
@@ -155,7 +166,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(asList(a)).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet());
+    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet(), false, workflowInstanceService);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -179,7 +190,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(Arrays.asList(a)).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet());
+    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet(), false, workflowInstanceService);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.stateVariables, is((Map<String, Object>) null));
@@ -201,7 +212,8 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(Arrays.asList(a)).setStateVariables(new LinkedHashMap<String, String>()).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES));
+    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES),
+        false, workflowInstanceService);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -222,7 +234,8 @@ public class ListWorkflowInstanceConverterTest {
         .setNextActivation(now()).build();
 
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES));
+        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES), false,
+        workflowInstanceService);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -256,7 +269,8 @@ public class ListWorkflowInstanceConverterTest {
     when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException(null, "bad data"));
     when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException(null, "bad data"));
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES));
+    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), false,
+        workflowInstanceService);
 
     verify(nflowObjectMapper).readTree(value1);
     verify(nflowObjectMapper).readTree(value2);
