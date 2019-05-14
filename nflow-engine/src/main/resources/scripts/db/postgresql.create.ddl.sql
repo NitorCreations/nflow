@@ -18,6 +18,7 @@ create table if not exists nflow_workflow (
   retries int not null default 0,
   created timestamptz not null default current_timestamp,
   modified timestamptz not null default current_timestamp,
+  started timestamptz,
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
@@ -118,6 +119,7 @@ create table if not exists nflow_archive_workflow (
   retries int not null default 0,
   created timestamptz not null,
   modified timestamptz not null,
+  started timestamptz,
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)

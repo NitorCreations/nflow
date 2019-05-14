@@ -1,5 +1,7 @@
 package io.nflow.engine.internal.executor;
 
+import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
+import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
@@ -8,6 +10,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
@@ -17,7 +20,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,7 +43,6 @@ import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
-import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -119,9 +120,7 @@ class WorkflowStateProcessor implements Runnable {
   private void runImpl() {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId,
-        EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES,
-            WorkflowInstanceInclude.STARTED),
-        null);
+        EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
@@ -178,7 +177,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.warn("Workflow type {} not configured to this nFlow instance - rescheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowTypeRetryDelay))
         .setStatus(inProgress).setStateText("Unsupported workflow type").build();
-    workflowInstanceDao.updateWorkflowInstance(instance);
+    workflowInstanceDao.updateWorkflowInstance(instance, now());
     logger.debug("Finished.");
   }
 
@@ -187,7 +186,7 @@ class WorkflowStateProcessor implements Runnable {
         instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowStateRetryDelay))
         .setStatus(inProgress).setStateText("Unsupported workflow state").build();
-    workflowInstanceDao.updateWorkflowInstance(instance);
+    workflowInstanceDao.updateWorkflowInstance(instance, now());
     logger.debug("Finished.");
   }
 
@@ -246,18 +245,17 @@ class WorkflowStateProcessor implements Runnable {
 
   private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
       WorkflowInstanceAction.Builder actionBuilder, WorkflowInstance.Builder builder) {
+    WorkflowInstanceAction action = actionBuilder.setExecutionEnd(now()).setType(getActionType(execution))
+        .setStateText(execution.getNextStateReason()).build();
     if (execution.isStateProcessInvoked()) {
-      actionBuilder.setExecutionEnd(now()).setType(getActionType(execution)).setStateText(execution.getNextStateReason());
       if (execution.isFailed()) {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            Collections.<WorkflowInstance> emptyList(), Collections.<WorkflowInstance> emptyList(), true);
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), action, emptyList(), emptyList(), true);
       } else {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), actionBuilder.build(),
-            execution.getNewChildWorkflows(), execution.getNewWorkflows(), execution.createAction());
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), action, execution.getNewChildWorkflows(), execution.getNewWorkflows(), execution.createAction());
         processSuccess(execution, instance);
       }
     } else {
-      workflowInstanceDao.updateWorkflowInstance(builder.build());
+      workflowInstanceDao.updateWorkflowInstance(builder.build(), action.executionStart);
     }
     return builder.setOriginalStateVariables(instance.stateVariables).build();
   }

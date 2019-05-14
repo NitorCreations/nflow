@@ -16,6 +16,7 @@ create table if not exists nflow_workflow (
   retries int not null default 0,
   created timestamp not null default current_timestamp,
   modified timestamp not null default current_timestamp,
+  started timestamp,
   executor_group varchar(64) not null,
   workflow_signal int
 );
@@ -99,6 +100,7 @@ create table if not exists nflow_archive_workflow (
   retries int not null,
   created timestamp not null,
   modified timestamp not null,
+  started timestamp,
   executor_group varchar(64) not null,
   workflow_signal int
 );

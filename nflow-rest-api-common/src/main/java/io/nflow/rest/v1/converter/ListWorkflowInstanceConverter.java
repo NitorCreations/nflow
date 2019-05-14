@@ -46,9 +46,7 @@ public class ListWorkflowInstanceConverter {
     resp.nextActivation = instance.nextActivation;
     resp.created = instance.created;
     resp.modified = instance.modified;
-    if (includes.contains(WorkflowInstanceInclude.STARTED)) {
-      resp.started = instance.started;
-    }
+    resp.started = instance.started;
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
     if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {

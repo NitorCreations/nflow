@@ -8,6 +8,7 @@
 
 **Highlights**
 - Support non-enum WorkflowStates to enable, for example, Kotlin workflow definitions by extending AbstractWorkflowDefinition.
+- Added `started` timestamp to workflow instance table (requires database update)
 
 **Details**
 - Dependency and plugin updates:
@@ -20,6 +21,7 @@
   - Log more executor details on startup
   - Fix #311: Replace references to WorkflowDefinition with AbstractWorkflowDefinition to support non-enum WorkflowStates
   - Use name() instead of toString() when getting workflow instance initial state name
+  - Deprecated WorkflowInstanceInclude.STARTED enum value
 
 ## 5.5.0 (2019-04-04)
 

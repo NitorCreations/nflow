@@ -152,8 +152,6 @@ public abstract class ResourceBase {
     Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
     List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
     Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
-    // TODO: move to include parameters in next major version
-    parseIncludeEnums.add(WorkflowInstanceInclude.STARTED);
     for (WorkflowInstance instance : instances) {
       resp.add(listWorkflowConverter.convert(instance, parseIncludeEnums));
     }
@@ -173,8 +171,6 @@ public abstract class ResourceBase {
       final WorkflowInstanceService workflowInstances,
       final ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
     Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
-    // TODO: move to include parameters in next major version
-    includes.add(WorkflowInstanceInclude.STARTED);
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions);
     return listWorkflowConverter.convert(instance, includes);
   }
