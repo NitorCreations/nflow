@@ -183,7 +183,7 @@ public class WorkflowInstanceDao {
       Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
           instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
           instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
-          toTimestamp(instance.nextActivation), instance.signal.orElse(null), toTimestamp(instance.started) };
+          toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
       Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
       for (Entry<String, String> var : instance.stateVariables.entrySet()) {
@@ -202,8 +202,8 @@ public class WorkflowInstanceDao {
 
   String insertWorkflowInstanceSql() {
     return "insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
-        + "executor_group, status, state, state_text, next_activation, workflow_signal, started) values (?, ?, ?, ?, ?, ?, ?, "
-        + sqlVariants.workflowStatus() + ", ?, ?, ?, ?, ?)";
+        + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, "
+        + sqlVariants.workflowStatus() + ", ?, ?, ?, ?)";
   }
 
   String insertWorkflowInstanceStateSql() {
@@ -235,7 +235,6 @@ public class WorkflowInstanceDao {
           } else {
             ps.setNull(p++, Types.INTEGER);
           }
-          sqlVariants.setDateTime(ps, p++, instance.started);
           return ps;
         }, keyHolder);
       } catch (DuplicateKeyException e) {

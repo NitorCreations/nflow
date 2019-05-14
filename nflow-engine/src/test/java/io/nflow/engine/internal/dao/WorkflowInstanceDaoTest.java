@@ -577,10 +577,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     d.insertWorkflowInstance(wf);
     assertEquals(
         "with wf as (insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, "
-            + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal, started) values "
-            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?, ?) returning id), ins13 as "
+            + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
+            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
             + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
-            + "ins15 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+            + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
             + "select wf.id,0,?,? from wf) select wf.id from wf",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
@@ -598,7 +598,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) wf.stateText));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(wf.nextActivation.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) wf.signal.get()));
-    assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(wf.started.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) "A"));
     assertThat(args.getAllValues().get(i++), is((Object) "B"));
     assertThat(args.getAllValues().get(i++), is((Object) "C"));
@@ -608,7 +607,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Test
   public void insertWorkflowInstanceActionWorks() {
     DateTime started = now();
-    final WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStarted(started).build();
+    final WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
     int id = dao.insertWorkflowInstance(i1);
     final WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
@@ -726,7 +725,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Test
   public void insertingSubWorkflowWorks() {
     DateTime started = now();
-    final WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStarted(started).build();
+    final WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("b", "2");
     int parentWorkflowId = dao.insertWorkflowInstance(i1);
     assertThat(parentWorkflowId, not(equalTo(-1)));
