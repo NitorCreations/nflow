@@ -304,7 +304,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao).updateWorkflowInstance(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"),
             greaterThanOrEqualTo(oneHourInFuture))),
-        any(DateTime.class));
+        eq(null));
   }
 
   @Test
@@ -748,7 +748,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao).updateWorkflowInstance(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"),
             greaterThanOrEqualTo(oneHourInFuture))),
-        any(DateTime.class));
+        eq(null));
   }
 
   @Test

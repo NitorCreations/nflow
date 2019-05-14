@@ -177,7 +177,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.warn("Workflow type {} not configured to this nFlow instance - rescheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowTypeRetryDelay))
         .setStatus(inProgress).setStateText("Unsupported workflow type").build();
-    workflowInstanceDao.updateWorkflowInstance(instance, now());
+    workflowInstanceDao.updateWorkflowInstance(instance, null);
     logger.debug("Finished.");
   }
 
@@ -186,7 +186,7 @@ class WorkflowStateProcessor implements Runnable {
         instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowStateRetryDelay))
         .setStatus(inProgress).setStateText("Unsupported workflow state").build();
-    workflowInstanceDao.updateWorkflowInstance(instance, now());
+    workflowInstanceDao.updateWorkflowInstance(instance, null);
     logger.debug("Finished.");
   }
 
