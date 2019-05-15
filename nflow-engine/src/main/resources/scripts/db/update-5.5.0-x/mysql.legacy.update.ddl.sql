@@ -1,1 +1,1 @@
-alter table nflow_workflow add started timestamp;
+alter table nflow_workflow add started timestamp null;

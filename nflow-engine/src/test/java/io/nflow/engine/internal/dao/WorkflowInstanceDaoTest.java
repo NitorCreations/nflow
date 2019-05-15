@@ -175,6 +175,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getTimestamp("next_activation").getTime(), equalTo(i2.nextActivation.toDate().getTime()));
         assertThat(rs.getInt("executor_id") != 0, equalTo(i2.status == executing));
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
+        assertThat(rs.getTimestamp("started"), is(notNullValue()));
       }
     });
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().setBusinessKey("newKey").build();
