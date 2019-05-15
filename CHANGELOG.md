@@ -17,11 +17,12 @@
    - jetty 9.4.17.v20190418
 - `nflow-engine`
   - Retry workflow state processing until all steps in nFlow-side are executed successfully. This will prevent workflow instances from being locked in `executing` status, if e.g. database connection fails after locking the instance and before querying the full workflow instance information (`WorkflowStateProcessor`).
-  - Fix #306: create empty ArrayList with default initial size
-  - Log more executor details on startup
+  - Fix #306: create empty ArrayList with default initial size.
+  - Log more executor details on startup.
   - Fix #311: Replace references to WorkflowDefinition with AbstractWorkflowDefinition to support non-enum WorkflowStates
-  - Use name() instead of toString() when getting workflow instance initial state name
-  - Deprecated WorkflowInstanceInclude.STARTED enum value
+  - Use name() instead of toString() when getting workflow instance initial state name.
+  - Deprecated WorkflowInstanceInclude.STARTED enum value. This is not needed anymore, since the started timestamp is always read from the database when the instance is loaded.
+  - Add started timestamp to workflow instance table. This makes the instance queries much faster when instances have lots of actions, as there is no need to join the nflow_workflow_action table to the query anymore.
 
 ## 5.5.0 (2019-04-04)
 
