@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
@@ -35,7 +34,7 @@ public class WorkflowDefinitionService {
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
   private AbstractResource nonSpringWorkflowsListing;
-  private final Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefitions = new LinkedHashMap<>();
+  private final Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = new LinkedHashMap<>();
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
 
@@ -50,7 +49,7 @@ public class WorkflowDefinitionService {
    * @param workflowDefinitions The workflow definitions to be added.
    */
   @Autowired(required = false)
-  public void setWorkflowDefinitions(Collection<WorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
+  public void setWorkflowDefinitions(Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
     for (AbstractWorkflowDefinition<? extends WorkflowState> wd : workflowDefinitions) {
       addWorkflowDefinition(wd);
     }
@@ -67,7 +66,7 @@ public class WorkflowDefinitionService {
    * @return The workflow definition or null if not found.
    */
   public AbstractWorkflowDefinition<?> getWorkflowDefinition(String type) {
-    return workflowDefitions.get(type);
+    return workflowDefinitions.get(type);
   }
 
   /**
@@ -75,7 +74,7 @@ public class WorkflowDefinitionService {
    * @return List of workflow definitions.
    */
   public List<AbstractWorkflowDefinition<? extends WorkflowState>> getWorkflowDefinitions() {
-    return new ArrayList<>(workflowDefitions.values());
+    return new ArrayList<>(workflowDefinitions.values());
   }
 
   /**
@@ -91,7 +90,7 @@ public class WorkflowDefinitionService {
       initNonSpringWorkflowDefinitions();
     }
     if (persistWorkflowDefinitions) {
-      for (AbstractWorkflowDefinition<?> definition : workflowDefitions.values()) {
+      for (AbstractWorkflowDefinition<?> definition : workflowDefinitions.values()) {
         workflowDefinitionDao.storeWorkflowDefinition(definition);
       }
     }
@@ -103,14 +102,14 @@ public class WorkflowDefinitionService {
       while ((row = br.readLine()) != null) {
         logger.info("Preparing workflow {}", row);
         @SuppressWarnings("unchecked")
-        Class<WorkflowDefinition<? extends WorkflowState>> clazz = (Class<WorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
+        Class<AbstractWorkflowDefinition<? extends WorkflowState>> clazz = (Class<AbstractWorkflowDefinition<? extends WorkflowState>>) Class.forName(row);
         addWorkflowDefinition(clazz.getDeclaredConstructor().newInstance());
       }
     }
   }
 
   public void addWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> wd) {
-    AbstractWorkflowDefinition<? extends WorkflowState> conflict = workflowDefitions.put(wd.getType(), wd);
+    AbstractWorkflowDefinition<? extends WorkflowState> conflict = workflowDefinitions.put(wd.getType(), wd);
     if (conflict != null) {
       throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName() +
           " define same workflow type: " + wd.getType());

@@ -33,7 +33,7 @@ public class WorkflowInstancePreProcessor {
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
-      builder.setState(def.getInitialState().toString());
+      builder.setState(def.getInitialState().name());
     } else {
       if (!def.isStartState(instance.state)) {
         throw new RuntimeException("Specified state [" + instance.state + "] is not a start state.");
