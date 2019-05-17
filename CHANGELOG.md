@@ -1,4 +1,7 @@
-## 5.5.1-SNAPSHOT (future release)
+## 5.6.0-SNAPSHOT (future release)
+
+**Highlights**
+- Support non-enum WorkflowStates to enable, for example, Kotlin workflow definitions by extending AbstractWorkflowDefinition.
 
 **Details**
 - Dependency and plugin updates:
@@ -8,8 +11,10 @@
 - `nflow-engine`
   - Retry workflow state processing until all steps in nFlow-side are executed successfully. This will prevent workflow instances from being locked in `executing` status, if e.g. database connection fails after locking the instance and before querying the full workflow instance information (`WorkflowStateProcessor`).
   - Fix #306: create empty ArrayList with default initial size
-  - Log more executor details on startup  
-  
+  - Log more executor details on startup
+  - Fix #311: Replace references to WorkflowDefinition with AbstractWorkflowDefinition to support non-enum WorkflowStates
+  - Use name() instead of toString() when getting workflow instance initial state name
+
 ## 5.5.0 (2019-04-04)
 
 **Highlights**
