@@ -1,4 +1,10 @@
-## 5.6.0-SNAPSHOT (future release)
+## 5.6.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.6.0 (2019-05-21)
 
 **Highlights**
 - Support non-enum WorkflowStates to enable, for example, Kotlin workflow definitions by extending AbstractWorkflowDefinition.
