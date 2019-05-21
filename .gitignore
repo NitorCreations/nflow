@@ -4,3 +4,8 @@
 *.jar
 *.war
 *.ear
+
+.github_api_token
+
+*~
+
