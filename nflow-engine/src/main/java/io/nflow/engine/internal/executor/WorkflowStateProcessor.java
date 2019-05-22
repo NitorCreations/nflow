@@ -177,7 +177,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.warn("Workflow type {} not configured to this nFlow instance - rescheduling workflow instance", instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowTypeRetryDelay))
         .setStatus(inProgress).setStateText("Unsupported workflow type").build();
-    workflowInstanceDao.updateWorkflowInstance(instance, null);
+    workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Finished.");
   }
 
@@ -186,7 +186,7 @@ class WorkflowStateProcessor implements Runnable {
         instance.type);
     instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(unknownWorkflowStateRetryDelay))
         .setStatus(inProgress).setStateText("Unsupported workflow state").build();
-    workflowInstanceDao.updateWorkflowInstance(instance, null);
+    workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Finished.");
   }
 
@@ -219,7 +219,7 @@ class WorkflowStateProcessor implements Runnable {
         execution.wakeUpParentWorkflow();
       }
     }
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance) //
+    WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance) //
         .setNextActivation(execution.getNextActivation()) //
         .setStatus(getStatus(execution, nextState)) //
         .setStateText(getStateText(instance, execution)) //
@@ -227,7 +227,7 @@ class WorkflowStateProcessor implements Runnable {
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     do {
       try {
-        return persistWorkflowInstanceState(execution, instance, actionBuilder, builder);
+        return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
         logger.error("Failed to save workflow instance new state, retrying after {} seconds", stateSaveRetryDelay, ex);
         sleepIgnoreInterrupted(stateSaveRetryDelay);
@@ -243,21 +243,23 @@ class WorkflowStateProcessor implements Runnable {
     this.internalRetryEnabled = internalRetryEnabled;
   }
 
-  private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-      WorkflowInstanceAction.Builder actionBuilder, WorkflowInstance.Builder builder) {
+  private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, Map<String, String> originalStateVars,
+      WorkflowInstanceAction.Builder actionBuilder, WorkflowInstance.Builder instanceBuilder) {
     WorkflowInstanceAction action = actionBuilder.setExecutionEnd(now()).setType(getActionType(execution))
         .setStateText(execution.getNextStateReason()).build();
     if (execution.isStateProcessInvoked()) {
+      WorkflowInstance instance = instanceBuilder.setStarted(action.executionStart).build();
       if (execution.isFailed()) {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), action, emptyList(), emptyList(), true);
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(instance, action, emptyList(), emptyList(), true);
       } else {
-        workflowInstanceDao.updateWorkflowInstanceAfterExecution(builder.build(), action, execution.getNewChildWorkflows(), execution.getNewWorkflows(), execution.createAction());
+        workflowInstanceDao.updateWorkflowInstanceAfterExecution(instance, action, execution.getNewChildWorkflows(),
+            execution.getNewWorkflows(), execution.createAction());
         processSuccess(execution, instance);
       }
     } else {
-      workflowInstanceDao.updateWorkflowInstance(builder.build(), action.executionStart);
+      workflowInstanceDao.updateWorkflowInstance(instanceBuilder.build());
     }
-    return builder.setOriginalStateVariables(instance.stateVariables).build();
+    return instanceBuilder.setOriginalStateVariables(originalStateVars).build();
   }
 
   private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {

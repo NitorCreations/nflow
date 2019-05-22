@@ -154,9 +154,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int id = dao.insertWorkflowInstance(i1);
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
+    DateTime started = now();
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
         dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).setStatus(inProgress).setState("updateState")
-            .setStateText("update text").build();
+            .setStateText("update text").setStarted(started).build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id, emptySet(), null);
     assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
@@ -175,7 +176,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getTimestamp("next_activation").getTime(), equalTo(i2.nextActivation.toDate().getTime()));
         assertThat(rs.getInt("executor_id") != 0, equalTo(i2.status == executing));
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
-        assertThat(rs.getTimestamp("started"), is(notNullValue()));
+        assertThat(rs.getTimestamp("started").getTime(), is(equalTo(started.getMillis())));
       }
     });
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().setBusinessKey("newKey").build();
@@ -444,7 +445,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void updatingNextActivationToNullWhileExternalNextActivationIsNotNull() {
-    DateTime started = now();
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     int workflowId = dao.insertWorkflowInstance(instance);
     assertTrue(workflowId > -1);
@@ -454,7 +454,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i = dao.getWorkflowInstance(workflowId, EnumSet.of(CURRENT_STATE_VARIABLES), null);
     i = new WorkflowInstance.Builder(i).setNextActivation(null).build();
 
-    dao.updateWorkflowInstance(i, started);
+    dao.updateWorkflowInstance(i);
 
     WorkflowInstance updated = dao.getWorkflowInstance(workflowId, emptySet(), null);
     assertThat(updated.nextActivation, is(nullValue()));
@@ -476,7 +476,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     WorkflowInstance i = dao.getWorkflowInstance(workflowId, EnumSet.of(CURRENT_STATE_VARIABLES), null);
 
-    assertThat(dao.updateWorkflowInstance(i, now), is(1));
+    assertThat(dao.updateWorkflowInstance(i), is(1));
     assertThat(dao.getWorkflowInstance(workflowId, emptySet(), null).nextActivation, is(now));
   }
 
@@ -493,7 +493,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?",
         new Timestamp(future.getMillis()), workflowId), is(1));
     WorkflowInstance i = dao.getWorkflowInstance(workflowId, EnumSet.of(CURRENT_STATE_VARIABLES), null);
-    assertThat(dao.updateWorkflowInstance(i, now), is(1));
+    assertThat(dao.updateWorkflowInstance(i), is(1));
     assertThat(dao.getWorkflowInstance(workflowId, emptySet(), null).nextActivation, is(now));
   }
 

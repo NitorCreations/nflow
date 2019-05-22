@@ -303,8 +303,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     verify(workflowInstanceDao).updateWorkflowInstance(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"),
-            greaterThanOrEqualTo(oneHourInFuture))),
-        eq(null));
+            greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test
@@ -367,8 +366,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     verify(workflowInstanceDao).updateWorkflowInstance(
         argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
-            is(skipped))),
-        any(DateTime.class));
+            is(skipped), is(nullValue()))));
   }
 
   @Test
@@ -628,14 +626,19 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     assertThat(state.get("hello"), is("[1,2,3]"));
   }
 
-  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state,
-      int retries, Matcher<String> stateTextMatcher) {
+  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state, int retries,
+      Matcher<String> stateTextMatcher) {
     return matchesWorkflowInstance(status, state, retries, stateTextMatcher, Matchers.any(DateTime.class));
+  }
+
+  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state, int retries,
+      Matcher<String> stateTextMatcher, Matcher<? super DateTime> nextActivationMatcher) {
+    return matchesWorkflowInstance(status, state, retries, stateTextMatcher, nextActivationMatcher, Matchers.any(DateTime.class));
   }
 
   private Matcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowInstanceStatus status,
       final WorkflowState state, final int retries, final Matcher<String> stateTextMatcher,
-      final Matcher<? super DateTime> nextActivationMatcher) {
+      final Matcher<? super DateTime> nextActivationMatcher, final Matcher<? super DateTime> startedMatcher) {
     return new TypeSafeMatcher<WorkflowInstance>() {
       @Override
       public void describeTo(Description description) {
@@ -650,6 +653,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         assertThat(i.stateText, stateTextMatcher);
         assertThat(i.retries, is(retries));
         assertThat(i.nextActivation, nextActivationMatcher);
+        assertThat(i.started, startedMatcher);
         return true;
       }
     };
@@ -747,8 +751,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     verify(workflowInstanceDao).updateWorkflowInstance(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"),
-            greaterThanOrEqualTo(oneHourInFuture))),
-        eq(null));
+            greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test
