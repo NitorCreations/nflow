@@ -81,7 +81,7 @@ public class TestDataGenerator {
         .setCreated(nextActivation.minusMinutes(5 + random.nextInt(10))) //
         .setModified(nextActivation.minusMinutes(random.nextInt(5))) //
         .setNextActivation(asList(created, executing, inProgress).contains(status) ? nextActivation : null) //
-        .setStarted(nextActivation.minusMinutes(random.nextInt(10))) //
+        .setStartedIfNotSet(nextActivation.minusMinutes(random.nextInt(10))) //
         .setState(state.name()) //
         .setActions(actions) //
         .setStateText(randomUUID().toString()) //

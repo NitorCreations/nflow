@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -229,6 +231,8 @@ public class WorkflowInstance extends ModelObject {
    */
   public static class Builder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(WorkflowInstance.Builder.class);
+
     Integer id;
     Integer executorId;
     Integer rootWorkflowId;
@@ -291,6 +295,7 @@ public class WorkflowInstance extends ModelObject {
       this.retries = copy.retries;
       this.created = copy.created;
       this.modified = copy.modified;
+      this.started = copy.started;
       this.executorGroup = copy.executorGroup;
       this.signal = copy.signal;
       this.mapper = copy.mapper;
@@ -525,12 +530,30 @@ public class WorkflowInstance extends ModelObject {
     }
 
     /**
-     * Set the start timestamp.
+     * Set the started timestamp. Log a warning if the value was already set and ignore the new value.
+     * @param started Start time.
+     * @return this.
+     * @deprecated Use setStartedIfNotSet instead.
+     */
+    @Deprecated
+    public Builder setStarted(DateTime started) {
+      if (this.started == null) {
+        this.started = started;
+      } else {
+        LOG.warn("Started is already set to {}, ignoring new value {}.");
+      }
+      return this;
+    }
+
+    /**
+     * Set the started timestamp if it has not already been set.
      * @param started Start time.
      * @return this.
      */
-    public Builder setStarted(DateTime started) {
-      this.started = started;
+    public Builder setStartedIfNotSet(DateTime started) {
+      if (this.started == null) {
+        this.started = started;
+      }
       return this;
     }
 

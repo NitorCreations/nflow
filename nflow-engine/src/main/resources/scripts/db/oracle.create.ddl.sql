@@ -15,6 +15,7 @@ create table nflow_workflow (
   retries int default 0 not null,
   created timestamp default current_timestamp not null,
   modified timestamp default current_timestamp not null,
+  started timestamp,
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group),
@@ -157,6 +158,7 @@ create table nflow_archive_workflow (
   retries int not null,
   created timestamp not null,
   modified timestamp not null,
+  started timestamp,
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)

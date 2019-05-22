@@ -17,6 +17,7 @@ create table nflow_workflow (
   retries int not null default 0,
   created datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
+  started datetimeoffset(3),
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
@@ -113,6 +114,7 @@ create table nflow_archive_workflow (
   retries int not null default 0,
   created datetimeoffset(3) not null,
   modified datetimeoffset(3) not null,
+  started datetimeoffset(3),
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)

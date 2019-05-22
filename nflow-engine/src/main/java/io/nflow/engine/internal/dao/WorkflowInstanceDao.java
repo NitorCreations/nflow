@@ -2,7 +2,6 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static io.nflow.engine.internal.dao.DaoUtil.getInt;
-import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
@@ -332,7 +331,8 @@ public class WorkflowInstanceDao {
     Object nextActivation = sqlVariants.toTimestampObject(instance.nextActivation);
     return jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
         abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
-        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, instance.id);
+        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, toTimestamp(instance.started),
+        instance.id);
   }
 
   private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action,
@@ -368,8 +368,8 @@ public class WorkflowInstanceDao {
 
   private List<InstanceInfo> getRecoverableInstances() {
     String sql = "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
-        + executorInfo.getExecutorGroupCondition() + " and id <> " + executorInfo.getExecutorId()
-        + " and " + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + ")";
+        + executorInfo.getExecutorGroupCondition() + " and id <> " + executorInfo.getExecutorId() + " and "
+        + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + ")";
     return jdbc.query(sql, new RowMapper<InstanceInfo>() {
       @Override
       public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -386,12 +386,10 @@ public class WorkflowInstanceDao {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         int executorId = executorInfo.getExecutorId();
-        int updated = jdbc.update(
-            "update nflow_workflow set executor_id = null, status = " + sqlVariants.workflowStatus(inProgress)
-                + " where id = ? and executor_id in (select id from nflow_executor where "
-                + executorInfo.getExecutorGroupCondition() + " and id <> " + executorId + " and "
-                + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + ")",
-            instanceId);
+        int updated = jdbc.update("update nflow_workflow set executor_id = null, status = "
+            + sqlVariants.workflowStatus(inProgress) + " where id = ? and executor_id in (select id from nflow_executor where "
+            + executorInfo.getExecutorGroupCondition() + " and id <> " + executorId + " and "
+            + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + ")", instanceId);
         if (updated > 0) {
           insertWorkflowInstanceAction(action);
         }
@@ -411,10 +409,9 @@ public class WorkflowInstanceDao {
     Timestamp nextActivation = toTimestamp(instance.nextActivation);
     Object[] fixedValues = new Object[] { instance.status.name(), instance.state,
         abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
-        instance.status == executing ? executorId : null, instance.retries, instance.id, executorId, action.type.name(),
-        action.state, abbreviate(action.stateText, getActionStateTextLength()), action.retryNo,
-        toTimestamp(action.executionStart),
-        toTimestamp(action.executionEnd) };
+        instance.status == executing ? executorId : null, instance.retries, toTimestamp(action.executionStart), instance.id,
+        executorId, action.type.name(), action.state, abbreviate(action.stateText, getActionStateTextLength()), action.retryNo,
+        toTimestamp(action.executionStart), toTimestamp(action.executionEnd) };
     int pos = fixedValues.length;
     Object[] args = Arrays.copyOf(fixedValues, pos + changedStateVariables.size() * 2);
     for (Entry<String, String> var : changedStateVariables.entrySet()) {
@@ -434,7 +431,8 @@ public class WorkflowInstanceDao {
   private String updateWorkflowInstanceSql() {
     return "update nflow_workflow set status = " + sqlVariants.workflowStatus() + ", state = ?, state_text = ?, "
         + "next_activation = " + sqlVariants.nextActivationUpdate()
-        + ", external_next_activation = null, executor_id = ?, retries = ? where id = ? and executor_id = "
+        + ", external_next_activation = null, executor_id = ?, retries = ?, "
+        + "started = (case when started is null then ? else started end) where id = ? and executor_id = "
         + executorInfo.getExecutorId();
   }
 
@@ -465,7 +463,8 @@ public class WorkflowInstanceDao {
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then ")
-        .append("case when " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp") + " then next_activation else current_timestamp end else next_activation end), ")
+        .append("case when " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp")
+            + " then next_activation else current_timestamp end else next_activation end), ")
         .append("external_next_activation = current_timestamp where ").append(executorInfo.getExecutorGroupCondition())
         .append(" and id = ? and next_activation is not null");
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);
@@ -494,13 +493,8 @@ public class WorkflowInstanceDao {
   }
 
   public WorkflowInstance getWorkflowInstance(int id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
-    String sql = "select * from nflow_workflow w where w.id = ?";
-    WorkflowInstance.Builder builder = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id);
-    if (includes.contains(WorkflowInstanceInclude.STARTED)) {
-      builder.setStarted(toDateTime(jdbc
-          .queryForObject("select min(execution_start) from nflow_workflow_action where workflow_id = ?", Timestamp.class, id)));
-    }
-    WorkflowInstance instance = builder.build();
+    String sql = "select * from nflow_workflow where id = ?";
+    WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       fillState(instance);
     }
@@ -514,10 +508,9 @@ public class WorkflowInstanceDao {
   }
 
   private void fillState(final WorkflowInstance instance) {
-    jdbc.query(
-        "select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
-            + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
-            + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
+    jdbc.query("select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
+        + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
+        + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
         new RowCallbackHandler() {
           @Override
           public void processRow(ResultSet rs) throws SQLException {
@@ -541,9 +534,8 @@ public class WorkflowInstanceDao {
 
   String whereConditionForInstanceUpdate() {
     return "where executor_id is null and status in (" + sqlVariants.workflowStatus(created) + ", "
-        + sqlVariants.workflowStatus(inProgress) + ") and "
-        + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp") + " and "
-        + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
+        + sqlVariants.workflowStatus(inProgress) + ") and " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp")
+        + " and " + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
   }
 
   private List<Integer> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
@@ -558,8 +550,8 @@ public class WorkflowInstanceDao {
       @Override
       public List<Integer> doInTransaction(TransactionStatus transactionStatus) {
         String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
-        List<OptimisticLockKey> instances = jdbc.query(sql, (rs, rowNum) ->
-                new OptimisticLockKey(rs.getInt("id"), sqlVariants.getTimestamp(rs, "modified")));
+        List<OptimisticLockKey> instances = jdbc.query(sql,
+            (rs, rowNum) -> new OptimisticLockKey(rs.getInt("id"), sqlVariants.getTimestamp(rs, "modified")));
         if (instances.isEmpty()) {
           return emptyList();
         }
@@ -635,31 +627,28 @@ public class WorkflowInstanceDao {
   }
 
   public List<WorkflowInstance> queryWorkflowInstances(QueryWorkflowInstances query) {
-    String sql = "select w.*, "
-        + "(select min(execution_start) from nflow_workflow_action a where a.workflow_id = w.id) as started "
-        + "from nflow_workflow w ";
-
+    String sql = "select * from nflow_workflow ";
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
-      conditions.add("w.id in (:ids)");
+      conditions.add("id in (:ids)");
       params.addValue("ids", query.ids);
     }
     if (!isEmpty(query.types)) {
-      conditions.add("w.type in (:types)");
+      conditions.add("type in (:types)");
       params.addValue("types", query.types);
     }
     if (query.parentWorkflowId != null) {
-      conditions.add("w.parent_workflow_id = :parent_workflow_id");
+      conditions.add("parent_workflow_id = :parent_workflow_id");
       params.addValue("parent_workflow_id", query.parentWorkflowId);
     }
     if (query.parentActionId != null) {
-      conditions.add("w.parent_action_id = :parent_action_id");
+      conditions.add("parent_action_id = :parent_action_id");
       params.addValue("parent_action_id", query.parentActionId);
     }
     if (!isEmpty(query.states)) {
-      conditions.add("w.state in (:states)");
+      conditions.add("state in (:states)");
       params.addValue("states", query.states);
     }
     if (!isEmpty(query.statuses)) {
@@ -667,20 +656,20 @@ public class WorkflowInstanceDao {
       for (WorkflowInstanceStatus s : query.statuses) {
         convertedStatuses.add(s.name());
       }
-      conditions.add("w.status" + sqlVariants.castToText() + " in (:statuses)");
+      conditions.add("status" + sqlVariants.castToText() + " in (:statuses)");
       params.addValue("statuses", convertedStatuses);
     }
     if (query.businessKey != null) {
-      conditions.add("w.business_key = :business_key");
+      conditions.add("business_key = :business_key");
       params.addValue("business_key", query.businessKey);
     }
     if (query.externalId != null) {
-      conditions.add("w.external_id = :external_id");
+      conditions.add("external_id = :external_id");
       params.addValue("external_id", query.externalId);
     }
-    conditions.add("w.executor_group = :executor_group");
+    conditions.add("executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
-    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
+    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by created desc";
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
         .map(WorkflowInstance.Builder::build).collect(toList());
@@ -722,8 +711,9 @@ public class WorkflowInstanceDao {
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long maxActions) {
     Map<Integer, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
         : EMPTY_ACTION_STATE_MAP;
-    String sql = sqlVariants.limit("select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc",
-            getMaxActions(maxActions));
+    String sql = sqlVariants.limit(
+        "select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc",
+        getMaxActions(maxActions));
     instance.actions.addAll(jdbc.query(sql, new WorkflowInstanceActionRowMapper(sqlVariants, actionStates), instance.id));
   }
 
@@ -790,10 +780,11 @@ public class WorkflowInstanceDao {
           .setState(rs.getString("state")) //
           .setStateText(rs.getString("state_text")) //
           .setActions(new ArrayList<WorkflowInstanceAction>()) //
-          .setNextActivation(sqlVariants.getDateTime(rs,"next_activation")) //
+          .setNextActivation(sqlVariants.getDateTime(rs, "next_activation")) //
           .setRetries(rs.getInt("retries")) //
-          .setCreated(sqlVariants.getDateTime(rs,"created")) //
-          .setModified(sqlVariants.getDateTime(rs,"modified")) //
+          .setCreated(sqlVariants.getDateTime(rs, "created")) //
+          .setModified(sqlVariants.getDateTime(rs, "modified")) //
+          .setStartedIfNotSet(sqlVariants.getDateTime(rs, "started")) //
           .setExecutorGroup(rs.getString("executor_group")) //
           .setSignal(ofNullable(getInt(rs, "workflow_signal")));
     }
@@ -877,9 +868,9 @@ public class WorkflowInstanceDao {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("workflowId", workflowInstanceId);
     params.addValue("deleteUpToTime", sqlVariants.toTimestampObject(now().minusHours(historyDeletableAfterHours)));
-    Integer maxActionId = namedJdbc.queryForObject(
-        "select max(id) from nflow_workflow_action where workflow_id = :workflowId and " +
-        sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Integer.class);
+    Integer maxActionId = namedJdbc
+        .queryForObject("select max(id) from nflow_workflow_action where workflow_id = :workflowId and "
+            + sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Integer.class);
     int deletedActions = 0;
     if (maxActionId != null) {
       params.addValue("maxActionId", maxActionId);

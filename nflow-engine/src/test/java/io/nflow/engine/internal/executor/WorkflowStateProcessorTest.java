@@ -1,5 +1,7 @@
 package io.nflow.engine.internal.executor;
 
+import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
+import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
@@ -28,7 +30,18 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -153,8 +166,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private final DateTime tomorrow = now().plusDays(1);
 
-  private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS,
-      WorkflowInstanceInclude.CURRENT_STATE_VARIABLES, WorkflowInstanceInclude.STARTED);
+  private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES);
 
   @BeforeEach
   public void setup() {
@@ -290,8 +302,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0,
-            is("Unsupported workflow state"), greaterThanOrEqualTo(oneHourInFuture))));
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0, is("Unsupported workflow state"),
+            greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test
@@ -301,9 +313,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     executor.run();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
-        MockitoHamcrest.argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
+        argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
             nullValue(DateTime.class))),
-        MockitoHamcrest.argThat(matchesWorkflowInstanceAction(SimpleTestWorkflow.State.beforeManual, is("Move to manual state."),
+        argThat(matchesWorkflowInstanceAction(SimpleTestWorkflow.State.beforeManual, is("Move to manual state."),
             simpleWf.getSettings().maxRetries, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
@@ -353,8 +365,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
-            is(skipped))));
+        argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start, 0, is("Scheduled by previous state start"),
+            is(skipped), is(nullValue()))));
   }
 
   @Test
@@ -614,14 +626,19 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     assertThat(state.get("hello"), is("[1,2,3]"));
   }
 
-  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state,
-      int retries, Matcher<String> stateTextMatcher) {
+  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state, int retries,
+      Matcher<String> stateTextMatcher) {
     return matchesWorkflowInstance(status, state, retries, stateTextMatcher, Matchers.any(DateTime.class));
+  }
+
+  private Matcher<WorkflowInstance> matchesWorkflowInstance(WorkflowInstanceStatus status, WorkflowState state, int retries,
+      Matcher<String> stateTextMatcher, Matcher<? super DateTime> nextActivationMatcher) {
+    return matchesWorkflowInstance(status, state, retries, stateTextMatcher, nextActivationMatcher, Matchers.any(DateTime.class));
   }
 
   private Matcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowInstanceStatus status,
       final WorkflowState state, final int retries, final Matcher<String> stateTextMatcher,
-      final Matcher<? super DateTime> nextActivationMatcher) {
+      final Matcher<? super DateTime> nextActivationMatcher, final Matcher<? super DateTime> startedMatcher) {
     return new TypeSafeMatcher<WorkflowInstance>() {
       @Override
       public void describeTo(Description description) {
@@ -636,6 +653,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         assertThat(i.stateText, stateTextMatcher);
         assertThat(i.retries, is(retries));
         assertThat(i.nextActivation, nextActivationMatcher);
+        assertThat(i.started, startedMatcher);
         return true;
       }
     };
@@ -732,8 +750,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.run();
 
     verify(workflowInstanceDao).updateWorkflowInstance(
-        MockitoHamcrest.argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0,
-            is("Unsupported workflow type"), greaterThanOrEqualTo(oneHourInFuture))));
+        argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0, is("Unsupported workflow type"),
+            greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test
