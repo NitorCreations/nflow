@@ -112,7 +112,7 @@
     <frontend-maven.version>1.6</frontend-maven.version>
     <h2.version>1.4.199</h2.version>
     <hamcrest.version>2.1</hamcrest.version>
-    <hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
+    <hibernate.validator.version>6.0.15.Final</hibernate.validator.version>
     <hikaricp.version>3.3.1</hikaricp.version>
     <jackson.version>2.9.9</jackson.version>
     <jackson-databind.version>2.9.9</jackson-databind.version>
