@@ -23,6 +23,9 @@
 
 ## 5.5.0 (2019-04-04)
 
+**CRITICAL BUG**
+This release contains a bug (#306, introduced in 5.4.1) which may cause OutOfMemory errors while fetching child workflow IDs. We recommend to update to 5.6.0 as soon as possible.
+
 **Highlights**
 - Introduce possibility to temporarily stop polling for new workflow instances by invoking pause() on WorkflowLifecycle, continue polling with resume(), and check pause status with isPaused().
 
@@ -33,6 +36,9 @@
 - Add pause(), resume() and isPaused() to WorkflowLifecycle, to pause and resume workflow instance polling in a running nFlow.
 
 ## 5.4.1 (2019-03-18)
+
+**CRITICAL BUG**
+This release introduced issue #306 which may cause OutOfMemory errors while fetching child workflow IDs. We recommend to update to 5.6.0 as soon as possible.
 
 **Highlights**
 - Introduce BulkWorkflow which can be used or extended to handle mass of child workflows without overloading the system.
