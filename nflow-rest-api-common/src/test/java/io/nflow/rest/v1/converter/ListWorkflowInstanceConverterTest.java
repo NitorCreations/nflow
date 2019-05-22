@@ -62,7 +62,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setParentWorkflowId(942).setParentActionId(842).setExternalId("externalId")
         .setState("cState").setStateText("cState desc").setNextActivation(now()).setActions(asList(a))
         .setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
-        .setStateVariables(stateVariables).setSignal(Optional.of(42)).setStarted(started).build();
+        .setStateVariables(stateVariables).setSignal(Optional.of(42)).setStartedIfNotSet(started).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);

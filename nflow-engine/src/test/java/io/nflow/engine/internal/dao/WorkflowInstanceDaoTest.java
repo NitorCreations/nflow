@@ -157,7 +157,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     DateTime started = now();
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
         dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).setStatus(inProgress).setState("updateState")
-            .setStateText("update text").setStarted(started).build();
+            .setStateText("update text").setStartedIfNotSet(started).build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id, emptySet(), null);
     assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
@@ -573,7 +573,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
         .setRootWorkflowId(9283).setParentWorkflowId(110).setParentActionId(421).setNextActivation(started.plusSeconds(1))
         .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
-        .setStarted(started).build();
+        .setStartedIfNotSet(started).build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(

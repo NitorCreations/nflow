@@ -784,7 +784,7 @@ public class WorkflowInstanceDao {
           .setRetries(rs.getInt("retries")) //
           .setCreated(sqlVariants.getDateTime(rs, "created")) //
           .setModified(sqlVariants.getDateTime(rs, "modified")) //
-          .setStarted(sqlVariants.getDateTime(rs, "started")) //
+          .setStartedIfNotSet(sqlVariants.getDateTime(rs, "started")) //
           .setExecutorGroup(rs.getString("executor_group")) //
           .setSignal(ofNullable(getInt(rs, "workflow_signal")));
     }
