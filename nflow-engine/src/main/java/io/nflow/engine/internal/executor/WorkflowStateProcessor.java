@@ -38,7 +38,6 @@ import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod;
-import io.nflow.engine.listener.AbstractWorkflowExecutorListener;
 import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
@@ -347,7 +346,7 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private class ProcessingExecutorListener extends AbstractWorkflowExecutorListener {
+  private class ProcessingExecutorListener implements WorkflowExecutorListener {
     private final WorkflowInstance instance;
     private final AbstractWorkflowDefinition<? extends WorkflowState> definition;
     private final StateExecutionImpl execution;

@@ -2,11 +2,14 @@
 
 **Highlights**
 - Added `started` timestamp to workflow instance table (requires database update)
+- Deprecated WorkflowInstanceInclude.STARTED enum value
+- Deprecated `AbstractWorkflowExecutorListener`, use `WorkflowExecutorListener` instead
 
 **Details**
 - `nflow-engine`
   - Add started timestamp to workflow instance table. This makes the instance queries much faster when instances have lots of actions, as there is no need to join the nflow_workflow_action table to the query anymore.
   - Deprecated WorkflowInstanceInclude.STARTED enum value. This is not needed anymore, since the started timestamp is always read from the database when the instance is loaded.
+  - Moved default implementations for `WorkflowExecutorListener` interface methods from the abstract class to the interface.
 
 ## 5.6.0 (2019-05-21)
 
@@ -15,9 +18,9 @@
 
 **Details**
 - Dependency and plugin updates:
-   - spring 5.1.6.RELEASE
-   - reactor.netty 0.8.6.RELEASE
-   - jetty 9.4.17.v20190418
+  - spring 5.1.6.RELEASE
+  - reactor.netty 0.8.6.RELEASE
+  - jetty 9.4.17.v20190418
 - `nflow-engine`
   - Retry workflow state processing until all steps in nFlow-side are executed successfully. This will prevent workflow instances from being locked in `executing` status, if e.g. database connection fails after locking the instance and before querying the full workflow instance information (`WorkflowStateProcessor`).
   - Fix #306: create empty ArrayList with default initial size.
@@ -57,19 +60,19 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
   Earlier lodash versions had this security vulnerability: https://nvd.nist.gov/vuln/detail/CVE-2018-16487
 - Use select distinct when getting preserved actions while cleaning workflow instance history
 - Dependency and plugin updates:
-    - slf4j 1.7.26
-    - spring 5.1.5.RELEASE
-    - hamcrest 2.1
-    - reactor.netty 0.8.5.RELEASE
-    - swagger 1.5.22
-    - mockito 2.24.5
-    - io.dropwizard.metrics 4.0.5
-    - mysql-connector-java 8.0.15
-    - mssql-jdbc 7.2.1.jre8
-    - hikaricp 3.3.1
-    - maven-surefire 2.22.1
-    - jetty 9.4.15.v20190215
-    - h2 1.4.199
+  - slf4j 1.7.26
+  - spring 5.1.5.RELEASE
+  - hamcrest 2.1
+  - reactor.netty 0.8.5.RELEASE
+  - swagger 1.5.22
+  - mockito 2.24.5
+  - io.dropwizard.metrics 4.0.5
+  - mysql-connector-java 8.0.15
+  - mssql-jdbc 7.2.1.jre8
+  - hikaricp 3.3.1
+  - maven-surefire 2.22.1
+  - jetty 9.4.15.v20190215
+  - h2 1.4.199
 - Fix workflow history cleanup to keep the actions that hold the latest values of state variables
 - nFlow Explorer: Custom content to workflow definition and workflow instance pages. 
 - nFlow Explorer: Executors page to use standard time formatting in tooltips 
