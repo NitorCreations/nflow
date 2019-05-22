@@ -627,28 +627,28 @@ public class WorkflowInstanceDao {
   }
 
   public List<WorkflowInstance> queryWorkflowInstances(QueryWorkflowInstances query) {
-    String sql = "select w.* from nflow_workflow w ";
+    String sql = "select * from nflow_workflow ";
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
-      conditions.add("w.id in (:ids)");
+      conditions.add("id in (:ids)");
       params.addValue("ids", query.ids);
     }
     if (!isEmpty(query.types)) {
-      conditions.add("w.type in (:types)");
+      conditions.add("type in (:types)");
       params.addValue("types", query.types);
     }
     if (query.parentWorkflowId != null) {
-      conditions.add("w.parent_workflow_id = :parent_workflow_id");
+      conditions.add("parent_workflow_id = :parent_workflow_id");
       params.addValue("parent_workflow_id", query.parentWorkflowId);
     }
     if (query.parentActionId != null) {
-      conditions.add("w.parent_action_id = :parent_action_id");
+      conditions.add("parent_action_id = :parent_action_id");
       params.addValue("parent_action_id", query.parentActionId);
     }
     if (!isEmpty(query.states)) {
-      conditions.add("w.state in (:states)");
+      conditions.add("state in (:states)");
       params.addValue("states", query.states);
     }
     if (!isEmpty(query.statuses)) {
@@ -656,20 +656,20 @@ public class WorkflowInstanceDao {
       for (WorkflowInstanceStatus s : query.statuses) {
         convertedStatuses.add(s.name());
       }
-      conditions.add("w.status" + sqlVariants.castToText() + " in (:statuses)");
+      conditions.add("status" + sqlVariants.castToText() + " in (:statuses)");
       params.addValue("statuses", convertedStatuses);
     }
     if (query.businessKey != null) {
-      conditions.add("w.business_key = :business_key");
+      conditions.add("business_key = :business_key");
       params.addValue("business_key", query.businessKey);
     }
     if (query.externalId != null) {
-      conditions.add("w.external_id = :external_id");
+      conditions.add("external_id = :external_id");
       params.addValue("external_id", query.externalId);
     }
-    conditions.add("w.executor_group = :executor_group");
+    conditions.add("executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
-    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by w.created desc";
+    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by created desc";
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
         .map(WorkflowInstance.Builder::build).collect(toList());
