@@ -10,6 +10,21 @@
   - Add started timestamp to workflow instance table. This makes the instance queries much faster when instances have lots of actions, as there is no need to join the nflow_workflow_action table to the query anymore.
   - Deprecated WorkflowInstanceInclude.STARTED enum value. This is not needed anymore, since the started timestamp is always read from the database when the instance is loaded.
   - Moved default implementations for `WorkflowExecutorListener` interface methods from the abstract class to the interface.
+- Dependency updates:
+    - reactor.netty 0.8.8.RELEASE
+    - jetty 9.4.18.v20190429
+    - javassist 3.25.0-GA
+    - mysql-connector-java 8.0.16
+    - mssql-jdbc 7.2.2.jre8
+    - metrics 4.1.0
+    - spring 5.1.7.RELEASE
+    - hibernate.validator 6.0.15.Final
+    - cxf 3.3.2
+    - joda-time 2.10.2
+    - commons-lang3 3.9
+    - jackson 2.9.9
+    - junit 5.4.1
+    - mockito 2.27.0
 
 ## 5.6.0 (2019-05-21)
 
