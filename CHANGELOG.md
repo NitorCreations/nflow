@@ -4,6 +4,7 @@
 - Added `started` timestamp to workflow instance table (requires database update)
 - Deprecated WorkflowInstanceInclude.STARTED enum value
 - Deprecated `AbstractWorkflowExecutorListener`, use `WorkflowExecutorListener` instead
+- Allow easily starting nflow-engine for embedding via `NflowEngine` class. 
 
 **Details**
 - `nflow-engine`
