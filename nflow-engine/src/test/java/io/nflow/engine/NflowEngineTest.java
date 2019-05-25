@@ -6,15 +6,19 @@ import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
+import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
 public class NflowEngineTest {
+    private static final Logger logger = LoggerFactory.getLogger(NflowEngineTest.class);
 
     @Test
     public void test() throws InterruptedException {
@@ -41,7 +46,7 @@ public class NflowEngineTest {
             assertEquals(1, executors.size());
             nflowEngine.workflowInstanceService.insertWorkflowInstance(newInstance);
 
-            WorkflowInstance instance1 = nflowEngine.workflowInstanceService.getWorkflowInstance(1, Set.of(WorkflowInstanceInclude.values()), 100l);
+            WorkflowInstance instance1 = getInstance(nflowEngine, 1);
             assertNotNull(instance1);
             assertEquals("dummy", instance1.type);
             assertNotNull(instance1.nextActivation);
@@ -66,7 +71,11 @@ public class NflowEngineTest {
     }
 
     private WorkflowInstance getInstance(NflowEngine nflowEngine, int id) {
-        return nflowEngine.workflowInstanceService.getWorkflowInstance(1, Set.of(WorkflowInstanceInclude.values()), 100l);
+        QueryWorkflowInstances query = new QueryWorkflowInstances.Builder()
+                .addTypes("dummy")
+                .build();
+        Set<WorkflowInstanceInclude> includes = new LinkedHashSet<>(asList(WorkflowInstanceInclude.values()));
+        return nflowEngine.workflowInstanceService.getWorkflowInstance(id, includes, 100l);
     }
 
     public static DataSource dataSource() {
