@@ -39,7 +39,8 @@ public class NflowEngine implements Runnable {
                        SQLVariants sqlVariants,
                        Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-        ctx.registerBean(DataSource.class, () -> dataSource);
+
+        ctx.registerBean("nflowDatasource", DataSource.class, () -> dataSource);
         ctx.registerBean(SQLVariants.class, () -> sqlVariants);
         ctx.register(EngineConfiguration.class, NflowEngineSpringConfig.class);
         ctx.refresh();

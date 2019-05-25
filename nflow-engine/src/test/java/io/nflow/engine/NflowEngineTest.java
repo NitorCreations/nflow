@@ -9,6 +9,8 @@ import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.joda.time.DateTime;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +19,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.sql.DataSource;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -29,6 +28,25 @@ import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.ex
 
 public class NflowEngineTest {
     private static final Logger logger = LoggerFactory.getLogger(NflowEngineTest.class);
+
+    /**
+     * Travis ci build sets env variable SPRING_PROFILES_ACTIVE=nflow.db.$DB
+     * This will enable scanning for io.nflow.engine.config.db which will create
+     * an extra data source, from e.g. H2DatabaseConfiguration.java
+     * The spring setup will fail because there are two competing dataSources.
+     *
+     * This uses system property `spring.profiles.active`
+     * to override env variable `SPRING_PROFILES_ACTIVE`.
+     */
+    @BeforeEach
+    public void setup() {
+        System.setProperty("spring.profiles.active", "nflow.db.dummy");
+    }
+
+    @AfterEach
+    public void teardown() {
+        System.clearProperty("spring.profiles.active");
+    }
 
     @Test
     public void test() throws InterruptedException {
@@ -66,7 +84,9 @@ public class NflowEngineTest {
             WorkflowInstance instance2 = getInstance(nflowEngine, 1);
             assertNull(instance2.nextActivation);
         } finally {
-            nflowEngine.shutdown();
+            if (nflowEngine != null) {
+                nflowEngine.shutdown();
+            }
         }
     }
 
@@ -74,6 +94,9 @@ public class NflowEngineTest {
         QueryWorkflowInstances query = new QueryWorkflowInstances.Builder()
                 .addTypes("dummy")
                 .build();
+        Collection<WorkflowInstance> results = nflowEngine.workflowInstanceService.listWorkflowInstances(query);
+        logger.info("Results {}", results);
+        assertEquals(1, results.size());
         Set<WorkflowInstanceInclude> includes = new LinkedHashSet<>(asList(WorkflowInstanceInclude.values()));
         return nflowEngine.workflowInstanceService.getWorkflowInstance(id, includes, 100l);
     }
