@@ -1,64 +1,5 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
-import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
-import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
-import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
-import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
-import static java.lang.Integer.MAX_VALUE;
-import static java.lang.Math.min;
-import static java.lang.Thread.sleep;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.StringUtils.countMatches;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.joda.time.DateTime.now;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.joda.time.DateTime;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
-
 import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
@@ -68,6 +9,48 @@ import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
+import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.inject.Inject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
+import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.*;
+import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.*;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Math.min;
+import static java.lang.Thread.sleep;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static org.apache.commons.lang3.StringUtils.countMatches;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
+import static org.joda.time.DateTime.now;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
@@ -80,10 +63,13 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Inject
   WorkflowInstanceExecutor workflowInstanceExecutor;
   @Inject
+  WorkflowInstanceFactory workflowInstanceFactory;
+  @Inject
   SQLVariants sqlVariant;
+  @Inject
+  Environment env;
   List<WorkflowInstance> noChildWorkflows = emptyList();
   List<WorkflowInstance> emptyWorkflows = emptyList();
-  Map<String, String> emptyVars = emptyMap();
 
   @Test
   public void roundTripTest() {
@@ -650,15 +636,22 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         sql.getValue());
   }
 
-  private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate j) {
-    WorkflowInstanceDao d = new WorkflowInstanceDao();
-    d.setWorkflowInstanceExecutor(workflowInstanceExecutor);
-    d.setSqlVariants(new PostgreSQLVariants());
+  private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate jdbcTemplate) {
     ExecutorDao eDao = mock(ExecutorDao.class);
     lenient().when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
     lenient().when(eDao.getExecutorId()).thenReturn(42);
-    d.setExecutorDao(eDao);
-    d.setJdbcTemplate(j);
+    NamedParameterJdbcTemplate namedJdbc = mock(NamedParameterJdbcTemplate.class);
+    TransactionTemplate transactionTemplate = mock(TransactionTemplate.class);
+    WorkflowInstanceDao d = new WorkflowInstanceDao(new PostgreSQLVariants(),
+            jdbcTemplate,
+            transactionTemplate,
+            namedJdbc,
+            eDao,
+            workflowInstanceExecutor,
+            workflowInstanceFactory,
+            env
+    );
+
     d.instanceStateTextLength = 128;
     d.actionStateTextLength = 128;
     return d;

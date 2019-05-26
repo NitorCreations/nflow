@@ -50,23 +50,14 @@ public class WorkflowDefinitionDao {
   private SQLVariants sqlVariants;
 
   @Inject
-  public void setExecutorDao(ExecutorDao executorDao) {
-    this.executorInfo = executorDao;
-  }
-
-  @Inject
-  public void setNamedParameterJdbcTemplate(@NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
-    this.namedJdbc = nflowNamedParameterJdbcTemplate;
-  }
-
-  @Inject
-  public void setObjectMapper(@NFlow ObjectMapper nflowObjectMapper) {
-    this.nflowObjectMapper = nflowObjectMapper;
-  }
-
-  @Inject
-  public void setSqlVariants(SQLVariants sqlVariants) {
+  public WorkflowDefinitionDao(SQLVariants sqlVariants,
+                               @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+                               @NFlow ObjectMapper nflowObjectMapper,
+                               ExecutorDao executorDao) {
     this.sqlVariants = sqlVariants;
+    this.namedJdbc = nflowNamedParameterJdbcTemplate;
+    this.nflowObjectMapper = nflowObjectMapper;
+    this.executorInfo = executorDao;
   }
 
   public void storeWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
