@@ -15,12 +15,9 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 @Component
 public class WorkflowInstancePreProcessor {
 
+  private final WorkflowDefinitionService workflowDefinitionService;
+
   @Inject
-  private WorkflowDefinitionService workflowDefinitionService;
-
-  public WorkflowInstancePreProcessor() {
-  }
-
   public WorkflowInstancePreProcessor(WorkflowDefinitionService workflowDefinitionService) {
     this.workflowDefinitionService = workflowDefinitionService;
   }
