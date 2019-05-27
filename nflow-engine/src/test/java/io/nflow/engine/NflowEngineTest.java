@@ -66,9 +66,6 @@ public class NflowEngineTest {
             assertEquals("dummy", instance1.type);
             assertNotNull(instance1.nextActivation);
 
-            Thread thread = new Thread(nflowEngine);
-            thread.start();
-
             while (!nflowEngine.isRunning()) {
                 Thread.sleep(100);
             }

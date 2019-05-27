@@ -24,9 +24,10 @@ import java.util.Collection;
  *
  * Use this if you want to start just the nflow-engine.
  */
-public class NflowEngine implements Runnable, AutoCloseable {
+public class NflowEngine implements AutoCloseable {
 
     private final WorkflowDispatcher workflowDispatcher;
+    private final AnnotationConfigApplicationContext ctx;
 
     public final ArchiveService archiveService;
     public final HealthCheckService healthCheckService;
@@ -35,10 +36,16 @@ public class NflowEngine implements Runnable, AutoCloseable {
     public final WorkflowInstanceService workflowInstanceService;
     public final WorkflowExecutorService workflowExecutorService;
 
+    /**
+     * Starts up the NflowEngine with WorkflowDispatcher running in a thread.
+     * @param dataSource
+     * @param sqlVariants
+     * @param workflowDefinitions
+     */
     public NflowEngine(DataSource dataSource,
                        SQLVariants sqlVariants,
                        Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
-        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx = new AnnotationConfigApplicationContext();
 
         ctx.registerBean("nflowDatasource", DataSource.class, () -> dataSource);
         ctx.registerBean(SQLVariants.class, () -> sqlVariants);
@@ -55,14 +62,6 @@ public class NflowEngine implements Runnable, AutoCloseable {
         statisticsService = ctx.getBean(StatisticsService.class);
         workflowInstanceService = ctx.getBean(WorkflowInstanceService.class);
         workflowExecutorService = ctx.getBean(WorkflowExecutorService.class);
-    }
-
-    public void run() {
-        workflowDispatcher.run();
-    }
-
-    public void shutdown() {
-        workflowDispatcher.shutdown();
     }
 
     public void pause() {
@@ -83,7 +82,7 @@ public class NflowEngine implements Runnable, AutoCloseable {
 
     @Override
     public void close() {
-        this.shutdown();
+        ctx.close();
     }
 
     @EnableTransactionManagement
