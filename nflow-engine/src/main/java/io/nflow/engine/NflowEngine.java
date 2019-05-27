@@ -24,7 +24,7 @@ import java.util.Collection;
  *
  * Use this if you want to start just the nflow-engine.
  */
-public class NflowEngine implements Runnable {
+public class NflowEngine implements Runnable, AutoCloseable {
 
     private final WorkflowDispatcher workflowDispatcher;
 
@@ -79,6 +79,11 @@ public class NflowEngine implements Runnable {
 
     public boolean isRunning() {
         return workflowDispatcher.isRunning();
+    }
+
+    @Override
+    public void close() {
+        this.shutdown();
     }
 
     @EnableTransactionManagement

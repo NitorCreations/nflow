@@ -51,10 +51,7 @@ public class NflowEngineTest {
     @Test
     public void test() throws InterruptedException {
         Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = asList(new DummyTestWorkflow());
-        NflowEngine nflowEngine = null;
-        try {
-            nflowEngine = new NflowEngine(dataSource(), new H2DatabaseConfiguration.H2SQLVariants(), workflowDefinitions);
-
+        try (NflowEngine nflowEngine = new NflowEngine(dataSource(), new H2DatabaseConfiguration.H2SQLVariants(), workflowDefinitions)){
             WorkflowInstance newInstance = new WorkflowInstance.Builder()
                     .setType("dummy")
                     .setNextActivation(DateTime.now())
@@ -83,10 +80,6 @@ public class NflowEngineTest {
             // instance is processed because nextActivation is set to null
             WorkflowInstance instance2 = getInstance(nflowEngine, 1);
             assertNull(instance2.nextActivation);
-        } finally {
-            if (nflowEngine != null) {
-                nflowEngine.shutdown();
-            }
         }
     }
 
