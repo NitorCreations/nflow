@@ -73,6 +73,7 @@ public class WorkflowInstanceService {
    */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
   public int insertWorkflowInstance(WorkflowInstance instance) {
+    Assert.notNull(workflowInstancePreProcessor, "workflowInstancePreProcessor can not be null");
     WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);
     int id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
     if (id == -1 && !isEmpty(instance.externalId)) {
@@ -94,6 +95,8 @@ public class WorkflowInstanceService {
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     Assert.notNull(instance, "Workflow instance can not be null");
     Assert.notNull(action, "Workflow instance action can not be null");
+    Assert.notNull(workflowDefinitionService, "workflowDefinitionService can not be null");
+
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
       builder.setStatus(null);
@@ -150,6 +153,7 @@ public class WorkflowInstanceService {
    * @return True when signal was set, false otherwise.
    */
   public boolean setSignal(Integer workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
+    Assert.notNull(workflowDefinitionService, "workflowDefinitionService cannot be null");
     signal.ifPresent(signalValue -> {
       AbstractWorkflowDefinition<?> definition = getDefinition(workflowInstanceId);
       if (!definition.getSupportedSignals().containsKey(signalValue)) {
