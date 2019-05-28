@@ -33,9 +33,9 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 public class NflowEngineTest {
 
   /**
-   * Travis ci build sets env variable SPRING_PROFILES_ACTIVE=nflow.db.$DB This will enable scanning for io.nflow.engine.config.db
-   * which will create an extra data source, from e.g. H2DatabaseConfiguration.java The spring setup will fail because there are
-   * two competing dataSources.
+   * Travis CI build sets env variable `SPRING_PROFILES_ACTIVE=nflow.db.$DB`. This will enable scanning for
+   * `io.nflow.engine.config.db` which will create an extra data source, from e.g. `H2DatabaseConfiguration.java`. The Spring
+   * setup will fail because there are two competing dataSources.
    *
    * This uses system property `spring.profiles.active` to override env variable `SPRING_PROFILES_ACTIVE`.
    */
