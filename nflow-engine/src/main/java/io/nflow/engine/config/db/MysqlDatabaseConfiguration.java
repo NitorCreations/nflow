@@ -39,6 +39,12 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     super("mysql");
   }
 
+  /**
+   * Creates the nFlow database initializer. Selects correct database creation script based on database version.
+   * @param nflowDataSource The nFlow datasource.
+   * @param env The Spring environment.
+   * @return The database initializer.
+   */
   @Bean
   @Override
   @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
