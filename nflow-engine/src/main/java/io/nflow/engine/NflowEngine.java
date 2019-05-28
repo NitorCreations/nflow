@@ -2,7 +2,6 @@ package io.nflow.engine;
 
 import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
-import io.nflow.engine.internal.executor.WorkflowDispatcher;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.*;
@@ -75,47 +74,80 @@ public class NflowEngine implements AutoCloseable {
         workflowLifecycle.start();
     }
 
+    /**
+     * Pauses a running nFlow engine.
+     */
     public void pause() {
         workflowLifecycle.pause();
     }
 
+    /**
+     * Resumes paused the nFlow engine.
+     */
     public void resume() {
         workflowLifecycle.resume();
     }
 
+    /**
+     * Returns true if the nFlow engine is currently paused.
+     */
     public boolean isPaused() {
         return workflowLifecycle.isPaused();
     }
 
+    /**
+     * Returns true if the nFlow engine is currently running.
+     */
     public boolean isRunning() {
         return workflowLifecycle.isRunning();
     }
 
+    /**
+     * Shuts down the nFlow engine.
+     */
     @Override
     public void close() {
         ctx.close();
     }
 
+    /**
+     * @return ArchiveService for nFlow engine.
+     */
     public ArchiveService getArchiveService() {
         return archiveService;
     }
 
+    /**
+     * @return HealthCheckService for nFlow engine.
+     */
     public HealthCheckService getHealthCheckService() {
         return healthCheckService;
     }
 
+    /**
+     * @return StatisticsService for nFlow engine.
+     */
     public StatisticsService getStatisticsService() {
         return statisticsService;
     }
 
+    /**
+     * @return WorkflowDefinitionService for nFlow engine.
+     */
     public WorkflowDefinitionService getWorkflowDefinitionService() {
         return workflowDefinitionService;
     }
 
+    /**
+     * @return WorkflowInstanceService for nFlow engine.
+     */
     public WorkflowInstanceService getWorkflowInstanceService() {
         return workflowInstanceService;
     }
 
+    /**
+     * @return WorkflowExecutorService for nFlow engine.
+     */
     public WorkflowExecutorService getWorkflowExecutorService() {
         return workflowExecutorService;
     }
