@@ -7,6 +7,7 @@
 **Details**
 - `nflow-engine`
   - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
+  - add `disableMariaDbDriver` to default mysql jdbc url so that in case there are both mysql and mariadb jbc drivers in classpath the mariadb will not steal the mysql url
 
 ## 5.7.0 (2019-06-06)
 
