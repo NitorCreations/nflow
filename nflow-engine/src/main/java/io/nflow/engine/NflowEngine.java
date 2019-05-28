@@ -82,7 +82,7 @@ public class NflowEngine implements AutoCloseable {
     }
 
     /**
-     * Resumes paused the nFlow engine.
+     * Resumes a paused nFlow engine.
      */
     public void resume() {
         workflowLifecycle.resume();
