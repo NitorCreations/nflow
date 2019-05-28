@@ -103,7 +103,8 @@ public class NflowEngine implements AutoCloseable {
     }
 
     /**
-     * Shuts down the nFlow engine.
+     * Shuts down the nFlow engine gracefully and returns when the shutdown is complete.
+     * This NflowEngine instance may not be restarted after close().
      */
     @Override
     public void close() {
