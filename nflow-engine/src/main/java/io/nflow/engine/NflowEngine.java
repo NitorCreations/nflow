@@ -3,6 +3,7 @@ package io.nflow.engine;
 import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowDispatcher;
+import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.*;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
@@ -26,18 +27,20 @@ import java.util.Collection;
  */
 public class NflowEngine implements AutoCloseable {
 
-    private final WorkflowDispatcher workflowDispatcher;
     private final AnnotationConfigApplicationContext ctx;
+    private final WorkflowLifecycle workflowLifecycle;
 
-    public final ArchiveService archiveService;
-    public final HealthCheckService healthCheckService;
-    public final StatisticsService statisticsService;
-    public final WorkflowDefinitionService workflowDefinitionService;
-    public final WorkflowInstanceService workflowInstanceService;
-    public final WorkflowExecutorService workflowExecutorService;
+    private final ArchiveService archiveService;
+    private final HealthCheckService healthCheckService;
+    private final StatisticsService statisticsService;
+    private final WorkflowDefinitionService workflowDefinitionService;
+    private final WorkflowInstanceService workflowInstanceService;
+    private final WorkflowExecutorService workflowExecutorService;
 
     /**
      * Starts up the NflowEngine with WorkflowDispatcher running in a thread.
+     * Property nflow.autostart controls if the thread is started automatically.
+     * If nflow.autostart=false, then the thread can be started with start() method.
      * @param dataSource
      * @param sqlVariants
      * @param workflowDefinitions
@@ -52,7 +55,7 @@ public class NflowEngine implements AutoCloseable {
         ctx.register(EngineConfiguration.class, NflowEngineSpringConfig.class);
         ctx.refresh();
 
-        workflowDispatcher = ctx.getBean(WorkflowDispatcher.class);
+        workflowLifecycle = ctx.getBean(WorkflowLifecycle.class);
 
         workflowDefinitionService = ctx.getBean(WorkflowDefinitionService.class);
         workflowDefinitionService.setWorkflowDefinitions(workflowDefinitions);
@@ -64,25 +67,57 @@ public class NflowEngine implements AutoCloseable {
         workflowExecutorService = ctx.getBean(WorkflowExecutorService.class);
     }
 
+    /**
+     * For manually starting dispatcher thread.
+     * This starts the nflow-engine if property nflow.autostart=false.
+     */
+    public void start() {
+        workflowLifecycle.start();
+    }
+
     public void pause() {
-        workflowDispatcher.pause();
+        workflowLifecycle.pause();
     }
 
     public void resume() {
-        workflowDispatcher.resume();
+        workflowLifecycle.resume();
     }
 
     public boolean isPaused() {
-        return workflowDispatcher.isPaused();
+        return workflowLifecycle.isPaused();
     }
 
     public boolean isRunning() {
-        return workflowDispatcher.isRunning();
+        return workflowLifecycle.isRunning();
     }
 
     @Override
     public void close() {
         ctx.close();
+    }
+
+    public ArchiveService getArchiveService() {
+        return archiveService;
+    }
+
+    public HealthCheckService getHealthCheckService() {
+        return healthCheckService;
+    }
+
+    public StatisticsService getStatisticsService() {
+        return statisticsService;
+    }
+
+    public WorkflowDefinitionService getWorkflowDefinitionService() {
+        return workflowDefinitionService;
+    }
+
+    public WorkflowInstanceService getWorkflowInstanceService() {
+        return workflowInstanceService;
+    }
+
+    public WorkflowExecutorService getWorkflowExecutorService() {
+        return workflowExecutorService;
     }
 
     @EnableTransactionManagement

@@ -57,9 +57,9 @@ public class NflowEngineTest {
                     .setNextActivation(DateTime.now())
                     .build();
 
-            List<WorkflowExecutor> executors = nflowEngine.workflowExecutorService.getWorkflowExecutors();
+            List<WorkflowExecutor> executors = nflowEngine.getWorkflowExecutorService().getWorkflowExecutors();
             assertEquals(1, executors.size());
-            nflowEngine.workflowInstanceService.insertWorkflowInstance(newInstance);
+            nflowEngine.getWorkflowInstanceService().insertWorkflowInstance(newInstance);
 
             WorkflowInstance instance1 = getInstance(nflowEngine, 1);
             assertNotNull(instance1);
@@ -81,14 +81,8 @@ public class NflowEngineTest {
     }
 
     private WorkflowInstance getInstance(NflowEngine nflowEngine, int id) {
-        QueryWorkflowInstances query = new QueryWorkflowInstances.Builder()
-                .addTypes("dummy")
-                .build();
-        Collection<WorkflowInstance> results = nflowEngine.workflowInstanceService.listWorkflowInstances(query);
-        logger.info("Results {}", results);
-        assertEquals(1, results.size());
         Set<WorkflowInstanceInclude> includes = new LinkedHashSet<>(asList(WorkflowInstanceInclude.values()));
-        return nflowEngine.workflowInstanceService.getWorkflowInstance(id, includes, 100l);
+        return nflowEngine.getWorkflowInstanceService().getWorkflowInstance(id, includes, 100l);
     }
 
     public static DataSource dataSource() {
