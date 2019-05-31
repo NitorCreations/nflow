@@ -11,6 +11,7 @@
   - Add started timestamp to workflow instance table. This makes the instance queries much faster when instances have lots of actions, as there is no need to join the nflow_workflow_action table to the query anymore.
   - Deprecated WorkflowInstanceInclude.STARTED enum value. This is not needed anymore, since the started timestamp is always read from the database when the instance is loaded.
   - Moved default implementations for `WorkflowExecutorListener` interface methods from the abstract class to the interface.
+  - Fixed bug with dropping non-existent index in PostgreSQL create script.
 - Dependency updates:
     - reactor.netty 0.8.8.RELEASE
     - jetty 9.4.18.v20190429
