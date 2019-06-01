@@ -75,7 +75,7 @@ public class DaoTestConfiguration {
   }
 
   @Bean
-  public HealthCheckDao healthCheckDao(JdbcTemplate jdbcTemplate) {
+  public HealthCheckDao healthCheckDao(@NFlow JdbcTemplate jdbcTemplate) {
     return new HealthCheckDao(jdbcTemplate);
   }
 
