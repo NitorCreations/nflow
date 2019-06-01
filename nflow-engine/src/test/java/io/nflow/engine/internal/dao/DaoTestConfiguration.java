@@ -60,7 +60,7 @@ public class DaoTestConfiguration {
   }
 
   @Bean
-  public ExecutorDao executorDao(SQLVariants sqlVariants, JdbcTemplate jdbcTemplate, Environment env) {
+  public ExecutorDao executorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, Environment env) {
     return new ExecutorDao(sqlVariants, jdbcTemplate, env);
   }
 
