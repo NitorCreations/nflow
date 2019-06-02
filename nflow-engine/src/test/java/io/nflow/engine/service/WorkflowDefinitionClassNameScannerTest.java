@@ -3,6 +3,7 @@ package io.nflow.engine.service;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -19,16 +20,23 @@ public class WorkflowDefinitionClassNameScannerTest extends BaseNflowTest {
   private ClassPathResource nonSpringWorkflowListing;
   @Mock
   private WorkflowDefinitionService workflowDefinitionService;
-  private WorkflowDefinitionClassNameScanner scanner;
 
   @Test
   public void definitionIsAdded() throws Exception {
     String dummyTestClassname = DummyTestWorkflow.class.getName();
     ByteArrayInputStream bis = new ByteArrayInputStream(dummyTestClassname.getBytes(UTF_8));
     when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    scanner = new WorkflowDefinitionClassNameScanner(workflowDefinitionService);
-    scanner.setWorkflowDefinitions(nonSpringWorkflowListing);
+
+    new WorkflowDefinitionClassNameScanner(workflowDefinitionService, nonSpringWorkflowListing);
+
     verify(workflowDefinitionService).addWorkflowDefinition(any(DummyTestWorkflow.class));
+  }
+
+  @Test
+  public void listingResourceIsOptional() throws Exception {
+    new WorkflowDefinitionClassNameScanner(workflowDefinitionService, null);
+
+    verifyZeroInteractions(workflowDefinitionService);
   }
 
 }

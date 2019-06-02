@@ -7,10 +7,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
@@ -26,21 +26,9 @@ public class WorkflowDefinitionClassNameScanner {
 
   private static final Logger logger = getLogger(WorkflowDefinitionClassNameScanner.class);
 
-  private final WorkflowDefinitionService workflowDefinitionService;
-
   @Inject
-  public WorkflowDefinitionClassNameScanner(WorkflowDefinitionService workflowDefinitionService) {
-    this.workflowDefinitionService = workflowDefinitionService;
-  }
-
-  /**
-   * Register workflow definitions defined in the class name listing resource.
-   * @param classNameListing The resource containing the workflow definition class names.
-   * @throws IOException When reading the resource fails.
-   * @throws ReflectiveOperationException When creating a workflow definition instance fails.
-   */
-  @Autowired(required = false)
-  public void setWorkflowDefinitions(@NFlow AbstractResource classNameListing) throws IOException, ReflectiveOperationException {
+  public WorkflowDefinitionClassNameScanner(WorkflowDefinitionService workflowDefinitionService,
+      @Nullable @NFlow AbstractResource classNameListing) throws IOException, ReflectiveOperationException {
     if (classNameListing == null) {
       logger.info("No non-Spring workflow definitions");
     } else {
