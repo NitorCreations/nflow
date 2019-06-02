@@ -62,7 +62,7 @@ public class NflowEngine implements AutoCloseable {
     workflowLifecycle = ctx.getBean(WorkflowLifecycle.class);
 
     workflowDefinitionService = ctx.getBean(WorkflowDefinitionService.class);
-    workflowDefinitionService.setWorkflowDefinitions(workflowDefinitions);
+    workflowDefinitions.forEach(workflowDefinitionService::addWorkflowDefinition);
 
     archiveService = ctx.getBean(ArchiveService.class);
     healthCheckService = ctx.getBean(HealthCheckService.class);

@@ -2,7 +2,6 @@ package io.nflow.engine.internal.executor;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -76,7 +75,6 @@ public class WorkflowDispatcher implements Runnable {
         } else {
           try {
             executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
-
             if (!shutdownRequested) {
               if (executorDao.tick()) {
                 workflowInstances.recoverWorkflowInstancesFromDeadNodes();
@@ -98,9 +96,6 @@ public class WorkflowDispatcher implements Runnable {
           }
         }
       }
-
-    } catch (IOException | ReflectiveOperationException e) {
-      logger.error("Fetching workflow definitions failed", e);
     } finally {
       running = false;
       shutdownPool();

@@ -2,7 +2,6 @@ package io.nflow.engine.internal.executor;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ public class WorkflowLifecycle implements SmartLifecycle {
 
   @Inject
   public WorkflowLifecycle(WorkflowDefinitionService workflowDefinitions, WorkflowDispatcher dispatcher,
-      @NFlow ThreadFactory nflowThreadFactory, Environment env) throws IOException, ReflectiveOperationException {
+      @NFlow ThreadFactory nflowThreadFactory, Environment env) {
     this.dispatcher = dispatcher;
     this.workflowDefinitions = workflowDefinitions;
     if (env.getRequiredProperty("nflow.autoinit", Boolean.class)) {

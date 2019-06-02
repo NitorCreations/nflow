@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,7 @@ public class WorkflowLifecycleTest {
   private WorkflowLifecycle lifecycle;
 
   @BeforeEach
-  public void setup() throws IOException, ReflectiveOperationException {
+  public void setup() {
     when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(TRUE);
     when(env.getRequiredProperty("nflow.autostart", Boolean.class)).thenReturn(TRUE);
     when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
