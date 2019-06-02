@@ -14,13 +14,10 @@ public class WorkflowDefinitionSpringBeanScannerTest extends BaseNflowTest {
   private WorkflowDefinitionService workflowDefinitionService;
   @Mock
   private DummyTestWorkflow definition;
-  private WorkflowDefinitionSpringBeanScanner scanner;
 
   @Test
   public void definitionIsAdded() {
-    scanner = new WorkflowDefinitionSpringBeanScanner(workflowDefinitionService);
-
-    scanner.setWorkflowDefinitions(asList(definition));
+    new WorkflowDefinitionSpringBeanScanner(workflowDefinitionService, asList(definition));
 
     verify(workflowDefinitionService).addWorkflowDefinition(definition);
   }
