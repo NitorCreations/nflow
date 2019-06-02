@@ -22,8 +22,13 @@ import io.nflow.engine.internal.util.PeriodicLogger;
 @Named
 public class ArchiveService {
   private static final Logger log = getLogger(ArchiveService.class);
+
+  private final ArchiveDao archiveDao;
+
   @Inject
-  private ArchiveDao archiveDao;
+  public ArchiveService(ArchiveDao archiveDao) {
+    this.archiveDao = archiveDao;
+  }
 
   /**
    * Archive old (whose modified time is earlier than <code>olderThan</code> parameter) and passive (that do not have

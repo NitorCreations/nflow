@@ -1,27 +1,28 @@
 package io.nflow.engine.internal.dao;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-
-import javax.sql.DataSource;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.config.db.H2DatabaseConfiguration;
+import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import javax.sql.DataSource;
 
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.config.db.H2DatabaseConfiguration;
-import io.nflow.engine.config.db.H2DatabaseConfiguration.H2SQLVariants;
-import io.nflow.engine.internal.workflow.ObjectStringMapper;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @PropertySource({ "classpath:junit.properties" })
 @EnableTransactionManagement
@@ -29,41 +30,58 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 public class DaoTestConfiguration {
 
   @Bean
-  public WorkflowInstanceDao workflowInstanceDao() {
-    return new WorkflowInstanceDao();
+  public WorkflowInstanceDao workflowInstanceDao(SQLVariants sqlVariants,
+                                                 @NFlow JdbcTemplate nflowJdbcTemplate,
+                                                 @NFlow TransactionTemplate transactionTemplate,
+                                                 @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+                                                 ExecutorDao executorDao,
+                                                 WorkflowInstanceExecutor workflowInstanceExecutor,
+                                                 WorkflowInstanceFactory workflowInstanceFactory,
+                                                 Environment env) {
+    return new WorkflowInstanceDao(sqlVariants,
+            nflowJdbcTemplate,
+            transactionTemplate,
+            nflowNamedParameterJdbcTemplate,
+            executorDao,
+            workflowInstanceExecutor,
+            workflowInstanceFactory,
+            env);
   }
 
   @Bean
-  public WorkflowDefinitionDao workflowDefinitionDao() {
-    return new WorkflowDefinitionDao();
+  public WorkflowDefinitionDao workflowDefinitionDao(SQLVariants sqlVariants,
+                                                     @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+                                                     @NFlow ObjectMapper nflowObjectMapper,
+                                                     ExecutorDao executorDao) {
+    return new WorkflowDefinitionDao(sqlVariants,
+            nflowNamedParameterJdbcTemplate,
+            nflowObjectMapper,
+            executorDao);
   }
 
   @Bean
-  public ExecutorDao executorDao(Environment env) {
-    ExecutorDao dao = new ExecutorDao();
-    dao.setSqlVariants(new H2SQLVariants());
-    dao.setEnvironment(env);
-    return dao;
+  public ExecutorDao executorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, Environment env) {
+    return new ExecutorDao(sqlVariants, jdbcTemplate, env);
   }
 
   @Bean
-  public StatisticsDao statisticsDao() {
-    return new StatisticsDao();
+  public StatisticsDao statisticsDao(@NFlow JdbcTemplate jdbcTemplate, ExecutorDao executorDao) {
+    return new StatisticsDao(jdbcTemplate, executorDao);
   }
 
   @Bean
-  public ArchiveDao archiveDao() {
-    return new ArchiveDao();
+  public ArchiveDao archiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
+    return new ArchiveDao(sqlVariants, jdbcTemplate, tableMetadataChecker);
   }
 
   @Bean
-  public HealthCheckDao healthCheckDao() {
-    return new HealthCheckDao();
+  public HealthCheckDao healthCheckDao(@NFlow JdbcTemplate jdbcTemplate) {
+    return new HealthCheckDao(jdbcTemplate);
   }
 
   @Bean
-  public TableMetadataChecker tableMetadataChecker() {
-    return new TableMetadataChecker();
+  public TableMetadataChecker tableMetadataChecker(@NFlow JdbcTemplate jdbcTemplate) {
+    return new TableMetadataChecker(jdbcTemplate);
   }
 
   @Bean

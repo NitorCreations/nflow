@@ -84,69 +84,50 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class WorkflowInstanceDao {
 
-  static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
   static final Logger logger = getLogger(WorkflowInstanceDao.class);
+  static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
 
-  JdbcTemplate jdbc;
-  private NamedParameterJdbcTemplate namedJdbc;
-  private TransactionTemplate transaction;
-  ExecutorDao executorInfo;
-  SQLVariants sqlVariants;
-  private WorkflowInstanceExecutor workflowInstanceExecutor;
-  WorkflowInstanceFactory workflowInstanceFactory;
-  private long workflowInstanceQueryMaxResults;
-  private long workflowInstanceQueryMaxResultsDefault;
-  private long workflowInstanceQueryMaxActions;
-  private long workflowInstanceQueryMaxActionsDefault;
+  final JdbcTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedJdbc;
+  private final TransactionTemplate transaction;
+  final ExecutorDao executorInfo;
+  final SQLVariants sqlVariants;
+  private final WorkflowInstanceExecutor workflowInstanceExecutor;
+  final WorkflowInstanceFactory workflowInstanceFactory;
+  private final long workflowInstanceQueryMaxResults;
+  private final long workflowInstanceQueryMaxResultsDefault;
+  private final long workflowInstanceQueryMaxActions;
+  private final long workflowInstanceQueryMaxActionsDefault;
   int instanceStateTextLength;
   int actionStateTextLength;
 
   @Inject
-  public void setSqlVariants(SQLVariants sqlVariants) {
+  public WorkflowInstanceDao(SQLVariants sqlVariants,
+                             @NFlow JdbcTemplate nflowJdbcTemplate,
+                             @NFlow TransactionTemplate transactionTemplate,
+                             @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+                             ExecutorDao executorDao,
+                             WorkflowInstanceExecutor workflowInstanceExecutor,
+                             WorkflowInstanceFactory workflowInstanceFactory,
+                             Environment env) {
+
     this.sqlVariants = sqlVariants;
-  }
-
-  @Inject
-  public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
     this.jdbc = nflowJdbcTemplate;
-  }
-
-  @Inject
-  public void setTransactionTemplate(@NFlow TransactionTemplate transactionTemplate) {
     this.transaction = transactionTemplate;
-  }
-
-  @Inject
-  public void setNamedParameterJdbcTemplate(@NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
     this.namedJdbc = nflowNamedParameterJdbcTemplate;
-  }
-
-  @Inject
-  public void setExecutorDao(ExecutorDao executorDao) {
     this.executorInfo = executorDao;
-  }
+    this.workflowInstanceExecutor = workflowInstanceExecutor;
+    this.workflowInstanceFactory = workflowInstanceFactory;
 
-  @Inject
-  public void setEnvironment(Environment env) {
     workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
     workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
-        Long.class);
+            Long.class);
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
-        Long.class);
+            Long.class);
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
-  }
-
-  @Inject
-  public void setWorkflowInstanceExecutor(WorkflowInstanceExecutor workflowInstanceExecutor) {
-    this.workflowInstanceExecutor = workflowInstanceExecutor;
-  }
-
-  @Inject
-  public void setWorkflowInstanceFactory(WorkflowInstanceFactory workflowInstanceFactory) {
-    this.workflowInstanceFactory = workflowInstanceFactory;
   }
 
   private int getInstanceStateTextLength() {

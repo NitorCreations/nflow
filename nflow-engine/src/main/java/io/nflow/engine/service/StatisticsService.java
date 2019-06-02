@@ -17,8 +17,12 @@ import io.nflow.engine.workflow.statistics.Statistics;
 @Component
 public class StatisticsService {
 
-  @Inject
   private StatisticsDao statisticsDao;
+
+  @Inject
+  public StatisticsService(StatisticsDao statisticsDao) {
+    this.statisticsDao = statisticsDao;
+  }
 
   /**
    * Return queue statistics for the executor group.

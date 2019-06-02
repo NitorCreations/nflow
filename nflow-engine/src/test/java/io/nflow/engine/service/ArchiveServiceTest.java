@@ -14,23 +14,28 @@ import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.ArchiveDao;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ArchiveServiceTest {
-  @InjectMocks
-  private final ArchiveService service = new ArchiveService();
+
+  private ArchiveService service;
   @Mock
   private ArchiveDao dao;
   private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
   private final List<Integer> emptyList = Collections.emptyList();
   private final List<Integer> dataList = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+  @BeforeEach
+  public void setup() {
+     service = new ArchiveService(dao);
+  }
 
   @Test
   public void withZeroWorkflowsInFirstBatchCausesNothingToArchive() {

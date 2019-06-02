@@ -61,7 +61,9 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void setup() {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
     lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
-    service = new WorkflowInstanceService(workflowDefinitions, workflowInstanceDao, workflowInstancePreProcessor);
+    service = new WorkflowInstanceService(workflowInstanceDao);
+    service.setWorkflowDefinitionService(workflowDefinitions);
+    service.setWorkflowInstancePreProcessor(workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
   }
 

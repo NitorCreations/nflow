@@ -42,37 +42,29 @@ import io.nflow.engine.workflow.executor.WorkflowExecutor;
 @Component
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class ExecutorDao {
+
   private static final Logger logger = getLogger(ExecutorDao.class);
-  private JdbcTemplate jdbc;
-  SQLVariants sqlVariants;
 
-  private int keepaliveIntervalSeconds;
+  private final JdbcTemplate jdbc;
+  final SQLVariants sqlVariants;
+  private final int keepaliveIntervalSeconds;
   private DateTime nextUpdate = now();
-
-  String executorGroup;
-  String executorGroupCondition;
-  int timeoutSeconds;
-  int executorId = -1;
-  int hostMaxLength;
+  final String executorGroup;
+  private final String executorGroupCondition;
+  final int timeoutSeconds;
+  private int executorId = -1;
+  private int hostMaxLength;
 
   @Inject
-  public void setEnvironment(Environment env) {
+  public ExecutorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate, Environment env) {
+    this.sqlVariants = sqlVariants;
+    this.jdbc = nflowJdbcTemplate;
     this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
     this.executorGroupCondition = createWhereCondition(executorGroup);
-    timeoutSeconds = env.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
-    keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
+    this.timeoutSeconds = env.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
+    this.keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
-    hostMaxLength = env.getProperty("nflow.executor.host.length", Integer.class, -1);
-  }
-
-  @Inject
-  public void setSqlVariants(SQLVariants sqlVariants) {
-    this.sqlVariants = sqlVariants;
-  }
-
-  @Inject
-  public void setJdbcTemplate(@NFlow JdbcTemplate nflowJdbcTemplate) {
-    this.jdbc = nflowJdbcTemplate;
+    this.hostMaxLength = env.getProperty("nflow.executor.host.length", Integer.class, -1);
   }
 
   private int getHostMaxLength() {
@@ -147,8 +139,8 @@ public class ExecutorDao {
       }
     }, keyHolder);
     int allocatedExecutorId = keyHolder.getKey().intValue();
-    logger.info("Joined executor group {} as executor {} running on host {} with process id {}.",
-        executorGroup, allocatedExecutorId, host, pid);
+    logger.info("Joined executor group {} as executor {} running on host {} with process id {}.", executorGroup,
+        allocatedExecutorId, host, pid);
     return allocatedExecutorId;
   }
 
@@ -180,10 +172,8 @@ public class ExecutorDao {
 
   public void markShutdown() {
     try {
-      jdbc.update("update nflow_executor " +
-                      "set expires=current_timestamp, stopped=current_timestamp " +
-                      "where executor_group = ? and id = ?",
-              executorGroup, getExecutorId());
+      jdbc.update("update nflow_executor " + "set expires=current_timestamp, stopped=current_timestamp "
+          + "where executor_group = ? and id = ?", executorGroup, getExecutorId());
     } catch (DataAccessException e) {
       logger.warn("Failed to mark executor as expired", e);
     }

@@ -1,7 +1,12 @@
 package io.nflow.engine.internal.dao;
 
-import static java.lang.String.format;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.model.ModelObject;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
+import javax.inject.Named;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -11,19 +16,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.model.ModelObject;
+import static java.lang.String.format;
 
 @Named
 public class TableMetadataChecker {
   private JdbcTemplate jdbc;
+
+  public TableMetadataChecker(@NFlow JdbcTemplate jdbcTemplate) {
+    this.jdbc = jdbcTemplate;
+  }
 
   public void ensureCopyingPossible(String sourceTable, String destinationTable) {
     Map<String, ColumnMetadata> sourceMetadataMap = getMetadata(sourceTable);
@@ -104,8 +105,4 @@ public class TableMetadataChecker {
     }
   }
 
-  @Inject
-  public void setJdbcTemplate(@NFlow JdbcTemplate jdbcTemplate) {
-    this.jdbc = jdbcTemplate;
-  }
 }
