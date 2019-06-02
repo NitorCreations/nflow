@@ -83,21 +83,21 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 @Component
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class WorkflowInstanceDao {
+
   static final Logger logger = getLogger(WorkflowInstanceDao.class);
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
 
-  private final JdbcTemplate jdbc;
+  final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
   private final TransactionTemplate transaction;
-  private final ExecutorDao executorInfo;
-  private final SQLVariants sqlVariants;
+  final ExecutorDao executorInfo;
+  final SQLVariants sqlVariants;
   private final WorkflowInstanceExecutor workflowInstanceExecutor;
-  private final WorkflowInstanceFactory workflowInstanceFactory;
-
-  private long workflowInstanceQueryMaxResults;
-  private long workflowInstanceQueryMaxResultsDefault;
-  private long workflowInstanceQueryMaxActions;
-  private long workflowInstanceQueryMaxActionsDefault;
+  final WorkflowInstanceFactory workflowInstanceFactory;
+  private final long workflowInstanceQueryMaxResults;
+  private final long workflowInstanceQueryMaxResultsDefault;
+  private final long workflowInstanceQueryMaxActions;
+  private final long workflowInstanceQueryMaxActionsDefault;
   int instanceStateTextLength;
   int actionStateTextLength;
 

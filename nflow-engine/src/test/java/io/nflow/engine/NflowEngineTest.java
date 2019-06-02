@@ -31,6 +31,7 @@ import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class NflowEngineTest {
+
   /**
    * Travis ci build sets env variable SPRING_PROFILES_ACTIVE=nflow.db.$DB This will enable scanning for io.nflow.engine.config.db
    * which will create an extra data source, from e.g. H2DatabaseConfiguration.java The spring setup will fail because there are
