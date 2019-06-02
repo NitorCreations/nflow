@@ -56,8 +56,7 @@ public class WorkflowDefinitionService {
   }
 
   /**
-   * Add workflow definitions from the nflowNonSpringWorkflowsListing resource and persist
-   * all loaded workflow definitions.
+   * Persist all loaded workflow definitions if needed.
    */
   public void postProcessWorkflowDefinitions() {
     if (persistWorkflowDefinitions) {
@@ -65,6 +64,11 @@ public class WorkflowDefinitionService {
     }
   }
 
+  /**
+   * Add given workflow definition to managed definitions. Persist given definition if needed.
+   * @param wd The workflow definition to be added.
+   * @throws IllegalStateException When a definition with the same type has already been added.
+   */
   public void addWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> wd) {
     AbstractWorkflowDefinition<? extends WorkflowState> conflict = workflowDefinitions.put(wd.getType(), wd);
     if (conflict != null) {

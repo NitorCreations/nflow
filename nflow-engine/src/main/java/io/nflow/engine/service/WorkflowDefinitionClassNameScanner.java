@@ -19,7 +19,7 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
- * Service for managing workflow definitions.
+ * Register workflow definitions defined in the class name listing resource.
  */
 @Component
 public class WorkflowDefinitionClassNameScanner {
@@ -33,6 +33,12 @@ public class WorkflowDefinitionClassNameScanner {
     this.workflowDefinitionService = workflowDefinitionService;
   }
 
+  /**
+   * Register workflow definitions defined in the class name listing resource.
+   * @param classNameListing The resource containing the workflow definition class names.
+   * @throws IOException When reading the resource fails.
+   * @throws ReflectiveOperationException When creating a workflow definition instance fails.
+   */
   @Autowired(required = false)
   public void setWorkflowDefinitions(@NFlow AbstractResource classNameListing) throws IOException, ReflectiveOperationException {
     if (classNameListing == null) {

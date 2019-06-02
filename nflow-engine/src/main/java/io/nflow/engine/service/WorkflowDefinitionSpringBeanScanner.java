@@ -11,7 +11,7 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
- * Service for managing workflow definitions.
+ * Register workflow definitions defined as Spring beans.
  */
 @Component
 public class WorkflowDefinitionSpringBeanScanner {
@@ -24,8 +24,8 @@ public class WorkflowDefinitionSpringBeanScanner {
   }
 
   /**
-   * Add given workflow definitions to the managed definitions.
-   * @param workflowDefinitions The workflow definitions to be added.
+   * Register workflow definitions defined as Spring beans.
+   * @param workflowDefinitions The workflow definitions to be registered.
    */
   @Autowired(required = false)
   public void setWorkflowDefinitions(Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
