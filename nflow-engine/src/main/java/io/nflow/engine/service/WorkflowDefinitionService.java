@@ -27,14 +27,12 @@ public class WorkflowDefinitionService {
 
   private volatile Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = new LinkedHashMap<>();
   private final WorkflowDefinitionDao workflowDefinitionDao;
-  private final boolean persistWorkflowDefinitions;
-  private final boolean autoInit;
+  private final boolean autoPersistDefinitions;
 
   @Inject
   public WorkflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
     this.workflowDefinitionDao = workflowDefinitionDao;
-    this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
-    this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
+    this.autoPersistDefinitions = env.getRequiredProperty("nflow.definition.autopersist", Boolean.class);
   }
 
   /**
@@ -58,18 +56,19 @@ public class WorkflowDefinitionService {
   }
 
   /**
-   * Persist all loaded workflow definitions if nflow.autoinit is false and nflow.definition.persist is true. If nflow.autoinit is
-   * true, definitions are persisted when they are added to managed definitions.
+   * Persist all loaded workflow definitions to database if nflow.definition.autopersist is false. If nflow.definition.autopersist
+   * is true, definitions are persisted automatically when they are added to managed definitions.
    */
-  public void postProcessWorkflowDefinitions() {
-    if (!autoInit && persistWorkflowDefinitions) {
+  public void persistWorkflowDefinitions() {
+    if (!autoPersistDefinitions) {
       workflowDefinitions.values().forEach(workflowDefinitionDao::storeWorkflowDefinition);
     }
   }
 
   /**
-   * Add given workflow definition to managed definitions. Persist given definition if nflow.autoinit and nflow.definition.persist
-   * are true.
+   * Add given workflow definition to managed definitions. Persist given definition to database if nflow.definition.autopersist is
+   * true. If nflow.definition.autopersist is false, call persistWorkflowDefinitions manually if needed to persist the
+   * definitions.
    *
    * @param wd
    *          The workflow definition to be added.
@@ -86,7 +85,7 @@ public class WorkflowDefinitionService {
       }
       workflowDefinitions = newDefinitions;
     }
-    if (autoInit && persistWorkflowDefinitions) {
+    if (autoPersistDefinitions) {
       workflowDefinitionDao.storeWorkflowDefinition(wd);
     }
     logger.info("Added workflow type: {} ({})", wd.getType(), wd.getClass().getName());

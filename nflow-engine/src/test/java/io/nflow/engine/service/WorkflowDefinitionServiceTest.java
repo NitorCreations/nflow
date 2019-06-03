@@ -34,18 +34,16 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   @BeforeEach
   public void setup() {
     lenient().when(workflowDefinition.getType()).thenReturn("dummy");
+    initializeService(true);
   }
 
-  private void initializeService(boolean definitionPersist, boolean autoInit) {
-    when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(definitionPersist);
-    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(autoInit);
+  private void initializeService(boolean autoPersistDefinition) {
+    when(env.getRequiredProperty("nflow.definition.autopersist", Boolean.class)).thenReturn(autoPersistDefinition);
     service = new WorkflowDefinitionService(workflowDefinitionDao, env);
   }
 
   @Test
-  public void addedDefinitionIsStoredWhenAutoInitIsTrue() {
-    initializeService(true, true);
-
+  public void addedDefinitionIsStoredWhenAutoPersistDefinitionIsTrue() {
     service.addWorkflowDefinition(workflowDefinition);
 
     verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
@@ -53,8 +51,8 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void addedDefinitionIsNotStoredWhenAutoInitIsFalse() {
-    initializeService(true, false);
+  public void addedDefinitionIsNotStoredWhenAutoPersistDefinitionIsFalse() {
+    initializeService(false);
 
     service.addWorkflowDefinition(workflowDefinition);
 
@@ -63,53 +61,31 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void addedDefinitionIsNotStoredWhenDefinitionPersistIsFalse() {
-    initializeService(false, true);
-
+  public void persistWorkflowDefinitionStoresDefinitionsWhenAutoPersistDefinitionIsFalse() {
+    initializeService(false);
     service.addWorkflowDefinition(workflowDefinition);
 
-    verifyZeroInteractions(workflowDefinitionDao);
-    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
-  }
-
-  @Test
-  public void definitionsAreStoredDuringPostProcessingWhenAutoInitIsFalse() {
-    initializeService(true, false);
-    service.addWorkflowDefinition(workflowDefinition);
-
-    service.postProcessWorkflowDefinitions();
+    service.persistWorkflowDefinitions();
 
     verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 
   @Test
-  public void definitionsAreNotStoredDuringPostProcessingWhenAutoInitIsTrue() {
-    initializeService(true, true);
+  public void persistWorkflowDefinitionDoesNotStoreDefinitionsWhenAutoPersistDefinitionIsTrue() {
     service.addWorkflowDefinition(workflowDefinition);
     verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
 
-    service.postProcessWorkflowDefinitions();
+    service.persistWorkflowDefinitions();
 
     verifyNoMoreInteractions(workflowDefinitionDao);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 
   @Test
-  public void definitionsAreNotStoredDuringPostProcessingWhenDefinitionPersistIsFalse() {
-    initializeService(false, false);
-    service.addWorkflowDefinition(workflowDefinition);
-
-    service.postProcessWorkflowDefinitions();
-
-    verifyZeroInteractions(workflowDefinitionDao);
-    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
-  }
-
-  @Test
   public void addingDuplicatDefinitionThrowsException() {
-    initializeService(true, true);
     service.addWorkflowDefinition(workflowDefinition);
+    verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
 
     IllegalStateException thrown = assertThrows(IllegalStateException.class,
         () -> service.addWorkflowDefinition(workflowDefinition));
@@ -118,22 +94,19 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     assertThat(thrown.getMessage(),
         containsString("Both " + className + " and " + className + " define same workflow type: dummy"));
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
-  }
-
-  @Test
-  public void getWorkflowDefinitionReturnsNullWhenTypeIsNotFound() {
-    initializeService(true, true);
-
-    assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
+    verifyNoMoreInteractions(workflowDefinitionDao);
   }
 
   @Test
   public void getWorkflowDefinitionReturnsDefinitionWhenTypeIsFound() {
-    initializeService(true, true);
-
     service.addWorkflowDefinition(workflowDefinition);
 
     assertThat(service.getWorkflowDefinition("dummy"), is(instanceOf(DummyTestWorkflow.class)));
+  }
+
+  @Test
+  public void getWorkflowDefinitionReturnsNullWhenTypeIsNotFound() {
+    assertThat(service.getWorkflowDefinition("dummy"), is(nullValue()));
   }
 
 }

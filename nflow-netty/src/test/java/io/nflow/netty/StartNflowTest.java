@@ -30,7 +30,7 @@ public class StartNflowTest {
     Map<String, Object> properties = new HashMap<>();
     properties.put("nflow.db.create_on_startup", false);
     properties.put("nflow.autostart", false);
-    properties.put("nflow.autoinit", false);
+    properties.put("nflow.definition.autopersist", false);
     ApplicationContext ctx = startNflow.startNetty(7500, "local", "", properties);
 
     assertNotNull(testListener.applicationContextEvent);
@@ -39,7 +39,7 @@ public class StartNflowTest {
     assertEquals("externallyDefinedExecutorGroup", ctx.getEnvironment().getProperty("nflow.executor.group"));
     assertEquals("false", ctx.getEnvironment().getProperty("nflow.db.create_on_startup"));
     assertEquals("false", ctx.getEnvironment().getProperty("nflow.autostart"));
-    assertEquals("false", ctx.getEnvironment().getProperty("nflow.autoinit"));
+    assertEquals("false", ctx.getEnvironment().getProperty("nflow.definition.autopersist"));
   }
 
 }

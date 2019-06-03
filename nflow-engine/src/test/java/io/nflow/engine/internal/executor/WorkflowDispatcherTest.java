@@ -48,7 +48,6 @@ import edu.umd.cs.mtc.MultithreadedTestCase;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.listener.WorkflowExecutorListener;
-import io.nflow.engine.service.WorkflowDefinitionService;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowDispatcherTest {
@@ -58,8 +57,6 @@ public class WorkflowDispatcherTest {
   MockEnvironment env = new MockEnvironment();
   @Mock
   WorkflowInstanceDao workflowInstances;
-  @Mock
-  WorkflowDefinitionService workflowDefinitions;
   @Mock
   ExecutorDao executorDao;
   @Mock
@@ -71,7 +68,6 @@ public class WorkflowDispatcherTest {
 
   @BeforeEach
   public void setup() {
-    env.setProperty("nflow.autoinit", "true");
     env.setProperty("nflow.dispatcher.sleep.ms", "0");
     env.setProperty("nflow.dispatcher.executor.queue.wait_until_threshold", "0");
     env.setProperty("nflow.illegal.state.change.action", "ignore");
@@ -82,7 +78,7 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
-    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
+    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, executorDao, env);
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
     logger.addAppender(mockAppender);
   }
@@ -96,7 +92,8 @@ public class WorkflowDispatcherTest {
   @Test
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
     when(executorDao.isTransactionSupportEnabled()).thenReturn(false);
-    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env));
+    assertThrows(BeanCreationException.class,
+        () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, executorDao, env));
   }
 
   @Test
@@ -252,7 +249,7 @@ public class WorkflowDispatcherTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(executor);
-        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, executorDao, env);
       }
 
       public void threadDispatcher() {
