@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 language: java
 jdk:
   - openjdk11
@@ -17,6 +17,7 @@ addons:
   postgresql: "9.6"
 services:
   - docker
+  - mysql
 before_script:
   - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
   - ./travis/setup-db-$DB.sh
