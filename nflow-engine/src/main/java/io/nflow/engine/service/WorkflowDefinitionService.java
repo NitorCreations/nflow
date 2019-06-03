@@ -25,7 +25,7 @@ public class WorkflowDefinitionService {
 
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
-  private final Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = new LinkedHashMap<>();
+  private volatile Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = new LinkedHashMap<>();
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
@@ -77,10 +77,14 @@ public class WorkflowDefinitionService {
    *           When a definition with the same type has already been added.
    */
   public void addWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> wd) {
-    AbstractWorkflowDefinition<? extends WorkflowState> conflict = workflowDefinitions.put(wd.getType(), wd);
-    if (conflict != null) {
-      throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName()
-          + " define same workflow type: " + wd.getType());
+    synchronized (this) {
+      Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> newDefinitions = new LinkedHashMap<>(workflowDefinitions);
+      AbstractWorkflowDefinition<? extends WorkflowState> conflict = newDefinitions.put(wd.getType(), wd);
+      if (conflict != null) {
+        throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName()
+            + " define same workflow type: " + wd.getType());
+      }
+      workflowDefinitions = newDefinitions;
     }
     if (autoInit && persistWorkflowDefinitions) {
       workflowDefinitionDao.storeWorkflowDefinition(wd);
