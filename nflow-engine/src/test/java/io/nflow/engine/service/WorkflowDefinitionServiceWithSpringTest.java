@@ -50,8 +50,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 @DirtiesContext
 public class WorkflowDefinitionServiceWithSpringTest {
 
-  static WorkflowDefinitionService workflowDefinitionService;
-
   @Configuration
   @Profile("nflow-engine-test")
   @ComponentScan(basePackageClasses = SpringDummyTestWorkflow.class)
@@ -147,13 +145,10 @@ public class WorkflowDefinitionServiceWithSpringTest {
       return mock(WorkflowInstanceFactory.class);
     }
 
-    @Bean
-    public WorkflowDefinitionService workflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
-      workflowDefinitionService = new WorkflowDefinitionService(workflowDefinitionDao, env);
-      return workflowDefinitionService;
-    }
-
   }
+
+  @Autowired
+  private WorkflowDefinitionService service;
 
   @SuppressWarnings("unused")
   @Autowired
@@ -161,7 +156,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
 
   @Test
   public void springWorkflowDefinitionsAreDetected() {
-    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitionService.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
     assertThat(definitions.get(0).getType(), is(new SpringDummyTestWorkflow().getType()));
   }

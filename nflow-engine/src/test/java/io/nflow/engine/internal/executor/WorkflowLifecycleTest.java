@@ -16,8 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
-import io.nflow.engine.service.WorkflowDefinitionService;
-
 @ExtendWith(MockitoExtension.class)
 public class WorkflowLifecycleTest {
 
@@ -29,17 +27,14 @@ public class WorkflowLifecycleTest {
   private Environment env;
   @Mock
   private Thread dispatcherThread;
-  @Mock
-  private WorkflowDefinitionService workflowDefinitions;
 
   private WorkflowLifecycle lifecycle;
 
   @BeforeEach
   public void setup() {
-    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(TRUE);
     when(env.getRequiredProperty("nflow.autostart", Boolean.class)).thenReturn(TRUE);
     when(threadFactory.newThread(dispatcher)).thenReturn(dispatcherThread);
-    lifecycle = new WorkflowLifecycle(workflowDefinitions, dispatcher, threadFactory, env);
+    lifecycle = new WorkflowLifecycle(dispatcher, threadFactory, env);
   }
 
   @Test

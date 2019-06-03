@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -31,15 +32,20 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   private WorkflowDefinitionService service;
 
   @BeforeEach
-  public void setup() throws Exception {
-    when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(true);
-    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(true);
+  public void setup() {
     lenient().when(workflowDefinition.getType()).thenReturn("dummy");
+  }
+
+  private void initializeService(boolean definitionPersist, boolean autoInit) {
+    when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(definitionPersist);
+    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(autoInit);
     service = new WorkflowDefinitionService(workflowDefinitionDao, env);
   }
 
   @Test
-  public void addedDefinitionIsStoredWhenAutoinitIsTrue() {
+  public void addedDefinitionIsStoredWhenAutoInitIsTrue() {
+    initializeService(true, true);
+
     service.addWorkflowDefinition(workflowDefinition);
 
     verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
@@ -47,9 +53,8 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void addedDefinitionIsNotStoredWhenAutoinitIsFalse() {
-    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(false);
-    service = new WorkflowDefinitionService(workflowDefinitionDao, env);
+  public void addedDefinitionIsNotStoredWhenAutoInitIsFalse() {
+    initializeService(true, false);
 
     service.addWorkflowDefinition(workflowDefinition);
 
@@ -58,9 +63,18 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void definitionsAreStoredDuringPostProcessing() {
-    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(false);
-    service = new WorkflowDefinitionService(workflowDefinitionDao, env);
+  public void addedDefinitionIsNotStoredWhenDefinitionPersistIsFalse() {
+    initializeService(false, true);
+
+    service.addWorkflowDefinition(workflowDefinition);
+
+    verifyZeroInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void definitionsAreStoredDuringPostProcessingWhenAutoInitIsFalse() {
+    initializeService(true, false);
     service.addWorkflowDefinition(workflowDefinition);
 
     service.postProcessWorkflowDefinitions();
@@ -70,7 +84,31 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
+  public void definitionsAreNotStoredDuringPostProcessingWhenAutoInitIsTrue() {
+    initializeService(true, true);
+    service.addWorkflowDefinition(workflowDefinition);
+    verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
+
+    service.postProcessWorkflowDefinitions();
+
+    verifyNoMoreInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void definitionsAreNotStoredDuringPostProcessingWhenDefinitionPersistIsFalse() {
+    initializeService(false, false);
+    service.addWorkflowDefinition(workflowDefinition);
+
+    service.postProcessWorkflowDefinitions();
+
+    verifyZeroInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
   public void addingDuplicatDefinitionThrowsException() {
+    initializeService(true, true);
     service.addWorkflowDefinition(workflowDefinition);
 
     IllegalStateException thrown = assertThrows(IllegalStateException.class,
@@ -84,11 +122,15 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Test
   public void getWorkflowDefinitionReturnsNullWhenTypeIsNotFound() {
+    initializeService(true, true);
+
     assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
   }
 
   @Test
   public void getWorkflowDefinitionReturnsDefinitionWhenTypeIsFound() {
+    initializeService(true, true);
+
     service.addWorkflowDefinition(workflowDefinition);
 
     assertThat(service.getWorkflowDefinition("dummy"), is(instanceOf(DummyTestWorkflow.class)));

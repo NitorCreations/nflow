@@ -40,7 +40,6 @@ public class WorkflowDispatcher implements Runnable {
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
-  private final boolean autoInit;
 
   @Inject
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
@@ -54,7 +53,6 @@ public class WorkflowDispatcher implements Runnable {
     this.executorDao = executorDao;
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
-    this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
 
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
@@ -65,9 +63,7 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Starting.");
     try {
-      if (!autoInit) {
-        workflowDefinitions.postProcessWorkflowDefinitions();
-      }
+      workflowDefinitions.postProcessWorkflowDefinitions();
       running = true;
       while (!shutdownRequested) {
         if (paused) {
