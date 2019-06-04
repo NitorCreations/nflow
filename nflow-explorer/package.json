@@ -46,7 +46,7 @@
     "karma-phantomjs-launcher": "1.0.4",
     "karma-sinon": "1.0.5",
     "karma-spec-reporter": "0.0.32",
-    "load-grunt-tasks": "4.0.0",
+    "load-grunt-tasks": "5.0.0",
     "moment": "2.24.0",
     "phantomjs-prebuilt": "2.1.16",
     "protractor": "6.0.0",
