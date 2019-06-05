@@ -109,10 +109,10 @@
     <findbugs-annotations.version>3.0.1u2</findbugs-annotations.version>
     <findbugs-contrib.version>6.6.1</findbugs-contrib.version>
     <findbugs.version>3.0.1</findbugs.version>
-    <frontend-maven.version>1.6</frontend-maven.version>
+    <frontend-maven.version>1.7.6</frontend-maven.version>
     <h2.version>1.4.199</h2.version>
     <hamcrest.version>2.1</hamcrest.version>
-    <hibernate.validator.version>6.0.15.Final</hibernate.validator.version>
+    <hibernate.validator.version>6.0.16.Final</hibernate.validator.version>
     <hikaricp.version>3.3.1</hikaricp.version>
     <jackson.version>2.9.9</jackson.version>
     <jackson-databind.version>2.9.9</jackson-databind.version>
@@ -126,42 +126,42 @@
     <jetty.version>9.4.18.v20190429</jetty.version>
     <jodatime.version>2.10.2</jodatime.version>
     <junit4.version>4.12</junit4.version>
-    <junit5.version>5.4.1</junit5.version>
-    <mockito-junit-jupiter.version>2.27.0</mockito-junit-jupiter.version>
+    <junit5.version>5.4.2</junit5.version>
+    <mockito-junit-jupiter.version>2.28.2</mockito-junit-jupiter.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.2.3</logback-classic.version>
     <maven-assembly.version>3.1.1</maven-assembly.version>
-    <maven-asciidoctor.version>1.5.7.1</maven-asciidoctor.version>
+    <maven-asciidoctor.version>1.6.0</maven-asciidoctor.version>
     <maven-clean.version>3.1.0</maven-clean.version>
     <maven-cobertura.version>2.7</maven-cobertura.version>
-    <maven-compiler.version>3.8.0</maven-compiler.version>
+    <maven-compiler.version>3.8.1</maven-compiler.version>
     <maven-dependency.version>3.1.1</maven-dependency.version>
     <maven-deploy.version>2.8.2</maven-deploy.version>
-    <maven-download.version>1.4.1</maven-download.version>
+    <maven-download.version>1.4.2</maven-download.version>
     <maven-eclipse.version>2.10</maven-eclipse.version>
     <maven-enforcer.version>3.0.0-M2</maven-enforcer.version>
     <maven-findbugs.version>3.0.5</maven-findbugs.version>
     <maven-gpg.version>1.6</maven-gpg.version>
     <maven-install.version>2.5.2</maven-install.version>
-    <maven-jar.version>3.1.1</maven-jar.version>
-    <maven-javadoc.version>3.0.1</maven-javadoc.version>
+    <maven-jar.version>3.1.2</maven-jar.version>
+    <maven-javadoc.version>3.1.0</maven-javadoc.version>
     <maven-jxr.version>3.0.0</maven-jxr.version>
-    <maven-pmd.version>3.11.0</maven-pmd.version>
+    <maven-pmd.version>3.12.0</maven-pmd.version>
     <maven-project-info.version>3.0.0</maven-project-info.version>
     <maven-release.version>2.5.3</maven-release.version>
     <maven-resources.version>3.1.0</maven-resources.version>
     <maven-shade.version>3.2.1</maven-shade.version>
     <maven-site.version>3.7.1</maven-site.version>
-    <maven-source.version>3.0.1</maven-source.version>
-    <maven-surefire.version>2.22.1</maven-surefire.version>
+    <maven-source.version>3.1.0</maven-source.version>
+    <maven-surefire.version>2.22.2</maven-surefire.version>
     <metrics.version>4.1.0</metrics.version>
-    <mockito.version>2.27.0</mockito.version>
+    <mockito.version>2.28.2</mockito.version>
     <mssql.version>7.2.2.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>8.0.16</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
-    <node.version>v8.11.4</node.version> <!-- https://nodejs.org/en/download/releases/ -->
-    <npm.version>6.4.0</npm.version> <!-- https://github.com/npm/cli/releases -->
+    <node.version>v8.16.0</node.version> <!-- https://nodejs.org/en/download/releases/ -->
+    <npm.version>6.9.0</npm.version> <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>42.2.5</postgresql.version>
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
