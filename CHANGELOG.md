@@ -4,7 +4,8 @@
 - Added `started` timestamp to workflow instance table (requires database update)
 - Deprecated WorkflowInstanceInclude.STARTED enum value
 - Deprecated `AbstractWorkflowExecutorListener`, use `WorkflowExecutorListener` instead
-- Allow easily starting nflow-engine for embedding via `NflowEngine` class. 
+- Allow easily starting nflow-engine for embedding via `NflowEngine` class
+- Added `WorkflowLogContextListener` for setting generic workflow properties to SLF4J log context and logging state variables when processing any state of any workflow instance
 
 **Details**
 - `nflow-engine`

@@ -12,12 +12,14 @@ import static org.joda.time.DateTime.now;
 import java.util.EnumSet;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.BulkWorkflow;
+import io.nflow.engine.workflow.executor.WorkflowLogContextListener;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
@@ -38,6 +40,10 @@ public class DemoServer {
   @Configuration
   @ComponentScan("io.nflow.tests.demo.workflow")
   static class DemoServerWorkflowsConfiguration {
+    @Bean
+    public WorkflowLogContextListener logContextListener() {
+      return new WorkflowLogContextListener("context");
+    }
   }
 
   private static void insertDemoWorkflows() {
