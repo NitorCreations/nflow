@@ -1,4 +1,10 @@
-## 5.7.0-SNAPSHOT (future release)
+## 5.7.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 5.7.0 (2019-06-06)
 
 **Highlights**
 - Added `started` timestamp to workflow instance table (requires database update)
