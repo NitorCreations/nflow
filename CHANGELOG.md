@@ -1,8 +1,12 @@
-## 5.7.1-SNAPSHOT (future release)
+## 6.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- Use constructor injection instead of field or setter injection in nFlow classes
+- Separate workflow definition scanning from `WorkflowDefinitionService`
 
 **Details**
+- `nflow-engine`
+  - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
 
 ## 5.7.0 (2019-06-06)
 
@@ -20,20 +24,20 @@
   - Moved default implementations for `WorkflowExecutorListener` interface methods from the abstract class to the interface.
   - Fixed bug with dropping non-existent index in PostgreSQL create script.
 - Dependency updates:
-    - reactor.netty 0.8.8.RELEASE
-    - jetty 9.4.18.v20190429
-    - javassist 3.25.0-GA
-    - mysql-connector-java 8.0.16
-    - mssql-jdbc 7.2.2.jre8
-    - metrics 4.1.0
-    - spring 5.1.7.RELEASE
-    - hibernate.validator 6.0.15.Final
-    - cxf 3.3.2
-    - joda-time 2.10.2
-    - commons-lang3 3.9
-    - jackson 2.9.9
-    - junit 5.4.1
-    - mockito 2.27.0
+   - reactor.netty 0.8.8.RELEASE
+   - jetty 9.4.18.v20190429
+   - javassist 3.25.0-GA
+   - mysql-connector-java 8.0.16
+   - mssql-jdbc 7.2.2.jre8
+   - metrics 4.1.0
+   - spring 5.1.7.RELEASE
+   - hibernate.validator 6.0.15.Final
+   - cxf 3.3.2
+   - joda-time 2.10.2
+   - commons-lang3 3.9
+   - jackson 2.9.9
+   - junit 5.4.1
+   - mockito 2.27.0
 - `nflow-explorer`
   - Dependency updates
 
