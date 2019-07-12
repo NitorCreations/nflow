@@ -3,10 +3,12 @@
 **Highlights**
 - Use constructor injection instead of field or setter injection in nFlow classes
 - Separate workflow definition scanning from `WorkflowDefinitionService`
+- Replace nflow.autoinit and nflow.definition.persist configuration options with nflow.definition.autopersist.
 
 **Details**
 - `nflow-engine`
   - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
+  - nflow.definition.autopersist=true works as having nflow.autoinit=true and nflow.definition.persist=true, e.g. definitions are persisted to database when they are registered to nFlow engine. When nflow.definition.autopersist is false, definitions are not automatically persisted when they are added, nor when nFlow engine starts. Instead, the definitions can be persisted by calling `WorkflowDefinitionService.persistWorkflowDefinitions` manually.
 
 ## 5.7.0 (2019-06-06)
 
