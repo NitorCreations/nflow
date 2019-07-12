@@ -1,85 +1,139 @@
 package io.nflow.engine.service;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 
 public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
   @Mock
-  private ClassPathResource nonSpringWorkflowListing;
-  @Mock
   private WorkflowDefinitionDao workflowDefinitionDao;
   @Mock
   private Environment env;
+  @Mock
+  private DummyTestWorkflow workflowDefinition;
   private WorkflowDefinitionService service;
 
   @BeforeEach
-  public void setup() throws Exception {
-    when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(true);
-    String dummyTestClassname = DummyTestWorkflow.class.getName();
-    ByteArrayInputStream bis = new ByteArrayInputStream(dummyTestClassname.getBytes(UTF_8));
-    when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
+  public void setup() {
+    lenient().when(workflowDefinition.getType()).thenReturn("dummy");
+  }
+
+  private void initializeService(boolean definitionPersist, boolean autoInit) {
+    when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(definitionPersist);
+    when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(autoInit);
     service = new WorkflowDefinitionService(workflowDefinitionDao, env);
-    service.setWorkflowDefinitions(nonSpringWorkflowListing);
-    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(0)));
-    service.postProcessWorkflowDefinitions();
+  }
+
+  @Test
+  public void addedDefinitionIsStoredWhenAutoInitIsTrue() {
+    initializeService(true, true);
+
+    service.addWorkflowDefinition(workflowDefinition);
+
+    verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
-    verify(workflowDefinitionDao).storeWorkflowDefinition(eq(service.getWorkflowDefinitions().get(0)));
   }
 
   @Test
-  public void initDuplicateWorkflows() throws Exception {
-    String dummyTestClassname = DummyTestWorkflow.class.getName();
-    ByteArrayInputStream bis = new ByteArrayInputStream((dummyTestClassname + "\n" + dummyTestClassname).getBytes(UTF_8));
-    when(nonSpringWorkflowListing.getInputStream()).thenReturn(bis);
-    IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> service.postProcessWorkflowDefinitions());
-    assertThat(thrown.getMessage(), containsString("Both io.nflow.engine.service.DummyTestWorkflow and io.nflow.engine.service.DummyTestWorkflow define same workflow type: dummy"));
+  public void addedDefinitionIsNotStoredWhenAutoInitIsFalse() {
+    initializeService(true, false);
+
+    service.addWorkflowDefinition(workflowDefinition);
+
+    verifyZeroInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 
   @Test
-  public void demoWorkflowLoadedSuccessfully() {
-    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
-    assertThat(definitions.size(), is(equalTo(1)));
+  public void addedDefinitionIsNotStoredWhenDefinitionPersistIsFalse() {
+    initializeService(false, true);
+
+    service.addWorkflowDefinition(workflowDefinition);
+
+    verifyZeroInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void definitionsAreStoredDuringPostProcessingWhenAutoInitIsFalse() {
+    initializeService(true, false);
+    service.addWorkflowDefinition(workflowDefinition);
+
+    service.postProcessWorkflowDefinitions();
+
+    verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void definitionsAreNotStoredDuringPostProcessingWhenAutoInitIsTrue() {
+    initializeService(true, true);
+    service.addWorkflowDefinition(workflowDefinition);
+    verify(workflowDefinitionDao).storeWorkflowDefinition(workflowDefinition);
+
+    service.postProcessWorkflowDefinitions();
+
+    verifyNoMoreInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void definitionsAreNotStoredDuringPostProcessingWhenDefinitionPersistIsFalse() {
+    initializeService(false, false);
+    service.addWorkflowDefinition(workflowDefinition);
+
+    service.postProcessWorkflowDefinitions();
+
+    verifyZeroInteractions(workflowDefinitionDao);
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
+  }
+
+  @Test
+  public void addingDuplicatDefinitionThrowsException() {
+    initializeService(true, true);
+    service.addWorkflowDefinition(workflowDefinition);
+
+    IllegalStateException thrown = assertThrows(IllegalStateException.class,
+        () -> service.addWorkflowDefinition(workflowDefinition));
+
+    String className = workflowDefinition.getClass().getName();
+    assertThat(thrown.getMessage(),
+        containsString("Both " + className + " and " + className + " define same workflow type: dummy"));
+    assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 
   @Test
   public void getWorkflowDefinitionReturnsNullWhenTypeIsNotFound() {
+    initializeService(true, true);
+
     assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
   }
 
   @Test
   public void getWorkflowDefinitionReturnsDefinitionWhenTypeIsFound() {
+    initializeService(true, true);
+
+    service.addWorkflowDefinition(workflowDefinition);
+
     assertThat(service.getWorkflowDefinition("dummy"), is(instanceOf(DummyTestWorkflow.class)));
   }
 
-  @Test
-  public void nonSpringWorkflowsAreOptional() throws Exception {
-    service = new WorkflowDefinitionService(workflowDefinitionDao, env);
-    service.postProcessWorkflowDefinitions();
-    assertEquals(0, service.getWorkflowDefinitions().size());
-  }
 }

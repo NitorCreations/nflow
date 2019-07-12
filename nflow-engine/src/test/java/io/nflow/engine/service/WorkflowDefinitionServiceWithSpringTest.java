@@ -57,13 +57,13 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     @Primary
     public Environment env() {
-      return new MockEnvironment().withProperty("nflow.definition.persist", "true");
+      return new MockEnvironment().withProperty("nflow.definition.persist", "true").withProperty("nflow.autoinit", "true");
     }
 
     @Bean
     @NFlow
     public AbstractResource nflowNonSpringWorkflowsListing() {
-      return mock(AbstractResource.class);
+      return null;
     }
 
     @Bean
@@ -150,10 +150,15 @@ public class WorkflowDefinitionServiceWithSpringTest {
   @Autowired
   private WorkflowDefinitionService service;
 
+  @SuppressWarnings("unused")
+  @Autowired
+  private WorkflowDefinitionSpringBeanScanner scanner;
+
   @Test
   public void springWorkflowDefinitionsAreDetected() {
     List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
     assertThat(definitions.get(0).getType(), is(new SpringDummyTestWorkflow().getType()));
   }
+
 }

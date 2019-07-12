@@ -15,7 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,9 +66,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void setup() {
     WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
     lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
-    service = new WorkflowInstanceService(workflowInstanceDao);
-    service.setWorkflowDefinitionService(workflowDefinitions);
-    service.setWorkflowInstancePreProcessor(workflowInstancePreProcessor);
+    service = new WorkflowInstanceService(workflowInstanceDao, workflowDefinitions, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
   }
 

@@ -2,7 +2,6 @@ package io.nflow.engine.internal.executor;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +40,6 @@ public class WorkflowDispatcher implements Runnable {
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
-  private final boolean autoInit;
 
   @Inject
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
@@ -55,7 +53,6 @@ public class WorkflowDispatcher implements Runnable {
     this.executorDao = executorDao;
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
-    this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
 
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
@@ -66,9 +63,7 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Starting.");
     try {
-      if (!autoInit) {
-        workflowDefinitions.postProcessWorkflowDefinitions();
-      }
+      workflowDefinitions.postProcessWorkflowDefinitions();
       running = true;
       while (!shutdownRequested) {
         if (paused) {
@@ -76,7 +71,6 @@ public class WorkflowDispatcher implements Runnable {
         } else {
           try {
             executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
-
             if (!shutdownRequested) {
               if (executorDao.tick()) {
                 workflowInstances.recoverWorkflowInstancesFromDeadNodes();
@@ -98,9 +92,6 @@ public class WorkflowDispatcher implements Runnable {
           }
         }
       }
-
-    } catch (IOException | ReflectiveOperationException e) {
-      logger.error("Fetching workflow definitions failed", e);
     } finally {
       running = false;
       shutdownPool();

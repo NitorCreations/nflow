@@ -32,24 +32,15 @@ public class WorkflowInstanceService {
 
   private static final Logger logger = getLogger(WorkflowInstanceService.class);
 
-  private WorkflowDefinitionService workflowDefinitionService;
+  private final WorkflowDefinitionService workflowDefinitionService;
   private final WorkflowInstanceDao workflowInstanceDao;
-  private WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
 
   @Inject
-  public WorkflowInstanceService(WorkflowInstanceDao workflowInstanceDao) {
+  public WorkflowInstanceService(WorkflowInstanceDao workflowInstanceDao, WorkflowDefinitionService workflowDefinitionService,
+      WorkflowInstancePreProcessor workflowInstancePreProcessor) {
     this.workflowInstanceDao = workflowInstanceDao;
-  }
-
-  // constructor injection won't work here
-  @Inject
-  public void setWorkflowDefinitionService(WorkflowDefinitionService workflowDefinitionService) {
     this.workflowDefinitionService = workflowDefinitionService;
-  }
-
-  // constructor injection won't work here
-  @Inject
-  public void setWorkflowInstancePreProcessor(WorkflowInstancePreProcessor workflowInstancePreProcessor) {
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
   }
 
