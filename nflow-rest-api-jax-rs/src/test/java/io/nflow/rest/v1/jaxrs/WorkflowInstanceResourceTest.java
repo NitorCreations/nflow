@@ -235,12 +235,11 @@ public class WorkflowInstanceResourceTest {
     assertEquals(resp, result);
   }
 
-  @SuppressWarnings({ "unchecked", "deprecation" })
+  @SuppressWarnings({ "unchecked" })
   @Test
   public void fetchingExistingWorkflowWorksWithAllIncludes() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
     EnumSet<WorkflowInstanceInclude> includes = EnumSet.allOf(WorkflowInstanceInclude.class);
-    includes.remove(WorkflowInstanceInclude.STARTED);
     when(workflowInstances.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
