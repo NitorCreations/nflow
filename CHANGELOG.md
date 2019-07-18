@@ -1,6 +1,7 @@
 ## 6.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- Requires JDK 11, support for JDK 8 is dropped
 - Use constructor injection instead of field or setter injection in nFlow classes
 - Separate workflow definition scanning from `WorkflowDefinitionService`
 - Remove deprecated `WorkflowInstanceInclude.STARTED` enum value
@@ -49,6 +50,7 @@
 - New REST-API endpoint to wake up workflow instance sleeping in specified states
   PUT /nflow/api/v1/workflow-instance/5/wakeup
 - Improve error logging in WorkflowStateProcessor
+- Replace FindBugs with SpotBugs.
 
 ## 5.7.0 (2019-06-06)
 
