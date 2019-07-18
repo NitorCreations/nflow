@@ -1,7 +1,5 @@
 package io.nflow.engine.workflow.definition;
 
-import org.junit.jupiter.api.Test;
-
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
@@ -16,29 +14,31 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.jupiter.api.Test;
+
 public class WorkflowDefinitionTest {
 
   @Test
   public void initialStateIsRequired() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new WorkflowDefinition<TestDefinition.TestState>("withoutInitialState",
-                    null, TestDefinition.TestState.error) {});
+        () -> new WorkflowDefinition<>("withoutInitialState", null, TestDefinition.TestState.error) {
+        });
     assertThat(thrown.getMessage(), containsString("initialState must not be null"));
   }
 
   @Test
   public void initialStateMustBeStartState() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new WorkflowDefinition<TestDefinition.TestState>("nonStartInitialState",
-                    TestDefinition.TestState.done, TestDefinition.TestState.error) {});
+        () -> new WorkflowDefinition<>("nonStartInitialState", TestDefinition.TestState.done, TestDefinition.TestState.error) {
+        });
     assertThat(thrown.getMessage(), containsString("initialState must be a start state"));
   }
 
   @Test
   public void errorStateIsRequired() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState",
-                    TestDefinition.TestState.start1, null) {});
+        () -> new WorkflowDefinition<>("withoutErrorState", TestDefinition.TestState.start1, null) {
+        });
     assertThat(thrown.getMessage(), containsString("errorState must not be null"));
   }
 
