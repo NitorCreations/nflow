@@ -12,10 +12,8 @@ env:
   - DB=mysql
   - DB=sqlserver
   - DB=db2
-  - DB=mariadb
 addons:
   postgresql: "9.6"
-  mariadb: "10.0"
 services:
   - docker
 before_script:
@@ -34,4 +32,3 @@ cache:
   directories:
   - $HOME/.m2
 sudo: false
-
