@@ -28,10 +28,6 @@
       <artifactId>nflow-server-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.nitorcreations</groupId>
-      <artifactId>core-utils</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webflux</artifactId>
     </dependency>
@@ -52,8 +48,8 @@
       <artifactId>h2</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
