@@ -130,7 +130,7 @@
     <mockito-junit-jupiter.version>3.0.0</mockito-junit-jupiter.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.2.3</logback-classic.version>
-    <mariadb.version>1.5.5</mariadb.version>
+    <mariadb.version>2.4.2</mariadb.version>
     <maven-assembly.version>3.1.1</maven-assembly.version>
     <maven-asciidoctor.version>1.6.0</maven-asciidoctor.version>
     <maven-clean.version>3.1.0</maven-clean.version>

@@ -8,6 +8,7 @@ import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -79,6 +80,6 @@ public class StartNflowTest {
 
   @Configurable
   static class DummyContext {
-  }
 
+  }
 }
