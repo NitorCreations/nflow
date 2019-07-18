@@ -3,6 +3,9 @@
 **Highlights**
 - Use constructor injection instead of field or setter injection in nFlow classes
 - Separate workflow definition scanning from `WorkflowDefinitionService`
+- Remove deprecated `WorkflowInstanceInclude.STARTED` enum value
+- Remove deprecated `AbstractWorkflowExecutorListener`, use `WorkflowExecutorListener` instead
+- Remove deprecated `WorkflowInstance.setStarted`, use `WorkflowInstance.setStartedIfNotSet` instead
 
 **Details**
 - `nflow-engine`
