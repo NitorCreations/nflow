@@ -1,5 +1,6 @@
 package io.nflow.tests;
 
+import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,10 +42,10 @@ public class ChildWorkflowTest extends AbstractNflowTest {
         workflowId = resp.id;
     }
 
-    @Test // (timeout = 30000)
+    @Test
     @Order(2)
     public void checkFibonacciWorkflowComputesCorrectResult() throws InterruptedException {
-        ListWorkflowInstanceResponse response = getWorkflowInstance(workflowId, FibonacciWorkflow.State.done.name());
+        ListWorkflowInstanceResponse response = getWorkflowInstanceWithTimeout(workflowId, FibonacciWorkflow.State.done.name(), ofSeconds(30));
         assertTrue(response.stateVariables.containsKey("result"));
         assertEquals(8, response.stateVariables.get("result"));
     }

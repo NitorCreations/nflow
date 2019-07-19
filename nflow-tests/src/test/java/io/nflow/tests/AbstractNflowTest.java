@@ -5,7 +5,9 @@ import static java.lang.Thread.sleep;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -118,7 +120,16 @@ public abstract class AbstractNflowTest {
     return wf;
   }
 
-
+  protected ListWorkflowInstanceResponse getWorkflowInstanceWithTimeout(int id, String expectedState, Duration timeout) throws InterruptedException {
+    return assertTimeoutPreemptively(timeout,
+      () -> {
+        ListWorkflowInstanceResponse resp;
+        do {
+          resp = getWorkflowInstance(id, expectedState);
+        } while (resp.nextActivation != null);
+        return resp;
+    });
+  }
 
   protected void assertWorkflowInstance(int instanceId, WorkflowInstanceValidator... validators) {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(instanceId);

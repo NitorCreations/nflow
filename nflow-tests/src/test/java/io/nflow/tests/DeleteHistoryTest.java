@@ -1,10 +1,12 @@
 package io.nflow.tests;
 
+import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
@@ -49,10 +51,10 @@ public class DeleteHistoryTest extends AbstractNflowTest {
     assertThat(resp.id, is(notNullValue()));
   }
 
-  @Test // (timeout = 5000)
+  @Test
   @Order(2)
   public void getProcessedInstance() throws Exception {
-    instance = getWorkflowInstance(resp.id, DeleteHistoryWorkflow.State.done.name());
+    instance = getWorkflowInstanceWithTimeout(resp.id, DeleteHistoryWorkflow.State.done.name(), ofSeconds(5));
   }
 
   @Test

@@ -1,6 +1,7 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,13 +62,10 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test // (timeout = 5000)
+  @Test
   @Order(2)
   public void checkAcceptCreditApplicationReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response;
-    do {
-      response = getWorkflowInstance(resp.id, "acceptCreditApplication");
-    } while (response.nextActivation != null);
+    ListWorkflowInstanceResponse response = getWorkflowInstanceWithTimeout(resp.id, "acceptCreditApplication", ofSeconds(5));
     wfModifiedAtAcceptCreditApplication = response.modified;
     assertTrue(response.stateVariables.containsKey("info"));
   }
@@ -83,13 +81,10 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     }
   }
 
-  @Test // (timeout = 5000)
+  @Test
   @Order(4)
   public void checkDoneStateReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response;
-    do {
-      response = getWorkflowInstance(resp.id, "done");
-    } while (response.nextActivation != null);
+    ListWorkflowInstanceResponse response = getWorkflowInstanceWithTimeout(resp.id, "done", ofSeconds(5));
     assertTrue(response.modified.isAfter(wfModifiedAtAcceptCreditApplication), "nflow_workflow.modified should be updated");
   }
 
