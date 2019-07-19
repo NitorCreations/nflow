@@ -21,6 +21,11 @@ public abstract class Profiles {
   public static final String MYSQL = "nflow.db.mysql";
 
   /**
+   * Profile to enable MariaDB database.
+   */
+  public static final String MARIADB = "nflow.db.mariadb";
+
+  /**
    * Profile to enable Oracle database.
    */
   public static final String ORACLE = "nflow.db.oracle";

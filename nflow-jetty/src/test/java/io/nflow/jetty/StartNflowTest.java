@@ -1,6 +1,7 @@
 package io.nflow.jetty;
 
 import static io.nflow.engine.config.Profiles.JMX;
+import static io.nflow.engine.config.Profiles.MARIADB;
 import static io.nflow.engine.config.Profiles.MYSQL;
 import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static java.lang.Thread.sleep;
@@ -63,6 +64,12 @@ public class StartNflowTest {
   @Disabled
   public void startNflowJettyMysql() throws Exception {
     startStop(initJettyStart(MYSQL));
+  }
+
+  @Test
+  @Disabled
+  public void startNflowJettyMariadb() throws Exception {
+    startStop(initJettyStart(MARIADB));
   }
 
   @Test
