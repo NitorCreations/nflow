@@ -1,5 +1,6 @@
 package io.nflow.engine.service;
 
+import static java.util.Collections.synchronizedMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ public class WorkflowDefinitionService {
 
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
-  private volatile Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = new LinkedHashMap<>();
+  private final Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = synchronizedMap(
+      new LinkedHashMap<>());
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
@@ -54,7 +56,9 @@ public class WorkflowDefinitionService {
    * @return List of workflow definitions.
    */
   public List<AbstractWorkflowDefinition<? extends WorkflowState>> getWorkflowDefinitions() {
-    return new ArrayList<>(workflowDefinitions.values());
+    synchronized (workflowDefinitions) {
+      return new ArrayList<>(workflowDefinitions.values());
+    }
   }
 
   /**
@@ -63,7 +67,9 @@ public class WorkflowDefinitionService {
    */
   public void postProcessWorkflowDefinitions() {
     if (!autoInit && persistWorkflowDefinitions) {
-      workflowDefinitions.values().forEach(workflowDefinitionDao::storeWorkflowDefinition);
+      synchronized (workflowDefinitions) {
+        workflowDefinitions.values().forEach(workflowDefinitionDao::storeWorkflowDefinition);
+      }
     }
   }
 
@@ -77,14 +83,10 @@ public class WorkflowDefinitionService {
    *           When a definition with the same type has already been added.
    */
   public void addWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> wd) {
-    synchronized (this) {
-      Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> newDefinitions = new LinkedHashMap<>(workflowDefinitions);
-      AbstractWorkflowDefinition<? extends WorkflowState> conflict = newDefinitions.put(wd.getType(), wd);
-      if (conflict != null) {
-        throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName()
-            + " define same workflow type: " + wd.getType());
-      }
-      workflowDefinitions = newDefinitions;
+    AbstractWorkflowDefinition<? extends WorkflowState> conflict = workflowDefinitions.put(wd.getType(), wd);
+    if (conflict != null) {
+      throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName()
+          + " define same workflow type: " + wd.getType());
     }
     if (autoInit && persistWorkflowDefinitions) {
       workflowDefinitionDao.storeWorkflowDefinition(wd);

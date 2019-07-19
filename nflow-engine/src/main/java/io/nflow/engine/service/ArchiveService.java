@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ArchiveDao;
 import io.nflow.engine.internal.util.PeriodicLogger;
 
@@ -40,6 +41,7 @@ public class ArchiveService {
    * mostly affects on archiving performance.
    * @return Total number of archived workflows.
    */
+  @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
   public int archiveWorkflows(DateTime olderThan, int batchSize) {
     Assert.notNull(olderThan, "olderThan must not be null");
     Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
@@ -49,14 +51,13 @@ public class ArchiveService {
     stopWatch.start();
     List<Integer> workflowIds;
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
-    int archivedWorkflows = 0;
     int archivedWorkflowsTotal = 0;
     do {
       workflowIds = archiveDao.listArchivableWorkflows(olderThan, batchSize);
       if (workflowIds.isEmpty()) {
         break;
       }
-      archivedWorkflows = archiveDao.archiveWorkflows(workflowIds);
+      int archivedWorkflows = archiveDao.archiveWorkflows(workflowIds);
       archivedWorkflowsTotal += archivedWorkflows;
 
       double timeDiff = max(stopWatch.getTime() / 1000.0, 0.000001);

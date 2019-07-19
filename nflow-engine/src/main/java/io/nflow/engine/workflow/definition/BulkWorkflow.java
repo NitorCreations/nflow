@@ -91,8 +91,8 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
 
   protected boolean splitWorkImpl(StateExecution execution, @SuppressWarnings("unused") JsonNode data) {
     if (execution.getAllChildWorkflows().isEmpty()) {
-      throw new RuntimeException(
-          "No child workflows found - either add them before starting the parent or implement splitWorkflowImpl");
+      throw new RuntimeException("No child workflows found for workflow instance " + execution.getWorkflowInstanceId()
+          + " - either add them before starting the parent or implement splitWorkflowImpl");
     }
     return true;
   }

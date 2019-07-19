@@ -11,8 +11,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import org.junit.jupiter.api.Test;
+
+import io.nflow.engine.internal.workflow.ObjectStringMapper;
 
 public class WorkflowInstanceTest {
 
@@ -74,8 +75,9 @@ public class WorkflowInstanceTest {
 
   @Test
   public void getTypedStateVariableWorks() {
+    when(mapper.convertFromObject("key", 42L)).thenReturn("42");
+    when(mapper.convertToObject(Long.class, "key", "42")).thenReturn(42L);
     WorkflowInstance instance = new WorkflowInstance.Builder(mapper).putStateVariable("key", 42L).build();
-    when(mapper.convertToObject(Long.class, "key", null)).thenReturn(42L);
 
     assertThat(instance.getStateVariable("key", Long.class), is(42L));
   }

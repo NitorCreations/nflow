@@ -162,8 +162,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private final TestWorkflow testWorkflowDef = new TestWorkflow();
 
-  private final DateTime tomorrow = now().plusDays(1);
-
   private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES);
 
   @BeforeEach
@@ -783,81 +781,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         is("Scheduled by previous state illegalStateChange")));
     assertThat(action.getAllValues().get(0), matchesWorkflowInstanceAction(SimpleTestWorkflow.State.illegalStateChange,
         is("illegal state change"), 0, stateExecution));
-  }
-
-  @Test
-  public void handleRetryMaxRetriesExceededHaveFailureState() {
-    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1);
-    verify(execution).setNextState(TestDefinition.TestState.failed);
-    verify(execution).setNextStateReason(any(String.class));
-    verify(execution).setNextActivation(any(DateTime.class));
-  }
-
-  @Test
-  public void handleRetryMaxRetriesExceededNotHaveFailureState() {
-    StateExecutionImpl execution = handleRetryMaxRetriesExceeded(TestDefinition.TestState.start2);
-    verify(execution).setNextState(TestDefinition.TestState.error);
-    verify(execution).setNextStateReason(any(String.class));
-    verify(execution).setNextActivation(any(DateTime.class));
-  }
-
-  private StateExecutionImpl handleRetryMaxRetriesExceeded(TestDefinition.TestState currentState) {
-    TestDefinition def = new TestDefinition("x", currentState);
-    StateExecutionImpl execution = mock(StateExecutionImpl.class);
-    when(execution.getRetries()).thenReturn(def.getSettings().maxRetries);
-    when(execution.getCurrentStateName()).thenReturn(currentState.name());
-    executor.handleRetry(execution, def);
-    return execution;
-  }
-
-  @Test
-  public void exceedingMaxRetriesInFailureStateGoesToErrorState() {
-    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.failed.name());
-
-    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
-
-    verify(executionMock).setNextState(TestWorkflow.State.error);
-    verify(executionMock).setNextActivation(now());
-  }
-
-  @Test
-  public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
-    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.begin.name());
-
-    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
-
-    verify(executionMock).setNextState(TestWorkflow.State.failed);
-    verify(executionMock).setNextActivation(now());
-  }
-
-  @Test
-  public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
-    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.startWithoutFailure.name());
-
-    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
-
-    verify(executionMock).setNextState(TestWorkflow.State.error);
-    verify(executionMock).setNextActivation(now());
-  }
-
-  @Test
-  public void exceedingMaxRetriesInErrorStateStopsProcessing() {
-    when(executionMock.getCurrentStateName()).thenReturn(TestWorkflow.State.error.name());
-
-    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
-
-    verify(executionMock).setNextState(TestWorkflow.State.error);
-    verify(executionMock).setNextActivation(null);
-  }
-
-  @Test
-  public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
-    when(executionMock.getRetries()).thenReturn(0);
-
-    executor.handleRetryAfter(executionMock, tomorrow, testWorkflowDef);
-
-    verify(executionMock, never()).setNextState(any(TestWorkflow.State.class));
-    verify(executionMock).setNextActivation(tomorrow);
   }
 
   @Test

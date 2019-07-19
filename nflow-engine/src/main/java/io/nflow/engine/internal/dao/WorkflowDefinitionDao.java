@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.sort;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -15,7 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,10 +44,10 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 public class WorkflowDefinitionDao {
 
   private static final Logger logger = getLogger(WorkflowDefinitionDao.class);
-  private ExecutorDao executorInfo;
-  private NamedParameterJdbcTemplate namedJdbc;
-  private ObjectMapper nflowObjectMapper;
-  private SQLVariants sqlVariants;
+  private final ExecutorDao executorInfo;
+  private final NamedParameterJdbcTemplate namedJdbc;
+  private final ObjectMapper nflowObjectMapper;
+  private final SQLVariants sqlVariants;
 
   @Inject
   public WorkflowDefinitionDao(SQLVariants sqlVariants,
@@ -116,10 +116,8 @@ public class WorkflowDefinitionDao {
     resp.type = definition.getType();
     resp.description = definition.getDescription();
     resp.onError = definition.getErrorState().name();
-    Map<String, StoredWorkflowDefinition.State> states = new HashMap<>();
-    for (WorkflowState state : definition.getStates()) {
-      states.put(state.name(), new StoredWorkflowDefinition.State(state.name(), state.getType().name(), state.getDescription()));
-    }
+    Map<String, StoredWorkflowDefinition.State> states = definition.getStates().stream().collect(toMap(WorkflowState::name,
+        state -> new StoredWorkflowDefinition.State(state.name(), state.getType().name(), state.getDescription())));
     for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
       StoredWorkflowDefinition.State state = states.get(entry.getKey());
       for (String targetState : entry.getValue()) {

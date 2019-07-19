@@ -1,12 +1,7 @@
 package io.nflow.engine.internal.dao;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.model.ModelObject;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
+import static java.lang.String.format;
 
-import javax.inject.Named;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -16,11 +11,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import static java.lang.String.format;
+import javax.inject.Named;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.model.ModelObject;
 
 @Named
 public class TableMetadataChecker {
-  private JdbcTemplate jdbc;
+  private final JdbcTemplate jdbc;
 
   public TableMetadataChecker(@NFlow JdbcTemplate jdbcTemplate) {
     this.jdbc = jdbcTemplate;
@@ -68,7 +70,7 @@ public class TableMetadataChecker {
     @Override
     public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException {
       ResultSetMetaData metadata = rs.getMetaData();
-      Map<String, ColumnMetadata> metadataMap = new LinkedHashMap<>();
+      Map<String, ColumnMetadata> metadataMap = new LinkedHashMap<>(metadata.getColumnCount(), 1.0f);
       for (int col = 1; col <= metadata.getColumnCount(); col++) {
         String columnName = metadata.getColumnName(col);
         String typeName = metadata.getColumnTypeName(col);

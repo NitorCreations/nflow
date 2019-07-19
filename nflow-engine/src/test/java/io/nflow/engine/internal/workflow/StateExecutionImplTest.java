@@ -2,12 +2,14 @@ package io.nflow.engine.internal.workflow;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.joda.time.DateTime.now;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,27 +18,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.TestWorkflow;
+import io.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class StateExecutionImplTest {
-  StateExecutionImpl execution;
-  StateExecution executionInterface;
-
-  WorkflowInstance instance;
 
   @Mock
   ObjectStringMapper objectStringMapper;
@@ -46,15 +48,25 @@ public class StateExecutionImplTest {
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
   @Mock
   WorkflowInstanceService workflowInstanceService;
-  ArgumentCaptor<QueryWorkflowInstances> queryCaptor = ArgumentCaptor.forClass(QueryWorkflowInstances.class);
+  @Captor
+  ArgumentCaptor<QueryWorkflowInstances> queryCaptor;
+
+  StateExecutionImpl execution;
+  StateExecution executionInterface;
+  WorkflowInstance instance;
+  private final DateTime tomorrow = now().plusDays(1);
 
   @BeforeEach
   public void setup() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
             .setBusinessKey("business").build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
-        workflowInstanceService);
+    execution = createExecution(instance);
     executionInterface = execution;
+  }
+
+  private StateExecutionImpl createExecution(WorkflowInstance workflowInstance) {
+    return new StateExecutionImpl(workflowInstance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+        workflowInstanceService);
   }
 
   @Test
@@ -91,8 +103,7 @@ public class StateExecutionImplTest {
   public void wakeUpParentWorkflowSetsWakeUpStates() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
         .setBusinessKey("business").setParentWorkflowId(123).build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
-        workflowInstanceService);
+    execution = createExecution(instance);
     assertThat(execution.getWakeUpParentWorkflowStates().isPresent(), is(false));
     execution.wakeUpParentWorkflow();
     assertThat(execution.getWakeUpParentWorkflowStates().get(), is(empty()));
@@ -244,10 +255,58 @@ public class StateExecutionImplTest {
   @Test
   public void getParentIdReturnsParentWorkflowId() {
     instance = new WorkflowInstance.Builder().setParentWorkflowId(42).build();
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
-        workflowInstanceService);
+    execution = createExecution(instance);
 
     assertThat(execution.getParentId(), is(Optional.of(42)));
+  }
+
+  @Test
+  public void exceedingMaxRetriesInFailureStateGoesToErrorState() {
+    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.failed);
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
+    assertThat(execution.getNextActivation(), is(notNullValue()));
+  }
+
+  @Test
+  public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
+    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.start1);
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.failed.name())));
+    assertThat(execution.getNextActivation(), is(notNullValue()));
+  }
+
+  @Test
+  public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
+    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.start2);
+    assertThat(execution.getNextState(), is(equalTo(TestWorkflow.State.error.name())));
+    assertThat(execution.getNextActivation(), is(notNullValue()));
+  }
+
+  @Test
+  public void exceedingMaxRetriesInErrorStateStopsProcessing() {
+    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.error);
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
+    assertThat(execution.getNextActivation(), is(nullValue()));
+  }
+
+  @Test
+  public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
+    TestWorkflow def = new TestWorkflow();
+    instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext")
+        .setState(TestWorkflow.State.startWithoutFailure.name()).setBusinessKey("business").build();
+    execution = createExecution(instance);
+
+    execution.handleRetryAfter(tomorrow, def);
+
+    assertThat(execution.getNextState(), is(nullValue()));
+    assertThat(execution.getNextActivation(), is(equalTo(tomorrow)));
+  }
+
+  private void handleRetryMaxRetriesExceeded(TestDefinition.TestState initialState, TestDefinition.TestState currentState) {
+    TestDefinition def = new TestDefinition("x", initialState);
+    instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState(currentState.name())
+        .setBusinessKey("business").build();
+    execution = createExecution(instance);
+    execution.handleRetryAfter(tomorrow, def);
   }
 
   static class Data {
