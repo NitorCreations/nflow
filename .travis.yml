@@ -10,6 +10,7 @@ env:
   - DB=h2
   - DB=postgresql
   - DB=mysql
+  - DB=mariadb
   - DB=sqlserver
   - DB=db2
 addons:

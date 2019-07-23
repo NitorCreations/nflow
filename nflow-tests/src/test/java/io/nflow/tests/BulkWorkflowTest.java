@@ -6,6 +6,7 @@ import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_T
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
+import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -69,7 +70,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     workflowId = resp.id;
   }
 
-  @Test // (timeout = 30000)
+  @Test
   @Order(2)
   public void t02_waitForBulkToFinish() throws InterruptedException {
     waitForBulkToFinish();
@@ -107,14 +108,14 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     }
   }
 
-  @Test // (timeout = 30000)
+  @Test
   @Order(5)
   public void t13_waitForBulkToFinish() throws InterruptedException {
     waitForBulkToFinish();
   }
 
   private void waitForBulkToFinish() throws InterruptedException {
-    ListWorkflowInstanceResponse instance = getWorkflowInstance(workflowId, done.name());
+    ListWorkflowInstanceResponse instance = getWorkflowInstanceWithTimeout(workflowId, done.name(), ofSeconds(30));
     assertThat(instance.childWorkflows.size(), equalTo(1));
     List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
     assertThat(childWorkflowIds.size(), equalTo(CHILDREN_COUNT));

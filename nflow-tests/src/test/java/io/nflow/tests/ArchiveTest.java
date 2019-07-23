@@ -2,11 +2,15 @@ package io.nflow.tests;
 
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +40,7 @@ public class ArchiveTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
+  private static final Duration ARCHIVE_TIMEOUT = ofSeconds(15);
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
       .springContextClass(ArchiveConfiguration.class).build();
@@ -47,69 +52,75 @@ public class ArchiveTest extends AbstractNflowTest {
     super(server);
   }
 
-  @Test // (timeout = ARCHIVE_TIMEOUT)
+  @Test
   @Order(1)
   public void cleanupExistingArchivableStuff() {
-    archiveService.archiveWorkflows(DateTime.now(), 10);
+    assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
+      archiveService.archiveWorkflows(now(), 10));
   }
 
-  @Test // (timeout = CREATE_TIMEOUT)
+  @Test
   @Order(2)
   public void createWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
-    archiveLimit1 = DateTime.now();
+    archiveLimit1 = now();
     // Make sure first batch of workflows is created before the second batch.
     // (some databases have 1 second precision in timestamps (e.g. mysql 5.5))
     sleep(SECONDS.toMillis(1));
   }
 
-  @Test // (timeout = CREATE_TIMEOUT)
+  @Test
   @Order(3)
   public void createMoreWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_2_WORKFLOWS));
-    archiveLimit2 = DateTime.now();
+    archiveLimit2 = now();
     sleep(SECONDS.toMillis(1));
   }
 
-  @Test // (timeout = ARCHIVE_TIMEOUT)
+  @Test
   @Order(4)
   public void archiveBeforeTime1ArchiveAllWorkflows() {
-    int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
+    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
+      archiveService.archiveWorkflows(archiveLimit1, 3));
     // fibonacci(3) workflow creates 1 child workflow
     assertEquals(STEP_1_WORKFLOWS * 2, archived);
   }
 
-  @Test // (timeout = ARCHIVE_TIMEOUT)
+  @Test
   @Order(5)
   public void archiveAgainBeforeTime1DoesNotArchivesAnything() {
-    int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
+    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
+      archiveService.archiveWorkflows(archiveLimit1, 3));
     assertEquals(0, archived);
   }
 
-  @Test // (timeout = ARCHIVE_TIMEOUT)
+  @Test
   @Order(6)
   public void archiveBeforeTime2Archives() {
-    int archived = archiveService.archiveWorkflows(archiveLimit2, 5);
+    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
+      archiveService.archiveWorkflows(archiveLimit2, 5));
     assertEquals(STEP_2_WORKFLOWS * 2, archived);
   }
 
-  @Test // (timeout = CREATE_TIMEOUT)
+  @Test
   @Order(7)
   public void createMoreWorkflows_again() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_3_WORKFLOWS));
   }
 
-  @Test // (timeout = ARCHIVE_TIMEOUT)
+  @Test
   @Order(8)
   public void archiveAgainBeforeTime1DoesNotArchiveAnything() {
-    int archived = archiveService.archiveWorkflows(archiveLimit1, 3);
+    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
+      archiveService.archiveWorkflows(archiveLimit1, 3));
     assertEquals(0, archived);
   }
 
-  @Test // (timeout = ARCHIVE_TIMEOUT)
+  @Test
   @Order(9)
   public void archiveAgainBeforeTime2DoesNotArchiveAnything() {
-    int archived = archiveService.archiveWorkflows(archiveLimit2, 3);
+    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
+      archiveService.archiveWorkflows(archiveLimit2, 3));
     assertEquals(0, archived);
   }
 
@@ -132,13 +143,15 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   private void waitUntilWorkflowsFinished(List<Integer> workflowIds) {
-    for (int workflowId : workflowIds) {
-      try {
-        getWorkflowInstance(workflowId, "done");
-      } catch (@SuppressWarnings("unused") InterruptedException e) {
-        // ignore
+    assertTimeoutPreemptively(ofSeconds(15), () -> {
+      for (int workflowId : workflowIds) {
+         try {
+          getWorkflowInstance(workflowId, "done");
+        } catch (@SuppressWarnings("unused") InterruptedException e) {
+          // ignore
+        }
       }
-    }
+    });
   }
 
   // TODO another way would be to modify JettyServerContainer to have reference to Spring's applicationContext

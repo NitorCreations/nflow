@@ -1,6 +1,7 @@
 package io.nflow.tests;
 
 import static java.lang.Thread.sleep;
+import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -8,6 +9,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
@@ -50,23 +52,28 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test // (timeout = 5000)
+  @Test
   @Order(2)
   public void queryDemoWorkflowHistory() throws Exception {
-    ListWorkflowInstanceResponse wf = null;
-    do {
-      sleep(200);
-      ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
-              .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
-      assertThat(instances.length, greaterThanOrEqualTo(1));
-      for (ListWorkflowInstanceResponse instance : instances) {
-        if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
-          wf = instance;
-          break;
-        }
-      }
-    } while (wf == null);
-    assertThat(wf.actions.size(), is(2));
+    ListWorkflowInstanceResponse wfr =
+    assertTimeoutPreemptively(ofSeconds(5),
+      () -> {
+        ListWorkflowInstanceResponse wf = null;
+        do {
+          sleep(200);
+          ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
+                  .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
+          assertThat(instances.length, greaterThanOrEqualTo(1));
+          for (ListWorkflowInstanceResponse instance : instances) {
+            if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
+              wf = instance;
+              break;
+            }
+          }
+        } while (wf == null);
+        return wf;
+    });
+    assertThat(wfr.actions.size(), is(2));
   }
 
   @Test

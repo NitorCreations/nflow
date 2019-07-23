@@ -6,7 +6,7 @@
 - Remove deprecated `WorkflowInstanceInclude.STARTED` enum value
 - Remove deprecated `AbstractWorkflowExecutorListener`, use `WorkflowExecutorListener` instead
 - Remove deprecated `WorkflowInstance.setStarted`, use `WorkflowInstance.setStartedIfNotSet` instead
-- Add experimental MariaDB support (tests are not run on MariaDB in Travis)
+- Add MariaDB support
 
 **Details**
 - `nflow-engine`

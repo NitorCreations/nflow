@@ -2,6 +2,7 @@ package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
+import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -53,13 +54,10 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
-  @Test // (timeout = 10000)
+  @Test
   @Order(2)
   public void checkAcceptCreditApplicationReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response;
-    do {
-      response = getWorkflowInstance(resp.id, "acceptCreditApplication");
-    } while (response.nextActivation != null);
+    getWorkflowInstanceWithTimeout(resp.id, "acceptCreditApplication", ofSeconds(10));
   }
 
   @Test
@@ -71,13 +69,10 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq);
   }
 
-  @Test //(timeout = 5000)
+  @Test
   @Order(4)
   public void checkErrorStateReached() throws InterruptedException {
-    ListWorkflowInstanceResponse response;
-    do {
-      response = getWorkflowInstance(resp.id, "error");
-    } while (response.nextActivation != null);
+    getWorkflowInstanceWithTimeout(resp.id, "error", ofSeconds(5));
   }
 
   @Test

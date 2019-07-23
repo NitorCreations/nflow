@@ -1,11 +1,13 @@
 package io.nflow.tests;
 
+import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,24 +53,23 @@ public class StateVariablesTest extends AbstractNflowTest {
     }
   }
 
-  @Test // (timeout = 5000)
+  @Test
   @Order(1)
   public void createStateWorkflow() throws JsonProcessingException, IOException {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
     createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
-    createResponse = createWorkflowInstance(createRequest);
+    createResponse = assertTimeoutPreemptively(ofSeconds(5),
+      () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
   }
 
-  @Test // (timeout = 5000)
+  @Test
   @Order(2)
   public void checkStateVariables() throws InterruptedException {
-    ListWorkflowInstanceResponse listResponse;
-    do {
-      listResponse = getWorkflowInstance(createResponse.id, "done");
-    } while (listResponse.nextActivation != null);
+    ListWorkflowInstanceResponse listResponse = getWorkflowInstanceWithTimeout(createResponse.id, "done", ofSeconds(5));
+
     assertEquals(3, listResponse.stateVariables.size());
     assertEquals(singletonMap("test", 5), listResponse.stateVariables.get("requestData"));
     assertEquals(singletonMap("value", "foo1"), listResponse.stateVariables.get("variable1"));
