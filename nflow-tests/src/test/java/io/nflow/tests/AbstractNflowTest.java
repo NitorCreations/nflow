@@ -38,7 +38,7 @@ import io.nflow.tests.config.RestClientConfiguration;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
-@ExtendWith({SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class})
+@ExtendWith({ SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
@@ -129,13 +129,12 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstanceWithTimeout(int id, String expectedState, Duration timeout) {
-    return assertTimeoutPreemptively(timeout,
-      () -> {
-        ListWorkflowInstanceResponse resp;
-        do {
-          resp = getWorkflowInstance(id, expectedState);
-        } while (resp.nextActivation != null);
-        return resp;
+    return assertTimeoutPreemptively(timeout, () -> {
+      ListWorkflowInstanceResponse resp;
+      do {
+        resp = getWorkflowInstance(id, expectedState);
+      } while (resp.nextActivation != null);
+      return resp;
     });
   }
 
@@ -150,7 +149,7 @@ public abstract class AbstractNflowTest {
     return new WorkflowInstanceValidator() {
       @Override
       public void validate(ListWorkflowInstanceResponse workflowInstance) {
-        for (int i=0; i<workflowInstance.actions.size(); i++) {
+        for (int i = 0; i < workflowInstance.actions.size(); i++) {
           assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actions.get(i).state));
           assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actions.get(i).retryNo));
         }

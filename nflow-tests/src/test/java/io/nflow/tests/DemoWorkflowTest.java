@@ -55,23 +55,21 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(2)
   public void queryDemoWorkflowHistory() {
-    ListWorkflowInstanceResponse wfr =
-    assertTimeoutPreemptively(ofSeconds(5),
-      () -> {
-        ListWorkflowInstanceResponse wf = null;
-        do {
-          sleep(200);
-          ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
-                  .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
-          assertThat(instances.length, greaterThanOrEqualTo(1));
-          for (ListWorkflowInstanceResponse instance : instances) {
-            if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
-              wf = instance;
-              break;
-            }
+    ListWorkflowInstanceResponse wfr = assertTimeoutPreemptively(ofSeconds(5), () -> {
+      ListWorkflowInstanceResponse wf = null;
+      do {
+        sleep(200);
+        ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
+            .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
+        assertThat(instances.length, greaterThanOrEqualTo(1));
+        for (ListWorkflowInstanceResponse instance : instances) {
+          if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
+            wf = instance;
+            break;
           }
-        } while (wf == null);
-        return wf;
+        }
+      } while (wf == null);
+      return wf;
     });
     assertThat(wfr.actions.size(), is(2));
   }
