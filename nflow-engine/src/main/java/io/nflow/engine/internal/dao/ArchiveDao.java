@@ -1,27 +1,30 @@
 package io.nflow.engine.internal.dao;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.internal.storage.db.SQLVariants;
+import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
+import static org.apache.commons.lang3.StringUtils.join;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
-import static org.apache.commons.lang3.StringUtils.join;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 
 @Named
 public class ArchiveDao {
-  private JdbcTemplate jdbc;
-  private TableMetadataChecker tableMetadataChecker;
-  private SQLVariants sqlVariants;
+  private final JdbcTemplate jdbc;
+  private final TableMetadataChecker tableMetadataChecker;
+  private final SQLVariants sqlVariants;
 
   @Inject
   public ArchiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
@@ -55,7 +58,7 @@ public class ArchiveDao {
   }
 
   @Transactional
-  public int archiveWorkflows(List<Integer> workflowIds) {
+  public int archiveWorkflows(Collection<Integer> workflowIds) {
     String workflowIdParams = params(workflowIds);
 
     int archivedWorkflows = archiveWorkflowTable(workflowIdParams);
@@ -96,7 +99,7 @@ public class ArchiveDao {
     return join(columnNames, ",");
   }
 
-  private String params(List<Integer> workflowIds) {
+  private String params(Collection<Integer> workflowIds) {
     return "(" + join(workflowIds, ",") + ")";
   }
 

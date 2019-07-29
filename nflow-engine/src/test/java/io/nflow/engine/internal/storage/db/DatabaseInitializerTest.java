@@ -27,22 +27,20 @@ public class DatabaseInitializerTest {
   @Inject
   DataSource ds;
 
-  DatabaseInitializer initializer;
-
   @Test
   public void databaseCreationSkipWorks() {
-    initializer = new DatabaseInitializer("a2", ds, environmentCreateOnStartup("false"));
+    new DatabaseInitializer("a2", ds, environmentCreateOnStartup("false"), ";");
   }
 
   @Test
   public void databaseCreationDoesNotThrowExceptionWhenDatabaseIsAlreadyCreated() {
-    initializer = new DatabaseInitializer("fails", ds, environmentCreateOnStartup("true"));
+    new DatabaseInitializer("fails", ds, environmentCreateOnStartup("true"), ";");
   }
 
   @Test
   public void unsupportedDatabaseTypeIdentified() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new DatabaseInitializer("a2", ds, environmentCreateOnStartup("true")));
+        () -> new DatabaseInitializer("a2", ds, environmentCreateOnStartup("true"), ";"));
     assertThat(thrown.getMessage(), containsString("No ddl script found"));
   }
 

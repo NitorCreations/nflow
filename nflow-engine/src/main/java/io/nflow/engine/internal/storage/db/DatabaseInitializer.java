@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.storage.db;
 
-import static io.nflow.engine.config.db.OracleDatabaseConfiguration.DB_TYPE_ORACLE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
@@ -15,18 +14,16 @@ import org.springframework.jdbc.datasource.init.ScriptStatementFailedException;
 
 public class DatabaseInitializer {
   private static final Logger logger = getLogger(DatabaseInitializer.class);
-  private final String dbType;
 
-  public DatabaseInitializer(String dbType, DataSource ds, Environment env) {
-    this.dbType = dbType;
+  public DatabaseInitializer(String dbType, DataSource ds, Environment env, String scriptSeparator) {
     if (!env.getRequiredProperty("nflow.db.create_on_startup", Boolean.class)) {
       return;
     }
-
-    populate(createPopulator(resolveScript()), ds);
+    populate(dbType, scriptSeparator, ds);
   }
 
-  private void populate(ResourceDatabasePopulator populator, DataSource ds) {
+  private void populate(String dbType, String scriptSeparator, DataSource ds) {
+    ResourceDatabasePopulator populator = createPopulator(dbType, scriptSeparator);
     try {
       execute(populator, ds);
       logger.info("Database created.");
@@ -38,17 +35,18 @@ public class DatabaseInitializer {
     }
   }
 
-  private ResourceDatabasePopulator createPopulator(ClassPathResource script) {
+  private ResourceDatabasePopulator createPopulator(String dbType, String scriptSeparator) {
+    ClassPathResource script = resolveScript(dbType);
     logger.info("Creating database populator using script '{}'", script.getPath());
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-    populator.setSeparator(DB_TYPE_ORACLE.equals(dbType) ? "/" : ";");
+    populator.setSeparator(scriptSeparator);
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
     populator.addScript(script);
     return populator;
   }
 
-  private ClassPathResource resolveScript() {
+  private ClassPathResource resolveScript(String dbType) {
     ClassPathResource script = new ClassPathResource("scripts/db/" + dbType + ".create.ddl.sql");
     if (!script.exists()) {
       throw new IllegalArgumentException("No ddl script found: " + script);

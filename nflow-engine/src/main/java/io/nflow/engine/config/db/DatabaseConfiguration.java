@@ -159,7 +159,7 @@ public abstract class DatabaseConfiguration {
   @Bean(name = NFLOW_DATABASE_INITIALIZER)
   @NFlow
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
-    return new DatabaseInitializer(dbType, dataSource, env);
+    return new DatabaseInitializer(dbType, dataSource, env, ";");
   }
 
   /**

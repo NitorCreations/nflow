@@ -168,6 +168,7 @@
     <!-- 0.9.11 not used because https://trello.com/c/ZEcAoiSq/406-remove-05-mb-of-exceptions-farted-out-when-starting-nflow-jetty -->
     <reflections.version>0.9.11</reflections.version>
     <slf4j.version>1.7.29</slf4j.version>
+    <spotbugs.version>3.1.12</spotbugs.version>
     <spotbugs-annotations.version>3.1.12</spotbugs-annotations.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>3.1.12.1</spotbugs-maven-plugin.version>
@@ -290,6 +291,13 @@
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
           <version>${spotbugs-maven-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>com.github.spotbugs</groupId>
+              <artifactId>spotbugs</artifactId>
+              <version>${spotbugs.version}</version>
+            </dependency>
+          </dependencies>
           <configuration>
             <xmlOutput>true</xmlOutput>
             <effort>Max</effort>

@@ -1,6 +1,8 @@
 package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.MARIADB;
+import static java.lang.Integer.parseInt;
+import static org.apache.commons.lang3.StringUtils.split;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.sql.Connection;
@@ -38,7 +40,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the nFlow database initializer.
+   * Creates the nFlow database initializer. Selects correct database creation script based on database version.
    * @param nflowDataSource The nFlow datasource.
    * @param env The Spring environment.
    * @return The database initializer.
@@ -47,16 +49,24 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   @Override
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
+    String scriptPrefix = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
       int majorVersion = meta.getDatabaseMajorVersion();
       int minorVersion = meta.getDatabaseMinorVersion();
+      if (databaseProductVersion.startsWith("5.5.5-")) {
+        databaseProductVersion = databaseProductVersion.substring(6);
+      }
+      String[] versions = split(databaseProductVersion, ".-");
+      if (parseInt(versions[0]) <= 5 && parseInt(versions[1]) <= 5) {
+        scriptPrefix += ".legacy";
+      }
       logger.info("MariaDB {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to obtain mariadb version", e);
+      throw new RuntimeException("Failed to obtain MariaDB version", e);
     }
-    return new DatabaseInitializer("mysql", nflowDataSource, env);
+    return new DatabaseInitializer(scriptPrefix, nflowDataSource, env, ";");
   }
 
   /**

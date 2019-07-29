@@ -444,8 +444,8 @@ public class WorkflowInstanceDao {
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then ")
-        .append("case when " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp")
-            + " then next_activation else current_timestamp end else next_activation end), ")
+        .append("case when ").append(sqlVariants.dateLtEqDiff("next_activation", "current_timestamp"))
+        .append(" then next_activation else current_timestamp end else next_activation end), ")
         .append("external_next_activation = current_timestamp where ").append(executorInfo.getExecutorGroupCondition())
         .append(" and id = ? and next_activation is not null");
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);

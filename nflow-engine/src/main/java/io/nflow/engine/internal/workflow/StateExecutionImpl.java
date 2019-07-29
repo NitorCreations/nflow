@@ -168,10 +168,6 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return isRetryCountExceeded;
   }
 
-  public void setRetryCountExceeded() {
-    isRetryCountExceeded = true;
-  }
-
   @Override
   public void addChildWorkflows(WorkflowInstance... childWorkflows) {
     Assert.notNull(childWorkflows, "childWorkflows can not be null");
@@ -285,7 +281,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition<?> definition) {
     if (getRetries() >= definition.getSettings().maxRetries) {
       setRetry(false);
-      setRetryCountExceeded();
+      isRetryCountExceeded = true;
       String currentStateName = getCurrentStateName();
       WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
       WorkflowState currentState = definition.getState(currentStateName);
