@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -65,10 +65,6 @@ public class NflowEngineTest {
       assertEquals("dummy", instance1.type);
       assertNotNull(instance1.nextActivation);
 
-      while (!nflowEngine.isRunning()) {
-        Thread.sleep(100);
-      }
-
       while (getInstance(nflowEngine, 1).nextActivation != null) {
         Thread.sleep(100);
       }
@@ -80,11 +76,11 @@ public class NflowEngineTest {
   }
 
   private WorkflowInstance getInstance(NflowEngine nflowEngine, int id) {
-    Set<WorkflowInstanceInclude> includes = new LinkedHashSet<>(asList(WorkflowInstanceInclude.values()));
-    return nflowEngine.getWorkflowInstanceService().getWorkflowInstance(id, includes, 100l);
+    Set<WorkflowInstanceInclude> includes = EnumSet.allOf(WorkflowInstanceInclude.class);
+    return nflowEngine.getWorkflowInstanceService().getWorkflowInstance(id, includes, 100L);
   }
 
-  public static DataSource dataSource() {
+  static DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
     dataSource.setDriverClassName("org.h2.Driver");
     dataSource.setUrl("jdbc:h2:mem:enginetest;DB_CLOSE_DELAY=-1");
@@ -94,7 +90,7 @@ public class NflowEngineTest {
     return dataSource;
   }
 
-  public static void createTables(DataSource dataSource) {
+  static void createTables(DataSource dataSource) {
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
