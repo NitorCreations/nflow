@@ -54,7 +54,7 @@ public class NflowEngineTest {
     Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = asList(new DummyTestWorkflow());
     try (NflowEngine nflowEngine = new NflowEngine(dataSource(), new H2DatabaseConfiguration.H2SQLVariants(),
         workflowDefinitions)) {
-      WorkflowInstance newInstance = new WorkflowInstance.Builder().setType("dummy").setNextActivation(DateTime.now()).build();
+      WorkflowInstance newInstance = new WorkflowInstance.Builder().setType("dummy").setNextActivation(DateTime.now().plusMillis(200)).build();
 
       List<WorkflowExecutor> executors = nflowEngine.getWorkflowExecutorService().getWorkflowExecutors();
       assertEquals(1, executors.size());
