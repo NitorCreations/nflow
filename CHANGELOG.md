@@ -7,6 +7,7 @@
 - Remove deprecated `AbstractWorkflowExecutorListener`, use `WorkflowExecutorListener` instead
 - Remove deprecated `WorkflowInstance.setStarted`, use `WorkflowInstance.setStartedIfNotSet` instead
 - Add MariaDB support
+- Add Kotlin example using nFlow with Spring Boot, and integrated nFlow Explorer 
 
 **Details**
 - `nflow-engine`
