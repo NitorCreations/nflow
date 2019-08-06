@@ -13,6 +13,16 @@
   - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
   - Add `disableMariaDbDriver` to default MySQL JDBC URL so that in case there are both MySQL and MariaDB JDBC drivers in the classpath then MariaDB will not steal the MySQL URL.
   - Add support for `nflow.db.mariadb` profile.
+  - Dependency updates:
+    - jackson-databind 2.9.9.2
+    - mysql-connector-java 8.0.17
+    - mssql-jdbc 7.4.0.jre8
+    - junit5 5.5.1
+- `nflow-explorer`
+  - Dependency updates
+    - nodejs 10.16.1
+    - npm 6.10.2
+    - lodash 4.7.15
 
 ## 5.7.0 (2019-06-06)
 
