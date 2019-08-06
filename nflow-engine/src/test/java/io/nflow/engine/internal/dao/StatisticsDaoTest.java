@@ -3,6 +3,7 @@ package io.nflow.engine.internal.dao;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
@@ -28,9 +29,10 @@ public class StatisticsDaoTest extends BaseDaoTest {
   StatisticsDao statisticsDao;
 
   @BeforeEach
-  public void setup() {
+  public void setup() throws InterruptedException {
     createInstance();
     createInstance();
+    sleep(200);
   }
 
   @Test
@@ -44,8 +46,8 @@ public class StatisticsDaoTest extends BaseDaoTest {
     QueueStatistics queued = stats.queuedStatistics;
     assertThat(queued.count, is(2));
     assertThat(queued.maxAgeMillis, greaterThanOrEqualTo(queued.minAgeMillis));
-    assertThat(queued.maxAgeMillis, greaterThanOrEqualTo(0l));
-    assertThat(queued.minAgeMillis, greaterThanOrEqualTo(0l));
+    assertThat(queued.maxAgeMillis, greaterThanOrEqualTo(0L));
+    assertThat(queued.minAgeMillis, greaterThanOrEqualTo(0L));
   }
 
   private int createInstance() {

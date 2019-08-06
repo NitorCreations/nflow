@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "EUPL-1.1",
   "dependencies": {
-    "lodash": "4.17.14"
+    "lodash": "4.17.15"
   },
   "repository": {
     "type": "git",
@@ -46,7 +46,7 @@
     "karma-phantomjs-launcher": "1.0.4",
     "karma-sinon": "1.0.5",
     "karma-spec-reporter": "0.0.32",
-    "load-grunt-tasks": "5.0.0",
+    "load-grunt-tasks": "5.1.0",
     "moment": "2.24.0",
     "phantomjs-prebuilt": "2.1.16",
     "protractor": "6.0.0",
