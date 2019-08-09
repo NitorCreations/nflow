@@ -8,21 +8,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import io.nflow.engine.internal.config.NFlow;
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import io.nflow.rest.config.DateTimeParamConverterProvider;
+import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.config.RestConfiguration;
-import io.nflow.rest.v1.ArchiveResource;
-import io.nflow.rest.v1.StatisticsResource;
-import io.nflow.rest.v1.WorkflowDefinitionResource;
-import io.nflow.rest.v1.WorkflowExecutorResource;
-import io.nflow.rest.v1.WorkflowInstanceResource;
+import io.nflow.rest.v1.jaxrs.ArchiveResource;
+import io.nflow.rest.v1.jaxrs.StatisticsResource;
+import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
+import io.nflow.rest.v1.jaxrs.WorkflowExecutorResource;
+import io.nflow.rest.v1.jaxrs.WorkflowInstanceResource;
 
 @SpringBootApplication
 @Import(RestConfiguration.class)
@@ -37,12 +36,6 @@ public class SpringBootFullStackApplication {
   @Bean
   public ExampleWorkflow exampleWorkflow() {
     return new ExampleWorkflow();
-  }
-
-  @Bean
-  @Primary
-  public ObjectMapper springWebObjectMapper(@NFlow ObjectMapper nflowObjectMapper) {
-    return nflowObjectMapper;
   }
 
   @Bean
