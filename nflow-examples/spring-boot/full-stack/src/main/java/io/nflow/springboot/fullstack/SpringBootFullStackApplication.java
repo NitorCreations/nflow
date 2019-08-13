@@ -1,6 +1,7 @@
 package io.nflow.springboot.fullstack;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -9,14 +10,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import io.nflow.engine.config.NFlow;
+import io.nflow.engine.service.WorkflowDefinitionSpringBeanScanner;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.config.RestConfiguration;
+import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.v1.jaxrs.ArchiveResource;
 import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
@@ -32,6 +30,11 @@ public class SpringBootFullStackApplication {
 
   @Inject
   private WorkflowInstanceFactory workflowInstanceFactory;
+
+  // without this, createExampleWorkflowInstance is called before workflow definitions are registered
+  @SuppressWarnings("unused")
+  @Inject
+  private WorkflowDefinitionSpringBeanScanner workflowDefinitionScanner;
 
   @Bean
   public ExampleWorkflow exampleWorkflow() {
@@ -58,10 +61,10 @@ public class SpringBootFullStackApplication {
   @PostConstruct
   public void createExampleWorkflowInstance() {
     workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
-            .setType(ExampleWorkflow.TYPE)
-            .setExternalId("example")
-            .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
-            .build());
+        .setType(ExampleWorkflow.TYPE)
+        .setExternalId("example")
+        .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
+        .build());
   }
 
   public static void main(String[] args) {
