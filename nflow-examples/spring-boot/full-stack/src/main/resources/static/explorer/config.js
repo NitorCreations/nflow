@@ -3,7 +3,7 @@ var Config = function () {
     {
       id: 'Full stack example',
       title: 'Full stack example API',
-      apiUrl: '/rest/nflow'
+      apiUrl: '/rest'
     }
   ];
 
