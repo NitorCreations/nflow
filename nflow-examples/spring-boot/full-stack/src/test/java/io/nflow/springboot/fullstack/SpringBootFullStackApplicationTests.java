@@ -11,7 +11,6 @@ public class SpringBootFullStackApplicationTests {
 
   @Test
   public void contextLoads() {
-    // just let SpringRunner start the context
   }
 
 }
