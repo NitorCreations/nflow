@@ -11,6 +11,7 @@ public class SpringBootBareMinimumApplicationTests {
 
   @Test
   public void contextLoads() {
+    // just let SpringRunner load the context
   }
 
 }
