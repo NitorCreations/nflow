@@ -1,18 +1,11 @@
-buildscript {
-  ext {
-    springBootVersion = '1.5.4.RELEASE'
-  }
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-  }
+plugins {
+  id "com.github.ben-manes.versions" version "0.22.0"
+  id 'org.springframework.boot' version '2.1.7.RELEASE'
+  id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
@@ -23,7 +16,7 @@ repositories {
 
 dependencies {
   compile('org.springframework.boot:spring-boot-starter-jdbc')
-  compile("io.nflow:nflow-engine:4.2.0")
+  compile("io.nflow:nflow-engine:5.7.0")
   runtime('com.h2database:h2')
   testCompile('org.springframework.boot:spring-boot-starter-test')
 }
