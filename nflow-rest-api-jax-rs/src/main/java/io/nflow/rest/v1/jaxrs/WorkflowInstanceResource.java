@@ -28,7 +28,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import io.nflow.rest.v1.msg.*;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.SetSignalRequest;
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.WakeupRequest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
