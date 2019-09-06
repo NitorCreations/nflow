@@ -4,6 +4,7 @@ import static io.nflow.engine.config.Profiles.JMX;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static io.nflow.tests.demo.SpringApplicationContext.applicationContext;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.ForeverWaitingWorkflow.FOREVER_WAITING_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.SlowWorkflow.SLOW_WORKFLOW_TYPE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -12,6 +13,7 @@ import static org.joda.time.DateTime.now;
 import java.util.EnumSet;
 import java.util.Optional;
 
+import io.nflow.tests.demo.workflow.ForeverWaitingWorkflow;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -71,6 +73,8 @@ public class DemoServer {
         .putStateVariable(BulkWorkflow.VAR_CONCURRENCY, 2) //
         .putStateVariable(BulkWorkflow.VAR_CHILD_DATA, asList(1, 2, 3, 4, 5)) //
         .build();
+    workflowInstanceService.insertWorkflowInstance(instance);
+    instance = new WorkflowInstance.Builder().setType(FOREVER_WAITING_WORKFLOW_TYPE).build();
     workflowInstanceService.insertWorkflowInstance(instance);
   }
 }

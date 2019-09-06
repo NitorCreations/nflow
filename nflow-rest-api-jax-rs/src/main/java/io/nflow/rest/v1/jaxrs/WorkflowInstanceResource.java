@@ -28,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import io.nflow.rest.v1.msg.*;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -41,11 +42,6 @@ import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.ResourceBase;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.SetSignalRequest;
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -145,6 +141,17 @@ public class WorkflowInstanceResource extends ResourceBase {
       @Valid @ApiParam("New signal value") SetSignalRequest req) {
     boolean updated = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
     return (updated ? ok("Signal was set successfully") : ok("Signal was not set")).build();
+  }
+
+  @PUT
+  @Path("/{id}/wakeup")
+  @ApiOperation(value = "Wake up sleeping workflow instance.")
+  @ApiResponses({ @ApiResponse(code = 204, message = "When workflow was woken up"),
+          @ApiResponse(code = 409, message = "If workflow was was not woken up")})
+  public Response wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+                            @Valid @ApiParam("Allowed states") WakeupRequest req) {
+    boolean updated = workflowInstances.wakeupWorkflowInstance(id, req.expectedStates);
+    return (updated ? noContent() : status(CONFLICT)).build();
   }
 
 }

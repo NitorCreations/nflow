@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import io.nflow.rest.v1.msg.*;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -23,15 +24,6 @@ import org.springframework.test.context.ContextConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-import io.nflow.rest.v1.msg.Action;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.SetSignalRequest;
-import io.nflow.rest.v1.msg.StatisticsResponse;
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -77,6 +69,12 @@ public abstract class AbstractNflowTest {
   protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
     return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables,childWorkflows")
         .get(ListWorkflowInstanceResponse.class);
+  }
+
+  protected String wakeup(int instanceId, List<String> expectedStates) {
+    WakeupRequest request = new WakeupRequest();
+    request.expectedStates = expectedStates;
+    return getInstanceResource(instanceId).path("wakeup").put(request, String.class);
   }
 
   protected String setSignal(int instanceId, int signal, String reason) {
