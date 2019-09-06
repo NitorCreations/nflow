@@ -34,6 +34,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WakeupRequest;
+import io.nflow.rest.v1.msg.WakeupResponse;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -151,12 +152,12 @@ public class WorkflowInstanceResource extends ResourceBase {
   @PUT
   @Path("/{id}/wakeup")
   @ApiOperation(value = "Wake up sleeping workflow instance.")
-  @ApiResponses({ @ApiResponse(code = 204, message = "When workflow was woken up"),
-          @ApiResponse(code = 409, message = "If workflow was was not woken up")})
-  public Response wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+  @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted")})
+  public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
                             @Valid @ApiParam("Allowed states") WakeupRequest req) {
-    boolean updated = workflowInstances.wakeupWorkflowInstance(id, req.expectedStates);
-    return (updated ? noContent() : status(CONFLICT)).build();
+    WakeupResponse response = new WakeupResponse();
+    response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, req.expectedStates);
+    return response;
   }
 
 }

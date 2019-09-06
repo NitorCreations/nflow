@@ -5,12 +5,9 @@ import io.nflow.engine.model.ModelObject;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.List;
-
-@ApiModel(description = "Request to wake up a sleeping workflow instance matching the given id if it is in one of the expected states.")
+@ApiModel(description = "Response to wake up request.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
-public class WakeupRequest extends ModelObject {
-
+public class WakeupResponse extends ModelObject {
     @ApiModelProperty("List of expected states. Can be empty, meaning any state.")
-    public List<String> expectedStates;
+    public boolean wakeupSuccess;
 }

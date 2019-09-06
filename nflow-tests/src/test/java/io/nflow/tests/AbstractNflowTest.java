@@ -71,10 +71,10 @@ public abstract class AbstractNflowTest {
         .get(ListWorkflowInstanceResponse.class);
   }
 
-  protected String wakeup(int instanceId, List<String> expectedStates) {
+  protected WakeupResponse wakeup(int instanceId, List<String> expectedStates) {
     WakeupRequest request = new WakeupRequest();
     request.expectedStates = expectedStates;
-    return getInstanceResource(instanceId).path("wakeup").put(request, String.class);
+    return getInstanceResource(instanceId).path("wakeup").put(request, WakeupResponse.class);
   }
 
   protected String setSignal(int instanceId, int signal, String reason) {

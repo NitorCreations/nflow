@@ -3,6 +3,7 @@ package io.nflow.tests;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.WakeupResponse;
 import io.nflow.tests.demo.workflow.ForeverWaitingWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
@@ -62,25 +63,24 @@ public class WakeupTest extends AbstractNflowTest {
 
     @Test
     @Order(3)
-    public void wakeupWorkflowWithWrongExpectedStateReturns409() {
-        ClientErrorException thrown = assertThrows(ClientErrorException.class,
-                () -> wakeup(createdWorkflow.id, asList("xxx")));
-        assertEquals(409, thrown.getResponse().getStatus());
-
-        assertEquals(1, getWorkflowInstance(createdWorkflow.id).actions.size());
+    public void wakeupWorkflowWithWrongExpectedStateReturnsFalse() {
+        WakeupResponse response = wakeup(createdWorkflow.id, asList("xxx"));
+        assertEquals(false, response.wakeupSuccess);
     }
 
     @Test
     @Order(4)
-    public void wakeupWorkflowWithRightExpectedStateReturns204() throws InterruptedException {
-        wakeup(createdWorkflow.id, asList("waiting", "xxx"));
+    public void wakeupWorkflowWithRightExpectedStateReturnsTrue() throws InterruptedException {
+        WakeupResponse response = wakeup(createdWorkflow.id, asList("waiting", "xxx"));
+        assertEquals(true, response.wakeupSuccess);
         waitUntilActionCount(createdWorkflow.id, 2, 10 * 1000);
     }
 
     @Test
     @Order(5)
     public void wakeupAgain() throws InterruptedException {
-        wakeup(createdWorkflow.id, asList("waiting"));
+        WakeupResponse response = wakeup(createdWorkflow.id, asList("waiting"));
+        assertEquals(true, response.wakeupSuccess);
         waitUntilActionCount(createdWorkflow.id, 3, 10 * 1000);
     }
 
