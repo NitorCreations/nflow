@@ -6,13 +6,14 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.ForeverWaitingWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.ClientErrorException;
 import java.io.IOException;
-import java.time.Duration;
-import java.util.Arrays;
 
 import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofSeconds;
