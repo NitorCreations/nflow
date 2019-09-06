@@ -8,6 +8,7 @@
 - Remove deprecated `WorkflowInstance.setStarted`, use `WorkflowInstance.setStartedIfNotSet` instead
 - Add MariaDB support
 - Add Kotlin example using nFlow with Spring Boot, and integrated nFlow Explorer
+- Expose wakeup via REST-API
 
 **Details**
 - `nflow-engine`
@@ -32,6 +33,8 @@
     - Spring Boot 2.1.7.RELEASE
     - nFlow 5.7.0
     - Graddle 5.5.1
+- New REST-API endpoint to wake up workflow instance sleeping in specified states
+  PUT /nflow/api/v1/workflow-instance/5/wakeup                        
 
 ## 5.7.0 (2019-06-06)
 
