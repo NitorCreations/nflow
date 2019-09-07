@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class WakeupResponse extends ModelObject {
 
-  @ApiModelProperty("List of expected states. Can be empty, meaning any state.")
+  @ApiModelProperty("True if the instance was woken up, false otherwise.")
     public boolean wakeupSuccess;
 
 }

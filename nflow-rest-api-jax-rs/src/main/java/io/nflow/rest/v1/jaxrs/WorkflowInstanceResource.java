@@ -28,13 +28,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.SetSignalRequest;
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.WakeupRequest;
-import io.nflow.rest.v1.msg.WakeupResponse;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +41,13 @@ import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.ResourceBase;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.SetSignalRequest;
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.WakeupRequest;
+import io.nflow.rest.v1.msg.WakeupResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -151,10 +151,10 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @PUT
   @Path("/{id}/wakeup")
-  @ApiOperation(value = "Wake up sleeping workflow instance.")
+  @ApiOperation(value = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
   @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted")})
   public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
-                            @Valid @ApiParam("Allowed states") WakeupRequest req) {
+      @Valid @ApiParam("Expected states") WakeupRequest req) {
     WakeupResponse response = new WakeupResponse();
     response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, req.expectedStates);
     return response;
