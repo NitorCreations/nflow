@@ -13,7 +13,6 @@ import static org.joda.time.DateTime.now;
 import java.util.EnumSet;
 import java.util.Optional;
 
-import io.nflow.tests.demo.workflow.ForeverWaitingWorkflow;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
