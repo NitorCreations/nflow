@@ -34,7 +34,7 @@
     - nFlow 5.7.0
     - Graddle 5.5.1
 - New REST-API endpoint to wake up workflow instance sleeping in specified states
-  PUT /nflow/api/v1/workflow-instance/5/wakeup                        
+  PUT /nflow/api/v1/workflow-instance/5/wakeup
 
 ## 5.7.0 (2019-06-06)
 
