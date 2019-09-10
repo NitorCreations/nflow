@@ -2,12 +2,12 @@ package io.nflow.rest.v1.springweb;
 
 import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -137,7 +137,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathVariable("id") int id,
       @RequestBody @Valid @ApiParam("Expected states") WakeupRequest req) {
     WakeupResponse response = new WakeupResponse();
-    List<String> expectedStates = req.expectedStates != null ? req.expectedStates : emptyList();
+    List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
     response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
     return response;
   }
