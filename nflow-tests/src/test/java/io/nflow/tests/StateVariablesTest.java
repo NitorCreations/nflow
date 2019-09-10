@@ -67,7 +67,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   @Test
   @Order(2)
-  public void checkStateVariables() throws InterruptedException {
+  public void checkStateVariables() {
     ListWorkflowInstanceResponse listResponse = getWorkflowInstanceWithTimeout(createResponse.id, "done", ofSeconds(5));
 
     assertEquals(3, listResponse.stateVariables.size());

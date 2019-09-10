@@ -14,11 +14,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -31,10 +30,13 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.WakeupRequest;
+import io.nflow.rest.v1.msg.WakeupResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
 @ExtendWith({SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class})
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
@@ -79,6 +81,12 @@ public abstract class AbstractNflowTest {
         .get(ListWorkflowInstanceResponse.class);
   }
 
+  protected WakeupResponse wakeup(int instanceId, List<String> expectedStates) {
+    WakeupRequest request = new WakeupRequest();
+    request.expectedStates = expectedStates;
+    return getInstanceResource(instanceId).path("wakeup").put(request, WakeupResponse.class);
+  }
+
   protected String setSignal(int instanceId, int signal, String reason) {
     SetSignalRequest request = new SetSignalRequest();
     request.signal = signal;
@@ -120,7 +128,7 @@ public abstract class AbstractNflowTest {
     return wf;
   }
 
-  protected ListWorkflowInstanceResponse getWorkflowInstanceWithTimeout(int id, String expectedState, Duration timeout) throws InterruptedException {
+  protected ListWorkflowInstanceResponse getWorkflowInstanceWithTimeout(int id, String expectedState, Duration timeout) {
     return assertTimeoutPreemptively(timeout,
       () -> {
         ListWorkflowInstanceResponse resp;

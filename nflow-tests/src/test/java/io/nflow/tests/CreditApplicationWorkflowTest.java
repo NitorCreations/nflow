@@ -1,8 +1,8 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
-import static java.util.Arrays.asList;
 import static java.time.Duration.ofSeconds;
+import static java.util.Arrays.asList;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -11,22 +11,21 @@ import static org.joda.time.DateTime.now;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import io.nflow.tests.extension.NflowServerConfig;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -56,7 +55,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(2)
-  public void checkAcceptCreditApplicationReached() throws InterruptedException {
+  public void checkAcceptCreditApplicationReached() {
     getWorkflowInstanceWithTimeout(resp.id, "acceptCreditApplication", ofSeconds(10));
   }
 
@@ -71,7 +70,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
-  public void checkErrorStateReached() throws InterruptedException {
+  public void checkErrorStateReached() {
     getWorkflowInstanceWithTimeout(resp.id, "error", ofSeconds(5));
   }
 

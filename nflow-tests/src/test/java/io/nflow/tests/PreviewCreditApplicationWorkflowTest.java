@@ -16,9 +16,12 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 import org.joda.time.DateTime;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,11 +31,8 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 
 @ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -64,7 +64,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(2)
-  public void checkAcceptCreditApplicationReached() throws InterruptedException {
+  public void checkAcceptCreditApplicationReached() {
     ListWorkflowInstanceResponse response = getWorkflowInstanceWithTimeout(resp.id, "acceptCreditApplication", ofSeconds(5));
     wfModifiedAtAcceptCreditApplication = response.modified;
     assertTrue(response.stateVariables.containsKey("info"));
@@ -83,7 +83,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
-  public void checkDoneStateReached() throws InterruptedException {
+  public void checkDoneStateReached() {
     ListWorkflowInstanceResponse response = getWorkflowInstanceWithTimeout(resp.id, "done", ofSeconds(5));
     assertTrue(response.modified.isAfter(wfModifiedAtAcceptCreditApplication), "nflow_workflow.modified should be updated");
   }

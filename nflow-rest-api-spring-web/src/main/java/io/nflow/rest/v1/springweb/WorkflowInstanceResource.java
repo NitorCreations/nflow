@@ -7,6 +7,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -39,6 +40,8 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.WakeupRequest;
+import io.nflow.rest.v1.msg.WakeupResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -126,6 +129,17 @@ public class WorkflowInstanceResource extends ResourceBase {
       @RequestBody @Valid @ApiParam("New signal value") SetSignalRequest req) {
     boolean updated = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
     return (updated ? ResponseEntity.ok("Signal was set successfully") : ResponseEntity.ok("Signal was not set"));
+  }
+
+  @PutMapping(path = "/{id}/wakeup", consumes = APPLICATION_JSON_VALUE)
+  @ApiOperation(value = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
+  @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted")})
+  public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathVariable("id") int id,
+      @RequestBody @Valid @ApiParam("Expected states") WakeupRequest req) {
+    WakeupResponse response = new WakeupResponse();
+    List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
+    response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
+    return response;
   }
 
 }

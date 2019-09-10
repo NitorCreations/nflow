@@ -4,9 +4,9 @@ import static io.nflow.engine.workflow.definition.BulkWorkflow.BULK_WORKFLOW_TYP
 import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static java.time.Duration.ofSeconds;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
-import static java.time.Duration.ofSeconds;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -72,7 +72,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(2)
-  public void t02_waitForBulkToFinish() throws InterruptedException {
+  public void t02_waitForBulkToFinish() {
     waitForBulkToFinish();
   }
 
@@ -110,11 +110,11 @@ public class BulkWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(5)
-  public void t13_waitForBulkToFinish() throws InterruptedException {
+  public void t13_waitForBulkToFinish() {
     waitForBulkToFinish();
   }
 
-  private void waitForBulkToFinish() throws InterruptedException {
+  private void waitForBulkToFinish() {
     ListWorkflowInstanceResponse instance = getWorkflowInstanceWithTimeout(workflowId, done.name(), ofSeconds(30));
     assertThat(instance.childWorkflows.size(), equalTo(1));
     List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
