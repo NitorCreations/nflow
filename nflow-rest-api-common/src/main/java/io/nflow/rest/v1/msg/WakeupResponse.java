@@ -10,6 +10,6 @@ import io.swagger.annotations.ApiModelProperty;
 public class WakeupResponse extends ModelObject {
 
   @ApiModelProperty("True if the instance was woken up, false otherwise.")
-    public boolean wakeupSuccess;
+  public boolean wakeupSuccess;
 
 }
