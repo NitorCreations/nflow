@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.msg;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -12,6 +13,6 @@ import io.swagger.annotations.ApiModelProperty;
 public class WakeupRequest extends ModelObject {
 
   @ApiModelProperty("List of expected states. Can be empty, meaning any state.")
-  public List<String> expectedStates;
+  public List<String> expectedStates = new ArrayList<>();
 
 }

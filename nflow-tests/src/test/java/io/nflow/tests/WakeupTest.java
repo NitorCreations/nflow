@@ -81,6 +81,14 @@ public class WakeupTest extends AbstractNflowTest {
     waitUntilActionCount(createdWorkflow.id, 3, 10 * 1000);
   }
 
+  @Test
+  @Order(6)
+  public void wakeupAgainInAnyState() throws InterruptedException {
+    WakeupResponse response = wakeup(createdWorkflow.id, null);
+    assertEquals(true, response.wakeupSuccess);
+    waitUntilActionCount(createdWorkflow.id, 4, 10 * 1000);
+  }
+
   private void waitUntilActionCount(int workflowId, int expectedActionCount, long maxWaitTime) throws InterruptedException {
     long start = currentTimeMillis();
     while ((currentTimeMillis() - start) < maxWaitTime) {
