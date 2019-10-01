@@ -16,23 +16,32 @@
   - Add `disableMariaDbDriver` to default MySQL JDBC URL so that in case there are both MySQL and MariaDB JDBC drivers in the classpath then MariaDB will not steal the MySQL URL.
   - Add support for `nflow.db.mariadb` profile.
   - Dependency updates:
-    - jackson-databind 2.9.9.2
+    - reactor.netty 0.8.11.RELEASE
+    - jackson 2.9.10
     - mysql-connector-java 8.0.17
+    - mariadb jdbc 2.4.4
+    - postgresql jdbc 42.2.8
     - mssql-jdbc 7.4.1.jre8
-    - junit5 5.5.1
+    - junit5 5.5.2
+    - hikaricp 3.4.1
+    - jetty 9.4.20.v20190813
     - apache-cxf 3.3.3
     - slf4j 1.7.28
     - spring 5.1.9
+    - hibernate-validator 6.0.17
+    - joda-time 2.10.4
+    - swagger 1.5.23
 - `nflow-explorer`
   - Dependency updates
-    - nodejs 10.16.1
-    - npm 6.10.2
+    - nodejs 10.16.3
+    - npm 6.11.3
     - lodash 4.7.15
+    - svg-pan-zoom 3.6.1
 - `nflow-examples`
   - Update Spring Boot examples' dependencies
     - Spring Boot 2.1.7.RELEASE
     - nFlow 5.7.0
-    - Graddle 5.5.1
+    - Gradle 5.5.1
 - New REST-API endpoint to wake up workflow instance sleeping in specified states
   PUT /nflow/api/v1/workflow-instance/5/wakeup
 
