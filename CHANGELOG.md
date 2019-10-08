@@ -44,6 +44,7 @@
     - Gradle 5.5.1
 - New REST-API endpoint to wake up workflow instance sleeping in specified states
   PUT /nflow/api/v1/workflow-instance/5/wakeup
+- Improve error logging in WorkflowStateProcessor
 
 ## 5.7.0 (2019-06-06)
 

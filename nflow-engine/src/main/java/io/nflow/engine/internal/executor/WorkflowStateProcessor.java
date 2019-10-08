@@ -8,6 +8,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -228,11 +229,12 @@ class WorkflowStateProcessor implements Runnable {
       try {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
-        logger.error("Failed to save workflow instance new state, retrying after {} seconds", stateSaveRetryDelay, ex);
+        logger.error("Failed to save workflow instance {} new state, retrying after {} seconds",
+                instance.id, stateSaveRetryDelay, ex);
         sleepIgnoreInterrupted(stateSaveRetryDelay);
       }
     } while (internalRetryEnabled);
-    throw new IllegalStateException("Failed to save workflow instance new state");
+    throw new IllegalStateException(format("Failed to save workflow instance %s new state", instance.id));
   }
 
   /**
