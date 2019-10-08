@@ -65,12 +65,12 @@ public class TableMetadataChecker {
   }
 
   static class MetadataExtractor implements ResultSetExtractor<Map<String, ColumnMetadata>> {
-    private final Map<String, String> typeAliases = typeAliases();
+    private final Map<String, String> typeAliases = Map.of("serial", "int4");
 
     @Override
     public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException {
       ResultSetMetaData metadata = rs.getMetaData();
-      Map<String, ColumnMetadata> metadataMap = new LinkedHashMap<>(metadata.getColumnCount(), 1.0f);
+      Map<String, ColumnMetadata> metadataMap = new LinkedHashMap<>(metadata.getColumnCount() * 2);
       for (int col = 1; col <= metadata.getColumnCount(); col++) {
         String columnName = metadata.getColumnName(col);
         String typeName = metadata.getColumnTypeName(col);
@@ -81,18 +81,9 @@ public class TableMetadataChecker {
     }
 
     private String resolveTypeAlias(String type) {
-      String resolvedType = typeAliases.get(type);
-      if (resolvedType != null) {
-        return resolvedType;
-      }
-      return type;
+      return typeAliases.getOrDefault(type, type);
     }
 
-    private Map<String, String> typeAliases() {
-      Map<String, String> map = new LinkedHashMap<>();
-      map.put("serial", "int4");
-      return map;
-    }
   }
 
   private static class ColumnMetadata extends ModelObject {
