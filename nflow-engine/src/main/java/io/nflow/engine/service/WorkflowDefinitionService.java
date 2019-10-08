@@ -1,9 +1,10 @@
 package io.nflow.engine.service;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedMap;
+import static java.util.List.copyOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class WorkflowDefinitionService {
 
   private final Map<String, AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = synchronizedMap(
       new LinkedHashMap<>());
+  private List<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitionValues = emptyList();
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
@@ -56,9 +58,7 @@ public class WorkflowDefinitionService {
    * @return List of workflow definitions.
    */
   public List<AbstractWorkflowDefinition<? extends WorkflowState>> getWorkflowDefinitions() {
-    synchronized (workflowDefinitions) {
-      return new ArrayList<>(workflowDefinitions.values());
-    }
+    return workflowDefinitionValues;
   }
 
   /**
@@ -90,6 +90,9 @@ public class WorkflowDefinitionService {
     }
     if (autoInit && persistWorkflowDefinitions) {
       workflowDefinitionDao.storeWorkflowDefinition(wd);
+    }
+    synchronized (workflowDefinitions) {
+      workflowDefinitionValues = copyOf(workflowDefinitions.values());
     }
     logger.info("Added workflow type: {} ({})", wd.getType(), wd.getClass().getName());
   }
