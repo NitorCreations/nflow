@@ -48,11 +48,17 @@ create table nflow_workflow_action (
   constraint nflow_workflow_action_uniq unique (workflow_id, id)
 );
 
+create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
+
 alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on update no action;
 
+create index nflow_workflow_parent on nflow_workflow(parent_workflow_id, parent_action_id);
+
 alter table nflow_workflow add constraint fk_workflow_root
   foreign key (root_workflow_id) references nflow_workflow (id) on update no action;
+
+create index nflow_workflow_root on nflow_workflow(root_workflow_id);
 
 create table nflow_workflow_state (
   workflow_id int not null,
@@ -62,6 +68,8 @@ create table nflow_workflow_state (
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );
+
+create index nflow_workflow_state_workflow on nflow_workflow_state(workflow_id);
 
 create table nflow_executor (
   id int not null identity(1,1) primary key,
@@ -122,6 +130,14 @@ create table nflow_archive_workflow (
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
+create index nflow_archive_workflow_activation on nflow_archive_workflow(next_activation, modified);
+
+create index nflow_archive_workflow_polling on nflow_archive_workflow(next_activation, status, executor_id, executor_group);
+
+create index nflow_archive_workflow_parent on nflow_archive_workflow(parent_workflow_id, parent_action_id);
+
+create index nflow_archive_workflow_root on nflow_archive_workflow(root_workflow_id);
+
 create table nflow_archive_workflow_action (
   id int not null primary key,
   workflow_id int not null,
@@ -136,6 +152,8 @@ create table nflow_archive_workflow_action (
   constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
 );
 
+create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
+
 create table nflow_archive_workflow_state (
   workflow_id int not null,
   action_id int not null,
@@ -144,3 +162,5 @@ create table nflow_archive_workflow_state (
   primary key (workflow_id, action_id, state_key),
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
 );
+
+create index nflow_archive_workflow_state_workflow on nflow_archive_workflow_state(workflow_id);
