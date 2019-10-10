@@ -25,6 +25,8 @@ create table if not exists nflow_workflow (
 drop index nflow_workflow_activation;
 create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
 
+create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
+
 drop trigger if exists nflow_workflow_insert;
 
 create trigger nflow_workflow_insert before insert on `nflow_workflow`
