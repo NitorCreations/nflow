@@ -168,7 +168,7 @@
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.netty.version>0.8.11.RELEASE</reactor.netty.version>
+    <reactor.netty.version>0.8.12.RELEASE</reactor.netty.version>
     <!-- 0.9.11 not used because https://trello.com/c/ZEcAoiSq/406-remove-05-mb-of-exceptions-farted-out-when-starting-nflow-jetty -->
     <reflections.version>0.9.11</reflections.version>
     <slf4j.version>1.7.28</slf4j.version>
