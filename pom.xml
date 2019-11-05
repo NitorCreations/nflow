@@ -100,7 +100,7 @@
   </modules>
   <properties>
     <jdk.version>1.8</jdk.version>
-    <apache.cxf.version>3.3.3</apache.cxf.version>
+    <apache.cxf.version>3.3.4</apache.cxf.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.9</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
