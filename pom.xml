@@ -127,7 +127,7 @@
     <jodatime.version>2.10.5</jodatime.version>
     <junit4.version>4.12</junit4.version>
     <junit5.version>5.5.2</junit5.version>
-    <mockito-junit-jupiter.version>3.0.0</mockito-junit-jupiter.version>
+    <mockito-junit-jupiter.version>3.1.0</mockito-junit-jupiter.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.2.3</logback-classic.version>
     <mariadb.version>2.4.4</mariadb.version>
@@ -156,7 +156,7 @@
     <maven-source.version>3.1.0</maven-source.version>
     <maven-surefire.version>2.22.2</maven-surefire.version>
     <metrics.version>4.1.1</metrics.version>
-    <mockito.version>3.0.0</mockito.version>
+    <mockito.version>3.1.0</mockito.version>
     <mssql.version>7.4.1.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>8.0.18</mysql.version>
