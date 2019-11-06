@@ -55,7 +55,7 @@ public class NflowNettyConfiguration implements WebFluxConfigurer {
 
   @Bean
   public RouterFunction<ServerResponse> uiIndexRouter(@Value("classpath:/nflow-ui-assets/index.html") final Resource indexHtml) {
-    return route(GET("/nflow/ui"), request -> ok().contentType(MediaType.TEXT_HTML).syncBody(indexHtml));
+    return route(GET("/nflow/ui"), request -> ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml));
   }
 
   @Bean
