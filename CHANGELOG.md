@@ -9,12 +9,16 @@
 - Add MariaDB support
 - Add Kotlin example using nFlow with Spring Boot, and integrated nFlow Explorer
 - Expose wakeup via REST-API
+- Update database indices to match workflow instance polling code
 
 **Details**
 - `nflow-engine`
   - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
   - Add `disableMariaDbDriver` to default MySQL JDBC URL so that in case there are both MySQL and MariaDB JDBC drivers in the classpath then MariaDB will not steal the MySQL URL.
   - Add support for `nflow.db.mariadb` profile.
+  - Update database indices to match current workflow instance polling code.
+  - Create indices for foreign keys in MS SQL database.
+  - Fix create database scripts to work with empty database.
   - Dependency updates:
     - reactor.netty 0.8.11.RELEASE
     - jackson 2.9.10

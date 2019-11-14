@@ -39,6 +39,9 @@ create trigger update_nflow_modified before update on nflow_workflow for each ro
 drop index if exists nflow_workflow_activation;
 create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
 
+drop index if exists nflow_workflow_polling;
+create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
+
 create type action_type as enum ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange');
 create table if not exists nflow_workflow_action (
   id serial primary key,
