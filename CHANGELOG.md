@@ -10,6 +10,7 @@
 - Add Kotlin example using nFlow with Spring Boot, and integrated nFlow Explorer
 - Expose wakeup via REST-API
 - Update database indices to match workflow instance polling code
+- Add new configuration option `nflow.db.disable_batch_updates`
 
 **Details**
 - `nflow-engine`
@@ -19,6 +20,7 @@
   - Update database indices to match current workflow instance polling code.
   - Create indices for foreign keys in MS SQL database.
   - Fix create database scripts to work with empty database.
+  - Add `nflow.db.disable_batch_updates` (default `false`) configuration parameter to make it possible to force use of multiple updates even if batch updates are supported by the database.
   - Dependency updates:
     - reactor.netty 0.8.11.RELEASE
     - jackson 2.9.10

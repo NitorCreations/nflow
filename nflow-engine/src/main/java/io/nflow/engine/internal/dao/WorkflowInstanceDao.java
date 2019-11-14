@@ -98,6 +98,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxResultsDefault;
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
+  private final boolean disableBatchUpdates;
   int instanceStateTextLength;
   int actionStateTextLength;
 
@@ -125,6 +126,10 @@ public class WorkflowInstanceDao {
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
             Long.class);
+    disableBatchUpdates = env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class);
+    if (disableBatchUpdates) {
+      logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
+    }
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
@@ -181,6 +186,10 @@ public class WorkflowInstanceDao {
     }
   }
 
+  private boolean useBatchUpdate() {
+    return !disableBatchUpdates && sqlVariants.useBatchUpdate();
+  }
+
   String insertWorkflowInstanceSql() {
     return "insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
         + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, "
@@ -232,7 +241,7 @@ public class WorkflowInstanceDao {
     if (changedStateVariables.isEmpty()) {
       return;
     }
-    if (sqlVariants.useBatchUpdate()) {
+    if (useBatchUpdate()) {
       insertVariablesWithBatchUpdate(id, actionId, changedStateVariables);
     } else {
       insertVariablesWithMultipleUpdates(id, actionId, changedStateVariables);
@@ -538,7 +547,7 @@ public class WorkflowInstanceDao {
         }
         sort(instances);
         List<Integer> ids = new ArrayList<>(instances.size());
-        if (sqlVariants.useBatchUpdate()) {
+        if (useBatchUpdate()) {
           updateNextWorkflowInstancesWithBatchUpdate(instances, ids);
         } else {
           updateNextWorkflowInstancesWithMultipleUpdates(instances, ids);
