@@ -1,5 +1,6 @@
 -- production tables
 
+if not exists (select 1 from sys.tables where name='nflow_workflow')
 create table nflow_workflow (
   id int not null identity(1,1) primary key,
   status varchar(32) not null,
@@ -23,17 +24,21 @@ create table nflow_workflow (
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
 
+if not exists (select 1 from sys.triggers where name='nflow_workflow_modified_trigger')
+exec dbo.sp_executesql @statement = N'
 create trigger nflow_workflow_modified_trigger on nflow_workflow after update as
 begin
   update nflow_workflow set modified = SYSDATETIMEOFFSET()
   from nflow_workflow wf inner join inserted i on wf.id = i.id
-end;
+end';
 
-drop index nflow_workflow_activation;
+if not exists (select 1 from sys.indexes where name='nflow_workflow_activation')
 create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
 
+if not exists (select 1 from sys.indexes where name='nflow_workflow_polling')
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 
+if not exists (select 1 from sys.tables where name='nflow_workflow_action')
 create table nflow_workflow_action (
   id int not null identity(1,1) primary key,
   workflow_id int not null,
@@ -48,18 +53,24 @@ create table nflow_workflow_action (
   constraint nflow_workflow_action_uniq unique (workflow_id, id)
 );
 
+if not exists (select 1 from sys.indexes where name='nflow_workflow_action_workflow')
 create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
+if not exists (select 1 from sys.foreign_keys where name='fk_workflow_parent')
 alter table nflow_workflow add constraint fk_workflow_parent
   foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on update no action;
 
+if not exists (select 1 from sys.indexes where name='nflow_workflow_parent')
 create index nflow_workflow_parent on nflow_workflow(parent_workflow_id, parent_action_id);
 
+if not exists (select 1 from sys.foreign_keys where name='fk_workflow_root')
 alter table nflow_workflow add constraint fk_workflow_root
   foreign key (root_workflow_id) references nflow_workflow (id) on update no action;
 
+if not exists (select 1 from sys.indexes where name='nflow_workflow_root')
 create index nflow_workflow_root on nflow_workflow(root_workflow_id);
 
+if not exists (select 1 from sys.tables where name='nflow_workflow_state')
 create table nflow_workflow_state (
   workflow_id int not null,
   action_id int not null,
@@ -69,8 +80,10 @@ create table nflow_workflow_state (
   foreign key (workflow_id) references nflow_workflow(id) on delete cascade
 );
 
+if not exists (select 1 from sys.indexes where name='nflow_workflow_state_workflow')
 create index nflow_workflow_state_workflow on nflow_workflow_state(workflow_id);
 
+if not exists (select 1 from sys.tables where name='nflow_executor')
 create table nflow_executor (
   id int not null identity(1,1) primary key,
   host varchar(253) not null,
@@ -82,6 +95,7 @@ create table nflow_executor (
   stopped datetimeoffset(3)
 );
 
+if not exists (select 1 from sys.tables where name='nflow_workflow_definition')
 create table nflow_workflow_definition (
   type varchar(64) not null,
   definition_sha1 varchar(40) not null,
@@ -93,11 +107,13 @@ create table nflow_workflow_definition (
   primary key (type, executor_group)
 );
 
+if not exists (select 1 from sys.triggers where name='nflow_workflow_definition_modified_trigger')
+exec dbo.sp_executesql @statement = N'
 create trigger nflow_workflow_definition_modified_trigger on nflow_workflow_definition after update as
 begin
   update nflow_workflow_definition set modified = SYSDATETIMEOFFSET()
   from nflow_workflow_definition df inner join inserted i on df.type = i.type and df.executor_group = i.executor_group
-end;
+end';
 
 
 -- Archive tables
@@ -107,6 +123,7 @@ end;
 -- - same indexes and constraints as production tables
 -- - remove recursive foreign keys
 
+if not exists (select 1 from sys.tables where name='nflow_archive_workflow')
 create table nflow_archive_workflow (
   id int not null primary key,
   status varchar(32) not null,
@@ -130,14 +147,19 @@ create table nflow_archive_workflow (
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
+if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_activation')
 create index nflow_archive_workflow_activation on nflow_archive_workflow(next_activation, modified);
 
+if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_polling')
 create index nflow_archive_workflow_polling on nflow_archive_workflow(next_activation, status, executor_id, executor_group);
 
+if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_parent')
 create index nflow_archive_workflow_parent on nflow_archive_workflow(parent_workflow_id, parent_action_id);
 
+if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_root')
 create index nflow_archive_workflow_root on nflow_archive_workflow(root_workflow_id);
 
+if not exists (select 1 from sys.tables where name='nflow_archive_workflow_action')
 create table nflow_archive_workflow_action (
   id int not null primary key,
   workflow_id int not null,
@@ -152,8 +174,10 @@ create table nflow_archive_workflow_action (
   constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
 );
 
+if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_action_workflow')
 create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
 
+if not exists (select 1 from sys.tables where name='nflow_archive_workflow_state')
 create table nflow_archive_workflow_state (
   workflow_id int not null,
   action_id int not null,
@@ -163,4 +187,5 @@ create table nflow_archive_workflow_state (
   foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
 );
 
+if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_state_workflow')
 create index nflow_archive_workflow_state_workflow on nflow_archive_workflow_state(workflow_id);

@@ -1,7 +1,10 @@
 alter table nflow_workflow add started timestamp;
 alter table nflow_archive_workflow add started timestamp;
 
-update nflow_workflow w, (select workflow_id, min(execution_start) as started from nflow_workflow_action group by workflow_id) a
-  set w.started = a.started, w.modified = w.modified where w.id = a.workflow_id;
-update nflow_archive_workflow w, (select workflow_id, min(execution_start) as started from nflow_archive_workflow_action group by workflow_id) a
-  set w.started = a.started, w.modified = w.modified where w.id = a.workflow_id;
+update nflow_workflow w set
+  started=(select min(execution_start) from nflow_workflow_action a where a.workflow_id = w.id group by a.workflow_id),
+  modified=w.modified;
+
+update nflow_archive_workflow w set
+  started=(select min(execution_start) from nflow_archive_workflow_action a where a.workflow_id = w.id group by a.workflow_id),
+  modified=w.modified;
