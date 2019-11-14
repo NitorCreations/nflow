@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +58,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
     service.addWorkflowDefinition(workflowDefinition);
 
-    verifyZeroInteractions(workflowDefinitionDao);
+    verifyNoInteractions(workflowDefinitionDao);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 
@@ -68,7 +68,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
     service.addWorkflowDefinition(workflowDefinition);
 
-    verifyZeroInteractions(workflowDefinitionDao);
+    verifyNoInteractions(workflowDefinitionDao);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 
@@ -102,7 +102,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
     service.postProcessWorkflowDefinitions();
 
-    verifyZeroInteractions(workflowDefinitionDao);
+    verifyNoInteractions(workflowDefinitionDao);
     assertThat(service.getWorkflowDefinitions().size(), is(equalTo(1)));
   }
 

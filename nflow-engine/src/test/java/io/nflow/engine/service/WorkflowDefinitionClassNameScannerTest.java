@@ -3,7 +3,7 @@ package io.nflow.engine.service;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -36,7 +36,7 @@ public class WorkflowDefinitionClassNameScannerTest extends BaseNflowTest {
   public void listingResourceIsOptional() throws Exception {
     new WorkflowDefinitionClassNameScanner(workflowDefinitionService, null);
 
-    verifyZeroInteractions(workflowDefinitionService);
+    verifyNoInteractions(workflowDefinitionService);
   }
 
 }

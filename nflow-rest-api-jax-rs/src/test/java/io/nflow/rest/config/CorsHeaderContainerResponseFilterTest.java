@@ -5,7 +5,7 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import javax.ws.rs.container.ContainerRequestContext;
@@ -53,7 +53,7 @@ public class CorsHeaderContainerResponseFilterTest {
     assertEquals(asList(HEADERS), headerMap.get("Access-Control-Allow-Headers"));
     assertEquals(asList("OPTIONS, GET, POST, PUT, DELETE"), headerMap.get("Access-Control-Allow-Methods"));
     assertEquals(asList("true"), headerMap.get("Access-Control-Allow-Credentials"));
-    verifyZeroInteractions(requestContext);
+    verifyNoInteractions(requestContext);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class CorsHeaderContainerResponseFilterTest {
 
     filter.filter(requestContext, responseContext);
 
-    verifyZeroInteractions(requestContext, responseContext);
+    verifyNoInteractions(requestContext, responseContext);
   }
 
 }
