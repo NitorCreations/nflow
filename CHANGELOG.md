@@ -20,21 +20,27 @@
   - Create indices for foreign keys in MS SQL database.
   - Fix create database scripts to work with empty database.
   - Dependency updates:
-    - reactor.netty 0.8.11.RELEASE
-    - jackson 2.9.10
-    - mysql-connector-java 8.0.17
+    - reactor.netty 0.9.1.RELEASE
+    - jackson 2.10.1
+    - mysql-connector-java 8.0.18
     - mariadb jdbc 2.4.4
     - postgresql jdbc 42.2.8
     - mssql-jdbc 7.4.1.jre8
+    - metrics 4.1.1
     - junit5 5.5.2
     - hikaricp 3.4.1
     - jetty 9.4.20.v20190813
-    - apache-cxf 3.3.3
-    - slf4j 1.7.28
-    - spring 5.1.9
-    - hibernate-validator 6.0.17
-    - joda-time 2.10.4
-    - swagger 1.5.23
+    - apache-cxf 3.3.4
+    - slf4j 1.7.29
+    - spring 5.2.1.RELEASE
+    - hibernate-validator 6.1.0.Final
+    - joda-time 2.10.5
+    - swagger 1.5.24
+    - mockito 3.1.0
+    - hamcrest 2.2
+    - h2 1.4.200
+    - javassist 3.26.0-GA
+    - jetty 9.4.21.v20190926
 - `nflow-explorer`
   - Dependency updates
     - nodejs 10.16.3
