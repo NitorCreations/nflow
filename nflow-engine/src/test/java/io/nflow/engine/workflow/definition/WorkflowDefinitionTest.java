@@ -21,7 +21,7 @@ public class WorkflowDefinitionTest {
   @Test
   public void initialStateIsRequired() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-        () -> new WorkflowDefinition<>("withoutInitialState", null, TestDefinition.TestState.error) {
+        () -> new WorkflowDefinition<TestDefinition.TestState>("withoutInitialState", null, TestDefinition.TestState.error) {
         });
     assertThat(thrown.getMessage(), containsString("initialState must not be null"));
   }
@@ -29,7 +29,8 @@ public class WorkflowDefinitionTest {
   @Test
   public void initialStateMustBeStartState() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-        () -> new WorkflowDefinition<>("nonStartInitialState", TestDefinition.TestState.done, TestDefinition.TestState.error) {
+        () -> new WorkflowDefinition<TestDefinition.TestState>("nonStartInitialState", TestDefinition.TestState.done,
+            TestDefinition.TestState.error) {
         });
     assertThat(thrown.getMessage(), containsString("initialState must be a start state"));
   }
@@ -37,7 +38,7 @@ public class WorkflowDefinitionTest {
   @Test
   public void errorStateIsRequired() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-        () -> new WorkflowDefinition<>("withoutErrorState", TestDefinition.TestState.start1, null) {
+        () -> new WorkflowDefinition<TestDefinition.TestState>("withoutErrorState", TestDefinition.TestState.start1, null) {
         });
     assertThat(thrown.getMessage(), containsString("errorState must not be null"));
   }

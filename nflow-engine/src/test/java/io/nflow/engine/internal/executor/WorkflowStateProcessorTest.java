@@ -567,7 +567,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @SuppressWarnings("serial")
   @Test
   public void runWorkflowWithParameters() {
-    Map<String, String> startState = new LinkedHashMap<>() {
+    Map<String, String> startState = new LinkedHashMap<String, String>() {
       {
         put("string", "Str");
         put("int", "42");
@@ -613,7 +613,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   private Matcher<WorkflowInstance> matchesWorkflowInstance(final WorkflowInstanceStatus status, final WorkflowState state,
       final int retries, final Matcher<String> stateTextMatcher, final Matcher<? super DateTime> nextActivationMatcher,
       final Matcher<? super DateTime> startedMatcher) {
-    return new TypeSafeMatcher<>() {
+    return new TypeSafeMatcher<WorkflowInstance>() {
       @Override
       public void describeTo(Description description) {
 
@@ -635,7 +635,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private Matcher<WorkflowInstanceAction> matchesWorkflowInstanceAction(final WorkflowState state,
       final Matcher<String> stateTextMatcher, final int retryNo, final WorkflowActionType type) {
-    return new TypeSafeMatcher<>() {
+    return new TypeSafeMatcher<WorkflowInstanceAction>() {
       @Override
       public void describeTo(Description description) {
 

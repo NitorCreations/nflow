@@ -1,6 +1,7 @@
 package io.nflow.engine.internal.dao;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonMap;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -65,7 +66,7 @@ public class TableMetadataChecker {
   }
 
   static class MetadataExtractor implements ResultSetExtractor<Map<String, ColumnMetadata>> {
-    private final Map<String, String> typeAliases = Map.of("serial", "int4");
+    private final Map<String, String> typeAliases = singletonMap("serial", "int4");
 
     @Override
     public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException {
