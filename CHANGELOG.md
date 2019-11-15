@@ -40,7 +40,6 @@
     - nodejs 10.16.3
     - npm 6.11.3
     - lodash 4.7.15
-    - svg-pan-zoom 3.6.1
 - `nflow-examples`
   - Update Spring Boot examples' dependencies
     - Spring Boot 2.1.7.RELEASE
