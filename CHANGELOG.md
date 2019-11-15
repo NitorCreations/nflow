@@ -1,7 +1,6 @@
 ## 6.0.0-SNAPSHOT (future release)
 
 **Highlights**
-- Requires JDK 11, support for JDK 8 is dropped
 - Use constructor injection instead of field or setter injection in nFlow classes
 - Separate workflow definition scanning from `WorkflowDefinitionService`
 - Remove deprecated `WorkflowInstanceInclude.STARTED` enum value
