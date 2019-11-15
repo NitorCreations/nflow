@@ -17,7 +17,7 @@
     "dygraphs": "1.1.1",
     "dagre-d3": "0.6.3",
     "angular-chart.js": "1.1.1",
-    "svg-pan-zoom": "3.6.1",
+    "svg-pan-zoom": "3.6.0",
     "angular-toastr": "2.1.1"
   },
   "devDependencies": {
