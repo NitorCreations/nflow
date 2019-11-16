@@ -415,6 +415,33 @@
   <profiles>
     <profile>
       <activation>
+        <jdk>9</jdk>
+      </activation>
+      <id>java9</id>
+      <properties>
+        <jdk.version>9</jdk.version>
+      </properties>
+    </profile>
+    <profile>
+      <activation>
+        <jdk>10</jdk>
+      </activation>
+      <id>java10</id>
+      <properties>
+        <jdk.version>10</jdk.version>
+      </properties>
+    </profile>
+    <profile>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <id>java11</id>
+      <properties>
+        <jdk.version>11</jdk.version>
+      </properties>
+    </profile>
+    <profile>
+      <activation>
         <property>
           <name>env.BUILD_SYSTEM</name>
           <value>travis</value>
