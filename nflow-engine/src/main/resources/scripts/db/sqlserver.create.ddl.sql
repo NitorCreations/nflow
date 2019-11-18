@@ -32,9 +32,6 @@ begin
   from nflow_workflow wf inner join inserted i on wf.id = i.id
 end';
 
-if not exists (select 1 from sys.indexes where name='nflow_workflow_activation')
-create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
-
 if not exists (select 1 from sys.indexes where name='nflow_workflow_polling')
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 

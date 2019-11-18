@@ -36,9 +36,6 @@ end;
 drop trigger if exists update_nflow_modified on nflow_workflow;
 create trigger update_nflow_modified before update on nflow_workflow for each row execute procedure update_modified();
 
-drop index if exists nflow_workflow_activation;
-create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
-
 drop index if exists nflow_workflow_polling;
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 

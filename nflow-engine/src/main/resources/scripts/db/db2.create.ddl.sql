@@ -29,9 +29,6 @@ create or replace trigger nflow_workflow_update_modified
   for each row
   set modified = current timestamp;
 
-drop index nflow_workflow_activation;
-create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
-
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 
 create table nflow_workflow_action (
