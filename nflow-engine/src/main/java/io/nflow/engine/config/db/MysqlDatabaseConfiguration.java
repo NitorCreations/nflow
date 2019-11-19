@@ -1,8 +1,6 @@
 package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.MYSQL;
-import static java.lang.Integer.parseInt;
-import static org.apache.commons.lang3.StringUtils.split;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.sql.Connection;
@@ -50,28 +48,20 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
   @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
       justification = "extracting major and minor version from splitted string, exception message is ok")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
-    String dbType = "mysql";
+    String scriptPrefix = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
       int majorVersion = meta.getDatabaseMajorVersion();
       int minorVersion = meta.getDatabaseMinorVersion();
       logger.info("MySQL {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
-      if (databaseProductVersion.contains("MariaDB")) {
-        if (databaseProductVersion.startsWith("5.5.5-")) {
-          databaseProductVersion = databaseProductVersion.substring(6);
-        }
-        String[] versions = split(databaseProductVersion, ".-");
-        if (parseInt(versions[0]) <= 5 && parseInt(versions[1]) <= 5) {
-          dbType += ".legacy";
-        }
-      } else if (majorVersion <= 5 && minorVersion <= 5) {
-        dbType += ".legacy";
+      if (majorVersion <= 5 && minorVersion <= 5) {
+        scriptPrefix += ".legacy";
       }
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to obtain mysql version", e);
+      throw new RuntimeException("Failed to obtain MySQL version", e);
     }
-    return new DatabaseInitializer(dbType, nflowDataSource, env);
+    return new DatabaseInitializer(scriptPrefix, nflowDataSource, env, ";");
   }
 
   /**

@@ -56,6 +56,7 @@
 - New REST-API endpoint to wake up workflow instance sleeping in specified states
   PUT /nflow/api/v1/workflow-instance/5/wakeup
 - Improve error logging in WorkflowStateProcessor
+- Replace FindBugs with SpotBugs.
 
 ## 5.7.0 (2019-06-06)
 

@@ -33,7 +33,7 @@ public class TableMetadataCheckerTest {
   @BeforeEach
   public void setup() {
     if (initializer == null) {
-      initializer = new DatabaseInitializer("metadata", dataSource, environmentCreateOnStartup("true"));
+      initializer = new DatabaseInitializer("metadata", dataSource, environmentCreateOnStartup("true"), ";");
     }
   }
 

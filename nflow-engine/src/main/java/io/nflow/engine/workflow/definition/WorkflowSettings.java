@@ -77,6 +77,7 @@ public class WorkflowSettings extends ModelObject {
   /**
    * Builder for workflow settings.
    */
+  @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure")
   public static class Builder {
 
     int maxErrorTransitionDelay = (int) DAYS.toMillis(1);

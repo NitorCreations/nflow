@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
@@ -103,18 +104,16 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getVariable(String name, Class<T> type, T defaultValue) {
-    if (instance.stateVariables.containsKey(name)) {
-      return (T) objectMapper.convertToObject(type, name, instance.stateVariables.get(name));
+    String value = instance.stateVariables.get(name);
+    if (value != null) {
+      return (T) objectMapper.convertToObject(type, name, value);
     }
     return defaultValue;
   }
 
   @Override
   public String getVariable(String name, String defaultValue) {
-    if (instance.stateVariables.containsKey(name)) {
-      return instance.stateVariables.get(name);
-    }
-    return defaultValue;
+    return instance.stateVariables.getOrDefault(name, defaultValue);
   }
 
   @Override
@@ -167,10 +166,6 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   public boolean isRetryCountExceeded() {
     return isRetryCountExceeded;
-  }
-
-  public void setRetryCountExceeded() {
-    isRetryCountExceeded = true;
   }
 
   @Override
@@ -270,6 +265,44 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   public boolean isHistoryCleaningForced() {
     return historyCleaningForced;
+  }
+
+  /**
+   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
+   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
+   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
+   * schedules the next attempt to the given activation time.
+   *
+   * @param activation
+   *          Time for next retry attempt.
+   * @param definition
+   *          Workflow definition
+   */
+  public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition<?> definition) {
+    if (getRetries() >= definition.getSettings().maxRetries) {
+      setRetry(false);
+      isRetryCountExceeded = true;
+      String currentStateName = getCurrentStateName();
+      WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
+      WorkflowState currentState = definition.getState(currentStateName);
+      if (failureState != null) {
+        setNextState(failureState);
+        setNextStateReason("Max retry count exceeded, going to failure state");
+        setNextActivation(now());
+      } else {
+        WorkflowState errorState = definition.getErrorState();
+        setNextState(errorState);
+        if (errorState.equals(currentState)) {
+          setNextStateReason("Max retry count exceeded when handling error state, processing stopped");
+          setNextActivation(null);
+        } else {
+          setNextStateReason("Max retry count exceeded, no failure state defined, going to error state");
+          setNextActivation(now());
+        }
+      }
+    } else {
+      setNextActivation(activation);
+    }
   }
 
 }

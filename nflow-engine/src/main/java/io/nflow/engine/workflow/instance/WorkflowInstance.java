@@ -209,19 +209,18 @@ public class WorkflowInstance extends ModelObject {
   public <T> T getStateVariable(String name, Class<T> valueType, T defaultValue) {
     if (mapper == null) {
       throw new IllegalStateException(
-          "WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
+          "WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder(), instance id "
+              + id);
     }
-    if (stateVariables.containsKey(name)) {
-      return (T) mapper.convertToObject(valueType, name, stateVariables.get(name));
+    String value = stateVariables.get(name);
+    if (value != null) {
+      return (T) mapper.convertToObject(valueType, name, value);
     }
     return defaultValue;
   }
 
   public String getStateVariable(String name, String defaultValue) {
-    if (stateVariables.containsKey(name)) {
-      return stateVariables.get(name);
-    }
-    return defaultValue;
+    return stateVariables.getOrDefault(name, defaultValue);
   }
 
   /**

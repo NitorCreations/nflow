@@ -369,12 +369,9 @@ public class WorkflowDispatcherTest {
   }
 
   Answer<List<Integer>> waitForTickAndAnswer(final int tick, final List<Integer> answer, final MultithreadedTestCase mtc) {
-    return new Answer<List<Integer>>() {
-      @Override
-      public List<Integer> answer(InvocationOnMock invocation) {
-        mtc.waitForTick(tick);
-        return answer;
-      }
+    return invocation -> {
+      mtc.waitForTick(tick);
+      return answer;
     };
   }
 

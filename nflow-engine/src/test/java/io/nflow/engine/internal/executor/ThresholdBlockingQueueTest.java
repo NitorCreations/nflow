@@ -58,12 +58,9 @@ public class ThresholdBlockingQueueTest {
       q.put(100);
       q.put(200);
       q.put(300);
-      Callable<Integer> tester = new Callable<Integer>() {
-        @Override
-        public Integer call() throws Exception {
-          q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusMinutes(1));
-          return q.size();
-        }
+      Callable<Integer> tester = () -> {
+        q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusMinutes(1));
+        return q.size();
       };
       Future<Integer> result = newSingleThreadExecutor().submit(tester);
       sleep(1000);
@@ -87,12 +84,9 @@ public class ThresholdBlockingQueueTest {
       q.put(100);
       q.put(200);
       q.put(300);
-      Callable<Integer> tester = new Callable<Integer>() {
-        @Override
-        public Integer call() throws Exception {
-          q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusSeconds(3));
-          return q.size();
-        }
+      Callable<Integer> tester = () -> {
+        q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusSeconds(3));
+        return q.size();
       };
       Future<Integer> result = newSingleThreadExecutor().submit(tester);
       sleep(1000);

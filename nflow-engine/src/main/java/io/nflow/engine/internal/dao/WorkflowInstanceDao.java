@@ -84,7 +84,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class WorkflowInstanceDao {
 
-  static final Logger logger = getLogger(WorkflowInstanceDao.class);
+  private static final Logger logger = getLogger(WorkflowInstanceDao.class);
   static final Map<Integer, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.<Integer, Map<String, String>> emptyMap();
 
   final JdbcTemplate jdbc;
@@ -172,11 +172,11 @@ public class WorkflowInstanceDao {
           toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
       Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
-      for (Entry<String, String> var : instance.stateVariables.entrySet()) {
+      for (Entry<String, String> variable : instance.stateVariables.entrySet()) {
         sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
             .append(" select wf.id,0,?,? from wf)");
-        args[pos++] = var.getKey();
-        args[pos++] = var.getValue();
+        args[pos++] = variable.getKey();
+        args[pos++] = variable.getValue();
       }
       sqlb.append(" select wf.id from wf");
       return jdbc.queryForObject(sqlb.toString(), Integer.class, args);
@@ -267,11 +267,11 @@ public class WorkflowInstanceDao {
             if (!variables.hasNext()) {
               return false;
             }
-            Entry<String, String> var = variables.next();
+            Entry<String, String> variable = variables.next();
             ps.setInt(1, id);
             ps.setInt(2, actionId);
-            ps.setString(3, var.getKey());
-            ps.setString(4, var.getValue());
+            ps.setString(3, variable.getKey());
+            ps.setString(4, variable.getValue());
             return true;
           }
         });
@@ -404,11 +404,11 @@ public class WorkflowInstanceDao {
         toTimestamp(action.executionStart), toTimestamp(action.executionEnd) };
     int pos = fixedValues.length;
     Object[] args = Arrays.copyOf(fixedValues, pos + changedStateVariables.size() * 2);
-    for (Entry<String, String> var : changedStateVariables.entrySet()) {
+    for (Entry<String, String> variable : changedStateVariables.entrySet()) {
       sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
           .append(" select wf.id,act.id,?,? from wf,act)");
-      args[pos++] = var.getKey();
-      args[pos++] = var.getValue();
+      args[pos++] = variable.getKey();
+      args[pos++] = variable.getValue();
     }
     sqlb.append(" select act.id from act");
     jdbc.queryForObject(sqlb.toString(), Integer.class, args);
@@ -453,8 +453,8 @@ public class WorkflowInstanceDao {
   @Transactional
   public boolean wakeUpWorkflowExternally(int workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then ")
-        .append("case when " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp")
-            + " then next_activation else current_timestamp end else next_activation end), ")
+        .append("case when ").append(sqlVariants.dateLtEqDiff("next_activation", "current_timestamp"))
+        .append(" then next_activation else current_timestamp end else next_activation end), ")
         .append("external_next_activation = current_timestamp where ").append(executorInfo.getExecutorGroupCondition())
         .append(" and id = ? and next_activation is not null");
     return addExpectedStatesToQueryAndUpdate(sql, workflowInstanceId, expectedStates);
@@ -642,10 +642,7 @@ public class WorkflowInstanceDao {
       params.addValue("states", query.states);
     }
     if (!isEmpty(query.statuses)) {
-      List<String> convertedStatuses = new ArrayList<>();
-      for (WorkflowInstanceStatus s : query.statuses) {
-        convertedStatuses.add(s.name());
-      }
+      List<String> convertedStatuses = query.statuses.stream().map(WorkflowInstanceStatus::name).collect(toList());
       conditions.add("status" + sqlVariants.castToText() + " in (:statuses)");
       params.addValue("statuses", convertedStatuses);
     }

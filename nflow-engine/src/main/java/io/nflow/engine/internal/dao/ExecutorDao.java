@@ -53,7 +53,7 @@ public class ExecutorDao {
   private final String executorGroupCondition;
   final int timeoutSeconds;
   private int executorId = -1;
-  private int hostMaxLength;
+  private final int hostMaxLength;
 
   @Inject
   public ExecutorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate, Environment env) {
@@ -65,13 +65,6 @@ public class ExecutorDao {
     this.keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     this.hostMaxLength = env.getProperty("nflow.executor.host.length", Integer.class, -1);
-  }
-
-  private int getHostMaxLength() {
-    if (hostMaxLength == -1) {
-      hostMaxLength = jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor);
-    }
-    return hostMaxLength;
   }
 
   private static String createWhereCondition(String group) {
@@ -97,7 +90,10 @@ public class ExecutorDao {
 
   public synchronized int getExecutorId() {
     if (executorId == -1) {
-      executorId = allocateExecutorId();
+      int hostNameMaxLength = hostMaxLength == -1
+          ? jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor)
+          : hostMaxLength;
+      executorId = allocateExecutorId(hostNameMaxLength);
     }
     return executorId;
   }
@@ -113,11 +109,11 @@ public class ExecutorDao {
 
   @SuppressFBWarnings(value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING" }, //
       justification = "localhost is used for getting host name only, exception message is fine")
-  private int allocateExecutorId() {
+  private int allocateExecutorId(int hostNameMaxLength) {
     final String host;
     final int pid;
     try {
-      host = left(getLocalHost().getCanonicalHostName(), getHostMaxLength());
+      host = left(getLocalHost().getCanonicalHostName(), hostNameMaxLength);
       pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     } catch (UnknownHostException | NumberFormatException ex) {
       throw new RuntimeException("Failed to obtain host name and pid of running jvm", ex);

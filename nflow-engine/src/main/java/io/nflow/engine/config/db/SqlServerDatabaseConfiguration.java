@@ -5,6 +5,7 @@ import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static java.lang.Class.forName;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,7 +67,7 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
         setDateTimeOffsetMethod = sqlServerPreparedStatement.getMethod("setDateTimeOffset", Integer.TYPE, sqlServerDateTimeOffset);
         getTimestampMethod = sqlServerDateTimeOffset.getMethod("getTimestamp");
         createDateTimeOffsetMethod = sqlServerDateTimeOffset.getMethod("valueOf", Timestamp.class, Integer.TYPE);
-      } catch (Exception e) {
+      } catch (ClassNotFoundException | NoSuchMethodException e) {
         throw new RuntimeException("Could not find required getDateTimeOffset method from sqlserver jdbc driver", e);
       }
     }
@@ -105,8 +106,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     public Object getTimestamp(ResultSet rs, String columnName) throws SQLException {
       try {
         return getDateTimeOffsetMethod.invoke(rs.unwrap(sqlServerResultSet), columnName);
-      } catch (Exception e) {
-        throw new SQLException("Failed to invoke getDateTimeOffset on ResultSet ", e);
+      } catch (IllegalAccessException | InvocationTargetException e) {
+        throw new SQLException("Failed to invoke getDateTimeOffset on ResultSet, column " + columnName, e);
       }
     }
 
@@ -118,8 +119,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
           return null;
         }
         return toDateTime((Timestamp) getTimestampMethod.invoke(dateTimeOffset));
-      } catch (Exception e) {
-        throw new SQLException("Failed to invoke getDateTimeOffset on ResultSet", e);
+      } catch (IllegalAccessException | InvocationTargetException e) {
+        throw new SQLException("Failed to invoke getDateTimeOffset on column ResultSet, column " + columnName, e);
       }
     }
 
@@ -127,8 +128,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     public void setDateTime(PreparedStatement ps, int columnNumber, DateTime timestamp) throws SQLException {
       try {
         setDateTimeOffsetMethod.invoke(ps.unwrap(sqlServerPreparedStatement), columnNumber, toTimestampObject(timestamp));
-      } catch (Exception e) {
-        throw new SQLException("Failed to invoke setDateTimeOffset on PreparedStatement", e);
+      } catch (IllegalAccessException | InvocationTargetException e) {
+        throw new SQLException("Failed to invoke setDateTimeOffset on PreparedStatement, columnNumber " + columnNumber, e);
       }
     }
 
@@ -139,8 +140,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
       }
       try {
         return createDateTimeOffsetMethod.invoke(null, toTimestamp(timestamp), 0);
-      } catch (Exception e) {
-        throw new RuntimeException("Failed to create DateTimeOffset instance", e);
+      } catch (IllegalAccessException | InvocationTargetException e) {
+        throw new RuntimeException("Failed to create DateTimeOffset instance, timestamp " + timestamp, e);
       }
     }
 

@@ -32,14 +32,13 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 public class OracleDatabaseConfiguration extends DatabaseConfiguration {
 
   private static final Logger logger = getLogger(OracleDatabaseConfiguration.class);
-  public static final String DB_TYPE_ORACLE = "oracle";
   private boolean useBatchUpdate;
 
   /**
    * Create a new instance.
    */
   public OracleDatabaseConfiguration() {
-    super(DB_TYPE_ORACLE);
+    super("oracle");
   }
 
   /**
@@ -59,9 +58,9 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
       logger.info("Oracle {}.{}, product version {}", majorVersion, minorVersion, meta.getDatabaseProductVersion());
       useBatchUpdate = (majorVersion > 12 || (majorVersion == 12 && minorVersion >= 1));
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to obtain oracle version", e);
+      throw new RuntimeException("Failed to obtain Oracle version", e);
     }
-    return new DatabaseInitializer(DB_TYPE_ORACLE, nflowDataSource, env);
+    return new DatabaseInitializer("oracle", nflowDataSource, env, "/");
   }
 
   /**

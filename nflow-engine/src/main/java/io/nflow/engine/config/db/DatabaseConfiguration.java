@@ -20,6 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 
@@ -158,7 +159,7 @@ public abstract class DatabaseConfiguration {
   @Bean(name = NFLOW_DATABASE_INITIALIZER)
   @NFlow
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env) {
-    return new DatabaseInitializer(dbType, dataSource, env);
+    return new DatabaseInitializer(dbType, dataSource, env, ";");
   }
 
   /**
@@ -166,6 +167,7 @@ public abstract class DatabaseConfiguration {
    * @param env The Spring environment.
    * @param dataSource The nFlow datasource.
    */
+  @SuppressFBWarnings(value = "ACEM_ABSTRACT_CLASS_EMPTY_METHODS", justification = "Most databases do not check database configuration")
   protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
     // no common checks for all databases
   }

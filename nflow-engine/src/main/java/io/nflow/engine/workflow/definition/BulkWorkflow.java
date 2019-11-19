@@ -91,8 +91,8 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
 
   protected boolean splitWorkImpl(StateExecution execution, @SuppressWarnings("unused") JsonNode data) {
     if (execution.getAllChildWorkflows().isEmpty()) {
-      throw new RuntimeException(
-          "No child workflows found - either add them before starting the parent or implement splitWorkflowImpl");
+      throw new RuntimeException("No child workflows found for workflow instance " + execution.getWorkflowInstanceId()
+          + " - either add them before starting the parent or implement splitWorkflowImpl");
     }
     return true;
   }
@@ -119,7 +119,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
     long toStart = min(max(1, concurrency) - running, childWorkflows.size() - completed);
     if (toStart > 0) {
       childWorkflows.stream().filter(this::isInInitialState).limit(toStart).forEach(this::wakeup);
-      logger.info("Started " + toStart + " child workflows");
+      logger.info("Started {} child workflows", toStart);
     }
     long progress = completed * 100 / childWorkflows.size();
     return retryAfter(waitForChildrenToCompleteUntil(), "Waiting for child workflows to complete - " + progress + "% done");

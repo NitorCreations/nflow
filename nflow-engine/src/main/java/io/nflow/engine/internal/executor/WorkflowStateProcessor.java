@@ -21,6 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -151,7 +152,7 @@ class WorkflowStateProcessor implements Runnable {
         execution.setRetry(true);
         execution.setNextState(state);
         execution.setNextStateReason(getStackTrace(t));
-        handleRetry(execution, definition);
+        execution.handleRetryAfter(definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
       } finally {
         if (execution.isFailed()) {
           processAfterFailureListeners(listenerContext, execution.getThrown());
@@ -246,9 +247,9 @@ class WorkflowStateProcessor implements Runnable {
 
   private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, Map<String, String> originalStateVars,
       WorkflowInstanceAction.Builder actionBuilder, WorkflowInstance.Builder instanceBuilder) {
-    WorkflowInstanceAction action = actionBuilder.setExecutionEnd(now()).setType(getActionType(execution))
-        .setStateText(execution.getNextStateReason()).build();
     if (execution.isStateProcessInvoked()) {
+      WorkflowInstanceAction action = actionBuilder.setExecutionEnd(now()).setType(getActionType(execution))
+          .setStateText(execution.getNextStateReason()).build();
       WorkflowInstance instance = instanceBuilder.setStartedIfNotSet(action.executionStart).build();
       if (execution.isFailed()) {
         workflowInstanceDao.updateWorkflowInstanceAfterExecution(instance, action, emptyList(), emptyList(), true);
@@ -336,7 +337,7 @@ class WorkflowStateProcessor implements Runnable {
   static class ExecutorListenerChain implements ListenerChain {
     private final Iterator<WorkflowExecutorListener> chain;
 
-    ExecutorListenerChain(List<WorkflowExecutorListener> chain) {
+    ExecutorListenerChain(Collection<WorkflowExecutorListener> chain) {
       this.chain = chain.iterator();
     }
 
@@ -464,7 +465,7 @@ class WorkflowStateProcessor implements Runnable {
       } else if (nextAction.isRetry()) {
         execution.setNextState(currentState);
         execution.setRetry(true);
-        handleRetryAfter(execution, nextAction.getActivation(), definition);
+        execution.handleRetryAfter(nextAction.getActivation(), definition);
       } else {
         execution.setNextState(nextAction.getNextState());
       }
@@ -472,63 +473,6 @@ class WorkflowStateProcessor implements Runnable {
       return nextAction;
     }
 
-  }
-
-  /**
-   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
-   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
-   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
-   * schedules the next attempt for the state based on workflow settings. This method is called when an unexpected exception
-   * happens during state method handling.
-   *
-   * @param execution
-   *          State execution information.
-   * @param definition
-   *          Workflow definition
-   */
-  void handleRetry(StateExecutionImpl execution, AbstractWorkflowDefinition<?> definition) {
-    handleRetryAfter(execution, definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
-  }
-
-  /**
-   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
-   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
-   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
-   * schedules the next attempt to the given activation time. This method is called when a retry attempt is explicitly requested
-   * by a state handling method.
-   *
-   * @param execution
-   *          State execution information.
-   * @param activation
-   *          Time for next retry attempt.
-   * @param definition
-   *          Workflow definition
-   */
-  void handleRetryAfter(StateExecutionImpl execution, DateTime activation, AbstractWorkflowDefinition<?> definition) {
-    if (execution.getRetries() >= definition.getSettings().maxRetries) {
-      execution.setRetry(false);
-      execution.setRetryCountExceeded();
-      String currentStateName = execution.getCurrentStateName();
-      WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
-      WorkflowState currentState = definition.getState(currentStateName);
-      if (failureState != null) {
-        execution.setNextState(failureState);
-        execution.setNextStateReason("Max retry count exceeded, going to failure state");
-        execution.setNextActivation(now());
-      } else {
-        WorkflowState errorState = definition.getErrorState();
-        execution.setNextState(errorState);
-        if (errorState.equals(currentState)) {
-          execution.setNextStateReason("Max retry count exceeded when handling error state, processing stopped");
-          execution.setNextActivation(null);
-        } else {
-          execution.setNextStateReason("Max retry count exceeded, no failure state defined, going to error state");
-          execution.setNextActivation(now());
-        }
-      }
-    } else {
-      execution.setNextActivation(activation);
-    }
   }
 
   private void processBeforeListeners(ListenerContext listenerContext) {
