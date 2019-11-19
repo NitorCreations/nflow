@@ -32,11 +32,8 @@ begin
   from nflow_workflow wf inner join inserted i on wf.id = i.id
 end';
 
-if not exists (select 1 from sys.indexes where name='nflow_workflow_activation')
-create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
-
 if not exists (select 1 from sys.indexes where name='nflow_workflow_polling')
-create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
+create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group) where next_activation is not null;
 
 if not exists (select 1 from sys.tables where name='nflow_workflow_action')
 create table nflow_workflow_action (
@@ -146,12 +143,6 @@ create table nflow_archive_workflow (
   workflow_signal int,
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
-
-if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_activation')
-create index nflow_archive_workflow_activation on nflow_archive_workflow(next_activation, modified);
-
-if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_polling')
-create index nflow_archive_workflow_polling on nflow_archive_workflow(next_activation, status, executor_id, executor_group);
 
 if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_parent')
 create index nflow_archive_workflow_parent on nflow_archive_workflow(parent_workflow_id, parent_action_id);

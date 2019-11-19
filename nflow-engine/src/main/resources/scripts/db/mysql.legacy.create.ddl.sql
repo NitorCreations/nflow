@@ -22,9 +22,6 @@ create table if not exists nflow_workflow (
   constraint nflow_workflow_uniq unique (type, external_id, executor_group)
 );
 
-drop index nflow_workflow_activation;
-create index nflow_workflow_activation on nflow_workflow(next_activation, modified);
-
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 
 drop trigger if exists nflow_workflow_insert;

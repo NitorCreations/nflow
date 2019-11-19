@@ -53,10 +53,11 @@
     - Spring Boot 2.1.7.RELEASE
     - nFlow 5.7.0
     - Gradle 5.5.1
-- New REST-API endpoint to wake up workflow instance sleeping in specified states
+- New REST-API endpoint to wake up workflow instance sleeping in specified states:
   PUT /nflow/api/v1/workflow-instance/5/wakeup
-- Improve error logging in WorkflowStateProcessor
+- Improve error logging in WorkflowStateProcessor.
 - Replace FindBugs with SpotBugs.
+- Drop index from main table that was only used for archiving purposes.
 
 ## 5.7.0 (2019-06-06)
 
