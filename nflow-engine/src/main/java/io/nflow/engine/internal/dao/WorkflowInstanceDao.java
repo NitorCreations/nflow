@@ -186,7 +186,7 @@ public class WorkflowInstanceDao {
     }
   }
 
-  private boolean useBatchUpdate() {
+  boolean useBatchUpdate() {
     return !disableBatchUpdates && sqlVariants.useBatchUpdate();
   }
 
