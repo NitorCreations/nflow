@@ -1,4 +1,4 @@
-create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
+create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group) where next_activation is not null;
 
 create index nflow_workflow_parent on nflow_workflow(parent_workflow_id, parent_action_id);
 

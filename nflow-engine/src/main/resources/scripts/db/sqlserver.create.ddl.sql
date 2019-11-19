@@ -33,7 +33,7 @@ begin
 end';
 
 if not exists (select 1 from sys.indexes where name='nflow_workflow_polling')
-create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
+create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group) where next_activation is not null;
 
 if not exists (select 1 from sys.tables where name='nflow_workflow_action')
 create table nflow_workflow_action (
