@@ -29,8 +29,8 @@ public class ArchiveServiceTest {
   @Mock
   private ArchiveDao dao;
   private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
-  private final List<Integer> emptyList = Collections.emptyList();
-  private final List<Integer> dataList = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+  private final List<Long> emptyList = Collections.emptyList();
+  private final List<Long> dataList = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
 
   @BeforeEach
   public void setup() {

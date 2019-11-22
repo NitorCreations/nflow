@@ -16,7 +16,7 @@ public class QueryWorkflowInstances extends ModelObject {
   /**
    * Workflow instance identifiers.
    */
-  public final List<Integer> ids;
+  public final List<Long> ids;
 
   /**
    * Workflow instance definition type.
@@ -26,12 +26,12 @@ public class QueryWorkflowInstances extends ModelObject {
   /**
    * Parent workflow instance id.
    */
-  public Integer parentWorkflowId;
+  public Long parentWorkflowId;
 
   /**
    * Parent workflow action id.
    */
-  public Integer parentActionId;
+  public Long parentActionId;
 
   /**
    * Workflow instance states.
@@ -106,10 +106,10 @@ public class QueryWorkflowInstances extends ModelObject {
    * Builder for workflow instance queries.
    */
   public static class Builder {
-    List<Integer> ids = new ArrayList<>();
+    List<Long> ids = new ArrayList<>();
     List<String> types = new ArrayList<>();
-    Integer parentWorkflowId;
-    Integer parentActionId;
+    Long parentWorkflowId;
+    Long parentActionId;
     List<String> states = new ArrayList<>();
     List<WorkflowInstanceStatus> statuses = new ArrayList<>();
     String businessKey;
@@ -148,7 +148,7 @@ public class QueryWorkflowInstances extends ModelObject {
      * @param newIds The identifiers.
      * @return this.
      */
-    public Builder addIds(Integer ... newIds) {
+    public Builder addIds(Long ... newIds) {
       this.ids.addAll(asList(newIds));
       return this;
     }
@@ -168,7 +168,7 @@ public class QueryWorkflowInstances extends ModelObject {
      * @param parentWorkflowId The parent workflow instance id.
      * @return this.
      */
-    public Builder setParentWorkflowId(Integer parentWorkflowId) {
+    public Builder setParentWorkflowId(Long parentWorkflowId) {
       this.parentWorkflowId = parentWorkflowId;
       return this;
     }
@@ -178,7 +178,7 @@ public class QueryWorkflowInstances extends ModelObject {
      * @param parentActionId The parent action id.
      * @return this.
      */
-    public Builder setParentActionId(Integer parentActionId) {
+    public Builder setParentActionId(Long parentActionId) {
       this.parentActionId = parentActionId;
       return this;
     }

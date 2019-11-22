@@ -73,8 +73,8 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
     WorkflowStateProcessor executor2 = mock(WorkflowStateProcessor.class);
     when(executor1.getStartTimeSeconds()).thenReturn(currentTimeMillis() / 1000 - STUCK_THREAD_THRESHOLD - 1);
     when(executor2.getStartTimeSeconds()).thenReturn(currentTimeMillis() / 1000 - STUCK_THREAD_THRESHOLD);
-    factory.processingInstances.put(111, executor1);
-    factory.processingInstances.put(222, executor2);
+    factory.processingInstances.put(111L, executor1);
+    factory.processingInstances.put(222L, executor2);
 
     int potentiallyStuckProcessors = factory.getPotentiallyStuckProcessors();
 

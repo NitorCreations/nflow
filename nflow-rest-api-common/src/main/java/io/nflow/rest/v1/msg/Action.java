@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class Action extends ModelObject {
 
   @ApiModelProperty(value = "Identifier of the workflow instance action")
-  public int id;
+  public long id;
   @ApiModelProperty(value = "Type of state (stateExecution, stateExecutionFailed, externalChange, recovery)")
   public String type;
   @ApiModelProperty(value = "Name of state")
@@ -35,12 +35,12 @@ public class Action extends ModelObject {
   public Action() {
   }
 
-  public Action(int id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+  public Action(long id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
       int executorId) {
     this(id, type, state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
   }
 
-  public Action(int id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
+  public Action(long id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
       int executorId, Map<String, Object> updatedStateVariables) {
     this();
     this.id = id;

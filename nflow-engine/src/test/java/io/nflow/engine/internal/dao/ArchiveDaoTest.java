@@ -44,7 +44,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
 
   @Test
   public void listingArchivableWorkflows() {
-    List<Integer> expectedArchive = new ArrayList<>();
+    List<Long> expectedArchive = new ArrayList<>();
 
     storeActiveWorkflow(archiveTime1);
     storeActiveWorkflow(prodTime1);
@@ -53,15 +53,15 @@ public class ArchiveDaoTest extends BaseDaoTest {
     expectedArchive.add(storePassiveWorkflow(archiveTime1));
     expectedArchive.add(storePassiveWorkflow(archiveTime2));
 
-    List<Integer> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
+    List<Long> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
     assertEqualsInAnyOrder(expectedArchive, archivableIds);
   }
 
   @Test
   public void listingReturnsOldestRowsAndMaxBatchSizeRows() {
-    List<Integer> expectedArchive = new ArrayList<>();
+    List<Long> expectedArchive = new ArrayList<>();
 
-    int eleventh = storePassiveWorkflow(archiveTime2);
+    long eleventh = storePassiveWorkflow(archiveTime2);
 
     for (int i = 0; i < 9; i++) {
       expectedArchive.add(storePassiveWorkflow(archiveTime4));
@@ -72,7 +72,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Integer> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
+    List<Long> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
     Collections.sort(archivableIds);
     assertEquals(expectedArchive, archivableIds);
 
@@ -83,7 +83,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
 
   @Test
   public void archivingSimpleWorkflowsWorks() {
-    List<Integer> archivableWorkflows = new ArrayList<>();
+    List<Long> archivableWorkflows = new ArrayList<>();
 
     storeActiveWorkflow(archiveTime1);
     storeActiveWorkflow(prodTime1);
@@ -105,15 +105,15 @@ public class ArchiveDaoTest extends BaseDaoTest {
 
   @Test
   public void archivingWorkflowsWithActionsWorks() {
-    List<Integer> archivableWorkflows = new ArrayList<>();
-    List<Integer> archivableActions = new ArrayList<>();
+    List<Long> archivableWorkflows = new ArrayList<>();
+    List<Long> archivableActions = new ArrayList<>();
 
     storeActions(storeActiveWorkflow(archiveTime1), 3);
     storeActions(storeActiveWorkflow(prodTime1), 1);
     storeActions(storePassiveWorkflow(prodTime1), 2);
 
-    int archivable1 = storePassiveWorkflow(archiveTime1);
-    int archivable2 = storePassiveWorkflow(archiveTime2);
+    long archivable1 = storePassiveWorkflow(archiveTime1);
+    long archivable2 = storePassiveWorkflow(archiveTime2);
     archivableActions.addAll(storeActions(archivable1, 1));
     archivableActions.addAll(storeActions(archivable2, 3));
 
@@ -135,23 +135,23 @@ public class ArchiveDaoTest extends BaseDaoTest {
 
   @Test
   public void archivingWorkflowsWithActionsAndStatesWorks() {
-    List<Integer> archivableWorkflows = new ArrayList<>();
-    List<Integer> archivableActions = new ArrayList<>();
+    List<Long> archivableWorkflows = new ArrayList<>();
+    List<Long> archivableActions = new ArrayList<>();
     List<StateKey> archivableStates = new ArrayList<>();
 
-    int nonArchivableWorkflow1 = storeActiveWorkflow(archiveTime1);
+    long nonArchivableWorkflow1 = storeActiveWorkflow(archiveTime1);
     storeStateVariables(nonArchivableWorkflow1, storeActions(nonArchivableWorkflow1, 3), 1);
 
-    int nonArchivableWorkflow2 = storeActiveWorkflow(prodTime1);
+    long nonArchivableWorkflow2 = storeActiveWorkflow(prodTime1);
     storeStateVariables(nonArchivableWorkflow2, storeActions(nonArchivableWorkflow2, 1), 3);
 
-    int nonArchivableWorkflow3 = storePassiveWorkflow(prodTime1);
+    long nonArchivableWorkflow3 = storePassiveWorkflow(prodTime1);
     storeStateVariables(nonArchivableWorkflow3, storeActions(nonArchivableWorkflow3, 2), 2);
 
-    int archivable1 = storePassiveWorkflow(archiveTime1);
-    int archivable2 = storePassiveWorkflow(archiveTime2);
-    List<Integer> actions1 = storeActions(archivable1, 1);
-    List<Integer> actions2 = storeActions(archivable2, 2);
+    long archivable1 = storePassiveWorkflow(archiveTime1);
+    long archivable2 = storePassiveWorkflow(archiveTime2);
+    List<Long> actions1 = storeActions(archivable1, 1);
+    List<Long> actions2 = storeActions(archivable2, 2);
 
     archivableActions.addAll(actions1);
     archivableActions.addAll(actions2);
@@ -181,8 +181,8 @@ public class ArchiveDaoTest extends BaseDaoTest {
     assertEquals(variablesCountAfter, variablesCountBefore - archivableStates.size() - requestDataVariableCount);
   }
 
-  private void assertActiveWorkflowsRemoved(List<Integer> workflowIds) {
-    for (int id : workflowIds) {
+  private void assertActiveWorkflowsRemoved(List<Long> workflowIds) {
+    for (long id : workflowIds) {
       try {
         workflowInstanceDao.getWorkflowInstance(id, emptySet(), null);
         fail("Expected workflow " + id + " to be removed");
@@ -192,22 +192,22 @@ public class ArchiveDaoTest extends BaseDaoTest {
     }
   }
 
-  private void assertArchiveWorkflowsExist(List<Integer> workflowIds) {
-    for (int workflowId : workflowIds) {
+  private void assertArchiveWorkflowsExist(List<Long> workflowIds) {
+    for (long workflowId : workflowIds) {
       Map<String, Object> archived = getArchivedWorkflow(workflowId);
-      assertEquals(workflowId, archived.get("id"));
+      assertEquals(workflowId, ((Number) archived.get("id")).longValue());
     }
   }
 
-  private void assertActiveActionsRemoved(List<Integer> actionIds) {
-    for (int actionId : actionIds) {
+  private void assertActiveActionsRemoved(List<Long> actionIds) {
+    for (long actionId : actionIds) {
       int found = rowCount("select 1 from nflow_workflow_action where id = ?", actionId);
       assertEquals(0, found, "Found unexpected action " + actionId + " in nflow_workflow_action");
     }
   }
 
-  private void assertArchiveActionsExist(List<Integer> actionIds) {
-    for (int actionId : actionIds) {
+  private void assertArchiveActionsExist(List<Long> actionIds) {
+    for (long actionId : actionIds) {
       int found = rowCount("select 1 from nflow_archive_workflow_action where id = ?", actionId);
       assertEquals(1, found, "Action " + actionId + " not found in nflow_archive_workflow_action");
     }
@@ -234,40 +234,40 @@ public class ArchiveDaoTest extends BaseDaoTest {
     return jdbc.queryForList(sql, params).size();
   }
 
-  private Map<String, Object> getArchivedWorkflow(int workflowId) {
-    return jdbc.queryForMap("select * from nflow_archive_workflow where id = ?", new Object[] { workflowId });
+  private Map<String, Object> getArchivedWorkflow(long workflowId) {
+    return jdbc.queryForMap("select * from nflow_archive_workflow where id = ?", workflowId);
   }
 
-  private int storePassiveWorkflow(DateTime modified) {
+  private long storePassiveWorkflow(DateTime modified) {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setNextActivation(null)
         .setModified(modified).build();
-    int id = insert(instance);
+    long id = insert(instance);
     return id;
   }
 
-  private int storeActiveWorkflow(DateTime modified) {
+  private long storeActiveWorkflow(DateTime modified) {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setModified(modified).build();
-    int id = insert(instance);
+    long id = insert(instance);
     return id;
   }
 
-  private List<Integer> storeActions(int workflowId, int actionCount) {
-    List<Integer> actionIds = new ArrayList<>();
+  private List<Long> storeActions(long workflowId, int actionCount) {
+    List<Long> actionIds = new ArrayList<>();
     for (int i = 0; i < actionCount; i++) {
       actionIds.add(storeAction(workflowId));
     }
     return actionIds;
   }
 
-  private List<StateKey> storeStateVariables(int workflowId, List<Integer> actionIds, int count) {
+  private List<StateKey> storeStateVariables(long workflowId, List<Long> actionIds, int count) {
     List<StateKey> stateKeys = new ArrayList<>();
-    for (int actionId : actionIds) {
+    for (long actionId : actionIds) {
       stateKeys.addAll(storeStateVariables(workflowId, actionId, count));
     }
     return stateKeys;
   }
 
-  private List<StateKey> storeStateVariables(int workflowId, int actionId, int stateCount) {
+  private List<StateKey> storeStateVariables(long workflowId, long actionId, int stateCount) {
     List<StateKey> stateKeys = new ArrayList<>();
     int index = 1;
     for (int i = 0; i < stateCount; i++) {
@@ -276,7 +276,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     return stateKeys;
   }
 
-  private StateKey storeStateVariable(int workflowId, int actionId, String key) {
+  private StateKey storeStateVariable(long workflowId, long actionId, String key) {
     String value = key + "_value";
     int updated = jdbc.update(
         "insert into nflow_workflow_state (workflow_id, action_id, state_key, state_value) values (?, ?, ?, ?)", workflowId,
@@ -285,19 +285,19 @@ public class ArchiveDaoTest extends BaseDaoTest {
     return new StateKey(workflowId, actionId, key);
   }
 
-  private int storeAction(int workflowId) {
+  private long storeAction(long workflowId) {
     WorkflowInstanceAction action = actionBuilder(workflowId).build();
     return workflowInstanceDao.insertWorkflowInstanceAction(action);
   }
 
-  private WorkflowInstanceAction.Builder actionBuilder(int workflowId) {
+  private WorkflowInstanceAction.Builder actionBuilder(long workflowId) {
     return new WorkflowInstanceAction.Builder().setState("dummyState")
         .setType(WorkflowInstanceAction.WorkflowActionType.stateExecution).setExecutionStart(DateTime.now())
         .setExecutionEnd(DateTime.now()).setWorkflowInstanceId(workflowId);
   }
 
-  private int insert(WorkflowInstance instance) {
-    int id = workflowInstanceDao.insertWorkflowInstance(instance);
+  private long insert(WorkflowInstance instance) {
+    long id = workflowInstanceDao.insertWorkflowInstance(instance);
     assertTrue(id > 0);
     DateTime modified = instance.modified;
     updateModified(id, modified);
@@ -306,26 +306,26 @@ public class ArchiveDaoTest extends BaseDaoTest {
     return id;
   }
 
-  private void updateModified(int workflowId, DateTime modified) {
+  private void updateModified(long workflowId, DateTime modified) {
     int updateCount = jdbc.update("update nflow_workflow set modified = ? where id = ?",
-        new Object[] { DaoUtil.toTimestamp(modified), workflowId });
+        DaoUtil.toTimestamp(modified), workflowId);
     assertEquals(1, updateCount);
   }
 
-  private void assertEqualsInAnyOrder(List<Integer> expected, List<Integer> actual) {
-    List<Integer> expectedCopy = new ArrayList<>(expected);
-    List<Integer> actualCopy = new ArrayList<>(actual);
+  private <T extends Comparable<? super T>> void assertEqualsInAnyOrder(List<T> expected, List<T> actual) {
+    List<T> expectedCopy = new ArrayList<>(expected);
+    List<T> actualCopy = new ArrayList<>(actual);
     Collections.sort(expectedCopy);
     Collections.sort(actualCopy);
     assertEquals(expectedCopy, actualCopy);
   }
 
   private static class StateKey extends ModelObject {
-    public final int workflowId;
-    public final int actionId;
+    public final long workflowId;
+    public final long actionId;
     public final String stateKey;
 
-    public StateKey(int workflowId, int actionId, String stateKey) {
+    public StateKey(long workflowId, long actionId, String stateKey) {
       this.workflowId = workflowId;
       this.actionId = actionId;
       this.stateKey = stateKey;

@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class ListWorkflowInstanceResponse extends ModelObject {
 
   @ApiModelProperty(value = "Identifier of the workflow instance", required = true)
-  public int id;
+  public long id;
 
   @ApiModelProperty(value = "Workflow instance status (created, executing, inProgress, finished, manual)", required = true)
   public String status;
@@ -28,10 +28,10 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   public String type;
 
   @ApiModelProperty("Parent workflow instance id for child workflows")
-  public Integer parentWorkflowId;
+  public Long parentWorkflowId;
 
   @ApiModelProperty("Parent workflow instance action id for child workflows (action that created the child workflow)")
-  public Integer parentActionId;
+  public Long parentActionId;
 
   @ApiModelProperty("Main business key or identifier for the workflow instance")
   public String businessKey;
@@ -68,7 +68,7 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   public DateTime started;
 
   @ApiModelProperty("Child workflow instance IDs created by this instance, grouped by instance action ID")
-  public Map<Integer, List<Integer>> childWorkflows;
+  public Map<Long, List<Long>> childWorkflows;
 
   @ApiModelProperty("Current signal value")
   public Integer signal;

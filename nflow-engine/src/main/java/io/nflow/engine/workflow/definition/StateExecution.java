@@ -18,7 +18,7 @@ public interface StateExecution {
    *
    * @return The workflow instance id.
    */
-  int getWorkflowInstanceId();
+  long getWorkflowInstanceId();
 
   /**
    * Return the business key associated to the workflow instance.
@@ -175,6 +175,6 @@ public interface StateExecution {
    *
    * @return The parent workflow instance id or empty.
    */
-  Optional<Integer> getParentId();
+  Optional<Long> getParentId();
 
 }

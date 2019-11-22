@@ -43,7 +43,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
       .springContextClass(Configuration.class).build();
 
-  private static int workflowId;
+  private static long workflowId;
 
   private static final int CHILDREN_COUNT = 10;
 
@@ -117,7 +117,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   private void waitForBulkToFinish() {
     ListWorkflowInstanceResponse instance = getWorkflowInstanceWithTimeout(workflowId, done.name(), ofSeconds(30));
     assertThat(instance.childWorkflows.size(), equalTo(1));
-    List<Integer> childWorkflowIds = instance.childWorkflows.values().iterator().next();
+    List<Long> childWorkflowIds = instance.childWorkflows.values().iterator().next();
     assertThat(childWorkflowIds.size(), equalTo(CHILDREN_COUNT));
     List<ListWorkflowInstanceResponse> children = childWorkflowIds.stream().map(this::getWorkflowInstance).collect(toList());
     DateTime minFinished = children.stream().map(child -> child.modified).min(naturalOrder()).get();

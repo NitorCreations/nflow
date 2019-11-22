@@ -25,7 +25,7 @@ import io.nflow.tests.extension.NflowServerExtension;
 public class ChildWorkflowTest extends AbstractNflowTest {
   public static NflowServerConfig server = new NflowServerConfig.Builder().build();
 
-  private static int workflowId;
+  private static long workflowId;
 
   public ChildWorkflowTest() {
     super(server);

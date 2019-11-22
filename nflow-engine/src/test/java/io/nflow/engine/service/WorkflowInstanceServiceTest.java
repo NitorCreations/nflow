@@ -88,8 +88,8 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void insertWorkflowInstanceWorks() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(created).setExternalId("123").setState(null).build();
     when(workflowInstancePreProcessor.process(i)).thenReturn(i);
-    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42);
-    assertThat(service.insertWorkflowInstance(i), is(42));
+    when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42L);
+    assertThat(service.insertWorkflowInstance(i), is(42L));
     assertThat(stored.getValue().externalId, is("123"));
     assertThat(stored.getValue().status, is(created));
   }
@@ -152,7 +152,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   public void wakeUpWorkflowInstance() {
     List<String> states = asList("abc", "xyz");
     service.wakeupWorkflowInstance(99, states);
-    verify(workflowInstanceDao).wakeupWorkflowInstanceIfNotExecuting(99L, states);
+    verify(workflowInstanceDao).wakeupWorkflowInstanceIfNotExecuting(99, states);
   }
 
   @Test

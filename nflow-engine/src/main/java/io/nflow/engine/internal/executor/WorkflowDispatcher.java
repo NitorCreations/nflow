@@ -141,19 +141,19 @@ public class WorkflowDispatcher implements Runnable {
     }
   }
 
-  private void dispatch(List<Integer> nextInstanceIds) {
+  private void dispatch(List<Long> nextInstanceIds) {
     if (nextInstanceIds.isEmpty()) {
       logger.debug("Found no workflow instances, sleeping.");
       sleep(false);
       return;
     }
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
-    for (Integer instanceId : nextInstanceIds) {
+    for (Long instanceId : nextInstanceIds) {
       executor.execute(stateProcessorFactory.createProcessor(instanceId));
     }
   }
 
-  private List<Integer> getNextInstanceIds() {
+  private List<Long> getNextInstanceIds() {
     int nextBatchSize = executor.getQueueRemainingCapacity();
     logger.debug("Polling next {} workflow instances.", nextBatchSize);
     return workflowInstances.pollNextWorkflowInstanceIds(nextBatchSize);

@@ -124,15 +124,15 @@ public class ArchiveTest extends AbstractNflowTest {
     assertEquals(0, archived);
   }
 
-  private List<Integer> createWorkflows(int count) {
-    List<Integer> ids = new ArrayList<>();
+  private List<Long> createWorkflows(int count) {
+    List<Long> ids = new ArrayList<>();
     for (int i = 0; i < count; i++) {
       ids.add(createWorkflow());
     }
     return ids;
   }
 
-  private int createWorkflow() {
+  private long createWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = FibonacciWorkflow.WORKFLOW_TYPE;
     req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3)));
@@ -142,9 +142,9 @@ public class ArchiveTest extends AbstractNflowTest {
     return resp.id;
   }
 
-  private void waitUntilWorkflowsFinished(List<Integer> workflowIds) {
+  private void waitUntilWorkflowsFinished(List<Long> workflowIds) {
     assertTimeoutPreemptively(ofSeconds(15), () -> {
-      for (int workflowId : workflowIds) {
+      for (long workflowId : workflowIds) {
          try {
           getWorkflowInstance(workflowId, "done");
         } catch (@SuppressWarnings("unused") InterruptedException e) {

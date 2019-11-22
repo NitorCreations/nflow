@@ -76,31 +76,31 @@ public abstract class AbstractNflowTest {
     this.statisticsResource = fromClient(client, true).to(newUri, false);
   }
 
-  protected ListWorkflowInstanceResponse getWorkflowInstance(int instanceId) {
+  protected ListWorkflowInstanceResponse getWorkflowInstance(long instanceId) {
     return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables,childWorkflows")
         .get(ListWorkflowInstanceResponse.class);
   }
 
-  protected WakeupResponse wakeup(int instanceId, List<String> expectedStates) {
+  protected WakeupResponse wakeup(long instanceId, List<String> expectedStates) {
     WakeupRequest request = new WakeupRequest();
     request.expectedStates = expectedStates;
     return getInstanceResource(instanceId).path("wakeup").put(request, WakeupResponse.class);
   }
 
-  protected String setSignal(int instanceId, int signal, String reason) {
+  protected String setSignal(long instanceId, int signal, String reason) {
     SetSignalRequest request = new SetSignalRequest();
     request.signal = signal;
     request.reason = reason;
     return getInstanceResource(instanceId).path("signal").put(request, String.class);
   }
 
-  private WebClient getInstanceResource(int instanceId) {
-    WebClient client = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
+  private WebClient getInstanceResource(long instanceId) {
+    WebClient client = fromClient(workflowInstanceResource, true).path(Long.toString(instanceId));
     return client;
   }
 
-  private WebClient getInstanceIdResource(int instanceId) {
-    WebClient client = fromClient(workflowInstanceIdResource, true).path(Integer.toString(instanceId));
+  private WebClient getInstanceIdResource(long instanceId) {
+    WebClient client = fromClient(workflowInstanceIdResource, true).path(Long.toString(instanceId));
     return client;
   }
 
@@ -119,7 +119,7 @@ public abstract class AbstractNflowTest {
     return client.get(WorkflowDefinitionStatisticsResponse.class);
   }
 
-  protected ListWorkflowInstanceResponse getWorkflowInstance(int id, String expectedState) throws InterruptedException {
+  protected ListWorkflowInstanceResponse getWorkflowInstance(long id, String expectedState) throws InterruptedException {
     ListWorkflowInstanceResponse wf = null;
     do {
       sleep(200);
@@ -128,7 +128,7 @@ public abstract class AbstractNflowTest {
     return wf;
   }
 
-  protected ListWorkflowInstanceResponse getWorkflowInstanceWithTimeout(int id, String expectedState, Duration timeout) {
+  protected ListWorkflowInstanceResponse getWorkflowInstanceWithTimeout(long id, String expectedState, Duration timeout) {
     return assertTimeoutPreemptively(timeout, () -> {
       ListWorkflowInstanceResponse resp;
       do {
@@ -138,7 +138,7 @@ public abstract class AbstractNflowTest {
     });
   }
 
-  protected void assertWorkflowInstance(int instanceId, WorkflowInstanceValidator... validators) {
+  protected void assertWorkflowInstance(long instanceId, WorkflowInstanceValidator... validators) {
     ListWorkflowInstanceResponse instance = getWorkflowInstance(instanceId);
     for (WorkflowInstanceValidator validator : validators) {
       validator.validate(instance);
@@ -168,7 +168,7 @@ public abstract class AbstractNflowTest {
     return mapper;
   }
 
-  protected String updateWorkflowInstance(int instanceId, UpdateWorkflowInstanceRequest request) {
+  protected String updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request) {
     return getInstanceIdResource(instanceId).put(request, String.class);
   }
 

@@ -27,6 +27,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -158,7 +159,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
 
-  static Map<Integer, WorkflowStateProcessor> processingInstances;
+  static Map<Long, WorkflowStateProcessor> processingInstances;
 
   private final TestWorkflow testWorkflowDef = new TestWorkflow();
 
@@ -421,12 +422,12 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.run();
 
-    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Integer.class), any(List.class));
+    verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Long.class), any(List.class));
   }
 
   @Test
   public void whenWakingUpParentWorkflowSucceeds() {
-    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent")
+    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999L).setType("wake-test").setState("wakeParent")
         .build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     when(workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId)).thenReturn("parentType");
@@ -443,7 +444,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void whenWakingUpParentWorkflowFails() {
-    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("wake-test").setState("wakeParent")
+    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999L).setType("wake-test").setState("wakeParent")
         .build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     when(workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId)).thenReturn("parentType");
@@ -460,7 +461,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void finishingChildWakesParentAutomaticallyWhenParentIsInWaitState() {
-    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999).setType("simple-test").setState("processing")
+    WorkflowInstance instance = executingInstanceBuilder().setParentWorkflowId(999L).setType("simple-test").setState("processing")
         .build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     when(workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId)).thenReturn(BulkWorkflow.BULK_WORKFLOW_TYPE);
@@ -819,7 +820,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     executor.run();
 
-    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(any(), any());
+    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(anyLong(), any());
   }
 
   @Test
@@ -897,7 +898,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         @StateVar("pojo") Pojo pojo, @StateVar(value = "nullPojo", instantiateIfNotExists = true) Pojo pojo2,
         @StateVar(value = "immutablePojo", readOnly = true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero,
         @StateVar("mutableString") Mutable<String> mutableString) {
-      assertThat(execution.getWorkflowInstanceId(), is(1));
+      assertThat(execution.getWorkflowInstanceId(), is(1L));
       assertThat(execution.getWorkflowInstanceExternalId(), is(notNullValue()));
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
       assertThat(pojo.field, is(pojo1.field));

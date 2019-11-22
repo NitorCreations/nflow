@@ -90,7 +90,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   public Response createWorkflowInstance(
       @Valid @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
-    int id = workflowInstances.insertWorkflowInstance(instance);
+    long id = workflowInstances.insertWorkflowInstance(instance);
     instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
     return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
@@ -101,7 +101,7 @@ public class WorkflowInstanceResource extends ResourceBase {
       + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
     @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
-  public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+  public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances);
     return (updated ? noContent() : status(CONFLICT)).build();
@@ -111,7 +111,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   @Path("/id/{id}")
   @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
   public ListWorkflowInstanceResponse fetchWorkflowInstance(
-      @ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+      @ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     try {
@@ -124,10 +124,10 @@ public class WorkflowInstanceResource extends ResourceBase {
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
   public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
-      @QueryParam("id") @ApiParam("Internal id of workflow instance") List<Integer> ids,
+      @QueryParam("id") @ApiParam("Internal id of workflow instance") List<Long> ids,
       @QueryParam("type") @ApiParam("Workflow definition type of workflow instance") List<String> types,
-      @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Integer parentWorkflowId,
-      @QueryParam("parentActionId") @ApiParam("Id of parent workflow instance action") Integer parentActionId,
+      @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Long parentWorkflowId,
+      @QueryParam("parentActionId") @ApiParam("Id of parent workflow instance action") Long parentActionId,
       @QueryParam("state") @ApiParam("Current state of workflow instance") List<String> states,
       @QueryParam("status") @ApiParam("Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
       @QueryParam("businessKey") @ApiParam("Business key for workflow instance") String businessKey,
@@ -144,7 +144,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   @Path("/{id}/signal")
   @ApiOperation(value = "Set workflow instance signal value", notes = "The service may be used for example to interrupt executing workflow instance.")
   @ApiResponses({ @ApiResponse(code = 200, message = "When operation was successful") })
-  public Response setSignal(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+  public Response setSignal(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @Valid @ApiParam("New signal value") SetSignalRequest req) {
     boolean updated = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
     return (updated ? ok("Signal was set successfully") : ok("Signal was not set")).build();
@@ -154,7 +154,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   @Path("/{id}/wakeup")
   @ApiOperation(value = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
   @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted")})
-  public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") int id,
+  public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @Valid @ApiParam("Expected states") WakeupRequest req) {
     WakeupResponse response = new WakeupResponse();
     List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);

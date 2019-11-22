@@ -42,7 +42,7 @@ public class WorkflowInstance extends ModelObject {
   /**
    * The workflow instance identifier.
    */
-  public final Integer id;
+  public final Long id;
 
   /**
    * The id of executor that is currently processing this workflow. May be null.
@@ -53,17 +53,17 @@ public class WorkflowInstance extends ModelObject {
    * The id of the workflow that created the hierarchy of workflow where this sub workflow belongs to.
    * Null for workflows that are the root of hierarchy.
    */
-  public final Integer rootWorkflowId;
+  public final Long rootWorkflowId;
 
   /**
    * The id of the workflow that created this sub workflow. Is null for root workflows.
    */
-  public final Integer parentWorkflowId;
+  public final Long parentWorkflowId;
 
   /**
    * The id of the workflow action that created this sub workflow.  Is null for root workflows.
    */
-  public final Integer parentActionId;
+  public final Long parentActionId;
 
   /**
    * The current status of the workflow instance.
@@ -149,7 +149,7 @@ public class WorkflowInstance extends ModelObject {
   /**
    * Child workflow instance IDs created by this workflow instance, grouped by instance action ID.
    */
-  public Map<Integer, List<Integer>> childWorkflows;
+  public Map<Long, List<Long>> childWorkflows;
 
   ObjectStringMapper mapper;
 
@@ -228,11 +228,11 @@ public class WorkflowInstance extends ModelObject {
    */
   public static class Builder {
 
-    Integer id;
+    Long id;
     Integer executorId;
-    Integer rootWorkflowId;
-    Integer parentWorkflowId;
-    Integer parentActionId;
+    Long rootWorkflowId;
+    Long parentWorkflowId;
+    Long parentActionId;
     WorkflowInstanceStatus status;
     String type;
     String businessKey;
@@ -243,7 +243,7 @@ public class WorkflowInstance extends ModelObject {
     final Map<String, String> originalStateVariables = new LinkedHashMap<>();
     final Map<String, String> stateVariables = new LinkedHashMap<>();
     List<WorkflowInstanceAction> actions = new ArrayList<>();
-    final Map<Integer, List<Integer>> childWorkflows = new LinkedHashMap<>();
+    final Map<Long, List<Long>> childWorkflows = new LinkedHashMap<>();
     int retries;
     DateTime created;
     DateTime started;
@@ -301,7 +301,7 @@ public class WorkflowInstance extends ModelObject {
      * @param id The identifier.
      * @return this.
      */
-    public Builder setId(Integer id) {
+    public Builder setId(long id) {
       this.id = id;
       return this;
     }
@@ -321,7 +321,7 @@ public class WorkflowInstance extends ModelObject {
      * @param rootWorkflowId The identifier.
      * @return this
      */
-    public Builder setRootWorkflowId(Integer rootWorkflowId) {
+    public Builder setRootWorkflowId(Long rootWorkflowId) {
       this.rootWorkflowId = rootWorkflowId;
       return this;
     }
@@ -331,7 +331,7 @@ public class WorkflowInstance extends ModelObject {
      * @param parentWorkflowId The identifier.
      * @return this.
      */
-    public Builder setParentWorkflowId(Integer parentWorkflowId) {
+    public Builder setParentWorkflowId(Long parentWorkflowId) {
       this.parentWorkflowId = parentWorkflowId;
       return this;
     }
@@ -341,7 +341,7 @@ public class WorkflowInstance extends ModelObject {
      * @param parentActionId The identifier.
      * @return this.
      */
-    public Builder setParentActionId(Integer parentActionId) {
+    public Builder setParentActionId(Long parentActionId) {
       this.parentActionId = parentActionId;
       return this;
     }

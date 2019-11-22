@@ -51,7 +51,7 @@ public class WorkflowInstanceService {
    * @param maxActions Maximum number of actions to be loaded.
    * @return The workflow instance, or null if not found.
    */
-  public WorkflowInstance getWorkflowInstance(int id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
+  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
     return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions);
   }
 
@@ -63,10 +63,10 @@ public class WorkflowInstanceService {
    * @return The id of the inserted or existing workflow instance.
    */
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
-  public int insertWorkflowInstance(WorkflowInstance instance) {
+  public long insertWorkflowInstance(WorkflowInstance instance) {
     Assert.notNull(workflowInstancePreProcessor, "workflowInstancePreProcessor can not be null");
     WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);
-    int id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
+    long id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
     if (id == -1 && !isEmpty(instance.externalId)) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(instance.type).setExternalId(instance.externalId).build();
       id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
@@ -131,7 +131,7 @@ public class WorkflowInstanceService {
    * @param workflowInstanceId Workflow instance id.
    * @return Current signal value.
    */
-  public Optional<Integer> getSignal(Integer workflowInstanceId) {
+  public Optional<Integer> getSignal(long workflowInstanceId) {
     return workflowInstanceDao.getSignal(workflowInstanceId);
   }
 
@@ -143,7 +143,7 @@ public class WorkflowInstanceService {
    * @param actionType The type of workflow action that is stored to instance actions.
    * @return True when signal was set, false otherwise.
    */
-  public boolean setSignal(Integer workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
+  public boolean setSignal(long workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
     Assert.notNull(workflowDefinitionService, "workflowDefinitionService cannot be null");
     signal.ifPresent(signalValue -> {
       AbstractWorkflowDefinition<?> definition = getDefinition(workflowInstanceId);
@@ -154,7 +154,7 @@ public class WorkflowInstanceService {
     return workflowInstanceDao.setSignal(workflowInstanceId, signal, reason, actionType);
   }
 
-  private AbstractWorkflowDefinition<?> getDefinition(Integer workflowInstanceId) {
+  private AbstractWorkflowDefinition<?> getDefinition(Long workflowInstanceId) {
     return workflowDefinitionService.getWorkflowDefinition(workflowInstanceDao.getWorkflowInstanceType(workflowInstanceId));
   }
 

@@ -91,7 +91,7 @@ public abstract class ResourceBase {
     return response;
   }
 
-  public boolean updateWorkflowInstance(final int id,
+  public boolean updateWorkflowInstance(final long id,
       final UpdateWorkflowInstanceRequest req, final WorkflowInstanceFactory workflowInstanceFactory,
       final WorkflowInstanceService workflowInstances) {
     WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
@@ -128,14 +128,14 @@ public abstract class ResourceBase {
     return workflowInstances.updateWorkflowInstance(instance, action);
   }
 
-  public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(final List<Integer> ids, final List<String> types,
-      final Integer parentWorkflowId, final Integer parentActionId, final List<String> states,
+  public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(final List<Long> ids, final List<String> types,
+      final Long parentWorkflowId, final Long parentActionId, final List<String> states,
       final List<WorkflowInstanceStatus> statuses, final String businessKey, final String externalId, final String include,
       final Long maxResults, final Long maxActions, final WorkflowInstanceService workflowInstances,
       final ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder() //
-        .addIds(ids.toArray(new Integer[ids.size()])) //
+        .addIds(ids.toArray(new Long[ids.size()])) //
         .addTypes(types.toArray(new String[types.size()])) //
         .setParentWorkflowId(parentWorkflowId) //
         .setParentActionId(parentActionId) //
@@ -167,7 +167,7 @@ public abstract class ResourceBase {
     return Stream.of(trimToEmpty(include).split(","));
   }
 
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(final int id, final String include, final Long maxActions,
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(final long id, final String include, final Long maxActions,
       final WorkflowInstanceService workflowInstances,
       final ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
     Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
