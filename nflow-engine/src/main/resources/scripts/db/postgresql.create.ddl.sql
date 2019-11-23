@@ -5,6 +5,7 @@ create table if not exists nflow_workflow (
   id serial primary key,
   status workflow_status not null,
   type varchar(64) not null,
+  priority int not null default 0,
   root_workflow_id integer default null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,

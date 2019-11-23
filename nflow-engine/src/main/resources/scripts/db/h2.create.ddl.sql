@@ -3,6 +3,7 @@ create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
   status varchar(32) not null check status in ('created', 'executing', 'inProgress', 'finished', 'manual'),
   type varchar(64) not null,
+  priority int not null default 0,
   root_workflow_id integer default null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,
