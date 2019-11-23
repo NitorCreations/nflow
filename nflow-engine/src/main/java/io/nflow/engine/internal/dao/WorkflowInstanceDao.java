@@ -166,7 +166,8 @@ public class WorkflowInstanceDao {
     try {
       StringBuilder sqlb = new StringBuilder(256);
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
-      Object[] instanceValues = new Object[] { instance.type, instance.rootWorkflowId, instance.parentWorkflowId,
+      Object[] instanceValues = new Object[] { instance.type, getInstancePriority(instance),
+          instance.rootWorkflowId, instance.parentWorkflowId,
           instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
           instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
           toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
@@ -186,13 +187,17 @@ public class WorkflowInstanceDao {
     }
   }
 
+  private int getInstancePriority(WorkflowInstance instance) {
+    return instance.priority != null ? instance.priority.intValue() : 0;
+  }
+
   boolean useBatchUpdate() {
     return !disableBatchUpdates && sqlVariants.useBatchUpdate();
   }
 
   String insertWorkflowInstanceSql() {
-    return "insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
-        + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, "
+    return "insert into nflow_workflow(type, priority, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
+        + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, ?, "
         + sqlVariants.workflowStatus() + ", ?, ?, ?, ?)";
   }
 
@@ -210,6 +215,7 @@ public class WorkflowInstanceDao {
           int p = 1;
           PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
           ps.setString(p++, instance.type);
+          ps.setInt(p++, getInstancePriority(instance));
           ps.setObject(p++, instance.rootWorkflowId);
           ps.setObject(p++, instance.parentWorkflowId);
           ps.setObject(p++, instance.parentActionId);
@@ -525,7 +531,7 @@ public class WorkflowInstanceDao {
   String whereConditionForInstanceUpdate() {
     return "where executor_id is null and status in (" + sqlVariants.workflowStatus(created) + ", "
         + sqlVariants.workflowStatus(inProgress) + ") and " + sqlVariants.dateLtEqDiff("next_activation", "current_timestamp")
-        + " and " + executorInfo.getExecutorGroupCondition() + " order by next_activation asc";
+        + " and " + executorInfo.getExecutorGroupCondition() + " order by priority desc, next_activation asc";
   }
 
   private List<Long> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
@@ -762,6 +768,7 @@ public class WorkflowInstanceDao {
           .setParentActionId(getLong(rs, "parent_action_id")) //
           .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status"))) //
           .setType(rs.getString("type")) //
+          .setPriority(rs.getInt("priority")) //
           .setBusinessKey(rs.getString("business_key")) //
           .setExternalId(rs.getString("external_id")) //
           .setState(rs.getString("state")) //

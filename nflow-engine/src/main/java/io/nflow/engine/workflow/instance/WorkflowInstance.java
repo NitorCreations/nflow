@@ -76,6 +76,11 @@ public class WorkflowInstance extends ModelObject {
   public final String type;
 
   /**
+   * The priority of the workflow instance. Defaults to 0 and can also be negative.
+   */
+  public final Integer priority;
+
+  /**
    * Business key.
    */
   public final String businessKey;
@@ -161,6 +166,7 @@ public class WorkflowInstance extends ModelObject {
     this.parentActionId = builder.parentActionId;
     this.status = builder.status;
     this.type = builder.type;
+    this.priority = builder.priority;
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
     this.state = builder.state;
@@ -235,6 +241,7 @@ public class WorkflowInstance extends ModelObject {
     Long parentActionId;
     WorkflowInstanceStatus status;
     String type;
+    Integer priority;
     String businessKey;
     String externalId;
     String state;
@@ -363,6 +370,16 @@ public class WorkflowInstance extends ModelObject {
      */
     public Builder setType(String type) {
       this.type = type;
+      return this;
+    }
+
+    /**
+     * Set the priority of the workflow instance.
+     * @param priority The priority.
+     * @return this.
+     */
+    public Builder setPriority(Integer priority) {
+      this.priority = priority;
       return this;
     }
 
