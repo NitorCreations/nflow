@@ -27,6 +27,9 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   @ApiModelProperty(value = "Workflow definition type", required = true)
   public String type;
 
+  @ApiModelProperty(value = "Workflow instance priority", required = true)
+  public Integer priority;
+
   @ApiModelProperty("Parent workflow instance id for child workflows")
   public Long parentWorkflowId;
 
