@@ -88,6 +88,7 @@ create table if not exists nflow_archive_workflow (
   id int not null primary key,
   status varchar(32) not null check status in ('created', 'executing', 'inProgress', 'finished', 'manual'),
   type varchar(64) not null,
+  priority int null,
   root_workflow_id integer,
   parent_workflow_id integer,
   parent_action_id integer,

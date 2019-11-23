@@ -126,6 +126,7 @@ create table nflow_archive_workflow (
   id int not null primary key,
   status varchar(32) not null,
   type varchar(64) not null,
+  priority int null,
   root_workflow_id int,
   parent_workflow_id int,
   parent_action_id int,
