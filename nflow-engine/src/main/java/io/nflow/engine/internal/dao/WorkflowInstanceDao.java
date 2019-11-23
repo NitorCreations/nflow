@@ -1,6 +1,9 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.DaoUtil.*;
+import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
+import static io.nflow.engine.internal.dao.DaoUtil.getInt;
+import static io.nflow.engine.internal.dao.DaoUtil.getLong;
+import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
@@ -28,7 +31,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,7 +85,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 public class WorkflowInstanceDao {
 
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
-  static final Map<Long, Map<String, String>> EMPTY_ACTION_STATE_MAP = Collections.emptyMap();
+  static final Map<Long, Map<String, String>> EMPTY_ACTION_STATE_MAP = emptyMap();
 
   final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;

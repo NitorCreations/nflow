@@ -2,6 +2,7 @@ package io.nflow.engine.internal.executor;
 
 import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +18,6 @@ import static org.mockito.Mockito.when;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -303,7 +303,7 @@ public class WorkflowDispatcherTest {
     class DispatcherLogsWarning extends MultithreadedTestCase {
       public void threadDispatcher() throws InterruptedException {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
-            .thenAnswer(waitForTickAndAnswer(2, Collections.emptyList(), this));
+            .thenAnswer(waitForTickAndAnswer(2, emptyList(), this));
         when(executorFactory.getPotentiallyStuckProcessors()).thenReturn(executor.getThreadCount());
         dispatcher.run();
       }
