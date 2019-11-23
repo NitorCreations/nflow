@@ -380,7 +380,10 @@ public class WorkflowInstance extends ModelObject {
      * @return this.
      */
     public Builder setPriority(Integer priority) {
-      this.priority = priority;
+      this.priority = Integer.valueOf(priority.shortValue());
+      if (this.priority != priority) {
+        throw new IllegalArgumentException("Priority must be between -32768 and 32767");
+      }
       return this;
     }
 
