@@ -40,7 +40,7 @@ public class ArchiveDao {
     tableMetadataChecker.ensureCopyingPossible("nflow_workflow_state", "nflow_archive_workflow_state");
   }
 
-  public List<Integer> listArchivableWorkflows(DateTime before, int maxRows) {
+  public List<Long> listArchivableWorkflows(DateTime before, int maxRows) {
     return jdbc.query(
                     "select w.id id from nflow_workflow w, " +
                     "(" + sqlVariants.limit(
@@ -58,7 +58,7 @@ public class ArchiveDao {
   }
 
   @Transactional
-  public int archiveWorkflows(Collection<Integer> workflowIds) {
+  public int archiveWorkflows(Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
 
     int archivedWorkflows = archiveWorkflowTable(workflowIdParams);
@@ -99,14 +99,14 @@ public class ArchiveDao {
     return join(columnNames, ",");
   }
 
-  private String params(Collection<Integer> workflowIds) {
+  private String params(Collection<Long> workflowIds) {
     return "(" + join(workflowIds, ",") + ")";
   }
 
-  static class ArchivableWorkflowsRowMapper implements RowMapper<Integer> {
+  static class ArchivableWorkflowsRowMapper implements RowMapper<Long> {
     @Override
-    public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return rs.getInt("id");
+    public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+      return rs.getLong("id");
     }
   }
 }

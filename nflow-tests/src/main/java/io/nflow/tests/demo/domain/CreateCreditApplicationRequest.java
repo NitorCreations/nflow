@@ -6,6 +6,6 @@ public class CreateCreditApplicationRequest extends AbstractRequest {
   public int amount;
   public String clientId;
   public String productId;
-  public int processWorkflowId;
+  public long processWorkflowId;
 
 }

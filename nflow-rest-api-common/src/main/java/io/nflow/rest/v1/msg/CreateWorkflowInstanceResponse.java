@@ -12,7 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class CreateWorkflowInstanceResponse extends ModelObject {
 
   @ApiModelProperty(value = "Idenfier of the new workflow instance", required = true)
-  public int id;
+  public long id;
 
   @ApiModelProperty(value = "Workflow definition type", required = true)
   public String type;

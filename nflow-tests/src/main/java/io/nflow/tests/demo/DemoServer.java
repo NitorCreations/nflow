@@ -52,13 +52,13 @@ public class DemoServer {
     WorkflowInstanceFactory workflowInstanceFactory = applicationContext.getBean(WorkflowInstanceFactory.class);
     WorkflowInstance instance = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE)
         .setState(DemoWorkflow.State.begin.name()).build();
-    int id = workflowInstanceService.insertWorkflowInstance(instance);
+    long id = workflowInstanceService.insertWorkflowInstance(instance);
     instance = workflowInstanceService.getWorkflowInstance(id, emptySet(), null);
     WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance).setType(externalChange).setExecutionEnd(now())
         .build();
     workflowInstanceService.updateWorkflowInstance(instance, action);
     instance = workflowInstanceService.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.ACTIONS), 1L);
-    int actionId = instance.actions.get(0).id;
+    long actionId = instance.actions.get(0).id;
     WorkflowInstance child = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).setState(DemoWorkflow.State.begin.name())
         .setParentActionId(actionId).setParentWorkflowId(id).build();
     workflowInstanceService.insertWorkflowInstance(child);

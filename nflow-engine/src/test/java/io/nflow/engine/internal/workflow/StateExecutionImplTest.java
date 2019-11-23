@@ -102,7 +102,7 @@ public class StateExecutionImplTest {
   @Test
   public void wakeUpParentWorkflowSetsWakeUpStates() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
-        .setBusinessKey("business").setParentWorkflowId(123).build();
+        .setBusinessKey("business").setParentWorkflowId(123L).build();
     execution = createExecution(instance);
     assertThat(execution.getWakeUpParentWorkflowStates().isPresent(), is(false));
     execution.wakeUpParentWorkflow();
@@ -120,7 +120,7 @@ public class StateExecutionImplTest {
   @Test
   public void queryChildWorkflowsIsRestrictedToChildsOfCurrentWorkflow() {
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder()
-            .setParentActionId(42).addTypes("a","b")
+            .setParentActionId(42L).addTypes("a","b")
             .setBusinessKey("123").build();
 
     List<WorkflowInstance> result = singletonList(mock(WorkflowInstance.class));
@@ -129,7 +129,7 @@ public class StateExecutionImplTest {
     assertThat(execution.queryChildWorkflows(query), is(result));
     QueryWorkflowInstances actualQuery = queryCaptor.getValue();
 
-    assertThat(actualQuery.parentWorkflowId, is(99));
+    assertThat(actualQuery.parentWorkflowId, is(99L));
     assertThat(actualQuery.types, is(asList("a", "b")));
     assertThat(actualQuery.businessKey, is("123"));
   }
@@ -142,7 +142,7 @@ public class StateExecutionImplTest {
     assertThat(execution.getAllChildWorkflows(), is(result));
     QueryWorkflowInstances actualQuery = queryCaptor.getValue();
 
-    assertThat(actualQuery.parentWorkflowId, is(99));
+    assertThat(actualQuery.parentWorkflowId, is(99L));
     assertThat(actualQuery.types, is(Collections.<String>emptyList()));
     assertThat(actualQuery.businessKey, is(nullValue()));
   }
@@ -254,10 +254,10 @@ public class StateExecutionImplTest {
 
   @Test
   public void getParentIdReturnsParentWorkflowId() {
-    instance = new WorkflowInstance.Builder().setParentWorkflowId(42).build();
+    instance = new WorkflowInstance.Builder().setParentWorkflowId(42L).build();
     execution = createExecution(instance);
 
-    assertThat(execution.getParentId(), is(Optional.of(42)));
+    assertThat(execution.getParentId(), is(Optional.of(42L)));
   }
 
   @Test

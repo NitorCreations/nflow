@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.executor;
 
 public class InstanceInfo {
-  public int id;
+  public long id;
   public String state;
 }

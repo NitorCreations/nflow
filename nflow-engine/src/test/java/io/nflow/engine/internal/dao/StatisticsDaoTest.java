@@ -50,17 +50,17 @@ public class StatisticsDaoTest extends BaseDaoTest {
     assertThat(queued.minAgeMillis, greaterThanOrEqualTo(0L));
   }
 
-  private int createInstance() {
+  private long createInstance() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
-    int id = instanceDao.insertWorkflowInstance(i1);
+    long id = instanceDao.insertWorkflowInstance(i1);
     return id;
   }
 
   @Test
   public void getWorkflowDefinitionStatisticsWorks() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).setStatus(created).build();
-    int id = instanceDao.insertWorkflowInstance(i1);
+    long id = instanceDao.insertWorkflowInstance(i1);
 
     Map<String, Map<String, WorkflowDefinitionStatistics>> stats = statisticsDao.getWorkflowDefinitionStatistics(i1.type, null,
         null, null, null);

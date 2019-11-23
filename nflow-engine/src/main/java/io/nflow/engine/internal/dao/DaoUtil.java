@@ -39,6 +39,11 @@ public class DaoUtil {
     return rs.wasNull() ? null : value;
   }
 
+  public static Long getLong(ResultSet rs, String columnLabel) throws SQLException {
+    long value = rs.getLong(columnLabel);
+    return rs.wasNull() ? null : value;
+  }
+
   public static final class ColumnNamesExtractor implements ResultSetExtractor<List<String>> {
     static final ColumnNamesExtractor columnNamesExtractor = new ColumnNamesExtractor();
 

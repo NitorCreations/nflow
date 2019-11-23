@@ -49,7 +49,7 @@ public class ArchiveService {
     log.info("Archiving starting. Archiving passive workflows older than {}, in batches of {}.", olderThan, batchSize);
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
-    List<Integer> workflowIds;
+    List<Long> workflowIds;
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int archivedWorkflowsTotal = 0;
     do {

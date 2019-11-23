@@ -62,7 +62,7 @@ class WorkflowStateProcessor implements Runnable {
   private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);
   private static final String MDC_KEY = "workflowInstanceId";
 
-  private final int instanceId;
+  private final long instanceId;
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
@@ -75,14 +75,14 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
   private boolean internalRetryEnabled = true;
-  private final Map<Integer, WorkflowStateProcessor> processingInstances;
+  private final Map<Long, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
   private Thread thread;
 
-  WorkflowStateProcessor(int instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
+  WorkflowStateProcessor(long instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
-      Map<Integer, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
+      Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;

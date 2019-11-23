@@ -28,7 +28,7 @@ public class WorkflowStateProcessorFactory {
   private final Environment env;
   @Autowired(required = false)
   protected WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[0];
-  final Map<Integer, WorkflowStateProcessor> processingInstances = new ConcurrentHashMap<>();
+  final Map<Long, WorkflowStateProcessor> processingInstances = new ConcurrentHashMap<>();
   private final int stuckThreadThresholdSeconds;
 
   @Inject
@@ -44,7 +44,7 @@ public class WorkflowStateProcessorFactory {
     this.env = env;
   }
 
-  public WorkflowStateProcessor createProcessor(int instanceId) {
+  public WorkflowStateProcessor createProcessor(long instanceId) {
     return new WorkflowStateProcessor(instanceId, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         workflowInstancePreProcessor, env, processingInstances, listeners);
   }

@@ -37,7 +37,7 @@ public abstract class BaseNflowTest {
         .setSignal(Optional.of(42));
   }
 
-  protected WorkflowInstanceAction.Builder constructActionBuilder(int workflowInstanceID) {
+  protected WorkflowInstanceAction.Builder constructActionBuilder(long workflowInstanceID) {
     return new WorkflowInstanceAction.Builder() //
         .setExecutionStart(DateTime.now()) //
         .setExecutorId(42) //

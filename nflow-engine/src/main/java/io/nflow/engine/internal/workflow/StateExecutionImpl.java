@@ -72,7 +72,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   @Override
-  public int getWorkflowInstanceId() {
+  public long getWorkflowInstanceId() {
     return instance.id;
   }
 
@@ -254,7 +254,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   @Override
-  public Optional<Integer> getParentId() {
+  public Optional<Long> getParentId() {
     return Optional.ofNullable(instance.parentWorkflowId);
   }
 

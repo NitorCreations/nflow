@@ -89,7 +89,7 @@ public class WorkflowInstanceResourceTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     WorkflowInstance inst = mock(WorkflowInstance.class);
     when(createWorkflowConverter.convert(req)).thenReturn(inst);
-    when(workflowInstances.insertWorkflowInstance(inst)).thenReturn(1);
+    when(workflowInstances.insertWorkflowInstance(inst)).thenReturn(1L);
     try (Response r = resource.createWorkflowInstance(req)) {
       assertThat(r.getStatus(), is(201));
       assertThat(r.getHeaderString("Location"), is("1"));
@@ -175,13 +175,13 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void listWorkflowInstancesWorks() {
-    resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
+    resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
-        hasField("ids", contains(42)),
+        hasField("ids", contains(42L)),
         hasField("types", contains("type")),
-        hasField("parentWorkflowId", is(99)),
-        hasField("parentActionId", is(88)),
+        hasField("parentWorkflowId", is(99L)),
+        hasField("parentActionId", is(88L)),
         hasField("states", contains("state")),
         hasField("statuses", contains(WorkflowInstanceStatus.created)),
         hasField("businessKey", equalTo("businessKey")),
@@ -196,14 +196,14 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
-    resource.listWorkflowInstances(asList(42), asList("type"), 99, 88, asList("state"),
+    resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
         "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L);
     verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
-        hasField("ids", contains(42)),
+        hasField("ids", contains(42L)),
         hasField("types", contains("type")),
-        hasField("parentWorkflowId", is(99)),
-        hasField("parentActionId", is(88)),
+        hasField("parentWorkflowId", is(99L)),
+        hasField("parentActionId", is(88L)),
         hasField("states", contains("state")),
         hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
         hasField("businessKey", equalTo("businessKey")),

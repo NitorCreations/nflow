@@ -43,7 +43,7 @@ public class CreateWorkflowInstanceRequest extends ModelObject {
   public Boolean activate;
 
   @ApiModelProperty("Create the workflow as a child of the given parent workflow.")
-  public Integer parentWorkflowId;
+  public Long parentWorkflowId;
 
   @ApiModelProperty("State variables to be set for the new workflow instance.")
   public Map<String, Object> stateVariables = new HashMap<>();

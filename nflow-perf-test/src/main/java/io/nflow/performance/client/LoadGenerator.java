@@ -33,8 +33,8 @@ public class LoadGenerator {
 
   private static final StopWatch elapsedTime = new StopWatch();
 
-  private List<Integer> generateSomeLoad(int threadCount, int loadCount) throws InterruptedException {
-    List<Integer> allInstanceIds = new LinkedList<>();
+  private List<Long> generateSomeLoad(int threadCount, int loadCount) throws InterruptedException {
+    List<Long> allInstanceIds = new LinkedList<>();
     List<LoadGeneratorThread> threads = new LinkedList<>();
     for (int i = 0; i < threadCount; i++) {
       LoadGeneratorThread t = new LoadGeneratorThread(i, client, loadCount);
@@ -55,7 +55,7 @@ public class LoadGenerator {
     private final PerfTestClient c;
     private final int loadCount;
     private final StopWatch stopWatch = new StopWatch();
-    private final List<Integer> instanceIds = new LinkedList<>();
+    private final List<Long> instanceIds = new LinkedList<>();
 
     public LoadGeneratorThread(int id, PerfTestClient c, int loadCount) {
       this.id = id;
@@ -74,7 +74,7 @@ public class LoadGenerator {
       logger.info("Generated {} items took {} msec for {}", loadCount, stopWatch.getTime(), id);
     }
 
-    public List<Integer> getInstanceIds() {
+    public List<Long> getInstanceIds() {
       return instanceIds;
     }
   }

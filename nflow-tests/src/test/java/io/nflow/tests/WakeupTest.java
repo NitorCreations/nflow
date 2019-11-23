@@ -89,7 +89,7 @@ public class WakeupTest extends AbstractNflowTest {
     waitUntilActionCount(createdWorkflow.id, 4, 10 * 1000);
   }
 
-  private void waitUntilActionCount(int workflowId, int expectedActionCount, long maxWaitTime) throws InterruptedException {
+  private void waitUntilActionCount(long workflowId, int expectedActionCount, long maxWaitTime) throws InterruptedException {
     long start = currentTimeMillis();
     while ((currentTimeMillis() - start) < maxWaitTime) {
       Thread.sleep(500);

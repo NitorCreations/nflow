@@ -2,6 +2,7 @@ package io.nflow.engine.internal.executor;
 
 import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +18,6 @@ import static org.mockito.Mockito.when;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -106,9 +106,9 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenReturn(ids(1))
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenReturn(ids(1L))
             .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
-            .thenAnswer(waitForTickAndAnswer(2, ids(2), this));
+            .thenAnswer(waitForTickAndAnswer(2, ids(2L), this));
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, noOpRunnable());
         when(executorFactory.createProcessor(1)).thenReturn(fakeWorkflowExecutor);
         WorkflowStateProcessor fakeWorkflowExecutor2 = fakeWorkflowExecutor(2, noOpRunnable());
@@ -137,7 +137,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ErrorDuringDispatcherExecutionStopsDispatcher extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenThrow(new AssertionError()).thenReturn(ids(1));
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenThrow(new AssertionError()).thenReturn(ids(1L));
         try {
           dispatcher.run();
           Assertions.fail("Error should stop the dispatcher");
@@ -185,7 +185,7 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ShutdownBlocksUntilPoolShutdown extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(1), this));
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(1L), this));
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
         when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
         dispatcher.run();
@@ -224,7 +224,7 @@ public class WorkflowDispatcherTest {
           public Object answer(InvocationOnMock invocation) throws Throwable {
             waitForTick(2);
             getThreadByName("threadShutdown").interrupt();
-            return ids(1);
+            return ids(1L);
           }
         });
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
@@ -303,7 +303,7 @@ public class WorkflowDispatcherTest {
     class DispatcherLogsWarning extends MultithreadedTestCase {
       public void threadDispatcher() throws InterruptedException {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt()))
-            .thenAnswer(waitForTickAndAnswer(2, Collections.<Integer> emptyList(), this));
+            .thenAnswer(waitForTickAndAnswer(2, emptyList(), this));
         when(executorFactory.getPotentiallyStuckProcessors()).thenReturn(executor.getThreadCount());
         dispatcher.run();
       }
@@ -358,9 +358,9 @@ public class WorkflowDispatcherTest {
     };
   }
 
-  WorkflowStateProcessor fakeWorkflowExecutor(int instanceId, final Runnable fakeCommand) {
+  WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, final Runnable fakeCommand) {
     return new WorkflowStateProcessor(instanceId, null, null, null, null, null, env,
-        new ConcurrentHashMap<Integer, WorkflowStateProcessor>(), (WorkflowExecutorListener) null) {
+        new ConcurrentHashMap<>(), (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();
@@ -368,7 +368,7 @@ public class WorkflowDispatcherTest {
     };
   }
 
-  Answer<List<Integer>> waitForTickAndAnswer(final int tick, final List<Integer> answer, final MultithreadedTestCase mtc) {
+  Answer<List<Long>> waitForTickAndAnswer(final int tick, final List<Long> answer, final MultithreadedTestCase mtc) {
     return invocation -> {
       mtc.waitForTick(tick);
       return answer;
@@ -383,7 +383,7 @@ public class WorkflowDispatcherTest {
     }
   }
 
-  static List<Integer> ids(Integer... ids) {
+  static List<Long> ids(Long... ids) {
     return asList(ids);
   }
 }
