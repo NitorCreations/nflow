@@ -285,6 +285,7 @@ public class WorkflowInstance extends ModelObject {
       this.parentActionId = copy.parentActionId;
       this.status = copy.status;
       this.type = copy.type;
+      this.priority = copy.priority;
       this.businessKey = copy.businessKey;
       this.externalId = copy.externalId;
       this.state = copy.state;
