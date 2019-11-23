@@ -187,8 +187,8 @@ public class WorkflowInstanceDao {
     }
   }
 
-  private int getInstancePriority(WorkflowInstance instance) {
-    return instance.priority != null ? instance.priority.intValue() : 0;
+  private short getInstancePriority(WorkflowInstance instance) {
+    return instance.priority != null ? instance.priority.shortValue() : 0;
   }
 
   boolean useBatchUpdate() {
@@ -768,7 +768,7 @@ public class WorkflowInstanceDao {
           .setParentActionId(getLong(rs, "parent_action_id")) //
           .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status"))) //
           .setType(rs.getString("type")) //
-          .setPriority(rs.getInt("priority")) //
+          .setPriority(rs.getShort("priority")) //
           .setBusinessKey(rs.getString("business_key")) //
           .setExternalId(rs.getString("external_id")) //
           .setState(rs.getString("state")) //

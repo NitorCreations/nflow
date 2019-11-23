@@ -78,7 +78,7 @@ public class WorkflowInstance extends ModelObject {
   /**
    * The priority of the workflow instance. Defaults to 0 and can also be negative.
    */
-  public final Integer priority;
+  public final Short priority;
 
   /**
    * Business key.
@@ -241,7 +241,7 @@ public class WorkflowInstance extends ModelObject {
     Long parentActionId;
     WorkflowInstanceStatus status;
     String type;
-    Integer priority;
+    Short priority;
     String businessKey;
     String externalId;
     String state;
@@ -379,11 +379,8 @@ public class WorkflowInstance extends ModelObject {
      * @param priority The priority.
      * @return this.
      */
-    public Builder setPriority(Integer priority) {
-      this.priority = Integer.valueOf(priority.shortValue());
-      if (this.priority != priority) {
-        throw new IllegalArgumentException("Priority must be between -32768 and 32767");
-      }
+    public Builder setPriority(Short priority) {
+      this.priority = priority;
       return this;
     }
 

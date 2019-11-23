@@ -578,7 +578,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
         .setRootWorkflowId(9283L).setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
         .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
-        .setStartedIfNotSet(started).setPriority(10).build();
+        .setStartedIfNotSet(started).setPriority((short)10).build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(
@@ -646,9 +646,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstancesReturnInstancesInCorrectOrder() {
-    int olderLowPrio = createInstance(2, 1);
-    int newerLowPrio = createInstance(1, 1);
-    int newerHighPrio = createInstance(1, 2);
+    int olderLowPrio = createInstance(2, (short)1);
+    int newerLowPrio = createInstance(1, (short)1);
+    int newerHighPrio = createInstance(1, (short)2);
 
     // high priority comes first
     List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
@@ -663,7 +663,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(ids, is(asList(newerLowPrio)));
   }
 
-  private int createInstance(int minutesInPast, int priority) {
+  private int createInstance(int minutesInPast, short priority) {
     return dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(minutesInPast))
         .setPriority(priority).setExecutorGroup("junit").build());
   }
