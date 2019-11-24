@@ -646,12 +646,12 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstancesReturnInstancesInCorrectOrder() {
-    int olderLowPrio = createInstance(2, (short)1);
-    int newerLowPrio = createInstance(1, (short)1);
-    int newerHighPrio = createInstance(1, (short)2);
+    long olderLowPrio = createInstance(2, (short)1);
+    long newerLowPrio = createInstance(1, (short)1);
+    long newerHighPrio = createInstance(1, (short)2);
 
     // high priority comes first
-    List<Integer> ids = dao.pollNextWorkflowInstanceIds(1);
+    List<Long> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, is(asList(newerHighPrio)));
 
     // older comes first when same prio
@@ -663,7 +663,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(ids, is(asList(newerLowPrio)));
   }
 
-  private int createInstance(int minutesInPast, short priority) {
+  private long createInstance(int minutesInPast, short priority) {
     return dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(minutesInPast))
         .setPriority(priority).setExecutorGroup("junit").build());
   }
