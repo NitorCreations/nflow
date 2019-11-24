@@ -76,7 +76,10 @@ public class WorkflowInstance extends ModelObject {
   public final String type;
 
   /**
-   * The priority of the workflow instance. Defaults to 0 and can also be negative.
+   * The priority of the workflow instance. When an executor chooses from many available scheduled
+   * workflow instances it primarily (unfairly) schedules the workflow instance with the larger
+   * priority value, and for workflows with the same priority, the one scheduled first. Priority
+   * defaults to 0 and can also be negative.
    */
   public final Short priority;
 
@@ -375,7 +378,10 @@ public class WorkflowInstance extends ModelObject {
     }
 
     /**
-     * Set the priority of the workflow instance.
+     * Set the priority of the workflow instance. When an executor chooses from many available
+     * scheduled workflow instances it primarily (unfairly) schedules the workflow instance with
+     * the larger priority value, and for workflows with the same priority, the one scheduled
+     * first. Priority defaults to 0 and can also be negative.
      * @param priority The priority.
      * @return this.
      */
