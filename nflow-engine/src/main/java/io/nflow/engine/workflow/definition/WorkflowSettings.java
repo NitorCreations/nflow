@@ -61,6 +61,10 @@ public class WorkflowSettings extends ModelObject {
    * By default, returns true roughly every tenth time.
    */
   public final BooleanSupplier deleteHistoryCondition;
+  /**
+   * Default priority for new workflow instances.
+   */
+  public final short defaultPriority;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -72,6 +76,7 @@ public class WorkflowSettings extends ModelObject {
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
     this.historyDeletableAfterHours = builder.historyDeletableAfterHours;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
+    this.defaultPriority = builder.defaultPriority;
   }
 
   /**
@@ -88,6 +93,7 @@ public class WorkflowSettings extends ModelObject {
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
     Integer historyDeletableAfterHours;
+    short defaultPriority = 0;
     Random rnd = new Random();
     BooleanSupplier deleteHistoryCondition = new BooleanSupplier() {
 
@@ -214,6 +220,18 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
+     * Set the default priority for new workflow instances.
+     *
+     * @param defaultPriority
+     *          Default priority.
+     * @return this.
+     */
+    public Builder setDefaultPriority(short defaultPriority) {
+      this.defaultPriority = defaultPriority;
+      return this;
+    }
+
+    /**
      * Create workflow settings object.
      *
      * @return Workflow settings.
@@ -282,6 +300,15 @@ public class WorkflowSettings extends ModelObject {
    */
   public boolean deleteWorkflowInstanceHistory() {
     return deleteHistoryCondition.getAsBoolean();
+  }
+
+  /**
+   * Return default priority for new workflow instances.
+   *
+   * @return Default priority for new workflow instances.
+   */
+  public Short getDefaultPriority() {
+    return defaultPriority;
   }
 
 }

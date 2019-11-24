@@ -16,6 +16,7 @@ import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
@@ -25,9 +26,13 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   private WorkflowInstancePreProcessor preProcessor;
 
+  private WorkflowDefinition<?> dummyWorkflow;
+
+  private static final short DEFAULT_PRIORITY = 100;
+
   @BeforeEach
   public void setup() {
-    WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
+    dummyWorkflow = new DummyTestWorkflow(new WorkflowSettings.Builder().setDefaultPriority(DEFAULT_PRIORITY).build());
     lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition("dummy");
     preProcessor = new WorkflowInstancePreProcessor(workflowDefinitionService);
   }
@@ -65,5 +70,20 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setType("nonexistent").build();
     RuntimeException thrown = assertThrows(RuntimeException.class, () -> preProcessor.process(i));
     assertThat(thrown.getMessage(), containsString("No workflow definition found for type [nonexistent]"));
+  }
+
+  @Test
+  public void setsPriorityToDefinitionDefaultIfMissing() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setPriority(null).build();
+    WorkflowInstance processed = preProcessor.process(i);
+    assertThat(processed.priority, is(DEFAULT_PRIORITY));
+  }
+
+  @Test
+  public void doesNotOverrideInstancePriority() {
+    short priority = 10;
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setPriority(priority).build();
+    WorkflowInstance processed = preProcessor.process(i);
+    assertThat(processed.priority, is(priority));
   }
 }

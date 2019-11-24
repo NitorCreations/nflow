@@ -867,7 +867,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int crashedExecutorId = 999;
     insertCrashedExecutor(crashedExecutorId, executorDao.getExecutorGroup());
     long id = dao.insertWorkflowInstance(new WorkflowInstance.Builder().setType("test").setExternalId("extId")
-        .setExecutorGroup(executorDao.getExecutorGroup()).setStatus(executing).setState("processing").build());
+        .setExecutorGroup(executorDao.getExecutorGroup()).setStatus(executing).setState("processing").setPriority((short) 0)
+        .build());
     int updated = jdbc.update("update nflow_workflow set executor_id = ? where id = ?", crashedExecutorId, id);
     assertThat(updated, is(1));
 
