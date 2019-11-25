@@ -1,6 +1,7 @@
 ## 6.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- Add priority to workflow instances
 - Use constructor injection instead of field or setter injection in nFlow classes
 - Separate workflow definition scanning from `WorkflowDefinitionService`
 - Remove deprecated `WorkflowInstanceInclude.STARTED` enum value
@@ -14,6 +15,7 @@
 
 **Details**
 - `nflow-engine`
+  - Add `priority` two byte integer to the `nflow_workflow` table. When an executor chooses from many available scheduled workflow instances it primarily (unfairly) schedules the workflow instance with the larger priority value, and for workflows with the same priority, the one scheduled first. Priority defaults to 0 and can also be negative. Requires database migration.
   - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
   - Add `disableMariaDbDriver` to default MySQL JDBC URL so that in case there are both MySQL and MariaDB JDBC drivers in the classpath then MariaDB will not steal the MySQL URL.
   - Add support for `nflow.db.mariadb` profile.
