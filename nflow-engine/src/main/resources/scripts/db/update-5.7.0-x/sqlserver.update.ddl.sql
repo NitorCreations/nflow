@@ -6,11 +6,11 @@ alter table nflow_workflow add priority smallint not null default 0;
 --
 -- followed by either:
 --
---   update nflow_workflow set priority = 0 where priority is null;
+--   update nflow_workflow set priority = 0, modified = modified where priority is null;
 --
 -- or in batches of 100k with this query, repeated until no rows are affected:
 --
---   update nflow_workflow set priority = 0 where priority is null limit 100000;
+--   update nflow_workflow set priority = 0, modified = modified where priority is null limit 100000;
 --
 -- and finally:
 --
