@@ -1,37 +1,14 @@
 package io.nflow.engine.internal.dao;
 
-import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
-import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
-import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.service.WorkflowInstanceInclude;
-import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
-import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import org.joda.time.DateTime;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import javax.inject.Inject;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
-import java.util.Map.Entry;
-
 import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.*;
-import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.*;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
+import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.recovery;
+import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
 import static java.lang.Thread.sleep;
@@ -44,13 +21,55 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.*;
 import static org.joda.time.DateTime.now;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
+import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
+import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
+import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
+import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
@@ -559,21 +578,22 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
         .setRootWorkflowId(9283L).setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
         .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
-        .setStartedIfNotSet(started).build();
+        .setStartedIfNotSet(started).setPriority((short)10).build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(
-        "with wf as (insert into nflow_workflow(type, root_workflow_id, parent_workflow_id, parent_action_id, business_key, "
+        "with wf as (insert into nflow_workflow(type, priority, root_workflow_id, parent_workflow_id, parent_action_id, business_key, "
             + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
-            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
+            + "(?, ?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins13 as "
             + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
-            + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+            + "ins15 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
             + "select wf.id,0,?,? from wf) select wf.id from wf",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
     int i = 0;
     assertThat(args.getAllValues().get(i++), is((Object) wf.type));
+    assertThat(args.getAllValues().get(i++), is((Object) wf.priority));
     assertThat(args.getAllValues().get(i++), is((Object) wf.rootWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentActionId));
@@ -625,6 +645,30 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void pollNextWorkflowInstancesReturnInstancesInCorrectOrder() {
+    long olderLowPrio = createInstance(2, (short)1);
+    long newerLowPrio = createInstance(1, (short)1);
+    long newerHighPrio = createInstance(1, (short)2);
+
+    // high priority comes first
+    List<Long> ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, is(asList(newerHighPrio)));
+
+    // older comes first when same prio
+    ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, is(asList(olderLowPrio)));
+
+    // newer comes last when same prio
+    ids = dao.pollNextWorkflowInstanceIds(1);
+    assertThat(ids, is(asList(newerLowPrio)));
+  }
+
+  private long createInstance(int minutesInPast, short priority) {
+    return dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(minutesInPast))
+        .setPriority(priority).setExecutorGroup("junit").build());
+  }
+
+  @Test
   public void fakePostgreSQLpollNextWorkflowInstances() {
     JdbcTemplate j = mock(JdbcTemplate.class);
     WorkflowInstanceDao d = preparePostgreSQLDao(j);
@@ -632,7 +676,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     when(j.queryForList(sql.capture(), eq(Long.class))).thenReturn(asList(1L, 2L, 3L));
     assertThat(d.pollNextWorkflowInstanceIds(5), is(asList(1L, 2L, 3L)));
     assertEquals(
-        "update nflow_workflow set executor_id = 42, status = 'executing'::workflow_status, external_next_activation = null where id in (select id from nflow_workflow where executor_id is null and status in ('created'::workflow_status, 'inProgress'::workflow_status) and next_activation <= current_timestamp and group matches order by next_activation asc limit 5) and executor_id is null returning id",
+        "update nflow_workflow set executor_id = 42, status = 'executing'::workflow_status, external_next_activation = null where id in (select id from nflow_workflow where executor_id is null and status in ('created'::workflow_status, 'inProgress'::workflow_status) and next_activation <= current_timestamp and group matches order by priority desc, next_activation asc limit 5) and executor_id is null returning id",
         sql.getValue());
   }
 
