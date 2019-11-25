@@ -58,6 +58,7 @@ public class ListWorkflowDefinitionConverter {
     settings.transitionDelaysInMilliseconds = transitionDelays;
     settings.maxRetries = workflowSettings.maxRetries;
     settings.historyDeletableAfterHours = workflowSettings.historyDeletableAfterHours;
+    settings.defaultPriority = workflowSettings.defaultPriority;
     resp.settings = settings;
 
     resp.supportedSignals = definition.getSupportedSignals().entrySet().stream().map(entry -> {

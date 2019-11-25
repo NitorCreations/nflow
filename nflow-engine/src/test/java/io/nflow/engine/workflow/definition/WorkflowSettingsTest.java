@@ -42,6 +42,7 @@ public class WorkflowSettingsTest {
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));
     assertThat(s.historyDeletableAfterHours, is(nullValue()));
+    assertThat(s.defaultPriority, is((short) 0));
   }
 
   @Test

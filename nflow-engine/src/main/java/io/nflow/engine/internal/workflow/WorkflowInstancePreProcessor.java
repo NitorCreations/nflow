@@ -42,6 +42,9 @@ public class WorkflowInstancePreProcessor {
     if (instance.status == null) {
       builder.setStatus(created);
     }
+    if (instance.priority == null) {
+      builder.setPriority(def.getSettings().getDefaultPriority());
+    }
     return builder.build();
   }
 }

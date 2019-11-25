@@ -166,11 +166,11 @@ public class WorkflowInstanceDao {
     try {
       StringBuilder sqlb = new StringBuilder(256);
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
-      Object[] instanceValues = new Object[] { instance.type, getInstancePriority(instance),
-          instance.rootWorkflowId, instance.parentWorkflowId,
-          instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
-          instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
-          toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
+      Object[] instanceValues = new Object[] { instance.type, instance.priority, instance.rootWorkflowId,
+          instance.parentWorkflowId, instance.parentActionId, instance.businessKey, instance.externalId,
+          executorInfo.getExecutorGroup(), instance.status.name(), instance.state,
+          abbreviate(instance.stateText, getInstanceStateTextLength()), toTimestamp(instance.nextActivation),
+          instance.signal.orElse(null) };
       int pos = instanceValues.length;
       Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
       for (Entry<String, String> variable : instance.stateVariables.entrySet()) {
@@ -185,10 +185,6 @@ public class WorkflowInstanceDao {
       logger.warn("Failed to insert workflow instance", e);
       return -1;
     }
-  }
-
-  private short getInstancePriority(WorkflowInstance instance) {
-    return instance.priority != null ? instance.priority.shortValue() : 0;
   }
 
   boolean useBatchUpdate() {
@@ -215,7 +211,7 @@ public class WorkflowInstanceDao {
           int p = 1;
           PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
           ps.setString(p++, instance.type);
-          ps.setInt(p++, getInstancePriority(instance));
+          ps.setShort(p++, instance.priority);
           ps.setObject(p++, instance.rootWorkflowId);
           ps.setObject(p++, instance.parentWorkflowId);
           ps.setObject(p++, instance.parentActionId);

@@ -9,11 +9,11 @@ import java.util.Optional;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("serial")
@@ -34,7 +34,8 @@ public abstract class BaseNflowTest {
             put("requestData", "{ \"parameter\": \"abc\" }");
           }
         }) //
-        .setSignal(Optional.of(42));
+        .setSignal(Optional.of(42)) //
+        .setPriority((short) 0);
   }
 
   protected WorkflowInstanceAction.Builder constructActionBuilder(long workflowInstanceID) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.DummyTestState> {
@@ -34,7 +35,11 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
   }
 
   public DummyTestWorkflow() {
-    super("dummy", DummyTestState.start, DummyTestState.end);
+    this(new WorkflowSettings.Builder().build());
+  }
+
+  public DummyTestWorkflow(WorkflowSettings settings) {
+    super("dummy", DummyTestState.start, DummyTestState.end, settings);
     permit(DummyTestState.start, DummyTestState.end, DummyTestState.end);
     permit(DummyTestState.alternativeStart, DummyTestState.end);
   }
