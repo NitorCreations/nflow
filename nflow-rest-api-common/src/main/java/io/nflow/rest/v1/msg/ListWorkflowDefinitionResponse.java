@@ -41,7 +41,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
     @ApiModelProperty(value = "Delay after which workflow instance history (actions, states) can be deleted from database", required = false)
     public Integer historyDeletableAfterHours;
 
-    @ApiModelProperty(value = "Default priority for new workflow instances", required = false)
+    @ApiModelProperty(value = "Default priority for new workflow instances", required = true)
     public short defaultPriority;
 
   }
