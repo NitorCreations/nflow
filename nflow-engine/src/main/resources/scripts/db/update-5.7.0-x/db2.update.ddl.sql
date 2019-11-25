@@ -3,6 +3,7 @@ alter table nflow_workflow add priority smallint not null default 0;
 -- For large nflow_workflow row count:
 --
 --   alter table nflow_workflow add priority smallint null;
+--   drop trigger if exists nflow_workflow_update_modified;
 --
 -- followed by either:
 --
@@ -15,6 +16,11 @@ alter table nflow_workflow add priority smallint not null default 0;
 -- and finally:
 --
 --   alter table nflow_workflow alter column priority smallint not null default 0;
+--   create trigger nflow_workflow_update_modified
+--     before update on nflow_workflow
+--     referencing new as n
+--     for each row
+--     set modified = current timestamp;
 
 alter table nflow_archive_workflow add priority smallint null;
 

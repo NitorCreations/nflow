@@ -5,6 +5,8 @@ alter table nflow_workflow add priority smallint not null default 0
 --
 --   alter table nflow_workflow add priority smallint null
 --   /
+--   alter trigger nflow_workflow_update disable
+--   /
 --
 -- followed by either:
 --
@@ -19,6 +21,8 @@ alter table nflow_workflow add priority smallint not null default 0
 -- and finally:
 --
 --   alter table nflow_workflow alter column priority smallint not null default 0
+--   /
+--   alter trigger nflow_workflow_update enable
 --   /
 
 
