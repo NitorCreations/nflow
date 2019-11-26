@@ -157,8 +157,8 @@
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>8.0.18</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
-    <node.version>v10.16.3</node.version> <!-- https://nodejs.org/en/download/releases/ -->
-    <npm.version>6.11.3</npm.version> <!-- https://github.com/npm/cli/releases -->
+    <node.version>v12.13.1</node.version> <!-- https://nodejs.org/en/download/releases/ -->
+    <npm.version>6.13.1</npm.version> <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>42.2.8</postgresql.version>
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
