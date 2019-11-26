@@ -1,4 +1,10 @@
-## 6.0.0-SNAPSHOT (future release)
+## 6.0.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 6.0.0 (2019-11-26)
 
 **Highlights**
 - Add priority to workflow instances
