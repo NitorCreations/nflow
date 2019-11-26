@@ -28,7 +28,7 @@ Create a Maven project. Add the following to your  `pom.xml`. nFlow is available
 <dependency>
   <groupId>io.nflow</groupId>
   <artifactId>nflow-jetty</artifactId>
-  <version>5.7.0</version>
+  <version>6.0.0</version>
 </dependency>
 ```
 Create a class for starting nFlow in embedded Jetty using H2 memory database.
