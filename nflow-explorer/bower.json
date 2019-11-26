@@ -6,11 +6,11 @@
     "json3": "3.3.2",
     "es5-shim": "4.5.13",
     "bootstrap-sass": "3.4.1",
-    "angular-resource": "1.7.9",
-    "angular-cookies": "1.7.9",
-    "angular-sanitize": "1.7.9",
-    "angular-animate": "1.7.9",
-    "angular-touch": "1.7.9",
+    "angular-resource": "1.7.8",
+    "angular-cookies": "1.7.8",
+    "angular-sanitize": "1.7.8",
+    "angular-animate": "1.7.8",
+    "angular-touch": "1.7.8",
     "angular-ui-router": "1.0.23",
     "momentjs": "2.24.0",
     "lodash": "4.17.15",
@@ -22,7 +22,10 @@
     "angular-toastr": "2.1.1"
   },
   "devDependencies": {
-    "angular-mocks": "1.7.9",
-    "angular-scenario": "1.7.9"
+    "angular-mocks": "1.7.8",
+    "angular-scenario": "1.7.8"
+  },
+  "resolutions": {
+    "angular": "1.7.9"
   }
 }
