@@ -33,7 +33,7 @@
 - Add Kotlin example using nFlow with Spring Boot, and integrated nFlow Explorer
 - Expose wakeup via REST-API
 - Update database indices to match workflow instance polling code
-- Add new configuration option `nflow.db.disable_batch_updates`
+- Add new configuration option `nflow.db.disable_batch_updates` to work around some Galera oddities
 
 **Details**
 - `nflow-engine`
@@ -44,7 +44,7 @@
   - Update database indices to match current workflow instance polling code.
   - Create indices for foreign keys in MS SQL database.
   - Fix create database scripts to work with empty database.
-  - Add `nflow.db.disable_batch_updates` (default `false`) configuration parameter to make it possible to force use of multiple updates even if batch updates are supported by the database.
+  - Add `nflow.db.disable_batch_updates` (default `false`) configuration parameter to make it possible to force use of multiple updates even if batch updates are supported by the database. This is needed on some Galera systems that cannot handle batch updates correctly.
   - Dependency updates:
     - reactor.netty 0.9.1.RELEASE
     - jackson 2.10.1
@@ -82,6 +82,7 @@
 - Improve error logging in WorkflowStateProcessor.
 - Replace FindBugs with SpotBugs.
 - Drop index from main table that was only used for archiving purposes.
+- Increase workflow instance and action identifiers in code to 64 bits for future proofing. Database schema is not changed for now, but the columns can be altered later (to bigints) if needed.
 
 ## 5.7.0 (2019-06-06)
 
