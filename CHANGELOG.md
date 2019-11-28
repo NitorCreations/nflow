@@ -66,7 +66,7 @@
 - Improve error logging in WorkflowStateProcessor.
 - Replace FindBugs with SpotBugs.
 - Drop index from main table that was only used for archiving purposes.
-- Increase workflow and action identifiers in code to 64 bits for future proofing. The SQL table definitions stay the same for now, but no code changes are needed if database is altered to use bigint identifiers in large systems. The default 31 bits should be enough for 10 workflows per second with each having 20 steps for 8 years constant load.
+- Increase workflow and action identifiers in code to 64 bits for future proofing. Database schema is not changed for now, but the columns can be altered later (to bigints) if needed.
 
 ## 5.7.0 (2019-06-06)
 
