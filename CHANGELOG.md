@@ -3,6 +3,22 @@
 **Highlights**
 
 **Details**
+- `nflow-engine`
+  - Dependency updates:
+    - jetty 9.4.24.v20191120
+    - junit4 4.13-rc-1
+    - mariadb 2.5.2
+    - spotbugs 4.0.0-beta4
+    - spotbugs-annotations 4.0.0-beta4
+    - swagger 1.6.0
+- `nflow-explorer`
+  - Dependency updates:
+    - angular 1.7.9
+    - chart.js 2.9.3
+    - karma 4.4.1
+    - node-sass 4.13.0
+    - node v12.13.1
+    - npm 6.13.1
 
 ## 6.0.0 (2019-11-26)
 
