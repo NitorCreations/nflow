@@ -1,7 +1,7 @@
 plugins {
-  id 'de.undercouch.download' version '4.0.0'
-  id "com.github.ben-manes.versions" version "0.22.0"
-  id 'org.springframework.boot' version '2.1.7.RELEASE'
+  id 'de.undercouch.download' version '4.0.2'
+  id "com.github.ben-manes.versions" version "0.27.0"
+  id 'org.springframework.boot' version '2.2.1.RELEASE'
   id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 }
 
@@ -23,10 +23,10 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-jersey'
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-  compile("io.nflow:nflow-rest-api-jax-rs:5.7.0")
+  compile("io.nflow:nflow-rest-api-jax-rs:6.0.0")
   runtime('com.h2database:h2')
   testCompile('org.springframework.boot:spring-boot-starter-test')
-  nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '5.7.0', ext: 'tar.gz'
+  nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '6.0.0', ext: 'tar.gz'
 }
 
 task resolveNflowExplorer(type: Copy) {
