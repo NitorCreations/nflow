@@ -1,8 +1,6 @@
 package io.nflow.engine.internal.workflow;
 
 import static java.util.Collections.unmodifiableList;
-import static org.apache.commons.lang3.StringUtils.abbreviate;
-import static org.apache.commons.lang3.StringUtils.length;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.notNull;
@@ -14,7 +12,6 @@ import java.util.Optional;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
-import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -48,20 +45,14 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private boolean createAction = true;
   private String[] wakeUpParentStates;
   private boolean historyCleaningForced = false;
-  private final boolean abbreviateTooLongStateVariableValues;
-  private final int stateVariableValueMaxLength;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
-      WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService,
-      Environment env) {
+      WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
     this.instance = instance;
     this.objectMapper = objectMapper;
     this.workflowDao = workflowDao;
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     this.workflowInstanceService = workflowInstanceService;
-    stateVariableValueMaxLength = workflowDao.getStateVariableValueMaxLength();
-    abbreviateTooLongStateVariableValues = env.getRequiredProperty("nflow.workflow.state.variable.value.abbreviated",
-        Boolean.class);
   }
 
   public DateTime getNextActivation() {
@@ -127,20 +118,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   @Override
   public void setVariable(String name, String value) {
-    instance.stateVariables.put(name, abbreviateTooLongValueIfNeeded(name, value));
-  }
-
-  private String abbreviateTooLongValueIfNeeded(String name, String value) {
-    if (length(value) > stateVariableValueMaxLength) {
-      if (abbreviateTooLongStateVariableValues) {
-        LOG.warn("Too long value (length = {}) for state variable {}: abbreviated to {} characters.", length(value), name,
-            stateVariableValueMaxLength);
-        return abbreviate(value, stateVariableValueMaxLength);
-      }
-      throw new IllegalArgumentException("Too long value (length = " + length(value) + ") for state variable " + name
-          + ", maximum allowed length is " + stateVariableValueMaxLength);
-    }
-    return value;
+    instance.stateVariables.put(name, workflowDao.abbreviateTooLongStateVariableValueIfNeeded(name, value));
   }
 
   @Override

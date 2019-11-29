@@ -2,8 +2,6 @@ package io.nflow.engine.internal.workflow;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -29,8 +27,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.env.Environment;
-import org.springframework.mock.env.MockEnvironment;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -58,22 +54,19 @@ public class StateExecutionImplTest {
   StateExecutionImpl execution;
   StateExecution executionInterface;
   WorkflowInstance instance;
-  Environment env;
   private final DateTime tomorrow = now().plusDays(1);
 
   @BeforeEach
   public void setup() {
-    when(workflowDao.getStateVariableValueMaxLength()).thenReturn(100);
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
-            .setBusinessKey("business").build();
-    env = new MockEnvironment().withProperty("nflow.workflow.state.variable.value.abbreviated", "false");
+        .setBusinessKey("business").build();
     createExecution();
     executionInterface = execution;
   }
 
   private void createExecution() {
     execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
-        workflowInstanceService, env);
+        workflowInstanceService);
   }
 
   @Test
@@ -236,28 +229,12 @@ public class StateExecutionImplTest {
   }
 
   @Test
-  public void setVariableWithTooLongValueIsAbbreviated() {
-    env = new MockEnvironment().withProperty("nflow.workflow.state.variable.value.abbreviated", "true");
-    createExecution();
+  public void setVariableChecksValueLength() {
+    when(workflowDao.abbreviateTooLongStateVariableValueIfNeeded("foo", "bar")).thenReturn("baz");
 
-    execution.setVariable("foo", repeat('a', workflowDao.getStateVariableValueMaxLength() + 1));
-
-    String value = execution.getVariable("foo");
-    assertThat(value.length(), is(workflowDao.getStateVariableValueMaxLength()));
-    assertThat(value, endsWith("..."));
-  }
-
-  @Test
-  public void setVariableWithTooLongValueThrowsException() {
-    assertThrows(IllegalArgumentException.class,
-        () -> execution.setVariable("foo", repeat('a', workflowDao.getStateVariableValueMaxLength() + 1)));
-  }
-
-  @Test
-  public void setVariableWorks() {
     execution.setVariable("foo", "bar");
 
-    assertThat(execution.getVariable("foo"), is("bar"));
+    assertThat(execution.getVariable("foo"), is("baz"));
   }
 
   @Test
