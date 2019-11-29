@@ -49,7 +49,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private String[] wakeUpParentStates;
   private boolean historyCleaningForced = false;
   private final boolean abbreviateTooLongStateVariableValues;
-  private final int stateVariableValueLength;
+  private final int stateVariableValueMaxLength;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService,
@@ -59,7 +59,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     this.workflowDao = workflowDao;
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     this.workflowInstanceService = workflowInstanceService;
-    stateVariableValueLength = workflowDao.getStateVariableValueLength();
+    stateVariableValueMaxLength = workflowDao.getStateVariableValueMaxLength();
     abbreviateTooLongStateVariableValues = env.getRequiredProperty("nflow.workflow.state.variable.value.abbreviated",
         Boolean.class);
   }
@@ -131,14 +131,14 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   private String abbreviateTooLongValueIfNeeded(String name, String value) {
-    if (length(value) > stateVariableValueLength) {
+    if (length(value) > stateVariableValueMaxLength) {
       if (abbreviateTooLongStateVariableValues) {
         LOG.warn("Too long value (length = {}) for state variable {}: abbreviated to {} characters.", length(value), name,
-            stateVariableValueLength);
-        return abbreviate(value, stateVariableValueLength);
+            stateVariableValueMaxLength);
+        return abbreviate(value, stateVariableValueMaxLength);
       }
       throw new IllegalArgumentException("Too long value (length = " + length(value) + ") for state variable " + name
-          + ", maximum allowed length is " + stateVariableValueLength);
+          + ", maximum allowed length is " + stateVariableValueMaxLength);
     }
     return value;
   }

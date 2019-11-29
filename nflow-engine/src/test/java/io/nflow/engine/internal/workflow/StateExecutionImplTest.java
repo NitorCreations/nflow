@@ -63,7 +63,7 @@ public class StateExecutionImplTest {
 
   @BeforeEach
   public void setup() {
-    when(workflowDao.getStateVariableValueLength()).thenReturn(100);
+    when(workflowDao.getStateVariableValueMaxLength()).thenReturn(100);
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
             .setBusinessKey("business").build();
     env = new MockEnvironment().withProperty("nflow.workflow.state.variable.value.abbreviated", "false");
@@ -240,17 +240,17 @@ public class StateExecutionImplTest {
     env = new MockEnvironment().withProperty("nflow.workflow.state.variable.value.abbreviated", "true");
     createExecution();
 
-    execution.setVariable("foo", repeat('a', workflowDao.getStateVariableValueLength() + 1));
+    execution.setVariable("foo", repeat('a', workflowDao.getStateVariableValueMaxLength() + 1));
 
     String value = execution.getVariable("foo");
-    assertThat(value.length(), is(workflowDao.getStateVariableValueLength()));
+    assertThat(value.length(), is(workflowDao.getStateVariableValueMaxLength()));
     assertThat(value, endsWith("..."));
   }
 
   @Test
   public void setVariableWithTooLongValueThrowsException() {
     assertThrows(IllegalArgumentException.class,
-        () -> execution.setVariable("foo", repeat('a', workflowDao.getStateVariableValueLength() + 1)));
+        () -> execution.setVariable("foo", repeat('a', workflowDao.getStateVariableValueMaxLength() + 1)));
   }
 
   @Test
