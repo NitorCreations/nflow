@@ -1026,4 +1026,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       }
     }
   }
+
+  @Test
+  public void getStateVariableValueMaxLengthWorks() {
+    int length = dao.getStateVariableValueLength();
+
+    assertThat(length, is(10240));
+  }
 }

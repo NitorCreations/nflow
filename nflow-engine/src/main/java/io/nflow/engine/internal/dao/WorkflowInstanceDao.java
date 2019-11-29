@@ -101,6 +101,7 @@ public class WorkflowInstanceDao {
   private final boolean disableBatchUpdates;
   int instanceStateTextLength;
   int actionStateTextLength;
+  int stateVariableValueLength;
 
   @Inject
   public WorkflowInstanceDao(SQLVariants sqlVariants,
@@ -133,6 +134,7 @@ public class WorkflowInstanceDao {
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
+    stateVariableValueLength = env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1);
   }
 
   private int getInstanceStateTextLength() {
@@ -147,6 +149,14 @@ public class WorkflowInstanceDao {
       actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
     }
     return actionStateTextLength;
+  }
+
+  public int getStateVariableValueLength() {
+    if (stateVariableValueLength == -1) {
+      stateVariableValueLength = jdbc.query("select state_value from nflow_workflow_state where 1 = 0",
+          firstColumnLengthExtractor);
+    }
+    return stateVariableValueLength;
   }
 
   public long insertWorkflowInstance(WorkflowInstance instance) {
