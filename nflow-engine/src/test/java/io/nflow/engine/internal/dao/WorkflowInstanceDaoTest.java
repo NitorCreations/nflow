@@ -1024,6 +1024,17 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void checkStateVariableValueWorks() {
+    dao.checkStateVariableValue("foo", repeat('a', dao.getStateVariableValueMaxLength()));
+  }
+
+  @Test
+  public void checkStateVariableValueThrowsExceptionWhenValueIsTooLong() {
+    assertThrows(IllegalArgumentException.class,
+        () -> dao.checkStateVariableValue("foo", repeat('a', dao.getStateVariableValueMaxLength() + 1)));
+  }
+
+  @Test
   public void getStateVariableValueWorks() {
     String value = dao.getStateVariableValue(new SimpleEntry<>("foo", "bar"));
 

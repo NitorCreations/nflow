@@ -437,10 +437,20 @@ public class WorkflowInstanceDao {
             getStateVariableValueMaxLength());
         return abbreviate(value, getStateVariableValueMaxLength());
       }
-      throw new IllegalArgumentException("Too long value (length = " + length(value) + ") for state variable " + name
-          + ": maximum allowed length is " + getStateVariableValueMaxLength());
+      throw new IllegalArgumentException(getTooLongValueMessage(name, value));
     }
     return value;
+  }
+
+  private String getTooLongValueMessage(String name, String value) {
+    return "Too long value (length = " + length(value) + ") for state variable " + name + ": maximum allowed length is "
+        + getStateVariableValueMaxLength();
+  }
+
+  public void checkStateVariableValue(String name, String value) {
+    if (!abbreviateTooLongStateVariableValues && length(value) > getStateVariableValueMaxLength()) {
+      throw new IllegalArgumentException(getTooLongValueMessage(name, value));
+    }
   }
 
   String insertWorkflowActionSql() {

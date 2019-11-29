@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -17,9 +18,13 @@ public class WorkflowInstancePreProcessor {
 
   private final WorkflowDefinitionService workflowDefinitionService;
 
+  private final WorkflowInstanceDao workflowInstanceDao;
+
   @Inject
-  public WorkflowInstancePreProcessor(WorkflowDefinitionService workflowDefinitionService) {
+  public WorkflowInstancePreProcessor(WorkflowDefinitionService workflowDefinitionService,
+      WorkflowInstanceDao workflowInstanceDao) {
     this.workflowDefinitionService = workflowDefinitionService;
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   // TODO should this set next_activation for child workflows?
@@ -45,6 +50,7 @@ public class WorkflowInstancePreProcessor {
     if (instance.priority == null) {
       builder.setPriority(def.getSettings().getDefaultPriority());
     }
+    instance.getChangedStateVariables().forEach(workflowInstanceDao::checkStateVariableValue);
     return builder.build();
   }
 }
