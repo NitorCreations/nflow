@@ -71,6 +71,7 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -425,7 +426,7 @@ public class WorkflowInstanceDao {
 
   public void checkStateVariableValueLength(String name, String value) {
     if (length(value) > getStateVariableValueMaxLength()) {
-      throw new IllegalArgumentException("Too long value (length = " + length(value) + ") for state variable " + name
+      throw new StateVariableValueTooLongException("Too long value (length = " + length(value) + ") for state variable " + name
           + ": maximum allowed length is " + getStateVariableValueMaxLength());
     }
   }

@@ -50,6 +50,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.toString(STUCK_THREAD_THRESHOLD));
     env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
+    env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao,
         workflowInstancePreProcessor, env);
   }

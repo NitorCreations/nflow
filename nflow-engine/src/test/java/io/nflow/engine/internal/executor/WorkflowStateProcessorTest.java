@@ -28,6 +28,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -92,6 +93,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -155,6 +157,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<NotifyTestWorkflow.State> wakeWf = new NotifyTestWorkflow();
 
+  WorkflowDefinition<StateVariableWorkflow.State> stateVariableWf = new StateVariableWorkflow();
+
   static WorkflowInstance newChildWorkflow = mock(WorkflowInstance.class);
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
@@ -173,7 +177,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.unknown.workflow.state.retry.delay.minutes", "60");
     env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
-
+    env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
@@ -183,6 +187,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     lenient().doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition("simple-test");
     lenient().doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition("failing-test");
     lenient().doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
+    lenient().doReturn(stateVariableWf).when(workflowDefinitions).getWorkflowDefinition("state-variable");
     filterChain(listener1);
     filterChain(listener2);
     lenient().when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
@@ -297,6 +302,22 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao)
         .updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0,
             is("Unsupported workflow state"), greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
+  }
+
+  @Test
+  public void stateIsRescheduledWhenStateVariableValueIsTooLong() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("state-variable").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    String errorMessage = "Too long state variable value";
+    doThrow(new StateVariableValueTooLongException(errorMessage)).when(workflowInstanceDao)
+        .checkStateVariableValueLength(anyString(), anyString());
+    DateTime oneHourInFuture = now().plusHours(1);
+
+    executor.run();
+
+    verify(workflowInstanceDao)
+        .updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, StateVariableWorkflow.State.start, 0,
+            is(errorMessage), greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test
@@ -1142,6 +1163,40 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.wakeParent, "Move to notifyParent.");
+    }
+
+  }
+
+  public static class StateVariableWorkflow extends WorkflowDefinition<StateVariableWorkflow.State> {
+
+    protected StateVariableWorkflow() {
+      super("state-variable", State.start, State.end);
+      permit(State.start, State.end);
+    }
+
+    public static enum State implements WorkflowState {
+      start(WorkflowStateType.start), end(WorkflowStateType.end);
+
+      private final WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+
+      @Override
+      public String getDescription() {
+        return name();
+      }
+    }
+
+    public NextAction start(StateExecution execution) {
+      execution.setVariable("foo", "bar");
+      return moveToState(State.end, "Done.");
     }
 
   }

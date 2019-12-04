@@ -66,6 +66,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRo
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -1029,7 +1030,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void checkStateVariableValueThrowsExceptionWhenValueIsTooLong() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(StateVariableValueTooLongException.class,
         () -> dao.checkStateVariableValueLength("foo", repeat('a', dao.getStateVariableValueMaxLength() + 1)));
   }
 }
