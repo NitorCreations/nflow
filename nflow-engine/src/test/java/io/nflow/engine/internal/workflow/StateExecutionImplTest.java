@@ -230,11 +230,9 @@ public class StateExecutionImplTest {
 
   @Test
   public void setVariableChecksValueLength() {
-    when(workflowDao.abbreviateTooLongStateVariableValueIfNeeded("foo", "bar")).thenReturn("baz");
-
     execution.setVariable("foo", "bar");
 
-    assertThat(execution.getVariable("foo"), is("baz"));
+    verify(workflowDao).checkStateVariableValueLength("foo", "bar");
   }
 
   @Test

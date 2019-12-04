@@ -50,7 +50,7 @@ public class WorkflowInstancePreProcessor {
     if (instance.priority == null) {
       builder.setPriority(def.getSettings().getDefaultPriority());
     }
-    instance.getChangedStateVariables().forEach(workflowInstanceDao::checkStateVariableValue);
+    instance.getChangedStateVariables().forEach(workflowInstanceDao::checkStateVariableValueLength);
     return builder.build();
   }
 }

@@ -118,7 +118,8 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   @Override
   public void setVariable(String name, String value) {
-    instance.stateVariables.put(name, workflowDao.abbreviateTooLongStateVariableValueIfNeeded(name, value));
+    workflowDao.checkStateVariableValueLength(name, value);
+    instance.stateVariables.put(name, value);
   }
 
   @Override

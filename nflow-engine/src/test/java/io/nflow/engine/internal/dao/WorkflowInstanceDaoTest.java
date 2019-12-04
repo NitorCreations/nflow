@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -1025,41 +1024,12 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void checkStateVariableValueWorks() {
-    dao.checkStateVariableValue("foo", repeat('a', dao.getStateVariableValueMaxLength()));
+    dao.checkStateVariableValueLength("foo", repeat('a', dao.getStateVariableValueMaxLength()));
   }
 
   @Test
   public void checkStateVariableValueThrowsExceptionWhenValueIsTooLong() {
     assertThrows(IllegalArgumentException.class,
-        () -> dao.checkStateVariableValue("foo", repeat('a', dao.getStateVariableValueMaxLength() + 1)));
-  }
-
-  @Test
-  public void getStateVariableValueWorks() {
-    String value = dao.getStateVariableValue(new SimpleEntry<>("foo", "bar"));
-
-    assertThat(value, is("bar"));
-  }
-
-  @Test
-  public void getStateVariableValueThrowsExceptionWhenValueIsTooLong() {
-    assertThrows(IllegalArgumentException.class,
-        () -> dao.getStateVariableValue(new SimpleEntry<>("foo", repeat('a', dao.getStateVariableValueMaxLength() + 1))));
-  }
-
-  @Test
-  public void getStateVariableValueAbbreviatesTooLongValue() {
-    WorkflowInstanceDao d = prepareMockDao();
-    d.stateVariableValueMaxLength = 10;
-    d.abbreviateTooLongStateVariableValues = true;
-
-    String value = d.getStateVariableValue(new SimpleEntry<>("foo", repeat('a', d.getStateVariableValueMaxLength() + 1)));
-
-    assertThat(value.length(), is(d.getStateVariableValueMaxLength()));
-  }
-
-  private WorkflowInstanceDao prepareMockDao() {
-    return new WorkflowInstanceDao(mock(SQLVariants.class), mock(JdbcTemplate.class), mock(TransactionTemplate.class),
-        mock(NamedParameterJdbcTemplate.class), mock(ExecutorDao.class), workflowInstanceExecutor, workflowInstanceFactory, env);
+        () -> dao.checkStateVariableValueLength("foo", repeat('a', dao.getStateVariableValueMaxLength() + 1)));
   }
 }

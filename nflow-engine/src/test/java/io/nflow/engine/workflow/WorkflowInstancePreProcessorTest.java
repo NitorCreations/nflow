@@ -70,7 +70,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
   public void checksStateVariableValues() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().putStateVariable("foo", "bar").build();
     preProcessor.process(i);
-    verify(workflowInstanceDao).checkStateVariableValue("foo", "bar");
+    verify(workflowInstanceDao).checkStateVariableValueLength("foo", "bar");
   }
 
   @Test

@@ -103,7 +103,6 @@ public class WorkflowInstanceDao {
   int instanceStateTextLength;
   int actionStateTextLength;
   int stateVariableValueMaxLength;
-  boolean abbreviateTooLongStateVariableValues;
 
   @Inject
   public WorkflowInstanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate,
@@ -133,8 +132,6 @@ public class WorkflowInstanceDao {
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
     stateVariableValueMaxLength = env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1);
-    abbreviateTooLongStateVariableValues = env.getRequiredProperty("nflow.workflow.state.variable.value.abbreviated",
-        Boolean.class);
   }
 
   private int getInstanceStateTextLength() {
@@ -187,7 +184,7 @@ public class WorkflowInstanceDao {
         sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
             .append(" select wf.id,0,?,? from wf)");
         args[pos++] = variable.getKey();
-        args[pos++] = getStateVariableValue(variable);
+        args[pos++] = variable.getValue();
       }
       sqlb.append(" select wf.id from wf");
       return jdbc.queryForObject(sqlb.toString(), Long.class, args);
@@ -195,10 +192,6 @@ public class WorkflowInstanceDao {
       logger.warn("Failed to insert workflow instance", e);
       return -1;
     }
-  }
-
-  String getStateVariableValue(Entry<String, String> variable) {
-    return abbreviateTooLongStateVariableValueIfNeeded(variable.getKey(), variable.getValue());
   }
 
   boolean useBatchUpdate() {
@@ -267,7 +260,7 @@ public class WorkflowInstanceDao {
   private void insertVariablesWithMultipleUpdates(final long id, final long actionId, Map<String, String> changedStateVariables) {
     for (Entry<String, String> entry : changedStateVariables.entrySet()) {
       int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, entry.getKey(),
-          getStateVariableValue(entry));
+          entry.getValue());
       if (updated != 1) {
         throw new IllegalStateException("Failed to insert state variable " + entry.getKey());
       }
@@ -287,7 +280,7 @@ public class WorkflowInstanceDao {
             ps.setLong(1, id);
             ps.setLong(2, actionId);
             ps.setString(3, variable.getKey());
-            ps.setString(4, getStateVariableValue(variable));
+            ps.setString(4, variable.getValue());
             return true;
           }
         });
@@ -424,32 +417,16 @@ public class WorkflowInstanceDao {
       sqlb.append(", ins").append(pos).append(" as (").append(insertWorkflowInstanceStateSql())
           .append(" select wf.id,act.id,?,? from wf,act)");
       args[pos++] = variable.getKey();
-      args[pos++] = getStateVariableValue(variable);
+      args[pos++] = variable.getValue();
     }
     sqlb.append(" select act.id from act");
     jdbc.queryForObject(sqlb.toString(), Long.class, args);
   }
 
-  public String abbreviateTooLongStateVariableValueIfNeeded(String name, String value) {
+  public void checkStateVariableValueLength(String name, String value) {
     if (length(value) > getStateVariableValueMaxLength()) {
-      if (abbreviateTooLongStateVariableValues) {
-        logger.warn("Too long value (length = {}) for state variable {}: abbreviated to {} characters.", length(value), name,
-            getStateVariableValueMaxLength());
-        return abbreviate(value, getStateVariableValueMaxLength());
-      }
-      throw new IllegalArgumentException(getTooLongValueMessage(name, value));
-    }
-    return value;
-  }
-
-  private String getTooLongValueMessage(String name, String value) {
-    return "Too long value (length = " + length(value) + ") for state variable " + name + ": maximum allowed length is "
-        + getStateVariableValueMaxLength();
-  }
-
-  public void checkStateVariableValue(String name, String value) {
-    if (!abbreviateTooLongStateVariableValues && length(value) > getStateVariableValueMaxLength()) {
-      throw new IllegalArgumentException(getTooLongValueMessage(name, value));
+      throw new IllegalArgumentException("Too long value (length = " + length(value) + ") for state variable " + name
+          + ": maximum allowed length is " + getStateVariableValueMaxLength());
     }
   }
 
