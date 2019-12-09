@@ -207,6 +207,9 @@
             </includes>
             <!-- <runOrder>random</runOrder> <forkCount>0.8C</forkCount> -->
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <parallel>classes</parallel>
+            <perCoreThreadCount>true</perCoreThreadCount>
+            <threadCount>1</threadCount>
           </configuration>
         </plugin>
         <plugin>
