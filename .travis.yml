@@ -21,14 +21,14 @@ before_script:
   - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
   - ./travis/setup-db-$DB.sh
 script:
-  - mvn test -B -P $DB
+  - mvn jacoco:prepare-agent test -B -P $DB
 after_script:
   - for i in nflow-*/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
 notifications:
   flowdock:
     secure: QbIGfsj64a2Ms5y/aTO0PUAVBRv9mKxAwLFj5NxWACEVxm1JKZvrQ4ov/8XbVRbRl96sMIoWPox7Gu++ZgLjb7w+jeiCvWLwJwRDxlCgsYvb4hAcPXlNBO7SF4kcUifPfJpaDsb3EThUUK8EtsI5aOxvCqGKMChTDoQnej3kc0o=
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn jacoco:report coveralls:report
 cache:
   directories:
   - $HOME/.m2
