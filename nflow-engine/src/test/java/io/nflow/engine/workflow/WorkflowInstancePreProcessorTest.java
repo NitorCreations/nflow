@@ -6,11 +6,15 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.service.DummyTestWorkflow;
@@ -19,10 +23,14 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
+@RunWith(MockitoJUnitRunner.class)
 public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   @Mock
   private WorkflowDefinitionService workflowDefinitionService;
+
+  @Mock
+  private WorkflowInstanceDao workflowInstanceDao;
 
   private WorkflowInstancePreProcessor preProcessor;
 
@@ -34,7 +42,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
   public void setup() {
     dummyWorkflow = new DummyTestWorkflow(new WorkflowSettings.Builder().setDefaultPriority(DEFAULT_PRIORITY).build());
     lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition("dummy");
-    preProcessor = new WorkflowInstancePreProcessor(workflowDefinitionService);
+    preProcessor = new WorkflowInstancePreProcessor(workflowDefinitionService, workflowInstanceDao);
   }
 
   @Test
@@ -56,6 +64,13 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
     WorkflowInstance i = constructWorkflowInstanceBuilder().build();
     WorkflowInstance processed = preProcessor.process(i);
     assertThat(processed.state, is("CreateLoan"));
+  }
+
+  @Test
+  public void checksStateVariableValues() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().putStateVariable("foo", "bar").build();
+    preProcessor.process(i);
+    verify(workflowInstanceDao).checkStateVariableValueLength("foo", "bar");
   }
 
   @Test

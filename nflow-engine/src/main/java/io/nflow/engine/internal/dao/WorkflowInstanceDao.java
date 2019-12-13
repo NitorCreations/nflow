@@ -16,6 +16,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.length;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
@@ -70,6 +71,7 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -101,16 +103,13 @@ public class WorkflowInstanceDao {
   private final boolean disableBatchUpdates;
   int instanceStateTextLength;
   int actionStateTextLength;
+  int stateVariableValueMaxLength;
 
   @Inject
-  public WorkflowInstanceDao(SQLVariants sqlVariants,
-                             @NFlow JdbcTemplate nflowJdbcTemplate,
-                             @NFlow TransactionTemplate transactionTemplate,
-                             @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                             ExecutorDao executorDao,
-                             WorkflowInstanceExecutor workflowInstanceExecutor,
-                             WorkflowInstanceFactory workflowInstanceFactory,
-                             Environment env) {
+  public WorkflowInstanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate,
+      @NFlow TransactionTemplate transactionTemplate, @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+      ExecutorDao executorDao, WorkflowInstanceExecutor workflowInstanceExecutor, WorkflowInstanceFactory workflowInstanceFactory,
+      Environment env) {
 
     this.sqlVariants = sqlVariants;
     this.jdbc = nflowJdbcTemplate;
@@ -122,10 +121,10 @@ public class WorkflowInstanceDao {
 
     workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
     workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
-            Long.class);
+        Long.class);
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
-            Long.class);
+        Long.class);
     disableBatchUpdates = env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class);
     if (disableBatchUpdates) {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
@@ -133,6 +132,7 @@ public class WorkflowInstanceDao {
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
+    stateVariableValueMaxLength = env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1);
   }
 
   private int getInstanceStateTextLength() {
@@ -147,6 +147,14 @@ public class WorkflowInstanceDao {
       actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
     }
     return actionStateTextLength;
+  }
+
+  int getStateVariableValueMaxLength() {
+    if (stateVariableValueMaxLength == -1) {
+      stateVariableValueMaxLength = jdbc.query("select state_value from nflow_workflow_state where 1 = 0",
+          firstColumnLengthExtractor);
+    }
+    return stateVariableValueMaxLength;
   }
 
   public long insertWorkflowInstance(WorkflowInstance instance) {
@@ -414,6 +422,13 @@ public class WorkflowInstanceDao {
     }
     sqlb.append(" select act.id from act");
     jdbc.queryForObject(sqlb.toString(), Long.class, args);
+  }
+
+  public void checkStateVariableValueLength(String name, String value) {
+    if (length(value) > getStateVariableValueMaxLength()) {
+      throw new StateVariableValueTooLongException("Too long value (length = " + length(value) + ") for state variable " + name
+          + ": maximum allowed length is " + getStateVariableValueMaxLength());
+    }
   }
 
   String insertWorkflowActionSql() {
@@ -858,9 +873,8 @@ public class WorkflowInstanceDao {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("workflowId", workflowInstanceId);
     params.addValue("deleteUpToTime", sqlVariants.toTimestampObject(now().minusHours(historyDeletableAfterHours)));
-    Long maxActionId = namedJdbc
-        .queryForObject("select max(id) from nflow_workflow_action where workflow_id = :workflowId and "
-            + sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Long.class);
+    Long maxActionId = namedJdbc.queryForObject("select max(id) from nflow_workflow_action where workflow_id = :workflowId and "
+        + sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Long.class);
     int deletedActions = 0;
     if (maxActionId != null) {
       params.addValue("maxActionId", maxActionId);

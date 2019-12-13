@@ -16,6 +16,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.countMatches;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -65,6 +66,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRo
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -316,8 +318,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     dao.updateWorkflowInstanceAfterExecution(i2, a1, asList(childWorkflow1, childWorkflow2), emptyWorkflows, false);
 
-    Map<Long, List<Long>> childWorkflows = dao.getWorkflowInstance(id,
-        EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS), null).childWorkflows;
+    Map<Long, List<Long>> childWorkflows = dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS),
+        null).childWorkflows;
     assertThat(childWorkflows.size(), is(1));
     for (List<Long> childIds : childWorkflows.values()) {
       assertThat(childIds.size(), is(1));
@@ -509,11 +511,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<Long> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
-        dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).setStatus(inProgress)
-            .setState("updateState").setStateText("update text").build();
+        dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).setStatus(inProgress).setState("updateState")
+            .setStateText("update text").build();
     sleep(1);
     assertThrows(IllegalArgumentException.class,
-            () -> dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows, emptyWorkflows, false));
+        () -> dao.updateWorkflowInstanceAfterExecution(i2, null, noChildWorkflows, emptyWorkflows, false));
   }
 
   @Test
@@ -578,7 +580,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
         .setRootWorkflowId(9283L).setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
         .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
-        .setStartedIfNotSet(started).setPriority((short)10).build();
+        .setStartedIfNotSet(started).setPriority((short) 10).build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(
@@ -646,9 +648,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void pollNextWorkflowInstancesReturnInstancesInCorrectOrder() {
-    long olderLowPrio = createInstance(2, (short)1);
-    long newerLowPrio = createInstance(1, (short)1);
-    long newerHighPrio = createInstance(1, (short)2);
+    long olderLowPrio = createInstance(2, (short) 1);
+    long newerLowPrio = createInstance(1, (short) 1);
+    long newerHighPrio = createInstance(1, (short) 2);
 
     // high priority comes first
     List<Long> ids = dao.pollNextWorkflowInstanceIds(1);
@@ -686,18 +688,12 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     lenient().when(eDao.getExecutorId()).thenReturn(42);
     NamedParameterJdbcTemplate namedJdbc = mock(NamedParameterJdbcTemplate.class);
     TransactionTemplate transactionTemplate = mock(TransactionTemplate.class);
-    WorkflowInstanceDao d = new WorkflowInstanceDao(new PostgreSQLVariants(),
-            jdbcTemplate,
-            transactionTemplate,
-            namedJdbc,
-            eDao,
-            workflowInstanceExecutor,
-            workflowInstanceFactory,
-            env
-    );
+    WorkflowInstanceDao d = new WorkflowInstanceDao(new PostgreSQLVariants(), jdbcTemplate, transactionTemplate, namedJdbc, eDao,
+        workflowInstanceExecutor, workflowInstanceFactory, env);
 
     d.instanceStateTextLength = 128;
     d.actionStateTextLength = 128;
+    d.stateVariableValueMaxLength = 128;
     return d;
   }
 
@@ -866,9 +862,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void recoverWorkflowInstancesFromDeadNodesSetsExecutorIdToNullAndStatusToInProgressAndInsertsAction() {
     int crashedExecutorId = 999;
     insertCrashedExecutor(crashedExecutorId, executorDao.getExecutorGroup());
-    long id = dao.insertWorkflowInstance(new WorkflowInstance.Builder().setType("test").setExternalId("extId")
-        .setExecutorGroup(executorDao.getExecutorGroup()).setStatus(executing).setState("processing").setPriority((short) 0)
-        .build());
+    long id = dao.insertWorkflowInstance(
+        new WorkflowInstance.Builder().setType("test").setExternalId("extId").setExecutorGroup(executorDao.getExecutorGroup())
+            .setStatus(executing).setState("processing").setPriority((short) 0).build());
     int updated = jdbc.update("update nflow_workflow set executor_id = ? where id = ?", crashedExecutorId, id);
     assertThat(updated, is(1));
 
@@ -1025,5 +1021,16 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         detectedRaceCondition = ex.getMessage().startsWith("Race condition");
       }
     }
+  }
+
+  @Test
+  public void checkStateVariableValueWorks() {
+    dao.checkStateVariableValueLength("foo", repeat('a', dao.getStateVariableValueMaxLength()));
+  }
+
+  @Test
+  public void checkStateVariableValueThrowsExceptionWhenValueIsTooLong() {
+    assertThrows(StateVariableValueTooLongException.class,
+        () -> dao.checkStateVariableValueLength("foo", repeat('a', dao.getStateVariableValueMaxLength() + 1)));
   }
 }

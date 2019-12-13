@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.joda.time.DateTime.now;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,13 +59,13 @@ public class StateExecutionImplTest {
   @BeforeEach
   public void setup() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
-            .setBusinessKey("business").build();
-    execution = createExecution(instance);
+        .setBusinessKey("business").build();
+    createExecution();
     executionInterface = execution;
   }
 
-  private StateExecutionImpl createExecution(WorkflowInstance workflowInstance) {
-    return new StateExecutionImpl(workflowInstance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+  private void createExecution() {
+    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
         workflowInstanceService);
   }
 
@@ -103,7 +103,7 @@ public class StateExecutionImplTest {
   public void wakeUpParentWorkflowSetsWakeUpStates() {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState("myState")
         .setBusinessKey("business").setParentWorkflowId(123L).build();
-    execution = createExecution(instance);
+    createExecution();
     assertThat(execution.getWakeUpParentWorkflowStates().isPresent(), is(false));
     execution.wakeUpParentWorkflow();
     assertThat(execution.getWakeUpParentWorkflowStates().get(), is(empty()));
@@ -229,6 +229,13 @@ public class StateExecutionImplTest {
   }
 
   @Test
+  public void setVariableChecksValueLength() {
+    execution.setVariable("foo", "bar");
+
+    verify(workflowDao).checkStateVariableValueLength("foo", "bar");
+  }
+
+  @Test
   public void getSignalWorks() {
     when(workflowDao.getSignal(instance.id)).thenReturn(Optional.of(42));
 
@@ -244,7 +251,7 @@ public class StateExecutionImplTest {
 
   @Test
   public void setSignalRejectsNull() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> execution.setSignal(null, "testing"));
+    assertThrows(IllegalArgumentException.class, () -> execution.setSignal(null, "testing"));
   }
 
   @Test
@@ -255,7 +262,7 @@ public class StateExecutionImplTest {
   @Test
   public void getParentIdReturnsParentWorkflowId() {
     instance = new WorkflowInstance.Builder().setParentWorkflowId(42L).build();
-    execution = createExecution(instance);
+    createExecution();
 
     assertThat(execution.getParentId(), is(Optional.of(42L)));
   }
@@ -293,7 +300,7 @@ public class StateExecutionImplTest {
     TestWorkflow def = new TestWorkflow();
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext")
         .setState(TestWorkflow.State.startWithoutFailure.name()).setBusinessKey("business").build();
-    execution = createExecution(instance);
+    createExecution();
 
     execution.handleRetryAfter(tomorrow, def);
 
@@ -305,7 +312,7 @@ public class StateExecutionImplTest {
     TestDefinition def = new TestDefinition("x", initialState);
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState(currentState.name())
         .setBusinessKey("business").build();
-    execution = createExecution(instance);
+    createExecution();
     execution.handleRetryAfter(tomorrow, def);
   }
 

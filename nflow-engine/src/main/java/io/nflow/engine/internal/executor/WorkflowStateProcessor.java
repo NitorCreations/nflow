@@ -50,6 +50,7 @@ import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -74,6 +75,7 @@ class WorkflowStateProcessor implements Runnable {
   private final int unknownWorkflowStateRetryDelay;
   private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
+  private final int stateVariableValueTooLongRetryDelay;
   private boolean internalRetryEnabled = true;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
@@ -96,6 +98,8 @@ class WorkflowStateProcessor implements Runnable {
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
     stateProcessingRetryDelay = env.getRequiredProperty("nflow.executor.stateProcessingRetryDelay.seconds", Integer.class);
     stateSaveRetryDelay = env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Integer.class);
+    stateVariableValueTooLongRetryDelay = env.getRequiredProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes",
+        Integer.class);
   }
 
   @Override
@@ -142,10 +146,13 @@ class WorkflowStateProcessor implements Runnable {
         rescheduleUnknownWorkflowState(instance);
         return;
       }
-
+      boolean saveInstanceState = true;
       try {
         processBeforeListeners(listenerContext);
         listenerContext.nextAction = processWithListeners(listenerContext, instance, definition, execution, state);
+      } catch (StateVariableValueTooLongException e) {
+        instance = rescheduleStateVariableValueTooLong(e, instance);
+        saveInstanceState = false;
       } catch (Throwable t) {
         execution.setFailed(t);
         logger.error("Handler threw exception, trying again later.", t);
@@ -154,14 +161,16 @@ class WorkflowStateProcessor implements Runnable {
         execution.setNextStateReason(getStackTrace(t));
         execution.handleRetryAfter(definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
       } finally {
-        if (execution.isFailed()) {
-          processAfterFailureListeners(listenerContext, execution.getThrown());
-        } else {
-          processAfterListeners(listenerContext);
-          optionallyCleanupWorkflowInstanceHistory(definition.getSettings(), execution);
+        if (saveInstanceState) {
+          if (execution.isFailed()) {
+            processAfterFailureListeners(listenerContext, execution.getThrown());
+          } else {
+            processAfterListeners(listenerContext);
+            optionallyCleanupWorkflowInstanceHistory(definition.getSettings(), execution);
+          }
+          subsequentStateExecutions = busyLoopPrevention(state, settings, subsequentStateExecutions, execution);
+          instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
         }
-        subsequentStateExecutions = busyLoopPrevention(state, settings, subsequentStateExecutions, execution);
-        instance = saveWorkflowInstanceState(execution, instance, definition, actionBuilder);
       }
     }
     logger.debug("Finished.");
@@ -189,6 +198,14 @@ class WorkflowStateProcessor implements Runnable {
         .setStatus(inProgress).setStateText("Unsupported workflow state").build();
     workflowInstanceDao.updateWorkflowInstance(instance);
     logger.debug("Finished.");
+  }
+
+  private WorkflowInstance rescheduleStateVariableValueTooLong(StateVariableValueTooLongException e, WorkflowInstance instance) {
+    logger.warn("Failed to process workflow instance {}: {} - rescheduling workflow instance", instance.id, e.getMessage());
+    instance = new WorkflowInstance.Builder(instance).setNextActivation(now().plusMinutes(stateVariableValueTooLongRetryDelay))
+        .setStatus(inProgress).setStateText(e.getMessage()).build();
+    workflowInstanceDao.updateWorkflowInstance(instance);
+    return instance;
   }
 
   private int busyLoopPrevention(WorkflowState state, WorkflowSettings settings, int subsequentStateExecutions,
@@ -230,8 +247,8 @@ class WorkflowStateProcessor implements Runnable {
       try {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
-        logger.error("Failed to save workflow instance {} new state, retrying after {} seconds",
-                instance.id, stateSaveRetryDelay, ex);
+        logger.error("Failed to save workflow instance {} new state, retrying after {} seconds", instance.id, stateSaveRetryDelay,
+            ex);
         sleepIgnoreInterrupted(stateSaveRetryDelay);
       }
     } while (internalRetryEnabled);
