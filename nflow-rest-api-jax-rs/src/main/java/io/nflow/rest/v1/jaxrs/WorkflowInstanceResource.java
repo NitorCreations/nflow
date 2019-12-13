@@ -5,9 +5,11 @@ import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 
 import java.net.URI;
@@ -32,8 +34,10 @@ import javax.ws.rs.core.Response;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
@@ -66,14 +70,16 @@ public class WorkflowInstanceResource extends ResourceBase {
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
   private final WorkflowInstanceFactory workflowInstanceFactory;
+  private final WorkflowInstanceDao workflowInstanceDao;
 
   @Inject
   public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
-      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory) {
+      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory, WorkflowInstanceDao workflowInstanceDao) {
     this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
     this.workflowInstanceFactory = workflowInstanceFactory;
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   @OPTIONS
@@ -90,9 +96,13 @@ public class WorkflowInstanceResource extends ResourceBase {
   public Response createWorkflowInstance(
       @Valid @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
-    long id = workflowInstances.insertWorkflowInstance(instance);
-    instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-    return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
+    try {
+      long id = workflowInstances.insertWorkflowInstance(instance);
+      instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+      return created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
+    } catch (StateVariableValueTooLongException e) {
+      return status(BAD_REQUEST.getStatusCode(), e.getMessage()).build();
+    }
   }
 
   @PUT
@@ -103,8 +113,12 @@ public class WorkflowInstanceResource extends ResourceBase {
     @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances);
-    return (updated ? noContent() : status(CONFLICT)).build();
+    try {
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      return (updated ? noContent() : status(CONFLICT)).build();
+    } catch (StateVariableValueTooLongException e) {
+      return status(BAD_REQUEST.getStatusCode(), e.getMessage()).build();
+    }
   }
 
   @GET

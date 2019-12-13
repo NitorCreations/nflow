@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
@@ -93,7 +94,7 @@ public abstract class ResourceBase {
 
   public boolean updateWorkflowInstance(final long id,
       final UpdateWorkflowInstanceRequest req, final WorkflowInstanceFactory workflowInstanceFactory,
-      final WorkflowInstanceService workflowInstances) {
+      final WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao) {
     WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
         .setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
@@ -123,6 +124,7 @@ public abstract class ResourceBase {
       return true;
     }
     WorkflowInstance instance = builder.setStateText(msg).build();
+    instance.getChangedStateVariables().forEach(workflowInstanceDao::checkStateVariableValueLength);
     WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance).setType(externalChange)
         .setStateText(trimToNull(msg)).setExecutionEnd(now()).build();
     return workflowInstances.updateWorkflowInstance(instance, action);

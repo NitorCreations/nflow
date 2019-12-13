@@ -4,6 +4,8 @@ import static com.nitorcreations.Matchers.hasField;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,9 +43,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -71,6 +76,9 @@ public class WorkflowInstanceResourceTest {
   @Mock
   private WorkflowInstanceFactory workflowInstanceFactory;
 
+  @Mock
+  private WorkflowInstanceDao workflowInstanceDao;
+
   private WorkflowInstanceResource resource;
 
   @Captor
@@ -79,7 +87,7 @@ public class WorkflowInstanceResourceTest {
   @BeforeEach
   public void setup() {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
-        workflowInstanceFactory);
+        workflowInstanceFactory, workflowInstanceDao);
     lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
     .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
   }
@@ -91,11 +99,23 @@ public class WorkflowInstanceResourceTest {
     when(createWorkflowConverter.convert(req)).thenReturn(inst);
     when(workflowInstances.insertWorkflowInstance(inst)).thenReturn(1L);
     try (Response r = resource.createWorkflowInstance(req)) {
-      assertThat(r.getStatus(), is(201));
+      assertThat(r.getStatus(), is(CREATED.getStatusCode()));
       assertThat(r.getHeaderString("Location"), is("1"));
       verify(createWorkflowConverter).convert(req);
       verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));
       verify(workflowInstances).getWorkflowInstance(1, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+    }
+  }
+
+  @Test
+  public void insertInstanceReturnsBadRequestWhenStateVariableValueIsTooLong() {
+    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
+    WorkflowInstance inst = mock(WorkflowInstance.class);
+    when(createWorkflowConverter.convert(req)).thenReturn(inst);
+    when(workflowInstances.insertWorkflowInstance(inst)).thenThrow(new StateVariableValueTooLongException("errorMessage"));
+    try (Response r = resource.createWorkflowInstance(req)) {
+      assertThat(r.getStatus(), is(BAD_REQUEST.getStatusCode()));
+      assertThat(r.getStatusInfo().getReasonPhrase(), is("errorMessage"));
     }
   }
 
@@ -171,6 +191,17 @@ public class WorkflowInstanceResourceTest {
     WorkflowInstance instance = workflowInstanceCaptor.getValue();
     assertThat(instance.getStateVariable("foo"), is("bar"));
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
+  }
+
+  @Test
+  public void updateInstanceReturnsBadRequestWhenStateVariableValueIsTooLong() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.stateVariables.put("foo", "bar");
+    doThrow(new StateVariableValueTooLongException("errorMessage")).when(workflowInstanceDao).checkStateVariableValueLength("foo", "bar");
+    try (Response r = resource.updateWorkflowInstance(3, req)) {
+      assertThat(r.getStatus(), is(BAD_REQUEST.getStatusCode()));
+      assertThat(r.getStatusInfo().getReasonPhrase(), is("errorMessage"));
+    }
   }
 
   @Test
