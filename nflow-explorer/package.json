@@ -63,6 +63,6 @@
   },
   "scripts": {
     "test": "grunt test",
-    "selenium": "selenium-standalone install && selenium-standalone start && grunt itest"
+    "selenium": "selenium-standalone install && selenium-standalone start"
   }
 }
