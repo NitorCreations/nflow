@@ -69,22 +69,4 @@ nflow-explorer/
 
 ## Running test
 
-### Unit tests
-
-```sh
-grunt test
-```
-
-### Integration tests:
-
-First install webdriver: 
-
-```sh 
-node_modules/protractor/bin/webdriver-manager update
-```
-
-Running tests
-
-```sh
-grunt itest
-```
+[See instructions](test/README.md)

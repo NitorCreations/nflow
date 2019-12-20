@@ -379,23 +379,6 @@ module.exports = function (grunt) {
       ]
     },
 
-    selenium_standalone: {
-      options: {
-        stopOnExit: true
-      },
-      seleniumTask: {
-        seleniumVersion: '2.53.0',
-        seleniumDownloadURL: 'http://selenium-release.storage.googleapis.com',
-        drivers: {
-          chrome: {
-            version: '2.24',
-            arch: process.arch,
-            baseURL: 'http://chromedriver.storage.googleapis.com'
-          }
-        }
-      }
-    },
-
     protractor: {
       options: {
         configFile: 'test/protractor.conf.js', // Default config file
@@ -458,8 +441,6 @@ module.exports = function (grunt) {
       'concurrent:test',
       'autoprefixer',
       'connect:test',
-      'selenium_standalone:seleniumTask:install',
-      'selenium_standalone:seleniumTask:start',
       'protractor'
     ]);
   });

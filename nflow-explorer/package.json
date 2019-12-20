@@ -32,7 +32,6 @@
     "grunt-ng-annotate": "3.0.0",
     "grunt-protractor-runner": "5.0.0",
     "grunt-sass": "3.1.0",
-    "grunt-selenium-standalone": "1.0.1",
     "grunt-svgmin": "6.0.0",
     "grunt-targethtml": "0.2.6",
     "grunt-usemin": "3.1.1",
@@ -48,18 +47,20 @@
     "karma-spec-reporter": "0.0.32",
     "load-grunt-tasks": "5.1.0",
     "moment": "2.24.0",
+    "node-sass": "4.13.0",
     "phantomjs-prebuilt": "2.1.16",
     "protractor": "6.0.0",
     "protractor-http-mock": "0.10.0",
+    "selenium-standalone": "^6.17.0",
     "serve-static": "1.14.1",
     "sinon": "7.5.0",
-    "time-grunt": "2.0.0",
-    "node-sass": "4.13.0"
+    "time-grunt": "2.0.0"
   },
   "engines": {
     "node": ">=8.9.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "selenium": "selenium-standalone install && selenium-standalone start && grunt itest"
   }
 }

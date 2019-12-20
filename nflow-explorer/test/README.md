@@ -10,8 +10,31 @@ $ grunt test
 ```
 
 ### Protractor tests
+
+Update webdriver:
 ```sh
 $ node_modules/protractor/bin/webdriver-manager update
+```
+
+Build nFlow in repository root (in order to run test backend):
+```sh
+$ mvn -DskipTests install
+```
+
+Start nFlow test backend in separate terminal (change version number in filename):
+```sh
+$ java -jar nflow-tests/target/nflow-tests-6.0.1-SNAPSHOT.jar
+```
+
+Start standalone Selenium in nflow-explorer:
+```sh
+$ npm run selenium
+```
+
+Note that the tests require also [nBank in AWS](https://bank.nflow.io/) to be running.
+
+To run protractor tests:
+```
 $ grunt itest
 ```
 To run protractor tests against distribution build:

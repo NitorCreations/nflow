@@ -47,7 +47,7 @@ describe('endpoint selection', function () {
 
   describe('selecting nBank endpoint', function() {
     beforeEach(function() {
-      menu.toAbout();
+      menu.toDefinitions();
       menu.clickEndpointSelection();
       menu.selectEndpoint('nbank');
     });
@@ -56,7 +56,9 @@ describe('endpoint selection', function () {
       menu.clickEndpointSelection();
       menu.selectEndpoint('localhost');
 
-      browser.wait(element(by.id('workflowDefinitionsList')).isDisplayed);
+      var until = protractor.ExpectedConditions;
+      browser.wait(until.presenceOf(element(by.id('workflowDefinitionsList'))));
+
       expect(menu.selectedEndpoint()).toBe('local nflow instance');
       expect(frontPage.getDefinitions()).toContain('fibonacci');
     });
