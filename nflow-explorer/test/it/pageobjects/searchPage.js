@@ -13,7 +13,7 @@ module.exports = function (spec) {
   spec.resultRows = $$('table#search-result tbody tr');
 
   that.get = function(type, state) {
-    var url = '/#/search';
+    var url = '/#!/search';
 
     var t = 'type=' + type;
     var s = 'state=' + state;

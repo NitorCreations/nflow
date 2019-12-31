@@ -10,7 +10,7 @@ module.exports = function (spec) {
   spec.definitionLink = element(by.linkText('Go to workflow definition'));
 
   that.get = function (id) {
-    browser.get('/#/workflow/' + id);
+    browser.get('/#!/workflow/' + id);
     expect(that.isDisplayed()).toBeTruthy();
   };
 

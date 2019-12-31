@@ -12,7 +12,7 @@ exports.config = {
     }
   },
 
-  // allows running individual files: grunt itest --suite frontPage,search
+  // allows running individual files: grunt itest --suite=frontPage,search
   suites: {
     endpointSelection: 'it/endpointSelection.spec.js',
     frontPage: 'it/frontPage.spec.js',

@@ -50,7 +50,7 @@ module.exports = function (grunt) {
       },
       sass: {
         files: ['<%= yeoman.src %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['sass:dist', 'autoprefixer']
+        tasks: ['sass:dist', 'postcss']
       },
       gruntfile: {
         files: ['Gruntfile.js']
@@ -157,9 +157,12 @@ module.exports = function (grunt) {
     },
 
     // Add vendor prefixed styles
-    autoprefixer: {
+    postcss: {
       options: {
-        browsers: ['last 1 version']
+        map: true,
+        processors: [
+          require('autoprefixer')
+        ]
       },
       dist: {
         files: [{
@@ -379,23 +382,6 @@ module.exports = function (grunt) {
       ]
     },
 
-    selenium_standalone: {
-      options: {
-        stopOnExit: true
-      },
-      seleniumTask: {
-        seleniumVersion: '2.53.0',
-        seleniumDownloadURL: 'http://selenium-release.storage.googleapis.com',
-        drivers: {
-          chrome: {
-            version: '2.24',
-            arch: process.arch,
-            baseURL: 'http://chromedriver.storage.googleapis.com'
-          }
-        }
-      }
-    },
-
     protractor: {
       options: {
         configFile: 'test/protractor.conf.js', // Default config file
@@ -428,7 +414,7 @@ module.exports = function (grunt) {
       'clean:server',
       'wiredep',
       'concurrent:server',
-      'autoprefixer',
+      'postcss',
       'connect:livereload',
       'watch'
     ]);
@@ -442,7 +428,7 @@ module.exports = function (grunt) {
   grunt.registerTask('test', [
     'clean:server',
     'concurrent:test',
-    'autoprefixer',
+    'postcss',
     'connect:test',
     'karma'
   ]);
@@ -456,10 +442,8 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'concurrent:test',
-      'autoprefixer',
+      'postcss',
       'connect:test',
-      'selenium_standalone:seleniumTask:install',
-      'selenium_standalone:seleniumTask:start',
       'protractor'
     ]);
   });
@@ -469,7 +453,7 @@ module.exports = function (grunt) {
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
-    'autoprefixer',
+    'postcss',
     'concat',
     'ngAnnotate',
     'copy:dist',

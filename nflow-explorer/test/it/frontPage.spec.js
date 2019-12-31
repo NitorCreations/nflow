@@ -13,7 +13,9 @@ describe('front page', function() {
   beforeEach(function() { frontPage.get(); });
 
   it('has list of workflow definitions', function() {
-    expect(frontPage.getDefinitions()).toEqual(_.map(fixture.wfs, 'name'));
+    _.forEach(fixture.wfs, function(wf) {
+      expect(frontPage.getDefinitions()).toContain(wf.name);
+    })
   });
 
   it('provides navigation to workflow definitions', function() {

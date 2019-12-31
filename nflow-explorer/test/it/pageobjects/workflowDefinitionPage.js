@@ -10,7 +10,7 @@ module.exports = function (spec) {
   spec.instanceSearchByTypeLink = element(by.linkText('Search related workflow instances'));
 
   that.get = function (type) {
-    browser.get('/#/workflow-definition/' + type);
+    browser.get('/#!/workflow-definition/' + type);
     expect(that.isDisplayed()).toBeTruthy();
   };
 
