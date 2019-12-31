@@ -23,10 +23,10 @@ fun DependencyHandler.nflow(name: String) = create(
 
 plugins {
     base
-    kotlin("jvm") version "1.3.31"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.31"
-    id("org.springframework.boot") version "2.1.4.RELEASE"
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
+    kotlin("jvm") version "1.3.60"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.3.61"
+    id("org.springframework.boot") version "2.2.1.RELEASE"
+    id("io.spring.dependency-management") version "1.0.8.RELEASE"
 }
 
 repositories {
@@ -50,12 +50,12 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(springBoot("test"))
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
 
     nflowExplorer(
-            group = "com.nitorcreations",
+            group = "io.nflow",
             name = "nflow-explorer",
-            version = "1.2.8",
+            version = "6.0.0",
             ext = "tar.gz"
     )
 }

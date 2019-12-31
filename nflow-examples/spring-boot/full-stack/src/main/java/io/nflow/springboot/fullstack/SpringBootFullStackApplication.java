@@ -1,10 +1,11 @@
 package io.nflow.springboot.fullstack;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -24,12 +25,6 @@ import io.nflow.rest.v1.jaxrs.WorkflowInstanceResource;
 @Import(RestConfiguration.class)
 public class SpringBootFullStackApplication {
 
-  @Inject
-  private WorkflowInstanceService workflowInstances;
-
-  @Inject
-  private WorkflowInstanceFactory workflowInstanceFactory;
-
   @Bean
   public ExampleWorkflow exampleWorkflow() {
     return new ExampleWorkflow();
@@ -38,6 +33,11 @@ public class SpringBootFullStackApplication {
   @Bean
   public JerseyResourceConfig jerseyResourceConfig() {
     return new JerseyResourceConfig();
+  }
+
+  @Bean
+  public ApplicationRunner applicationRunner() {
+    return new ExampleApplicationRunner();
   }
 
   private static class JerseyResourceConfig extends ResourceConfig {
@@ -52,16 +52,25 @@ public class SpringBootFullStackApplication {
     }
   }
 
-  @PostConstruct
-  public void createExampleWorkflowInstance() {
-    workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
-        .setType(ExampleWorkflow.TYPE)
-        .setExternalId("example")
-        .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
-        .build());
-  }
-
   public static void main(String[] args) {
     SpringApplication.run(SpringBootFullStackApplication.class, args);
+  }
+
+  public static class ExampleApplicationRunner implements ApplicationRunner {
+
+    @Inject
+    private WorkflowInstanceService workflowInstances;
+
+    @Inject
+    private WorkflowInstanceFactory workflowInstanceFactory;
+
+    @Override
+    public void run(ApplicationArguments args) {
+      workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
+          .setType(ExampleWorkflow.TYPE)
+          .setExternalId("example")
+          .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
+          .build());
+    }
   }
 }
