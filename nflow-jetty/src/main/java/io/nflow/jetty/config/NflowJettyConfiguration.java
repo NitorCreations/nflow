@@ -18,6 +18,7 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
@@ -35,9 +36,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import io.nflow.engine.config.NFlow;
-import io.nflow.jetty.mapper.BadRequestExceptionMapper;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
-import io.nflow.jetty.mapper.NotFoundExceptionMapper;
+import io.nflow.jetty.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
@@ -77,8 +77,9 @@ public class NflowJettyConfiguration {
         jsonProvider(nflowRestObjectMapper),
         validationExceptionMapper(),
         corsHeadersProvider(),
-        notFoundExceptionMapper(),
-        new BadRequestExceptionMapper(),
+        new WebApplicationExceptionMapper(),
+        new CustomValidationExceptionMapper(),
+        new StateVariableValueTooLongExceptionMapper(),
         new DateTimeParamConverterProvider()
         ));
     factory.setFeatures(asList(new LoggingFeature(), swaggerFeature()));
@@ -116,11 +117,6 @@ public class NflowJettyConfiguration {
   @Bean
   public CustomValidationExceptionMapper validationExceptionMapper() {
     return new CustomValidationExceptionMapper();
-  }
-
-  @Bean
-  public NotFoundExceptionMapper notFoundExceptionMapper() {
-    return new NotFoundExceptionMapper();
   }
 
   @Bean(destroyMethod = "shutdown")
