@@ -99,7 +99,7 @@ public abstract class AbstractNflowTest {
     return client;
   }
 
-  private WebClient getInstanceIdResource(long instanceId) {
+  protected WebClient getInstanceIdResource(long instanceId) {
     WebClient client = fromClient(workflowInstanceIdResource, true).path(Long.toString(instanceId));
     return client;
   }
