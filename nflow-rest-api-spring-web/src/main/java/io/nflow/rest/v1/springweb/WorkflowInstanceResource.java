@@ -80,7 +80,8 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @PutMapping(consumes = APPLICATION_JSON_VALUE)
   @ApiOperation(value = "Submit new workflow instance")
-  @ApiResponses(@ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class))
+  @ApiResponses({ @ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class),
+      @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
   public ResponseEntity<?> createWorkflowInstance(
       @RequestBody @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
@@ -97,6 +98,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
       + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
+      @ApiResponse(code = 400, message = "If instance could not be updated, for example when state variable value was too long"),
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public ResponseEntity<?> updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
