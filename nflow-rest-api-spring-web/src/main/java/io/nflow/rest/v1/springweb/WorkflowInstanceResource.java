@@ -5,7 +5,6 @@ import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.notFound;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
@@ -82,16 +80,12 @@ public class WorkflowInstanceResource extends ResourceBase {
   @ApiOperation(value = "Submit new workflow instance")
   @ApiResponses({ @ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class),
       @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
-  public ResponseEntity<?> createWorkflowInstance(
+  public ResponseEntity<CreateWorkflowInstanceResponse> createWorkflowInstance(
       @RequestBody @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
-    try {
-      long id = workflowInstances.insertWorkflowInstance(instance);
-      instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-      return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
-    } catch (StateVariableValueTooLongException e) {
-      return badRequest().body(e.getMessage());
-    }
+    long id = workflowInstances.insertWorkflowInstance(instance);
+    instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+    return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
   }
 
   @PutMapping(path = "/id/{id}", consumes = APPLICATION_JSON_VALUE)
@@ -102,12 +96,8 @@ public class WorkflowInstanceResource extends ResourceBase {
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public ResponseEntity<?> updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    try {
-      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
-      return (updated ? noContent() : status(CONFLICT)).build();
-    } catch (StateVariableValueTooLongException e) {
-      return badRequest().body(e.getMessage());
-    }
+    boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+    return (updated ? noContent() : status(CONFLICT)).build();
   }
 
   @GetMapping(path = "/id/{id}")
