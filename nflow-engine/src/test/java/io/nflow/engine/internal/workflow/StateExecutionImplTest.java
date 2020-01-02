@@ -9,6 +9,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -132,6 +134,8 @@ public class StateExecutionImplTest {
     assertThat(actualQuery.parentWorkflowId, is(99L));
     assertThat(actualQuery.types, is(asList("a", "b")));
     assertThat(actualQuery.businessKey, is("123"));
+    // this will change to false in 7.x
+    assertThat(actualQuery.includeCurrentStateVariables, is(true));
   }
 
   @Test
@@ -143,8 +147,10 @@ public class StateExecutionImplTest {
     QueryWorkflowInstances actualQuery = queryCaptor.getValue();
 
     assertThat(actualQuery.parentWorkflowId, is(99L));
-    assertThat(actualQuery.types, is(Collections.<String>emptyList()));
+    assertThat(actualQuery.types, emptyCollectionOf(String.class));
     assertThat(actualQuery.businessKey, is(nullValue()));
+    // this will change to false in 7.x
+    assertThat(actualQuery.includeCurrentStateVariables, is(true));
   }
 
   @Test
@@ -165,7 +171,7 @@ public class StateExecutionImplTest {
     builder.putStateVariable("foo", data);
     WorkflowInstance i = builder.build();
     assertThat(i.nextActivation, is(notNullValue()));
-    assertThat(i.stateVariables.get("foo"), is(serializedData));
+    assertThat(i.stateVariables, hasEntry("foo", serializedData));
     verify(objectStringMapper).convertFromObject("foo", data);
   }
 

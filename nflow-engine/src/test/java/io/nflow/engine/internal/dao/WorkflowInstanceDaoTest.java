@@ -148,7 +148,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     long id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().build();
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build();
     List<WorkflowInstance> createdInstances = dao.queryWorkflowInstances(q);
     assertThat(createdInstances.size(), is(1));
     WorkflowInstance instance = createdInstances.get(0);

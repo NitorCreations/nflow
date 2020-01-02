@@ -115,7 +115,8 @@ public class QueryWorkflowInstances extends ModelObject {
     String businessKey;
     String externalId;
     boolean includeActions;
-    boolean includeCurrentStateVariables;
+    /** Query implementation was ignoring this field in upto 6.x. Default will change to false in 7.x */
+    boolean includeCurrentStateVariables = true;
     boolean includeActionStateVariables;
     boolean includeChildWorkflows;
     Long maxResults;
@@ -235,6 +236,7 @@ public class QueryWorkflowInstances extends ModelObject {
 
     /**
      * Set whether current workflow state variables should be included in the results.
+     * Note: The default is true until 7.x where it will be changed to false.
      * @param includeCurrentStateVariables True to include state variables, false otherwise.
      * @return this.
      */

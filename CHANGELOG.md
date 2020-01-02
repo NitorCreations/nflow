@@ -3,13 +3,13 @@
 **Highlights**
 - `nflow-engine`
   - Check that state variable value fits into the database column
-  - Start to honor the include-state-variables boolean in list workflow instance queries for the java api.
-    This is a bugfix that might affect existing code. The rest api is unaffected.
 
 **Details**
 - `nflow-engine`
   - Throw `StateVariableValueTooLongException` if a state variable value that does not fit into the database column is detected. Checked in `StateExecution.setVariable`, `StateExecution.addWorkflows`, `StateExecution.addChildWorkflows`, `WorkflowInstanceService.insertWorkflowInstance` and when creating a new instance via REST API. If the exception is thrown during state processing and not handled by the state implementation, nFlow engine will catch the exception and retry state processing after delay configured by property `nflow.executor.stateVariableValueTooLongRetryDelay.minutes` (default is 60).
-  - Fix honoring of include-state-variables boolean in list workflow instance queries for the java api. This caused major slowness when using Bulk workflows.
+  - Fix honoring of includeCurrentStateVariables boolean in list workflow instance queries for the java api. This caused major slowness when using Bulk workflows.
+    To preserve the existing (buggy) behaviour in incompatible way the default value in QueryWorkflowInstances. Builder was changed to true. The rest api is unaffected.
+    Especially in workflows with many children that use the getAllChildWorkflows method the performance impact can be high.
   - Dependency updates:
     - jetty 9.4.24.v20191120
     - junit4 4.13-rc-1

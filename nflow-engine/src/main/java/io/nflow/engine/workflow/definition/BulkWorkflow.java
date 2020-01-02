@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -90,7 +91,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   }
 
   protected boolean splitWorkImpl(StateExecution execution, @SuppressWarnings("unused") JsonNode data) {
-    if (execution.getAllChildWorkflows().isEmpty()) {
+    if (execution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build()).isEmpty()) {
       throw new RuntimeException("No child workflows found for workflow instance " + execution.getWorkflowInstanceId()
           + " - either add them before starting the parent or implement splitWorkflowImpl");
     }
@@ -103,7 +104,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
 
   public NextAction waitForChildrenToFinish(StateExecution execution,
       @StateVar(value = VAR_CONCURRENCY, readOnly = true) int concurrency) {
-    List<WorkflowInstance> childWorkflows = execution.getAllChildWorkflows();
+    List<WorkflowInstance> childWorkflows = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build());
     long completed = 0;
     long running = 0;
     for (WorkflowInstance child : childWorkflows) {

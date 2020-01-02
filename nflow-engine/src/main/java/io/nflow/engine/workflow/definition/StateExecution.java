@@ -120,6 +120,7 @@ public interface StateExecution {
 
   /**
    * Return all child workflows for current workflow.
+   * The state variables are returned until 7.x release when they must be explicitly requested using {@link #queryChildWorkflows(QueryWorkflowInstances)}.
    * @return List of all child workflows.
    */
   List<WorkflowInstance> getAllChildWorkflows();
