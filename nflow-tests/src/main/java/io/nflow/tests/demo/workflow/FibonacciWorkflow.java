@@ -95,7 +95,7 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
   public NextAction poll(StateExecution execution) {
     // get finished and failed child workflows
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addStatuses(WorkflowInstanceStatus.manual,
-        WorkflowInstanceStatus.finished).build();
+        WorkflowInstanceStatus.finished).setIncludeCurrentStateVariables(true).build();
     List<WorkflowInstance> finishedChildren = execution.queryChildWorkflows(query);
 
     if (finishedChildren.size() < execution.getAllChildWorkflows().size()) {

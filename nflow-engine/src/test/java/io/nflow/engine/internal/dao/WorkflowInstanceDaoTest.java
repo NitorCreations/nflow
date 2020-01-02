@@ -14,6 +14,7 @@ import static java.lang.Math.min;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.repeat;
@@ -151,7 +152,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<WorkflowInstance> createdInstances = dao.queryWorkflowInstances(q);
     assertThat(createdInstances.size(), is(1));
     WorkflowInstance instance = createdInstances.get(0);
-    checkSameWorkflowInfo(i1, instance);
+    WorkflowInstance originalWithoutStateVariables = new WorkflowInstance.Builder(i1).setStateVariables(emptyMap()).build();
+    checkSameWorkflowInfo(originalWithoutStateVariables, instance);
     assertNull(instance.started);
   }
 
