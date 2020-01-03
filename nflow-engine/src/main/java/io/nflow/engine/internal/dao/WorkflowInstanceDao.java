@@ -149,7 +149,7 @@ public class WorkflowInstanceDao {
     return actionStateTextLength;
   }
 
-  public int getStateVariableValueMaxLength() {
+  int getStateVariableValueMaxLength() {
     if (stateVariableValueMaxLength == -1) {
       stateVariableValueMaxLength = jdbc.query("select state_value from nflow_workflow_state where 1 = 0",
           firstColumnLengthExtractor);
