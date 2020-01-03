@@ -148,6 +148,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     long id = dao.insertWorkflowInstance(i1);
     assertThat(id, not(equalTo(-1)));
+    // TODO: remove setIncludeCurrentStateVariables(false) in 7.0.0 release
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build();
     List<WorkflowInstance> createdInstances = dao.queryWorkflowInstances(q);
     assertThat(createdInstances.size(), is(1));

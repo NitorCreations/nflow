@@ -91,6 +91,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   }
 
   protected boolean splitWorkImpl(StateExecution execution, @SuppressWarnings("unused") JsonNode data) {
+    // TODO: change back to getAllChildWorkflows after it no longer returns state variables
     if (execution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build()).isEmpty()) {
       throw new RuntimeException("No child workflows found for workflow instance " + execution.getWorkflowInstanceId()
           + " - either add them before starting the parent or implement splitWorkflowImpl");
@@ -104,6 +105,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
 
   public NextAction waitForChildrenToFinish(StateExecution execution,
       @StateVar(value = VAR_CONCURRENCY, readOnly = true) int concurrency) {
+    // TODO: change back to getAllChildWorkflows after it no longer returns state variables
     List<WorkflowInstance> childWorkflows = execution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build());
     long completed = 0;
     long running = 0;

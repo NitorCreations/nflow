@@ -7,9 +7,9 @@
 **Details**
 - `nflow-engine`
   - Throw `StateVariableValueTooLongException` if a state variable value that does not fit into the database column is detected. Checked in `StateExecution.setVariable`, `StateExecution.addWorkflows`, `StateExecution.addChildWorkflows`, `WorkflowInstanceService.insertWorkflowInstance` and when creating a new instance via REST API. If the exception is thrown during state processing and not handled by the state implementation, nFlow engine will catch the exception and retry state processing after delay configured by property `nflow.executor.stateVariableValueTooLongRetryDelay.minutes` (default is 60).
-  - Fix honoring of includeCurrentStateVariables boolean in list workflow instance queries for the java api. This caused major slowness when using Bulk workflows.
-    To preserve the existing (buggy) behaviour in incompatible way the default value in QueryWorkflowInstances. Builder was changed to true. The rest api is unaffected.
-    Especially in workflows with many children that use the getAllChildWorkflows method the performance impact can be high.
+  - Fix honoring of `includeCurrentStateVariables` flag in `WorkflowInstanceService.listWorkflowInstances`. This caused major slowness when using bulk workflows.
+    To preserve the existing (incorrect) default behaviour in backwards compatible way the default value in `QueryWorkflowInstances.Builder` is changed to `true`. The REST API is unaffected.
+    Especially in workflows with many children that use the `StateExecution.getAllChildWorkflows` method the performance impact can be high. Before 7.0.0 release, it is recommended to use `StateExecution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build())` if state variables are not needed.
   - Dependency updates:
     - jetty 9.4.24.v20191120
     - junit4 4.13-rc-1

@@ -134,7 +134,7 @@ public class StateExecutionImplTest {
     assertThat(actualQuery.parentWorkflowId, is(99L));
     assertThat(actualQuery.types, is(asList("a", "b")));
     assertThat(actualQuery.businessKey, is("123"));
-    // this will change to false in 7.x
+    // TODO: change to `false` in 7.0.0 release
     assertThat(actualQuery.includeCurrentStateVariables, is(true));
   }
 
@@ -149,7 +149,7 @@ public class StateExecutionImplTest {
     assertThat(actualQuery.parentWorkflowId, is(99L));
     assertThat(actualQuery.types, emptyCollectionOf(String.class));
     assertThat(actualQuery.businessKey, is(nullValue()));
-    // this will change to false in 7.x
+    // TODO: change to `false` in 7.0.0 release
     assertThat(actualQuery.includeCurrentStateVariables, is(true));
   }
 
