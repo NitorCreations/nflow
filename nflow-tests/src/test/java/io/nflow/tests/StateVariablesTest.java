@@ -1,5 +1,6 @@
 package io.nflow.tests;
 
+import static io.nflow.tests.StateVariablesTest.TestConfiguration.applicationContext;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -12,6 +13,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,13 +26,16 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -53,10 +58,18 @@ public class StateVariablesTest extends AbstractNflowTest {
     super(server);
   }
 
-  static class TestConfiguration {
+  static class TestConfiguration implements ApplicationContextAware {
+
+    static ApplicationContext applicationContext;
+
     @Bean
     public StateWorkflow stateWorkflow() {
       return new StateWorkflow();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+      TestConfiguration.applicationContext = applicationContext;
     }
   }
 
@@ -106,8 +119,10 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
-  @DisabledIfEnvironmentVariable(named = "DB", matches = "[postgresql|sqlserver]")
   public void updateWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
+    WorkflowInstanceDao workflowInstanceDao = applicationContext.getBean(WorkflowInstanceDao.class);
+    assumeTrue(workflowInstanceDao.getStateVariableValueMaxLength() < 11000);
+
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("testUpdate", repeat('a', 11000));
 
@@ -119,8 +134,10 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   @Test
   @Order(5)
-  @DisabledIfEnvironmentVariable(named = "DB", matches = "[postgresql|sqlserver]")
   public void insertWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
+    WorkflowInstanceDao workflowInstanceDao = applicationContext.getBean(WorkflowInstanceDao.class);
+    assumeTrue(workflowInstanceDao.getStateVariableValueMaxLength() < 11000);
+
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
