@@ -1,6 +1,5 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.StateVariablesTest.TestConfiguration.applicationContext;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -13,7 +12,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,15 +25,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -50,7 +44,8 @@ import io.nflow.tests.extension.NflowServerExtension;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StateVariablesTest extends AbstractNflowTest {
 
-  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(TestConfiguration.class).build();
+  public static NflowServerConfig server = new NflowServerConfig.Builder()
+      .prop("nflow.workflow.state.variable.value.length", "8000").springContextClass(TestConfiguration.class).build();
   private static CreateWorkflowInstanceRequest createRequest;
   private static CreateWorkflowInstanceResponse createResponse;
 
@@ -58,18 +53,10 @@ public class StateVariablesTest extends AbstractNflowTest {
     super(server);
   }
 
-  static class TestConfiguration implements ApplicationContextAware {
-
-    static ApplicationContext applicationContext;
-
+  static class TestConfiguration {
     @Bean
     public StateWorkflow stateWorkflow() {
       return new StateWorkflow();
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-      TestConfiguration.applicationContext = applicationContext;
     }
   }
 
@@ -80,8 +67,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
     createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
-    createResponse = assertTimeoutPreemptively(ofSeconds(5),
-      () -> createWorkflowInstance(createRequest));
+    createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
   }
 
@@ -120,11 +106,8 @@ public class StateVariablesTest extends AbstractNflowTest {
   @Test
   @Order(4)
   public void updateWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
-    WorkflowInstanceDao workflowInstanceDao = applicationContext.getBean(WorkflowInstanceDao.class);
-    assumeTrue(workflowInstanceDao.getStateVariableValueMaxLength() < 11000);
-
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    req.stateVariables.put("testUpdate", repeat('a', 11000));
+    req.stateVariables.put("testUpdate", repeat('a', 8001));
 
     try (Response response = getInstanceIdResource(createResponse.id).put(req)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
@@ -135,13 +118,10 @@ public class StateVariablesTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void insertWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
-    WorkflowInstanceDao workflowInstanceDao = applicationContext.getBean(WorkflowInstanceDao.class);
-    assumeTrue(workflowInstanceDao.getStateVariableValueMaxLength() < 11000);
-
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
-    createRequest.stateVariables.put("requestData", repeat('a', 11000));
+    createRequest.stateVariables.put("requestData", repeat('a', 8001));
 
     try (Response response = fromClient(workflowInstanceResource, true).put(createRequest)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
