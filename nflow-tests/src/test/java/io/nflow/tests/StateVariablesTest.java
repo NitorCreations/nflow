@@ -24,7 +24,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Bean;
 
@@ -106,7 +106,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
-  @DisabledIfSystemProperty(named = "profiles", matches = "nflow.db.[postgresql|sqlserver|oracle]")
+  @DisabledIfEnvironmentVariable(named = "DB", matches = "[postgresql|sqlserver]")
   public void updateWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("testUpdate", repeat('a', 11000));
@@ -119,7 +119,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   @Test
   @Order(5)
-  @DisabledIfSystemProperty(named = "profiles", matches = "nflow.db.[postgresql|sqlserver|oracle]")
+  @DisabledIfEnvironmentVariable(named = "DB", matches = "[postgresql|sqlserver]")
   public void insertWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = "stateWorkflow";
