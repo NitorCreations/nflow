@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.jetty.mapper.ErrorResponse;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -111,7 +112,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
     try (Response response = getInstanceIdResource(createResponse.id).put(req)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
-      assertThat(response.readEntity(String.class), startsWith("Too long value"));
+      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
     }
   }
 
@@ -125,7 +126,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
     try (Response response = fromClient(workflowInstanceResource, true).put(createRequest)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
-      assertThat(response.readEntity(String.class), startsWith("Too long value"));
+      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
     }
   }
 
