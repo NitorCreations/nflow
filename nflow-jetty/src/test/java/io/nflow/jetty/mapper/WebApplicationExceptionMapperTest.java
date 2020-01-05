@@ -16,7 +16,8 @@ public class WebApplicationExceptionMapperTest {
   public void exceptionStatusAndMessageAreUsedInResponse() {
     try (Response response = mapper.toResponse(new WebApplicationException("error", BAD_REQUEST))) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
-      assertThat(response.getEntity(), is("error"));
+      ErrorResponse error = (ErrorResponse) response.getEntity();
+      assertThat(error.error, is("error"));
     }
   }
 }

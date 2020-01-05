@@ -12,6 +12,6 @@ import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 public class StateVariableValueTooLongExceptionMapper implements ExceptionMapper<StateVariableValueTooLongException> {
   @Override
   public Response toResponse(StateVariableValueTooLongException e) {
-    return Response.status(BAD_REQUEST).entity(e.getMessage()).build();
+    return Response.status(BAD_REQUEST).entity(new ErrorResponse(e.getMessage())).build();
   }
 }

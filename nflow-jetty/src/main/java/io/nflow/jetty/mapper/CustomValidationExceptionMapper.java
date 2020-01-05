@@ -1,6 +1,7 @@
 package io.nflow.jetty.mapper;
 
-import javax.validation.ConstraintViolation;
+import static java.util.stream.Collectors.joining;
+
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import javax.ws.rs.core.Response;
@@ -14,25 +15,20 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class CustomValidationExceptionMapper implements ExceptionMapper<ValidationException> {
 
-  private static final Logger logger = LoggerFactory.getLogger(CustomValidationExceptionMapper.class);
+  static final Logger logger = LoggerFactory.getLogger(CustomValidationExceptionMapper.class);
 
   @Override
   public Response toResponse(ValidationException exception) {
-    if (exception instanceof ConstraintViolationException) {
-      final ConstraintViolationException constraint = (ConstraintViolationException) exception;
-      final boolean isResponseException = constraint instanceof ResponseConstraintViolationException;
-      StringBuilder sb = new StringBuilder();
-      for (final ConstraintViolation<?> violation: constraint.getConstraintViolations()) {
-        logger.warn("{}.{}: {}",violation.getRootBeanClass().getSimpleName(), violation.getPropertyPath(), violation.getMessage());
-        sb.append(violation.getPropertyPath()).append(": ").append(violation.getMessage()).append(", ");
-      }
-      sb.setLength(sb.length() - 2);
-      if (isResponseException) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-      }
-      return Response.status(Response.Status.BAD_REQUEST).entity(sb).build();
+    if (exception instanceof ConstraintViolationException && !(exception instanceof ResponseConstraintViolationException)) {
+      ConstraintViolationException constraint = (ConstraintViolationException) exception;
+      String error = constraint.getConstraintViolations().stream().map(violation -> {
+        logger.warn("{}.{}: {}", violation.getRootBeanClass().getSimpleName(), violation.getPropertyPath(),
+            violation.getMessage());
+        return violation.getPropertyPath() + ": " + violation.getMessage();
+      }).collect(joining(", "));
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(error)).build();
     }
-    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ErrorResponse(exception.getMessage())).build();
   }
 
 }

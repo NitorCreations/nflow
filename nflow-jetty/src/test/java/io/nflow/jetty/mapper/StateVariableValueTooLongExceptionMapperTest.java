@@ -17,7 +17,8 @@ public class StateVariableValueTooLongExceptionMapperTest {
   public void exceptionIsMappedToBadRequest() {
     try (Response response = mapper.toResponse(new StateVariableValueTooLongException("error"))) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
-      assertThat(response.getEntity(), is("error"));
+      ErrorResponse error = (ErrorResponse) response.getEntity();
+      assertThat(error.error, is("error"));
     }
   }
 }
