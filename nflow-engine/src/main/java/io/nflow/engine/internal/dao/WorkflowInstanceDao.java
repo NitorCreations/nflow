@@ -677,8 +677,10 @@ public class WorkflowInstanceDao {
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
     List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
         .map(WorkflowInstance.Builder::build).collect(toList());
-    for (WorkflowInstance instance : ret) {
-      fillState(instance);
+    if (query.includeCurrentStateVariables) {
+      for (WorkflowInstance instance : ret) {
+        fillState(instance);
+      }
     }
     if (query.includeActions) {
       for (WorkflowInstance instance : ret) {
