@@ -12,6 +12,8 @@ import org.apache.cxf.validation.ResponseConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.nflow.rest.v1.msg.ErrorResponse;
+
 @Provider
 public class CustomValidationExceptionMapper implements ExceptionMapper<ValidationException> {
 

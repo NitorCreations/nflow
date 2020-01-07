@@ -9,6 +9,8 @@ import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
+import io.nflow.rest.v1.msg.ErrorResponse;
+
 public class WebApplicationExceptionMapperTest {
   WebApplicationExceptionMapper mapper = new WebApplicationExceptionMapper();
 

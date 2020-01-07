@@ -7,6 +7,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
+import io.nflow.rest.v1.msg.ErrorResponse;
 
 @Provider
 public class StateVariableValueTooLongExceptionMapper implements ExceptionMapper<StateVariableValueTooLongException> {

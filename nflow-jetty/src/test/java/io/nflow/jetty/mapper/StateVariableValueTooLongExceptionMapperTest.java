@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
+import io.nflow.rest.v1.msg.ErrorResponse;
 
 public class StateVariableValueTooLongExceptionMapperTest {
   StateVariableValueTooLongExceptionMapper mapper = new StateVariableValueTooLongExceptionMapper();

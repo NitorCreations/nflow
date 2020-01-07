@@ -1,4 +1,4 @@
-package io.nflow.jetty.mapper;
+package io.nflow.rest.v1.msg;
 
 import io.nflow.engine.model.ModelObject;
 

@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.nflow.rest.v1.msg.ErrorResponse;
+
 @ExtendWith(MockitoExtension.class)
 public class CustomValidationExceptionMapperTest {
 
