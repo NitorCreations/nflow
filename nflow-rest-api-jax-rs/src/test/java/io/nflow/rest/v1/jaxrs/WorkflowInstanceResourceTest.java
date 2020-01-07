@@ -4,6 +4,7 @@ import static com.nitorcreations.Matchers.hasField;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -40,6 +41,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -71,6 +73,9 @@ public class WorkflowInstanceResourceTest {
   @Mock
   private WorkflowInstanceFactory workflowInstanceFactory;
 
+  @Mock
+  private WorkflowInstanceDao workflowInstanceDao;
+
   private WorkflowInstanceResource resource;
 
   @Captor
@@ -79,7 +84,7 @@ public class WorkflowInstanceResourceTest {
   @BeforeEach
   public void setup() {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
-        workflowInstanceFactory);
+        workflowInstanceFactory, workflowInstanceDao);
     lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
     .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
   }
@@ -91,7 +96,7 @@ public class WorkflowInstanceResourceTest {
     when(createWorkflowConverter.convert(req)).thenReturn(inst);
     when(workflowInstances.insertWorkflowInstance(inst)).thenReturn(1L);
     try (Response r = resource.createWorkflowInstance(req)) {
-      assertThat(r.getStatus(), is(201));
+      assertThat(r.getStatus(), is(CREATED.getStatusCode()));
       assertThat(r.getHeaderString("Location"), is("1"));
       verify(createWorkflowConverter).convert(req);
       verify(workflowInstances).insertWorkflowInstance(any(WorkflowInstance.class));

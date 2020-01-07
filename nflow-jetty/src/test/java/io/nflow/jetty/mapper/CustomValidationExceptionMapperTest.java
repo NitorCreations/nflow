@@ -17,11 +17,12 @@ import javax.validation.ValidationException;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.validation.ResponseConstraintViolationException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import io.nflow.rest.v1.msg.ErrorResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomValidationExceptionMapperTest {
@@ -44,37 +45,34 @@ public class CustomValidationExceptionMapperTest {
     when(violation.getPropertyPath()).thenReturn(violationPath);
     when(violation.getMessage()).thenReturn("violationMessage");
 
-    ConstraintViolationException cex = mock(ConstraintViolationException.class);
-    when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
-    try (Response resp = exceptionMapper.toResponse(cex)) {
-      assertThat(resp.getStatus(), is(BAD_REQUEST_400));
-      assertThat(resp.getEntity().toString(), is("violationPath: violationMessage"));
+    ConstraintViolationException exception = mock(ConstraintViolationException.class);
+    when(exception.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
+    try (Response response = exceptionMapper.toResponse(exception)) {
+      assertThat(response.getStatus(), is(BAD_REQUEST_400));
+      ErrorResponse error = (ErrorResponse) response.getEntity();
+      assertThat(error.error, is("violationPath: violationMessage"));
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   public void responseConstraintViolationExceptionCausesInternalServerError() {
-    Path violationPath = mock(Path.class);
-    when(violationPath.toString()).thenReturn("violationPath");
-
-    ConstraintViolation violation = mock(ConstraintViolation.class);
-    when(violation.getRootBeanClass()).thenReturn(CustomValidationExceptionMapperTest.class);
-    when(violation.getPropertyPath()).thenReturn(violationPath);
-    when(violation.getMessage()).thenReturn("violationMessage");
-
-    ConstraintViolationException cex = mock(ResponseConstraintViolationException.class);
-    when(cex.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
-    try (Response resp = exceptionMapper.toResponse(cex)) {
-      assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+    ConstraintViolationException exception = mock(ResponseConstraintViolationException.class);
+    when(exception.getMessage()).thenReturn("error");
+    try (Response response = exceptionMapper.toResponse(exception)) {
+      assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+      ErrorResponse error = (ErrorResponse) response.getEntity();
+      assertThat(error.error, is("error"));
     }
   }
 
   @Test
   public void otherExceptionsCauseInternalServerException() {
-    ValidationException cex = mock(ValidationException.class);
-    try (Response resp = exceptionMapper.toResponse(cex)) {
-      assertThat(resp.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+    ValidationException exception = mock(ValidationException.class);
+    when(exception.getMessage()).thenReturn("error");
+    try (Response response = exceptionMapper.toResponse(exception)) {
+      assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+      ErrorResponse error = (ErrorResponse) response.getEntity();
+      assertThat(error.error, is("error"));
     }
   }
 }

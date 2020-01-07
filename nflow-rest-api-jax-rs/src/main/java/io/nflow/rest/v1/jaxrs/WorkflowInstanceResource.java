@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -66,14 +68,16 @@ public class WorkflowInstanceResource extends ResourceBase {
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
   private final WorkflowInstanceFactory workflowInstanceFactory;
+  private final WorkflowInstanceDao workflowInstanceDao;
 
   @Inject
   public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
-      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory) {
+      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory, WorkflowInstanceDao workflowInstanceDao) {
     this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
     this.workflowInstanceFactory = workflowInstanceFactory;
+    this.workflowInstanceDao = workflowInstanceDao;
   }
 
   @OPTIONS
@@ -86,13 +90,14 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @PUT
   @ApiOperation(value = "Submit new workflow instance")
-  @ApiResponses(@ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class))
+  @ApiResponses({ @ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class),
+    @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
   public Response createWorkflowInstance(
       @Valid @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
     long id = workflowInstances.insertWorkflowInstance(instance);
     instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-    return Response.created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
+    return created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
   }
 
   @PUT
@@ -100,10 +105,11 @@ public class WorkflowInstanceResource extends ResourceBase {
   @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
       + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
+    @ApiResponse(code = 400, message = "If instance could not be updated, for example when state variable value was too long"),
     @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances);
+    boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
     return (updated ? noContent() : status(CONFLICT)).build();
   }
 
@@ -153,7 +159,7 @@ public class WorkflowInstanceResource extends ResourceBase {
   @PUT
   @Path("/{id}/wakeup")
   @ApiOperation(value = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
-  @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted")})
+  @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted") })
   public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @Valid @ApiParam("Expected states") WakeupRequest req) {
     WakeupResponse response = new WakeupResponse();

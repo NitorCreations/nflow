@@ -2,9 +2,13 @@ package io.nflow.tests;
 
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static org.apache.commons.lang3.StringUtils.repeat;
+import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
@@ -13,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -27,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.StateWorkflow;
@@ -38,7 +45,8 @@ import io.nflow.tests.extension.NflowServerExtension;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StateVariablesTest extends AbstractNflowTest {
 
-  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(TestConfiguration.class).build();
+  public static NflowServerConfig server = new NflowServerConfig.Builder()
+      .prop("nflow.workflow.state.variable.value.length", "8000").springContextClass(TestConfiguration.class).build();
   private static CreateWorkflowInstanceRequest createRequest;
   private static CreateWorkflowInstanceResponse createResponse;
 
@@ -60,8 +68,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest.type = "stateWorkflow";
     createRequest.externalId = UUID.randomUUID().toString();
     createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
-    createResponse = assertTimeoutPreemptively(ofSeconds(5),
-      () -> createWorkflowInstance(createRequest));
+    createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
   }
 
@@ -95,6 +102,32 @@ public class StateVariablesTest extends AbstractNflowTest {
     ListWorkflowInstanceResponse response = getWorkflowInstance(createResponse.id);
     assertEquals(7, response.actions.size());
     assertThat(response.actions.get(0).updatedStateVariables.get("testUpdate"), is("testValue"));
+  }
+
+  @Test
+  @Order(4)
+  public void updateWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.stateVariables.put("testUpdate", repeat('a', 8001));
+
+    try (Response response = getInstanceIdResource(createResponse.id).put(req)) {
+      assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
+      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
+    }
+  }
+
+  @Test
+  @Order(5)
+  public void insertWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
+    createRequest = new CreateWorkflowInstanceRequest();
+    createRequest.type = "stateWorkflow";
+    createRequest.externalId = UUID.randomUUID().toString();
+    createRequest.stateVariables.put("requestData", repeat('a', 8001));
+
+    try (Response response = fromClient(workflowInstanceResource, true).put(createRequest)) {
+      assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
+      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
+    }
   }
 
   private void assertState(List<Action> actions, int index, State state, String variable1, String variable2) {
