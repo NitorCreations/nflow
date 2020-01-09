@@ -3,6 +3,7 @@
 **Highlights**
 - `nflow-engine`
   - Check that state variable value fits into the database column
+  - Fix performance problems when querying workflows by only fetching state variables when requested
 
 **Details**
 - `nflow-engine`
