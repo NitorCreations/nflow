@@ -1,4 +1,4 @@
-## 6.0.1-SNAPSHOT (future release)
+## 6.1.0-SNAPSHOT (future release)
 
 **Highlights**
 - `nflow-engine`
