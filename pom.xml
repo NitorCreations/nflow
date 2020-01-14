@@ -168,7 +168,7 @@
     <reactor.netty.version>0.9.1.RELEASE</reactor.netty.version>
     <!-- 0.9.11 not used because https://trello.com/c/ZEcAoiSq/406-remove-05-mb-of-exceptions-farted-out-when-starting-nflow-jetty -->
     <reflections.version>0.9.11</reflections.version>
-    <slf4j.version>1.7.29</slf4j.version>
+    <slf4j.version>1.7.30</slf4j.version>
     <spotbugs.version>4.0.0-beta4</spotbugs.version>
     <spotbugs-annotations.version>4.0.0-beta4</spotbugs-annotations.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
