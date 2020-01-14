@@ -166,8 +166,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <reactor.netty.version>0.9.3.RELEASE</reactor.netty.version>
-    <!-- 0.9.11 not used because https://trello.com/c/ZEcAoiSq/406-remove-05-mb-of-exceptions-farted-out-when-starting-nflow-jetty -->
-    <reflections.version>0.9.11</reflections.version>
+    <!-- 0.9.11, 0.9.12 not used because https://trello.com/c/ZEcAoiSq/406-remove-05-mb-of-exceptions-farted-out-when-starting-nflow-jetty -->
+    <reflections.version>0.9.10</reflections.version>
     <slf4j.version>1.7.30</slf4j.version>
     <spotbugs.version>4.0.0-beta4</spotbugs.version>
     <spotbugs-annotations.version>4.0.0-beta4</spotbugs-annotations.version>
