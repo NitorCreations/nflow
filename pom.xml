@@ -152,7 +152,7 @@
     <maven-site.version>3.7.1</maven-site.version>
     <maven-source.version>3.1.0</maven-source.version>
     <maven-surefire.version>2.22.2</maven-surefire.version>
-    <metrics.version>4.1.1</metrics.version>
+    <metrics.version>4.1.2</metrics.version>
     <mockito.version>3.2.4</mockito.version>
     <mssql.version>7.4.1.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
