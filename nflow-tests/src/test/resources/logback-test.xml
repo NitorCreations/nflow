@@ -43,6 +43,7 @@
 	<logger name="org" level="info" />
 	<logger name="io.nflow" level="info" />
 	<logger name="h2database" level="warn" />
+	<logger name="org.reflections" level="error" />
 	<!-- to enable logging of executed sql statements (which does not include parameter values), uncomment this: -->
 	<!-- 
 	  <logger name="org.springframework.jdbc.core.JdbcTemplate" level="debug"/>
