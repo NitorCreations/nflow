@@ -519,7 +519,9 @@
                 </goals>
                 <configuration>
                   <rules>
-                    <requireJavaVersion><version>(1.8,9)</version></requireJavaVersion>
+                    <requireJavaVersion>
+                      <version>1.8</version>
+                    </requireJavaVersion>
                   </rules>
                 </configuration>
               </execution>
