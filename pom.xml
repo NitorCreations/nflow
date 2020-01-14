@@ -111,7 +111,7 @@
     <h2.version>1.4.200</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
     <hibernate.validator.version>6.1.0.Final</hibernate.validator.version>
-    <hikaricp.version>3.4.1</hikaricp.version>
+    <hikaricp.version>3.4.2</hikaricp.version>
     <jackson.version>2.10.2</jackson.version>
     <jackson-databind.version>2.10.2</jackson-databind.version>
     <javassist.version>3.26.0-GA</javassist.version>
