@@ -13,12 +13,23 @@
     To preserve the existing (incorrect) default behaviour in backwards compatible way the default value in `QueryWorkflowInstances.Builder` is changed to `true`. The REST API is unaffected.
     Especially in workflows with many children that use the `StateExecution.getAllChildWorkflows` method the performance impact can be high. Before 7.0.0 release, it is recommended to use `StateExecution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build())` if state variables are not needed.
   - Dependency updates:
-    - jetty 9.4.24.v20191120
-    - junit4 4.13-rc-1
-    - mariadb 2.5.2
+    - jetty 9.4.25.v20191220
+    - junit4 4.13
+    - mariadb 2.5.3
     - spotbugs 4.0.0-beta4
     - spotbugs-annotations 4.0.0-beta4
     - swagger 1.6.0
+    - hikaricp 3.4.2
+    - jackson 2.10.2
+    - jersey 2.30
+    - mockitor-junit-jupiter 3.2.4
+    - metrics 4.1.2
+    - mockito 3.2.4
+    - mysql 8.0.19
+    - postgresql 42.2.9
+    - netty 0.9.3.RELEASE
+    - reflections 0.9.12
+    - spring 5.2.2.RELEASE
 - `nflow-rest-api`
   - REST API returns HTTP 400 in case the state variable value is too long when inserting a new or updating an existing workflow instance
   - Exception mappers return JSON objects instead of raw strings
@@ -30,6 +41,18 @@
     - node-sass 4.13.0
     - node v12.13.1
     - npm 6.13.1
+- Maven plugins
+  - Dependency updates:
+    - frontend 1.9.0
+    - assembly 3.2.0
+    - asciidoctor 2.0.0-RC.1
+    - deploy 3.0.0-M1
+    - enforcer 3.0.0-M3
+    - install 3.0.0-M1
+    - jar 3.2.0
+    - site 3.8.2
+    - source 3.2.1
+    - surefire 3.0.0-M4
 
 ## 6.0.0 (2019-11-26)
 
