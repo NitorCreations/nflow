@@ -82,6 +82,7 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
+    when(executorDao.isAutoCommitEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
@@ -97,6 +98,12 @@ public class WorkflowDispatcherTest {
   @Test
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
     when(executorDao.isTransactionSupportEnabled()).thenReturn(false);
+    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env));
+  }
+
+  @Test
+  public void workflowDispatcherCreationFailsWithAutoCommitDisabled() {
+    when(executorDao.isAutoCommitEnabled()).thenReturn(false);
     assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env));
   }
 
