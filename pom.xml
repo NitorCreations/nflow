@@ -107,7 +107,7 @@
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>4.3.0</coveralls.version>
     <el.version>3.0.0</el.version>
-    <frontend-maven.version>1.9.1</frontend-maven.version>
+    <frontend-maven.version>1.9.0</frontend-maven.version>
     <h2.version>1.4.200</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
     <hibernate.validator.version>6.1.0.Final</hibernate.validator.version>
