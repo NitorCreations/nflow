@@ -120,7 +120,7 @@
     <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxws-api.version>2.3.1</jaxws-api.version>
-    <jersey.version>2.29.1</jersey.version>
+    <jersey.version>2.30</jersey.version>
     <jetty.version>9.4.25.v20191220</jetty.version>
     <jodatime.version>2.10.5</jodatime.version>
     <junit4.version>4.13</junit4.version>
