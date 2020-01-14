@@ -161,7 +161,7 @@
     <node.version>v12.13.1</node.version> <!-- https://nodejs.org/en/download/releases/ -->
     <npm.version>6.13.1</npm.version> <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
-    <postgresql.version>42.2.8</postgresql.version>
+    <postgresql.version>42.2.9</postgresql.version>
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
