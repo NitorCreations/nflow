@@ -1,16 +1,16 @@
 package io.nflow.springboot.bareminimum;
 
-import io.nflow.engine.workflow.definition.NextAction;
-import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
-
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static io.nflow.springboot.bareminimum.ExampleWorkflow.State.error;
 import static io.nflow.springboot.bareminimum.ExampleWorkflow.State.repeat;
 import static org.joda.time.DateTime.now;
+
+import io.nflow.engine.workflow.definition.NextAction;
+import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class ExampleWorkflow extends WorkflowDefinition<ExampleWorkflow.State> {
 
