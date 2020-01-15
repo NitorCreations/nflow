@@ -57,6 +57,9 @@ public class WorkflowDispatcher implements Runnable {
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
     }
+    if (!executorDao.isAutoCommitEnabled()) {
+      throw new BeanCreationException("DataSource must have auto commit enabled");
+    }
   }
 
   @Override
