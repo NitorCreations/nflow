@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.executor;
 
-import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
@@ -231,10 +230,13 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowState nextState = definition.getState(execution.getNextState());
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
       String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
-      AbstractWorkflowDefinition<?> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
-      String parentCurrentState = workflowInstanceDao.getWorkflowInstanceState(instance.parentWorkflowId);
-      if (parentDefinition.getState(parentCurrentState).getType() == WorkflowStateType.wait) {
-        execution.wakeUpParentWorkflow();
+      AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
+      String[] waitStates = parentDefinition.getStates().stream()
+              .filter(state -> state.getType() == WorkflowStateType.wait)
+              .map(WorkflowState::name)
+              .toArray(String[]::new);
+      if (waitStates.length > 0) {
+        execution.wakeUpParentWorkflow(waitStates);
       }
     }
     WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance) //
