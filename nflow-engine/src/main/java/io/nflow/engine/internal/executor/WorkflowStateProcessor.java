@@ -124,7 +124,7 @@ class WorkflowStateProcessor implements Runnable {
   private void runImpl() {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId,
-        EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES), null);
+        EnumSet.of(CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
