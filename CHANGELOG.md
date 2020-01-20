@@ -20,8 +20,7 @@
     To preserve the existing (incorrect) default behaviour in backwards compatible way the default value in `QueryWorkflowInstances.Builder` is changed to `true`. The REST API is unaffected.
     Especially in workflows with many children that use the `StateExecution.getAllChildWorkflows` method the performance impact can be high. Before 7.0.0 release, it is recommended to use `StateExecution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build())` if state variables are not needed.
   - Improve child workflow final state execution speed by caching the parent workflow type
-  - Improve workflow execution type by not scanning for child workflows. If workflow wants to access child workflows they should fetch them using the executor getChildWorklfow methods. Not backwards compatible.
-  - Fix bulk forkflow concurrency limit calculation.
+  - Improve state execution by not scanning for child workflows instances by default. If access to child workflow instances is needed, they can be fetched using `StateExecution.getChildWorklfow` methods. Not backwards compatible.
   - Dependency updates:
     - jetty 9.4.25.v20191220
     - junit4 4.13
