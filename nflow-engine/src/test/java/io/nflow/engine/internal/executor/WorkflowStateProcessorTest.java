@@ -202,7 +202,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstancePreProcessor.process(newChildWorkflow)).thenReturn(newChildWorkflow);
     when(workflowInstancePreProcessor.process(newWorkflow)).thenReturn(newWorkflow);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(
@@ -217,7 +217,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void runWorkflowThroughOneFailedState() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 1, containsString("test-fail"))),
         argThat(
@@ -230,7 +230,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start")
         .setRetries(failingWf.getSettings().maxRetries).build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), eq(true));
     assertThat(update.getAllValues().get(0), matchesWorkflowInstance(executing, FailingTestWorkflow.State.failure, 0,
@@ -249,7 +249,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), anyBoolean());
@@ -269,7 +269,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("processing").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture(),
         workflows.capture(), eq(false));
@@ -279,7 +279,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void workflowStatusIsSetToFinishedForFinalStates() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), anyBoolean());
     assertThat(update.getAllValues().get(1), matchesWorkflowInstance(finished, SimpleTestWorkflow.State.end, 0,
@@ -294,7 +294,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     DateTime oneHourInFuture = now().plusHours(1);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao)
         .updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.invalid, 0,
@@ -310,7 +310,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         .checkStateVariableValueLength(anyString(), anyString());
     DateTime oneHourInFuture = now().plusHours(1);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao)
         .updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, StateVariableWorkflow.State.start, 0,
@@ -322,7 +322,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("beforeManual")
         .setRetries(simpleWf.getSettings().maxRetries).build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(manual, SimpleTestWorkflow.State.manualState, 0, is("Stopped in state manualState"),
             nullValue(DateTime.class))),
@@ -336,7 +336,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("retryingState")
         .setRetries(failingWf.getSettings().maxRetries).build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), eq(true));
     assertThat(update.getAllValues().get(0), matchesWorkflowInstance(executing, FailingTestWorkflow.State.error, 0,
@@ -366,7 +366,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doAnswer((Answer<NextAction>) invocation ->
             retryAfter(skipped, "")).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, SimpleTestWorkflow.State.start,
         0, is("Scheduled by previous state start"), is(skipped), is(nullValue()))));
@@ -377,7 +377,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("processReturnNull").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     filterChain(listener1);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
     verify(listener1, times(2)).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterFailure(any(ListenerContext.class), isNull());
@@ -409,7 +409,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void goToErrorStateWhenNextStateIsNull() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("processReturnNullNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(listener1, times(2)).beforeProcessing(any(ListenerContext.class));
     verify(listener1, times(2)).process(any(ListenerContext.class), any(ListenerChain.class));
     verify(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
@@ -434,7 +434,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("wake-test").setState("wakeParent").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, never()).wakeUpWorkflowExternally(any(Long.class), any(List.class));
   }
@@ -450,7 +450,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(parentDefinition.getStates()).thenReturn(new TestDefinition("parentType", TestDefinition.TestState.start1).getStates());
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, emptyList())).thenReturn(true);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, emptyList());
   }
@@ -466,7 +466,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(parentDefinition.getStates()).thenReturn(new TestDefinition("parentType", TestDefinition.TestState.start1).getStates());
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, emptyList())).thenReturn(false);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, emptyList());
   }
@@ -481,7 +481,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doReturn(parentDefinition).when(workflowDefinitions).getWorkflowDefinition(BulkWorkflow.BULK_WORKFLOW_TYPE);
     when(workflowInstanceDao.wakeUpWorkflowExternally(999, singletonList(waitForChildrenToFinish.name()))).thenReturn(true);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).wakeUpWorkflowExternally(999, singletonList(waitForChildrenToFinish.name()));
 
@@ -496,7 +496,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         childWorkflows.capture(), workflows.capture(), eq(true));
@@ -518,7 +518,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doThrow(RuntimeException.class).when(listener1).beforeProcessing(any(ListenerContext.class));
     doThrow(RuntimeException.class).when(listener1).afterProcessing(any(ListenerContext.class));
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -536,7 +536,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     doThrow(RuntimeException.class).when(listener1).afterFailure(any(ListenerContext.class), any(Throwable.class));
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -554,7 +554,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("nextStateNoMethod").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(finished, FailingTestWorkflow.State.noMethodEndState, 0,
@@ -568,7 +568,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void keepCurrentStateOnRetry() {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("retryingState").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(
         argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.retryingState, 1, is("Retrying"))),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.retryingState, is("Retrying"), 0, stateExecution)),
@@ -590,7 +590,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         .setStateVariables(startState).build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(),
         argThat(matchesWorkflowInstanceAction(FailingTestWorkflow.State.process, is("Finished"), 0, stateExecution)),
@@ -676,7 +676,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -692,7 +692,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(listener1).beforeProcessing(any(ListenerContext.class));
     verify(listener1).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -716,7 +716,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     assertThat(processingInstances.containsKey(instance.id), is(false));
   }
@@ -728,7 +728,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowDefinitions.getWorkflowDefinition("test")).thenReturn(null);
     DateTime oneHourInFuture = now().plusHours(1);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao)
         .updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, FailingTestWorkflow.State.start, 0,
@@ -740,7 +740,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, times(2)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
@@ -765,7 +765,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), anyBoolean());
@@ -784,7 +784,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
 
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, times(3)).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), anyBoolean());
@@ -828,7 +828,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void deleteWorkflowInstanceHistoryNotExecutedWithDefaultSettings() {
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(anyLong(), any());
   }
@@ -837,7 +837,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void deleteWorkflowInstanceHistoryExecutedWhenForced() {
     WorkflowInstance instance = executingInstanceBuilder().setType("force-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, forceWf.getSettings().historyDeletableAfterHours);
   }
@@ -846,7 +846,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void deleteWorkflowInstanceHistoryExecutedBasedOnSettings() {
     WorkflowInstance instance = executingInstanceBuilder().setType("execute-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfterHours);
   }
@@ -855,10 +855,14 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void handleDeleteWorkflowInstanceHistoryFailures() {
     WorkflowInstance instance = executingInstanceBuilder().setType("fail-cleaning-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    assertTimeoutPreemptively(ofSeconds(5),() -> executor.run());
+    runExecutorWithTimout();
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture(),
         workflows.capture(), anyBoolean());
+  }
+
+  private void runExecutorWithTimout() {
+    assertTimeoutPreemptively(ofSeconds(5), () -> executor.run());
   }
 
   public static class Pojo {
