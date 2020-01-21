@@ -91,7 +91,7 @@ public class WorkflowInstanceDao {
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
   static final Map<Long, Map<String, String>> EMPTY_ACTION_STATE_MAP = emptyMap();
 
-  private static final ConcurrentMap<Long, String> workflowTypeByWorkflowIdCache = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Long, String> workflowTypeByWorkflowIdCache = new ConcurrentHashMap<>();
 
   final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
