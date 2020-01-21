@@ -61,7 +61,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -575,8 +574,8 @@ public class WorkflowInstanceDao {
       return null;
     });
     if (ids.isEmpty()) {
-      logger.debug("Race condition in polling workflow instances detected. "
-              + "Multiple pollers using same name ({})", executorInfo.getExecutorGroup());
+      throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
+              + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
     }
     return ids;
   }
