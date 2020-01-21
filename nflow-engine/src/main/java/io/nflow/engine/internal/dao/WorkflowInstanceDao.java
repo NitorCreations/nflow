@@ -104,8 +104,8 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxResultsDefault;
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
-  private final boolean disableBatchUpdates;
   private final int workflowInstanceTypeCacheSize;
+  private boolean disableBatchUpdates;
   int instanceStateTextLength;
   int actionStateTextLength;
   int stateVariableValueMaxLength;
@@ -563,7 +563,7 @@ public class WorkflowInstanceDao {
       public List<Long> doInTransaction(TransactionStatus transactionStatus) {
         String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
         List<OptimisticLockKey> instances = jdbc.query(sql,
-            (rs, rowNum) -> new OptimisticLockKey(rs.getLong("id"), sqlVariants.getTimestamp(rs, "modified")));
+                (rs, rowNum) -> new OptimisticLockKey(rs.getLong("id"), sqlVariants.getTimestamp(rs, "modified")));
         if (instances.isEmpty()) {
           return emptyList();
         }
@@ -574,23 +574,20 @@ public class WorkflowInstanceDao {
         } else {
           updateNextWorkflowInstancesWithMultipleUpdates(instances, ids);
         }
+        if (ids.isEmpty()) {
+          logger.debug("Race condition in polling workflow instances detected. "
+                  + "Multiple pollers using same name ({})", executorInfo.getExecutorGroup());
+        }
         return ids;
       }
 
       private void updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances, List<Long> ids) {
-        boolean raceConditionDetected = false;
         for (OptimisticLockKey instance : instances) {
           int updated = jdbc.update(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null",
               instance.id, sqlVariants.tuneTimestampForDb(instance.modified));
           if (updated == 1) {
             ids.add(instance.id);
-          } else {
-            raceConditionDetected = true;
           }
-        }
-        if (raceConditionDetected && ids.isEmpty()) {
-          throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-              + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
         }
       }
 
@@ -605,17 +602,16 @@ public class WorkflowInstanceDao {
         Iterator<Long> idIt = ids.iterator();
         for (int status : updateStatuses) {
           idIt.next();
-          if (status == 0) {
-            idIt.remove();
-            if (ids.isEmpty()) {
-              throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-                  + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
-            }
+          if (status == 1) {
             continue;
           }
-          if (status != 1 && status != Statement.SUCCESS_NO_INFO) {
-            throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-                + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+          if (status == 0) {
+            idIt.remove();
+            continue;
+          }
+          if (status < 0) {
+            disableBatchUpdates = true;
+            throw new PollingBatchException("Database was unable to provide information about affected rows in a batch. Disabling batch usage.");
           }
         }
       }

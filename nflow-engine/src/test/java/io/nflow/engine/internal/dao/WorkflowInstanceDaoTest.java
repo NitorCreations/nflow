@@ -701,25 +701,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void pollNextWorkflowInstancesWithPartialRaceCondition() throws InterruptedException {
-    int batchSize = 100;
-    for (int i = 0; i < batchSize; i++) {
-      WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
-          .setExecutorGroup("junit").build();
-      dao.insertWorkflowInstance(instance);
-    }
-    Poller[] pollers = new Poller[] { new Poller(dao, batchSize), new Poller(dao, batchSize) };
-    Thread[] threads = new Thread[] { new Thread(pollers[0]), new Thread(pollers[1]) };
-    threads[0].start();
-    threads[1].start();
-    threads[0].join();
-    threads[1].join();
-    assertThat(pollers[0].returnSize + pollers[1].returnSize, is(batchSize));
-    assertTrue(pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition
-        || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize), "Race condition should happen");
-  }
-
-  @Test
   public void wakesUpSleepingWorkflow() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     long id = dao.insertWorkflowInstance(i1);
@@ -1018,7 +999,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     public void run() {
       try {
         returnSize = min(returnSize, dao.pollNextWorkflowInstanceIds(batchSize).size());
-      } catch (PollingRaceConditionException ex) {
+      } catch (PollingBatchException ex) {
         ex.printStackTrace();
         returnSize = 0;
         detectedRaceCondition = ex.getMessage().startsWith("Race condition");

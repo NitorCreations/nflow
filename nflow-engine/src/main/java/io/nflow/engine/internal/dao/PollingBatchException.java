@@ -1,10 +1,10 @@
 package io.nflow.engine.internal.dao;
 
-public class PollingRaceConditionException extends RuntimeException {
+public class PollingBatchException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public PollingRaceConditionException(String msg) {
+  public PollingBatchException(String msg) {
     super(msg, null, true, false);
   }
 

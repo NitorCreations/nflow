@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ExecutorDao;
-import io.nflow.engine.internal.dao.PollingRaceConditionException;
+import io.nflow.engine.internal.dao.PollingBatchException;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.WorkflowDefinitionService;
@@ -85,9 +85,8 @@ public class WorkflowDispatcher implements Runnable {
               }
               dispatch(getNextInstanceIds());
             }
-          } catch (PollingRaceConditionException pex) {
-            logger.info(pex.getMessage());
-            sleep(true);
+          } catch (PollingBatchException pex) {
+            logger.warn(pex.getMessage());
           } catch (@SuppressWarnings("unused") InterruptedException dropThrough) {
           } catch (Exception e) {
             logger.error("Exception in executing dispatcher - retrying after sleep period (" + e.getMessage() + ")", e);
