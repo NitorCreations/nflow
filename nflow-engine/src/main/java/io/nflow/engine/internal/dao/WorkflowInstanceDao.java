@@ -105,6 +105,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
   private final boolean disableBatchUpdates;
+  private final int maxWorkflowTypeCacheSize;
   int instanceStateTextLength;
   int actionStateTextLength;
   int stateVariableValueMaxLength;
@@ -137,6 +138,7 @@ public class WorkflowInstanceDao {
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
     stateVariableValueMaxLength = env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1);
+    maxWorkflowTypeCacheSize = env.getProperty("nflow.db.type.cache.size", Integer.class, 10_000);
   }
 
   private int getInstanceStateTextLength() {
@@ -870,8 +872,8 @@ public class WorkflowInstanceDao {
   }
 
   public String getWorkflowInstanceType(long workflowInstanceId) {
-    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId, id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id));
-    if (workflowTypeByWorkflowIdCache.size() > 10_000) {
+    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId, id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
+    if (workflowTypeByWorkflowIdCache.size() > maxWorkflowTypeCacheSize) {
       workflowTypeByWorkflowIdCache.clear();
     }
     return type;
