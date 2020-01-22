@@ -55,7 +55,7 @@ shift
 
 prompt_continue "set version $RELEASE_VERSION to local git repository"
 
-mvn versions:set -DnewVersion=$RELEASE_VERSION -T1
+mvn versions:set -DnewVersion=$RELEASE_VERSION
 sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" README.md
 git commit -am "release $RELEASE_VERSION [ci skip]"
 
@@ -65,7 +65,7 @@ git push
 
 prompt_continue "release version $RELEASE_VERSION to Maven Central"
 
-mvn -Prelease clean deploy $GPG_PASSPHRASE -T1
+mvn -Prelease clean install gpg:sign deploy $GPG_PASSPHRASE
 
 prompt_continue "tag and push tags for version $RELEASE_VERSION to remote git repository"
 
@@ -74,7 +74,7 @@ git push --tags
 
 prompt_continue "set version $SNAPSHOT_VERSION to local git repository"
 
-mvn versions:set -DnewVersion=$SNAPSHOT_VERSION -T1
+mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
 git commit -am "prepare for release $SNAPSHOT_VERSION [ci skip]"
 
 prompt_continue "push version $SNAPSHOT_VERSION to remote git repository"
@@ -84,8 +84,8 @@ git push
 prompt_continue "update JavaDoc and REST API documentation ($RELEASE_VERSION) in gh-pages to local git repository"
 
 git checkout $RELEASE_VERSION
-mvn clean install -DskipTests=true -T1
-mvn site javadoc:aggregate -T1
+mvn clean install -DskipTests=true
+mvn site javadoc:aggregate
 git checkout gh-pages
 git pull --rebase
 
