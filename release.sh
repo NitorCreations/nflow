@@ -65,7 +65,7 @@ git push
 
 prompt_continue "release version $RELEASE_VERSION to Maven Central"
 
-mvn -Prelease clean install gpg:sign deploy $GPG_PASSPHRASE
+mvn -Prelease clean deploy $GPG_PASSPHRASE
 
 prompt_continue "tag and push tags for version $RELEASE_VERSION to remote git repository"
 
