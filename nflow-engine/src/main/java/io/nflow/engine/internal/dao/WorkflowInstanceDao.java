@@ -594,21 +594,14 @@ public class WorkflowInstanceDao {
      List<Object[]> batchArgs = new ArrayList<>(instances.size());
      for (OptimisticLockKey instance : instances) {
        batchArgs.add(new Object[] { instance.id, sqlVariants.tuneTimestampForDb(instance.modified) });
-       ids.add(instance.id);
      }
      int[] updateStatuses = jdbc
              .batchUpdate(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
-     Iterator<Long> idIt = ids.iterator();
-     for (int status : updateStatuses) {
-       idIt.next();
+     for (int i = 0; i<updateStatuses.length; ++i) {
+       int status = updateStatuses[i];
        if (status == 1) {
-         continue;
-       }
-       if (status == 0) {
-         idIt.remove();
-         continue;
-       }
-       if (status < 0) {
+         ids.add(instances.get(i).id);
+       } else if (status != 0) {
          disableBatchUpdates = true;
          throw new PollingBatchException("Database was unable to provide information about affected rows in a batch. Disabling batch usage.");
        }
