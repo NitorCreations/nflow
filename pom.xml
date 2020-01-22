@@ -101,7 +101,7 @@
   <properties>
     <jdk.version>1.8</jdk.version>
     <jacocoArgLine></jacocoArgLine>
-    <apache.cxf.version>3.3.4</apache.cxf.version>
+    <apache.cxf.version>3.3.5</apache.cxf.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.9</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
@@ -125,7 +125,7 @@
     <jetty.version>9.4.25.v20191220</jetty.version>
     <jodatime.version>2.10.5</jodatime.version>
     <junit4.version>4.13</junit4.version>
-    <junit5.version>5.5.2</junit5.version>
+    <junit5.version>5.6.0</junit5.version>
     <mockito-junit-jupiter.version>3.2.4</mockito-junit-jupiter.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.2.3</logback-classic.version>
@@ -166,14 +166,14 @@
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.netty.version>0.9.3.RELEASE</reactor.netty.version>
+    <reactor.netty.version>0.9.4.RELEASE</reactor.netty.version>
     <reflections.version>0.9.12</reflections.version>
     <slf4j.version>1.7.30</slf4j.version>
     <spotbugs.version>4.0.0-beta4</spotbugs.version>
     <spotbugs-annotations.version>4.0.0-beta4</spotbugs-annotations.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
-    <spring.version>5.2.2.RELEASE</spring.version>
+    <spring.version>5.2.3.RELEASE</spring.version>
     <swagger.version>1.6.0</swagger.version>
     <swagger2markup.version>1.3.3</swagger2markup.version>
     <validation.api.version>2.0.1.Final</validation.api.version>
