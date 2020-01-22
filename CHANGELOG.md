@@ -28,9 +28,11 @@
     - mockito 3.2.4
     - mysql 8.0.19
     - postgresql 42.2.9
-    - netty 0.9.3.RELEASE
+    - netty 0.9.4.RELEASE
     - reflections 0.9.12
-    - spring 5.2.2.RELEASE
+    - spring 5.2.3.RELEASE
+    - junit5 5.6.0
+    - apache-cxf 3.3.5
 - `nflow-rest-api`
   - REST API returns HTTP 400 in case the state variable value is too long when inserting a new or updating an existing workflow instance
   - Exception mappers return JSON objects instead of raw strings
