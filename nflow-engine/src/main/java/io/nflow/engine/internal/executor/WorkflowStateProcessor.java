@@ -102,7 +102,7 @@ class WorkflowStateProcessor implements Runnable {
     stateVariableValueTooLongRetryDelay = env.getRequiredProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes",
         Integer.class);
     // TODO remove flag in 7.x release and default to not fetching child ids (or alternatively, let each step of WorkflowDefinition override what information needs to be fetched)
-    fetchChildWorkflowIds = env.getProperty("nflow.executor.fetchChildWorkflowIds", Boolean.class, true);
+    fetchChildWorkflowIds = env.getRequiredProperty("nflow.executor.fetchChildWorkflowIds", Boolean.class);
   }
 
   @Override
