@@ -166,7 +166,7 @@
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.netty.version>0.9.3.RELEASE</reactor.netty.version>
+    <reactor.netty.version>0.9.4.RELEASE</reactor.netty.version>
     <reflections.version>0.9.12</reflections.version>
     <slf4j.version>1.7.30</slf4j.version>
     <spotbugs.version>4.0.0-beta4</spotbugs.version>
