@@ -1,4 +1,10 @@
-## 6.1.0-SNAPSHOT (future release)
+## 6.1.1 (future release)
+
+**Highlights**
+
+**Details**
+
+## 6.1.0 (2020-01-23)
 
 **Highlights**
 - `nflow-engine`
