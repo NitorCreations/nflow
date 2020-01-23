@@ -14,6 +14,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.sort;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.empty;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.length;
@@ -41,6 +42,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -578,15 +580,14 @@ public class WorkflowInstanceDao {
   }
 
    private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances) {
-     List<Long> ids = new ArrayList<>(instances.size());
-     for (OptimisticLockKey instance : instances) {
+     return instances.stream().flatMap(instance -> {
        int updated = jdbc.update(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null",
                instance.id, sqlVariants.tuneTimestampForDb(instance.modified));
        if (updated == 1) {
-         ids.add(instance.id);
+         return Stream.of(instance.id);
        }
-     }
-     return ids;
+       return empty();
+     }).collect(toList());
    }
 
    private List<Long> updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances) {
