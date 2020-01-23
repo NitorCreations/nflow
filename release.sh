@@ -85,7 +85,9 @@ prompt_continue "update JavaDoc and REST API documentation ($RELEASE_VERSION) in
 
 git checkout $RELEASE_VERSION
 mvn clean install -DskipTests=true
+mv .mvn/maven.config .mvn/maven.config.disabled
 mvn site javadoc:aggregate
+mv .mvn/maven.config.disabled .mvn/maven.config
 git checkout gh-pages
 git pull --rebase
 
@@ -119,7 +121,7 @@ if [[ -e .github_api_token ]]; then
   RELEASE_DESC_END=$(grep -n "## $PREVIOUS_VERSION" CHANGELOG.md | cut -f1 -d:)
   RELEASE_DESC=$(cat CHANGELOG.md | awk -v desc_start="$RELEASE_DESC_START" -v desc_end="$RELEASE_DESC_END" 'NR > desc_start+1 && NR < desc_end-1 {printf "%s\\n", $0}')
   GITHUB_API_TOKEN=$(cat .github_api_token)
-  curl -v -X POST -H "Authorization: token $GITHUB_API_TOKEN" -H "Content-Type: application/json" https://api.github.com/repos/NitorCreations/nflow/releases \
+  curl -v -H "Authorization: token $GITHUB_API_TOKEN" -H "Content-Type: application/json" https://api.github.com/repos/NitorCreations/nflow/releases \
   --data @<(cat <<EOF
   {
     "tag_name": "$RELEASE_VERSION",
