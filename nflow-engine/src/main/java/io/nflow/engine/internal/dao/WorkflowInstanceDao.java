@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Inject;
 
@@ -89,6 +91,8 @@ public class WorkflowInstanceDao {
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
   static final Map<Long, Map<String, String>> EMPTY_ACTION_STATE_MAP = emptyMap();
 
+  private final ConcurrentMap<Long, String> workflowTypeByWorkflowIdCache = new ConcurrentHashMap<>();
+
   final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
   private final TransactionTemplate transaction;
@@ -101,6 +105,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
   private final boolean disableBatchUpdates;
+  private final int workflowInstanceTypeCacheSize;
   int instanceStateTextLength;
   int actionStateTextLength;
   int stateVariableValueMaxLength;
@@ -129,6 +134,7 @@ public class WorkflowInstanceDao {
     if (disableBatchUpdates) {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
+    workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
     // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
     actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
@@ -467,7 +473,6 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql, args.toArray()) == 1;
   }
 
-  @Transactional
   public boolean wakeUpWorkflowExternally(long workflowInstanceId, List<String> expectedStates) {
     StringBuilder sql = new StringBuilder("update nflow_workflow set next_activation = (case when executor_id is null then ")
         .append("case when ").append(sqlVariants.dateLtEqDiff("next_activation", "current_timestamp"))
@@ -867,7 +872,11 @@ public class WorkflowInstanceDao {
   }
 
   public String getWorkflowInstanceType(long workflowInstanceId) {
-    return jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, workflowInstanceId);
+    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId, id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
+    if (workflowTypeByWorkflowIdCache.size() > workflowInstanceTypeCacheSize) {
+      workflowTypeByWorkflowIdCache.clear();
+    }
+    return type;
   }
 
   @Transactional

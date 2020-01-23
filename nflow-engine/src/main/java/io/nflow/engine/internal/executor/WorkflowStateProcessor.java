@@ -76,6 +76,7 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
+  private final boolean fetchChildWorkflowIds;
   private boolean internalRetryEnabled = true;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
@@ -100,6 +101,8 @@ class WorkflowStateProcessor implements Runnable {
     stateSaveRetryDelay = env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Integer.class);
     stateVariableValueTooLongRetryDelay = env.getRequiredProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes",
         Integer.class);
+    // TODO remove flag in 7.x release and default to not fetching child ids (or alternatively, let each step of WorkflowDefinition override what information needs to be fetched)
+    fetchChildWorkflowIds = env.getRequiredProperty("nflow.executor.fetchChildWorkflowIds", Boolean.class);
   }
 
   @Override
@@ -125,7 +128,7 @@ class WorkflowStateProcessor implements Runnable {
   private void runImpl() {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId,
-        EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES), null);
+        fetchChildWorkflowIds ? EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES) : EnumSet.of(CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
@@ -231,10 +234,13 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowState nextState = definition.getState(execution.getNextState());
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
       String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
-      AbstractWorkflowDefinition<?> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
-      String parentCurrentState = workflowInstanceDao.getWorkflowInstanceState(instance.parentWorkflowId);
-      if (parentDefinition.getState(parentCurrentState).getType() == WorkflowStateType.wait) {
-        execution.wakeUpParentWorkflow();
+      AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
+      String[] waitStates = parentDefinition.getStates().stream()
+              .filter(state -> state.getType() == WorkflowStateType.wait)
+              .map(WorkflowState::name)
+              .toArray(String[]::new);
+      if (waitStates.length > 0) {
+        execution.wakeUpParentWorkflow(waitStates);
       }
     }
     WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance) //

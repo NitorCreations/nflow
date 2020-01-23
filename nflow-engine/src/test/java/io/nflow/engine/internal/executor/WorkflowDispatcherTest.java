@@ -81,6 +81,8 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
+    env.setProperty("nflow.executor.fetchChildWorkflowIds", "false");
+    env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     when(executorDao.isAutoCommitEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
