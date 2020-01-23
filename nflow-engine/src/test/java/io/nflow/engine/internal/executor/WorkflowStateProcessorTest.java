@@ -176,6 +176,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
+    env.setProperty("nflow.executor.fetchChildWorkflowIds", "true");
+    env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
