@@ -573,41 +573,40 @@ public class WorkflowInstanceDao {
       return updateNextWorkflowInstancesWithMultipleUpdates(instances);
     });
     if (ids.isEmpty()) {
-      throw new PollingRaceConditionException("Race condition in polling workflow instances detected. "
-              + "Multiple pollers using same name (" + executorInfo.getExecutorGroup() + ")");
+      throw new PollingRaceConditionException(
+          "None of the workflow instances selected for processing were successfully reserved for this executor, trying again later.");
     }
     return ids;
   }
 
-   private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances) {
-     return instances.stream().flatMap(instance -> {
-       int updated = jdbc.update(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null",
-               instance.id, sqlVariants.tuneTimestampForDb(instance.modified));
-       if (updated == 1) {
-         return Stream.of(instance.id);
-       }
-       return empty();
-     }).collect(toList());
-   }
+  private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances) {
+    String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
+    return instances.stream()
+        .flatMap(instance -> jdbc.update(sql, instance.id, sqlVariants.tuneTimestampForDb(instance.modified)) == 1
+            ? Stream.of(instance.id)
+            : empty())
+        .collect(toList());
+  }
 
-   private List<Long> updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances) {
-     List<Object[]> batchArgs = instances.stream()
-             .map(instance -> new Object[]{instance.id, sqlVariants.tuneTimestampForDb(instance.modified)})
-             .collect(toList());
-     int[] updateStatuses = jdbc
-             .batchUpdate(updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null", batchArgs);
-     List<Long> ids = new ArrayList<>(instances.size());
-     for (int i = 0; i<updateStatuses.length; ++i) {
-       int status = updateStatuses[i];
-       if (status == 1) {
-         ids.add(instances.get(i).id);
-       } else if (status != 0) {
-         disableBatchUpdates = true;
-         throw new PollingBatchException("Database was unable to provide information about affected rows in a batch. Disabling batch usage.");
-       }
-     }
-     return ids;
-   }
+  private List<Long> updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances) {
+    String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
+    List<Object[]> batchArgs = instances.stream()
+        .map(instance -> new Object[] { instance.id, sqlVariants.tuneTimestampForDb(instance.modified) })
+        .collect(toList());
+    int[] updateStatuses = jdbc.batchUpdate(sql, batchArgs);
+    List<Long> ids = new ArrayList<>(instances.size());
+    for (int i = 0; i < updateStatuses.length; ++i) {
+      int status = updateStatuses[i];
+      if (status == 1) {
+        ids.add(instances.get(i).id);
+      } else if (status != 0) {
+        disableBatchUpdates = true;
+        throw new PollingBatchException(
+            "Database was unable to provide information about affected rows in a batch update. Disabling batch updates.");
+      }
+    }
+    return ids;
+  }
 
   private static class OptimisticLockKey extends ModelObject implements Comparable<OptimisticLockKey> {
     public final long id;
