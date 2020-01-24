@@ -710,15 +710,15 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       dao.insertWorkflowInstance(instance);
     }
     Poller[] pollers = new Poller[] { new Poller(dao, batchSize), new Poller(dao, batchSize) };
-    for (int i=0; i<10; ++i) {
-      Thread[] threads = new Thread[]{new Thread(pollers[0]), new Thread(pollers[1])};
+    for (int i = 0; i < 10; ++i) {
+      Thread[] threads = new Thread[] { new Thread(pollers[0]), new Thread(pollers[1]) };
       threads[0].start();
       threads[1].start();
       threads[0].join();
       threads[1].join();
       assertThat(pollers[0].returnSize + pollers[1].returnSize, is(batchSize));
       if (pollers[0].detectedRaceCondition || pollers[1].detectedRaceCondition
-              || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize)) {
+          || (pollers[0].returnSize < batchSize && pollers[1].returnSize < batchSize)) {
         return;
       }
     }
