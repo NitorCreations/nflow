@@ -1027,8 +1027,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       } catch (PollingRaceConditionException ex) {
         ex.printStackTrace();
         returnSize = 0;
-        detectedRaceCondition = ex.getMessage().equals(
-            "None of the workflow instances selected for processing were successfully reserved for this executor, trying again later.");
+        detectedRaceCondition = true;
       }
     }
   }
