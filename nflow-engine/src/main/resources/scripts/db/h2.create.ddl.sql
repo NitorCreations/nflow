@@ -37,14 +37,8 @@ create table if not exists nflow_workflow_action (
   retry_no int not null,
   execution_start timestamp not null,
   execution_end timestamp not null,
-  foreign key (workflow_id) references nflow_workflow(id) on delete cascade
+  foreign key (workflow_id) references nflow_workflow(id)
 );
-
-alter table nflow_workflow add constraint if not exists fk_workflow_parent
-  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
-
-alter table nflow_workflow add constraint if not exists fk_workflow_root
-  foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
 
 create table if not exists nflow_workflow_state (
   workflow_id int not null,
@@ -52,7 +46,7 @@ create table if not exists nflow_workflow_state (
   state_key varchar(64) not null,
   state_value varchar(10240) not null,
   primary key (workflow_id, action_id, state_key),
-  foreign key (workflow_id) references nflow_workflow(id) on delete cascade
+  foreign key (workflow_id) references nflow_workflow(id)
 );
 
 create table if not exists nflow_executor (

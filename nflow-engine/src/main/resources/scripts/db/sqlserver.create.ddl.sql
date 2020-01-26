@@ -54,17 +54,6 @@ create table nflow_workflow_action (
 if not exists (select 1 from sys.indexes where name='nflow_workflow_action_workflow')
 create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
-if not exists (select 1 from sys.foreign_keys where name='fk_workflow_parent')
-alter table nflow_workflow add constraint fk_workflow_parent
-  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on update no action;
-
-if not exists (select 1 from sys.indexes where name='nflow_workflow_parent')
-create index nflow_workflow_parent on nflow_workflow(parent_workflow_id, parent_action_id) where parent_workflow_id is not null;
-
-if not exists (select 1 from sys.foreign_keys where name='fk_workflow_root')
-alter table nflow_workflow add constraint fk_workflow_root
-  foreign key (root_workflow_id) references nflow_workflow (id) on update no action;
-
 if not exists (select 1 from sys.indexes where name='nflow_workflow_root')
 create index nflow_workflow_root on nflow_workflow(root_workflow_id);
 

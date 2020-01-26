@@ -76,10 +76,6 @@ begin
 end;
 /
 
-alter table nflow_workflow add constraint fk_workflow_parent
-  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade
-/
-
 create table nflow_workflow_state (
   workflow_id int not null,
   action_id int not null,
