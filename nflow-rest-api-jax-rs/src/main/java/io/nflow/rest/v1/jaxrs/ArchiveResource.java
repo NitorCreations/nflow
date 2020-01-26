@@ -32,6 +32,7 @@ public class ArchiveResource {
 
   @POST
   @ApiOperation("Archive workflow instances synchronously")
+  @SuppressWarnings("deprecation")
   public ArchiveResponse archiveWorkflows(
       @ApiParam(value = "Parameters for the archiving process", required = true) ArchiveRequest request) {
     ArchiveResponse response = new ArchiveResponse();

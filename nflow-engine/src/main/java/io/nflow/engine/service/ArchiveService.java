@@ -1,21 +1,31 @@
 package io.nflow.engine.service;
 
+import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
 import static java.lang.Math.max;
+import static java.lang.String.format;
+import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ArchiveDao;
+import io.nflow.engine.internal.dao.ArchiveDao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
+import io.nflow.engine.service.ArchiveService.ArchiveConfiguration.Builder;
 
 /**
  * Service for archiving old workflow instances from nflow-tables to nflow_archive-tables.
@@ -40,34 +50,162 @@ public class ArchiveService {
    * @param batchSize Number of workflow hierarchies to archive in a single transaction. Typical value is 1-20. This parameter
    * mostly affects on archiving performance.
    * @return Total number of archived workflows.
+   *
+   * @deprecated Use the {@link #cleanupWorkflows(ArchiveConfiguration)} that allows better configuration of the actions
+   */
+  @Deprecated
+  public int archiveWorkflows(DateTime olderThan, int batchSize) {
+    return cleanupWorkflows(new Builder()
+            .setArchiveWorkflowsOlderThan(new Duration(olderThan, Instant.now()))
+            .setBatchSize(batchSize)
+            .setOperateOnHierarchies(true)
+            .build()).archivedWorkflows;
+  }
+
+  /**
+   * Archive and delete old workflows. (whose modified time is earlier than <code>olderThan</code> parameter) and passive (that do not have
+   * <code>nextActivation</code>) workflows. Copies workflow instances, workflow instance actions and state variables to
+   * corresponding archive tables and removes them from production tables.
+   *
+   * @param configuration Passive workflow instances whose modified time is before this will be archived.
+   * @return Object describing the number of workflows acted on.
    */
   @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
-  public int archiveWorkflows(DateTime olderThan, int batchSize) {
-    Assert.notNull(olderThan, "olderThan must not be null");
-    Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
-    archiveDao.ensureValidArchiveTablesExist();
-    log.info("Archiving starting. Archiving passive workflows older than {}, in batches of {}.", olderThan, batchSize);
+  public ArchiveResults cleanupWorkflows(ArchiveConfiguration configuration) {
+    if (configuration.archiveWorkflowsOlderThan != null || configuration.deleteArchivedWorkflowsOlderThan != null) {
+      archiveDao.ensureValidArchiveTablesExist();
+    }
+
+    ArchiveResults res = new ArchiveResults();
+    if (configuration.deleteArchivedWorkflowsOlderThan != null) {
+      Supplier<List<Long>> source = getIdQuery(ARCHIVE, configuration, configuration.deleteArchivedWorkflowsOlderThan);
+      res.deletedWorkflows = doAction("Deleting archived workflows", format("Deleting archived workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
+              source, idList -> archiveDao.deleteWorkflows(ARCHIVE, idList));
+    }
+    if (configuration.archiveWorkflowsOlderThan != null) {
+      Supplier<List<Long>> source = getIdQuery(MAIN, configuration, configuration.archiveWorkflowsOlderThan);
+      res.archivedWorkflows = doAction("Archiving workflows", format("Archiving passive workflows older than %s, in batches of %s.", configuration.archiveWorkflowsOlderThan, configuration.batchSize),
+              source, archiveDao::archiveWorkflows);
+    }
+    if (configuration.deleteWorkflowsOlderThan != null) {
+      Supplier<List<Long>> source = getIdQuery(MAIN, configuration, configuration.deleteWorkflowsOlderThan);
+      res.deletedWorkflows = doAction("Deleting workflows", format("Deleting passive workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
+              source, idList -> archiveDao.deleteWorkflows(MAIN, idList));
+    }
+    if (configuration.deleteStatesOlderThan != null) {
+      // TODO
+    }
+    return res;
+  }
+
+  private Supplier<List<Long>> getIdQuery(TablePrefix table, ArchiveConfiguration configuration, Duration duration) {
+    DateTime olderThan = now().minus(duration);
+    return configuration.operateOnHierarchies ?
+              () -> archiveDao.listOldWorkflowTrees(table, olderThan, configuration.batchSize) :
+              () -> archiveDao.listOldWorkflows(table, olderThan, configuration.batchSize);
+  }
+
+  private int doAction(String type, String description, Supplier<List<Long>> getActionables, Function<List<Long>, Integer> doAction) {
+    log.info(description);
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
-    List<Long> workflowIds;
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
-    int archivedWorkflowsTotal = 0;
+    int totalWorkflows = 0;
     do {
-      workflowIds = archiveDao.listArchivableWorkflows(olderThan, batchSize);
+      List<Long> workflowIds = getActionables.get();
       if (workflowIds.isEmpty()) {
         break;
       }
-      int archivedWorkflows = archiveDao.archiveWorkflows(workflowIds);
-      archivedWorkflowsTotal += archivedWorkflows;
+      workflowIds.sort(null);
+      int workflows = doAction.apply(workflowIds);
+      totalWorkflows += workflows;
 
       double timeDiff = max(stopWatch.getTime() / 1000.0, 0.000001);
-      log.debug("Archived {} workflows. {} workflows / second. Workflow ids: {}. ", archivedWorkflows, archivedWorkflowsTotal
-          / timeDiff, workflowIds);
-      periodicLogger.info("Archived {} workflows. Archiving about {} workflows / second.", archivedWorkflows,
-          archivedWorkflowsTotal / timeDiff);
+      String status = format("%s. %s workflows, %.1f workflows / second.", type, workflows, totalWorkflows / timeDiff);
+      if (log.isDebugEnabled()) {
+        log.debug(status + " Workflow ids: {}.", workflowIds);
+      }
+      periodicLogger.info(status);
     } while (true);
 
-    log.info("Archiving finished. Archived {} workflows in {} seconds.", archivedWorkflowsTotal, stopWatch.getTime() / 1000);
-    return archivedWorkflowsTotal;
+    log.info("{} finished. Operated on {} workflows in {} seconds.", type, totalWorkflows, stopWatch.getTime() / 1000);
+    return totalWorkflows;
+  }
+
+  public static class ArchiveConfiguration {
+    private final Duration deleteArchivedWorkflowsOlderThan;
+    private final Duration archiveWorkflowsOlderThan;
+    private final Duration deleteWorkflowsOlderThan;
+    private final Duration deleteStatesOlderThan;
+    private final int batchSize;
+    private final boolean operateOnHierarchies;
+
+    ArchiveConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan, Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize, boolean operateOnHierarchies) {
+      this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
+      this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
+      this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
+      this.deleteStatesOlderThan = deleteStatesOlderThan;
+      this.batchSize = batchSize;
+      this.operateOnHierarchies = operateOnHierarchies;
+    }
+
+    public static class Builder {
+      private Duration deleteArchivedWorkflowsOlderThan;
+      private Duration archiveWorkflowsOlderThan;
+      private Duration deleteWorkflowsOlderThan;
+      private Duration deleteStatesOlderThan;
+      private Integer batchSize;
+      private boolean operateOnHierarchies;
+
+      public Builder setDeleteArchivedWorkflowsOlderThan(Duration deleteArchivedWorkflowsOlderThan) {
+        this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
+        return this;
+      }
+
+      public Builder setArchiveWorkflowsOlderThan(Duration archiveWorkflowsOlderThan) {
+        this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
+        return this;
+      }
+
+      public Builder setDeleteWorkflowsOlderThan(Duration deleteWorkflowsOlderThan) {
+        this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
+        return this;
+      }
+
+      public Builder setDeleteStatesOlderThan(Duration deleteStatesOlderThan) {
+        this.deleteStatesOlderThan = deleteStatesOlderThan;
+        return this;
+      }
+
+      /**
+       * @param batchSize Number of workflows or if {@link #operateOnHierarchies} is set, the number of workflow hierarchies, to operate on in single transaction.
+       *                  Typical value is 100-1000 for single workflows and 1-20 for hierarchies. This parameter mostly affects on archiving performance.
+       */
+      public Builder setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+        return this;
+      }
+
+      public Builder setOperateOnHierarchies(boolean operateOnHierarchies) {
+        this.operateOnHierarchies = operateOnHierarchies;
+        return this;
+      }
+
+      public ArchiveConfiguration build() {
+        if (batchSize == null) {
+          batchSize = operateOnHierarchies ? 5 : 1000;
+        } else {
+          Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
+        }
+        return new ArchiveConfiguration(deleteArchivedWorkflowsOlderThan, archiveWorkflowsOlderThan, deleteWorkflowsOlderThan, deleteStatesOlderThan, batchSize, operateOnHierarchies);
+      }
+    }
+  }
+
+  public static class ArchiveResults {
+    public int deletedArchivedWorkflows;
+    public int archivedWorkflows;
+    public int deletedWorkflows;
+    public int deletedStates;
   }
 }

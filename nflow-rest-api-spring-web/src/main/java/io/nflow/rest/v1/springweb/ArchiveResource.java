@@ -28,6 +28,7 @@ public class ArchiveResource {
 
   @PostMapping(consumes = APPLICATION_JSON_VALUE)
   @ApiOperation("Archive workflow instances synchronously")
+  @SuppressWarnings("deprecation")
   public ArchiveResponse archiveWorkflows(
       @RequestBody @ApiParam(value = "Parameters for the archiving process", required = true) ArchiveRequest request) {
     ArchiveResponse response = new ArchiveResponse();

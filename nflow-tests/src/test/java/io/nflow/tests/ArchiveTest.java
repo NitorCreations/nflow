@@ -54,6 +54,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(1)
+  @SuppressWarnings("deprecation")
   public void cleanupExistingArchivableStuff() {
     assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
       archiveService.archiveWorkflows(now(), 10));
@@ -79,6 +80,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
+  @SuppressWarnings("deprecation")
   public void archiveBeforeTime1ArchiveAllWorkflows() {
     int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
       archiveService.archiveWorkflows(archiveLimit1, 3));
@@ -88,6 +90,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(5)
+  @SuppressWarnings("deprecation")
   public void archiveAgainBeforeTime1DoesNotArchivesAnything() {
     int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
       archiveService.archiveWorkflows(archiveLimit1, 3));
@@ -96,6 +99,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(6)
+  @SuppressWarnings("deprecation")
   public void archiveBeforeTime2Archives() {
     int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
       archiveService.archiveWorkflows(archiveLimit2, 5));
@@ -110,6 +114,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(8)
+  @SuppressWarnings("deprecation")
   public void archiveAgainBeforeTime1DoesNotArchiveAnything() {
     int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
       archiveService.archiveWorkflows(archiveLimit1, 3));
@@ -118,6 +123,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(9)
+  @SuppressWarnings("deprecation")
   public void archiveAgainBeforeTime2DoesNotArchiveAnything() {
     int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
       archiveService.archiveWorkflows(archiveLimit2, 3));

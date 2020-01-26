@@ -1,26 +1,27 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import io.nflow.engine.model.ModelObject;
+import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import org.joda.time.DateTime;
-import org.junit.jupiter.api.Test;
-import org.springframework.dao.EmptyResultDataAccessException;
-
-import io.nflow.engine.model.ModelObject;
-import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ArchiveDaoTest extends BaseDaoTest {
   @Inject
@@ -53,8 +54,8 @@ public class ArchiveDaoTest extends BaseDaoTest {
     expectedArchive.add(storePassiveWorkflow(archiveTime1));
     expectedArchive.add(storePassiveWorkflow(archiveTime2));
 
-    List<Long> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
-    assertEqualsInAnyOrder(expectedArchive, archivableIds);
+    List<Long> archivableIds = archiveDao.listOldWorkflowTrees(MAIN, archiveTimeLimit, 10);
+    assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
   }
 
   @Test
@@ -72,13 +73,12 @@ public class ArchiveDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Long> archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 10);
-    Collections.sort(archivableIds);
-    assertEquals(expectedArchive, archivableIds);
+    List<Long> archivableIds = archiveDao.listOldWorkflowTrees(MAIN, archiveTimeLimit, 10);
+    assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
 
     expectedArchive.add(eleventh);
-    archivableIds = archiveDao.listArchivableWorkflows(archiveTimeLimit, 11);
-    assertEqualsInAnyOrder(expectedArchive, archivableIds);
+    archivableIds = archiveDao.listOldWorkflowTrees(MAIN, archiveTimeLimit, 11);
+    assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
   }
 
   @Test
@@ -310,14 +310,6 @@ public class ArchiveDaoTest extends BaseDaoTest {
     int updateCount = jdbc.update("update nflow_workflow set modified = ? where id = ?",
         DaoUtil.toTimestamp(modified), workflowId);
     assertEquals(1, updateCount);
-  }
-
-  private <T extends Comparable<? super T>> void assertEqualsInAnyOrder(List<T> expected, List<T> actual) {
-    List<T> expectedCopy = new ArrayList<>(expected);
-    List<T> actualCopy = new ArrayList<>(actual);
-    Collections.sort(expectedCopy);
-    Collections.sort(actualCopy);
-    assertEquals(expectedCopy, actualCopy);
   }
 
   private static class StateKey extends ModelObject {

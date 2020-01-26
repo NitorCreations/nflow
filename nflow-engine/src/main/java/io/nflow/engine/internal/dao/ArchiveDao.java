@@ -1,5 +1,6 @@
 package io.nflow.engine.internal.dao;
 
+import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -40,18 +41,27 @@ public class ArchiveDao {
     tableMetadataChecker.ensureCopyingPossible("nflow_workflow_state", "nflow_archive_workflow_state");
   }
 
-  public List<Long> listArchivableWorkflows(DateTime before, int maxRows) {
+  public List<Long> listOldWorkflows(TablePrefix table, DateTime before, int maxWorkflows) {
     return jdbc.query(
-                    "select w.id id from nflow_workflow w, " +
+                    sqlVariants.limit(
+                    "select id from " + table.nameOf("workflow") +
+                    "  where next_activation is null and " + sqlVariants.dateLtEqDiff("modified", "?") +
+                    "  order by modified asc ", maxWorkflows),
+            new ArchivableWorkflowsRowMapper(), sqlVariants.toTimestampObject(before));
+  }
+
+  public List<Long> listOldWorkflowTrees(TablePrefix table, DateTime before, int maxTrees) {
+    return jdbc.query(
+            "select w.id id from nflow_workflow w, " +
                     "(" + sqlVariants.limit(
-                    "  select parent.id from nflow_workflow parent " +
-                    "  where parent.next_activation is null and " + sqlVariants.dateLtEqDiff("parent.modified", "?") +
-                    "  and parent.root_workflow_id is null " +
-                    "  and not exists(" +
-                    "    select 1 from nflow_workflow child where child.root_workflow_id = parent.id " +
-                    "      and (" + sqlVariants.dateLtEqDiff("?", "child.modified") + " or child.next_activation is not null)" +
-                    "  )" +
-                    "  order by modified asc ", maxRows) +
+                    "  select parent.id from " + table.nameOf("workflow") + " parent " +
+                            "  where parent.next_activation is null and " + sqlVariants.dateLtEqDiff("parent.modified", "?") +
+                            "  and parent.root_workflow_id is null " +
+                            "  and not exists(" +
+                            "    select 1 from " + table.nameOf("workflow") + " child where child.root_workflow_id = parent.id " +
+                            "      and (" + sqlVariants.dateLtEqDiff("?", "child.modified") + " or child.next_activation is not null)" +
+                            "  )" +
+                            "  order by modified asc ", maxTrees) +
                     ") as archivable_parent " +
                     "where archivable_parent.id = w.id or archivable_parent.id = w.root_workflow_id",
             new ArchivableWorkflowsRowMapper(), sqlVariants.toTimestampObject(before), sqlVariants.toTimestampObject(before));
@@ -64,34 +74,42 @@ public class ArchiveDao {
     int archivedWorkflows = archiveWorkflowTable(workflowIdParams);
     archiveActionTable(workflowIdParams);
     archiveStateTable(workflowIdParams);
-    deleteWorkflows(workflowIdParams);
+    deleteWorkflows(MAIN, workflowIdParams);
     return archivedWorkflows;
+  }
+
+  @Transactional
+  public int deleteWorkflows(TablePrefix table, Collection<Long> workflowIds) {
+    String workflowIdParams = params(workflowIds);
+
+    int deletedWorkflows = deleteWorkflows(table, workflowIdParams);
+    return deletedWorkflows;
   }
 
   private int archiveWorkflowTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow");
     return jdbc.update("insert into nflow_archive_workflow(" + columns + ") " +
-            "select " + columns + " from nflow_workflow where id in " + workflowIdParams);
+            "select " + columns + " from nflow_workflow where id in " + workflowIdParams + " for update");
   }
 
   private void archiveActionTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow_action");
     jdbc.update("insert into nflow_archive_workflow_action(" + columns + ") " +
-            "select " + columns + " from nflow_workflow_action where workflow_id in " + workflowIdParams);
+            "select " + columns + " from nflow_workflow_action where workflow_id in " + workflowIdParams + " for update");
   }
 
   private void archiveStateTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow_state");
     jdbc.update("insert into nflow_archive_workflow_state (" + columns + ") " +
-            "select " + columns + " from nflow_workflow_state where workflow_id in " + workflowIdParams);
+            "select " + columns + " from nflow_workflow_state where workflow_id in " + workflowIdParams + " for update");
   }
 
-  private void deleteWorkflows(String workflowIdParams) {
-    jdbc.update("delete from nflow_workflow_state where workflow_id in " + workflowIdParams);
-    jdbc.update("update nflow_workflow set root_workflow_id=null, parent_workflow_id=null, parent_action_id=null " +
+  private int deleteWorkflows(TablePrefix table, String workflowIdParams) {
+    jdbc.update("update " + table.nameOf("workflow") + " set root_workflow_id=null, parent_workflow_id=null, parent_action_id=null " +
             "where id in " + workflowIdParams + " and (root_workflow_id is not null or parent_workflow_id is not null)");
-    jdbc.update("delete from nflow_workflow_action where workflow_id in " + workflowIdParams);
-    jdbc.update("delete from nflow_workflow where id in " + workflowIdParams);
+    jdbc.update("delete from " + table.nameOf("workflow_state") + " where workflow_id in " + workflowIdParams);
+    jdbc.update("delete from " + table.nameOf("workflow_action") + " where workflow_id in " + workflowIdParams);
+    return jdbc.update("delete from " + table.nameOf("workflow") + " where id in " + workflowIdParams);
   }
 
   private String columnsFromMetadata(String tableName) {
@@ -101,6 +119,21 @@ public class ArchiveDao {
 
   private String params(Collection<Long> workflowIds) {
     return "(" + join(workflowIds, ",") + ")";
+  }
+
+  public enum TablePrefix {
+    MAIN("nflow_"),
+    ARCHIVE("nflow_archive_");
+
+    private final String prefix;
+
+    TablePrefix(String prefix) {
+      this.prefix = prefix;
+    }
+
+    String nameOf(String name) {
+      return prefix + name;
+    }
   }
 
   static class ArchivableWorkflowsRowMapper implements RowMapper<Long> {

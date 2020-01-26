@@ -34,6 +34,7 @@ public class ArchiveResourceTest {
   int archived = 100;
 
   @Test
+  @SuppressWarnings("deprecation")
   public void archiveDelegatesToArchiveService() {
     when(service.archiveWorkflows(olderThan, batchSize)).thenReturn(archived);
 
