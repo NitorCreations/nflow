@@ -54,9 +54,6 @@ create table nflow_workflow_action (
 if not exists (select 1 from sys.indexes where name='nflow_workflow_action_workflow')
 create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
-if not exists (select 1 from sys.indexes where name='nflow_workflow_root')
-create index nflow_workflow_root on nflow_workflow(root_workflow_id);
-
 if not exists (select 1 from sys.tables where name='nflow_workflow_state')
 create table nflow_workflow_state (
   workflow_id int not null,

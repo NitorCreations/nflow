@@ -106,7 +106,7 @@ public class ArchiveDao {
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {
     jdbc.update("update " + table.nameOf("workflow") + " set root_workflow_id=null, parent_workflow_id=null, parent_action_id=null " +
-            "where id in " + workflowIdParams + " and (root_workflow_id is not null or parent_workflow_id is not null)");
+            "where id in " + workflowIdParams + " and (root_workflow_id is not null or parent_workflow_id is not null or parent_action_id is not null)");
     jdbc.update("delete from " + table.nameOf("workflow_state") + " where workflow_id in " + workflowIdParams);
     jdbc.update("delete from " + table.nameOf("workflow_action") + " where workflow_id in " + workflowIdParams);
     return jdbc.update("delete from " + table.nameOf("workflow") + " where id in " + workflowIdParams);
