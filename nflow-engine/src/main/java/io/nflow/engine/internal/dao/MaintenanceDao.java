@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -48,9 +49,8 @@ public class MaintenanceDao {
 
   @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "tableMetadataChecker is injected")
   public void ensureValidArchiveTablesExist() {
-    tableMetadataChecker.ensureCopyingPossible("nflow_workflow", "nflow_archive_workflow");
-    tableMetadataChecker.ensureCopyingPossible("nflow_workflow_action", "nflow_archive_workflow_action");
-    tableMetadataChecker.ensureCopyingPossible("nflow_workflow_state", "nflow_archive_workflow_state");
+    Stream.of("workflow", "workflow_action", "workflow_state")
+            .forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
   }
 
   private String getWorkflowColumns() {
