@@ -89,19 +89,19 @@ public class ArchiveDao {
   private int archiveWorkflowTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow");
     return jdbc.update("insert into nflow_archive_workflow(" + columns + ") " +
-            "select " + columns + " from nflow_workflow where id in " + workflowIdParams + " for update");
+            "select " + columns + " from nflow_workflow where id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
   }
 
   private void archiveActionTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow_action");
     jdbc.update("insert into nflow_archive_workflow_action(" + columns + ") " +
-            "select " + columns + " from nflow_workflow_action where workflow_id in " + workflowIdParams + " for update");
+            "select " + columns + " from nflow_workflow_action where workflow_id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
   }
 
   private void archiveStateTable(String workflowIdParams) {
     String columns = columnsFromMetadata("nflow_workflow_state");
     jdbc.update("insert into nflow_archive_workflow_state (" + columns + ") " +
-            "select " + columns + " from nflow_workflow_state where workflow_id in " + workflowIdParams + " for update");
+            "select " + columns + " from nflow_workflow_state where workflow_id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
   }
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {

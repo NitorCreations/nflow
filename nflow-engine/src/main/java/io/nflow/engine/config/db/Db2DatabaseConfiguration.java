@@ -137,6 +137,11 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
       return "";
     }
 
+    @Override
+    public String forUpdateInnerSelect() {
+      return "";
+    }
+
     /**
      * Returns SQL for a query with a limit of results.
      */
