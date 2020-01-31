@@ -133,12 +133,12 @@ public class ArchiveService {
   }
 
   public static class ArchiveConfiguration {
-    private final Duration deleteArchivedWorkflowsOlderThan;
-    private final Duration archiveWorkflowsOlderThan;
-    private final Duration deleteWorkflowsOlderThan;
-    private final Duration deleteStatesOlderThan;
-    private final int batchSize;
-    private final boolean operateOnHierarchies;
+    public final Duration deleteArchivedWorkflowsOlderThan;
+    public final Duration archiveWorkflowsOlderThan;
+    public final Duration deleteWorkflowsOlderThan;
+    public final Duration deleteStatesOlderThan;
+    public final int batchSize;
+    public final boolean operateOnHierarchies;
 
     ArchiveConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan, Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize, boolean operateOnHierarchies) {
       this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;

@@ -1,18 +1,5 @@
 package io.nflow.engine.internal.dao;
 
-import io.nflow.engine.model.ModelObject;
-import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
-import org.joda.time.DateTime;
-import org.junit.jupiter.api.Test;
-import org.springframework.dao.EmptyResultDataAccessException;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static java.util.Arrays.asList;
@@ -22,6 +9,20 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+import org.springframework.dao.EmptyResultDataAccessException;
+
+import io.nflow.engine.model.ModelObject;
+import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class ArchiveDaoTest extends BaseDaoTest {
   @Inject
