@@ -132,8 +132,8 @@ public class ArchiveDao {
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {
     int deletedStates = jdbc.update("delete from " + table.nameOf("workflow_state") + " where workflow_id in " + workflowIdParams);
-    int deletedActions=jdbc.update("delete from " + table.nameOf("workflow_action") + " where workflow_id in " + workflowIdParams);
-    int deletedInstances= jdbc.update("delete from " + table.nameOf("workflow") + " where id in " + workflowIdParams);
+    int deletedActions = jdbc.update("delete from " + table.nameOf("workflow_action") + " where workflow_id in " + workflowIdParams);
+    int deletedInstances = jdbc.update("delete from " + table.nameOf("workflow") + " where id in " + workflowIdParams);
     logger.info("Deleted {} workflow instances, {} actions and {} states from {} tables.", deletedInstances, deletedActions,
         deletedStates, table.name());
     return deletedInstances;
