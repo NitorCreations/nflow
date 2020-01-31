@@ -1,6 +1,12 @@
-## 6.2.1-SNAPSHOT (future release)
+## 7.0.0 (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Drop `nflow_workflow.root_workflow_id` column.
+  - Drop foreign key constraints for `nflow_workflow.parent_id` and `nflow_workflow.parent_action_id`.
+  - Create index for `nflow_workflow.parent_id`.
+  - Drop `on delete cascade` definitions from `nflow_workflow_action` and `nflow_workflow_state` foreign keys.
+  - Provide optional SQL scripts to restore the removed constraints and add necessary indices. If the constraints are restored, workflow instance archiving and deleting can be done for complete workflow instance hierarchies only.
 
 **Details**
 

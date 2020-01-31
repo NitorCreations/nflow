@@ -3,7 +3,6 @@ create table nflow_workflow (
   status varchar(32) not null,
   type varchar(64) not null,
   priority smallint not null default 0,
-  root_workflow_id int default null,
   parent_workflow_id int default null,
   parent_action_id int default null,
   business_key varchar(64),
@@ -25,6 +24,9 @@ create table nflow_workflow (
 /
 
 create index nflow_workflow_polling on nflow_workflow (next_activation, status, executor_id, executor_group)
+/
+
+create index idx_workflow_parent on nflow_workflow (parent_workflow_id)
 /
 
 create sequence nflow_workflow_id_seq
@@ -58,7 +60,7 @@ create table nflow_workflow_action (
   retry_no int not null,
   execution_start timestamp not null,
   execution_end timestamp not null,
-  foreign key (workflow_id) references nflow_workflow(id) on delete cascade,
+  foreign key fk_workflow_id (workflow_id) references nflow_workflow(id),
   constraint nflow_workflow_action_uniq unique (workflow_id, id),
   constraint type_enum check (type in ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange'))
 )
@@ -81,8 +83,8 @@ create table nflow_workflow_state (
   action_id int not null,
   state_key varchar(64) not null,
   state_value clob not null,
-  primary key (workflow_id, action_id, state_key),
-  foreign key (workflow_id) references nflow_workflow(id) on delete cascade
+  primary key pk_workflow_state (workflow_id, action_id, state_key),
+  foreign key fk_workflow_id (workflow_id) references nflow_workflow(id)
 )
 /
 
@@ -118,7 +120,7 @@ create table nflow_workflow_definition (
   modified timestamp default current_timestamp not null,
   modified_by int not null,
   executor_group varchar(64) not null,
-  primary key (type, executor_group)
+  primary key pk_workflow_definition (type, executor_group)
 )
 /
 
@@ -143,7 +145,6 @@ create table nflow_archive_workflow (
   status varchar(32) not null,
   type varchar(64) not null,
   priority smallint null,
-  root_workflow_id int,
   parent_workflow_id int,
   parent_action_id int,
   business_key varchar(64),
@@ -163,6 +164,9 @@ create table nflow_archive_workflow (
 )
 /
 
+create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id)
+/
+
 create table nflow_archive_workflow_action (
   id int not null primary key,
   workflow_id int not null,
@@ -173,7 +177,7 @@ create table nflow_archive_workflow_action (
   retry_no int not null,
   execution_start timestamp not null,
   execution_end timestamp not null,
-  foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade,
+  foreign key fk_workflow_id (workflow_id) references nflow_archive_workflow(id),
   constraint nflow_archive_wf_action_uniq unique (workflow_id, id)
 )
 /
@@ -183,7 +187,7 @@ create table nflow_archive_workflow_state (
   action_id int not null,
   state_key varchar(64) not null,
   state_value clob not null,
-  primary key (workflow_id, action_id, state_key),
-  foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
+  primary key pk_workflow_state (workflow_id, action_id, state_key),
+  foreign key fk_workflow_id (workflow_id) references nflow_archive_workflow(id)
 )
 /
