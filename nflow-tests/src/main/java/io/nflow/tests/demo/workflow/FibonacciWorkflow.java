@@ -7,6 +7,7 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.wait;
 import static java.lang.Integer.parseInt;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -33,7 +34,7 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
   private static final Logger logger = getLogger(FibonacciWorkflow.class);
 
   public enum State implements WorkflowState {
-    begin(start), nMinus1(normal), nMinus2(normal), poll(normal), done(end), error(manual);
+    begin(start), nMinus1(normal), nMinus2(normal), poll(wait), done(end), error(manual);
 
     private WorkflowStateType type;
 
@@ -110,7 +111,6 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
       sum += parseInt(childResult != null ? childResult : "0");
     }
     execution.setVariable("result", execution.getVariable("result", Integer.class) + sum);
-    execution.wakeUpParentWorkflow();
     return moveToState(State.done, "All is good");
   }
 
