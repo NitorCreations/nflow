@@ -50,12 +50,6 @@ public class WorkflowInstance extends ModelObject {
   public final Integer executorId;
 
   /**
-   * The id of the workflow that created the hierarchy of workflow where this sub workflow belongs to.
-   * Null for workflows that are the root of hierarchy.
-   */
-  public final Long rootWorkflowId;
-
-  /**
    * The id of the workflow that created this sub workflow. Is null for root workflows.
    */
   public final Long parentWorkflowId;
@@ -164,7 +158,6 @@ public class WorkflowInstance extends ModelObject {
   WorkflowInstance(Builder builder) {
     this.id = builder.id;
     this.executorId = builder.executorId;
-    this.rootWorkflowId = builder.rootWorkflowId;
     this.parentWorkflowId = builder.parentWorkflowId;
     this.parentActionId = builder.parentActionId;
     this.status = builder.status;
@@ -239,7 +232,6 @@ public class WorkflowInstance extends ModelObject {
 
     Long id;
     Integer executorId;
-    Long rootWorkflowId;
     Long parentWorkflowId;
     Long parentActionId;
     WorkflowInstanceStatus status;
@@ -283,7 +275,6 @@ public class WorkflowInstance extends ModelObject {
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
       this.executorId = copy.executorId;
-      this.rootWorkflowId = copy.rootWorkflowId;
       this.parentWorkflowId = copy.parentWorkflowId;
       this.parentActionId = copy.parentActionId;
       this.status = copy.status;
@@ -324,16 +315,6 @@ public class WorkflowInstance extends ModelObject {
      */
     public Builder setExecutorId(Integer executorId) {
       this.executorId = executorId;
-      return this;
-    }
-
-    /**
-     * Set the root workflow identifier.
-     * @param rootWorkflowId The identifier.
-     * @return this
-     */
-    public Builder setRootWorkflowId(Long rootWorkflowId) {
-      this.rootWorkflowId = rootWorkflowId;
       return this;
     }
 

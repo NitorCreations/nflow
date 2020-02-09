@@ -194,7 +194,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<WorkflowInstance> instances = dao.queryWorkflowInstances(query);
     assertThat(instances.size(), is(1));
     for (WorkflowInstance instance : instances) {
-      assertThat(instance.rootWorkflowId, is(nullValue()));
       assertThat(instance.parentWorkflowId, is(nullValue()));
       assertThat(instance.businessKey, is("newKey"));
     }
@@ -272,26 +271,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWithRootWorkflowAndChildWorkflowsWorks() {
-    WorkflowInstance instance = updateInstanceBuilder().build();
-    WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
-    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("childKey").build();
-
-    dao.updateWorkflowInstanceAfterExecution(instance, action, asList(childWorkflow), emptyWorkflows, false);
-
-    Map<Long, List<Long>> childWorkflows = dao.getWorkflowInstance(instance.id,
-        EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS), null).childWorkflows;
-    assertThat(childWorkflows.size(), is(1));
-    for (List<Long> childIds : childWorkflows.values()) {
-      assertThat(childIds.size(), is(1));
-      WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0), emptySet(), null);
-      assertThat(childInstance.rootWorkflowId, is(instance.id));
-      assertThat(childInstance.parentWorkflowId, is(instance.id));
-      assertThat(childInstance.businessKey, is("childKey"));
-    }
-  }
-
-  @Test
   public void updateWorkflowInstanceWithChildWorkflowHavingExistinExternalIdWorks() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
@@ -329,7 +308,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       assertThat(childIds.size(), is(1));
       WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0),
           EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-      assertThat(childInstance.rootWorkflowId, is(id));
       assertThat(childInstance.parentWorkflowId, is(id));
       assertThat(childInstance.businessKey, is("childKey"));
       assertThat(childInstance.externalId, is("extId"));
@@ -339,7 +317,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWithNonRootWorkflowAndChildWorkflowsWorks() {
+  public void updateWorkflowInstanceWithChildWorkflowsWorks() {
     // create 3 level hierarchy of workflows
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
@@ -378,7 +356,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     for (List<Long> childIds : childWorkflows.values()) {
       assertThat(childIds.size(), is(1));
       WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0), emptySet(), null);
-      assertThat(childInstance.rootWorkflowId, is(id));
       assertThat(childInstance.parentWorkflowId, is(middleWorkflowId));
       assertThat(childInstance.businessKey, is("childKey"));
     }
@@ -582,7 +559,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = now();
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
-        .setRootWorkflowId(9283L).setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
+        .setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
         .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
         .setStartedIfNotSet(started).setPriority((short) 10).build();
 
@@ -600,7 +577,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int i = 0;
     assertThat(args.getAllValues().get(i++), is((Object) wf.type));
     assertThat(args.getAllValues().get(i++), is((Object) wf.priority));
-    assertThat(args.getAllValues().get(i++), is((Object) wf.rootWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentActionId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.businessKey));
