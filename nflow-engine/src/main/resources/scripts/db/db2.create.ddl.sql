@@ -31,7 +31,7 @@ create or replace trigger nflow_workflow_update_modified
 
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 
-create index idx_workflow_parent on nflow_workflow (parent_workflow_id);
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
 
 create table nflow_workflow_action (
   id int primary key generated always as identity,
@@ -43,9 +43,10 @@ create table nflow_workflow_action (
   retry_no int not null,
   execution_start timestamp(3) not null,
   execution_end timestamp(3) not null,
-  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id),
-  constraint nflow_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
+
+create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
 create table nflow_workflow_state (
   workflow_id int not null,
@@ -126,9 +127,10 @@ create table nflow_archive_workflow_action (
   retry_no int not null,
   execution_start timestamp(3) not null,
   execution_end timestamp(3) not null,
-  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id),
-  constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
+
+create index nflow_archive_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
 create table nflow_archive_workflow_state (
   workflow_id int not null,

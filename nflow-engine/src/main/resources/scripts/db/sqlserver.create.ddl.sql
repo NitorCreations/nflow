@@ -49,8 +49,7 @@ create table nflow_workflow_action (
   retry_no int not null,
   execution_start datetimeoffset(3) not null,
   execution_end datetimeoffset(3) not null,
-  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id),
-  constraint nflow_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
 
 if not exists (select 1 from sys.indexes where name='nflow_workflow_action_workflow')
@@ -149,8 +148,7 @@ create table nflow_archive_workflow_action (
   retry_no int not null,
   execution_start datetimeoffset(3) not null,
   execution_end datetimeoffset(3) not null,
-  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id),
-  constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
 
 if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_action_workflow')

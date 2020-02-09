@@ -37,9 +37,10 @@ create table if not exists nflow_workflow_action (
   retry_no int not null,
   execution_start timestamp(3) default current_timestamp(3),
   execution_end timestamp(3) default current_timestamp(3),
-  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id),
-  constraint nflow_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
+
+create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
 create table if not exists nflow_workflow_state (
   workflow_id int not null,
@@ -114,9 +115,10 @@ create table if not exists nflow_archive_workflow_action (
   retry_no int not null,
   execution_start timestamp(3) default current_timestamp(3),
   execution_end timestamp(3) default current_timestamp(3),
-  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id),
-  constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
+
+create index nflow_archive_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
 create table if not exists nflow_archive_workflow_state (
   workflow_id int not null,
