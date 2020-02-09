@@ -13,10 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import io.nflow.engine.service.MaintenanceService;
 
 @ExtendWith(MockitoExtension.class)
-public class ArchiveResourceTest {
+public class MaintenanceResourceTest {
 
   @InjectMocks
-  private final ArchiveResource resource = new ArchiveResource();
+  private final MaintenanceResource resource = new MaintenanceResource();
   @Mock
   private MaintenanceService service;
   @Mock
@@ -25,8 +25,6 @@ public class ArchiveResourceTest {
   DateTime olderThan = now().minusYears(1);
   int batchSize = 10;
   int archived = 100;
-
-  // TODO: add tests for new CleanupResource
 
   // @Test
   // @SuppressWarnings("deprecation")

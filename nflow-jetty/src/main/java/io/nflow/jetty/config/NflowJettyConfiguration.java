@@ -41,7 +41,7 @@ import io.nflow.jetty.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
-import io.nflow.rest.v1.jaxrs.ArchiveResource;
+import io.nflow.rest.v1.jaxrs.MaintenanceResource;
 import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
 import io.nflow.rest.v1.jaxrs.WorkflowExecutorResource;
@@ -59,7 +59,7 @@ public class NflowJettyConfiguration {
   @Bean
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
-      StatisticsResource statisticsResource, ArchiveResource archiveResource,
+      StatisticsResource statisticsResource, MaintenanceResource maintenanceResource,
       @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
@@ -67,7 +67,7 @@ public class NflowJettyConfiguration {
         workflowDefinitionResource,
         workflowExecutorResource,
         statisticsResource,
-        archiveResource
+        maintenanceResource
         ));
     String factoryAddress = factory.getAddress();
     if (!factoryAddress.startsWith("/")) {

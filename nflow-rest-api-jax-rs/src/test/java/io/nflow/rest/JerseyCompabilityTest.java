@@ -12,7 +12,7 @@ import org.glassfish.jersey.simple.SimpleContainerFactory;
 import org.glassfish.jersey.simple.SimpleServer;
 
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
-import io.nflow.rest.v1.jaxrs.ArchiveResource;
+import io.nflow.rest.v1.jaxrs.MaintenanceResource;
 import org.junit.jupiter.api.Test;
 
 public class JerseyCompabilityTest {
@@ -28,7 +28,7 @@ public class JerseyCompabilityTest {
 
   public static class JerseyResourceConfig extends ResourceConfig {
     public JerseyResourceConfig() {
-      packages(ArchiveResource.class.getPackage().getName());
+      packages(MaintenanceResource.class.getPackage().getName());
       register(DateTimeParamConverterProvider.class);
     }
   }
