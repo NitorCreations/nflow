@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
+import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration.ConfigurationItem;
 
 /**
  * Service for deleting and archiving old workflow instances from nflow-tables and nflow_archive-tables.
@@ -40,48 +41,50 @@ public class MaintenanceService {
   }
 
   /**
-   * Archive and delete old workflows. (whose modified time is earlier than <code>olderThan</code> parameter) and passive (that do not have
-   * <code>nextActivation</code>) workflows. Copies workflow instances, workflow instance actions and state variables to
+   * Archive and delete old (whose modified time is earlier than <code>olderThanPeriod</code> parameter) and passive (that do not
+   * have <code>nextActivation</code>) workflows. Copies workflow instances, workflow instance actions and state variables to
    * corresponding archive tables and removes them from production tables.
    *
-   * @param configuration Passive workflow instances whose modified time is before this will be archived.
+   * @param configuration
+   *          Cleanup actions to be executed and parameters for the actions.
    * @return Object describing the number of workflows acted on.
    */
   @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
-    if (configuration.archiveWorkflowsOlderThan != null || configuration.deleteArchivedWorkflowsOlderThan != null) {
+    if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
       maintenanceDao.ensureValidArchiveTablesExist();
     }
 
     MaintenanceResults res = new MaintenanceResults();
-    if (configuration.deleteArchivedWorkflowsOlderThan != null) {
-      Supplier<List<Long>> source = getIdQuery(ARCHIVE, configuration, configuration.deleteArchivedWorkflowsOlderThan);
-      res.deletedArchivedWorkflows = doAction("Deleting archived workflows", format("Deleting archived workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
-              source, idList -> maintenanceDao.deleteWorkflows(ARCHIVE, idList));
+    if (configuration.deleteArchivedWorkflows != null) {
+      Supplier<List<Long>> source = getIdQuery(ARCHIVE, configuration.deleteArchivedWorkflows);
+      res.deletedArchivedWorkflows = doAction("Deleting archived workflows", configuration.deleteArchivedWorkflows, source,
+          idList -> maintenanceDao.deleteWorkflows(ARCHIVE, idList));
     }
-    if (configuration.archiveWorkflowsOlderThan != null) {
-      Supplier<List<Long>> source = getIdQuery(MAIN, configuration, configuration.archiveWorkflowsOlderThan);
-      res.archivedWorkflows = doAction("Archiving workflows", format("Archiving passive workflows older than %s, in batches of %s.", configuration.archiveWorkflowsOlderThan, configuration.batchSize),
-              source, maintenanceDao::archiveWorkflows);
+    if (configuration.archiveWorkflows != null) {
+      Supplier<List<Long>> source = getIdQuery(MAIN, configuration.archiveWorkflows);
+      res.archivedWorkflows = doAction("Archiving workflows", configuration.archiveWorkflows, source,
+          maintenanceDao::archiveWorkflows);
     }
-    if (configuration.deleteWorkflowsOlderThan != null) {
-      Supplier<List<Long>> source = getIdQuery(MAIN, configuration, configuration.deleteWorkflowsOlderThan);
-      res.deletedWorkflows = doAction("Deleting workflows", format("Deleting passive workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
-              source, idList -> maintenanceDao.deleteWorkflows(MAIN, idList));
+    if (configuration.deleteWorkflows != null) {
+      Supplier<List<Long>> source = getIdQuery(MAIN, configuration.deleteWorkflows);
+      res.deletedWorkflows = doAction("Deleting workflows", configuration.deleteWorkflows, source,
+          idList -> maintenanceDao.deleteWorkflows(MAIN, idList));
     }
-    if (configuration.deleteStatesOlderThan != null) {
+    if (configuration.deleteStates != null) {
       // TODO
     }
     return res;
   }
 
-  private Supplier<List<Long>> getIdQuery(TablePrefix table, MaintenanceConfiguration configuration, ReadablePeriod period) {
-    DateTime olderThan = now().minus(period);
+  private Supplier<List<Long>> getIdQuery(TablePrefix table, ConfigurationItem configuration) {
+    DateTime olderThan = now().minus(configuration.olderThanPeriod);
     return () -> maintenanceDao.listOldWorkflows(table, olderThan, configuration.batchSize);
   }
 
-  private int doAction(String type, String description, Supplier<List<Long>> getActionables, Function<List<Long>, Integer> doAction) {
-    log.info(description);
+  private int doAction(String type, ConfigurationItem configuration, Supplier<List<Long>> getActionables,
+      Function<List<Long>, Integer> doAction) {
+    log.info("{} older than {}, in batches of {}.", type, configuration.olderThanPeriod, configuration.batchSize);
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
@@ -108,61 +111,84 @@ public class MaintenanceService {
   }
 
   public static class MaintenanceConfiguration {
-    public final ReadablePeriod deleteArchivedWorkflowsOlderThan;
-    public final ReadablePeriod archiveWorkflowsOlderThan;
-    public final ReadablePeriod deleteWorkflowsOlderThan;
-    public final ReadablePeriod deleteStatesOlderThan;
-    public final int batchSize;
+    public final ConfigurationItem deleteArchivedWorkflows;
+    public final ConfigurationItem archiveWorkflows;
+    public final ConfigurationItem deleteWorkflows;
+    public final ConfigurationItem deleteStates;
 
-    MaintenanceConfiguration(ReadablePeriod deleteArchivedWorkflowsOlderThan, ReadablePeriod archiveWorkflowsOlderThan,
-        ReadablePeriod deleteWorkflowsOlderThan, ReadablePeriod deleteStatesOlderThan, int batchSize) {
-      this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
-      this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
-      this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
-      this.deleteStatesOlderThan = deleteStatesOlderThan;
-      this.batchSize = batchSize;
+    MaintenanceConfiguration(ConfigurationItem deleteArchivedWorkflows, ConfigurationItem archiveWorkflows,
+        ConfigurationItem deleteWorkflows, ConfigurationItem deleteStates) {
+      this.deleteArchivedWorkflows = deleteArchivedWorkflows;
+      this.archiveWorkflows = archiveWorkflows;
+      this.deleteWorkflows = deleteWorkflows;
+      this.deleteStates = deleteStates;
     }
 
     public static class Builder {
-      private ReadablePeriod deleteArchivedWorkflowsOlderThan;
-      private ReadablePeriod archiveWorkflowsOlderThan;
-      private ReadablePeriod deleteWorkflowsOlderThan;
-      private ReadablePeriod deleteStatesOlderThan;
-      private Integer batchSize = 1000;
+      private ConfigurationItem deleteArchivedWorkflows;
+      private ConfigurationItem archiveWorkflows;
+      private ConfigurationItem deleteWorkflows;
+      private ConfigurationItem deleteStates;
 
-      public Builder setDeleteArchivedWorkflowsOlderThan(ReadablePeriod deleteArchivedWorkflowsOlderThan) {
-        this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
+      public Builder setDeleteArchivedWorkflows(ConfigurationItem deleteArchivedWorkflows) {
+        this.deleteArchivedWorkflows = deleteArchivedWorkflows;
         return this;
       }
 
-      public Builder setArchiveWorkflowsOlderThan(ReadablePeriod archiveWorkflowsOlderThan) {
-        this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
+      public Builder setArchiveWorkflows(ConfigurationItem archiveWorkflows) {
+        this.archiveWorkflows = archiveWorkflows;
         return this;
       }
 
-      public Builder setDeleteWorkflowsOlderThan(ReadablePeriod deleteWorkflowsOlderThan) {
-        this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
+      public Builder setDeleteWorkflows(ConfigurationItem deleteWorkflows) {
+        this.deleteWorkflows = deleteWorkflows;
         return this;
       }
 
-      public Builder setDeleteStatesOlderThan(ReadablePeriod deleteStatesOlderThan) {
-        this.deleteStatesOlderThan = deleteStatesOlderThan;
-        return this;
-      }
-
-      /**
-       * @param batchSize
-       *          Number of workflows to operate on in single transaction. Typical value is 100-1000. This parameter mostly
-       *          affects on archiving performance.
-       */
-      public Builder setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
+      public Builder setDeleteStates(ConfigurationItem deleteStates) {
+        this.deleteStates = deleteStates;
         return this;
       }
 
       public MaintenanceConfiguration build() {
-        Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
-        return new MaintenanceConfiguration(deleteArchivedWorkflowsOlderThan, archiveWorkflowsOlderThan, deleteWorkflowsOlderThan, deleteStatesOlderThan, batchSize);
+        return new MaintenanceConfiguration(deleteArchivedWorkflows, archiveWorkflows, deleteWorkflows, deleteStates);
+      }
+    }
+
+    public static class ConfigurationItem {
+
+      public final ReadablePeriod olderThanPeriod;
+      public final int batchSize;
+
+      public ConfigurationItem(ReadablePeriod olderThanPeriod, Integer batchSize) {
+        this.olderThanPeriod = olderThanPeriod;
+        this.batchSize = batchSize;
+      }
+
+      public static class Builder {
+        private ReadablePeriod olderThanPeriod;
+        private Integer batchSize = 1000;
+
+        public Builder setOlderThanPeriod(ReadablePeriod olderThanPeriod) {
+          this.olderThanPeriod = olderThanPeriod;
+          return this;
+        }
+
+        /**
+         * @param batchSize
+         *          Number of workflows to operate on in single transaction. Typical value is 100-1000. This parameter mostly
+         *          affects on performance.
+         */
+        public Builder setBatchSize(int batchSize) {
+          this.batchSize = batchSize;
+          return this;
+        }
+
+        public ConfigurationItem build() {
+          Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
+          Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
+          return new ConfigurationItem(olderThanPeriod, batchSize);
+        }
       }
     }
   }

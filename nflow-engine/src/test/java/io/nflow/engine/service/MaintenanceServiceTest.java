@@ -30,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +49,8 @@ public class MaintenanceServiceTest {
     service = new MaintenanceService(dao);
     setCurrentMillisFixed(currentTimeMillis());
     ReadablePeriod period = new Period(limit, now());
-    config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(period).setBatchSize(10).build();
+    config = new MaintenanceConfiguration.Builder()
+        .setArchiveWorkflows(new ConfigurationItem.Builder().setOlderThanPeriod(period).setBatchSize(10).build()).build();
   }
 
   @AfterEach

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
@@ -58,8 +59,8 @@ public class ArchiveTest extends AbstractNflowTest {
   public void createWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
     archiveLimit1 = now();
-    // Make sure first batch of workflows is created before the second batch.
-    // (some databases have 1 second precision in timestamps (e.g. mysql 5.5))
+    // Sleep to make sure that first batch of workflows is created before the second batch.
+    // Some databases have 1 second precision in timestamps, for example MySQL 5.5.
     sleep(SECONDS.toMillis(1));
   }
 
@@ -81,7 +82,8 @@ public class ArchiveTest extends AbstractNflowTest {
 
   private int archiveOlderThan(DateTime olderThan) {
     MaintenanceRequest req = new MaintenanceRequest();
-    req.archiveWorkflowsOlderThan = new Period(olderThan, now());
+    req.archiveWorkflows = new MaintenanceRequestItem();
+    req.archiveWorkflows.olderThanPeriod = new Period(olderThan, now());
     return assertTimeoutPreemptively(ARCHIVE_TIMEOUT,
         () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class)).archivedWorkflows;
   }

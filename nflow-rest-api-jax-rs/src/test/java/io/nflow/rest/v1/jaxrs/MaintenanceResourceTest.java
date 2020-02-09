@@ -21,6 +21,7 @@ import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
 import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,14 +47,15 @@ public class MaintenanceResourceTest {
     when(service.cleanupWorkflows(any(MaintenanceConfiguration.class))).thenReturn(maintenanceResults);
 
     MaintenanceRequest request = new MaintenanceRequest();
-    request.archiveWorkflowsOlderThan = period;
-    request.batchSize = batchSize;
+    request.archiveWorkflows = new MaintenanceRequestItem();
+    request.archiveWorkflows.olderThanPeriod = period;
+    request.archiveWorkflows.batchSize = batchSize;
     MaintenanceResponse response = resource.cleanupWorkflows(request);
 
     verify(service).cleanupWorkflows(configCaptor.capture());
     MaintenanceConfiguration configuration = configCaptor.getValue();
-    assertEquals(batchSize, configuration.batchSize);
-    assertEquals(period, configuration.archiveWorkflowsOlderThan);
+    assertEquals(period, configuration.archiveWorkflows.olderThanPeriod);
+    assertEquals(batchSize, configuration.archiveWorkflows.batchSize);
     assertEquals(maintenanceResults.archivedWorkflows, response.archivedWorkflows);
     assertEquals(maintenanceResults.deletedArchivedWorkflows, response.deletedArchivedWorkflows);
     assertEquals(maintenanceResults.deletedWorkflows, response.deletedWorkflows);
