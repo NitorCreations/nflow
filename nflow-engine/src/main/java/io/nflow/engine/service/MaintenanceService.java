@@ -26,16 +26,16 @@ import io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
 
 /**
- * Service for archiving old workflow instances from nflow-tables to nflow_archive-tables.
+ * Service for deleting and archiving old workflow instances from nflow-tables and nflow_archive-tables.
  */
 @Named
-public class ArchiveService {
-  private static final Logger log = getLogger(ArchiveService.class);
+public class MaintenanceService {
+  private static final Logger log = getLogger(MaintenanceService.class);
 
   private final MaintenanceDao maintenanceDao;
 
   @Inject
-  public ArchiveService(MaintenanceDao maintenanceDao) {
+  public MaintenanceService(MaintenanceDao maintenanceDao) {
     this.maintenanceDao = maintenanceDao;
   }
 

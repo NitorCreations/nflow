@@ -29,13 +29,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
-import io.nflow.engine.service.ArchiveService.MaintenanceConfiguration;
-import io.nflow.engine.service.ArchiveService.MaintenanceResults;
+import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
 
 @ExtendWith(MockitoExtension.class)
-public class ArchiveServiceTest {
+public class MaintenanceServiceTest {
 
-  private ArchiveService service;
+  private MaintenanceService service;
   @Mock
   private MaintenanceDao dao;
   private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
@@ -45,7 +45,7 @@ public class ArchiveServiceTest {
 
   @BeforeEach
   public void setup() {
-    service = new ArchiveService(dao);
+    service = new MaintenanceService(dao);
     setCurrentMillisFixed(currentTimeMillis());
     Duration duration = millis(now().getMillis() - limit.getMillis());
     config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).setBatchSize(10).build();

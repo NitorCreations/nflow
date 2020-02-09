@@ -27,8 +27,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
-import io.nflow.engine.service.ArchiveService;
-import io.nflow.engine.service.ArchiveService.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceService;
+import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
@@ -46,7 +46,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
       .springContextClass(ArchiveServiceConfiguration.class).build();
-  static ArchiveService archiveService;
+  static MaintenanceService maintenanceService;
 
   private static DateTime archiveLimit1, archiveLimit2;
 
@@ -58,7 +58,7 @@ public class ArchiveTest extends AbstractNflowTest {
   @Order(1)
   public void cleanupExistingArchivableStuff() {
     MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(millis(0)).build();
-    assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> archiveService.cleanupWorkflows(config));
+    assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> maintenanceService.cleanupWorkflows(config));
   }
 
   @Test
@@ -90,7 +90,7 @@ public class ArchiveTest extends AbstractNflowTest {
   private int archiveOlderThan(DateTime olderThan) {
     Duration duration = millis(now().getMillis() - olderThan.getMillis());
     MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).build();
-    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> archiveService.cleanupWorkflows(config)).archivedWorkflows;
+    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> maintenanceService.cleanupWorkflows(config)).archivedWorkflows;
   }
 
   @Test
@@ -162,16 +162,16 @@ public class ArchiveTest extends AbstractNflowTest {
   @ComponentScan(basePackageClasses = DemoWorkflow.class)
   private static class ArchiveServiceConfiguration {
     @Inject
-    private ArchiveService service;
+    private MaintenanceService service;
 
     @PostConstruct
     public void linkArchiveServiceToTestClass() {
-      archiveService = service;
+      maintenanceService = service;
     }
 
     @PreDestroy
     public void removeArchiveServiceFromTestClass() {
-      archiveService = null;
+      maintenanceService = null;
     }
   }
 }

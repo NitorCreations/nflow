@@ -17,7 +17,7 @@ import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.service.ArchiveService;
+import io.nflow.engine.service.MaintenanceService;
 import io.nflow.engine.service.HealthCheckService;
 import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.service.WorkflowDefinitionService;
@@ -35,7 +35,7 @@ public class NflowEngine implements AutoCloseable {
 
   private final AnnotationConfigApplicationContext ctx;
   private final WorkflowLifecycle workflowLifecycle;
-  private final ArchiveService archiveService;
+  private final MaintenanceService maintenanceService;
   private final HealthCheckService healthCheckService;
   private final StatisticsService statisticsService;
   private final WorkflowDefinitionService workflowDefinitionService;
@@ -64,7 +64,7 @@ public class NflowEngine implements AutoCloseable {
     workflowDefinitionService = ctx.getBean(WorkflowDefinitionService.class);
     workflowDefinitions.forEach(workflowDefinitionService::addWorkflowDefinition);
 
-    archiveService = ctx.getBean(ArchiveService.class);
+    maintenanceService = ctx.getBean(MaintenanceService.class);
     healthCheckService = ctx.getBean(HealthCheckService.class);
     statisticsService = ctx.getBean(StatisticsService.class);
     workflowInstanceService = ctx.getBean(WorkflowInstanceService.class);
@@ -118,8 +118,8 @@ public class NflowEngine implements AutoCloseable {
   /**
    * @return ArchiveService for nFlow engine.
    */
-  public ArchiveService getArchiveService() {
-    return archiveService;
+  public MaintenanceService getMaintenanceService() {
+    return maintenanceService;
   }
 
   /**

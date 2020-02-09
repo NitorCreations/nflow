@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import io.nflow.engine.service.ArchiveService;
+import io.nflow.engine.service.MaintenanceService;
 
 @ExtendWith(MockitoExtension.class)
 public class ArchiveResourceTest {
@@ -18,7 +18,7 @@ public class ArchiveResourceTest {
   @InjectMocks
   private final ArchiveResource resource = new ArchiveResource();
   @Mock
-  private ArchiveService service;
+  private MaintenanceService service;
   @Mock
   private Response expected;
 
