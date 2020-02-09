@@ -3,36 +3,30 @@ package io.nflow.tests;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
-import static org.joda.time.Period.millis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.ReadablePeriod;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.context.annotation.ComponentScan;
 
-import io.nflow.engine.service.MaintenanceService;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
@@ -43,11 +37,9 @@ public class ArchiveTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
-  private static final java.time.Duration ARCHIVE_TIMEOUT = ofSeconds(15);
+  private static final Duration ARCHIVE_TIMEOUT = ofSeconds(15);
 
-  public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
-      .springContextClass(ArchiveServiceConfiguration.class).build();
-  static MaintenanceService maintenanceService;
+  public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25).build();
 
   private static DateTime archiveLimit1, archiveLimit2;
 
@@ -58,8 +50,7 @@ public class ArchiveTest extends AbstractNflowTest {
   @Test
   @Order(1)
   public void cleanupExistingArchivableStuff() {
-    MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(millis(0)).build();
-    assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> maintenanceService.cleanupWorkflows(config));
+    archiveOlderThan(now());
   }
 
   @Test
@@ -89,9 +80,10 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   private int archiveOlderThan(DateTime olderThan) {
-    ReadablePeriod period = new Period(olderThan, now());
-    MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(period).build();
-    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> maintenanceService.cleanupWorkflows(config)).archivedWorkflows;
+    MaintenanceRequest req = new MaintenanceRequest();
+    req.archiveWorkflowsOlderThan = new Period(olderThan, now());
+    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT,
+        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class)).archivedWorkflows;
   }
 
   @Test
@@ -149,30 +141,12 @@ public class ArchiveTest extends AbstractNflowTest {
   private void waitUntilWorkflowsFinished(List<Long> workflowIds) {
     assertTimeoutPreemptively(ofSeconds(15), () -> {
       for (long workflowId : workflowIds) {
-         try {
+        try {
           getWorkflowInstance(workflowId, "done");
         } catch (@SuppressWarnings("unused") InterruptedException e) {
           // ignore
         }
       }
     });
-  }
-
-  // TODO another way would be to modify JettyServerContainer to have reference to Spring's applicationContext
-  // that would allow accessing ArchiveService via NflowServerRule
-  @ComponentScan(basePackageClasses = DemoWorkflow.class)
-  private static class ArchiveServiceConfiguration {
-    @Inject
-    private MaintenanceService service;
-
-    @PostConstruct
-    public void linkArchiveServiceToTestClass() {
-      maintenanceService = service;
-    }
-
-    @PreDestroy
-    public void removeArchiveServiceFromTestClass() {
-      maintenanceService = null;
-    }
   }
 }

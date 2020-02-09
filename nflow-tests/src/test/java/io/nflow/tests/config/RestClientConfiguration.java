@@ -75,8 +75,13 @@ public class RestClientConfiguration {
     return baseWebClient().path("workflow-definition");
   }
 
-  @Bean(name="statistics")
+  @Bean(name = "statistics")
   public WebClient statistics() {
     return baseWebClient().path("statistics");
+  }
+
+  @Bean(name = "maintenance")
+  public WebClient maintenance() {
+    return baseWebClient().path("maintenance");
   }
 }
