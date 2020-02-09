@@ -1,16 +1,27 @@
 package io.nflow.rest.v1.jaxrs;
 
-import static org.joda.time.DateTime.now;
+import static org.joda.time.Period.years;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import javax.ws.rs.core.Response;
-
-import org.joda.time.DateTime;
+import org.joda.time.ReadablePeriod;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.service.MaintenanceService;
+import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
+import io.nflow.rest.v1.converter.MaintenanceConverter;
+import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class MaintenanceResourceTest {
@@ -19,24 +30,32 @@ public class MaintenanceResourceTest {
   private final MaintenanceResource resource = new MaintenanceResource();
   @Mock
   private MaintenanceService service;
-  @Mock
-  private Response expected;
+  @Spy
+  private final MaintenanceConverter converter = new MaintenanceConverter();
+  @Captor
+  private ArgumentCaptor<MaintenanceConfiguration> configCaptor;
 
-  DateTime olderThan = now().minusYears(1);
-  int batchSize = 10;
-  int archived = 100;
+  @Test
+  public void archiveDelegatesToArchiveService() {
+    int batchSize = 10;
+    ReadablePeriod period = years(1);
+    MaintenanceResults maintenanceResults = new MaintenanceResults();
+    maintenanceResults.archivedWorkflows = 10;
+    maintenanceResults.deletedArchivedWorkflows = 20;
+    maintenanceResults.deletedWorkflows = 30;
+    when(service.cleanupWorkflows(any(MaintenanceConfiguration.class))).thenReturn(maintenanceResults);
 
-  // @Test
-  // @SuppressWarnings("deprecation")
-  // public void archiveDelegatesToArchiveService() {
-  // when(service.archiveWorkflows(olderThan, batchSize)).thenReturn(archived);
-  //
-  // ArchiveRequest request = new ArchiveRequest();
-  // request.olderThan = olderThan;
-  // request.batchSize = batchSize;
-  // ArchiveResponse response = resource.archiveWorkflows(request);
-  //
-  // verify(service).archiveWorkflows(olderThan, batchSize);
-  // assertThat(response.archivedWorkflows, is(archived));
-  // }
+    MaintenanceRequest request = new MaintenanceRequest();
+    request.archiveWorkflowsOlderThan = period;
+    request.batchSize = batchSize;
+    MaintenanceResponse response = resource.cleanupWorkflows(request);
+
+    verify(service).cleanupWorkflows(configCaptor.capture());
+    MaintenanceConfiguration configuration = configCaptor.getValue();
+    assertEquals(batchSize, configuration.batchSize);
+    assertEquals(period, configuration.archiveWorkflowsOlderThan);
+    assertEquals(maintenanceResults.archivedWorkflows, response.archivedWorkflows);
+    assertEquals(maintenanceResults.deletedArchivedWorkflows, response.deletedArchivedWorkflows);
+    assertEquals(maintenanceResults.deletedWorkflows, response.deletedWorkflows);
+  }
 }
