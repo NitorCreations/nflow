@@ -17,7 +17,6 @@ import javax.inject.Named;
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
@@ -25,7 +24,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ArchiveDao;
 import io.nflow.engine.internal.dao.ArchiveDao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
-import io.nflow.engine.service.ArchiveService.ArchiveConfiguration.Builder;
 
 /**
  * Service for archiving old workflow instances from nflow-tables to nflow_archive-tables.
@@ -39,27 +37,6 @@ public class ArchiveService {
   @Inject
   public ArchiveService(ArchiveDao archiveDao) {
     this.archiveDao = archiveDao;
-  }
-
-  /**
-   * Archive old (whose modified time is earlier than <code>olderThan</code> parameter) and passive (that do not have
-   * <code>nextActivation</code>) workflows. Copies workflow instances, workflow instance actions and state variables to
-   * corresponding archive tables and removes them from production tables.
-   *
-   * @param olderThan Passive workflow instances whose modified time is before this will be archived.
-   * @param batchSize Number of workflow hierarchies to archive in a single transaction. Typical value is 1-20. This parameter
-   * mostly affects on archiving performance.
-   * @return Total number of archived workflows.
-   *
-   * @deprecated Use the {@link #cleanupWorkflows(ArchiveConfiguration)} that allows better configuration of the actions
-   */
-  @Deprecated
-  public int archiveWorkflows(DateTime olderThan, int batchSize) {
-    return cleanupWorkflows(new Builder()
-            .setArchiveWorkflowsOlderThan(new Duration(olderThan, Instant.now()))
-            .setBatchSize(batchSize)
-            .setOperateOnHierarchies(true)
-            .build()).archivedWorkflows;
   }
 
   /**
@@ -100,9 +77,7 @@ public class ArchiveService {
 
   private Supplier<List<Long>> getIdQuery(TablePrefix table, ArchiveConfiguration configuration, Duration duration) {
     DateTime olderThan = now().minus(duration);
-    return configuration.operateOnHierarchies ?
-              () -> archiveDao.listOldWorkflowTrees(table, olderThan, configuration.batchSize) :
-              () -> archiveDao.listOldWorkflows(table, olderThan, configuration.batchSize);
+    return () -> archiveDao.listOldWorkflows(table, olderThan, configuration.batchSize);
   }
 
   private int doAction(String type, String description, Supplier<List<Long>> getActionables, Function<List<Long>, Integer> doAction) {
@@ -138,15 +113,14 @@ public class ArchiveService {
     public final Duration deleteWorkflowsOlderThan;
     public final Duration deleteStatesOlderThan;
     public final int batchSize;
-    public final boolean operateOnHierarchies;
 
-    ArchiveConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan, Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize, boolean operateOnHierarchies) {
+    ArchiveConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan,
+        Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize) {
       this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
       this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
       this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
       this.deleteStatesOlderThan = deleteStatesOlderThan;
       this.batchSize = batchSize;
-      this.operateOnHierarchies = operateOnHierarchies;
     }
 
     public static class Builder {
@@ -155,7 +129,6 @@ public class ArchiveService {
       private Duration deleteWorkflowsOlderThan;
       private Duration deleteStatesOlderThan;
       private Integer batchSize;
-      private boolean operateOnHierarchies;
 
       public Builder setDeleteArchivedWorkflowsOlderThan(Duration deleteArchivedWorkflowsOlderThan) {
         this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
@@ -178,26 +151,23 @@ public class ArchiveService {
       }
 
       /**
-       * @param batchSize Number of workflows or if {@link #operateOnHierarchies} is set, the number of workflow hierarchies, to operate on in single transaction.
-       *                  Typical value is 100-1000 for single workflows and 1-20 for hierarchies. This parameter mostly affects on archiving performance.
+       * @param batchSize
+       *          Number of workflows to operate on in single transaction. Typical value is 100-1000. This parameter mostly
+       *          affects on archiving performance.
        */
       public Builder setBatchSize(int batchSize) {
         this.batchSize = batchSize;
         return this;
       }
 
-      public Builder setOperateOnHierarchies(boolean operateOnHierarchies) {
-        this.operateOnHierarchies = operateOnHierarchies;
-        return this;
-      }
-
       public ArchiveConfiguration build() {
         if (batchSize == null) {
-          batchSize = operateOnHierarchies ? 5 : 1000;
+          batchSize = 1000;
         } else {
           Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
         }
-        return new ArchiveConfiguration(deleteArchivedWorkflowsOlderThan, archiveWorkflowsOlderThan, deleteWorkflowsOlderThan, deleteStatesOlderThan, batchSize, operateOnHierarchies);
+        return new ArchiveConfiguration(deleteArchivedWorkflowsOlderThan, archiveWorkflowsOlderThan, deleteWorkflowsOlderThan,
+            deleteStatesOlderThan, batchSize);
       }
     }
   }

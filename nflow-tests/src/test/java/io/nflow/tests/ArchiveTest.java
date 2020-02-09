@@ -1,16 +1,16 @@
 package io.nflow.tests;
 
 import static java.lang.Thread.sleep;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.time.Duration.ofSeconds;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.millis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +19,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.engine.service.ArchiveService;
+import io.nflow.engine.service.ArchiveService.ArchiveConfiguration;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
@@ -40,10 +42,10 @@ public class ArchiveTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
-  private static final Duration ARCHIVE_TIMEOUT = ofSeconds(15);
+  private static final java.time.Duration ARCHIVE_TIMEOUT = ofSeconds(15);
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25)
-      .springContextClass(ArchiveConfiguration.class).build();
+      .springContextClass(ArchiveServiceConfiguration.class).build();
   static ArchiveService archiveService;
 
   private static DateTime archiveLimit1, archiveLimit2;
@@ -54,10 +56,9 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(1)
-  @SuppressWarnings("deprecation")
   public void cleanupExistingArchivableStuff() {
-    assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
-      archiveService.archiveWorkflows(now(), 10));
+    ArchiveConfiguration config = new ArchiveConfiguration.Builder().setArchiveWorkflowsOlderThan(millis(0)).build();
+    assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> archiveService.cleanupWorkflows(config));
   }
 
   @Test
@@ -80,29 +81,29 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
-  @SuppressWarnings("deprecation")
   public void archiveBeforeTime1ArchiveAllWorkflows() {
-    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
-      archiveService.archiveWorkflows(archiveLimit1, 3));
+    int archived = archiveOlderThan(archiveLimit1);
     // fibonacci(3) workflow creates 1 child workflow
     assertEquals(STEP_1_WORKFLOWS * 2, archived);
   }
 
+  private int archiveOlderThan(DateTime olderThan) {
+    Duration duration = millis(now().getMillis() - olderThan.getMillis());
+    ArchiveConfiguration config = new ArchiveConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).build();
+    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> archiveService.cleanupWorkflows(config)).archivedWorkflows;
+  }
+
   @Test
   @Order(5)
-  @SuppressWarnings("deprecation")
   public void archiveAgainBeforeTime1DoesNotArchivesAnything() {
-    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
-      archiveService.archiveWorkflows(archiveLimit1, 3));
+    int archived = archiveOlderThan(archiveLimit1);
     assertEquals(0, archived);
   }
 
   @Test
   @Order(6)
-  @SuppressWarnings("deprecation")
   public void archiveBeforeTime2Archives() {
-    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
-      archiveService.archiveWorkflows(archiveLimit2, 5));
+    int archived = archiveOlderThan(archiveLimit2);
     assertEquals(STEP_2_WORKFLOWS * 2, archived);
   }
 
@@ -114,19 +115,15 @@ public class ArchiveTest extends AbstractNflowTest {
 
   @Test
   @Order(8)
-  @SuppressWarnings("deprecation")
   public void archiveAgainBeforeTime1DoesNotArchiveAnything() {
-    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
-      archiveService.archiveWorkflows(archiveLimit1, 3));
+    int archived = archiveOlderThan(archiveLimit1);
     assertEquals(0, archived);
   }
 
   @Test
   @Order(9)
-  @SuppressWarnings("deprecation")
   public void archiveAgainBeforeTime2DoesNotArchiveAnything() {
-    int archived = assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () ->
-      archiveService.archiveWorkflows(archiveLimit2, 3));
+    int archived = archiveOlderThan(archiveLimit2);
     assertEquals(0, archived);
   }
 
@@ -163,7 +160,7 @@ public class ArchiveTest extends AbstractNflowTest {
   // TODO another way would be to modify JettyServerContainer to have reference to Spring's applicationContext
   // that would allow accessing ArchiveService via NflowServerRule
   @ComponentScan(basePackageClasses = DemoWorkflow.class)
-  private static class ArchiveConfiguration {
+  private static class ArchiveServiceConfiguration {
     @Inject
     private ArchiveService service;
 

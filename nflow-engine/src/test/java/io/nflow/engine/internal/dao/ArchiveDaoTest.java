@@ -55,7 +55,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     expectedArchive.add(storePassiveWorkflow(archiveTime1));
     expectedArchive.add(storePassiveWorkflow(archiveTime2));
 
-    List<Long> archivableIds = archiveDao.listOldWorkflowTrees(MAIN, archiveTimeLimit, 10);
+    List<Long> archivableIds = archiveDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
     assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
   }
 
@@ -74,11 +74,11 @@ public class ArchiveDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Long> archivableIds = archiveDao.listOldWorkflowTrees(MAIN, archiveTimeLimit, 10);
+    List<Long> archivableIds = archiveDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
     assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
 
     expectedArchive.add(eleventh);
-    archivableIds = archiveDao.listOldWorkflowTrees(MAIN, archiveTimeLimit, 11);
+    archivableIds = archiveDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
     assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
   }
 

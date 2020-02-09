@@ -1,4 +1,4 @@
--- production tables
+-- Production tables
 
 create table nflow_workflow (
   id int primary key generated always as identity,

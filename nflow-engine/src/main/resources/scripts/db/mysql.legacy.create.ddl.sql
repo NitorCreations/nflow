@@ -1,4 +1,5 @@
 -- Production tables
+
 create table if not exists nflow_workflow (
   id int not null auto_increment primary key,
   status enum('created', 'executing', 'inProgress', 'finished', 'manual') not null,

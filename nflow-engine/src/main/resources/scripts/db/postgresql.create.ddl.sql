@@ -1,4 +1,4 @@
--- production tables
+-- Production tables
 
 create type workflow_status as enum ('created', 'executing', 'inProgress', 'finished', 'manual');
 create table if not exists nflow_workflow (
@@ -90,7 +90,6 @@ create table if not exists nflow_workflow_definition (
 
 drop trigger if exists update_nflow_definition_modified on nflow_workflow_definition;
 create trigger update_nflow_definition_modified before update on nflow_workflow_definition for each row execute procedure update_modified();
-
 
 -- Archive tables
 -- - no default values

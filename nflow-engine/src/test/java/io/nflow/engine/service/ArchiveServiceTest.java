@@ -1,11 +1,15 @@
 package io.nflow.engine.service;
 
 import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Duration.millis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -13,11 +17,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.ArchiveDao;
+import io.nflow.engine.service.ArchiveService.ArchiveConfiguration;
+import io.nflow.engine.service.ArchiveService.ArchiveResults;
 
 @ExtendWith(MockitoExtension.class)
 public class ArchiveServiceTest {
@@ -34,13 +39,16 @@ public class ArchiveServiceTest {
   @Mock
   private ArchiveDao dao;
   private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
-  private final List<Long> emptyList = Collections.emptyList();
-  private final List<Long> dataList = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
+  private final List<Long> emptyList = emptyList();
+  private final List<Long> dataList = asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
+  private ArchiveConfiguration config;
 
   @BeforeEach
   public void setup() {
     service = new ArchiveService(dao);
     setCurrentMillisFixed(currentTimeMillis());
+    Duration duration = millis(now().getMillis() - limit.getMillis());
+    config = new ArchiveConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).setBatchSize(10).build();
   }
 
   @AfterEach
@@ -49,39 +57,31 @@ public class ArchiveServiceTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void withZeroWorkflowsInFirstBatchCausesNothingToArchive() {
-    when(dao.listOldWorkflowTrees(MAIN, limit, 10)).thenReturn(emptyList);
-    int archived = service.archiveWorkflows(limit, 10);
-    assertEquals(0, archived);
+    when(dao.listOldWorkflows(MAIN, limit, 10)).thenReturn(emptyList);
+    ArchiveResults results = service.cleanupWorkflows(config);
+    assertEquals(0, results.archivedWorkflows);
     verify(dao).ensureValidArchiveTablesExist();
-    verify(dao).listOldWorkflowTrees(MAIN, limit, 10);
+    verify(dao).listOldWorkflows(MAIN, limit, 10);
     verifyNoMoreInteractions(dao);
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void archivingContinuesUntilEmptyListOfArchivableIsReturned() {
-    doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listOldWorkflowTrees(MAIN, limit, 10);
+    doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listOldWorkflows(MAIN, limit, 10);
     when(dao.archiveWorkflows(dataList)).thenReturn(dataList.size());
-    int archived = service.archiveWorkflows(limit, 10);
-    assertEquals(dataList.size() * 3, archived);
+    ArchiveResults results = service.cleanupWorkflows(config);
+    assertEquals(dataList.size() * 3, results.archivedWorkflows);
     verify(dao).ensureValidArchiveTablesExist();
-    verify(dao, times(4)).listOldWorkflowTrees(MAIN, limit, 10);
+    verify(dao, times(4)).listOldWorkflows(MAIN, limit, 10);
     verify(dao, times(3)).archiveWorkflows(dataList);
     verifyNoMoreInteractions(dao);
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void noArchivingHappensWhenValidArchiveTablesDoNotExist() {
     doThrow(new IllegalArgumentException("bad archive table")).when(dao).ensureValidArchiveTablesExist();
-    try {
-      service.archiveWorkflows(limit, 10);
-      fail("exception expected");
-    } catch (@SuppressWarnings("unused") IllegalArgumentException e) {
-      // ignore
-    }
+    assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(config));
     verify(dao).ensureValidArchiveTablesExist();
     verifyNoMoreInteractions(dao);
   }

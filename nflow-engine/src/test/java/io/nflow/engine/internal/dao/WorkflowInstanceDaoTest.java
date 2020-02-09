@@ -565,11 +565,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     d.insertWorkflowInstance(wf);
     assertEquals(
-        "with wf as (insert into nflow_workflow(type, priority, root_workflow_id, parent_workflow_id, parent_action_id, business_key, "
+        "with wf as (insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, "
             + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
-            + "(?, ?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins13 as "
+            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
             + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
-            + "ins15 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+            + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
             + "select wf.id,0,?,? from wf) select wf.id from wf",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));

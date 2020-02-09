@@ -1,3 +1,5 @@
+-- Production tables
+
 create table nflow_workflow (
   id int not null primary key,
   status varchar(32) not null,

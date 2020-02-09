@@ -80,23 +80,6 @@ public class ArchiveDao {
             new ArchivableWorkflowsRowMapper(), sqlVariants.toTimestampObject(before));
   }
 
-  public List<Long> listOldWorkflowTrees(TablePrefix table, DateTime before, int maxTrees) {
-    return jdbc.query(
-            "select w.id id from nflow_workflow w, " +
-                    "(" + sqlVariants.limit(
-                    "  select parent.id from " + table.nameOf("workflow") + " parent " +
-                            "  where parent.next_activation is null and " + sqlVariants.dateLtEqDiff("parent.modified", "?") +
-                            "  and parent.root_workflow_id is null " +
-                            "  and not exists(" +
-                            "    select 1 from " + table.nameOf("workflow") + " child where child.root_workflow_id = parent.id " +
-                            "      and (" + sqlVariants.dateLtEqDiff("?", "child.modified") + " or child.next_activation is not null)" +
-                            "  )" +
-                            "  order by modified asc ", maxTrees) +
-                    ") as archivable_parent " +
-                    "where archivable_parent.id = w.id or archivable_parent.id = w.root_workflow_id",
-            new ArchivableWorkflowsRowMapper(), sqlVariants.toTimestampObject(before), sqlVariants.toTimestampObject(before));
-  }
-
   @Transactional
   public int archiveWorkflows(Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);

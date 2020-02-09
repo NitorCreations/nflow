@@ -1,4 +1,4 @@
--- production tables
+-- Production tables
 
 if not exists (select 1 from sys.tables where name='nflow_workflow')
 create table nflow_workflow (
@@ -100,7 +100,6 @@ begin
   update nflow_workflow_definition set modified = SYSDATETIMEOFFSET()
   from nflow_workflow_definition df inner join inserted i on df.type = i.type and df.executor_group = i.executor_group
 end';
-
 
 -- Archive tables
 -- - no default values
