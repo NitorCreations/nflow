@@ -11,13 +11,16 @@ import io.swagger.annotations.ApiModelProperty;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class MaintenanceRequest extends ModelObject {
 
-  @ApiModelProperty("Archived workflow instances whose modified time is older than given period will be deleted.")
+  @ApiModelProperty(value = "Archived workflow instances whose modified time is older than given period will be deleted. Supports ISO-8601 format.", //
+      dataType = "String", example = "PT15D")
   public ReadablePeriod deleteArchivedWorkflowsOlderThan;
 
-  @ApiModelProperty("Passive workflow instances whose modified time is older than given period will be archived.")
+  @ApiModelProperty(value = "Passive workflow instances whose modified time is older than given period will be archived. Supports ISO-8601 format.", //
+      dataType = "String", example = "PT15D")
   public ReadablePeriod archiveWorkflowsOlderThan;
 
-  @ApiModelProperty("Passive workflow instances whose modified time is older than given period will be deleted.")
+  @ApiModelProperty(value = "Passive workflow instances whose modified time is older than given period will be deleted. Supports ISO-8601 format.", //
+      dataType = "String", example = "PT15D")
   public ReadablePeriod deleteWorkflowsOlderThan;
 
   @ApiModelProperty("Number of workflows to process in a single transaction.")
