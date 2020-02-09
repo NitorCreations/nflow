@@ -49,7 +49,7 @@ create table nflow_workflow_action (
   retry_no int not null,
   execution_start datetimeoffset(3) not null,
   execution_end datetimeoffset(3) not null,
-  foreign key fk_workflow_id (workflow_id) references nflow_workflow(id),
+  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id),
   constraint nflow_workflow_action_uniq unique (workflow_id, id)
 );
 
@@ -62,8 +62,8 @@ create table nflow_workflow_state (
   action_id int not null,
   state_key varchar(64) not null,
   state_value text not null,
-  primary key pk_workflow_state (workflow_id, action_id, state_key),
-  foreign key fk_workflow_id (workflow_id) references nflow_workflow(id)
+  constraint pk_workflow_state primary key (workflow_id, action_id, state_key),
+  constraint fk_state_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
 
 if not exists (select 1 from sys.indexes where name='nflow_workflow_state_workflow')
@@ -90,7 +90,7 @@ create table nflow_workflow_definition (
   modified datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified_by int not null,
   executor_group varchar(64) not null,
-  primary key pk_workflow_definition (type, executor_group)
+  constraint pk_workflow_definition primary key (type, executor_group)
 );
 
 if not exists (select 1 from sys.triggers where name='nflow_workflow_definition_modified_trigger')
@@ -150,7 +150,7 @@ create table nflow_archive_workflow_action (
   retry_no int not null,
   execution_start datetimeoffset(3) not null,
   execution_end datetimeoffset(3) not null,
-  foreign key fk_workflow_id (workflow_id) references nflow_archive_workflow(id),
+  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id),
   constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
 );
 
@@ -163,8 +163,8 @@ create table nflow_archive_workflow_state (
   action_id int not null,
   state_key varchar(64) not null,
   state_value text not null,
-  primary key pk_workflow_state (workflow_id, action_id, state_key),
-  foreign key fk_workflow_id (workflow_id) references nflow_archive_workflow(id)
+  constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
+  constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
 
 if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_state_workflow')
