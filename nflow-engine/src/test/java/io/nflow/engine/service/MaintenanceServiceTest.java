@@ -7,7 +7,6 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
-import static org.joda.time.Duration.millis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
@@ -20,7 +19,8 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.ReadablePeriod;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,8 +47,8 @@ public class MaintenanceServiceTest {
   public void setup() {
     service = new MaintenanceService(dao);
     setCurrentMillisFixed(currentTimeMillis());
-    Duration duration = millis(now().getMillis() - limit.getMillis());
-    config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).setBatchSize(10).build();
+    ReadablePeriod period = new Period(limit, now());
+    config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(period).setBatchSize(10).build();
   }
 
   @AfterEach

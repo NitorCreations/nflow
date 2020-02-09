@@ -16,7 +16,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
@@ -75,8 +75,8 @@ public class MaintenanceService {
     return res;
   }
 
-  private Supplier<List<Long>> getIdQuery(TablePrefix table, MaintenanceConfiguration configuration, Duration duration) {
-    DateTime olderThan = now().minus(duration);
+  private Supplier<List<Long>> getIdQuery(TablePrefix table, MaintenanceConfiguration configuration, ReadablePeriod period) {
+    DateTime olderThan = now().minus(period);
     return () -> maintenanceDao.listOldWorkflows(table, olderThan, configuration.batchSize);
   }
 
@@ -108,13 +108,14 @@ public class MaintenanceService {
   }
 
   public static class MaintenanceConfiguration {
-    public final Duration deleteArchivedWorkflowsOlderThan;
-    public final Duration archiveWorkflowsOlderThan;
-    public final Duration deleteWorkflowsOlderThan;
-    public final Duration deleteStatesOlderThan;
+    public final ReadablePeriod deleteArchivedWorkflowsOlderThan;
+    public final ReadablePeriod archiveWorkflowsOlderThan;
+    public final ReadablePeriod deleteWorkflowsOlderThan;
+    public final ReadablePeriod deleteStatesOlderThan;
     public final int batchSize;
 
-    MaintenanceConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan, Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize) {
+    MaintenanceConfiguration(ReadablePeriod deleteArchivedWorkflowsOlderThan, ReadablePeriod archiveWorkflowsOlderThan,
+        ReadablePeriod deleteWorkflowsOlderThan, ReadablePeriod deleteStatesOlderThan, int batchSize) {
       this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
       this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
       this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
@@ -123,28 +124,28 @@ public class MaintenanceService {
     }
 
     public static class Builder {
-      private Duration deleteArchivedWorkflowsOlderThan;
-      private Duration archiveWorkflowsOlderThan;
-      private Duration deleteWorkflowsOlderThan;
-      private Duration deleteStatesOlderThan;
+      private ReadablePeriod deleteArchivedWorkflowsOlderThan;
+      private ReadablePeriod archiveWorkflowsOlderThan;
+      private ReadablePeriod deleteWorkflowsOlderThan;
+      private ReadablePeriod deleteStatesOlderThan;
       private Integer batchSize = 1000;
 
-      public Builder setDeleteArchivedWorkflowsOlderThan(Duration deleteArchivedWorkflowsOlderThan) {
+      public Builder setDeleteArchivedWorkflowsOlderThan(ReadablePeriod deleteArchivedWorkflowsOlderThan) {
         this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
         return this;
       }
 
-      public Builder setArchiveWorkflowsOlderThan(Duration archiveWorkflowsOlderThan) {
+      public Builder setArchiveWorkflowsOlderThan(ReadablePeriod archiveWorkflowsOlderThan) {
         this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
         return this;
       }
 
-      public Builder setDeleteWorkflowsOlderThan(Duration deleteWorkflowsOlderThan) {
+      public Builder setDeleteWorkflowsOlderThan(ReadablePeriod deleteWorkflowsOlderThan) {
         this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
         return this;
       }
 
-      public Builder setDeleteStatesOlderThan(Duration deleteStatesOlderThan) {
+      public Builder setDeleteStatesOlderThan(ReadablePeriod deleteStatesOlderThan) {
         this.deleteStatesOlderThan = deleteStatesOlderThan;
         return this;
       }

@@ -7,7 +7,7 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.millis;
+import static org.joda.time.Period.millis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
@@ -19,7 +19,8 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.ReadablePeriod;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -88,8 +89,8 @@ public class ArchiveTest extends AbstractNflowTest {
   }
 
   private int archiveOlderThan(DateTime olderThan) {
-    Duration duration = millis(now().getMillis() - olderThan.getMillis());
-    MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).build();
+    ReadablePeriod period = new Period(olderThan, now());
+    MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(period).build();
     return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> maintenanceService.cleanupWorkflows(config)).archivedWorkflows;
   }
 
