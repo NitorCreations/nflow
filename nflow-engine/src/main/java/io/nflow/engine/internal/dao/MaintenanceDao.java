@@ -1,13 +1,12 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import javax.inject.Named;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -72,20 +70,17 @@ public class MaintenanceDao {
   }
 
   public List<Long> listOldWorkflows(TablePrefix table, DateTime before, int maxWorkflows) {
-    return jdbc.query(
-                    sqlVariants.limit(
-                    "select id from " + table.nameOf("workflow") +
-                    "  where next_activation is null and " + sqlVariants.dateLtEqDiff("modified", "?") +
-                    "  order by modified asc ", maxWorkflows),
-            new ArchivableWorkflowsRowMapper(), sqlVariants.toTimestampObject(before));
+    String sql = sqlVariants.limit("select id from " + table.nameOf("workflow") + " where next_activation is null and "
+        + sqlVariants.dateLtEqDiff("modified", "?") + " order by id asc", maxWorkflows);
+    return jdbc.queryForList(sql, Long.class, sqlVariants.toTimestampObject(before));
   }
 
   @Transactional
   public int archiveWorkflows(Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
-    int archivedInstances = archiveWorkflowTable(workflowIdParams);
-    int archivedActions = archiveActionTable(workflowIdParams);
-    int archivedStates = archiveStateTable(workflowIdParams);
+    int archivedInstances = archiveTable("workflow", getWorkflowColumns(), workflowIdParams);
+    int archivedActions = archiveTable("workflow_action", getActionColumns(), workflowIdParams);
+    int archivedStates = archiveTable("workflow_state", getStateColumns(), workflowIdParams);
     logger.info("Archived {} workflow instances, {} actions and {} states.", archivedInstances, archivedActions, archivedStates);
     deleteWorkflows(MAIN, workflowIdParams);
     return archivedInstances;
@@ -98,19 +93,9 @@ public class MaintenanceDao {
     return deletedWorkflows;
   }
 
-  private int archiveWorkflowTable(String workflowIdParams) {
-    return jdbc.update("insert into nflow_archive_workflow(" + getWorkflowColumns() + ") " + "select " + getWorkflowColumns()
-        + " from nflow_workflow where id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
-  }
-
-  private int archiveActionTable(String workflowIdParams) {
-    return jdbc.update("insert into nflow_archive_workflow_action(" + getActionColumns() + ") " + "select " + getActionColumns()
-        + " from nflow_workflow_action where workflow_id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
-  }
-
-  private int archiveStateTable(String workflowIdParams) {
-    return jdbc.update("insert into nflow_archive_workflow_state (" + getStateColumns() + ") " + "select " + getStateColumns()
-        + " from nflow_workflow_state where workflow_id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
+  private int archiveTable(String table, String columns, String workflowIdParams) {
+    return jdbc.update("insert into " + ARCHIVE.nameOf(table) + "(" + columns + ") " + "select " + columns + " from "
+        + MAIN.nameOf(table) + " where workflow_id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
   }
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {
@@ -143,13 +128,6 @@ public class MaintenanceDao {
 
     String nameOf(String name) {
       return prefix + name;
-    }
-  }
-
-  static class ArchivableWorkflowsRowMapper implements RowMapper<Long> {
-    @Override
-    public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return rs.getLong("id");
     }
   }
 }

@@ -9,7 +9,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -57,18 +56,15 @@ public class MaintenanceService {
 
     MaintenanceResults res = new MaintenanceResults();
     if (configuration.deleteArchivedWorkflows != null) {
-      Supplier<List<Long>> source = getIdQuery(ARCHIVE, configuration.deleteArchivedWorkflows);
-      res.deletedArchivedWorkflows = doAction("Deleting archived workflows", configuration.deleteArchivedWorkflows, source,
+      res.deletedArchivedWorkflows = doAction("Deleting archived workflows", configuration.deleteArchivedWorkflows, ARCHIVE,
           idList -> maintenanceDao.deleteWorkflows(ARCHIVE, idList));
     }
     if (configuration.archiveWorkflows != null) {
-      Supplier<List<Long>> source = getIdQuery(MAIN, configuration.archiveWorkflows);
-      res.archivedWorkflows = doAction("Archiving workflows", configuration.archiveWorkflows, source,
+      res.archivedWorkflows = doAction("Archiving workflows", configuration.archiveWorkflows, MAIN,
           maintenanceDao::archiveWorkflows);
     }
     if (configuration.deleteWorkflows != null) {
-      Supplier<List<Long>> source = getIdQuery(MAIN, configuration.deleteWorkflows);
-      res.deletedWorkflows = doAction("Deleting workflows", configuration.deleteWorkflows, source,
+      res.deletedWorkflows = doAction("Deleting workflows", configuration.deleteWorkflows, MAIN,
           idList -> maintenanceDao.deleteWorkflows(MAIN, idList));
     }
     if (configuration.deleteStates != null) {
@@ -77,35 +73,25 @@ public class MaintenanceService {
     return res;
   }
 
-  private Supplier<List<Long>> getIdQuery(TablePrefix table, ConfigurationItem configuration) {
+  private int doAction(String type, ConfigurationItem configuration, TablePrefix table, Function<List<Long>, Integer> doAction) {
     DateTime olderThan = now().minus(configuration.olderThanPeriod);
-    return () -> maintenanceDao.listOldWorkflows(table, olderThan, configuration.batchSize);
-  }
-
-  private int doAction(String type, ConfigurationItem configuration, Supplier<List<Long>> getActionables,
-      Function<List<Long>, Integer> doAction) {
-    log.info("{} older than {}, in batches of {}.", type, configuration.olderThanPeriod, configuration.batchSize);
+    log.info("{} older than {}, in batches of {}.", type, olderThan, configuration.batchSize);
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int totalWorkflows = 0;
     do {
-      List<Long> workflowIds = getActionables.get();
+      List<Long> workflowIds = maintenanceDao.listOldWorkflows(table, olderThan, configuration.batchSize);
       if (workflowIds.isEmpty()) {
         break;
       }
-      workflowIds.sort(null);
       int workflows = doAction.apply(workflowIds);
       totalWorkflows += workflows;
-
       double timeDiff = max(stopWatch.getTime() / 1000.0, 0.000001);
       String status = format("%s. %s workflows, %.1f workflows / second.", type, workflows, totalWorkflows / timeDiff);
-      if (log.isDebugEnabled()) {
-        log.debug(status + " Workflow ids: {}.", workflowIds);
-      }
+      log.debug("{} Workflow ids: {}.", status, workflowIds);
       periodicLogger.info(status);
     } while (true);
-
     log.info("{} finished. Operated on {} workflows in {} seconds.", type, totalWorkflows, stopWatch.getTime() / 1000);
     return totalWorkflows;
   }
