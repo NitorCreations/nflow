@@ -78,9 +78,9 @@ public class MaintenanceDao {
   @Transactional
   public int archiveWorkflows(Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
-    int archivedInstances = archiveTable("workflow", getWorkflowColumns(), workflowIdParams);
-    int archivedActions = archiveTable("workflow_action", getActionColumns(), workflowIdParams);
-    int archivedStates = archiveTable("workflow_state", getStateColumns(), workflowIdParams);
+    int archivedInstances = archiveTable("workflow", "id", getWorkflowColumns(), workflowIdParams);
+    int archivedActions = archiveTable("workflow_action", "workflow_id", getActionColumns(), workflowIdParams);
+    int archivedStates = archiveTable("workflow_state", "workflow_id", getStateColumns(), workflowIdParams);
     logger.info("Archived {} workflow instances, {} actions and {} states.", archivedInstances, archivedActions, archivedStates);
     deleteWorkflows(MAIN, workflowIdParams);
     return archivedInstances;
@@ -89,13 +89,12 @@ public class MaintenanceDao {
   @Transactional
   public int deleteWorkflows(TablePrefix table, Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
-    int deletedWorkflows = deleteWorkflows(table, workflowIdParams);
-    return deletedWorkflows;
+    return deleteWorkflows(table, workflowIdParams);
   }
 
-  private int archiveTable(String table, String columns, String workflowIdParams) {
+  private int archiveTable(String table, String workflowIdColumn, String columns, String workflowIdParams) {
     return jdbc.update("insert into " + ARCHIVE.nameOf(table) + "(" + columns + ") " + "select " + columns + " from "
-        + MAIN.nameOf(table) + " where workflow_id in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
+        + MAIN.nameOf(table) + " where " + workflowIdColumn + " in " + workflowIdParams + sqlVariants.forUpdateInnerSelect());
   }
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {

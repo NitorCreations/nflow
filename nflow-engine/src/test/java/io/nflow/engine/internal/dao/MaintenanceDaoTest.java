@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -60,26 +61,24 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void listingReturnsOldestRowsAndMaxBatchSizeRows() {
+  public void listingReturnsMaxBatchSizeRowsInIdOrder() {
     List<Long> expectedArchive = new ArrayList<>();
-
-    long eleventh = storePassiveWorkflow(archiveTime2);
-
+    expectedArchive.add(storePassiveWorkflow(archiveTime2));
     for (int i = 0; i < 9; i++) {
       expectedArchive.add(storePassiveWorkflow(archiveTime4));
     }
-    expectedArchive.add(storePassiveWorkflow(archiveTime3));
+    long eleventh = storePassiveWorkflow(archiveTime3);
 
     storeActiveWorkflow(archiveTime1);
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
     List<Long> archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
-    assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
+    assertArrayEquals(archivableIds.toArray(), expectedArchive.toArray());
 
     expectedArchive.add(eleventh);
     archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
-    assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
+    assertArrayEquals(archivableIds.toArray(), expectedArchive.toArray());
   }
 
   @Test
