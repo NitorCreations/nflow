@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.engine.service.ArchiveService;
-import io.nflow.engine.service.ArchiveService.ArchiveConfiguration;
+import io.nflow.engine.service.ArchiveService.MaintenanceConfiguration;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
@@ -57,7 +57,7 @@ public class ArchiveTest extends AbstractNflowTest {
   @Test
   @Order(1)
   public void cleanupExistingArchivableStuff() {
-    ArchiveConfiguration config = new ArchiveConfiguration.Builder().setArchiveWorkflowsOlderThan(millis(0)).build();
+    MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(millis(0)).build();
     assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> archiveService.cleanupWorkflows(config));
   }
 
@@ -89,7 +89,7 @@ public class ArchiveTest extends AbstractNflowTest {
 
   private int archiveOlderThan(DateTime olderThan) {
     Duration duration = millis(now().getMillis() - olderThan.getMillis());
-    ArchiveConfiguration config = new ArchiveConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).build();
+    MaintenanceConfiguration config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).build();
     return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> archiveService.cleanupWorkflows(config)).archivedWorkflows;
   }
 

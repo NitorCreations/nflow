@@ -70,8 +70,8 @@ public class DaoTestConfiguration {
   }
 
   @Bean
-  public ArchiveDao archiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
-    return new ArchiveDao(sqlVariants, jdbcTemplate, tableMetadataChecker);
+  public MaintenanceDao archiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
+    return new MaintenanceDao(sqlVariants, jdbcTemplate, tableMetadataChecker);
   }
 
   @Bean

@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -25,8 +25,8 @@ import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 
 @Named
-public class ArchiveDao {
-  private static final Logger logger = getLogger(ArchiveDao.class);
+public class MaintenanceDao {
+  private static final Logger logger = getLogger(MaintenanceDao.class);
 
   private final JdbcTemplate jdbc;
   private final TableMetadataChecker tableMetadataChecker;
@@ -37,7 +37,7 @@ public class ArchiveDao {
   private String stateColumns;
 
   @Inject
-  public ArchiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
+  public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
     this.sqlVariants = sqlVariants;
     this.jdbc = jdbcTemplate;
     this.tableMetadataChecker = tableMetadataChecker;

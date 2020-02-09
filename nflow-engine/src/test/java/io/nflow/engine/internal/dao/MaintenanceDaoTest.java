@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -24,9 +24,9 @@ import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
-public class ArchiveDaoTest extends BaseDaoTest {
+public class MaintenanceDaoTest extends BaseDaoTest {
   @Inject
-  ArchiveDao archiveDao;
+  MaintenanceDao maintenanceDao;
   @Inject
   WorkflowInstanceDao workflowInstanceDao;
 
@@ -55,7 +55,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     expectedArchive.add(storePassiveWorkflow(archiveTime1));
     expectedArchive.add(storePassiveWorkflow(archiveTime2));
 
-    List<Long> archivableIds = archiveDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
+    List<Long> archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
     assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
   }
 
@@ -74,11 +74,11 @@ public class ArchiveDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Long> archivableIds = archiveDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
+    List<Long> archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
     assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
 
     expectedArchive.add(eleventh);
-    archivableIds = archiveDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
+    archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
     assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
   }
 
@@ -94,7 +94,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     archivableWorkflows.add(storePassiveWorkflow(archiveTime2));
 
     int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
-    assertEquals(archivableWorkflows.size(), archiveDao.archiveWorkflows(archivableWorkflows));
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
     int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
@@ -121,7 +121,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     archivableWorkflows.addAll(asList(archivable1, archivable2));
 
     int activeActionCountBefore = rowCount("select 1 from nflow_workflow_action");
-    assertEquals(archivableWorkflows.size(), archiveDao.archiveWorkflows(archivableWorkflows));
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
     int activeActionCountAfter = rowCount("select 1 from nflow_workflow_action");
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
@@ -163,7 +163,7 @@ public class ArchiveDaoTest extends BaseDaoTest {
     archivableWorkflows.addAll(asList(archivable1, archivable2));
 
     int variablesCountBefore = rowCount("select 1 from nflow_workflow_state");
-    assertEquals(archivableWorkflows.size(), archiveDao.archiveWorkflows(archivableWorkflows));
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
     int variablesCountAfter = rowCount("select 1 from nflow_workflow_state");
 
     assertActiveWorkflowsRemoved(archivableWorkflows);

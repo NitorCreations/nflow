@@ -1,6 +1,6 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.joda.time.DateTime.now;
@@ -28,27 +28,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import io.nflow.engine.internal.dao.ArchiveDao;
-import io.nflow.engine.service.ArchiveService.ArchiveConfiguration;
-import io.nflow.engine.service.ArchiveService.ArchiveResults;
+import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.service.ArchiveService.MaintenanceConfiguration;
+import io.nflow.engine.service.ArchiveService.MaintenanceResults;
 
 @ExtendWith(MockitoExtension.class)
 public class ArchiveServiceTest {
 
   private ArchiveService service;
   @Mock
-  private ArchiveDao dao;
+  private MaintenanceDao dao;
   private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
   private final List<Long> emptyList = emptyList();
   private final List<Long> dataList = asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
-  private ArchiveConfiguration config;
+  private MaintenanceConfiguration config;
 
   @BeforeEach
   public void setup() {
     service = new ArchiveService(dao);
     setCurrentMillisFixed(currentTimeMillis());
     Duration duration = millis(now().getMillis() - limit.getMillis());
-    config = new ArchiveConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).setBatchSize(10).build();
+    config = new MaintenanceConfiguration.Builder().setArchiveWorkflowsOlderThan(duration).setBatchSize(10).build();
   }
 
   @AfterEach
@@ -59,7 +59,7 @@ public class ArchiveServiceTest {
   @Test
   public void withZeroWorkflowsInFirstBatchCausesNothingToArchive() {
     when(dao.listOldWorkflows(MAIN, limit, 10)).thenReturn(emptyList);
-    ArchiveResults results = service.cleanupWorkflows(config);
+    MaintenanceResults results = service.cleanupWorkflows(config);
     assertEquals(0, results.archivedWorkflows);
     verify(dao).ensureValidArchiveTablesExist();
     verify(dao).listOldWorkflows(MAIN, limit, 10);
@@ -70,7 +70,7 @@ public class ArchiveServiceTest {
   public void archivingContinuesUntilEmptyListOfArchivableIsReturned() {
     doReturn(dataList).doReturn(dataList).doReturn(dataList).doReturn(emptyList).when(dao).listOldWorkflows(MAIN, limit, 10);
     when(dao.archiveWorkflows(dataList)).thenReturn(dataList.size());
-    ArchiveResults results = service.cleanupWorkflows(config);
+    MaintenanceResults results = service.cleanupWorkflows(config);
     assertEquals(dataList.size() * 3, results.archivedWorkflows);
     verify(dao).ensureValidArchiveTablesExist();
     verify(dao, times(4)).listOldWorkflows(MAIN, limit, 10);

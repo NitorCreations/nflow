@@ -1,7 +1,7 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.ArchiveDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static org.joda.time.DateTime.now;
@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.internal.dao.ArchiveDao;
-import io.nflow.engine.internal.dao.ArchiveDao.TablePrefix;
+import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
 
 /**
@@ -32,11 +32,11 @@ import io.nflow.engine.internal.util.PeriodicLogger;
 public class ArchiveService {
   private static final Logger log = getLogger(ArchiveService.class);
 
-  private final ArchiveDao archiveDao;
+  private final MaintenanceDao maintenanceDao;
 
   @Inject
-  public ArchiveService(ArchiveDao archiveDao) {
-    this.archiveDao = archiveDao;
+  public ArchiveService(MaintenanceDao maintenanceDao) {
+    this.maintenanceDao = maintenanceDao;
   }
 
   /**
@@ -48,26 +48,26 @@ public class ArchiveService {
    * @return Object describing the number of workflows acted on.
    */
   @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
-  public ArchiveResults cleanupWorkflows(ArchiveConfiguration configuration) {
+  public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     if (configuration.archiveWorkflowsOlderThan != null || configuration.deleteArchivedWorkflowsOlderThan != null) {
-      archiveDao.ensureValidArchiveTablesExist();
+      maintenanceDao.ensureValidArchiveTablesExist();
     }
 
-    ArchiveResults res = new ArchiveResults();
+    MaintenanceResults res = new MaintenanceResults();
     if (configuration.deleteArchivedWorkflowsOlderThan != null) {
       Supplier<List<Long>> source = getIdQuery(ARCHIVE, configuration, configuration.deleteArchivedWorkflowsOlderThan);
-      res.deletedWorkflows = doAction("Deleting archived workflows", format("Deleting archived workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
-              source, idList -> archiveDao.deleteWorkflows(ARCHIVE, idList));
+      res.deletedArchivedWorkflows = doAction("Deleting archived workflows", format("Deleting archived workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
+              source, idList -> maintenanceDao.deleteWorkflows(ARCHIVE, idList));
     }
     if (configuration.archiveWorkflowsOlderThan != null) {
       Supplier<List<Long>> source = getIdQuery(MAIN, configuration, configuration.archiveWorkflowsOlderThan);
       res.archivedWorkflows = doAction("Archiving workflows", format("Archiving passive workflows older than %s, in batches of %s.", configuration.archiveWorkflowsOlderThan, configuration.batchSize),
-              source, archiveDao::archiveWorkflows);
+              source, maintenanceDao::archiveWorkflows);
     }
     if (configuration.deleteWorkflowsOlderThan != null) {
       Supplier<List<Long>> source = getIdQuery(MAIN, configuration, configuration.deleteWorkflowsOlderThan);
       res.deletedWorkflows = doAction("Deleting workflows", format("Deleting passive workflows older than %s, in batches of %s.", configuration.deleteWorkflowsOlderThan, configuration.batchSize),
-              source, idList -> archiveDao.deleteWorkflows(MAIN, idList));
+              source, idList -> maintenanceDao.deleteWorkflows(MAIN, idList));
     }
     if (configuration.deleteStatesOlderThan != null) {
       // TODO
@@ -75,9 +75,9 @@ public class ArchiveService {
     return res;
   }
 
-  private Supplier<List<Long>> getIdQuery(TablePrefix table, ArchiveConfiguration configuration, Duration duration) {
+  private Supplier<List<Long>> getIdQuery(TablePrefix table, MaintenanceConfiguration configuration, Duration duration) {
     DateTime olderThan = now().minus(duration);
-    return () -> archiveDao.listOldWorkflows(table, olderThan, configuration.batchSize);
+    return () -> maintenanceDao.listOldWorkflows(table, olderThan, configuration.batchSize);
   }
 
   private int doAction(String type, String description, Supplier<List<Long>> getActionables, Function<List<Long>, Integer> doAction) {
@@ -107,15 +107,14 @@ public class ArchiveService {
     return totalWorkflows;
   }
 
-  public static class ArchiveConfiguration {
+  public static class MaintenanceConfiguration {
     public final Duration deleteArchivedWorkflowsOlderThan;
     public final Duration archiveWorkflowsOlderThan;
     public final Duration deleteWorkflowsOlderThan;
     public final Duration deleteStatesOlderThan;
     public final int batchSize;
 
-    ArchiveConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan,
-        Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize) {
+    MaintenanceConfiguration(Duration deleteArchivedWorkflowsOlderThan, Duration archiveWorkflowsOlderThan, Duration deleteWorkflowsOlderThan, Duration deleteStatesOlderThan, int batchSize) {
       this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
       this.archiveWorkflowsOlderThan = archiveWorkflowsOlderThan;
       this.deleteWorkflowsOlderThan = deleteWorkflowsOlderThan;
@@ -128,7 +127,7 @@ public class ArchiveService {
       private Duration archiveWorkflowsOlderThan;
       private Duration deleteWorkflowsOlderThan;
       private Duration deleteStatesOlderThan;
-      private Integer batchSize;
+      private Integer batchSize = 1000;
 
       public Builder setDeleteArchivedWorkflowsOlderThan(Duration deleteArchivedWorkflowsOlderThan) {
         this.deleteArchivedWorkflowsOlderThan = deleteArchivedWorkflowsOlderThan;
@@ -160,19 +159,14 @@ public class ArchiveService {
         return this;
       }
 
-      public ArchiveConfiguration build() {
-        if (batchSize == null) {
-          batchSize = 1000;
-        } else {
-          Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
-        }
-        return new ArchiveConfiguration(deleteArchivedWorkflowsOlderThan, archiveWorkflowsOlderThan, deleteWorkflowsOlderThan,
-            deleteStatesOlderThan, batchSize);
+      public MaintenanceConfiguration build() {
+        Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
+        return new MaintenanceConfiguration(deleteArchivedWorkflowsOlderThan, archiveWorkflowsOlderThan, deleteWorkflowsOlderThan, deleteStatesOlderThan, batchSize);
       }
     }
   }
 
-  public static class ArchiveResults {
+  public static class MaintenanceResults {
     public int deletedArchivedWorkflows;
     public int archivedWorkflows;
     public int deletedWorkflows;
