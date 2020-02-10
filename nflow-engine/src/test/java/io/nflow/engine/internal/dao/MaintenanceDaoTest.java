@@ -10,9 +10,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -191,6 +191,45 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void archivingChildWorkflowWithActiveParentWorks() {
+    List<Long> archivableWorkflows = new ArrayList<>();
+
+    long parentId = storeActiveWorkflow(archiveTime1);
+    storeActiveChildWorkflow(archiveTime1, parentId);
+
+    archivableWorkflows.add(storePassiveChildWorkflow(archiveTime1, parentId));
+
+    int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
+    int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
+
+    assertActiveWorkflowsRemoved(archivableWorkflows);
+    assertArchiveWorkflowsExist(archivableWorkflows);
+
+    assertEquals(archivableWorkflows.size(), rowCount("select 1 from nflow_archive_workflow"));
+    assertEquals(activeWorkflowCountAfter, activeWorkflowCountBefore - archivableWorkflows.size());
+  }
+
+  @Test
+  public void archivingParentWorkflowWithActiveChildWorks() {
+    List<Long> archivableWorkflows = new ArrayList<>();
+
+    long parentId = storeActiveWorkflow(archiveTime1);
+    archivableWorkflows.add(parentId);
+    storeActiveChildWorkflow(archiveTime1, parentId);
+
+    int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
+    int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
+
+    assertActiveWorkflowsRemoved(archivableWorkflows);
+    assertArchiveWorkflowsExist(archivableWorkflows);
+
+    assertEquals(archivableWorkflows.size(), rowCount("select 1 from nflow_archive_workflow"));
+    assertEquals(activeWorkflowCountAfter, activeWorkflowCountBefore - archivableWorkflows.size());
+  }
+
+  @Test
   public void deleteExpiredWorkflowHistory() {
     WorkflowInstance parentWorkflow = constructWorkflowInstanceBuilder().build();
     long parentWorkflowId = workflowInstanceDao.insertWorkflowInstance(parentWorkflow);
@@ -226,12 +265,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
   private void assertActiveWorkflowsRemoved(List<Long> workflowIds) {
     for (long id : workflowIds) {
-      try {
-        workflowInstanceDao.getWorkflowInstance(id, emptySet(), null);
-        fail("Expected workflow " + id + " to be removed");
-      } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
-        // expected exception
-      }
+      assertThrows(EmptyResultDataAccessException.class, () -> workflowInstanceDao.getWorkflowInstance(id, emptySet(), null));
     }
   }
 
@@ -266,8 +300,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
   private void assertArchiveStateVariablesExist(List<StateKey> stateKeys) {
     for (StateKey stateKey : stateKeys) {
-      int found = rowCount(
-          "select 1 from nflow_archive_workflow_state where workflow_id = ? and action_id = ? and state_key = ?",
+      int found = rowCount("select 1 from nflow_archive_workflow_state where workflow_id = ? and action_id = ? and state_key = ?",
           stateKey.workflowId, stateKey.actionId, stateKey.stateKey);
       assertEquals(1, found, "State variable " + stateKey + " not found in nflow_archive_workflow_state");
     }
@@ -284,14 +317,24 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   private long storePassiveWorkflow(DateTime modified) {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setNextActivation(null)
         .setModified(modified).build();
-    long id = insert(instance);
-    return id;
+    return insert(instance);
   }
 
   private long storeActiveWorkflow(DateTime modified) {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setModified(modified).build();
-    long id = insert(instance);
-    return id;
+    return insert(instance);
+  }
+
+  private long storeActiveChildWorkflow(DateTime modified, long parentId) {
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setModified(modified)
+        .setParentWorkflowId(parentId).build();
+    return insert(instance);
+  }
+
+  private long storePassiveChildWorkflow(DateTime modified, long parentId) {
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setModified(modified)
+        .setParentWorkflowId(parentId).setNextActivation(null).build();
+    return insert(instance);
   }
 
   private List<Long> storeActions(long workflowId, int actionCount) {
@@ -312,9 +355,8 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
   private List<StateKey> storeStateVariables(long workflowId, long actionId, int stateCount) {
     List<StateKey> stateKeys = new ArrayList<>();
-    int index = 1;
     for (int i = 0; i < stateCount; i++) {
-      stateKeys.add(storeStateVariable(workflowId, actionId, "key-" + (index++)));
+      stateKeys.add(storeStateVariable(workflowId, actionId, "key-" + (i + 1)));
     }
     return stateKeys;
   }
@@ -350,8 +392,8 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   }
 
   private void updateModified(long workflowId, DateTime modified) {
-    int updateCount = jdbc.update("update nflow_workflow set modified = ? where id = ?",
-        DaoUtil.toTimestamp(modified), workflowId);
+    int updateCount = jdbc.update("update nflow_workflow set modified = ? where id = ?", DaoUtil.toTimestamp(modified),
+        workflowId);
     assertEquals(1, updateCount);
   }
 

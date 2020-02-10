@@ -32,6 +32,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.Assert;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
@@ -236,14 +237,19 @@ class WorkflowStateProcessor implements Runnable {
     }
     WorkflowState nextState = definition.getState(execution.getNextState());
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
-      String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
-      AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
-      String[] waitStates = parentDefinition.getStates().stream()
-              .filter(state -> state.getType() == WorkflowStateType.wait)
-              .map(WorkflowState::name)
-              .toArray(String[]::new);
-      if (waitStates.length > 0) {
-        execution.wakeUpParentWorkflow(waitStates);
+      try {
+        String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
+        AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions
+            .getWorkflowDefinition(parentType);
+        String[] waitStates = parentDefinition.getStates().stream() //
+            .filter(state -> state.getType() == WorkflowStateType.wait) //
+            .map(WorkflowState::name) //
+            .toArray(String[]::new);
+        if (waitStates.length > 0) {
+          execution.wakeUpParentWorkflow(waitStates);
+        }
+      } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
+        // parent has been archived or deleted, no need to wake it up anymore
       }
     }
     WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance) //

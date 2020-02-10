@@ -855,7 +855,8 @@ public class WorkflowInstanceDao {
   }
 
   public String getWorkflowInstanceType(long workflowInstanceId) {
-    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId, id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
+    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId,
+        id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
     if (workflowTypeByWorkflowIdCache.size() > workflowInstanceTypeCacheSize) {
       workflowTypeByWorkflowIdCache.clear();
     }
