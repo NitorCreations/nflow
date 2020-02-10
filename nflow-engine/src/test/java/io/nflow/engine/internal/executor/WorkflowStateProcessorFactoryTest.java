@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.mock.env.MockEnvironment;
 
+import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
@@ -31,6 +32,8 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   ObjectStringMapper objectMapper;
   @Mock
   WorkflowInstanceDao workflowInstanceDao;
+  @Mock
+  MaintenanceDao maintenanceDao;
   @Mock
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
   MockEnvironment env = new MockEnvironment();
@@ -54,7 +57,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
     env.setProperty("nflow.executor.fetchChildWorkflowIds", "false");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao,
-        workflowInstancePreProcessor, env);
+        maintenanceDao, workflowInstancePreProcessor, env);
   }
 
   @Test

@@ -5,6 +5,7 @@
   - Drop `nflow_workflow.root_workflow_id` column.
   - Remove, add and update foreign key constraints and indices in nFlow tables.
   - Remove ArchiveDao, ArchiveService and ArchiveResource (/v1/archive), replaced by MaintenanceDao, MaintenanceService and MaintenanceResource (/v1/maintenance).
+  - Change `WorkflowSettings.setHistoryDeleteableAfterHours(Integer)` to `WorkflowSettings.setHistoryDeleteableAfter(ReadablePeriod)` for more flexible configuration.
 
 **Details**
 

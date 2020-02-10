@@ -1,13 +1,9 @@
 package io.nflow.engine.internal.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.config.db.H2DatabaseConfiguration;
-import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.internal.workflow.ObjectStringMapper;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -20,9 +16,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.config.db.H2DatabaseConfiguration;
+import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @PropertySource({ "classpath:junit.properties" })
 @EnableTransactionManagement
@@ -70,8 +72,9 @@ public class DaoTestConfiguration {
   }
 
   @Bean
-  public MaintenanceDao archiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
-    return new MaintenanceDao(sqlVariants, jdbcTemplate, tableMetadataChecker);
+  public MaintenanceDao archiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate,
+      @NFlow NamedParameterJdbcTemplate namedParameterJdbcTemplate, TableMetadataChecker tableMetadataChecker) {
+    return new MaintenanceDao(sqlVariants, jdbcTemplate, namedParameterJdbcTemplate, tableMetadataChecker);
   }
 
   @Bean

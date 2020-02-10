@@ -4,6 +4,7 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
+import static org.joda.time.Period.days;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,8 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
 
   public DummyTestWorkflow() {
     super("dummy", start, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(300).setMaxErrorTransitionDelay(1000)
-            .setShortTransitionDelay(200).setImmediateTransitionDelay(100).setMaxRetries(10).setHistoryDeletableAfterHours(72).build());
+        .setShortTransitionDelay(200).setImmediateTransitionDelay(100).setMaxRetries(10).setHistoryDeletableAfter(days(3))
+        .build());
     permit(start, end, error);
     permit(start, error);
     permit(error, end);

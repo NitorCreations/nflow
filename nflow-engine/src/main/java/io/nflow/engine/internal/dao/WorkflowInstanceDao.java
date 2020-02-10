@@ -862,40 +862,4 @@ public class WorkflowInstanceDao {
     return type;
   }
 
-  @Transactional
-  public int deleteWorkflowInstanceHistory(long workflowInstanceId, Integer historyDeletableAfterHours) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("workflowId", workflowInstanceId);
-    params.addValue("deleteUpToTime", sqlVariants.toTimestampObject(now().minusHours(historyDeletableAfterHours)));
-    Long maxActionId = namedJdbc.queryForObject("select max(id) from nflow_workflow_action where workflow_id = :workflowId and "
-        + sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Long.class);
-    int deletedActions = 0;
-    if (maxActionId != null) {
-      params.addValue("maxActionId", maxActionId);
-      List<Long> referredActionIds = namedJdbc.queryForList(
-          "select distinct(max(action_id)) from nflow_workflow_state where workflow_id = :workflowId group by state_key", params,
-          Long.class);
-      if (referredActionIds.isEmpty()) {
-        namedJdbc.update("delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId",
-            params);
-      } else {
-        params.addValue("referredActionIds", referredActionIds);
-        namedJdbc.update(
-            "delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId and action_id not in (:referredActionIds)",
-            params);
-      }
-      referredActionIds.addAll(namedJdbc.queryForList(
-          "select distinct parent_action_id from nflow_workflow where parent_workflow_id = :workflowId", params, Long.class));
-      if (referredActionIds.isEmpty()) {
-        deletedActions = namedJdbc
-            .update("delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId", params);
-      } else {
-        params.addValue("referredActionIds", referredActionIds);
-        deletedActions = namedJdbc.update(
-            "delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId and id not in (:referredActionIds)",
-            params);
-      }
-    }
-    return deletedActions;
-  }
 }

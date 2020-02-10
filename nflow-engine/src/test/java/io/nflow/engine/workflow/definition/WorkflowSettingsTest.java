@@ -41,7 +41,7 @@ public class WorkflowSettingsTest {
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));
-    assertThat(s.historyDeletableAfterHours, is(nullValue()));
+    assertThat(s.historyDeletableAfter, is(nullValue()));
     assertThat(s.defaultPriority, is((short) 0));
   }
 

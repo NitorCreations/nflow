@@ -925,31 +925,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(dao.getSignal(instanceId), is(Optional.empty()));
   }
 
-  @Test
-  public void deleteExpiredWorkflowHistory() {
-    WorkflowInstance parentWorkflow = constructWorkflowInstanceBuilder().build();
-    long parentWorkflowId = dao.insertWorkflowInstance(parentWorkflow);
-    long addChildActionId = addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).build(), now(),
-        now());
-    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId)
-        .setParentActionId(addChildActionId).build();
-    long childWorkflowId = dao.insertWorkflowInstance(childWorkflow);
-    addWorkflowAction(parentWorkflowId,
-        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "deletedValue").build(), now(),
-        now().minusDays(1));
-    addWorkflowAction(parentWorkflowId,
-        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "preservedValue").build(), now(), now());
-
-    assertThat(dao.deleteWorkflowInstanceHistory(parentWorkflowId, 0), equalTo(1));
-
-    parentWorkflow = dao.getWorkflowInstance(parentWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class), null);
-    assertThat(parentWorkflow.getStateVariable("requestData"), equalTo("{ \"parameter\": \"abc\" }"));
-    assertThat(parentWorkflow.getStateVariable("variable"), equalTo("preservedValue"));
-    assertThat(parentWorkflow.actions.size(), equalTo(2));
-    childWorkflow = dao.getWorkflowInstance(childWorkflowId, emptySet(), null);
-    assertThat(childWorkflow.parentWorkflowId, equalTo(parentWorkflowId));
-  }
-
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
     assertThat(i1.type, equalTo(i2.type));
     assertThat(i1.executorId, equalTo(i2.executorId));

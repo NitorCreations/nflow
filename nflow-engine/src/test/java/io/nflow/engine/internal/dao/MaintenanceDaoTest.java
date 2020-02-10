@@ -2,16 +2,20 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
+import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +24,11 @@ import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import io.nflow.engine.model.ModelObject;
+import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
@@ -30,6 +37,8 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   MaintenanceDao maintenanceDao;
   @Inject
   WorkflowInstanceDao workflowInstanceDao;
+  @Inject
+  TransactionTemplate transaction;
 
   DateTime archiveTimeLimit = new DateTime(2015, 7, 8, 21, 28, 0, 0);
 
@@ -179,6 +188,40 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     assertEquals(archivableStates.size() + requestDataVariableCount, rowCount("select 1 from nflow_archive_workflow_state"));
 
     assertEquals(variablesCountAfter, variablesCountBefore - archivableStates.size() - requestDataVariableCount);
+  }
+
+  @Test
+  public void deleteExpiredWorkflowHistory() {
+    WorkflowInstance parentWorkflow = constructWorkflowInstanceBuilder().build();
+    long parentWorkflowId = workflowInstanceDao.insertWorkflowInstance(parentWorkflow);
+    long addChildActionId = addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).build(), now(),
+        now());
+    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId)
+        .setParentActionId(addChildActionId).build();
+    long childWorkflowId = workflowInstanceDao.insertWorkflowInstance(childWorkflow);
+    addWorkflowAction(parentWorkflowId,
+        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "deletedValue").build(), now(),
+        now().minusDays(1));
+    addWorkflowAction(parentWorkflowId,
+        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "preservedValue").build(), now(), now());
+
+    maintenanceDao.deleteActionAndStateHistory(parentWorkflowId, now());
+
+    parentWorkflow = workflowInstanceDao.getWorkflowInstance(parentWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class),
+        null);
+    assertThat(parentWorkflow.getStateVariable("requestData"), equalTo("{ \"parameter\": \"abc\" }"));
+    assertThat(parentWorkflow.getStateVariable("variable"), equalTo("preservedValue"));
+    assertThat(parentWorkflow.actions.size(), equalTo(2));
+    childWorkflow = workflowInstanceDao.getWorkflowInstance(childWorkflowId, emptySet(), null);
+    assertThat(childWorkflow.parentWorkflowId, equalTo(parentWorkflowId));
+  }
+
+  private long addWorkflowAction(long workflowId, final WorkflowInstance instance, DateTime started, DateTime ended) {
+    final WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
+        .setExecutionEnd(ended).setRetryNo(1).setType(stateExecution).setState("test").setStateText("state text")
+        .setWorkflowInstanceId(workflowId).build();
+    return transaction
+        .execute((TransactionCallback<Long>) status -> workflowInstanceDao.insertWorkflowInstanceAction(instance, action));
   }
 
   private void assertActiveWorkflowsRemoved(List<Long> workflowIds) {

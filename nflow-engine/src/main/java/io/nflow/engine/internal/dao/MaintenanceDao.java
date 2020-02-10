@@ -16,6 +16,8 @@ import javax.inject.Named;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -26,18 +28,21 @@ import io.nflow.engine.internal.storage.db.SQLVariants;
 public class MaintenanceDao {
   private static final Logger logger = getLogger(MaintenanceDao.class);
 
-  private final JdbcTemplate jdbc;
-  private final TableMetadataChecker tableMetadataChecker;
   private final SQLVariants sqlVariants;
+  private final JdbcTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedJdbc;
+  private final TableMetadataChecker tableMetadataChecker;
 
   private String workflowColumns;
   private String actionColumns;
   private String stateColumns;
 
   @Inject
-  public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, TableMetadataChecker tableMetadataChecker) {
+  public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate,
+      @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate, TableMetadataChecker tableMetadataChecker) {
     this.sqlVariants = sqlVariants;
     this.jdbc = jdbcTemplate;
+    this.namedJdbc = nflowNamedParameterJdbcTemplate;
     this.tableMetadataChecker = tableMetadataChecker;
   }
 
@@ -113,6 +118,43 @@ public class MaintenanceDao {
 
   private String params(Collection<Long> workflowIds) {
     return "(" + join(workflowIds, ",") + ")";
+  }
+
+  @Transactional
+  public void deleteActionAndStateHistory(long workflowInstanceId, DateTime olderThan) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("workflowId", workflowInstanceId);
+    params.addValue("olderThan", sqlVariants.toTimestampObject(olderThan));
+    Long maxActionId = namedJdbc.queryForObject("select max(id) from nflow_workflow_action where workflow_id = :workflowId and "
+        + sqlVariants.dateLtEqDiff("execution_end", ":olderThan"), params, Long.class);
+    int deletedStates = 0;
+    int deletedActions = 0;
+    if (maxActionId != null) {
+      params.addValue("maxActionId", maxActionId);
+      List<Long> referredActionIds = namedJdbc.queryForList(
+          "select distinct(max(action_id)) from nflow_workflow_state where workflow_id = :workflowId group by state_key", params,
+          Long.class);
+      String deleteStates = "delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId";
+      if (referredActionIds.isEmpty()) {
+        deletedStates = namedJdbc.update(deleteStates, params);
+      } else {
+        params.addValue("referredActionIds", referredActionIds);
+        deletedStates = namedJdbc.update(deleteStates + " and action_id not in (:referredActionIds)", params);
+      }
+      referredActionIds.addAll(namedJdbc.queryForList(
+          "select distinct parent_action_id from nflow_workflow where parent_workflow_id = :workflowId", params, Long.class));
+      String deleteActions = "delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId";
+      if (referredActionIds.isEmpty()) {
+        deletedActions = namedJdbc.update(deleteActions, params);
+      } else {
+        params.addValue("referredActionIds", referredActionIds);
+        deletedActions = namedJdbc.update(deleteActions + " and id not in (:referredActionIds)", params);
+      }
+    }
+    if (deletedActions > 0 || deletedStates > 0) {
+      logger.info("Deleted {} actions and {} states from workflow instance {} that were older than {}.", deletedActions,
+          deletedStates, workflowInstanceId, olderThan);
+    }
   }
 
   public enum TablePrefix {

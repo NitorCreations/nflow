@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
+import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
@@ -53,9 +54,8 @@ public class WorkflowSettings extends ModelObject {
   public final Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState;
   /**
    * Delay after which workflow instance history (actions, states) can be deleted from database by nFlow.
-   * Unit is hours.
    */
-  public final Integer historyDeletableAfterHours;
+  public final ReadablePeriod historyDeletableAfter;
   /**
    * Condition to check if workflow instance history should be deleted (unless forced via StateExecution). Ignored if historyDeletableAfterHours is not set.
    * By default, returns true roughly every tenth time.
@@ -74,7 +74,7 @@ public class WorkflowSettings extends ModelObject {
     this.maxRetries = builder.maxRetries;
     this.maxSubsequentStateExecutions = builder.maxSubsequentStateExecutions;
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
-    this.historyDeletableAfterHours = builder.historyDeletableAfterHours;
+    this.historyDeletableAfter = builder.historyDeletableAfter;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
     this.defaultPriority = builder.defaultPriority;
   }
@@ -92,7 +92,7 @@ public class WorkflowSettings extends ModelObject {
     int maxRetries = 17;
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
-    Integer historyDeletableAfterHours;
+    ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     Random rnd = new Random();
     BooleanSupplier deleteHistoryCondition = new BooleanSupplier() {
@@ -198,12 +198,12 @@ public class WorkflowSettings extends ModelObject {
      * Set the delay after which workflow history (actions, states) can be deleted from the database by nFlow.
      * The default value (<code>null</code>) indicates that history is not deletable.
      *
-     * @param historyDeletableAfterHours
-     *          Delay in hours.
+     * @param period
+     *          Delay after which history can be deleted.
      * @return this.
      */
-    public Builder setHistoryDeletableAfterHours(Integer historyDeletableAfterHours) {
-      this.historyDeletableAfterHours = historyDeletableAfterHours;
+    public Builder setHistoryDeletableAfter(ReadablePeriod period) {
+      this.historyDeletableAfter = period;
       return this;
     }
 

@@ -29,6 +29,7 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Period.hours;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -63,6 +64,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,6 +77,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -112,6 +115,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Mock
   WorkflowInstanceDao workflowInstanceDao;
+
+  @Mock
+  MaintenanceDao maintenanceDao;
 
   MockEnvironment env = new MockEnvironment();
 
@@ -179,7 +185,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.executor.fetchChildWorkflowIds", "true");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     lenient().doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     lenient().doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition("force-test");
@@ -364,7 +370,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        workflowInstancePreProcessor, env, processingInstances, listener);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener);
 
     doAnswer((Answer<NextAction>) invocation ->
             retryAfter(skipped, "")).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -494,7 +500,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
@@ -518,7 +524,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void doNotFetchChildWorkflowIdsIfDisabledByConfig() {
     env.setProperty("nflow.executor.fetchChildWorkflowIds", "false");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-            workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).thenReturn(instance);
@@ -777,7 +783,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
@@ -796,7 +802,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
@@ -847,7 +853,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     runExecutorWithTimout();
 
-    verify(workflowInstanceDao, never()).deleteWorkflowInstanceHistory(anyLong(), any());
+    verify(maintenanceDao, never()).deleteActionAndStateHistory(anyLong(), any());
   }
 
   @Test
@@ -856,7 +862,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     runExecutorWithTimout();
 
-    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, forceWf.getSettings().historyDeletableAfterHours);
+    verify(maintenanceDao).deleteActionAndStateHistory(instance.id, now().minus(forceWf.getSettings().historyDeletableAfter));
   }
 
   @Test
@@ -865,7 +871,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     runExecutorWithTimout();
 
-    verify(workflowInstanceDao).deleteWorkflowInstanceHistory(instance.id, executeWf.getSettings().historyDeletableAfterHours);
+    verify(maintenanceDao).deleteActionAndStateHistory(instance.id, now().minus(executeWf.getSettings().historyDeletableAfter));
   }
 
   @Test
@@ -893,7 +899,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     protected ExecuteTestWorkflow() {
       super("test", State.start, State.error,
-          new WorkflowSettings.Builder().setHistoryDeletableAfterHours(1).setDeleteHistoryCondition(() -> true).build());
+          new WorkflowSettings.Builder().setHistoryDeletableAfter(hours(1)).setDeleteHistoryCondition(() -> true).build());
       permit(State.start, State.process, State.error);
       permit(State.process, State.done, State.error);
     }
@@ -1017,7 +1023,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     protected ForceCleaningTestWorkflow() {
       super("test", State.start, State.error,
-          new WorkflowSettings.Builder().setHistoryDeletableAfterHours(2).setDeleteHistoryCondition(() -> false).build());
+          new WorkflowSettings.Builder().setHistoryDeletableAfter(hours(2)).setDeleteHistoryCondition(() -> false).build());
       permit(State.start, State.done, State.error);
     }
 
@@ -1052,7 +1058,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     protected FailCleaningTestWorkflow() {
       super("test", State.start, State.error,
-          new WorkflowSettings.Builder().setHistoryDeletableAfterHours(0).setDeleteHistoryCondition(() -> {
+          new WorkflowSettings.Builder().setHistoryDeletableAfter(Period.ZERO).setDeleteHistoryCondition(() -> {
             throw new RuntimeException();
           }).build());
       permit(State.start, State.done, State.error);
