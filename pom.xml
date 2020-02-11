@@ -169,8 +169,8 @@
     <reactor.netty.version>0.9.4.RELEASE</reactor.netty.version>
     <reflections.version>0.9.12</reflections.version>
     <slf4j.version>1.7.30</slf4j.version>
-    <spotbugs.version>4.0.0-beta4</spotbugs.version>
-    <spotbugs-annotations.version>4.0.0-beta4</spotbugs-annotations.version>
+    <spotbugs.version>4.0.0-RC3</spotbugs.version>
+    <spotbugs-annotations.version>4.0.0-RC3</spotbugs-annotations.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
     <spring.version>5.2.3.RELEASE</spring.version>
