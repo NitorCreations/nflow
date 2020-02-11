@@ -25,7 +25,7 @@ create table if not exists nflow_workflow (
 
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 
-create index idx_workflow_parent on nflow_workflow (parent_workflow_id);
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
 
 create table if not exists nflow_workflow_action (
   id int not null auto_increment primary key,
@@ -103,7 +103,7 @@ create table if not exists nflow_archive_workflow (
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
-create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id);
+create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
 
 create table if not exists nflow_archive_workflow_action (
   id int not null primary key,

@@ -115,7 +115,7 @@ create table nflow_archive_workflow (
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
-create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id);
+create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
 
 create table nflow_archive_workflow_action (
   id int not null primary key,

@@ -124,7 +124,7 @@ create table if not exists nflow_archive_workflow (
 );
 
 drop index if exists idx_workflow_archive_parent;
-create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id);
+create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
 
 create table if not exists nflow_archive_workflow_action (
   id integer primary key,
