@@ -15,15 +15,14 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
-import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
-import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration.ConfigurationItem;
+import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
+import io.nflow.engine.service.MaintenanceResults.Builder;
 
 /**
  * Service for deleting and archiving old workflow instances from nflow-tables and nflow_archive-tables.
@@ -54,23 +53,23 @@ public class MaintenanceService {
       maintenanceDao.ensureValidArchiveTablesExist();
     }
 
-    MaintenanceResults res = new MaintenanceResults();
+    Builder builder = new MaintenanceResults.Builder();
     if (configuration.deleteArchivedWorkflows != null) {
-      res.deletedArchivedWorkflows = doAction("Deleting archived workflows", configuration.deleteArchivedWorkflows, ARCHIVE,
-          idList -> maintenanceDao.deleteWorkflows(ARCHIVE, idList));
+      builder.setDeletedArchivedWorkflows(doAction("Deleting archived workflows", configuration.deleteArchivedWorkflows, ARCHIVE,
+          idList -> maintenanceDao.deleteWorkflows(ARCHIVE, idList)));
     }
     if (configuration.archiveWorkflows != null) {
-      res.archivedWorkflows = doAction("Archiving workflows", configuration.archiveWorkflows, MAIN,
-          maintenanceDao::archiveWorkflows);
+      builder.setArchivedWorkflows(
+          doAction("Archiving workflows", configuration.archiveWorkflows, MAIN, maintenanceDao::archiveWorkflows));
     }
     if (configuration.deleteWorkflows != null) {
-      res.deletedWorkflows = doAction("Deleting workflows", configuration.deleteWorkflows, MAIN,
-          idList -> maintenanceDao.deleteWorkflows(MAIN, idList));
+      builder.setDeletedWorkflows(doAction("Deleting workflows", configuration.deleteWorkflows, MAIN,
+          idList -> maintenanceDao.deleteWorkflows(MAIN, idList)));
     }
     if (configuration.deleteStates != null) {
       // TODO
     }
-    return res;
+    return builder.build();
   }
 
   private int doAction(String type, ConfigurationItem configuration, TablePrefix table, Function<List<Long>, Integer> doAction) {
@@ -94,95 +93,5 @@ public class MaintenanceService {
     } while (true);
     log.info("{} finished. Operated on {} workflows in {} seconds.", type, totalWorkflows, stopWatch.getTime() / 1000);
     return totalWorkflows;
-  }
-
-  public static class MaintenanceConfiguration {
-    public final ConfigurationItem deleteArchivedWorkflows;
-    public final ConfigurationItem archiveWorkflows;
-    public final ConfigurationItem deleteWorkflows;
-    public final ConfigurationItem deleteStates;
-
-    MaintenanceConfiguration(ConfigurationItem deleteArchivedWorkflows, ConfigurationItem archiveWorkflows,
-        ConfigurationItem deleteWorkflows, ConfigurationItem deleteStates) {
-      this.deleteArchivedWorkflows = deleteArchivedWorkflows;
-      this.archiveWorkflows = archiveWorkflows;
-      this.deleteWorkflows = deleteWorkflows;
-      this.deleteStates = deleteStates;
-    }
-
-    public static class Builder {
-      private ConfigurationItem deleteArchivedWorkflows;
-      private ConfigurationItem archiveWorkflows;
-      private ConfigurationItem deleteWorkflows;
-      private ConfigurationItem deleteStates;
-
-      public Builder setDeleteArchivedWorkflows(ConfigurationItem deleteArchivedWorkflows) {
-        this.deleteArchivedWorkflows = deleteArchivedWorkflows;
-        return this;
-      }
-
-      public Builder setArchiveWorkflows(ConfigurationItem archiveWorkflows) {
-        this.archiveWorkflows = archiveWorkflows;
-        return this;
-      }
-
-      public Builder setDeleteWorkflows(ConfigurationItem deleteWorkflows) {
-        this.deleteWorkflows = deleteWorkflows;
-        return this;
-      }
-
-      public Builder setDeleteStates(ConfigurationItem deleteStates) {
-        this.deleteStates = deleteStates;
-        return this;
-      }
-
-      public MaintenanceConfiguration build() {
-        return new MaintenanceConfiguration(deleteArchivedWorkflows, archiveWorkflows, deleteWorkflows, deleteStates);
-      }
-    }
-
-    public static class ConfigurationItem {
-
-      public final ReadablePeriod olderThanPeriod;
-      public final int batchSize;
-
-      public ConfigurationItem(ReadablePeriod olderThanPeriod, Integer batchSize) {
-        this.olderThanPeriod = olderThanPeriod;
-        this.batchSize = batchSize;
-      }
-
-      public static class Builder {
-        private ReadablePeriod olderThanPeriod;
-        private Integer batchSize = 1000;
-
-        public Builder setOlderThanPeriod(ReadablePeriod olderThanPeriod) {
-          this.olderThanPeriod = olderThanPeriod;
-          return this;
-        }
-
-        /**
-         * @param batchSize
-         *          Number of workflows to operate on in single transaction. Typical value is 100-1000. This parameter mostly
-         *          affects on performance.
-         */
-        public Builder setBatchSize(int batchSize) {
-          this.batchSize = batchSize;
-          return this;
-        }
-
-        public ConfigurationItem build() {
-          Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
-          Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
-          return new ConfigurationItem(olderThanPeriod, batchSize);
-        }
-      }
-    }
-  }
-
-  public static class MaintenanceResults {
-    public int deletedArchivedWorkflows;
-    public int archivedWorkflows;
-    public int deletedWorkflows;
-    public int deletedStates;
   }
 }

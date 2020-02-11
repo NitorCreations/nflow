@@ -2,10 +2,9 @@ package io.nflow.rest.v1.converter;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration.Builder;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration.ConfigurationItem;
-import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
+import io.nflow.engine.service.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
+import io.nflow.engine.service.MaintenanceResults;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
@@ -14,7 +13,7 @@ import io.nflow.rest.v1.msg.MaintenanceResponse;
 public class MaintenanceConverter {
 
   public MaintenanceConfiguration convert(MaintenanceRequest request) {
-    Builder builder = new MaintenanceConfiguration.Builder();
+    MaintenanceConfiguration.Builder builder = new MaintenanceConfiguration.Builder();
     if (request.archiveWorkflows != null) {
       builder.setArchiveWorkflows(createConfig(request.archiveWorkflows));
     }

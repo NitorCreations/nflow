@@ -17,9 +17,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.nflow.engine.service.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceResults;
 import io.nflow.engine.service.MaintenanceService;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
-import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
@@ -43,10 +43,11 @@ public class MaintenanceResourceTest {
     ReadablePeriod period1 = months(1);
     ReadablePeriod period2 = months(2);
     ReadablePeriod period3 = months(3);
-    MaintenanceResults maintenanceResults = new MaintenanceResults();
-    maintenanceResults.archivedWorkflows = batchSize;
-    maintenanceResults.deletedArchivedWorkflows = batchSize * 2;
-    maintenanceResults.deletedWorkflows = batchSize * 3;
+    MaintenanceResults maintenanceResults = new MaintenanceResults.Builder() //
+        .setArchivedWorkflows(batchSize) //
+        .setDeletedArchivedWorkflows(batchSize * 2) //
+        .setDeletedWorkflows(batchSize * 3) //
+        .build();
     when(service.cleanupWorkflows(any(MaintenanceConfiguration.class))).thenReturn(maintenanceResults);
 
     MaintenanceRequest request = new MaintenanceRequest();

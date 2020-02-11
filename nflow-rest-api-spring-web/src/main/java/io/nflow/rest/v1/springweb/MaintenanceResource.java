@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.nflow.engine.service.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceResults;
 import io.nflow.engine.service.MaintenanceService;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
-import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceResponse;

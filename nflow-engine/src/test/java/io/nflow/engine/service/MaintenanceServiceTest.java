@@ -30,9 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration.ConfigurationItem;
-import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
+import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 
 @ExtendWith(MockitoExtension.class)
 public class MaintenanceServiceTest {

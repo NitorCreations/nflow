@@ -11,9 +11,9 @@ import javax.ws.rs.Produces;
 
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.service.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceResults;
 import io.nflow.engine.service.MaintenanceService;
-import io.nflow.engine.service.MaintenanceService.MaintenanceConfiguration;
-import io.nflow.engine.service.MaintenanceService.MaintenanceResults;
 import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
