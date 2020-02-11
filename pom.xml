@@ -122,7 +122,7 @@
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxws-api.version>2.3.1</jaxws-api.version>
     <jersey.version>2.30</jersey.version>
-    <jetty.version>9.4.25.v20191220</jetty.version>
+    <jetty.version>9.4.26.v20200117</jetty.version>
     <jodatime.version>2.10.5</jodatime.version>
     <junit4.version>4.13</junit4.version>
     <junit5.version>5.6.0</junit5.version>
