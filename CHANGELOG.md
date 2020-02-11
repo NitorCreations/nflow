@@ -8,7 +8,8 @@
 
 **Highlights**
 - `nflow-engine`
-  - Improve archiving performance. Archiving has been in practice unusable in some scenarios. While rewriting the archiving logic, also support for other maintenance operations (deleting data from main and archive tables) is introduced.
+  - Improve workflow instance archiving performance. Archiving has been in practice unusable in some scenarios.
+  - Add support for deleting workflow instances, actions and state variables from production and archive tables.
 
 **Details**
 - `nflow-engine`
