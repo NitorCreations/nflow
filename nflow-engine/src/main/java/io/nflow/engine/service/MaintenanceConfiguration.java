@@ -23,17 +23,11 @@ public class MaintenanceConfiguration {
    */
   public final ConfigurationItem deleteWorkflows;
 
-  /**
-   * Configuration for deleting old workflow state variables.
-   */
-  public final ConfigurationItem deleteStates;
-
   MaintenanceConfiguration(ConfigurationItem deleteArchivedWorkflows, ConfigurationItem archiveWorkflows,
-      ConfigurationItem deleteWorkflows, ConfigurationItem deleteStates) {
+      ConfigurationItem deleteWorkflows) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;
-    this.deleteStates = deleteStates;
   }
 
   /**
@@ -44,7 +38,6 @@ public class MaintenanceConfiguration {
     private ConfigurationItem deleteArchivedWorkflows;
     private ConfigurationItem archiveWorkflows;
     private ConfigurationItem deleteWorkflows;
-    private ConfigurationItem deleteStates;
 
     /**
      * Configuration for deleting old workflow instances from archive tables.
@@ -83,24 +76,12 @@ public class MaintenanceConfiguration {
     }
 
     /**
-     * Set configuration for deleting old workflow states.
-     *
-     * @param deleteStates
-     *          Configuration item
-     * @return this
-     */
-    public MaintenanceConfiguration.Builder setDeleteStates(ConfigurationItem deleteStates) {
-      this.deleteStates = deleteStates;
-      return this;
-    }
-
-    /**
      * Build MaintenanceConfiguration object.
      *
      * @return MaintenanceConfiguration object.
      */
     public MaintenanceConfiguration build() {
-      return new MaintenanceConfiguration(deleteArchivedWorkflows, archiveWorkflows, deleteWorkflows, deleteStates);
+      return new MaintenanceConfiguration(deleteArchivedWorkflows, archiveWorkflows, deleteWorkflows);
     }
   }
 

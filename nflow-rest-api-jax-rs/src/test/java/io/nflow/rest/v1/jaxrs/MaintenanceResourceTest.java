@@ -2,7 +2,6 @@ package io.nflow.rest.v1.jaxrs;
 
 import static org.joda.time.Period.months;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,7 +70,6 @@ public class MaintenanceResourceTest {
     assertEquals(batchSize * 2, configuration.deleteArchivedWorkflows.batchSize);
     assertEquals(period3, configuration.deleteWorkflows.olderThanPeriod);
     assertEquals(batchSize * 3, configuration.deleteWorkflows.batchSize);
-    assertNull(configuration.deleteStates);
     assertEquals(maintenanceResults.archivedWorkflows, response.archivedWorkflows);
     assertEquals(maintenanceResults.deletedArchivedWorkflows, response.deletedArchivedWorkflows);
     assertEquals(maintenanceResults.deletedWorkflows, response.deletedWorkflows);

@@ -4,12 +4,12 @@ import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,6 +31,9 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
  */
 @Named
 public class MaintenanceService {
+
+  private static final List<String> ARCHIVABLE_TABLES = asList("workflow", "workflow_action", "workflow_state");
+
   private static final Logger log = getLogger(MaintenanceService.class);
 
   private final MaintenanceDao maintenanceDao;
@@ -44,9 +47,9 @@ public class MaintenanceService {
   }
 
   /**
-   * Archive and delete old (whose modified time is earlier than <code>olderThanPeriod</code> parameter) and passive (that do not
-   * have <code>nextActivation</code>) workflows. Copies workflow instances, workflow instance actions and state variables to
-   * corresponding archive tables and removes them from production tables.
+   * Cleans up old (whose modified time is earlier than <code>olderThanPeriod</code> parameter) and passive (that do not have
+   * <code>nextActivation</code>) workflows. Copies workflow instances, actions and state variables to corresponding archive
+   * tables and removes them from production and archive tables as requested.
    *
    * @param configuration
    *          Cleanup actions to be executed and parameters for the actions.
@@ -55,10 +58,8 @@ public class MaintenanceService {
   @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
-      Stream.of("workflow", "workflow_action", "workflow_state")
-          .forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
+      ARCHIVABLE_TABLES.forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
     }
-
     Builder builder = new MaintenanceResults.Builder();
     if (configuration.deleteArchivedWorkflows != null) {
       builder.setDeletedArchivedWorkflows(doAction("Deleting archived workflows", configuration.deleteArchivedWorkflows, ARCHIVE,
@@ -71,9 +72,6 @@ public class MaintenanceService {
     if (configuration.deleteWorkflows != null) {
       builder.setDeletedWorkflows(doAction("Deleting workflows", configuration.deleteWorkflows, MAIN,
           idList -> maintenanceDao.deleteWorkflows(MAIN, idList)));
-    }
-    if (configuration.deleteStates != null) {
-      // TODO
     }
     return builder.build();
   }

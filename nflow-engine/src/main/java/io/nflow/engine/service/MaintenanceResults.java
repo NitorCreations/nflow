@@ -20,16 +20,10 @@ public class MaintenanceResults {
    */
   public final int deletedWorkflows;
 
-  /**
-   * Number of workflow states deleted.
-   */
-  public final int deletedStates;
-
-  MaintenanceResults(int archivedWorkflows, int deletedArchivedWorkflows, int deletedWorkflows, int deletedStates) {
+  MaintenanceResults(int archivedWorkflows, int deletedArchivedWorkflows, int deletedWorkflows) {
     this.archivedWorkflows = archivedWorkflows;
     this.deletedArchivedWorkflows = deletedArchivedWorkflows;
     this.deletedWorkflows = deletedWorkflows;
-    this.deletedStates = deletedStates;
   }
 
   /**
@@ -40,7 +34,6 @@ public class MaintenanceResults {
     private int archivedWorkflows;
     private int deletedArchivedWorkflows;
     private int deletedWorkflows;
-    private int deletedStates;
 
     /**
      * Set number of workflows archived.
@@ -79,24 +72,12 @@ public class MaintenanceResults {
     }
 
     /**
-     * Set number of workflow states deleted.
-     *
-     * @param deletedStates
-     *          Number of workflow states deleted.
-     * @return this
-     */
-    public Builder setDeletedStates(int deletedStates) {
-      this.deletedStates = deletedStates;
-      return this;
-    }
-
-    /**
      * Build MaintenanceResults object.
      *
      * @return MaintenanceResults object.
      */
     public MaintenanceResults build() {
-      return new MaintenanceResults(archivedWorkflows, deletedArchivedWorkflows, deletedWorkflows, deletedStates);
+      return new MaintenanceResults(archivedWorkflows, deletedArchivedWorkflows, deletedWorkflows);
     }
   }
 }
