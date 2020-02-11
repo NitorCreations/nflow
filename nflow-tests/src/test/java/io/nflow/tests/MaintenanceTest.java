@@ -50,8 +50,9 @@ public class MaintenanceTest extends AbstractNflowTest {
 
   @Test
   @Order(1)
-  public void cleanupExistingArchivableStuff() {
+  public void cleanupExistingStuff() {
     archiveOlderThan(now());
+    deleteOlderThan(now());
   }
 
   @Test
