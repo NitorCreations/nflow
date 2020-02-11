@@ -19,10 +19,10 @@ public class MaintenanceConverter {
       builder.setArchiveWorkflows(createConfig(request.archiveWorkflows));
     }
     if (request.deleteArchivedWorkflows != null) {
-      builder.setArchiveWorkflows(createConfig(request.deleteArchivedWorkflows));
+      builder.setDeleteArchivedWorkflows(createConfig(request.deleteArchivedWorkflows));
     }
     if (request.deleteWorkflows != null) {
-      builder.setArchiveWorkflows(createConfig(request.deleteWorkflows));
+      builder.setDeleteWorkflows(createConfig(request.deleteWorkflows));
     }
     return builder.build();
   }
@@ -33,8 +33,8 @@ public class MaintenanceConverter {
 
   public MaintenanceResponse convert(MaintenanceResults results) {
     MaintenanceResponse response = new MaintenanceResponse();
-    response.deletedArchivedWorkflows = results.deletedArchivedWorkflows;
     response.archivedWorkflows = results.archivedWorkflows;
+    response.deletedArchivedWorkflows = results.deletedArchivedWorkflows;
     response.deletedWorkflows = results.deletedWorkflows;
     return response;
   }
