@@ -1,18 +1,25 @@
-## 6.1.1 (future release)
+## 6.2.0 (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Improve child workflow final state execution speed by caching the parent workflow type. Use `nflow.db.workflowInstanceType.cacheSize` property to tune the size.
+  - Optional performance improvement to state execution by not scanning for child workflows instances. If access to child workflow instances is needed, they can be fetched using `StateExecution.getChildWorklfow` methods. To enable set the property `nflow.executor.fetchChildWorkflowIds` to `false`, which is recommended for all. The default functionality will change in next major release.
+  - Tune workflow instance polling code.
 
 **Details**
-  - Dependency updates:
-    - spotbugs-annotations 4.0.0-RC3
-    - mssql 8.2.0.jre8
-    - jetty 9.4.26.v20200117
-    - mariadb 2.5.4
-    - postgresql 42.2.10
-    - hibernate-validator 6.1.2.Final
-  - Maven plugin updates:
-    - spotbugs 4.0.0-RC3
-
+- `nflow-engine`
+  - Automatically disable batch updates if batch update returns unsupported values.
+  - Fetch optimistic locked list of workflow instance IDs in a separate transaction from the modify phase. This should reduce the risk of deadlocks in databases.
+  - Tune batch status handling to consider status a failure if more than one row were modified.
+- Dependency updates:
+  - spotbugs-annotations 4.0.0-RC3
+  - mssql 8.2.0.jre8
+  - jetty 9.4.26.v20200117
+  - mariadb 2.5.4
+  - postgresql 42.2.10
+  - hibernate-validator 6.1.2.Final
+- Maven plugin updates:
+  - spotbugs 4.0.0-RC3
 
 ## 6.1.0 (2020-01-23)
 
@@ -29,8 +36,6 @@
   - Fix honoring of `includeCurrentStateVariables` flag in `WorkflowInstanceService.listWorkflowInstances`. This caused major slowness when using bulk workflows.
     To preserve the existing (incorrect) default behaviour in backwards compatible way the default value in `QueryWorkflowInstances.Builder` is changed to `true`. The REST API is unaffected.
     Especially in workflows with many children that use the `StateExecution.getAllChildWorkflows` method the performance impact can be high. Before 7.0.0 release, it is recommended to use `StateExecution.queryChildWorkflows(new QueryWorkflowInstances.Builder().setIncludeCurrentStateVariables(false).build())` if state variables are not needed.
-  - Improve child workflow final state execution speed by caching the parent workflow type. Use `nflow.db.workflowInstanceType.cacheSize` property to tune the size.
-  - Optional performance improvement to state execution by not scanning for child workflows instances. If access to child workflow instances is needed, they can be fetched using `StateExecution.getChildWorklfow` methods. To enable set the property `nflow.executor.fetchChildWorkflowIds` to `false`, which is recommended for all. The default functionality will change in next major release.
   - Dependency updates:
     - jetty 9.4.25.v20191220
     - junit4 4.13
