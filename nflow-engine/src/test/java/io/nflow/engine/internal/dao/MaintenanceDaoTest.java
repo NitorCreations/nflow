@@ -1,5 +1,6 @@
 package io.nflow.engine.internal.dao;
 
+import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
@@ -7,7 +8,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.joda.time.DateTime.now;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
@@ -34,47 +34,45 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 public class MaintenanceDaoTest extends BaseDaoTest {
   @Inject
-  MaintenanceDao maintenanceDao;
+  private MaintenanceDao maintenanceDao;
   @Inject
-  WorkflowInstanceDao workflowInstanceDao;
+  private WorkflowInstanceDao workflowInstanceDao;
   @Inject
-  TransactionTemplate transaction;
+  private TransactionTemplate transaction;
 
-  DateTime archiveTimeLimit = new DateTime(2015, 7, 8, 21, 28, 0, 0);
+  private final DateTime archiveTimeLimit = new DateTime(2015, 7, 8, 21, 28, 0, 0);
 
-  DateTime archiveTime1 = archiveTimeLimit.minus(1);
-  DateTime archiveTime2 = archiveTimeLimit.minusMinutes(1);
-  DateTime archiveTime3 = archiveTimeLimit.minusHours(2);
-  DateTime archiveTime4 = archiveTimeLimit.minusDays(3);
+  private final DateTime archiveTime1 = archiveTimeLimit.minus(1);
+  private final DateTime archiveTime2 = archiveTimeLimit.minusMinutes(1);
+  private final DateTime archiveTime3 = archiveTimeLimit.minusHours(2);
+  private final DateTime archiveTime4 = archiveTimeLimit.minusDays(3);
 
-  DateTime prodTime1 = archiveTimeLimit.plus(1);
-  DateTime prodTime2 = archiveTimeLimit.plusMinutes(1);
-  DateTime prodTime3 = archiveTimeLimit.plusHours(2);
-  DateTime prodTime4 = archiveTimeLimit.plusDays(3);
-
-  // TODO implement tests for child workflows and their actions, states
+  private final DateTime prodTime1 = archiveTimeLimit.plus(1);
+  private final DateTime prodTime2 = archiveTimeLimit.plusMinutes(1);
+  private final DateTime prodTime3 = archiveTimeLimit.plusHours(2);
+  private final DateTime prodTime4 = archiveTimeLimit.plusDays(3);
 
   @Test
-  public void listingArchivableWorkflows() {
-    List<Long> expectedArchive = new ArrayList<>();
+  public void listOldWorkflowsReturnPassiveWorkflowsModifiedBeforeGivenTimeOrderedById() {
+    List<Long> expectedIds = new ArrayList<>();
 
     storeActiveWorkflow(archiveTime1);
     storeActiveWorkflow(prodTime1);
     storePassiveWorkflow(prodTime2);
 
-    expectedArchive.add(storePassiveWorkflow(archiveTime1));
-    expectedArchive.add(storePassiveWorkflow(archiveTime2));
+    expectedIds.add(storePassiveWorkflow(archiveTime1));
+    expectedIds.add(storePassiveWorkflow(archiveTime2));
 
-    List<Long> archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
-    assertThat(archivableIds, containsInAnyOrder(expectedArchive.toArray()));
+    List<Long> oldWorkflowIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
+    assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
   }
 
   @Test
-  public void listingReturnsMaxBatchSizeRowsInIdOrder() {
-    List<Long> expectedArchive = new ArrayList<>();
-    expectedArchive.add(storePassiveWorkflow(archiveTime2));
+  public void listOldWorkflowsReturnsRequestedNumberOfItemsOrderedById() {
+    List<Long> expectedIds = new ArrayList<>();
+    expectedIds.add(storePassiveWorkflow(archiveTime2));
     for (int i = 0; i < 9; i++) {
-      expectedArchive.add(storePassiveWorkflow(archiveTime4));
+      expectedIds.add(storePassiveWorkflow(archiveTime4));
     }
     long eleventh = storePassiveWorkflow(archiveTime3);
 
@@ -82,40 +80,79 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Long> archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
-    assertArrayEquals(archivableIds.toArray(), expectedArchive.toArray());
+    List<Long> oldWorkflowIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
+    assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
 
-    expectedArchive.add(eleventh);
-    archivableIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
-    assertArrayEquals(archivableIds.toArray(), expectedArchive.toArray());
+    expectedIds.add(eleventh);
+    oldWorkflowIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
+    assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
   }
 
   @Test
-  public void archivingSimpleWorkflowsWorks() {
-    List<Long> archivableWorkflows = new ArrayList<>();
+  public void archiveWorkflowsWorks() {
+    List<Long> workflowIds = new ArrayList<>();
 
     storeActiveWorkflow(archiveTime1);
     storeActiveWorkflow(prodTime1);
     storePassiveWorkflow(prodTime1);
 
-    archivableWorkflows.add(storePassiveWorkflow(archiveTime1));
-    archivableWorkflows.add(storePassiveWorkflow(archiveTime2));
+    workflowIds.add(storePassiveWorkflow(archiveTime1));
+    workflowIds.add(storePassiveWorkflow(archiveTime2));
 
-    int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
-    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
-    int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
+    int workflowCountBefore = getActiveWorkflowCount();
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    int workflowCountAfter = getActiveWorkflowCount();
 
-    assertActiveWorkflowsRemoved(archivableWorkflows);
-    assertArchiveWorkflowsExist(archivableWorkflows);
+    assertActiveWorkflowsRemoved(workflowIds);
+    assertArchiveWorkflowsExist(workflowIds);
 
-    assertEquals(archivableWorkflows.size(), rowCount("select 1 from nflow_archive_workflow"));
-    assertEquals(activeWorkflowCountAfter, activeWorkflowCountBefore - archivableWorkflows.size());
+    assertEquals(workflowIds.size(), getArchivedWorkflowCount());
+    assertEquals(workflowCountAfter, workflowCountBefore - workflowIds.size());
   }
 
   @Test
-  public void archivingWorkflowsWithActionsWorks() {
-    List<Long> archivableWorkflows = new ArrayList<>();
-    List<Long> archivableActions = new ArrayList<>();
+  public void deleteWorkflowsFromMainTablesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+
+    storeActiveWorkflow(archiveTime1);
+    storeActiveWorkflow(prodTime1);
+    storePassiveWorkflow(prodTime1);
+
+    workflowIds.add(storePassiveWorkflow(archiveTime1));
+    workflowIds.add(storePassiveWorkflow(archiveTime2));
+
+    int workflowCountBefore = getActiveWorkflowCount();
+    assertEquals(workflowIds.size(), maintenanceDao.deleteWorkflows(MAIN, workflowIds));
+    int workflowCountAfter = getActiveWorkflowCount();
+
+    assertActiveWorkflowsRemoved(workflowIds);
+    assertArchivedWorkflowsDoNotExist(workflowIds);
+
+    assertEquals(0, getArchivedWorkflowCount());
+    assertEquals(workflowCountAfter, workflowCountBefore - workflowIds.size());
+  }
+
+  @Test
+  public void deleteWorkflowsFromArchiveTablesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    workflowIds.add(storePassiveWorkflow(archiveTime1));
+    workflowIds.add(storePassiveWorkflow(archiveTime2));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(0, maintenanceDao.deleteWorkflows(MAIN, workflowIds));
+
+    int workflowCountBefore = getArchivedWorkflowCount();
+    assertEquals(workflowIds.size(), workflowCountBefore);
+    assertEquals(workflowIds.size(), maintenanceDao.deleteWorkflows(ARCHIVE, workflowIds));
+    int workflowCountAfter = getArchivedWorkflowCount();
+
+    assertArchivedWorkflowsDoNotExist(workflowIds);
+    assertEquals(workflowCountAfter, workflowCountBefore - workflowIds.size());
+  }
+
+  @Test
+  public void archiveWorkflowsWithActionsWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    List<Long> actionIds = new ArrayList<>();
 
     storeActions(storeActiveWorkflow(archiveTime1), 3);
     storeActions(storeActiveWorkflow(prodTime1), 1);
@@ -123,30 +160,82 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
     long archivable1 = storePassiveWorkflow(archiveTime1);
     long archivable2 = storePassiveWorkflow(archiveTime2);
-    archivableActions.addAll(storeActions(archivable1, 1));
-    archivableActions.addAll(storeActions(archivable2, 3));
+    actionIds.addAll(storeActions(archivable1, 1));
+    actionIds.addAll(storeActions(archivable2, 3));
 
-    archivableWorkflows.addAll(asList(archivable1, archivable2));
+    workflowIds.addAll(asList(archivable1, archivable2));
 
-    int activeActionCountBefore = rowCount("select 1 from nflow_workflow_action");
-    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
-    int activeActionCountAfter = rowCount("select 1 from nflow_workflow_action");
+    int actionCountBefore = getActiveActionCount();
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    int actionCountAfter = getActiveActionCount();
 
-    assertActiveWorkflowsRemoved(archivableWorkflows);
-    assertArchiveWorkflowsExist(archivableWorkflows);
+    assertActiveWorkflowsRemoved(workflowIds);
+    assertArchiveWorkflowsExist(workflowIds);
 
-    assertActiveActionsRemoved(archivableActions);
-    assertArchiveActionsExist(archivableActions);
+    assertActiveActionsRemoved(actionIds);
+    assertArchiveActionsExist(actionIds, true);
 
-    assertEquals(archivableActions.size(), rowCount("select 1 from nflow_archive_workflow_action"));
-    assertEquals(activeActionCountAfter, activeActionCountBefore - archivableActions.size());
+    assertEquals(actionIds.size(), getArchiveActionCount());
+    assertEquals(actionCountAfter, actionCountBefore - actionIds.size());
   }
 
   @Test
-  public void archivingWorkflowsWithActionsAndStatesWorks() {
-    List<Long> archivableWorkflows = new ArrayList<>();
-    List<Long> archivableActions = new ArrayList<>();
-    List<StateKey> archivableStates = new ArrayList<>();
+  public void deleteWorkflowsWithActionsFromMainTablesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    List<Long> actionIds = new ArrayList<>();
+
+    storeActions(storeActiveWorkflow(archiveTime1), 3);
+    storeActions(storeActiveWorkflow(prodTime1), 1);
+    storeActions(storePassiveWorkflow(prodTime1), 2);
+
+    long archivable1 = storePassiveWorkflow(archiveTime1);
+    long archivable2 = storePassiveWorkflow(archiveTime2);
+    actionIds.addAll(storeActions(archivable1, 1));
+    actionIds.addAll(storeActions(archivable2, 3));
+
+    workflowIds.addAll(asList(archivable1, archivable2));
+
+    int actionCountBefore = getActiveActionCount();
+    assertEquals(workflowIds.size(), maintenanceDao.deleteWorkflows(MAIN, workflowIds));
+    int actionCountAfter = getActiveActionCount();
+
+    assertActiveWorkflowsRemoved(workflowIds);
+    assertArchivedWorkflowsDoNotExist(workflowIds);
+
+    assertActiveActionsRemoved(actionIds);
+    assertArchiveActionsExist(actionIds, false);
+
+    assertEquals(0, getArchiveActionCount());
+    assertEquals(actionCountAfter, actionCountBefore - actionIds.size());
+  }
+
+  @Test
+  public void deleteWorkflowsWithActionsFromArchiveTablesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    List<Long> actionIds = new ArrayList<>();
+    long archivable1 = storePassiveWorkflow(archiveTime1);
+    long archivable2 = storePassiveWorkflow(archiveTime2);
+    actionIds.addAll(storeActions(archivable1, 1));
+    actionIds.addAll(storeActions(archivable2, 3));
+    workflowIds.addAll(asList(archivable1, archivable2));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(0, maintenanceDao.deleteWorkflows(MAIN, workflowIds));
+
+    int actionCountBefore = getArchiveActionCount();
+    assertEquals(actionIds.size(), actionCountBefore);
+    assertEquals(workflowIds.size(), maintenanceDao.deleteWorkflows(ARCHIVE, workflowIds));
+    int actionCountAfter = getArchiveActionCount();
+
+    assertArchivedWorkflowsDoNotExist(workflowIds);
+    assertArchiveActionsExist(actionIds, false);
+    assertEquals(actionCountAfter, actionCountBefore - actionIds.size());
+  }
+
+  @Test
+  public void archiveWorkflowsWithActionsAndStatesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    List<Long> actionIds = new ArrayList<>();
+    List<StateKey> stateIds = new ArrayList<>();
 
     long nonArchivableWorkflow1 = storeActiveWorkflow(archiveTime1);
     storeStateVariables(nonArchivableWorkflow1, storeActions(nonArchivableWorkflow1, 3), 1);
@@ -162,36 +251,117 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     List<Long> actions1 = storeActions(archivable1, 1);
     List<Long> actions2 = storeActions(archivable2, 2);
 
-    archivableActions.addAll(actions1);
-    archivableActions.addAll(actions2);
+    actionIds.addAll(actions1);
+    actionIds.addAll(actions2);
 
-    archivableStates.addAll(storeStateVariables(archivable1, actions1, 4));
-    archivableStates.addAll(storeStateVariables(archivable2, actions2, 2));
+    stateIds.addAll(storeStateVariables(archivable1, actions1, 4));
+    stateIds.addAll(storeStateVariables(archivable2, actions2, 2));
 
-    archivableWorkflows.addAll(asList(archivable1, archivable2));
+    workflowIds.addAll(asList(archivable1, archivable2));
 
-    int variablesCountBefore = rowCount("select 1 from nflow_workflow_state");
-    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
-    int variablesCountAfter = rowCount("select 1 from nflow_workflow_state");
+    int variablesCountBefore = getActiveStateCount();
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    int variablesCountAfter = getActiveStateCount();
 
-    assertActiveWorkflowsRemoved(archivableWorkflows);
-    assertArchiveWorkflowsExist(archivableWorkflows);
+    assertActiveWorkflowsRemoved(workflowIds);
+    assertArchiveWorkflowsExist(workflowIds);
 
-    assertActiveActionsRemoved(archivableActions);
-    assertArchiveActionsExist(archivableActions);
+    assertActiveActionsRemoved(actionIds);
+    assertArchiveActionsExist(actionIds, true);
 
-    assertActiveStateVariablesRemoved(archivableStates);
-    assertArchiveStateVariablesExist(archivableStates);
+    assertActiveStateVariablesRemoved(stateIds);
+    assertArchiveStateVariablesExist(stateIds, true);
 
     // each workflow gets automatically stateVariable called "requestData"
-    int requestDataVariableCount = archivableWorkflows.size();
-    assertEquals(archivableStates.size() + requestDataVariableCount, rowCount("select 1 from nflow_archive_workflow_state"));
+    int requestDataVariableCount = workflowIds.size();
+    assertEquals(stateIds.size() + requestDataVariableCount, getArchivedStateCount());
 
-    assertEquals(variablesCountAfter, variablesCountBefore - archivableStates.size() - requestDataVariableCount);
+    assertEquals(variablesCountAfter, variablesCountBefore - stateIds.size() - requestDataVariableCount);
   }
 
   @Test
-  public void archivingChildWorkflowWithActiveParentWorks() {
+  public void deleteWorkflowsWithActionsAndStatesFromMainTablesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    List<Long> actionIds = new ArrayList<>();
+    List<StateKey> stateIds = new ArrayList<>();
+
+    long nonArchivableWorkflow1 = storeActiveWorkflow(archiveTime1);
+    storeStateVariables(nonArchivableWorkflow1, storeActions(nonArchivableWorkflow1, 3), 1);
+
+    long nonArchivableWorkflow2 = storeActiveWorkflow(prodTime1);
+    storeStateVariables(nonArchivableWorkflow2, storeActions(nonArchivableWorkflow2, 1), 3);
+
+    long nonArchivableWorkflow3 = storePassiveWorkflow(prodTime1);
+    storeStateVariables(nonArchivableWorkflow3, storeActions(nonArchivableWorkflow3, 2), 2);
+
+    long archivable1 = storePassiveWorkflow(archiveTime1);
+    long archivable2 = storePassiveWorkflow(archiveTime2);
+    List<Long> actions1 = storeActions(archivable1, 1);
+    List<Long> actions2 = storeActions(archivable2, 2);
+
+    actionIds.addAll(actions1);
+    actionIds.addAll(actions2);
+
+    stateIds.addAll(storeStateVariables(archivable1, actions1, 4));
+    stateIds.addAll(storeStateVariables(archivable2, actions2, 2));
+
+    workflowIds.addAll(asList(archivable1, archivable2));
+
+    int variablesCountBefore = getActiveStateCount();
+    assertEquals(workflowIds.size(), maintenanceDao.deleteWorkflows(MAIN, workflowIds));
+    int variablesCountAfter = getActiveStateCount();
+
+    assertActiveWorkflowsRemoved(workflowIds);
+    assertArchivedWorkflowsDoNotExist(workflowIds);
+
+    assertActiveActionsRemoved(actionIds);
+    assertArchiveActionsExist(actionIds, false);
+
+    assertActiveStateVariablesRemoved(stateIds);
+    assertArchiveStateVariablesExist(stateIds, false);
+
+    assertEquals(0, getArchivedStateCount());
+    // each workflow gets automatically stateVariable called "requestData"
+    int requestDataVariableCount = workflowIds.size();
+    assertEquals(variablesCountAfter, variablesCountBefore - stateIds.size() - requestDataVariableCount);
+  }
+
+  @Test
+  public void deleteWorkflowsWithActionsAndStatesFromArchiveTablesWorks() {
+    List<Long> workflowIds = new ArrayList<>();
+    List<Long> actionIds = new ArrayList<>();
+    List<StateKey> stateIds = new ArrayList<>();
+
+    long archivable1 = storePassiveWorkflow(archiveTime1);
+    long archivable2 = storePassiveWorkflow(archiveTime2);
+    List<Long> actions1 = storeActions(archivable1, 1);
+    List<Long> actions2 = storeActions(archivable2, 2);
+
+    actionIds.addAll(actions1);
+    actionIds.addAll(actions2);
+
+    stateIds.addAll(storeStateVariables(archivable1, actions1, 4));
+    stateIds.addAll(storeStateVariables(archivable2, actions2, 2));
+
+    workflowIds.addAll(asList(archivable1, archivable2));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(0, maintenanceDao.deleteWorkflows(MAIN, workflowIds));
+
+    int variablesCountBefore = getArchivedStateCount();
+    // each workflow gets automatically stateVariable called "requestData"
+    int requestDataVariableCount = workflowIds.size();
+    assertEquals(stateIds.size() + requestDataVariableCount, variablesCountBefore);
+    assertEquals(workflowIds.size(), maintenanceDao.deleteWorkflows(ARCHIVE, workflowIds));
+    int variablesCountAfter = getArchivedStateCount();
+
+    assertArchivedWorkflowsDoNotExist(workflowIds);
+    assertArchiveActionsExist(actionIds, false);
+    assertArchiveStateVariablesExist(stateIds, false);
+    assertEquals(variablesCountAfter, variablesCountBefore - stateIds.size() - requestDataVariableCount);
+  }
+
+  @Test
+  public void archiveChildWorkflowWithActiveParentWorks() {
     List<Long> archivableWorkflows = new ArrayList<>();
 
     long parentId = storeActiveWorkflow(archiveTime1);
@@ -199,33 +369,33 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
     archivableWorkflows.add(storePassiveChildWorkflow(archiveTime1, parentId));
 
-    int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
+    int activeWorkflowCountBefore = getActiveWorkflowCount();
     assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
-    int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
+    int activeWorkflowCountAfter = getActiveWorkflowCount();
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
     assertArchiveWorkflowsExist(archivableWorkflows);
 
-    assertEquals(archivableWorkflows.size(), rowCount("select 1 from nflow_archive_workflow"));
+    assertEquals(archivableWorkflows.size(), getArchivedWorkflowCount());
     assertEquals(activeWorkflowCountAfter, activeWorkflowCountBefore - archivableWorkflows.size());
   }
 
   @Test
-  public void archivingParentWorkflowWithActiveChildWorks() {
+  public void archiveParentWorkflowWithActiveChildWorks() {
     List<Long> archivableWorkflows = new ArrayList<>();
 
     long parentId = storeActiveWorkflow(archiveTime1);
     archivableWorkflows.add(parentId);
     storeActiveChildWorkflow(archiveTime1, parentId);
 
-    int activeWorkflowCountBefore = rowCount("select 1 from nflow_workflow");
+    int activeWorkflowCountBefore = getActiveWorkflowCount();
     assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
-    int activeWorkflowCountAfter = rowCount("select 1 from nflow_workflow");
+    int activeWorkflowCountAfter = getActiveWorkflowCount();
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
     assertArchiveWorkflowsExist(archivableWorkflows);
 
-    assertEquals(archivableWorkflows.size(), rowCount("select 1 from nflow_archive_workflow"));
+    assertEquals(archivableWorkflows.size(), getArchivedWorkflowCount());
     assertEquals(activeWorkflowCountAfter, activeWorkflowCountBefore - archivableWorkflows.size());
   }
 
@@ -255,6 +425,30 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     assertThat(childWorkflow.parentWorkflowId, equalTo(parentWorkflowId));
   }
 
+  private int getActiveWorkflowCount() {
+    return rowCount("select 1 from nflow_workflow");
+  }
+
+  private int getActiveActionCount() {
+    return rowCount("select 1 from nflow_workflow_action");
+  }
+
+  private int getActiveStateCount() {
+    return rowCount("select 1 from nflow_workflow_state");
+  }
+
+  private int getArchivedWorkflowCount() {
+    return rowCount("select 1 from nflow_archive_workflow");
+  }
+
+  private int getArchiveActionCount() {
+    return rowCount("select 1 from nflow_archive_workflow_action");
+  }
+
+  private int getArchivedStateCount() {
+    return rowCount("select 1 from nflow_archive_workflow_state");
+  }
+
   private long addWorkflowAction(long workflowId, final WorkflowInstance instance, DateTime started, DateTime ended) {
     final WorkflowInstanceAction action = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
         .setExecutionEnd(ended).setRetryNo(1).setType(stateExecution).setState("test").setStateText("state text")
@@ -276,6 +470,12 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     }
   }
 
+  private void assertArchivedWorkflowsDoNotExist(List<Long> workflowIds) {
+    for (long workflowId : workflowIds) {
+      assertThrows(EmptyResultDataAccessException.class, () -> getArchivedWorkflow(workflowId));
+    }
+  }
+
   private void assertActiveActionsRemoved(List<Long> actionIds) {
     for (long actionId : actionIds) {
       int found = rowCount("select 1 from nflow_workflow_action where id = ?", actionId);
@@ -283,10 +483,14 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     }
   }
 
-  private void assertArchiveActionsExist(List<Long> actionIds) {
+  private void assertArchiveActionsExist(List<Long> actionIds, boolean shouldExist) {
     for (long actionId : actionIds) {
       int found = rowCount("select 1 from nflow_archive_workflow_action where id = ?", actionId);
-      assertEquals(1, found, "Action " + actionId + " not found in nflow_archive_workflow_action");
+      if (shouldExist) {
+        assertEquals(1, found, "Action " + actionId + " not found in nflow_archive_workflow_action");
+      } else {
+        assertEquals(0, found, "Action " + actionId + " was found in nflow_archive_workflow_action");
+      }
     }
   }
 
@@ -298,11 +502,15 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     }
   }
 
-  private void assertArchiveStateVariablesExist(List<StateKey> stateKeys) {
+  private void assertArchiveStateVariablesExist(List<StateKey> stateKeys, boolean shouldExist) {
     for (StateKey stateKey : stateKeys) {
       int found = rowCount("select 1 from nflow_archive_workflow_state where workflow_id = ? and action_id = ? and state_key = ?",
           stateKey.workflowId, stateKey.actionId, stateKey.stateKey);
-      assertEquals(1, found, "State variable " + stateKey + " not found in nflow_archive_workflow_state");
+      if (shouldExist) {
+        assertEquals(1, found, "State variable " + stateKey + " not found in nflow_archive_workflow_state");
+      } else {
+        assertEquals(0, found, "State variable " + stateKey + " was found in nflow_archive_workflow_state");
+      }
     }
   }
 
