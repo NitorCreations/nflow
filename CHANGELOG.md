@@ -22,6 +22,7 @@
         .setBatchSize(batchSize)
         .build())
       .build)`
+  - For example, `WorkflowSettings.setHistoryDeleteableAfterHours(12)` can now be achieved by `WorkflowSettings.setHistoryDeleteableAfter(Period.hours(12))`.
 
 ## 6.2.0 (2020-02-11)
 
