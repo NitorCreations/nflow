@@ -34,7 +34,7 @@ import io.nflow.tests.extension.NflowServerExtension;
 
 @ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ArchiveTest extends AbstractNflowTest {
+public class MaintenanceTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
@@ -42,9 +42,9 @@ public class ArchiveTest extends AbstractNflowTest {
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25).build();
 
-  private static DateTime archiveLimit1, archiveLimit2;
+  private static DateTime timeLimit1, timeLimit2;
 
-  public ArchiveTest() {
+  public MaintenanceTest() {
     super(server);
   }
 
@@ -58,7 +58,7 @@ public class ArchiveTest extends AbstractNflowTest {
   @Order(2)
   public void createWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_1_WORKFLOWS));
-    archiveLimit1 = now();
+    timeLimit1 = now();
     // Sleep to make sure that first batch of workflows is created before the second batch.
     // Some databases have 1 second precision in timestamps, for example MySQL 5.5.
     sleep(SECONDS.toMillis(1));
@@ -68,57 +68,79 @@ public class ArchiveTest extends AbstractNflowTest {
   @Order(3)
   public void createMoreWorkflows() throws InterruptedException {
     waitUntilWorkflowsFinished(createWorkflows(STEP_2_WORKFLOWS));
-    archiveLimit2 = now();
+    timeLimit2 = now();
     sleep(SECONDS.toMillis(1));
   }
 
   @Test
   @Order(4)
-  public void archiveBeforeTime1ArchiveAllWorkflows() {
-    int archived = archiveOlderThan(archiveLimit1);
+  public void archiveBeforeTimeLimit1Archives() {
+    int archived = archiveOlderThan(timeLimit1);
     // fibonacci(3) workflow creates 1 child workflow
     assertEquals(STEP_1_WORKFLOWS * 2, archived);
   }
 
-  private int archiveOlderThan(DateTime olderThan) {
-    MaintenanceRequest req = new MaintenanceRequest();
-    req.archiveWorkflows = new MaintenanceRequestItem();
-    req.archiveWorkflows.olderThanPeriod = new Period(olderThan, now());
-    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT,
-        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class)).archivedWorkflows;
-  }
-
   @Test
   @Order(5)
-  public void archiveAgainBeforeTime1DoesNotArchivesAnything() {
-    int archived = archiveOlderThan(archiveLimit1);
+  public void archiveAgainBeforeTimeLimit1DoesNothing() {
+    int archived = archiveOlderThan(timeLimit1);
     assertEquals(0, archived);
   }
 
   @Test
   @Order(6)
-  public void archiveBeforeTime2Archives() {
-    int archived = archiveOlderThan(archiveLimit2);
+  public void archiveBeforeTimeLimit2Archives() {
+    int archived = archiveOlderThan(timeLimit2);
     assertEquals(STEP_2_WORKFLOWS * 2, archived);
   }
 
   @Test
   @Order(7)
-  public void createMoreWorkflows_again() {
+  public void createMoreWorkflowsAgain() {
     waitUntilWorkflowsFinished(createWorkflows(STEP_3_WORKFLOWS));
   }
 
   @Test
   @Order(8)
-  public void archiveAgainBeforeTime1DoesNotArchiveAnything() {
-    int archived = archiveOlderThan(archiveLimit1);
+  public void archiveOnceMoreBeforeTimeLimit1DoesNothing() {
+    int archived = archiveOlderThan(timeLimit1);
     assertEquals(0, archived);
   }
 
   @Test
   @Order(9)
-  public void archiveAgainBeforeTime2DoesNotArchiveAnything() {
-    int archived = archiveOlderThan(archiveLimit2);
+  public void archiveAgainBeforeTimeLimit2DoesNothing() {
+    int archived = archiveOlderThan(timeLimit2);
+    assertEquals(0, archived);
+  }
+
+  @Test
+  @Order(10)
+  public void deleteBeforeTimeLimit1Deletes() {
+    int deleted = deleteOlderThan(timeLimit1);
+    // fibonacci(3) workflow creates 1 child workflow
+    assertEquals(STEP_1_WORKFLOWS * 2, deleted);
+  }
+
+  @Test
+  @Order(11)
+  public void deleteAgainBeforeTimeLimit1DoesNothing() {
+    int deleted = deleteOlderThan(timeLimit1);
+    assertEquals(0, deleted);
+  }
+
+  @Test
+  @Order(12)
+  public void deleteBeforeTimeLimit2Deletes() {
+    int deleted = deleteOlderThan(timeLimit2);
+    // fibonacci(3) workflow creates 1 child workflow
+    assertEquals(STEP_2_WORKFLOWS * 2, deleted);
+  }
+
+  @Test
+  @Order(13)
+  public void deleteAgainBeforeTimeLimit2DoesNothing() {
+    int archived = archiveOlderThan(timeLimit2);
     assertEquals(0, archived);
   }
 
@@ -138,6 +160,22 @@ public class ArchiveTest extends AbstractNflowTest {
         CreateWorkflowInstanceResponse.class);
     assertThat(resp.id, notNullValue());
     return resp.id;
+  }
+
+  private int archiveOlderThan(DateTime olderThan) {
+    MaintenanceRequest req = new MaintenanceRequest();
+    req.archiveWorkflows = new MaintenanceRequestItem();
+    req.archiveWorkflows.olderThanPeriod = new Period(olderThan, now());
+    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT,
+        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class)).archivedWorkflows;
+  }
+
+  private int deleteOlderThan(DateTime olderThan) {
+    MaintenanceRequest req = new MaintenanceRequest();
+    req.deleteArchivedWorkflows = new MaintenanceRequestItem();
+    req.deleteArchivedWorkflows.olderThanPeriod = new Period(olderThan, now());
+    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req,
+        MaintenanceResponse.class)).deletedArchivedWorkflows;
   }
 
   private void waitUntilWorkflowsFinished(List<Long> workflowIds) {
