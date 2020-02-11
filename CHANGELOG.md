@@ -3,6 +3,16 @@
 **Highlights**
 
 **Details**
+  - Dependency updates:
+    - spotbugs-annotations 4.0.0-RC3
+    - mssql 8.2.0.jre8
+    - jetty 9.4.26.v20200117
+    - mariadb 2.5.4
+    - postgresql 42.2.10
+    - hibernate-validator 6.1.2.Final
+  - Maven plugin updates:
+    - spotbugs 4.0.0-RC3
+
 
 ## 6.1.0 (2020-01-23)
 
