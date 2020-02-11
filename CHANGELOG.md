@@ -24,6 +24,17 @@
         .build())
       .build)`
   - For example, `WorkflowSettings.setHistoryDeleteableAfterHours(12)` can now be achieved by `WorkflowSettings.setHistoryDeleteableAfter(Period.hours(12))`.
+- `nflow-explorer`
+  - Dependency updates:
+    - angular extra libraries 1.7.9
+    - angular-ui-router 1.0.25
+    - dagre-d3 0.6.4
+    - node-sass 9.7.4
+    - karma-jasmine 3.1.1
+    - autoprefixer 9.7.4
+    - sinon 8.1.1
+    - node v12.15.0
+    - npm 6.13.4
 
 ## 6.2.0 (2020-02-11)
 
