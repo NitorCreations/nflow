@@ -128,7 +128,7 @@ create table if not exists nflow_archive_workflow_action (
   constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
 
-create index nflow_archive_workflow_action_workflow on nflow_workflow_action(workflow_id);
+create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
 
 create table if not exists nflow_archive_workflow_state (
   workflow_id int not null,

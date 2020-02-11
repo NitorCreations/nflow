@@ -140,7 +140,7 @@ create table if not exists nflow_archive_workflow_action (
 );
 
 drop index if exists nflow_archive_workflow_action_workflow;
-create index nflow_archive_workflow_action_workflow on nflow_workflow_action(workflow_id);
+create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
 
 create table if not exists nflow_archive_workflow_state (
   workflow_id int not null,

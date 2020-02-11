@@ -185,7 +185,7 @@ create table nflow_archive_workflow_action (
 )
 /
 
-create index nflow_archive_workflow_action_workflow on nflow_workflow_action(workflow_id)
+create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id)
 /
 
 create table nflow_archive_workflow_state (
