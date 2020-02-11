@@ -8,12 +8,14 @@
 
 **Highlights**
 - `nflow-engine`
-  - Improve child workflow final state execution speed by caching the parent workflow type. Use `nflow.db.workflowInstanceType.cacheSize` property to tune the size.
-  - Optional performance improvement to state execution by not scanning for child workflows instances. If access to child workflow instances is needed, they can be fetched using `StateExecution.getChildWorklfow` methods. To enable set the property `nflow.executor.fetchChildWorkflowIds` to `false`, which is recommended for all. The default functionality will change in next major release.
-  - Tune workflow instance polling code.
+  - Improve child workflow final state execution speed by caching the parent workflow type. See configuration details below.
+  - Add optional performance improvement to state execution. See configuration details below.
+  - Optimize workflow instance polling code.
 
 **Details**
 - `nflow-engine`
+  - Workflow type cache size can be set using `nflow.db.workflowInstanceType.cacheSize` property. Default is 10000.
+  - Set property `nflow.executor.fetchChildWorkflowIds` to `false` (recommended) to avoid reading child workflow IDs when executing a state. If access to child workflow instances is needed, they can be fetched using `StateExecution` interface. This will be the default in 7.0.0 release.
   - Automatically disable batch updates if batch update returns unsupported values.
   - Fetch optimistic locked list of workflow instance IDs in a separate transaction from the modify phase. This should reduce the risk of deadlocks in databases.
   - Tune batch status handling to consider status a failure if more than one row were modified.
