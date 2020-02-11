@@ -3,6 +3,7 @@ package io.nflow.engine.internal.dao;
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static java.lang.System.currentTimeMillis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -112,6 +113,7 @@ public class MaintenanceDao {
 
   @Transactional
   public void deleteActionAndStateHistory(long workflowInstanceId, DateTime olderThan) {
+    long start = currentTimeMillis();
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("workflowId", workflowInstanceId);
     params.addValue("olderThan", sqlVariants.toTimestampObject(olderThan));
@@ -142,8 +144,8 @@ public class MaintenanceDao {
       }
     }
     if (deletedActions > 0 || deletedStates > 0) {
-      logger.info("Deleted {} actions and {} states from workflow instance {} that were older than {}.", deletedActions,
-          deletedStates, workflowInstanceId, olderThan);
+      logger.info("Deleted {} actions and {} states from workflow instance {} that were older than {}. Took {} ms.", deletedActions,
+          deletedStates, workflowInstanceId, olderThan, currentTimeMillis() - start);
     }
   }
 }
