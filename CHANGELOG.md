@@ -1,13 +1,27 @@
 ## 7.0.0 (future release)
 
-**Highlights**
-- `nflow-engine`
+**BREAKING CHANGES**
   - Drop `nflow_workflow.root_workflow_id` column.
-  - Remove, add and update foreign key constraints and indices in nFlow tables.
-  - Remove ArchiveDao, ArchiveService and ArchiveResource (/v1/archive), replaced by MaintenanceDao, MaintenanceService and MaintenanceResource (/v1/maintenance).
+  - Remove, add and update foreign key constraints and indices in nFlow database tables.
+  - ArchiveService and ArchiveResource (/v1/archive) are replaced by MaintenanceService and MaintenanceResource (/v1/maintenance).
   - Change `WorkflowSettings.setHistoryDeleteableAfterHours(Integer)` to `WorkflowSettings.setHistoryDeleteableAfter(ReadablePeriod)` for more flexible configuration.
 
+**Highlights**
+- `nflow-engine`
+  - Improve archiving performance. Archiving has been in practice unusable in some scenarios. While rewriting the archiving logic, also support for other maintenance operations (deleting data from main and archive tables) is introduced.
+
 **Details**
+- `nflow-engine`
+  - `nflow_workflow.root_workflow_id` was only used in old archiving code, so it was removed as the new archiving logic does not need it anymore.
+  - Removed unnecessary indices and foreign keys and added missing indices to improve nFlow database performance. See database update scripts for details.
+  - Added name for all existing and new constraints in create scripts, if they did not have one yet. This is to make modify operations easier in future. All of these may not be covered in database update scripts.  
+  - As ArchiveService is removed, the old functionality of `ArchiveService.archiveWorkflows(DateTime olderThan, int batchSize)` can now be achieved with
+    `MaintenanceService.cleanupWorkflows(new MaintenanceConfiguration.Builder()
+      .setArchiveWorkflows(new ConfigurationItem.Builder()
+        .setOlderThanPeriod(new Period(olderThan, DateTime.now())
+        .setBatchSize(batchSize)
+        .build())
+      .build)`
 
 ## 6.2.0 (2020-02-11)
 
