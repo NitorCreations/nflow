@@ -9,7 +9,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,7 +20,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 
@@ -32,7 +30,6 @@ public class MaintenanceDao {
   private final SQLVariants sqlVariants;
   private final JdbcTemplate jdbc;
   private final NamedParameterJdbcTemplate namedJdbc;
-  private final TableMetadataChecker tableMetadataChecker;
 
   private String workflowColumns;
   private String actionColumns;
@@ -40,17 +37,10 @@ public class MaintenanceDao {
 
   @Inject
   public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate,
-      @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate, TableMetadataChecker tableMetadataChecker) {
+      @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
     this.sqlVariants = sqlVariants;
     this.jdbc = jdbcTemplate;
     this.namedJdbc = nflowNamedParameterJdbcTemplate;
-    this.tableMetadataChecker = tableMetadataChecker;
-  }
-
-  @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "tableMetadataChecker is injected")
-  public void ensureValidArchiveTablesExist() {
-    Stream.of("workflow", "workflow_action", "workflow_state")
-            .forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
   }
 
   private String getWorkflowColumns() {

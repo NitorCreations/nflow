@@ -9,6 +9,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.internal.dao.TableMetadataChecker;
 import io.nflow.engine.internal.dao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
@@ -33,9 +35,12 @@ public class MaintenanceService {
 
   private final MaintenanceDao maintenanceDao;
 
+  private final TableMetadataChecker tableMetadataChecker;
+
   @Inject
-  public MaintenanceService(MaintenanceDao maintenanceDao) {
+  public MaintenanceService(MaintenanceDao maintenanceDao, TableMetadataChecker tableMetadataChecker) {
     this.maintenanceDao = maintenanceDao;
+    this.tableMetadataChecker = tableMetadataChecker;
   }
 
   /**
@@ -50,7 +55,8 @@ public class MaintenanceService {
   @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
-      maintenanceDao.ensureValidArchiveTablesExist();
+      Stream.of("workflow", "workflow_action", "workflow_state")
+          .forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
     }
 
     Builder builder = new MaintenanceResults.Builder();

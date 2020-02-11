@@ -10,7 +10,7 @@ public enum TablePrefix {
     this.prefix = prefix;
   }
 
-  String nameOf(String name) {
+  public String nameOf(String name) {
     return prefix + name;
   }
 }

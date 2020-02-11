@@ -73,8 +73,8 @@ public class DaoTestConfiguration {
 
   @Bean
   public MaintenanceDao archiveDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate,
-      @NFlow NamedParameterJdbcTemplate namedParameterJdbcTemplate, TableMetadataChecker tableMetadataChecker) {
-    return new MaintenanceDao(sqlVariants, jdbcTemplate, namedParameterJdbcTemplate, tableMetadataChecker);
+      @NFlow NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    return new MaintenanceDao(sqlVariants, jdbcTemplate, namedParameterJdbcTemplate);
   }
 
   @Bean
