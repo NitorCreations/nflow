@@ -1,7 +1,7 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.joda.time.DateTime.now;

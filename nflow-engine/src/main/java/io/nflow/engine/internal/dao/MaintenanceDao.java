@@ -1,8 +1,8 @@
 package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -154,21 +154,6 @@ public class MaintenanceDao {
     if (deletedActions > 0 || deletedStates > 0) {
       logger.info("Deleted {} actions and {} states from workflow instance {} that were older than {}.", deletedActions,
           deletedStates, workflowInstanceId, olderThan);
-    }
-  }
-
-  public enum TablePrefix {
-    MAIN("nflow_"),
-    ARCHIVE("nflow_archive_");
-
-    private final String prefix;
-
-    TablePrefix(String prefix) {
-      this.prefix = prefix;
-    }
-
-    String nameOf(String name) {
-      return prefix + name;
     }
   }
 }

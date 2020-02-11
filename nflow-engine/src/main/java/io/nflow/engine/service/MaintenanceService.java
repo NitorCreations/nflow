@@ -1,7 +1,7 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static org.joda.time.DateTime.now;
@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
-import io.nflow.engine.internal.dao.MaintenanceDao.TablePrefix;
+import io.nflow.engine.internal.dao.TablePrefix;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.MaintenanceResults.Builder;
