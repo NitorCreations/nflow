@@ -155,7 +155,7 @@
     <maven-surefire.version>3.0.0-M4</maven-surefire.version>
     <metrics.version>4.1.2</metrics.version>
     <mockito.version>3.2.4</mockito.version>
-    <mssql.version>7.4.1.jre8</mssql.version>
+    <mssql.version>8.2.0.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>8.0.19</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
