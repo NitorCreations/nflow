@@ -10,7 +10,7 @@ import static org.joda.time.DateTime.now;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
@@ -94,19 +94,7 @@ public class WorkflowSettings extends ModelObject {
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
-    Random rnd = new Random();
-    BooleanSupplier deleteHistoryCondition = new BooleanSupplier() {
-
-      @Override
-      public boolean getAsBoolean() {
-        return roughlyEveryTenthTime();
-      }
-
-      private boolean roughlyEveryTenthTime() {
-        return rnd.nextInt(10) == 0;
-      }
-
-    };
+    BooleanSupplier deleteHistoryCondition = () -> ThreadLocalRandom.current().nextInt(100) == 0;
 
     /**
      * Set the maximum delay on execution retry after an error.
