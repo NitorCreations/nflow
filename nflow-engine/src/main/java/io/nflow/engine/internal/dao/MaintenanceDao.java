@@ -5,6 +5,7 @@ import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Stream.generate;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -74,7 +75,7 @@ public class MaintenanceDao {
     List<Object> args = new ArrayList<>();
     args.add(sqlVariants.toTimestampObject(before));
     if (!workflowTypes.isEmpty()) {
-      sql.append(" and type in (").append(workflowTypes.stream().map(t -> "?").collect(joining(","))).append(")");
+      sql.append(" and type in (").append(generate(() -> "?").limit(workflowTypes.size()).collect(joining(","))).append(")");
       args.addAll(workflowTypes);
     }
     sql.append(" order by id asc");
