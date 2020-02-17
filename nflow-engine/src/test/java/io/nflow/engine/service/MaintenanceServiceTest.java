@@ -4,6 +4,7 @@ import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
@@ -69,13 +70,13 @@ public class MaintenanceServiceTest {
 
   @Test
   public void withZeroOldWorkflowsNothingIsArchived() {
-    when(dao.listOldWorkflows(MAIN, limit, BATCH_SIZE)).thenReturn(emptyList);
+    when(dao.getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet())).thenReturn(emptyList);
 
     MaintenanceResults results = service.cleanupWorkflows(archiveConfig);
 
     assertEquals(0, results.archivedWorkflows);
     assertValidArchiveTablesAreChecked();
-    verify(dao).listOldWorkflows(MAIN, limit, BATCH_SIZE);
+    verify(dao).getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet());
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
@@ -86,64 +87,67 @@ public class MaintenanceServiceTest {
 
   @Test
   public void withZeroOldWorkflowsNothingIsDeleted() {
-    when(dao.listOldWorkflows(MAIN, limit, BATCH_SIZE)).thenReturn(emptyList);
+    when(dao.getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet())).thenReturn(emptyList);
 
     MaintenanceResults results = service.cleanupWorkflows(deleteMainConfig);
 
     assertEquals(0, results.deletedWorkflows);
-    verify(dao).listOldWorkflows(MAIN, limit, BATCH_SIZE);
+    verify(dao).getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet());
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void withZeroOldWorkflowsNothingIsDeletedFromArchiveTables() {
-    when(dao.listOldWorkflows(ARCHIVE, limit, BATCH_SIZE)).thenReturn(emptyList);
+    when(dao.getOldWorkflowIds(ARCHIVE, limit, BATCH_SIZE, emptySet())).thenReturn(emptyList);
 
     MaintenanceResults results = service.cleanupWorkflows(deleteArchiveConfig);
 
     assertEquals(0, results.deletedArchivedWorkflows);
     assertValidArchiveTablesAreChecked();
-    verify(dao).listOldWorkflows(ARCHIVE, limit, BATCH_SIZE);
+    verify(dao).getOldWorkflowIds(ARCHIVE, limit, BATCH_SIZE, emptySet());
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void archivingContinuesAsLongAsOldWorkflowsAreFound() {
-    doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).listOldWorkflows(MAIN, limit, BATCH_SIZE);
+    doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).getOldWorkflowIds(MAIN, limit, BATCH_SIZE,
+        emptySet());
     when(dao.archiveWorkflows(oldWorkdlowIds)).thenReturn(oldWorkdlowIds.size());
 
     MaintenanceResults results = service.cleanupWorkflows(archiveConfig);
 
     assertEquals(oldWorkdlowIds.size() * 3, results.archivedWorkflows);
     assertValidArchiveTablesAreChecked();
-    verify(dao, times(4)).listOldWorkflows(MAIN, limit, BATCH_SIZE);
+    verify(dao, times(4)).getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet());
     verify(dao, times(3)).archiveWorkflows(oldWorkdlowIds);
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void deletingFromMainTablesContinuesAsLongAsOldWorkflowsAreFound() {
-    doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).listOldWorkflows(MAIN, limit, BATCH_SIZE);
+    doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).getOldWorkflowIds(MAIN, limit, BATCH_SIZE,
+        emptySet());
     when(dao.deleteWorkflows(MAIN, oldWorkdlowIds)).thenReturn(oldWorkdlowIds.size());
 
     MaintenanceResults results = service.cleanupWorkflows(deleteMainConfig);
 
     assertEquals(oldWorkdlowIds.size() * 3, results.deletedWorkflows);
-    verify(dao, times(4)).listOldWorkflows(MAIN, limit, BATCH_SIZE);
+    verify(dao, times(4)).getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet());
     verify(dao, times(3)).deleteWorkflows(MAIN, oldWorkdlowIds);
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void deletingFromArchiveTablesContinuesAsLongAsOldWorkflowsAreFound() {
-    doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).listOldWorkflows(ARCHIVE, limit, BATCH_SIZE);
+    doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).getOldWorkflowIds(ARCHIVE, limit, BATCH_SIZE,
+        emptySet());
     when(dao.deleteWorkflows(ARCHIVE, oldWorkdlowIds)).thenReturn(oldWorkdlowIds.size());
 
     MaintenanceResults results = service.cleanupWorkflows(deleteArchiveConfig);
 
     assertEquals(oldWorkdlowIds.size() * 3, results.deletedArchivedWorkflows);
     assertValidArchiveTablesAreChecked();
-    verify(dao, times(4)).listOldWorkflows(ARCHIVE, limit, BATCH_SIZE);
+    verify(dao, times(4)).getOldWorkflowIds(ARCHIVE, limit, BATCH_SIZE, emptySet());
     verify(dao, times(3)).deleteWorkflows(ARCHIVE, oldWorkdlowIds);
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }

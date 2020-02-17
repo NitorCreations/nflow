@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -65,10 +66,18 @@ public class MaintenanceDao {
     return stateColumns;
   }
 
-  public List<Long> listOldWorkflows(TablePrefix table, DateTime before, int maxWorkflows) {
+  public List<Long> getOldWorkflowIds(TablePrefix table, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
     String sql = sqlVariants.limit("select id from " + table.nameOf("workflow") + " where next_activation is null and "
-        + sqlVariants.dateLtEqDiff("modified", "?") + " order by id asc", maxWorkflows);
+        + sqlVariants.dateLtEqDiff("modified", "?") + getWorkflowTypeCondition(workflowTypes) + " order by id asc",
+        maxWorkflows);
     return jdbc.queryForList(sql, Long.class, sqlVariants.toTimestampObject(before));
+  }
+
+  private String getWorkflowTypeCondition(Set<String> workflowTypes) {
+    if (workflowTypes.isEmpty()) {
+      return "";
+    }
+    return " and type in (" + join(workflowTypes, ",") + ")";
   }
 
   @Transactional

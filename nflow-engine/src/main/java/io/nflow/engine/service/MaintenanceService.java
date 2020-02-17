@@ -84,7 +84,8 @@ public class MaintenanceService {
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int totalWorkflows = 0;
     do {
-      List<Long> workflowIds = maintenanceDao.listOldWorkflows(table, olderThan, configuration.batchSize);
+      List<Long> workflowIds = maintenanceDao.getOldWorkflowIds(table, olderThan, configuration.batchSize,
+          configuration.workflowTypes);
       if (workflowIds.isEmpty()) {
         break;
       }
