@@ -9,7 +9,9 @@ import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,10 +42,14 @@ public class MaintenanceService {
 
   private final TableMetadataChecker tableMetadataChecker;
 
+  private final WorkflowDefinitionService workflowDefinitionService;
+
   @Inject
-  public MaintenanceService(MaintenanceDao maintenanceDao, TableMetadataChecker tableMetadataChecker) {
+  public MaintenanceService(MaintenanceDao maintenanceDao, TableMetadataChecker tableMetadataChecker,
+      WorkflowDefinitionService workflowDefinitionService) {
     this.maintenanceDao = maintenanceDao;
     this.tableMetadataChecker = tableMetadataChecker;
+    this.workflowDefinitionService = workflowDefinitionService;
   }
 
   /**
@@ -57,6 +63,7 @@ public class MaintenanceService {
    */
   @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
+    validateConfiguration(configuration);
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
       ARCHIVABLE_TABLES.forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
     }
@@ -74,6 +81,17 @@ public class MaintenanceService {
           idList -> maintenanceDao.deleteWorkflows(MAIN, idList)));
     }
     return builder.build();
+  }
+
+  private void validateConfiguration(MaintenanceConfiguration configuration) {
+    Stream.of(configuration.archiveWorkflows, configuration.deleteArchivedWorkflows, configuration.deleteWorkflows) //
+        .filter(Objects::nonNull) //
+        .flatMap(configItem -> configItem.workflowTypes.stream()) //
+        .forEach(workflowType -> {
+          if (workflowDefinitionService.getWorkflowDefinition(workflowType) == null) {
+            throw new IllegalArgumentException("Workflow type " + workflowType + " is not valid");
+          }
+        });
   }
 
   private int doAction(String type, ConfigurationItem configuration, TablePrefix table, Function<List<Long>, Integer> doAction) {
