@@ -87,10 +87,10 @@ public class MaintenanceService {
     Stream.of(configuration.archiveWorkflows, configuration.deleteArchivedWorkflows, configuration.deleteWorkflows) //
         .filter(Objects::nonNull) //
         .flatMap(configItem -> configItem.workflowTypes.stream()) //
-        .forEach(workflowType -> {
-          if (workflowDefinitionService.getWorkflowDefinition(workflowType) == null) {
-            throw new IllegalArgumentException("Workflow type " + workflowType + " is not valid");
-          }
+        .filter(workflowType -> workflowDefinitionService.getWorkflowDefinition(workflowType) == null) //
+        .findAny() //
+        .ifPresent(workflowType -> {
+          throw new IllegalArgumentException("Workflow type " + workflowType + " is not valid");
         });
   }
 
