@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.executor;
 
-import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.BulkWorkflow.State.waitForChildrenToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
@@ -171,7 +170,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private final TestWorkflow testWorkflowDef = new TestWorkflow();
 
-  private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES);
+  private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CURRENT_STATE_VARIABLES);
 
   @BeforeEach
   public void setup() {
@@ -182,7 +181,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateProcessingRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
-    env.setProperty("nflow.executor.fetchChildWorkflowIds", "true");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
@@ -518,20 +516,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         is("Stopped in state error"), is(nullValue(DateTime.class))));
     assertThat(action.getAllValues().get(1),
         matchesWorkflowInstanceAction(FailingTestWorkflow.State.error, is("Stopped in final state"), 0, stateExecution));
-  }
-
-  @Test
-  public void doNotFetchChildWorkflowIdsIfDisabledByConfig() {
-    env.setProperty("nflow.executor.fetchChildWorkflowIds", "false");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
-
-    WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("start").build();
-    when(workflowInstances.getWorkflowInstance(instance.id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).thenReturn(instance);
-
-    runExecutorWithTimout();
-
-    verify(workflowInstances).getWorkflowInstance(instance.id, EnumSet.of(CURRENT_STATE_VARIABLES), null);
   }
 
   @Test

@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.executor;
 
-import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
@@ -79,7 +78,6 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
-  private final boolean fetchChildWorkflowIds;
   private boolean internalRetryEnabled = true;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
@@ -105,8 +103,6 @@ class WorkflowStateProcessor implements Runnable {
     stateSaveRetryDelay = env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Integer.class);
     stateVariableValueTooLongRetryDelay = env.getRequiredProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes",
         Integer.class);
-    // TODO remove flag in 7.x release and default to not fetching child ids (or alternatively, let each step of WorkflowDefinition override what information needs to be fetched)
-    fetchChildWorkflowIds = env.getRequiredProperty("nflow.executor.fetchChildWorkflowIds", Boolean.class);
   }
 
   @Override
@@ -131,8 +127,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private void runImpl() {
     logger.debug("Starting.");
-    WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId,
-        fetchChildWorkflowIds ? EnumSet.of(CHILD_WORKFLOW_IDS, CURRENT_STATE_VARIABLES) : EnumSet.of(CURRENT_STATE_VARIABLES), null);
+    WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId, EnumSet.of(CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
     AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {

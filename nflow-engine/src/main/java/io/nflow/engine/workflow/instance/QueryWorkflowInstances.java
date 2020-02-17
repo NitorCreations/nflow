@@ -115,8 +115,7 @@ public class QueryWorkflowInstances extends ModelObject {
     String businessKey;
     String externalId;
     boolean includeActions;
-    /** TODO: remove setting the default value to true in 7.0.0 release. */
-    boolean includeCurrentStateVariables = true;
+    boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
     boolean includeChildWorkflows;
     Long maxResults;
@@ -225,7 +224,7 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set whether workflow actions should be included in the results.
+     * Set whether workflow actions should be included in the results. Default is `false`.
      * @param includeActions True to include actions, false otherwise.
      * @return this.
      */
@@ -235,8 +234,7 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set whether current workflow state variables should be included in the results.
-     * The default is `true`. TODO: Change default to `false` in 7.0.0 release.
+     * Set whether current workflow state variables should be included in the results. Default is `false`
      * @param includeCurrentStateVariables True to include state variables, false otherwise.
      * @return this.
      */
@@ -246,7 +244,7 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set whether state variables for workflow actions should be included in the results.
+     * Set whether state variables for workflow actions should be included in the results. Default is `false`.
      * @param includeActionStateVariables True to include state variables, false otherwise.
      * @return this.
      */
@@ -256,7 +254,7 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set whether child workflow IDs created by this instance should be included in the results.
+     * Set whether child workflow IDs created by this instance should be included in the results. Default is `false`.
      * @param includeChildWorkflows True to include child workflows, false otherwise.
      * @return this.
      */
@@ -266,7 +264,9 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set the maximum number of instances to be returned.
+     * Set the maximum number of instances to be returned. The maximum value is limited by
+     * `nflow.workflow.instance.query.max.results` configuration property. If the value is not set, the value of
+     * `nflow.workflow.instance.query.max.results.default` configuration property is used instead.
      * @param maxResults The maximum number of instances to be returned.
      * @return this.
      */
@@ -276,10 +276,10 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set the maximum number of actions returned for each instance.
-     *
-     * @param maxActions
-     *          The maximum number of actionsto be returned.
+     * Set the maximum number of actions returned for each instance. The maximum value is limited by
+     * `nflow.workflow.instance.query.max.actions` configuration property. If the value is not set, the value of
+     * `nflow.workflow.instance.query.max.actions.default` configuration property is used instead.
+     * @param maxActions The maximum number of actions to be returned.
      * @return this.
      */
     public Builder setMaxActions(Long maxActions) {
