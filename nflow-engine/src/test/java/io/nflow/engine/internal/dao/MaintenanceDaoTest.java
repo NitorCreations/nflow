@@ -53,7 +53,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   private final DateTime prodTime4 = archiveTimeLimit.plusDays(3);
 
   @Test
-  public void listOldWorkflowsReturnPassiveWorkflowsModifiedBeforeGivenTimeOrderedById() {
+  public void getOldWorkflowIdsReturnPassiveWorkflowsModifiedBeforeGivenTimeOrderedById() {
     List<Long> expectedIds = new ArrayList<>();
 
     storeActiveWorkflow(archiveTime1);
@@ -68,7 +68,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void listOldWorkflowsReturnsRequestedNumberOfItemsOrderedById() {
+  public void getOldWorkflowIdsReturnsRequestedNumberOfItemsOrderedById() {
     List<Long> expectedIds = new ArrayList<>();
     expectedIds.add(storePassiveWorkflow(archiveTime2));
     for (int i = 0; i < 9; i++) {
