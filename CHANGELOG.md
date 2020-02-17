@@ -3,7 +3,7 @@
 **BREAKING CHANGES**
   - Drop `nflow_workflow.root_workflow_id` column.
   - Remove, add and update foreign key constraints and indices in nFlow database tables.
-  - ArchiveService and ArchiveResource (/v1/archive) are replaced by MaintenanceService and MaintenanceResource (/v1/maintenance).
+  - `ArchiveService` and `ArchiveResource` (`/v1/archive`) are replaced by `MaintenanceService` and `MaintenanceResource` (`/v1/maintenance`).
   - Change `WorkflowSettings.setHistoryDeleteableAfterHours(Integer)` to `WorkflowSettings.setHistoryDeleteableAfter(ReadablePeriod)` for more flexible configuration.
 
 **Highlights**
@@ -16,6 +16,7 @@
   - `nflow_workflow.root_workflow_id` was only used in old archiving code, so it was removed as the new archiving logic does not need it anymore.
   - Removed unnecessary indices and foreign keys and added missing indices to improve nFlow database performance. See database update scripts for details.
   - Added name for all existing and new constraints in create scripts, if they did not have one yet. This is to make modify operations easier in future. All of these may not be covered in database update scripts.  
+  - See `MaintenanceService` and `MaintenanceConfiguration` for details on how to archive and delete workflow instances. The maintenance operations can now be limited by workflow type as well.
   - As ArchiveService is removed, the old functionality of `ArchiveService.archiveWorkflows(DateTime olderThan, int batchSize)` can now be achieved with
     `MaintenanceService.cleanupWorkflows(new MaintenanceConfiguration.Builder()
       .setArchiveWorkflows(new ConfigurationItem.Builder()
