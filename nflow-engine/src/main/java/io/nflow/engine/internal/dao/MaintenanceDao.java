@@ -4,12 +4,16 @@ import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNa
 import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static java.lang.System.currentTimeMillis;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Stream.generate;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -65,11 +69,18 @@ public class MaintenanceDao {
     return stateColumns;
   }
 
-  public List<Long> listOldWorkflows(TablePrefix table, DateTime before, int maxWorkflows) {
-    String sql = sqlVariants.limit("select id from " + table.nameOf("workflow") + " where next_activation is null and "
-        + sqlVariants.dateLtEqDiff("modified", "?") + " order by id asc", maxWorkflows);
-    return jdbc.queryForList(sql, Long.class, sqlVariants.toTimestampObject(before));
-  }
+  public List<Long> getOldWorkflowIds(TablePrefix table, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
+    StringBuilder sql = new StringBuilder("select id from ").append(table.nameOf("workflow"))
+        .append(" where next_activation is null and ").append(sqlVariants.dateLtEqDiff("modified", "?"));
+    List<Object> args = new ArrayList<>();
+    args.add(sqlVariants.toTimestampObject(before));
+    if (!workflowTypes.isEmpty()) {
+      sql.append(" and type in (").append(generate(() -> "?").limit(workflowTypes.size()).collect(joining(","))).append(")");
+      args.addAll(workflowTypes);
+    }
+    sql.append(" order by id asc");
+    return jdbc.queryForList(sqlVariants.limit(sql.toString(), maxWorkflows), Long.class, args.toArray(new Object[0]));
+}
 
   @Transactional
   public int archiveWorkflows(Collection<Long> workflowIds) {

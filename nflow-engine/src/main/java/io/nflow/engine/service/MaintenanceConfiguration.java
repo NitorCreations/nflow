@@ -1,5 +1,9 @@
 package io.nflow.engine.service;
 
+import static java.util.Collections.emptySet;
+
+import java.util.Set;
+
 import org.joda.time.ReadablePeriod;
 import org.springframework.util.Assert;
 
@@ -100,9 +104,15 @@ public class MaintenanceConfiguration {
      */
     public final int batchSize;
 
-    ConfigurationItem(ReadablePeriod olderThanPeriod, Integer batchSize) {
+    /**
+     * The workflow types to be processed. If empty, process all types.
+     */
+    public final Set<String> workflowTypes;
+
+    ConfigurationItem(ReadablePeriod olderThanPeriod, Integer batchSize, Set<String> workflowTypes) {
       this.olderThanPeriod = olderThanPeriod;
       this.batchSize = batchSize;
+      this.workflowTypes = workflowTypes;
     }
 
     /**
@@ -112,6 +122,7 @@ public class MaintenanceConfiguration {
 
       private ReadablePeriod olderThanPeriod;
       private Integer batchSize = 1000;
+      private Set<String> workflowTypes = emptySet();
 
       /**
        * Set the time limit for the maintenance operation. Items older than (now - period) are processed.
@@ -139,6 +150,18 @@ public class MaintenanceConfiguration {
       }
 
       /**
+       * Set the workflow types to be processed. Default is empty, which means all types are processed.
+       *
+       * @param workflowTypes
+       *          Workflow types to be processed.
+       * @return this
+       */
+      public Builder setWorkflowTypes(Set<String> workflowTypes) {
+        this.workflowTypes = workflowTypes;
+        return this;
+      }
+
+      /**
        * Build ConfigurationItem object.
        *
        * @return ConfigurationItem object.
@@ -146,7 +169,8 @@ public class MaintenanceConfiguration {
       public ConfigurationItem build() {
         Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
         Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
-        return new ConfigurationItem(olderThanPeriod, batchSize);
+        Assert.isTrue(workflowTypes != null, "workflowTypes must not be null");
+        return new ConfigurationItem(olderThanPeriod, batchSize, workflowTypes);
       }
     }
   }

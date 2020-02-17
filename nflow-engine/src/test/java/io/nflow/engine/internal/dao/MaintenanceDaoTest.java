@@ -53,7 +53,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
   private final DateTime prodTime4 = archiveTimeLimit.plusDays(3);
 
   @Test
-  public void listOldWorkflowsReturnPassiveWorkflowsModifiedBeforeGivenTimeOrderedById() {
+  public void getOldWorkflowIdsReturnPassiveWorkflowsModifiedBeforeGivenTimeOrderedById() {
     List<Long> expectedIds = new ArrayList<>();
 
     storeActiveWorkflow(archiveTime1);
@@ -63,12 +63,12 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     expectedIds.add(storePassiveWorkflow(archiveTime1));
     expectedIds.add(storePassiveWorkflow(archiveTime2));
 
-    List<Long> oldWorkflowIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
+    List<Long> oldWorkflowIds = maintenanceDao.getOldWorkflowIds(MAIN, archiveTimeLimit, 10, emptySet());
     assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
   }
 
   @Test
-  public void listOldWorkflowsReturnsRequestedNumberOfItemsOrderedById() {
+  public void getOldWorkflowIdsReturnsRequestedNumberOfItemsOrderedById() {
     List<Long> expectedIds = new ArrayList<>();
     expectedIds.add(storePassiveWorkflow(archiveTime2));
     for (int i = 0; i < 9; i++) {
@@ -80,11 +80,11 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     storeActiveWorkflow(prodTime3);
     storePassiveWorkflow(prodTime4);
 
-    List<Long> oldWorkflowIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 10);
+    List<Long> oldWorkflowIds = maintenanceDao.getOldWorkflowIds(MAIN, archiveTimeLimit, 10, emptySet());
     assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
 
     expectedIds.add(eleventh);
-    oldWorkflowIds = maintenanceDao.listOldWorkflows(MAIN, archiveTimeLimit, 11);
+    oldWorkflowIds = maintenanceDao.getOldWorkflowIds(MAIN, archiveTimeLimit, 11, emptySet());
     assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
   }
 

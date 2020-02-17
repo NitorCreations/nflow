@@ -1,5 +1,9 @@
 package io.nflow.rest.v1.msg;
 
+import static java.util.Collections.emptySet;
+
+import java.util.Set;
+
 import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -22,11 +26,14 @@ public class MaintenanceRequest extends ModelObject {
 
   public static class MaintenanceRequestItem extends ModelObject {
     @ApiModelProperty(value = "Workflow instances whose modified time is older than given period will be processed. Supports ISO-8601 format.", //
-        dataType = "String", example = "PT15D")
+        dataType = "String", example = "PT15D", required = true)
     public ReadablePeriod olderThanPeriod;
 
-    @ApiModelProperty("Number of workflows to process in a single transaction.")
+    @ApiModelProperty(value = "Number of workflows to process in a single transaction.", example = "1000")
     public int batchSize = 1000;
+
+    @ApiModelProperty("Workflow types to process. If no types are defined, process all types.")
+    public Set<String> workflowTypes = emptySet();
   }
 
 }

@@ -1,5 +1,8 @@
 package io.nflow.rest.v1.converter;
 
+import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
+
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.MaintenanceConfiguration;
@@ -27,7 +30,11 @@ public class MaintenanceConverter {
   }
 
   private ConfigurationItem createConfig(MaintenanceRequestItem config) {
-    return new ConfigurationItem.Builder().setOlderThanPeriod(config.olderThanPeriod).setBatchSize(config.batchSize).build();
+    return new ConfigurationItem.Builder() //
+        .setOlderThanPeriod(config.olderThanPeriod) //
+        .setBatchSize(config.batchSize) //
+        .setWorkflowTypes(ofNullable(config.workflowTypes).orElse(emptySet())) //
+        .build();
   }
 
   public MaintenanceResponse convert(MaintenanceResults results) {
