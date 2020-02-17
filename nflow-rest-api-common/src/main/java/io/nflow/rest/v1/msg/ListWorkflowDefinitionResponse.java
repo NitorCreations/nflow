@@ -1,5 +1,7 @@
 package io.nflow.rest.v1.msg;
 
+import org.joda.time.ReadablePeriod;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.annotations.ApiModel;
@@ -39,7 +41,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
     public int maxRetries;
 
     @ApiModelProperty(value = "Delay after which workflow instance history (actions, states) can be deleted from database", required = false)
-    public Integer historyDeletableAfterHours;
+    public ReadablePeriod historyDeletableAfter;
 
     @ApiModelProperty(value = "Default priority for new workflow instances", required = true)
     public short defaultPriority;

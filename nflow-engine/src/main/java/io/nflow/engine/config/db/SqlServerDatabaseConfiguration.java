@@ -96,6 +96,10 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
       return false;
     }
 
+    @Override
+    public String forUpdateInnerSelect() {
+      return "";
+    }
 
     @Override
     public String dateLtEqDiff(String next_activation, String current_timestamp) {

@@ -1,11 +1,10 @@
--- production tables
+-- Production tables
 
 create table nflow_workflow (
   id int primary key generated always as identity,
   status varchar(32) not null check (status in ('created', 'executing', 'inProgress', 'finished', 'manual')),
   type varchar(64) not null,
   priority smallint not null default 0,
-  root_workflow_id integer default null,
   parent_workflow_id integer default null,
   parent_action_id integer default null,
   business_key varchar(64),
@@ -32,6 +31,8 @@ create or replace trigger nflow_workflow_update_modified
 
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group);
 
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
+
 create table nflow_workflow_action (
   id int primary key generated always as identity,
   workflow_id int not null,
@@ -42,23 +43,18 @@ create table nflow_workflow_action (
   retry_no int not null,
   execution_start timestamp(3) not null,
   execution_end timestamp(3) not null,
-  foreign key (workflow_id) references nflow_workflow(id) on delete cascade,
-  constraint nflow_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_action_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
 
-alter table nflow_workflow add constraint fk_workflow_parent
-  foreign key (parent_workflow_id, parent_action_id) references nflow_workflow_action (workflow_id, id) on delete cascade;
-
-alter table nflow_workflow add constraint fk_workflow_root
-  foreign key (root_workflow_id) references nflow_workflow (id) on delete cascade;
+create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id);
 
 create table nflow_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
   state_value varchar(10240) not null,
-  primary key (workflow_id, action_id, state_key),
-  foreign key (workflow_id) references nflow_workflow(id) on delete cascade
+  constraint pk_workflow_state primary key (workflow_id, action_id, state_key),
+  constraint fk_state_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
 
 create table nflow_executor (
@@ -80,7 +76,7 @@ create table nflow_workflow_definition (
   modified timestamp(3) not null default current_timestamp,
   modified_by int not null,
   executor_group varchar(64) not null,
-  primary key (type, executor_group)
+  constraint pk_workflow_definition primary key (type, executor_group)
 );
 
 create or replace trigger nflow_workflow_definition_update_modified
@@ -101,7 +97,6 @@ create table nflow_archive_workflow (
   status varchar(32) not null,
   type varchar(64) not null,
   priority smallint null,
-  root_workflow_id integer,
   parent_workflow_id integer,
   parent_action_id integer,
   business_key varchar(64),
@@ -120,6 +115,8 @@ create table nflow_archive_workflow (
   constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
 );
 
+create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+
 create table nflow_archive_workflow_action (
   id int not null primary key,
   workflow_id int not null,
@@ -130,15 +127,16 @@ create table nflow_archive_workflow_action (
   retry_no int not null,
   execution_start timestamp(3) not null,
   execution_end timestamp(3) not null,
-  foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade,
-  constraint nflow_archive_workflow_action_uniq unique (workflow_id, id)
+  constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
+
+create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
 
 create table nflow_archive_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
   state_value varchar(10240) not null,
-  primary key (workflow_id, action_id, state_key),
-  foreign key (workflow_id) references nflow_archive_workflow(id) on delete cascade
+  constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
+  constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );

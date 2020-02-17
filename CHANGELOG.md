@@ -1,8 +1,39 @@
-## 6.2.1-SNAPSHOT (future release)
+## 7.0.0 (future release)
+
+**BREAKING CHANGES**
+  - Drop `nflow_workflow.root_workflow_id` column.
+  - Remove, add and update foreign key constraints and indices in nFlow database tables.
+  - ArchiveService and ArchiveResource (/v1/archive) are replaced by MaintenanceService and MaintenanceResource (/v1/maintenance).
+  - Change `WorkflowSettings.setHistoryDeleteableAfterHours(Integer)` to `WorkflowSettings.setHistoryDeleteableAfter(ReadablePeriod)` for more flexible configuration.
 
 **Highlights**
+- `nflow-engine`
+  - Improve workflow instance archiving performance. Archiving has been in practice unusable in some scenarios.
+  - Add support for deleting workflow instances, actions and state variables from production and archive tables.
 
 **Details**
+- `nflow-engine`
+  - `nflow_workflow.root_workflow_id` was only used in old archiving code, so it was removed as the new archiving logic does not need it anymore.
+  - Removed unnecessary indices and foreign keys and added missing indices to improve nFlow database performance. See database update scripts for details.
+  - Added name for all existing and new constraints in create scripts, if they did not have one yet. This is to make modify operations easier in future. All of these may not be covered in database update scripts.  
+  - As ArchiveService is removed, the old functionality of `ArchiveService.archiveWorkflows(DateTime olderThan, int batchSize)` can now be achieved with
+    `MaintenanceService.cleanupWorkflows(new MaintenanceConfiguration.Builder()
+      .setArchiveWorkflows(new ConfigurationItem.Builder()
+        .setOlderThanPeriod(new Period(olderThan, DateTime.now())
+        .setBatchSize(batchSize)
+        .build())
+      .build)`
+  - For example, `WorkflowSettings.setHistoryDeleteableAfterHours(12)` can now be achieved by `WorkflowSettings.setHistoryDeleteableAfter(Period.hours(12))`.
+- `nflow-explorer`
+  - Dependency updates:
+    - angular extra libraries 1.7.9
+    - angular-ui-router 1.0.25
+    - dagre-d3 0.6.4
+    - node-sass 9.7.4
+    - karma-jasmine 3.1.1
+    - autoprefixer 9.7.4
+    - node v12.15.0
+    - npm 6.13.4
 
 ## 6.2.0 (2020-02-11)
 

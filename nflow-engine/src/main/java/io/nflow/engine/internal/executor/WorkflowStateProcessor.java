@@ -32,8 +32,10 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.Assert;
 
+import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -69,6 +71,7 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
+  private final MaintenanceDao maintenanceDao;
   private final List<WorkflowExecutorListener> executorListeners;
   final String illegalStateChangeAction;
   private final int unknownWorkflowTypeRetryDelay;
@@ -83,7 +86,7 @@ class WorkflowStateProcessor implements Runnable {
   private Thread thread;
 
   WorkflowStateProcessor(long instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao,
+      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
       Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
@@ -91,6 +94,7 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.workflowInstanceDao = workflowInstanceDao;
+    this.maintenanceDao = maintenanceDao;
     this.processingInstances = processingInstances;
     this.executorListeners = asList(executorListeners);
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
@@ -233,14 +237,19 @@ class WorkflowStateProcessor implements Runnable {
     }
     WorkflowState nextState = definition.getState(execution.getNextState());
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
-      String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
-      AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
-      String[] waitStates = parentDefinition.getStates().stream()
-              .filter(state -> state.getType() == WorkflowStateType.wait)
-              .map(WorkflowState::name)
-              .toArray(String[]::new);
-      if (waitStates.length > 0) {
-        execution.wakeUpParentWorkflow(waitStates);
+      try {
+        String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
+        AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions
+            .getWorkflowDefinition(parentType);
+        String[] waitStates = parentDefinition.getStates().stream() //
+            .filter(state -> state.getType() == WorkflowStateType.wait) //
+            .map(WorkflowState::name) //
+            .toArray(String[]::new);
+        if (waitStates.length > 0) {
+          execution.wakeUpParentWorkflow(waitStates);
+        }
+      } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
+        // parent has been archived or deleted, no need to wake it up anymore
       }
     }
     WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance) //
@@ -340,10 +349,11 @@ class WorkflowStateProcessor implements Runnable {
 
   private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings, StateExecutionImpl execution) {
     try {
-      if (settings.historyDeletableAfterHours != null
+      if (settings.historyDeletableAfter != null
           && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
-        logger.info("Cleaning workflow instance {} history older than {} hours", instanceId, settings.historyDeletableAfterHours);
-        workflowInstanceDao.deleteWorkflowInstanceHistory(instanceId, settings.historyDeletableAfterHours);
+        DateTime olderThan = DateTime.now().minus(settings.historyDeletableAfter);
+        logger.debug("Cleaning workflow instance {} history older than {}", instanceId, olderThan);
+        maintenanceDao.deleteActionAndStateHistory(instanceId, olderThan);
       }
     } catch (Throwable t) {
       logger.error("Failure in workflow instance " + instanceId + " history cleanup", t);

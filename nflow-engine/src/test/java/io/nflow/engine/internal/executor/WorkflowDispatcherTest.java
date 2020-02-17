@@ -369,8 +369,8 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, final Runnable fakeCommand) {
-    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, env,
-        new ConcurrentHashMap<>(), (WorkflowExecutorListener) null) {
+    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, null, env, new ConcurrentHashMap<>(),
+        (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();

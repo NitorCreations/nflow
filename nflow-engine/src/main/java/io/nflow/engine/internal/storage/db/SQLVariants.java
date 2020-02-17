@@ -32,6 +32,10 @@ public interface SQLVariants {
 
   boolean useBatchUpdate();
 
+  default String forUpdateInnerSelect() {
+    return " for update";
+  }
+
   default String dateLtEqDiff(String next_activation, String current_timestamp) {
     return next_activation + " <= " + current_timestamp;
   }

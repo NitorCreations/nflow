@@ -6,6 +6,7 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 
+import org.joda.time.Period;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.definition.NextAction;
@@ -43,7 +44,7 @@ public class DeleteHistoryWorkflow extends WorkflowDefinition<DeleteHistoryWorkf
 
   public DeleteHistoryWorkflow() {
     super(TYPE, State.begin, State.error,
-        new WorkflowSettings.Builder().setHistoryDeletableAfterHours(0).setDeleteHistoryCondition(() -> true).build());
+        new WorkflowSettings.Builder().setHistoryDeletableAfter(Period.ZERO).setDeleteHistoryCondition(() -> true).build());
     setDescription("Delete history workflow");
     permit(State.begin, State.process);
     permit(State.process, State.done);

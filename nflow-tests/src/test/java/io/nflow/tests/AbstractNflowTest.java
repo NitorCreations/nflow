@@ -45,6 +45,7 @@ public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceIdResource;
   protected WebClient workflowDefinitionResource;
   protected WebClient statisticsResource;
+  protected WebClient maintenanceResource;
 
   private final NflowServerConfig server;
 
@@ -74,6 +75,12 @@ public abstract class AbstractNflowTest {
   public void setStatisticsResource(@Named("statistics") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.statisticsResource = fromClient(client, true).to(newUri, false);
+  }
+
+  @Inject
+  public void setMaintenanceResource(@Named("maintenance") WebClient client) {
+    String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
+    this.maintenanceResource = fromClient(client, true).to(newUri, false);
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(long instanceId) {

@@ -181,7 +181,7 @@ public class WorkflowInstanceDao {
     try {
       StringBuilder sqlb = new StringBuilder(256);
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
-      Object[] instanceValues = new Object[] { instance.type, instance.priority, instance.rootWorkflowId,
+      Object[] instanceValues = new Object[] { instance.type, instance.priority,
           instance.parentWorkflowId, instance.parentActionId, instance.businessKey, instance.externalId,
           executorInfo.getExecutorGroup(), instance.status.name(), instance.state,
           abbreviate(instance.stateText, getInstanceStateTextLength()), toTimestamp(instance.nextActivation),
@@ -207,8 +207,8 @@ public class WorkflowInstanceDao {
   }
 
   String insertWorkflowInstanceSql() {
-    return "insert into nflow_workflow(type, priority, root_workflow_id, parent_workflow_id, parent_action_id, business_key, external_id, "
-        + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, ?, "
+    return "insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, external_id, "
+        + "executor_group, status, state, state_text, next_activation, workflow_signal) values (?, ?, ?, ?, ?, ?, ?, "
         + sqlVariants.workflowStatus() + ", ?, ?, ?, ?)";
   }
 
@@ -227,7 +227,6 @@ public class WorkflowInstanceDao {
           PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
           ps.setString(p++, instance.type);
           ps.setShort(p++, instance.priority);
-          ps.setObject(p++, instance.rootWorkflowId);
           ps.setObject(p++, instance.parentWorkflowId);
           ps.setObject(p++, instance.parentActionId);
           ps.setString(p++, instance.businessKey);
@@ -352,9 +351,8 @@ public class WorkflowInstanceDao {
         long parentActionId = insertWorkflowInstanceAction(action);
         insertVariables(action.workflowInstanceId, parentActionId, changedStateVariables);
         for (WorkflowInstance childTemplate : childWorkflows) {
-          Long rootWorkflowId = instance.rootWorkflowId == null ? instance.id : instance.rootWorkflowId;
-          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setRootWorkflowId(rootWorkflowId)
-              .setParentWorkflowId(instance.id).setParentActionId(parentActionId).build();
+          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
+              .setParentActionId(parentActionId).build();
           insertWorkflowInstance(childWorkflow);
         }
         for (WorkflowInstance workflow : workflows) {
@@ -767,7 +765,6 @@ public class WorkflowInstanceDao {
       return workflowInstanceFactory.newWorkflowInstanceBuilder() //
           .setId(rs.getLong("id")) //
           .setExecutorId(getInt(rs, "executor_id")) //
-          .setRootWorkflowId(getLong(rs, "root_workflow_id")) //
           .setParentWorkflowId(getLong(rs, "parent_workflow_id")) //
           .setParentActionId(getLong(rs, "parent_action_id")) //
           .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status"))) //
@@ -858,47 +855,12 @@ public class WorkflowInstanceDao {
   }
 
   public String getWorkflowInstanceType(long workflowInstanceId) {
-    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId, id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
+    String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId,
+        id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
     if (workflowTypeByWorkflowIdCache.size() > workflowInstanceTypeCacheSize) {
       workflowTypeByWorkflowIdCache.clear();
     }
     return type;
   }
 
-  @Transactional
-  public int deleteWorkflowInstanceHistory(long workflowInstanceId, Integer historyDeletableAfterHours) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("workflowId", workflowInstanceId);
-    params.addValue("deleteUpToTime", sqlVariants.toTimestampObject(now().minusHours(historyDeletableAfterHours)));
-    Long maxActionId = namedJdbc.queryForObject("select max(id) from nflow_workflow_action where workflow_id = :workflowId and "
-        + sqlVariants.dateLtEqDiff("execution_end", ":deleteUpToTime"), params, Long.class);
-    int deletedActions = 0;
-    if (maxActionId != null) {
-      params.addValue("maxActionId", maxActionId);
-      List<Long> referredActionIds = namedJdbc.queryForList(
-          "select distinct(max(action_id)) from nflow_workflow_state where workflow_id = :workflowId group by state_key", params,
-          Long.class);
-      if (referredActionIds.isEmpty()) {
-        namedJdbc.update("delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId",
-            params);
-      } else {
-        params.addValue("referredActionIds", referredActionIds);
-        namedJdbc.update(
-            "delete from nflow_workflow_state where workflow_id = :workflowId and action_id <= :maxActionId and action_id not in (:referredActionIds)",
-            params);
-      }
-      referredActionIds.addAll(namedJdbc.queryForList(
-          "select distinct parent_action_id from nflow_workflow where parent_workflow_id = :workflowId", params, Long.class));
-      if (referredActionIds.isEmpty()) {
-        deletedActions = namedJdbc
-            .update("delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId", params);
-      } else {
-        params.addValue("referredActionIds", referredActionIds);
-        deletedActions = namedJdbc.update(
-            "delete from nflow_workflow_action where workflow_id = :workflowId and id <= :maxActionId and id not in (:referredActionIds)",
-            params);
-      }
-    }
-    return deletedActions;
-  }
 }

@@ -194,7 +194,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<WorkflowInstance> instances = dao.queryWorkflowInstances(query);
     assertThat(instances.size(), is(1));
     for (WorkflowInstance instance : instances) {
-      assertThat(instance.rootWorkflowId, is(nullValue()));
       assertThat(instance.parentWorkflowId, is(nullValue()));
       assertThat(instance.businessKey, is("newKey"));
     }
@@ -272,26 +271,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWithRootWorkflowAndChildWorkflowsWorks() {
-    WorkflowInstance instance = updateInstanceBuilder().build();
-    WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
-    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("childKey").build();
-
-    dao.updateWorkflowInstanceAfterExecution(instance, action, asList(childWorkflow), emptyWorkflows, false);
-
-    Map<Long, List<Long>> childWorkflows = dao.getWorkflowInstance(instance.id,
-        EnumSet.of(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS), null).childWorkflows;
-    assertThat(childWorkflows.size(), is(1));
-    for (List<Long> childIds : childWorkflows.values()) {
-      assertThat(childIds.size(), is(1));
-      WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0), emptySet(), null);
-      assertThat(childInstance.rootWorkflowId, is(instance.id));
-      assertThat(childInstance.parentWorkflowId, is(instance.id));
-      assertThat(childInstance.businessKey, is("childKey"));
-    }
-  }
-
-  @Test
   public void updateWorkflowInstanceWithChildWorkflowHavingExistinExternalIdWorks() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
@@ -329,7 +308,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       assertThat(childIds.size(), is(1));
       WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0),
           EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-      assertThat(childInstance.rootWorkflowId, is(id));
       assertThat(childInstance.parentWorkflowId, is(id));
       assertThat(childInstance.businessKey, is("childKey"));
       assertThat(childInstance.externalId, is("extId"));
@@ -339,7 +317,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void updateWorkflowInstanceWithNonRootWorkflowAndChildWorkflowsWorks() {
+  public void updateWorkflowInstanceWithChildWorkflowsWorks() {
     // create 3 level hierarchy of workflows
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
@@ -378,7 +356,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     for (List<Long> childIds : childWorkflows.values()) {
       assertThat(childIds.size(), is(1));
       WorkflowInstance childInstance = dao.getWorkflowInstance(childIds.get(0), emptySet(), null);
-      assertThat(childInstance.rootWorkflowId, is(id));
       assertThat(childInstance.parentWorkflowId, is(middleWorkflowId));
       assertThat(childInstance.businessKey, is("childKey"));
     }
@@ -582,17 +559,17 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = now();
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
-        .setRootWorkflowId(9283L).setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
+        .setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
         .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
         .setStartedIfNotSet(started).setPriority((short) 10).build();
 
     d.insertWorkflowInstance(wf);
     assertEquals(
-        "with wf as (insert into nflow_workflow(type, priority, root_workflow_id, parent_workflow_id, parent_action_id, business_key, "
+        "with wf as (insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, "
             + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
-            + "(?, ?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins13 as "
+            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
             + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
-            + "ins15 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+            + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
             + "select wf.id,0,?,? from wf) select wf.id from wf",
         sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
@@ -600,7 +577,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     int i = 0;
     assertThat(args.getAllValues().get(i++), is((Object) wf.type));
     assertThat(args.getAllValues().get(i++), is((Object) wf.priority));
-    assertThat(args.getAllValues().get(i++), is((Object) wf.rootWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentWorkflowId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.parentActionId));
     assertThat(args.getAllValues().get(i++), is((Object) wf.businessKey));
@@ -947,31 +923,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(action.stateText, is("cleared"));
     assertThat(action.type, is(WorkflowActionType.externalChange));
     assertThat(dao.getSignal(instanceId), is(Optional.empty()));
-  }
-
-  @Test
-  public void deleteExpiredWorkflowHistory() {
-    WorkflowInstance parentWorkflow = constructWorkflowInstanceBuilder().build();
-    long parentWorkflowId = dao.insertWorkflowInstance(parentWorkflow);
-    long addChildActionId = addWorkflowAction(parentWorkflowId, new WorkflowInstance.Builder(parentWorkflow).build(), now(),
-        now());
-    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setParentWorkflowId(parentWorkflowId)
-        .setParentActionId(addChildActionId).build();
-    long childWorkflowId = dao.insertWorkflowInstance(childWorkflow);
-    addWorkflowAction(parentWorkflowId,
-        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "deletedValue").build(), now(),
-        now().minusDays(1));
-    addWorkflowAction(parentWorkflowId,
-        new WorkflowInstance.Builder(parentWorkflow).putStateVariable("variable", "preservedValue").build(), now(), now());
-
-    assertThat(dao.deleteWorkflowInstanceHistory(parentWorkflowId, 0), equalTo(1));
-
-    parentWorkflow = dao.getWorkflowInstance(parentWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class), null);
-    assertThat(parentWorkflow.getStateVariable("requestData"), equalTo("{ \"parameter\": \"abc\" }"));
-    assertThat(parentWorkflow.getStateVariable("variable"), equalTo("preservedValue"));
-    assertThat(parentWorkflow.actions.size(), equalTo(2));
-    childWorkflow = dao.getWorkflowInstance(childWorkflowId, emptySet(), null);
-    assertThat(childWorkflow.parentWorkflowId, equalTo(parentWorkflowId));
   }
 
   private static void checkSameWorkflowInfo(WorkflowInstance i1, WorkflowInstance i2) {
