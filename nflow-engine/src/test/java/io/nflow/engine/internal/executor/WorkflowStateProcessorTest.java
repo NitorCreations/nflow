@@ -1,7 +1,7 @@
 package io.nflow.engine.internal.executor;
 
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
-import static io.nflow.engine.workflow.definition.BulkWorkflow.State.waitForChildrenToFinish;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.State.waitForChildrenToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
@@ -87,7 +87,7 @@ import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.definition.BulkWorkflow;
+import io.nflow.engine.workflow.curated.BulkWorkflow;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;

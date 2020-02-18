@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.definition.BulkWorkflow;
+import io.nflow.engine.workflow.curated.BulkWorkflow;
 import io.nflow.engine.workflow.executor.WorkflowLogContextListener;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;

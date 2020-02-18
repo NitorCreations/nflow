@@ -1,9 +1,9 @@
-package io.nflow.engine.workflow.definition;
+package io.nflow.engine.workflow.curated;
 
-import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
-import static io.nflow.engine.workflow.definition.BulkWorkflow.State.error;
-import static io.nflow.engine.workflow.definition.BulkWorkflow.State.splitWork;
-import static io.nflow.engine.workflow.definition.BulkWorkflow.State.waitForChildrenToFinish;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.State.done;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.State.error;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.State.splitWork;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.State.waitForChildrenToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
@@ -24,6 +24,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.nflow.engine.workflow.definition.NextAction;
+import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.curated.BulkWorkflow.State;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -38,7 +45,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
  * Bulk child workflow executor that does not overflow the system.
  */
 @Component
-public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
+public class BulkWorkflow extends WorkflowDefinition<State> {
 
   public static final String BULK_WORKFLOW_TYPE = "bulk";
   public static final String VAR_CHILD_DATA = "childData";
@@ -71,7 +78,7 @@ public class BulkWorkflow extends WorkflowDefinition<BulkWorkflow.State> {
   }
 
   protected BulkWorkflow(String type) {
-    super(type, splitWork, error, new WorkflowSettings.Builder().setMaxRetries(Integer.MAX_VALUE).build());
+    super(type, splitWork, error, new Builder().setMaxRetries(Integer.MAX_VALUE).build());
     setDescription("Executes child workflows in bulk but gracefully without effecting non-bulk tasks.");
     permit(splitWork, waitForChildrenToFinish);
     permit(waitForChildrenToFinish, done);

@@ -8,6 +8,7 @@
   - `StateExecution.getAllChildWorkflows` does not return current state variables of child workflows anymore.
   - `WorkflowStateProcessor` does not read child workflow IDs of processed workflow instances anymore.
   - `QueryWorkflowInstances.Builder` does not query for current state variables by default anymore.
+  - `BulkWorklow` moved to `curated` java package.
 
 **Highlights**
 - `nflow-engine`
