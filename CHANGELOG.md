@@ -13,7 +13,7 @@
 - `nflow-engine`
   - Improve workflow instance archiving performance. Archiving has been in practice unusable in some scenarios.
   - Add support for deleting workflow instances, actions and state variables from production and archive tables.
-  - Add abstract CronWorkflow to help implement long running workflows that execute scheduled tasks.
+  - Add `CronWorkflow` abstract class to help implement long running workflows that execute scheduled tasks.
   - Remove support for `nflow.executor.fetchChildWorkflowIds` configuration property.
 
 **Details**
