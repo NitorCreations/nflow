@@ -13,6 +13,7 @@
 - `nflow-engine`
   - Improve workflow instance archiving performance. Archiving has been in practice unusable in some scenarios.
   - Add support for deleting workflow instances, actions and state variables from production and archive tables.
+  - Add abstract CronWorkflow to help implement long running workflows that execute scheduled tasks.
   - Remove support for `nflow.executor.fetchChildWorkflowIds` configuration property.
 
 **Details**
@@ -21,6 +22,7 @@
   - Removed unnecessary indices and foreign keys and added missing indices to improve nFlow database performance. See database update scripts for details.
   - Added name for all existing and new constraints in create scripts, if they did not have one yet. This is to make modify operations easier in future. All of these may not be covered in database update scripts.  
   - See `MaintenanceService` and `MaintenanceConfiguration` for details on how to archive and delete workflow instances. The maintenance operations can now be limited by workflow type as well.
+  - See `MaintenanceCronWorkflow` for an example on how to use `CronWorkflow` to schedule tasks.
   - As ArchiveService is removed, the old functionality of `ArchiveService.archiveWorkflows(DateTime olderThan, int batchSize)` can now be achieved with
     `MaintenanceService.cleanupWorkflows(new MaintenanceConfiguration.Builder()
       .setArchiveWorkflows(new ConfigurationItem.Builder()
