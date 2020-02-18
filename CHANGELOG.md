@@ -5,11 +5,15 @@
   - Remove, add and update foreign key constraints and indices in nFlow database tables.
   - `ArchiveService` and `ArchiveResource` (`/v1/archive`) are replaced by `MaintenanceService` and `MaintenanceResource` (`/v1/maintenance`).
   - Change `WorkflowSettings.setHistoryDeleteableAfterHours(Integer)` to `WorkflowSettings.setHistoryDeleteableAfter(ReadablePeriod)` for more flexible configuration.
+  - `StateExecution.getAllChildWorkflows` does not return current state variables of child workflows anymore.
+  - `WorkflowStateProcessor` does not read child workflow IDs of processed workflow instances anymore.
+  - `QueryWorkflowInstances.Builder` does not query for current state variables by default anymore.
 
 **Highlights**
 - `nflow-engine`
   - Improve workflow instance archiving performance. Archiving has been in practice unusable in some scenarios.
   - Add support for deleting workflow instances, actions and state variables from production and archive tables.
+  - Remove support for `nflow.executor.fetchChildWorkflowIds` configuration property.
 
 **Details**
 - `nflow-engine`
@@ -25,6 +29,8 @@
         .build())
       .build)`
   - For example, `WorkflowSettings.setHistoryDeleteableAfterHours(12)` can now be achieved by `WorkflowSettings.setHistoryDeleteableAfter(Period.hours(12))`.
+  - To get child workflows with state variables in a state method, use `StateExecution.queryChildWorkflows`.
+  - To get all child workflow IDs in a state method, use `StateExecution.getAllChildWorkflows`.
 - `nflow-explorer`
   - Dependency updates:
     - angular extra libraries 1.7.9
