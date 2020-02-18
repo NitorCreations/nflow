@@ -28,6 +28,7 @@ import io.nflow.jetty.StartNflow;
 import io.nflow.metrics.NflowMetricsContext;
 import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.MaintenanceCronWorkflow;
 
 public class DemoServer {
 
@@ -74,6 +75,8 @@ public class DemoServer {
         .build();
     workflowInstanceService.insertWorkflowInstance(instance);
     instance = new WorkflowInstance.Builder().setType(FOREVER_WAITING_WORKFLOW_TYPE).build();
+    workflowInstanceService.insertWorkflowInstance(instance);
+    instance = new WorkflowInstance.Builder().setType(MaintenanceCronWorkflow.TYPE).build();
     workflowInstanceService.insertWorkflowInstance(instance);
   }
 }
