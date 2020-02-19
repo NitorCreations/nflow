@@ -78,7 +78,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     if (handleFailureImpl(execution)) {
       return moveToState(schedule, "Failure handled successfully");
     }
-    return moveToState(failed, "Requires manual fixing");
+    return moveToState(failed, "Failure handling failed");
   }
 
   protected boolean handleFailureImpl(StateExecution execution) {

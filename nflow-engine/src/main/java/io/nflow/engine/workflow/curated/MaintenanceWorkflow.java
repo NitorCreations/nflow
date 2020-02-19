@@ -32,16 +32,21 @@ public class MaintenanceWorkflow extends CronWorkflow {
   public NextAction doWork(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = VAR_MAINTENANCE_CONFIGURATION, readOnly = true) MaintenanceConfiguration conf) {
     MaintenanceResults results = maintenanceService.cleanupWorkflows(conf);
     StringBuilder sb = new StringBuilder(64);
-    sb.append("Maintenance:");
     add(sb, "Archived", results.archivedWorkflows);
     add(sb, "Deleted", results.deletedWorkflows);
     add(sb, "Deleted archived", results.deletedArchivedWorkflows);
+    if (sb.length() == 0) {
+      sb.append("No actions");
+    }
     return moveToState(schedule, sb.toString());
   }
 
   private void add(StringBuilder sb, String type, int count) {
     if (count > 0) {
-      sb.append(' ').append(type).append(":").append(count);
+      if (sb.length() > 0) {
+        sb.append(' ');
+      }
+      sb.append(type).append(":").append(count);
     }
   }
 }
