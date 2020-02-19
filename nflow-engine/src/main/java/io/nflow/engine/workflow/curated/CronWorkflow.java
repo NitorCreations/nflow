@@ -22,7 +22,7 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static org.joda.time.DateTime.now;
+import static org.joda.time.Instant.now;
 import static org.joda.time.Period.weeks;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -66,12 +66,11 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
-    return moveToStateAfter(doWork, getNextActivationTime(cron, execution.getRequestedActivationTime()), "Scheduled");
+    return moveToStateAfter(doWork, getNextActivationTime(cron), "Scheduled");
   }
 
-  protected DateTime getNextActivationTime(String cron, DateTime lastWorkEndTime) {
-    DateTime next = new DateTime(new CronSequenceGenerator(cron).next(lastWorkEndTime.toDate()));
-    return next.isBeforeNow() ? now() : next;
+  protected DateTime getNextActivationTime(String cron) {
+    return new DateTime(new CronSequenceGenerator(cron).next(now().toDate()));
   }
 
   public NextAction handleFailure(StateExecution execution) {

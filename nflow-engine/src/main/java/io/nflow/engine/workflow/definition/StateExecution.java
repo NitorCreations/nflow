@@ -36,14 +36,6 @@ public interface StateExecution {
    */
   int getRetries();
 
-  /**
-   * Return the time when this workflow instance was originally scheduled to run.
-   * If there is much work to be done or executors are not running this can be far away in the past.
-   *
-   * @return The original next activation time of this workflow.
-   */
-  DateTime getRequestedActivationTime();
-
     /**
    * Return a string value of the given variable.
    *
