@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;

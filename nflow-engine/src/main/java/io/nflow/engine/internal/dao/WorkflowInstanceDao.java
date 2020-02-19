@@ -46,7 +46,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -520,7 +519,7 @@ public class WorkflowInstanceDao {
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
     String sql = "select *, 0 as archived from " + MAIN.nameOf("workflow") + " where id = ?";
     if (queryArchive) {
-      sql += "union all select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " where id = ?";
+      sql += " union all select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " where id = ?";
     }
     WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {

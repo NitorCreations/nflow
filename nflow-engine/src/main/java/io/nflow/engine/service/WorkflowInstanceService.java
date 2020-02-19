@@ -2,8 +2,6 @@ package io.nflow.engine.service;
 
 import static java.util.Collections.emptySet;
 import static java.util.EnumSet.complementOf;
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
