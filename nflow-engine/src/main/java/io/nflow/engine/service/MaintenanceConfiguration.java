@@ -1,6 +1,7 @@
 package io.nflow.engine.service;
 
 import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
 
 import java.util.Set;
 
@@ -39,44 +40,35 @@ public class MaintenanceConfiguration {
    */
   public static class Builder {
 
-    private ConfigurationItem deleteArchivedWorkflows;
-    private ConfigurationItem archiveWorkflows;
-    private ConfigurationItem deleteWorkflows;
+    private ConfigurationItem.Builder deleteArchivedWorkflows;
+    private ConfigurationItem.Builder archiveWorkflows;
+    private ConfigurationItem.Builder deleteWorkflows;
 
     /**
      * Configuration for deleting old workflow instances from archive tables.
      *
-     * @param archiveWorkflows
-     *          Configuration item
-     * @return this
+     * @return builder for configuration
      */
-    public MaintenanceConfiguration.Builder setArchiveWorkflows(ConfigurationItem archiveWorkflows) {
-      this.archiveWorkflows = archiveWorkflows;
-      return this;
+    public ConfigurationItem.Builder withArchiveWorkflows() {
+      return archiveWorkflows = new ConfigurationItem.Builder(this);
     }
 
     /**
      * Set configuration for deleting old workflow instances from archive tables.
      *
-     * @param deleteArchivedWorkflows
-     *          Configuration item
-     * @return this
+     * @return builder for configuration
      */
-    public MaintenanceConfiguration.Builder setDeleteArchivedWorkflows(ConfigurationItem deleteArchivedWorkflows) {
-      this.deleteArchivedWorkflows = deleteArchivedWorkflows;
-      return this;
+    public ConfigurationItem.Builder withDeleteArchivedWorkflows() {
+      return deleteArchivedWorkflows = new ConfigurationItem.Builder(this);
     }
 
     /**
      * Set configuration for deleting old workflow instances from main tables.
      *
-     * @param deleteWorkflows
-     *          Configuration item
-     * @return this
+     * @return builder for configuration
      */
-    public MaintenanceConfiguration.Builder setDeleteWorkflows(ConfigurationItem deleteWorkflows) {
-      this.deleteWorkflows = deleteWorkflows;
-      return this;
+    public ConfigurationItem.Builder withDeleteWorkflows() {
+      return deleteWorkflows = new ConfigurationItem.Builder(this);
     }
 
     /**
@@ -85,7 +77,10 @@ public class MaintenanceConfiguration {
      * @return MaintenanceConfiguration object.
      */
     public MaintenanceConfiguration build() {
-      return new MaintenanceConfiguration(deleteArchivedWorkflows, archiveWorkflows, deleteWorkflows);
+      return new MaintenanceConfiguration(
+              ofNullable(deleteArchivedWorkflows).map(ConfigurationItem.Builder::build).orElse(null),
+              ofNullable(archiveWorkflows).map(ConfigurationItem.Builder::build).orElse(null),
+              ofNullable(deleteWorkflows).map(ConfigurationItem.Builder::build).orElse(null));
     }
   }
 
@@ -120,9 +115,14 @@ public class MaintenanceConfiguration {
      */
     public static class Builder {
 
+      private final MaintenanceConfiguration.Builder parentBuilder;
       private ReadablePeriod olderThanPeriod;
       private Integer batchSize = 1000;
       private Set<String> workflowTypes = emptySet();
+
+      Builder(MaintenanceConfiguration.Builder parentBuilder) {
+        this.parentBuilder = parentBuilder;
+      }
 
       /**
        * Set the time limit for the maintenance operation. Items older than (now - period) are processed.
@@ -161,12 +161,16 @@ public class MaintenanceConfiguration {
         return this;
       }
 
+      public MaintenanceConfiguration.Builder done() {
+        return parentBuilder;
+      }
+
       /**
        * Build ConfigurationItem object.
        *
        * @return ConfigurationItem object.
        */
-      public ConfigurationItem build() {
+      ConfigurationItem build() {
         Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
         Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
         Assert.isTrue(workflowTypes != null, "workflowTypes must not be null");

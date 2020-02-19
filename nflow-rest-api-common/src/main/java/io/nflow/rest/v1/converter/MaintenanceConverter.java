@@ -17,24 +17,18 @@ public class MaintenanceConverter {
 
   public MaintenanceConfiguration convert(MaintenanceRequest request) {
     MaintenanceConfiguration.Builder builder = new MaintenanceConfiguration.Builder();
-    if (request.archiveWorkflows != null) {
-      builder.setArchiveWorkflows(createConfig(request.archiveWorkflows));
-    }
-    if (request.deleteArchivedWorkflows != null) {
-      builder.setDeleteArchivedWorkflows(createConfig(request.deleteArchivedWorkflows));
-    }
-    if (request.deleteWorkflows != null) {
-      builder.setDeleteWorkflows(createConfig(request.deleteWorkflows));
-    }
+    ofNullable(request.archiveWorkflows).ifPresent(req -> convert(req, builder.withArchiveWorkflows()));
+    ofNullable(request.deleteArchivedWorkflows).ifPresent(req -> convert(req, builder.withDeleteArchivedWorkflows()));
+    ofNullable(request.deleteWorkflows).ifPresent(req -> convert(req, builder.withDeleteWorkflows()));
     return builder.build();
   }
 
-  private ConfigurationItem createConfig(MaintenanceRequestItem config) {
-    return new ConfigurationItem.Builder() //
+  private void convert(MaintenanceRequestItem config, MaintenanceConfiguration.ConfigurationItem.Builder builder) {
+    builder
         .setOlderThanPeriod(config.olderThanPeriod) //
         .setBatchSize(config.batchSize) //
         .setWorkflowTypes(ofNullable(config.workflowTypes).orElse(emptySet())) //
-        .build();
+        .done();
   }
 
   public MaintenanceResponse convert(MaintenanceResults results) {

@@ -66,11 +66,4 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   public NextAction schedule(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String schedule) {
     return moveToStateAfter(doWork, new DateTime(new CronSequenceGenerator(schedule).next(new Date())), "schedule");
   }
-
-  public NextAction doWork(StateExecution execution) {
-    workImpl(execution);
-    return moveToState(schedule, "work done");
-  }
-
-  protected abstract void workImpl(StateExecution execution);
 }

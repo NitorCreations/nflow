@@ -59,10 +59,9 @@ public class MaintenanceServiceTest {
     service = new MaintenanceService(dao, tableMetadataChecker, workflowDefinitionService);
     setCurrentMillisFixed(currentTimeMillis());
     ReadablePeriod period = new Period(limit, now());
-    ConfigurationItem configItem = new ConfigurationItem.Builder().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).build();
-    archiveConfig = new MaintenanceConfiguration.Builder().setArchiveWorkflows(configItem).build();
-    deleteMainConfig = new MaintenanceConfiguration.Builder().setDeleteWorkflows(configItem).build();
-    deleteArchiveConfig = new MaintenanceConfiguration.Builder().setDeleteArchivedWorkflows(configItem).build();
+    archiveConfig = new MaintenanceConfiguration.Builder().withArchiveWorkflows().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).done().build();
+    deleteMainConfig = new MaintenanceConfiguration.Builder().withDeleteWorkflows().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).done().build();
+    deleteArchiveConfig = new MaintenanceConfiguration.Builder().withDeleteArchivedWorkflows().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).done().build();
   }
 
   @AfterEach
