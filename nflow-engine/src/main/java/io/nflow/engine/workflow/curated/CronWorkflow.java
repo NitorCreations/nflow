@@ -66,11 +66,11 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
-    return moveToStateAfter(doWork, nextActivationTime(cron, execution.getRequestedNextActivationTime()), "Scheduled");
+    return moveToStateAfter(doWork, getNextActivationTime(cron, execution.getRequestedNextActivationTime()), "Scheduled");
   }
 
-  protected DateTime nextActivationTime(String cron, DateTime activationTime) {
-    DateTime next = new DateTime(new CronSequenceGenerator(cron).next(activationTime.toDate()));
+  protected DateTime getNextActivationTime(String cron, DateTime lastWorkEndTime) {
+    DateTime next = new DateTime(new CronSequenceGenerator(cron).next(lastWorkEndTime.toDate()));
     return next.isBeforeNow() ? now() : next;
   }
 
@@ -82,7 +82,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   protected boolean handleFailureImpl(StateExecution execution) {
-    logger.warn("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
+    logger.error("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
     return true;
   }
 }
