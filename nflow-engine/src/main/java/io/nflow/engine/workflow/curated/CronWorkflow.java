@@ -57,17 +57,15 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   protected CronWorkflow(String type, WorkflowSettings settings) {
     super(type, schedule, handleFailure, settings);
     permit(schedule, doWork);
-    permit(doWork, schedule, handleFailure);
-    permit(handleFailure, schedule);
+    permit(doWork, schedule);
+    permit(handleFailure, schedule, failed);
   }
 
   protected CronWorkflow(String type) {
-    this(type, new Builder()
-            .setHistoryDeletableAfter(weeks(1))
-            .build());
+    this(type, new Builder().setHistoryDeletableAfter(weeks(1)).build());
   }
 
-  public NextAction schedule(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
+  public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
     return moveToStateAfter(doWork, nextActivationTime(cron, execution.getRequestedNextActivationTime()), "Scheduled");
   }
 
@@ -84,7 +82,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   protected boolean handleFailureImpl(StateExecution execution) {
-    logger.warn("Cron workflow " + getType() + " / " + execution.getWorkflowInstanceId() + "work failed");
+    logger.warn("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
     return true;
   }
 }

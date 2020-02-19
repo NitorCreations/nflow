@@ -9,6 +9,8 @@ import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -45,7 +47,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
   }
 
   @Service
-  static class MaintenanceConfigurationService implements SmartLifecycle {
+  static class MaintenanceConfigurationService {
     private final MaintenanceConfiguration defaultConfiguration;
     private final WorkflowInstanceService instanceService;
     private final boolean insertOnStartup;
@@ -54,22 +56,16 @@ public class MaintenanceWorkflow extends CronWorkflow {
       defaultConfiguration = new Builder()
               .withDeleteArchivedWorkflows().setOlderThanPeriod(years(1)).done()
               .withArchiveWorkflows().setOlderThanPeriod(days(2)).done()
-              .withDeleteWorkflows().setOlderThanPeriod(days(7)).done()
               .build();
       this.instanceService = instanceService;
-      this.insertOnStartup = env.getProperty("nflow.maintenance.auto_start", Boolean.class, false);
+      this.insertOnStartup = env.getProperty("nflow.maintenance.start", Boolean.class, false);
     }
 
-    public MaintenanceConfiguration getDefaultConfiguration() {
+    protected MaintenanceConfiguration getDefaultConfiguration() {
       return defaultConfiguration;
     }
 
-    @Override
-    public int getPhase() {
-      return MAX_VALUE;
-    }
-
-    @Override
+    @EventListener(ContextStartedEvent.class)
     public void start() {
       if (insertOnStartup) {
         instanceService.insertWorkflowInstance(new WorkflowInstance.Builder()
@@ -77,18 +73,8 @@ public class MaintenanceWorkflow extends CronWorkflow {
                 .putStateVariable(VAR_SCHEDULE, "4 4 4 * * *")
                 .putStateVariable(VAR_MAINTENANCE_CONFIGURATON, getDefaultConfiguration())
                 .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
-                .setNextActivation(now())
                 .build());
       }
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public boolean isRunning() {
-      return false;
     }
   }
 }
