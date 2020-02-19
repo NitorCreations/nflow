@@ -26,11 +26,11 @@ public class MaintenanceWorkflowStarter {
     this.insertOnStartup = env.getProperty("nflow.maintenance.start", Boolean.class, false);
   }
 
-  protected String getDefaultCronSchedule() {
+  protected String getInitialCronSchedule() {
     return "4 4 4 * * *";
   }
 
-  protected MaintenanceConfiguration getDefaultConfiguration() {
+  protected MaintenanceConfiguration getInitialConfiguration() {
     return new MaintenanceConfiguration.Builder()
             .withDeleteArchivedWorkflows().setOlderThanPeriod(years(1)).done()
             .withArchiveWorkflows().setOlderThanPeriod(days(2)).done()
@@ -42,8 +42,8 @@ public class MaintenanceWorkflowStarter {
     if (insertOnStartup) {
       instanceService.insertWorkflowInstance(new WorkflowInstance.Builder()
               .setType(MAINTENANCE_WORKFLOW_TYPE)
-              .putStateVariable(VAR_SCHEDULE, getDefaultCronSchedule())
-              .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, getDefaultConfiguration())
+              .putStateVariable(VAR_SCHEDULE, getInitialCronSchedule())
+              .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, getInitialConfiguration())
               .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
               .build());
     }
