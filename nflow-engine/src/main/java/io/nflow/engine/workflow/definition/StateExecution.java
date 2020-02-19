@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import org.joda.time.DateTime;
 
 /**
  * Provides access to workflow instance information.
@@ -36,6 +37,14 @@ public interface StateExecution {
   int getRetries();
 
   /**
+   * Return the time when this workflow instance was originally scheduled to run.
+   * If there is much work to be done or executors are not running this can be far away in the past.
+   *
+   * @return The original next activation time of this workflow.
+   */
+  DateTime getRequestedNextActivationTime();
+
+    /**
    * Return a string value of the given variable.
    *
    * @param name The name of the variable.

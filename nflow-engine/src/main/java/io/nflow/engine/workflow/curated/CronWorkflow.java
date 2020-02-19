@@ -10,26 +10,32 @@ import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 
-import java.util.Date;
-
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.doWork;
+import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
+import static io.nflow.engine.workflow.curated.CronWorkflow.State.handleFailure;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.schedule;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static org.joda.time.DateTime.now;
 import static org.joda.time.Period.weeks;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Cron workflow executor that periodically wakes up.
  */
 public abstract class CronWorkflow extends WorkflowDefinition<State> {
-  public static final String VAR_SCHEDULE = "schedule";
+  private static final Logger logger = getLogger(CronWorkflow.class);
+
+  public static final String VAR_SCHEDULE = "cron";
 
   public enum State implements WorkflowState {
-    schedule(start), doWork(normal);
+    schedule(start), doWork(normal), handleFailure(normal), failed(manual);
 
     private WorkflowStateType type;
 
@@ -49,21 +55,36 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   protected CronWorkflow(String type, WorkflowSettings settings) {
-    super(type, schedule, schedule, settings);
-    setDescription("Wakes up to cron schedule to do work.");
+    super(type, schedule, handleFailure, settings);
     permit(schedule, doWork);
-    permit(doWork, schedule);
+    permit(doWork, schedule, handleFailure);
+    permit(handleFailure, schedule);
   }
 
   protected CronWorkflow(String type) {
     this(type, new Builder()
-            .setMaxRetries(10)
-            .setMaxSubsequentStateExecutions(2)
             .setHistoryDeletableAfter(weeks(1))
             .build());
   }
 
-  public NextAction schedule(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String schedule) {
-    return moveToStateAfter(doWork, new DateTime(new CronSequenceGenerator(schedule).next(new Date())), "schedule");
+  public NextAction schedule(@SuppressWarnings("unused") StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
+    return moveToStateAfter(doWork, nextActivationTime(cron, execution.getRequestedNextActivationTime()), "Scheduled");
+  }
+
+  protected DateTime nextActivationTime(String cron, DateTime activationTime) {
+    DateTime next = new DateTime(new CronSequenceGenerator(cron).next(activationTime.toDate()));
+    return next.isBeforeNow() ? now() : next;
+  }
+
+  public NextAction handleFailure(StateExecution execution) {
+    if (handleFailureImpl(execution)) {
+      return moveToState(schedule, "Failure handled successfully");
+    }
+    return moveToState(failed, "Requires manual fixing");
+  }
+
+  protected boolean handleFailureImpl(StateExecution execution) {
+    logger.warn("Cron workflow " + getType() + " / " + execution.getWorkflowInstanceId() + "work failed");
+    return true;
   }
 }

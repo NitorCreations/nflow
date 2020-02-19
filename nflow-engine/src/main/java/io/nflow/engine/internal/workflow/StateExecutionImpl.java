@@ -92,6 +92,11 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   @Override
+  public DateTime getRequestedNextActivationTime() {
+    return instance.nextActivation;
+  }
+
+  @Override
   public String getVariable(String name) {
     return getVariable(name, (String) null);
   }
