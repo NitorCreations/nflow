@@ -143,7 +143,7 @@ public abstract class ResourceBase {
 
   public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(List<Long> ids, List<String> types, Long parentWorkflowId,
       Long parentActionId, List<String> states, List<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
-      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions,
+      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions, boolean queryArchive,
       WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
@@ -160,6 +160,7 @@ public abstract class ResourceBase {
         .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables))
         .setMaxResults(maxResults)
         .setMaxActions(maxActions)
+        .setQueryArchive(queryArchive) //
         .setIncludeChildWorkflows(includeStrings.contains(childWorkflows))
         .setStateVariable(stateVariableKey, stateVariableValue)
         .build();
@@ -177,11 +178,11 @@ public abstract class ResourceBase {
     return Stream.of(trimToEmpty(include).split(","));
   }
 
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(final long id, final String include, final Long maxActions,
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(final long id, final String include, final Long maxActions, boolean queryArchive,
       final WorkflowInstanceService workflowInstances,
       final ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
     Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
-    WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions);
+    WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions, queryArchive);
     return listWorkflowConverter.convert(instance, includes);
   }
 

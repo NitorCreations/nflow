@@ -1,5 +1,6 @@
 package io.nflow.engine.internal.dao;
 
+import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CHILD_WORKFLOW_IDS;
 import static io.nflow.engine.service.WorkflowInstanceInclude.CURRENT_STATE_VARIABLES;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
@@ -100,7 +101,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
     long id = dao.insertWorkflowInstance(i1);
-    WorkflowInstance i2 = dao.getWorkflowInstance(id, EnumSet.allOf(WorkflowInstanceInclude.class), null);
+    WorkflowInstance i2 = dao.getWorkflowInstance(id, EnumSet.allOf(WorkflowInstanceInclude.class), null, MAIN);
     assertThat(i2.id, notNullValue());
     assertThat(i2.created, notNullValue());
     assertThat(i2.modified, notNullValue());
@@ -143,7 +144,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .setIncludeCurrentStateVariables(true) //
         .setIncludeChildWorkflows(true) //
         .setMaxResults(1L) //
-        .setMaxActions(1L).build();
+        .setMaxActions(1L) //
+        .setQueryArchive(true) //
+        .build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
     checkSameWorkflowInfo(child, l.get(0));

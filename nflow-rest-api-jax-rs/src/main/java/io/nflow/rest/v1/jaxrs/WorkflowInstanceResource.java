@@ -122,9 +122,10 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
   public Response fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
-      @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
+      @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions,
+      @QueryParam("queryArchive") @ApiParam("Query also the archive") Boolean queryArchive) {
     return handleExceptions(
-        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)));
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, ofNullable(queryArchive).orElse(true), workflowInstances, listWorkflowConverter)));
   }
 
   @GET
@@ -141,10 +142,11 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("stateVariableValue") @ApiParam("Current value of state variable defined by stateVariableKey") String stateVariableValue,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
-      @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
+      @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions,
+      @QueryParam("queryArchive") @ApiParam("Query also the archive") Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
-        businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions, workflowInstances,
-        listWorkflowConverter).iterator()));
+        businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions,
+        ofNullable(queryArchive).orElse(true), workflowInstances, listWorkflowConverter).iterator()));
   }
 
   @PUT

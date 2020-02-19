@@ -2,6 +2,8 @@ package io.nflow.engine.service;
 
 import static java.util.Collections.emptySet;
 import static java.util.EnumSet.complementOf;
+import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
+import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -62,9 +64,29 @@ public class WorkflowInstanceService {
    */
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
     try {
-      return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions);
+      return getWorkflowInstance(id, includes, maxActions, false);
     } catch (EmptyResultDataAccessException e) {
       throw new NflowNotFoundException("Workflow instance", id, e);
+    }
+  }
+
+  /**
+   * Return the workflow instance matching the given id.
+   * @param id Workflow instance id.
+   * @param includes Set of properties to be loaded.
+   * @param maxActions Maximum number of actions to be loaded.
+   * @param queryArchive Query archive if not found from main tables.
+   * @return The workflow instance
+   * @throws EmptyResultDataAccessException if not found
+   */
+  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
+    try {
+      return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions, MAIN);
+    } catch (EmptyResultDataAccessException ex) {
+      if (queryArchive) {
+        return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions, ARCHIVE);
+      }
+      throw new NflowNotFoundException("Workflow instance", id, ex);
     }
   }
 
