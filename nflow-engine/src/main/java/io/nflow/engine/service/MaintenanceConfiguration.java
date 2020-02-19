@@ -71,16 +71,17 @@ public class MaintenanceConfiguration {
       return deleteWorkflows = new ConfigurationItem.Builder(this);
     }
 
+    private ConfigurationItem build(ConfigurationItem.Builder builder) {
+      return ofNullable(builder).map(ConfigurationItem.Builder::build).orElse(null);
+    }
+
     /**
      * Build MaintenanceConfiguration object.
      *
      * @return MaintenanceConfiguration object.
      */
     public MaintenanceConfiguration build() {
-      return new MaintenanceConfiguration(
-              ofNullable(deleteArchivedWorkflows).map(ConfigurationItem.Builder::build).orElse(null),
-              ofNullable(archiveWorkflows).map(ConfigurationItem.Builder::build).orElse(null),
-              ofNullable(deleteWorkflows).map(ConfigurationItem.Builder::build).orElse(null));
+      return new MaintenanceConfiguration(build(deleteArchivedWorkflows), build(archiveWorkflows), build(deleteWorkflows));
     }
   }
 

@@ -17,9 +17,9 @@ public class MaintenanceConverter {
 
   public MaintenanceConfiguration convert(MaintenanceRequest request) {
     MaintenanceConfiguration.Builder builder = new MaintenanceConfiguration.Builder();
-    ofNullable(request.archiveWorkflows).ifPresent(req -> convert(req, builder.withArchiveWorkflows()));
-    ofNullable(request.deleteArchivedWorkflows).ifPresent(req -> convert(req, builder.withDeleteArchivedWorkflows()));
-    ofNullable(request.deleteWorkflows).ifPresent(req -> convert(req, builder.withDeleteWorkflows()));
+    ofNullable(request.archiveWorkflows).ifPresent(config -> convert(config, builder.withArchiveWorkflows()));
+    ofNullable(request.deleteArchivedWorkflows).ifPresent(config -> convert(config, builder.withDeleteArchivedWorkflows()));
+    ofNullable(request.deleteWorkflows).ifPresent(config -> convert(config, builder.withDeleteWorkflows()));
     return builder.build();
   }
 
