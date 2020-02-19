@@ -162,15 +162,15 @@ public class MaintenanceConfiguration {
         return this;
       }
 
+      /**
+       * Finish ConfigurationItem object and move back to MaintenanceConfiguration.
+       *
+       * @return The parent MaintenanceConfiguration builder object.
+       */
       public MaintenanceConfiguration.Builder done() {
         return parentBuilder;
       }
 
-      /**
-       * Build ConfigurationItem object.
-       *
-       * @return ConfigurationItem object.
-       */
       ConfigurationItem build() {
         Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
         Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
