@@ -14,12 +14,13 @@
   - Improve workflow instance archiving performance. Archiving has been in practice unusable in some scenarios.
   - Add support for deleting workflow instances, actions and state variables from production and archive tables.
   - Remove support for `nflow.executor.fetchChildWorkflowIds` configuration property.
+  - Fix bug in stuck workflow instance processing detection when multiple states are processed consecutively by the same processor thread. Now the time counter is reset between each state.
 
 **Details**
 - `nflow-engine`
   - `nflow_workflow.root_workflow_id` was only used in old archiving code, so it was removed as the new archiving logic does not need it anymore.
   - Removed unnecessary indices and foreign keys and added missing indices to improve nFlow database performance. See database update scripts for details.
-  - Added name for all existing and new constraints in create scripts, if they did not have one yet. This is to make modify operations easier in future. All of these may not be covered in database update scripts.  
+  - Added name for all existing and new constraints in create scripts, if they did not have one yet. This is to make modify operations easier in future. All of these may not be covered in database update scripts.
   - See `MaintenanceService` and `MaintenanceConfiguration` for details on how to archive and delete workflow instances. The maintenance operations can now be limited by workflow type as well.
   - As ArchiveService is removed, the old functionality of `ArchiveService.archiveWorkflows(DateTime olderThan, int batchSize)` can now be achieved with
     `MaintenanceService.cleanupWorkflows(new MaintenanceConfiguration.Builder()
