@@ -8,11 +8,16 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import static io.nflow.engine.workflow.curated.CronWorkflow.VAR_SCHEDULE;
+import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
+import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.VAR_MAINTENANCE_CONFIGURATION;
 import static org.joda.time.Period.days;
 import static org.joda.time.Period.years;
 
 @Component
 public class MaintenanceWorkflowStarter {
+  public static final String MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID = "default";
+
   protected final WorkflowInstanceService instanceService;
   protected final boolean insertOnStartup;
 
@@ -36,10 +41,10 @@ public class MaintenanceWorkflowStarter {
   public void start() {
     if (insertOnStartup) {
       instanceService.insertWorkflowInstance(new WorkflowInstance.Builder()
-              .setType(MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE)
-              .putStateVariable(CronWorkflow.VAR_SCHEDULE, getDefaultCronSchedule())
-              .putStateVariable(MaintenanceWorkflow.VAR_MAINTENANCE_CONFIGURATION, getDefaultConfiguration())
-              .setExternalId(MaintenanceWorkflow.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
+              .setType(MAINTENANCE_WORKFLOW_TYPE)
+              .putStateVariable(VAR_SCHEDULE, getDefaultCronSchedule())
+              .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, getDefaultConfiguration())
+              .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
               .build());
     }
   }

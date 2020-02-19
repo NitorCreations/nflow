@@ -66,7 +66,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
-    return moveToStateAfter(doWork, getNextActivationTime(cron, execution.getRequestedNextActivationTime()), "Scheduled");
+    return moveToStateAfter(doWork, getNextActivationTime(cron, execution.getRequestedActivationTime()), "Scheduled");
   }
 
   protected DateTime getNextActivationTime(String cron, DateTime lastWorkEndTime) {

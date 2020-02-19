@@ -42,7 +42,7 @@ public interface StateExecution {
    *
    * @return The original next activation time of this workflow.
    */
-  DateTime getRequestedNextActivationTime();
+  DateTime getRequestedActivationTime();
 
     /**
    * Return a string value of the given variable.

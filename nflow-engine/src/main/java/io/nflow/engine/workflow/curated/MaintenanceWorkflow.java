@@ -19,7 +19,6 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 @Component
 public class MaintenanceWorkflow extends CronWorkflow {
   public static final String MAINTENANCE_WORKFLOW_TYPE = "nFlowMaintenance";
-  public static final String MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID = "default";
   public static final String VAR_MAINTENANCE_CONFIGURATION = "config";
 
   @Inject
