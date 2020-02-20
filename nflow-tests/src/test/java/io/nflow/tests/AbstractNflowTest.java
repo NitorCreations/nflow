@@ -153,13 +153,10 @@ public abstract class AbstractNflowTest {
   }
 
   protected WorkflowInstanceValidator actionHistoryValidator(final List<Action> actions) {
-    return new WorkflowInstanceValidator() {
-      @Override
-      public void validate(ListWorkflowInstanceResponse workflowInstance) {
-        for (int i = 0; i < workflowInstance.actions.size(); i++) {
-          assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actions.get(i).state));
-          assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actions.get(i).retryNo));
-        }
+    return workflowInstance -> {
+      for (int i = 0; i < workflowInstance.actions.size(); i++) {
+        assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actions.get(i).state));
+        assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actions.get(i).retryNo));
       }
     };
   }

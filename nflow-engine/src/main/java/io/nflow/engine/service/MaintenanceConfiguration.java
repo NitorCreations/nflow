@@ -5,6 +5,7 @@ import static java.util.Optional.ofNullable;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.ReadablePeriod;
 import org.springframework.util.Assert;
 
@@ -28,8 +29,9 @@ public class MaintenanceConfiguration {
    */
   public final ConfigurationItem deleteWorkflows;
 
-  MaintenanceConfiguration(ConfigurationItem deleteArchivedWorkflows, ConfigurationItem archiveWorkflows,
-      ConfigurationItem deleteWorkflows) {
+  MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
+                           @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
+                           @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;
@@ -105,10 +107,10 @@ public class MaintenanceConfiguration {
      */
     public final Set<String> workflowTypes;
 
-    ConfigurationItem(ReadablePeriod olderThanPeriod, Integer batchSize, Set<String> workflowTypes) {
+    ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod, @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
       this.olderThanPeriod = olderThanPeriod;
       this.batchSize = batchSize;
-      this.workflowTypes = workflowTypes;
+      this.workflowTypes = ofNullable(workflowTypes).orElse(emptySet());
     }
 
     /**
