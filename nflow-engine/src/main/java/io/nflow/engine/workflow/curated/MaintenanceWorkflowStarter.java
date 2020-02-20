@@ -33,7 +33,7 @@ public class MaintenanceWorkflowStarter {
   protected MaintenanceConfiguration getInitialConfiguration() {
     return new MaintenanceConfiguration.Builder()
             .withDeleteArchivedWorkflows().setOlderThanPeriod(years(1)).done()
-            .withArchiveWorkflows().setOlderThanPeriod(days(2)).done()
+            .withArchiveWorkflows().setOlderThanPeriod(days(10)).done()
             .build();
   }
 
