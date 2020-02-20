@@ -23,7 +23,7 @@ public class MaintenanceWorkflowStarter {
 
   public MaintenanceWorkflowStarter(Environment env, WorkflowInstanceService instanceService) {
     this.instanceService = instanceService;
-    this.insertOnStartup = env.getProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class, false);
+    this.insertOnStartup = env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class);
   }
 
   protected String getInitialCronSchedule() {
@@ -33,7 +33,7 @@ public class MaintenanceWorkflowStarter {
   protected MaintenanceConfiguration getInitialConfiguration() {
     return new MaintenanceConfiguration.Builder()
             .withDeleteArchivedWorkflows().setOlderThanPeriod(years(1)).done()
-            .withArchiveWorkflows().setOlderThanPeriod(days(10)).done()
+            .withArchiveWorkflows().setOlderThanPeriod(days(45)).done()
             .build();
   }
 
