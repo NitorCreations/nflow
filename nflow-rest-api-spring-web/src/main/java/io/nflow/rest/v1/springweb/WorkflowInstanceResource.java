@@ -12,9 +12,9 @@ import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.status;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -115,7 +115,7 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @GetMapping
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
+  public Iterator<ListWorkflowInstanceResponse> listWorkflowInstances(
       @RequestParam(value = "id", defaultValue = "") @ApiParam("Internal id of workflow instance") List<Long> ids,
       @RequestParam(value = "type", defaultValue = "") @ApiParam("Workflow definition type of workflow instance") List<String> types,
       @RequestParam(value = "parentWorkflowId", required = false) @ApiParam("Id of parent workflow instance") Long parentWorkflowId,
@@ -128,7 +128,7 @@ public class WorkflowInstanceResource extends ResourceBase {
       @RequestParam(value = "maxResults", required = false) @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey, externalId,
-        include, maxResults, maxActions, this.workflowInstances, this.listWorkflowConverter);
+        include, maxResults, maxActions, this.workflowInstances, this.listWorkflowConverter).iterator();
   }
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)

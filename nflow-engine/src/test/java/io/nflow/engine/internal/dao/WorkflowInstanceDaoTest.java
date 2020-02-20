@@ -56,6 +56,7 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -104,6 +105,13 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.created, notNullValue());
     assertThat(i2.modified, notNullValue());
     checkSameWorkflowInfo(i1, i2);
+  }
+
+  @Test
+  public void queryNonExistingWorkflowThrowsException() {
+    assertThrows(EmptyResultDataAccessException.class, () ->
+      dao.getWorkflowInstance(-42, emptySet(), null)
+    );
   }
 
   @Test

@@ -12,9 +12,9 @@ import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -129,7 +129,7 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(
+  public Iterator<ListWorkflowInstanceResponse> listWorkflowInstances(
       @QueryParam("id") @ApiParam("Internal id of workflow instance") List<Long> ids,
       @QueryParam("type") @ApiParam("Workflow definition type of workflow instance") List<String> types,
       @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Long parentWorkflowId,
@@ -143,7 +143,7 @@ public class WorkflowInstanceResource extends ResourceBase {
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states,
         statuses, businessKey, externalId, include, maxResults, maxActions,
-        workflowInstances, listWorkflowConverter);
+        workflowInstances, listWorkflowConverter).iterator();
   }
 
   @PUT
