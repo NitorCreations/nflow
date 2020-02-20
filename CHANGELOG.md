@@ -16,6 +16,8 @@
   - Add support for deleting workflow instances, actions and state variables from production and archive tables.
   - Remove support for `nflow.executor.fetchChildWorkflowIds` configuration property.
   - Fix bug in stuck workflow instance processing detection when multiple states are processed consecutively by the same processor thread. Now the time counter is reset between each state.
+  - Added abstract `CronWorkflow` that can be used to periodically execute a task.
+  - Built-in support for periodically running maintenance to clean up workflow instances.
 
 **Details**
 - `nflow-engine`
@@ -33,6 +35,7 @@
   - For example, `WorkflowSettings.setHistoryDeleteableAfterHours(12)` can now be achieved by `WorkflowSettings.setHistoryDeleteableAfter(Period.hours(12))`.
   - To get child workflows with state variables in a state method, use `StateExecution.queryChildWorkflows`.
   - To get all child workflow IDs in a state method, use `StateExecution.getAllChildWorkflows`.
+  - New `MaintenanceWorkflow` that can be enabled by setting `nflow.maintenance.insertWorkflowIfMissing` property to true. On the first run the workflow is inserted and it will start to run periodically. Further configuration must be done by editing the two state variables of the workflow: `cron` for the scheduling and `config` for the `MaintenanceConfiguration` to execute.
 - `nflow-explorer`
   - Dependency updates:
     - angular extra libraries 1.7.9
