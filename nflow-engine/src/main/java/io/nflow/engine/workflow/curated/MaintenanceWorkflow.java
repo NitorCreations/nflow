@@ -6,6 +6,7 @@ import io.nflow.engine.service.MaintenanceService;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -26,6 +27,11 @@ public class MaintenanceWorkflow extends CronWorkflow {
 
   public MaintenanceWorkflow() {
     super(MAINTENANCE_WORKFLOW_TYPE);
+    setDescription("Clean up workflow instances periodically.");
+  }
+
+  protected MaintenanceWorkflow(String type, WorkflowSettings settings) {
+    super(type, settings);
     setDescription("Clean up workflow instances periodically.");
   }
 
