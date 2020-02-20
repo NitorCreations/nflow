@@ -101,7 +101,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().build();
     i1.stateVariables.put("a", "1");
     long id = dao.insertWorkflowInstance(i1);
-    WorkflowInstance i2 = dao.getWorkflowInstance(id, EnumSet.allOf(WorkflowInstanceInclude.class), null, MAIN);
+    WorkflowInstance i2 = dao.getWorkflowInstance(id, EnumSet.allOf(WorkflowInstanceInclude.class), null);
     assertThat(i2.id, notNullValue());
     assertThat(i2.created, notNullValue());
     assertThat(i2.modified, notNullValue());

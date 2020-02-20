@@ -63,11 +63,7 @@ public class WorkflowInstanceService {
    * @throws NflowNotFoundException If workflow instance is not found.
    */
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
-    try {
-      return getWorkflowInstance(id, includes, maxActions, false);
-    } catch (EmptyResultDataAccessException e) {
-      throw new NflowNotFoundException("Workflow instance", id, e);
-    }
+    return getWorkflowInstance(id, includes, maxActions, false);
   }
 
   /**
@@ -81,12 +77,9 @@ public class WorkflowInstanceService {
    */
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
     try {
-      return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions, MAIN);
-    } catch (EmptyResultDataAccessException ex) {
-      if (queryArchive) {
-        return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions, ARCHIVE);
-      }
-      throw new NflowNotFoundException("Workflow instance", id, ex);
+      return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions, queryArchive);
+    } catch (EmptyResultDataAccessException e) {
+      throw new NflowNotFoundException("Workflow instance", id, e);
     }
   }
 
