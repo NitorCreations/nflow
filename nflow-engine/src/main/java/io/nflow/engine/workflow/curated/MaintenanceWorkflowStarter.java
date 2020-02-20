@@ -23,7 +23,7 @@ public class MaintenanceWorkflowStarter {
 
   public MaintenanceWorkflowStarter(Environment env, WorkflowInstanceService instanceService) {
     this.instanceService = instanceService;
-    this.insertOnStartup = env.getProperty("nflow.maintenance.start", Boolean.class, false);
+    this.insertOnStartup = env.getProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class, false);
   }
 
   protected String getInitialCronSchedule() {
