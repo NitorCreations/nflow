@@ -36,7 +36,6 @@ import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
 
-@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BulkWorkflowTest extends AbstractNflowTest {
 

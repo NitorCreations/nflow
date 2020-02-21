@@ -3,20 +3,20 @@ package io.nflow.tests;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
-import org.joda.time.Period;
+import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
 import static io.nflow.tests.MaintenanceTest.archiveOlderThan;
@@ -25,17 +25,13 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MaintenanceWorkflowTest extends AbstractNflowTest {
   public static NflowServerConfig server = new NflowServerConfig.Builder()
@@ -45,6 +41,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
           .build();
 
   private static List<Long> ids;
+  private static long maintenanceWorkflowId;
 
   public MaintenanceWorkflowTest() {
     super(server);
@@ -52,7 +49,8 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(1)
-  public void cleanupExistingStuff() {
+  public void cleanupExistingStuff() throws InterruptedException {
+    SECONDS.sleep(1);
     archiveOlderThan(maintenanceResource, now());
     deleteOlderThan(maintenanceResource, now());
   }
@@ -68,6 +66,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
             .get(ListWorkflowInstanceResponse[].class);
     assertThat(asList(instances), hasSize(1));
     assertThat(instances[0].stateVariables, hasEntry("cron", "* * * * * *"));
+    maintenanceWorkflowId = instances[0].id;
 //    assertThat(instances[0].stateVariables, hasEntry("config", hasEntry("deleteWorkflows", hasEntry("olderThanPeriod", "PT1S"))));
   }
 
@@ -89,6 +88,14 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     ids.forEach(id ->
             assertThrows(NotFoundException.class, () -> getWorkflowInstance(id))
     );
+  }
+
+  @BeforeServerStop
+  public void stopMaintenanceWorkflow() {
+    UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
+    request.nextActivationTime = null;
+    request.state = failed.name();
+    updateWorkflowInstance(maintenanceWorkflowId, request);
   }
 
   private List<Long> createWorkflows(int count) {

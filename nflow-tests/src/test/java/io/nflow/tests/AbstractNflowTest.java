@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import io.nflow.tests.extension.NflowServerExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -38,7 +39,7 @@ import io.nflow.tests.config.RestClientConfiguration;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
-@ExtendWith({ SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
+@ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   protected WebClient workflowInstanceResource;
@@ -153,10 +154,13 @@ public abstract class AbstractNflowTest {
   }
 
   protected WorkflowInstanceValidator actionHistoryValidator(final List<Action> actions) {
-    return workflowInstance -> {
-      for (int i = 0; i < workflowInstance.actions.size(); i++) {
-        assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actions.get(i).state));
-        assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actions.get(i).retryNo));
+    return new WorkflowInstanceValidator() {
+      @Override
+      public void validate(ListWorkflowInstanceResponse workflowInstance) {
+        for (int i = 0; i < workflowInstance.actions.size(); i++) {
+          assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actions.get(i).state));
+          assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actions.get(i).retryNo));
+        }
       }
     };
   }

@@ -14,7 +14,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
 import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 import org.joda.time.DateTime;
 
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -25,9 +24,7 @@ import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse.StateStatistics;
 import io.nflow.tests.DemoWorkflowTest.DemoConfiguration;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StatisticsTest extends AbstractNflowTest {
 
