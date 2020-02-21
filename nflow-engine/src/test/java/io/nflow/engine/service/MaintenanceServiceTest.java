@@ -34,7 +34,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
-import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 
 @ExtendWith(MockitoExtension.class)
 public class MaintenanceServiceTest {

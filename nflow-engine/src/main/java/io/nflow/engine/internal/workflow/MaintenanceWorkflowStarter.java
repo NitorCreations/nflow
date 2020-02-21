@@ -1,14 +1,12 @@
-package io.nflow.engine.workflow.curated;
+package io.nflow.engine.internal.workflow;
 
 import io.nflow.engine.service.MaintenanceConfiguration;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

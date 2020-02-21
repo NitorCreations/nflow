@@ -18,7 +18,7 @@ import java.util.List;
 
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
-import static io.nflow.engine.workflow.curated.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
+import static io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
 import static io.nflow.tests.MaintenanceTest.archiveOlderThan;
 import static io.nflow.tests.MaintenanceTest.deleteOlderThan;
 import static java.util.Arrays.asList;
@@ -85,9 +85,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void verifyThatCleanupOccurred() {
-    ids.forEach(id ->
-            assertThrows(NotFoundException.class, () -> getWorkflowInstance(id))
-    );
+    ids.forEach(id -> assertThrows(NotFoundException.class, () -> getWorkflowInstance(id)));
   }
 
   @BeforeServerStop

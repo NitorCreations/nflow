@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
-import org.joda.time.DateTime;
 
 /**
  * Provides access to workflow instance information.

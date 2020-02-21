@@ -77,6 +77,11 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
     }
   }
 
+  /**
+   * Extend bulk workflow definition.
+   *
+   * @param type The type of the workflow.
+   */
   protected BulkWorkflow(String type) {
     super(type, splitWork, error, new Builder().setMaxRetries(Integer.MAX_VALUE).build());
     setDescription("Executes child workflows in bulk but gracefully without effecting non-bulk tasks.");

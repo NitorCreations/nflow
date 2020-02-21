@@ -32,6 +32,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 public abstract class CronWorkflow extends WorkflowDefinition<State> {
   private static final Logger logger = getLogger(CronWorkflow.class);
 
+  /**
+   * Name of the state variable that stores schedule in cron syntax.
+   */
   public static final String VAR_SCHEDULE = "cron";
 
   public enum State implements WorkflowState {
@@ -54,6 +57,13 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     }
   }
 
+  /**
+   * Extend cron workflow definition with customized workflow settings.
+   * Extending class must implement the 'doWork` step method.
+   *
+   * @param type The type of the workflow.
+   * @param settings The workflow settings.
+   */
   protected CronWorkflow(String type, WorkflowSettings settings) {
     super(type, schedule, handleFailure, settings);
     permit(schedule, doWork);
@@ -61,16 +71,40 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     permit(handleFailure, schedule, failed);
   }
 
+  /**
+   * Extend cron workflow definition.
+   * Extending class must implement the 'doWork` step method.
+   *
+   * @param type The type of the workflow.
+   */
   protected CronWorkflow(String type) {
     this(type, new Builder().setHistoryDeletableAfter(weeks(1)).build());
   }
 
-  public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
-    return moveToStateAfter(doWork, getNextActivationTime(execution, cron), "Scheduled");
-  }
-
+  /**
+   * Calculates the next activation time.
+   *
+   * @param execution The workflow execution context.
+   * @param cron The cron schedule.
+   * @return The next activation time.
+   */
   protected DateTime getNextActivationTime(@SuppressWarnings("unused") StateExecution execution, String cron) {
     return new DateTime(new CronSequenceGenerator(cron).next(now().toDate()));
+  }
+
+  /**
+   * Handles errors in working step.
+   *
+   * @param execution The workflow execution context.
+   * @return True if the failure was handled successfully. If false is returned the cron workflow stops waiting for manual actions.
+   */
+  protected boolean handleFailureImpl(StateExecution execution) {
+    logger.error("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
+    return true;
+  }
+
+  public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
+    return moveToStateAfter(doWork, getNextActivationTime(execution, cron), "Scheduled");
   }
 
   public NextAction handleFailure(StateExecution execution) {
@@ -78,10 +112,5 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
       return moveToState(schedule, "Failure handled successfully");
     }
     return moveToState(failed, "Failure handling failed");
-  }
-
-  protected boolean handleFailureImpl(StateExecution execution) {
-    logger.error("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
-    return true;
   }
 }

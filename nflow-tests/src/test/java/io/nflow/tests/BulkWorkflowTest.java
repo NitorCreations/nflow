@@ -24,7 +24,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
 import io.nflow.engine.workflow.curated.BulkWorkflow;
@@ -34,7 +33,6 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BulkWorkflowTest extends AbstractNflowTest {
