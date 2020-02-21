@@ -67,7 +67,6 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     assertThat(asList(instances), hasSize(1));
     assertThat(instances[0].stateVariables, hasEntry("cron", "* * * * * *"));
     maintenanceWorkflowId = instances[0].id;
-//    assertThat(instances[0].stateVariables, hasEntry("config", hasEntry("deleteWorkflows", hasEntry("olderThanPeriod", "PT1S"))));
   }
 
   @Test
