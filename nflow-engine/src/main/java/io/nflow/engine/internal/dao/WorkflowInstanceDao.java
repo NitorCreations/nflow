@@ -53,7 +53,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -522,12 +521,9 @@ public class WorkflowInstanceDao {
     jdbc.query("select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
         + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
         + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
-        new RowCallbackHandler() {
-          @Override
-          public void processRow(ResultSet rs) throws SQLException {
-            instance.stateVariables.put(rs.getString(1), rs.getString(2));
-          }
-        }, instance.id);
+            rs -> {
+              instance.stateVariables.put(rs.getString(1), rs.getString(2));
+            }, instance.id);
     instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
@@ -623,6 +619,10 @@ public class WorkflowInstanceDao {
   }
 
   public List<WorkflowInstance> queryWorkflowInstances(QueryWorkflowInstances query) {
+    return queryWorkflowInstancesAsStream(query).collect(toList());
+  }
+
+  public Stream<WorkflowInstance> queryWorkflowInstancesAsStream(QueryWorkflowInstances query) {
     String sql = "select * from nflow_workflow ";
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
@@ -664,35 +664,27 @@ public class WorkflowInstanceDao {
     params.addValue("executor_group", executorInfo.getExecutorGroup());
     sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
-    List<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
-        .map(WorkflowInstance.Builder::build).collect(toList());
+
+    Stream<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
+            .map(WorkflowInstance.Builder::build);
     if (query.includeCurrentStateVariables) {
-      for (WorkflowInstance instance : ret) {
-        fillState(instance);
-      }
+      ret = ret.peek(instance -> fillState(instance));
     }
     if (query.includeActions) {
-      for (WorkflowInstance instance : ret) {
-        fillActions(instance, query.includeActionStateVariables, query.maxActions);
-      }
+      ret = ret.peek(instance -> fillActions(instance, query.includeActionStateVariables, query.maxActions));
     }
     if (query.includeChildWorkflows) {
-      for (final WorkflowInstance instance : ret) {
-        fillChildWorkflowIds(instance);
-      }
+      ret = ret.peek(instance -> fillChildWorkflowIds(instance));
     }
     return ret;
   }
 
   private void fillChildWorkflowIds(final WorkflowInstance instance) {
-    jdbc.query("select parent_action_id, id from nflow_workflow where parent_workflow_id = ?", new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        long parentActionId = rs.getLong(1);
-        long childWorkflowInstanceId = rs.getLong(2);
-        List<Long> children = instance.childWorkflows.computeIfAbsent(parentActionId, k -> new ArrayList<>());
-        children.add(childWorkflowInstanceId);
-      }
+    jdbc.query("select parent_action_id, id from nflow_workflow where parent_workflow_id = ?", rs -> {
+      long parentActionId = rs.getLong(1);
+      long childWorkflowInstanceId = rs.getLong(2);
+      List<Long> children = instance.childWorkflows.computeIfAbsent(parentActionId, k -> new ArrayList<>());
+      children.add(childWorkflowInstanceId);
     }, instance.id);
   }
 
@@ -700,7 +692,7 @@ public class WorkflowInstanceDao {
     if (maxResults == null) {
       return workflowInstanceQueryMaxResultsDefault;
     }
-    return min(maxResults.longValue(), workflowInstanceQueryMaxResults);
+    return min(maxResults, workflowInstanceQueryMaxResults);
   }
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long maxActions) {
@@ -716,7 +708,7 @@ public class WorkflowInstanceDao {
     if (maxActions == null) {
       return workflowInstanceQueryMaxActionsDefault;
     }
-    return min(maxActions.longValue(), workflowInstanceQueryMaxActions);
+    return min(maxActions, workflowInstanceQueryMaxActions);
   }
 
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance) {

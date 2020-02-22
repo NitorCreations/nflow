@@ -182,7 +182,7 @@ public class WorkflowInstanceResourceTest {
   public void listWorkflowInstancesWorks() {
     resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null);
-    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42L)),
         hasField("types", contains("type")),
         hasField("parentWorkflowId", is(99L)),
@@ -204,7 +204,7 @@ public class WorkflowInstanceResourceTest {
     resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
         "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L);
-    verify(workflowInstances).listWorkflowInstances((QueryWorkflowInstances) argThat(allOf(
+    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42L)),
         hasField("types", contains("type")),
         hasField("parentWorkflowId", is(99L)),

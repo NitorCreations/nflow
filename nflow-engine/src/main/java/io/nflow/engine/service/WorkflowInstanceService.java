@@ -7,10 +7,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -49,7 +51,8 @@ public class WorkflowInstanceService {
    * @param id Workflow instance id.
    * @param includes Set of properties to be loaded.
    * @param maxActions Maximum number of actions to be loaded.
-   * @return The workflow instance, or null if not found.
+   * @return The workflow instance.
+   * @throws EmptyResultDataAccessException If workflow instance is not found.
    */
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
     return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions);
@@ -124,6 +127,15 @@ public class WorkflowInstanceService {
    */
   public Collection<WorkflowInstance> listWorkflowInstances(QueryWorkflowInstances query) {
     return workflowInstanceDao.queryWorkflowInstances(query);
+  }
+
+  /**
+   * Return workflow instances matching the given query.
+   * @param query The query parameters.
+   * @return Matching workflow instances as Stream. The stream does not need to be closed.
+   */
+  public Stream<WorkflowInstance> listWorkflowInstancesAsStream(QueryWorkflowInstances query) {
+    return workflowInstanceDao.queryWorkflowInstancesAsStream(query);
   }
 
   /**

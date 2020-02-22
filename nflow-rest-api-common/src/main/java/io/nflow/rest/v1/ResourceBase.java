@@ -130,7 +130,7 @@ public abstract class ResourceBase {
     return workflowInstances.updateWorkflowInstance(instance, action);
   }
 
-  public Collection<ListWorkflowInstanceResponse> listWorkflowInstances(final List<Long> ids, final List<String> types,
+  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(final List<Long> ids, final List<String> types,
       final Long parentWorkflowId, final Long parentActionId, final List<String> states,
       final List<WorkflowInstanceStatus> statuses, final String businessKey, final String externalId, final String include,
       final Long maxResults, final Long maxActions, final WorkflowInstanceService workflowInstances,
@@ -151,13 +151,9 @@ public abstract class ResourceBase {
         .setMaxResults(maxResults) //
         .setMaxActions(maxActions) //
         .setIncludeChildWorkflows(includeStrings.contains(childWorkflows)).build();
-    Collection<WorkflowInstance> instances = workflowInstances.listWorkflowInstances(q);
-    List<ListWorkflowInstanceResponse> resp = new ArrayList<>();
+    Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
     Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
-    for (WorkflowInstance instance : instances) {
-      resp.add(listWorkflowConverter.convert(instance, parseIncludeEnums));
-    }
-    return resp;
+    return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums));
   }
 
   private Set<WorkflowInstanceInclude> parseIncludeEnums(String include) {
