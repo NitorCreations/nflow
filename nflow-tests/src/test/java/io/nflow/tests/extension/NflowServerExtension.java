@@ -59,11 +59,9 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
     }
 
     private void invokeBeforeServerStop() {
-        List<Method> methods = Arrays.stream(testClass.getMethods())
+        Arrays.stream(testClass.getMethods())
                 .filter(field -> field.getAnnotation(BeforeServerStop.class) != null)
-                .collect(toList());
-
-        methods.forEach(method -> {
+                .forEach(method -> {
             try {
                 method.invoke(testInstance);
             } catch (Exception e) {
