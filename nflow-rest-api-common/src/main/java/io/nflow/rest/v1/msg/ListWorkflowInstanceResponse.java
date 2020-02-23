@@ -77,6 +77,6 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   public Integer signal;
 
   @ApiModelProperty("True if the instance is in the archive")
-  public Boolean archived;
+  public Boolean isArchived;
 
 }

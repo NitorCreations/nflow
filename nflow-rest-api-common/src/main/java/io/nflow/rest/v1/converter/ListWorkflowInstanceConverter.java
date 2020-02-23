@@ -51,7 +51,7 @@ public class ListWorkflowInstanceConverter {
     resp.started = instance.started;
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
-    resp.archived = instance.isArchived ? TRUE : null;
+    resp.isArchived = instance.isArchived ? TRUE : null;
     if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
