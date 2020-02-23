@@ -25,7 +25,6 @@ import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 /**
@@ -42,7 +41,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   /**
    * States of cron workflow.
    */
-  public enum State implements WorkflowState {
+  public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
     schedule(start), doWork(normal), handleFailure(normal), failed(manual);
 
     private WorkflowStateType type;
