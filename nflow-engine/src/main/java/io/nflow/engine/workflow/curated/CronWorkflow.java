@@ -6,6 +6,7 @@ import static io.nflow.engine.workflow.curated.CronWorkflow.State.handleFailure;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.schedule;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static io.nflow.engine.workflow.definition.WorkflowSettings.Builder.oncePerDay;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
@@ -83,7 +84,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    *          The type of the workflow.
    */
   protected CronWorkflow(String type) {
-    this(type, new Builder().setHistoryDeletableAfter(days(45)).build());
+    this(type, new Builder().setHistoryDeletableAfter(days(45)).setDeleteHistoryCondition(oncePerDay()).build());
   }
 
   /**

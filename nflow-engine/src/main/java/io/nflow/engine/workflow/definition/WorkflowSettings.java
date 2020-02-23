@@ -2,6 +2,7 @@ package io.nflow.engine.workflow.definition;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -11,9 +12,11 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -94,7 +97,36 @@ public class WorkflowSettings extends ModelObject {
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
-    BooleanSupplier deleteHistoryCondition = () -> ThreadLocalRandom.current().nextInt(100) == 0;
+    BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
+
+    /**
+     * Returns true randomly every n:th time.
+     *
+     * @param n The frequency of returning true.
+     * @return Producer of boolean values
+     */
+    public static BooleanSupplier onAverageEveryNthExecution(int n) {
+      return () -> ThreadLocalRandom.current().nextInt(n) == 0;
+    }
+
+    /**
+     * Returns true randomly once per day (during the early hours).
+     *
+     * @return Producer of boolean values
+     */
+    public static BooleanSupplier oncePerDay() {
+      // this minutes and seconds vary by start time between nodes
+      AtomicLong nextExecution = new AtomicLong(LocalDateTime.now().plusDays(1).withHourOfDay(4).toDateTime().getMillis());
+      return () -> {
+        long now = currentTimeMillis();
+        long next = nextExecution.get();
+        if (now > next) {
+          nextExecution.compareAndExchange(next, next + DAYS.toMillis(1));
+          return true;
+        }
+        return false;
+      };
+    }
 
     /**
      * Set the maximum delay on execution retry after an error.
