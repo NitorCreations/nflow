@@ -4,7 +4,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -18,6 +17,7 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.lang.reflect.Modifier.isStatic;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 public class NflowServerExtension implements BeforeAllCallback, AfterEachCallback, AfterAllCallback {
@@ -29,7 +29,7 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         testClass = context.getRequiredTestClass();
-        List<Field> fields = Arrays.stream(testClass.getFields())
+        List<Field> fields = stream(testClass.getFields())
                 .filter(field -> field.getType() == NflowServerConfig.class)
                 .filter(field -> isStatic(field.getModifiers()))
                 .collect(toList());
@@ -59,15 +59,17 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
     }
 
     private void invokeBeforeServerStop() {
-        Arrays.stream(testClass.getMethods())
+        stream(testClass.getMethods())
                 .filter(field -> field.getAnnotation(BeforeServerStop.class) != null)
-                .forEach(method -> {
-            try {
-                method.invoke(testInstance);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+                .forEach(this::invokeTestInstanceMethod);
+    }
+
+    private void invokeTestInstanceMethod(Method method) {
+        try {
+            method.invoke(testInstance);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Target({ ANNOTATION_TYPE, METHOD })

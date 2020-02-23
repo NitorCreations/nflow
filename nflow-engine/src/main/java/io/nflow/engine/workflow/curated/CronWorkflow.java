@@ -23,7 +23,7 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static org.joda.time.Instant.now;
-import static org.joda.time.Period.weeks;
+import static org.joda.time.Period.days;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -37,6 +37,9 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    */
   public static final String VAR_SCHEDULE = "cron";
 
+  /**
+   * States of cron workflow.
+   */
   public enum State implements WorkflowState {
     schedule(start), doWork(normal), handleFailure(normal), failed(manual);
 
@@ -78,11 +81,11 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    * @param type The type of the workflow.
    */
   protected CronWorkflow(String type) {
-    this(type, new Builder().setHistoryDeletableAfter(weeks(1)).build());
+    this(type, new Builder().setHistoryDeletableAfter(days(45)).build());
   }
 
   /**
-   * Calculates the next activation time.
+   * Calculates next activation time based on cron state variable. Override for custom scheduling.
    *
    * @param execution The workflow execution context.
    * @param cron The cron schedule.
@@ -93,7 +96,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   /**
-   * Handles errors in working step.
+   * Logs an error and continues. Override for custom error handling.
    *
    * @param execution The workflow execution context.
    * @return True if the failure was handled successfully. If false is returned the cron workflow stops waiting for manual actions.
@@ -103,10 +106,23 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     return true;
   }
 
+  /**
+   * Determines the next execution time for the doWork step.
+   *
+   * @param execution The workflow execution context.
+   * @param cron The cron state variable.
+   * @return Action to run the doWork step at scheduled time.
+   */
   public NextAction schedule(StateExecution execution, @StateVar(value = VAR_SCHEDULE, readOnly = true) String cron) {
     return moveToStateAfter(doWork, getNextActivationTime(execution, cron), "Scheduled");
   }
 
+  /**
+   * Tries to handle failures by calling {@link #handleFailureImpl}
+   *
+   * @param execution The workflow execution context.
+   * @return Either moves back to schedule state or if failure handling failed waits for manual actions in failed state.
+   */
   public NextAction handleFailure(StateExecution execution) {
     if (handleFailureImpl(execution)) {
       return moveToState(schedule, "Failure handled successfully");
