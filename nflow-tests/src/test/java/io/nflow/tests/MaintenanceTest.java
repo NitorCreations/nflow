@@ -15,7 +15,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.junit.jupiter.api.MethodOrderer;
@@ -49,8 +48,7 @@ public class MaintenanceTest extends AbstractNflowTest {
   @Test
   @Order(1)
   public void cleanupExistingStuff() {
-    archiveOlderThan(now());
-    deleteOlderThan(now());
+    deleteAllFinishedWorkflows();
   }
 
   @Test
@@ -74,7 +72,7 @@ public class MaintenanceTest extends AbstractNflowTest {
   @Test
   @Order(4)
   public void archiveBeforeTimeLimit1Archives() {
-    int archived = archiveOlderThan(maintenanceResource, timeLimit1);
+    int archived = archiveOlderThan(timeLimit1);
     // fibonacci(3) workflow creates 1 child workflow
     assertEquals(STEP_1_WORKFLOWS * 2, archived);
   }
@@ -82,14 +80,14 @@ public class MaintenanceTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void archiveAgainBeforeTimeLimit1DoesNothing() {
-    int archived = archiveOlderThan(maintenanceResource, timeLimit1);
+    int archived = archiveOlderThan(timeLimit1);
     assertEquals(0, archived);
   }
 
   @Test
   @Order(6)
   public void archiveBeforeTimeLimit2Archives() {
-    int archived = archiveOlderThan(maintenanceResource, timeLimit2);
+    int archived = archiveOlderThan(timeLimit2);
     assertEquals(STEP_2_WORKFLOWS * 2, archived);
   }
 
@@ -102,14 +100,14 @@ public class MaintenanceTest extends AbstractNflowTest {
   @Test
   @Order(8)
   public void archiveOnceMoreBeforeTimeLimit1DoesNothing() {
-    int archived = archiveOlderThan(maintenanceResource, timeLimit1);
+    int archived = archiveOlderThan(timeLimit1);
     assertEquals(0, archived);
   }
 
   @Test
   @Order(9)
   public void archiveAgainBeforeTimeLimit2DoesNothing() {
-    int archived = archiveOlderThan(maintenanceResource, timeLimit2);
+    int archived = archiveOlderThan(timeLimit2);
     assertEquals(0, archived);
   }
 
@@ -139,7 +137,7 @@ public class MaintenanceTest extends AbstractNflowTest {
   @Test
   @Order(13)
   public void deleteAgainBeforeTimeLimit2DoesNothing() {
-    int archived = archiveOlderThan(maintenanceResource, timeLimit2);
+    int archived = archiveOlderThan(timeLimit2);
     assertEquals(0, archived);
   }
 
@@ -161,15 +159,7 @@ public class MaintenanceTest extends AbstractNflowTest {
     return resp.id;
   }
 
-  private int archiveOlderThan(DateTime now) {
-    return archiveOlderThan(maintenanceResource, now);
-  }
-
-  private int deleteOlderThan(DateTime now) {
-    return deleteOlderThan(maintenanceResource, now);
-  }
-
-  static int archiveOlderThan(WebClient maintenanceResource, DateTime olderThan) {
+  private int archiveOlderThan(DateTime olderThan) {
     MaintenanceRequest req = new MaintenanceRequest();
     req.archiveWorkflows = new MaintenanceRequestItem();
     req.archiveWorkflows.olderThanPeriod = new Period(olderThan, now());
@@ -177,7 +167,7 @@ public class MaintenanceTest extends AbstractNflowTest {
         () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class)).archivedWorkflows;
   }
 
-  static int deleteOlderThan(WebClient maintenanceResource, DateTime olderThan) {
+  private int deleteOlderThan(DateTime olderThan) {
     MaintenanceRequest req = new MaintenanceRequest();
     req.deleteArchivedWorkflows = new MaintenanceRequestItem();
     req.deleteArchivedWorkflows.olderThanPeriod = new Period(olderThan, now());

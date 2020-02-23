@@ -2,6 +2,7 @@ package io.nflow.tests;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Thread.sleep;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -14,8 +15,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
+import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.tests.extension.NflowServerExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.joda.time.Period;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -175,6 +180,16 @@ public abstract class AbstractNflowTest {
     mapper.registerModule(new JodaModule());
     return mapper;
   }
+
+  protected void deleteAllFinishedWorkflows() {
+    MaintenanceRequest req = new MaintenanceRequest();
+    req.deleteWorkflows = new MaintenanceRequestItem();
+    req.deleteWorkflows.olderThanPeriod = Period.seconds(0);
+    req.deleteArchivedWorkflows = req.deleteWorkflows;
+    assertTimeoutPreemptively(Duration.ofSeconds(15),
+            () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
+  }
+
 
   protected String updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request) {
     return getInstanceIdResource(instanceId).put(request, String.class);

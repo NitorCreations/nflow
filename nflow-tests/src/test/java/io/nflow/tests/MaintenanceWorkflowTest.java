@@ -19,8 +19,6 @@ import java.util.List;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
 import static io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
-import static io.nflow.tests.MaintenanceTest.archiveOlderThan;
-import static io.nflow.tests.MaintenanceTest.deleteOlderThan;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
@@ -28,7 +26,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.joda.time.DateTime.now;
 import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -49,10 +46,8 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(1)
-  public void cleanupExistingStuff() throws InterruptedException {
-    SECONDS.sleep(1);
-    archiveOlderThan(maintenanceResource, now());
-    deleteOlderThan(maintenanceResource, now());
+  public void cleanupExistingStuff() {
+    deleteAllFinishedWorkflows();
   }
 
   @Test
