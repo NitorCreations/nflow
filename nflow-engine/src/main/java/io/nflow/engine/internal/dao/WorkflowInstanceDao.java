@@ -518,10 +518,12 @@ public class WorkflowInstanceDao {
 
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
     String sql = "select *, 0 as archived from " + MAIN.nameOf("workflow") + " where id = ?";
+    Object[] args = new Object[]{id};
     if (queryArchive) {
       sql += " union all select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " where id = ?";
+      args = new Object[]{id, id};
     }
-    WorkflowInstance instance = jdbc.queryForObject(sql, new WorkflowInstanceRowMapper(), id).build();
+    WorkflowInstance instance = jdbc.queryForObject(sql, args, new WorkflowInstanceRowMapper()).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       fillState(instance);
     }
@@ -722,12 +724,13 @@ public class WorkflowInstanceDao {
     Stream<TablePrefix> tables = queryArchive ? Stream.of(MAIN, ARCHIVE) : Stream.of(MAIN);
     String sql = tables.map(tablePrefix -> "select parent_action_id, id from " + tablePrefix.nameOf("workflow") + " where parent_workflow_id = ?")
             .collect(joining(" union all "));
-    jdbc.query(sql, rs -> {
+    Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
+    jdbc.query(sql, args, rs -> {
       long parentActionId = rs.getLong(1);
       long childWorkflowInstanceId = rs.getLong(2);
       List<Long> children = instance.childWorkflows.computeIfAbsent(parentActionId, k -> new ArrayList<>());
       children.add(childWorkflowInstanceId);
-    }, instance.id);
+    });
   }
 
   private long getMaxResults(Long maxResults) {
