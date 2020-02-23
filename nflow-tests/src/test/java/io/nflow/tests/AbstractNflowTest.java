@@ -15,10 +15,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
-import io.nflow.rest.v1.msg.MaintenanceRequest;
-import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
-import io.nflow.rest.v1.msg.MaintenanceResponse;
-import io.nflow.tests.extension.NflowServerExtension;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.joda.time.Period;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +29,9 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
+import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
@@ -42,6 +41,7 @@ import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
 import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
 @ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
@@ -187,9 +187,8 @@ public abstract class AbstractNflowTest {
     req.deleteWorkflows.olderThanPeriod = Period.seconds(0);
     req.deleteArchivedWorkflows = req.deleteWorkflows;
     assertTimeoutPreemptively(Duration.ofSeconds(15),
-            () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
+        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
   }
-
 
   protected String updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request) {
     return getInstanceIdResource(instanceId).put(request, String.class);

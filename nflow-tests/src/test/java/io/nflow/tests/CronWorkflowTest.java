@@ -1,18 +1,5 @@
 package io.nflow.tests;
 
-import io.nflow.rest.v1.msg.Action;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import io.nflow.tests.demo.workflow.TestCronWorkflow;
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.context.annotation.ComponentScan;
-
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.tests.demo.workflow.TestCronWorkflow.TYPE;
@@ -22,6 +9,20 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.context.annotation.ComponentScan;
+
+import io.nflow.rest.v1.msg.Action;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import io.nflow.tests.demo.workflow.TestCronWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CronWorkflowTest extends AbstractNflowTest {
@@ -59,13 +60,12 @@ public class CronWorkflowTest extends AbstractNflowTest {
   @Order(3)
   public void verifyThatIsHasRunPeriodically() {
     int i = 1;
-    assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
-            new Action(i++, stateExecution.name(), "schedule", "", 0, null, null, 0),
+    assertWorkflowInstance(resp.id,
+        actionHistoryValidator(asList(new Action(i++, stateExecution.name(), "schedule", "", 0, null, null, 0),
             new Action(i++, stateExecution.name(), "doWork", "", 0, null, null, 0),
             new Action(i++, stateExecution.name(), "schedule", "", 0, null, null, 0),
             new Action(i++, stateExecution.name(), "doWork", "", 0, null, null, 0),
-            new Action(i++, stateExecution.name(), "schedule", "", 0, null, null, 0)
-    )));
+            new Action(i++, stateExecution.name(), "schedule", "", 0, null, null, 0))));
   }
 
   @BeforeServerStop

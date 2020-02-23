@@ -5,9 +5,10 @@ import static java.util.Optional.ofNullable;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.ReadablePeriod;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Configuration for all maintenance operations.

@@ -1,9 +1,12 @@
 package io.nflow.engine.internal.workflow;
 
-import io.nflow.engine.service.MaintenanceConfiguration;
-import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
-import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import static io.nflow.engine.workflow.curated.CronWorkflow.VAR_SCHEDULE;
+import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
+import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.VAR_MAINTENANCE_CONFIGURATION;
+import static java.util.Optional.ofNullable;
+
+import java.util.function.Supplier;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -11,12 +14,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.function.Supplier;
-
-import static io.nflow.engine.workflow.curated.CronWorkflow.VAR_SCHEDULE;
-import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
-import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.VAR_MAINTENANCE_CONFIGURATION;
-import static java.util.Optional.ofNullable;
+import io.nflow.engine.service.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
+import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @Component
 public class MaintenanceWorkflowStarter {
@@ -28,7 +29,8 @@ public class MaintenanceWorkflowStarter {
   protected String initialCronSchedule;
   protected MaintenanceConfiguration initialConfiguration;
 
-  public MaintenanceWorkflowStarter(Environment env, WorkflowInstanceService instanceService, WorkflowInstanceFactory workflowInstanceFactory) {
+  public MaintenanceWorkflowStarter(Environment env, WorkflowInstanceService instanceService,
+      WorkflowInstanceFactory workflowInstanceFactory) {
     this.workflowInstanceFactory = workflowInstanceFactory;
     this.instanceService = instanceService;
     this.insertOnStartup = env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class);
@@ -41,22 +43,22 @@ public class MaintenanceWorkflowStarter {
   }
 
   private void apply(Environment env, String property, Supplier<ConfigurationItem.Builder> builderSupplier) {
-    ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan"))
-            .map(StringUtils::trimToNull)
-            .map(Period::parse)
-            .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period).done());
+    ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan")) //
+        .map(StringUtils::trimToNull) //
+        .map(Period::parse) //
+        .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period).done());
   }
 
   @EventListener(ContextRefreshedEvent.class)
   public void start() {
     if (insertOnStartup) {
       insertOnStartup = false;
-      instanceService.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
-              .setType(MAINTENANCE_WORKFLOW_TYPE)
-              .putStateVariable(VAR_SCHEDULE, initialCronSchedule)
-              .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, initialConfiguration)
-              .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
-              .build());
+      instanceService.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder() //
+          .setType(MAINTENANCE_WORKFLOW_TYPE) //
+          .putStateVariable(VAR_SCHEDULE, initialCronSchedule) //
+          .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, initialConfiguration) //
+          .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
+          .build());
     }
   }
 }
