@@ -2,11 +2,11 @@ package io.nflow.engine.workflow.definition;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -121,7 +121,7 @@ public class WorkflowSettings extends ModelObject {
         long now = currentTimeMillis();
         long next = nextExecution.get();
         if (now > next) {
-          nextExecution.compareAndExchange(next, next + DAYS.toMillis(1));
+          nextExecution.set(next + DAYS.toMillis(1));
           return true;
         }
         return false;
