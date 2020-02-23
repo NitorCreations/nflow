@@ -114,7 +114,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
   public Mono<ResponseEntity<?>> fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
-      @RequestParam(value = "queryArchive", required = false, defaultValue = "true") @ApiParam("Query also the archive") boolean queryArchive,
+      @RequestParam(value = "queryArchive", required = false, defaultValue = "false") @ApiParam("Query also the archive") boolean queryArchive,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.fetchWorkflowInstance(id, include, maxActions, queryArchive, this.workflowInstances, this.listWorkflowConverter))));
@@ -134,7 +134,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "stateVariableKey", required = false) @ApiParam("Key of state variable that must exist for workflow instance") String stateVariableKey,
       @RequestParam(value = "stateVariableValue", required = false) @ApiParam("Current value of state variable defined by stateVariableKey") String stateVariableValue,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
-      @RequestParam(value = "queryArchive", required = false, defaultValue = "true") @ApiParam("Query also the archive") boolean queryArchive,
+      @RequestParam(value = "queryArchive", required = false, defaultValue = "false") @ApiParam("Query also the archive") boolean queryArchive,
       @RequestParam(value = "maxResults", required = false) @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(

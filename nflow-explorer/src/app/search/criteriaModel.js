@@ -31,6 +31,7 @@
 
       q.type = _.result(self.model.definition, 'type');
       q.state = _.result(self.model.state, 'id');
+      q.queryArchive = true;
       _.defaults(q, _.omit(self.model, ['definition', 'state']));
       return omitNonValues(q);
     }

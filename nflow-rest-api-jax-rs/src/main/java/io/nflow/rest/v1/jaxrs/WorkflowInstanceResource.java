@@ -125,7 +125,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @ApiParam("Query also the archive") Boolean queryArchive) {
     return handleExceptions(
-        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, ofNullable(queryArchive).orElse(true), workflowInstances, listWorkflowConverter)));
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, ofNullable(queryArchive).orElse(false), workflowInstances, listWorkflowConverter)));
   }
 
   @GET
@@ -146,7 +146,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("queryArchive") @ApiParam("Query also the archive") Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
         businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions,
-        ofNullable(queryArchive).orElse(true), workflowInstances, listWorkflowConverter).iterator()));
+        ofNullable(queryArchive).orElse(false), workflowInstances, listWorkflowConverter).iterator()));
   }
 
   @PUT
