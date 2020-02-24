@@ -77,7 +77,8 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   /**
-   * Extend cron workflow definition. Extending class must implement the 'doWork` state method.
+   * Extend cron workflow definition. Uses workflow settings that enable automatic workflow state and action history cleanup.
+   * Extending class must implement the 'doWork` state method.
    *
    * @param type
    *          The type of the workflow.
