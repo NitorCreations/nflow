@@ -1,11 +1,14 @@
 package io.nflow.engine.service;
 
 import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
 
 import java.util.Set;
 
 import org.joda.time.ReadablePeriod;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Configuration for all maintenance operations.
@@ -27,8 +30,9 @@ public class MaintenanceConfiguration {
    */
   public final ConfigurationItem deleteWorkflows;
 
-  MaintenanceConfiguration(ConfigurationItem deleteArchivedWorkflows, ConfigurationItem archiveWorkflows,
-      ConfigurationItem deleteWorkflows) {
+  MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
+                           @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
+                           @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;
@@ -39,44 +43,39 @@ public class MaintenanceConfiguration {
    */
   public static class Builder {
 
-    private ConfigurationItem deleteArchivedWorkflows;
-    private ConfigurationItem archiveWorkflows;
-    private ConfigurationItem deleteWorkflows;
+    private ConfigurationItem.Builder deleteArchivedWorkflows;
+    private ConfigurationItem.Builder archiveWorkflows;
+    private ConfigurationItem.Builder deleteWorkflows;
 
     /**
      * Configuration for deleting old workflow instances from archive tables.
      *
-     * @param archiveWorkflows
-     *          Configuration item
-     * @return this
+     * @return builder for configuration
      */
-    public MaintenanceConfiguration.Builder setArchiveWorkflows(ConfigurationItem archiveWorkflows) {
-      this.archiveWorkflows = archiveWorkflows;
-      return this;
+    public ConfigurationItem.Builder withArchiveWorkflows() {
+      return archiveWorkflows = new ConfigurationItem.Builder(this);
     }
 
     /**
      * Set configuration for deleting old workflow instances from archive tables.
      *
-     * @param deleteArchivedWorkflows
-     *          Configuration item
-     * @return this
+     * @return builder for configuration
      */
-    public MaintenanceConfiguration.Builder setDeleteArchivedWorkflows(ConfigurationItem deleteArchivedWorkflows) {
-      this.deleteArchivedWorkflows = deleteArchivedWorkflows;
-      return this;
+    public ConfigurationItem.Builder withDeleteArchivedWorkflows() {
+      return deleteArchivedWorkflows = new ConfigurationItem.Builder(this);
     }
 
     /**
      * Set configuration for deleting old workflow instances from main tables.
      *
-     * @param deleteWorkflows
-     *          Configuration item
-     * @return this
+     * @return builder for configuration
      */
-    public MaintenanceConfiguration.Builder setDeleteWorkflows(ConfigurationItem deleteWorkflows) {
-      this.deleteWorkflows = deleteWorkflows;
-      return this;
+    public ConfigurationItem.Builder withDeleteWorkflows() {
+      return deleteWorkflows = new ConfigurationItem.Builder(this);
+    }
+
+    private ConfigurationItem build(ConfigurationItem.Builder builder) {
+      return ofNullable(builder).map(ConfigurationItem.Builder::build).orElse(null);
     }
 
     /**
@@ -85,7 +84,7 @@ public class MaintenanceConfiguration {
      * @return MaintenanceConfiguration object.
      */
     public MaintenanceConfiguration build() {
-      return new MaintenanceConfiguration(deleteArchivedWorkflows, archiveWorkflows, deleteWorkflows);
+      return new MaintenanceConfiguration(build(deleteArchivedWorkflows), build(archiveWorkflows), build(deleteWorkflows));
     }
   }
 
@@ -109,10 +108,10 @@ public class MaintenanceConfiguration {
      */
     public final Set<String> workflowTypes;
 
-    ConfigurationItem(ReadablePeriod olderThanPeriod, Integer batchSize, Set<String> workflowTypes) {
+    ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod, @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
       this.olderThanPeriod = olderThanPeriod;
       this.batchSize = batchSize;
-      this.workflowTypes = workflowTypes;
+      this.workflowTypes = ofNullable(workflowTypes).orElse(emptySet());
     }
 
     /**
@@ -120,9 +119,14 @@ public class MaintenanceConfiguration {
      */
     public static class Builder {
 
+      private final MaintenanceConfiguration.Builder parentBuilder;
       private ReadablePeriod olderThanPeriod;
       private Integer batchSize = 1000;
       private Set<String> workflowTypes = emptySet();
+
+      Builder(MaintenanceConfiguration.Builder parentBuilder) {
+        this.parentBuilder = parentBuilder;
+      }
 
       /**
        * Set the time limit for the maintenance operation. Items older than (now - period) are processed.
@@ -162,11 +166,15 @@ public class MaintenanceConfiguration {
       }
 
       /**
-       * Build ConfigurationItem object.
+       * Finish ConfigurationItem object and move back to MaintenanceConfiguration.
        *
-       * @return ConfigurationItem object.
+       * @return The parent MaintenanceConfiguration builder object.
        */
-      public ConfigurationItem build() {
+      public MaintenanceConfiguration.Builder done() {
+        return parentBuilder;
+      }
+
+      ConfigurationItem build() {
         Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
         Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
         Assert.isTrue(workflowTypes != null, "workflowTypes must not be null");

@@ -8,6 +8,7 @@
   - `StateExecution.getAllChildWorkflows` does not return current state variables of child workflows anymore.
   - `WorkflowStateProcessor` does not read child workflow IDs of processed workflow instances anymore.
   - `QueryWorkflowInstances.Builder` does not query for current state variables by default anymore.
+  - `BulkWorklow` moved to `io.nflow.engine.workflow.curated` java package.
 
 **Highlights**
 - `nflow-engine`
@@ -15,6 +16,8 @@
   - Add support for deleting workflow instances, actions and state variables from production and archive tables.
   - Remove support for `nflow.executor.fetchChildWorkflowIds` configuration property.
   - Fix bug in stuck workflow instance processing detection when multiple states are processed consecutively by the same processor thread. Now the time counter is reset between each state.
+  - Added abstract `CronWorkflow` that can be used to periodically execute a task.
+  - Built-in support for periodically running maintenance to clean up workflow instances.
 
 **Details**
 - `nflow-engine`
@@ -32,6 +35,8 @@
   - For example, `WorkflowSettings.setHistoryDeleteableAfterHours(12)` can now be achieved by `WorkflowSettings.setHistoryDeleteableAfter(Period.hours(12))`.
   - To get child workflows with state variables in a state method, use `StateExecution.queryChildWorkflows`.
   - To get all child workflow IDs in a state method, use `StateExecution.getAllChildWorkflows`.
+  - New `MaintenanceWorkflow` that can be enabled by setting `nflow.maintenance.insertWorkflowIfMissing` property to true. On the first run the workflow is inserted and it will start to run periodically. Further configuration must be done by editing the two state variables of the workflow: `cron` for the scheduling and `config` for the `MaintenanceConfiguration` to execute.
+    - The first time configuration can also be tuned with `nflow.maintenance.initial.cron`, `nflow.maintenance.initial.delete.olderThan`, `nflow.maintenance.initial.archive.olderThan` and `nflow.maintenance.initial.deleteArchived.olderThan`
 - `nflow-explorer`
   - Dependency updates:
     - angular extra libraries 1.7.9

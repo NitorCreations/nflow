@@ -17,7 +17,6 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
 /**

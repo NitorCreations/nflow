@@ -7,9 +7,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
+import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+
+import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,12 +22,12 @@ public class WorkflowSettingsTest {
 
   @BeforeEach
   public void setup() {
-    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+    setCurrentMillisFixed(now.getMillis());
   }
 
   @AfterEach
   public void teardown() {
-    DateTimeUtils.setCurrentMillisSystem();
+    setCurrentMillisSystem();
   }
 
   @Test
@@ -81,6 +84,21 @@ public class WorkflowSettingsTest {
     WorkflowSettings s = new WorkflowSettings.Builder().setDeleteHistoryCondition(() -> true).build();
 
     assertThat(s.deleteHistoryCondition.getAsBoolean(), is(true));
+  }
+
+  @Test
+  public void oncePerDaySupplierWorks() {
+    BooleanSupplier supplier = WorkflowSettings.Builder.oncePerDay();
+    assertThat(supplier.getAsBoolean(), is(false));
+    assertThat(supplier.getAsBoolean(), is(false));
+    setCurrentMillisFixed(now.plusDays(1).withHourOfDay(5).getMillis());
+    assertThat(supplier.getAsBoolean(), is(true));
+    assertThat(supplier.getAsBoolean(), is(false));
+    assertThat(supplier.getAsBoolean(), is(false));
+    setCurrentMillisFixed(now.plusDays(2).withHourOfDay(5).getMillis());
+    assertThat(supplier.getAsBoolean(), is(true));
+    assertThat(supplier.getAsBoolean(), is(false));
+    assertThat(supplier.getAsBoolean(), is(false));
   }
 
 }

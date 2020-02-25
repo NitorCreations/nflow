@@ -1,7 +1,7 @@
 package io.nflow.tests;
 
-import static io.nflow.engine.workflow.definition.BulkWorkflow.BULK_WORKFLOW_TYPE;
-import static io.nflow.engine.workflow.definition.BulkWorkflow.State.done;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.BULK_WORKFLOW_TYPE;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.time.Duration.ofSeconds;
@@ -24,19 +24,16 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 
-import io.nflow.engine.workflow.definition.BulkWorkflow;
+import io.nflow.engine.workflow.curated.BulkWorkflow;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.DemoBulkWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 
-@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BulkWorkflowTest extends AbstractNflowTest {
 

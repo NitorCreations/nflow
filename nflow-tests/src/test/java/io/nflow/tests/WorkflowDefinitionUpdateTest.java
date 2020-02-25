@@ -6,18 +6,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import io.nflow.tests.demo.workflow.Demo2Workflow;
 import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.NflowServerExtension;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Bean;
 
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
 
-@ExtendWith(NflowServerExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class WorkflowDefinitionUpdateTest extends AbstractNflowTest {
 
