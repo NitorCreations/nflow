@@ -37,6 +37,13 @@
   - To get all child workflow IDs in a state method, use `StateExecution.getAllChildWorkflows`.
   - New `MaintenanceWorkflow` that can be enabled by setting `nflow.maintenance.insertWorkflowIfMissing` property to true. On the first run the workflow is inserted and it will start to run periodically. Further configuration must be done by editing the two state variables of the workflow: `cron` for the scheduling and `config` for the `MaintenanceConfiguration` to execute.
     - The first time configuration can also be tuned with `nflow.maintenance.initial.cron`, `nflow.maintenance.initial.delete.olderThan`, `nflow.maintenance.initial.archive.olderThan` and `nflow.maintenance.initial.deleteArchived.olderThan`
+  - Dependency updates:
+    - spring 5.2.4
+    - jersey 2.30.1
+    - metrics 4.1.3
+    - netty 0.9.5
+    - mockito 3.3.0
+    - spotbugs 4.0.0
 - `nflow-explorer`
   - Dependency updates:
     - angular extra libraries 1.7.9
@@ -45,8 +52,8 @@
     - node-sass 9.7.4
     - karma-jasmine 3.1.1
     - autoprefixer 9.7.4
-    - node v12.15.0
-    - npm 6.13.4
+    - node v12.16.1
+    - npm 6.13.7
 
 ## 6.2.0 (2020-02-11)
 

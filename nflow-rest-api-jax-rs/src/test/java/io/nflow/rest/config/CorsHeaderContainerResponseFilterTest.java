@@ -36,17 +36,13 @@ public class CorsHeaderContainerResponseFilterTest {
   private static final String HOST = "example.com";
   private static final String HEADERS = "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept";
 
-  @BeforeEach
-  public void setup() {
+  @Test
+  public void addsHeaders() {
     when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(HOST);
     when(env.getRequiredProperty("nflow.rest.allow.headers")).thenReturn(HEADERS);
     when(env.getRequiredProperty("nflow.rest.cors.enabled", Boolean.class)).thenReturn(TRUE);
     filter = new CorsHeaderContainerResponseFilter(env);
-    lenient().when(responseContext.getHeaders()).thenReturn(headerMap);
-  }
-
-  @Test
-  public void addsHeaders() {
+    when(responseContext.getHeaders()).thenReturn(headerMap);
     filter.filter(requestContext, responseContext);
 
     assertEquals(asList(HOST), headerMap.get("Access-Control-Allow-Origin"));
