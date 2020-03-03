@@ -9,6 +9,7 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Period.months;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,18 +46,20 @@ public class MaintenanceServiceTest {
   private TableMetadataChecker tableMetadataChecker;
   @Mock
   private WorkflowDefinitionService workflowDefinitionService;
-  private final DateTime limit = new DateTime(2015, 7, 10, 19, 57, 0, 0);
   private final List<Long> emptyList = emptyList();
   private final List<Long> oldWorkdlowIds = asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
   private MaintenanceConfiguration archiveConfig;
   private MaintenanceConfiguration deleteMainConfig;
   private MaintenanceConfiguration deleteArchiveConfig;
+  private ReadablePeriod period;
+  private DateTime limit;
 
   @BeforeEach
   public void setup() {
     service = new MaintenanceService(dao, tableMetadataChecker, workflowDefinitionService);
     setCurrentMillisFixed(currentTimeMillis());
-    ReadablePeriod period = new Period(limit, now());
+    period = months(1);
+    limit = now().minus(period);
     archiveConfig = new MaintenanceConfiguration.Builder().withArchiveWorkflows().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).done().build();
     deleteMainConfig = new MaintenanceConfiguration.Builder().withDeleteWorkflows().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).done().build();
     deleteArchiveConfig = new MaintenanceConfiguration.Builder().withDeleteArchivedWorkflows().setOlderThanPeriod(period).setBatchSize(BATCH_SIZE).done().build();
