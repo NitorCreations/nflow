@@ -15,7 +15,6 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

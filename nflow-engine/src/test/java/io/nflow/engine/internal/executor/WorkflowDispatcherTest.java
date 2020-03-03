@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,8 +83,8 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
-    when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
-    when(executorDao.isAutoCommitEnabled()).thenReturn(true);
+    lenient().when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
+    lenient().when(executorDao.isAutoCommitEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);

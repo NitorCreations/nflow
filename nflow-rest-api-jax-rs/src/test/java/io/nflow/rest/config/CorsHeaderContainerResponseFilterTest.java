@@ -4,7 +4,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +12,6 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -36,17 +34,13 @@ public class CorsHeaderContainerResponseFilterTest {
   private static final String HOST = "example.com";
   private static final String HEADERS = "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept";
 
-  @BeforeEach
-  public void setup() {
+  @Test
+  public void addsHeaders() {
     when(env.getRequiredProperty("nflow.rest.allow.origin")).thenReturn(HOST);
     when(env.getRequiredProperty("nflow.rest.allow.headers")).thenReturn(HEADERS);
     when(env.getRequiredProperty("nflow.rest.cors.enabled", Boolean.class)).thenReturn(TRUE);
     filter = new CorsHeaderContainerResponseFilter(env);
-    lenient().when(responseContext.getHeaders()).thenReturn(headerMap);
-  }
-
-  @Test
-  public void addsHeaders() {
+    when(responseContext.getHeaders()).thenReturn(headerMap);
     filter.filter(requestContext, responseContext);
 
     assertEquals(asList(HOST), headerMap.get("Access-Control-Allow-Origin"));
