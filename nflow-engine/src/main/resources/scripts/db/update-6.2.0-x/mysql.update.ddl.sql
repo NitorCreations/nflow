@@ -1,8 +1,8 @@
 -- These must be run before nFlow is updated.
 
-alter table nflow_workflow drop constraint fk_workflow_parent;
+alter table nflow_workflow drop foreign key fk_workflow_parent;
 
-alter table nflow_workflow drop constraint fk_workflow_root;
+alter table nflow_workflow drop foreign key fk_workflow_root;
   
 create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
 
