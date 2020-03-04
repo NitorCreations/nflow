@@ -1,4 +1,4 @@
--- These can be run before nFlow is updated.
+-- These must be run before nFlow is updated.
 
 alter table nflow_workflow drop constraint fk_workflow_parent
 /

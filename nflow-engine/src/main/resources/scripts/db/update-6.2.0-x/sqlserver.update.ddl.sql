@@ -1,4 +1,4 @@
--- These can be run before nFlow is updated.
+-- These must be run before nFlow is updated.
 
 if exists (select 1 from sys.indexes where name='fk_workflow_parent')
 alter table nflow_workflow drop constraint fk_workflow_parent;
