@@ -17,8 +17,8 @@ create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workfl
 
 -- These must be run after nFlow is updated.
 
-alter table nflow_workflow drop column workflow_root_id
+alter table nflow_workflow drop column root_workflow_id
 /
 
-alter table nflow_archive_workflow drop column workflow_root_id
+alter table nflow_archive_workflow drop column root_workflow_id
 /
