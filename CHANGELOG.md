@@ -1,4 +1,10 @@
-## 7.0.0 (future release)
+## 7.0.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.0.0 (2020-03-05)
 
 **BREAKING CHANGES**
   - Drop `nflow_workflow.root_workflow_id` column.
