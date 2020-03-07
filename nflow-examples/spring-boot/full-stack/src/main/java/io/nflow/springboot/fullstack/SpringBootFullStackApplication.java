@@ -15,7 +15,7 @@ import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
-import io.nflow.rest.v1.jaxrs.ArchiveResource;
+import io.nflow.rest.v1.jaxrs.MaintenanceResource;
 import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
 import io.nflow.rest.v1.jaxrs.WorkflowExecutorResource;
@@ -43,7 +43,7 @@ public class SpringBootFullStackApplication {
 
   private static class JerseyResourceConfig extends ResourceConfig {
     public JerseyResourceConfig() {
-      register(ArchiveResource.class);
+      register(MaintenanceResource.class);
       register(WorkflowDefinitionResource.class);
       register(WorkflowExecutorResource.class);
       register(WorkflowInstanceResource.class);
