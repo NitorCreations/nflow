@@ -14,6 +14,7 @@ import static io.nflow.tests.demo.workflow.StateWorkflow.State.state4;
 import static io.nflow.tests.demo.workflow.StateWorkflow.State.state5;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
+import static org.joda.time.Duration.millis;
 
 import org.springframework.stereotype.Component;
 
@@ -58,8 +59,8 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
   }
 
   public StateWorkflow() {
-    super(STATE_WORKFLOW_TYPE, state1, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
-        .setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
+    super(STATE_WORKFLOW_TYPE, state1, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(0))
+        .setMaxErrorTransitionDelay(millis(0)).setShortTransitionDelay(millis(0)).setMaxRetries(3).build());
     setDescription("Workflow for testing state variables");
     permit(state1, state2);
     permit(state2, state3);

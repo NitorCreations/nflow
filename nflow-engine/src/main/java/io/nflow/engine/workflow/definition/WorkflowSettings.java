@@ -2,11 +2,11 @@ package io.nflow.engine.workflow.definition;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.Duration.standardDays;
+import static org.joda.time.Duration.standardMinutes;
+import static org.joda.time.Duration.standardSeconds;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -16,7 +16,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
+import org.joda.time.ReadableDuration;
 import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -30,19 +32,19 @@ public class WorkflowSettings extends ModelObject {
   /**
    * Minimum delay on execution retry after an error. Unit is milliseconds.
    */
-  public final int minErrorTransitionDelay;
+  public final long minErrorTransitionDelay;
   /**
    * Maximum delay on execution retry after an error. Unit is milliseconds.
    */
-  public final int maxErrorTransitionDelay;
+  public final long maxErrorTransitionDelay;
   /**
-   * Length of forced delay to break execution of a step that is considered to be busy looping. Unit is milliseconds.
+   * Length of forced delay to break execution of a step that is considered to be busy looping.
    */
-  public final int shortTransitionDelay;
+  public final ReadableDuration shortTransitionDelay;
   /**
    * Immediate transition delay.
    */
-  public final int immediateTransitionDelay;
+  public final ReadableDuration immediateTransitionDelay;
   /**
    * Maximum retry attempts.
    */
@@ -70,8 +72,8 @@ public class WorkflowSettings extends ModelObject {
   public final short defaultPriority;
 
   WorkflowSettings(Builder builder) {
-    this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
-    this.maxErrorTransitionDelay = builder.maxErrorTransitionDelay;
+    this.minErrorTransitionDelay = builder.minErrorTransitionDelay.getMillis();
+    this.maxErrorTransitionDelay = builder.maxErrorTransitionDelay.getMillis();
     this.shortTransitionDelay = builder.shortTransitionDelay;
     this.immediateTransitionDelay = builder.immediateTransitionDelay;
     this.maxRetries = builder.maxRetries;
@@ -88,10 +90,10 @@ public class WorkflowSettings extends ModelObject {
   @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure")
   public static class Builder {
 
-    int maxErrorTransitionDelay = (int) DAYS.toMillis(1);
-    int minErrorTransitionDelay = (int) MINUTES.toMillis(1);
-    int shortTransitionDelay = (int) SECONDS.toMillis(30);
-    int immediateTransitionDelay = 0;
+    ReadableDuration maxErrorTransitionDelay = standardDays(1);
+    ReadableDuration minErrorTransitionDelay = standardMinutes(1);
+    ReadableDuration shortTransitionDelay = standardSeconds(30);
+    ReadableDuration immediateTransitionDelay = Duration.ZERO;
     int maxRetries = 17;
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
@@ -102,7 +104,9 @@ public class WorkflowSettings extends ModelObject {
     /**
      * Returns true randomly every n:th time.
      *
-     * @param n The frequency of returning true.
+     * @param n
+     *          Controls the frequency of returning true. With n=1, returns true every time. With n=100, returns true on average
+     *          once per 100 calls.
      * @return Producer of boolean values
      */
     public static BooleanSupplier onAverageEveryNthExecution(int n) {
@@ -110,18 +114,18 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
-     * Returns true randomly once per day (during the early hours).
+     * Returns true once per day (during early hours).
      *
      * @return Producer of boolean values
      */
     public static BooleanSupplier oncePerDay() {
-      // this minutes and seconds vary by start time between nodes
+      // minutes and seconds vary by start time between nodes
       AtomicLong nextExecution = new AtomicLong(LocalDateTime.now().plusDays(1).withHourOfDay(4).toDateTime().getMillis());
       return () -> {
         long now = currentTimeMillis();
         long next = nextExecution.get();
         if (now > next) {
-          nextExecution.set(next + DAYS.toMillis(1));
+          nextExecution.set(next + standardDays(1).getMillis());
           return true;
         }
         return false;
@@ -134,9 +138,11 @@ public class WorkflowSettings extends ModelObject {
      * @param maxErrorTransitionDelay
      *          Delay in milliseconds.
      * @return this.
+     * @deprecated Define period as Duration instead of milliseconds.
      */
+    @Deprecated
     public Builder setMaxErrorTransitionDelay(int maxErrorTransitionDelay) {
-      this.maxErrorTransitionDelay = maxErrorTransitionDelay;
+      this.maxErrorTransitionDelay = Duration.millis(maxErrorTransitionDelay);
       return this;
     }
 
@@ -146,9 +152,11 @@ public class WorkflowSettings extends ModelObject {
      * @param minErrorTransitionDelay
      *          Delay in milliseconds.
      * @return this.
+     * @deprecated Define period as Duration instead of milliseconds.
      */
+    @Deprecated
     public Builder setMinErrorTransitionDelay(int minErrorTransitionDelay) {
-      this.minErrorTransitionDelay = minErrorTransitionDelay;
+      this.minErrorTransitionDelay = Duration.millis(minErrorTransitionDelay);
       return this;
     }
 
@@ -158,9 +166,11 @@ public class WorkflowSettings extends ModelObject {
      * @param shortTransitionDelay
      *          Delay in milliseconds.
      * @return this.
+     * @deprecated Define period as Duration instead of milliseconds.
      */
+    @Deprecated
     public Builder setShortTransitionDelay(int shortTransitionDelay) {
-      this.shortTransitionDelay = shortTransitionDelay;
+      this.shortTransitionDelay = Duration.millis(shortTransitionDelay);
       return this;
     }
 
@@ -170,8 +180,58 @@ public class WorkflowSettings extends ModelObject {
      * @param immediateTransitionDelay
      *          Delay in milliseconds.
      * @return this.
+     * @deprecated Define period as Duration instead of milliseconds.
      */
+    @Deprecated
     public Builder setImmediateTransitionDelay(int immediateTransitionDelay) {
+      this.immediateTransitionDelay = Duration.millis(immediateTransitionDelay);
+      return this;
+    }
+
+    /**
+     * Set the maximum delay on execution retry after an error.
+     *
+     * @param maxErrorTransitionDelay
+     *          The delay.
+     * @return this.
+     */
+    public Builder setMaxErrorTransitionDelay(Duration maxErrorTransitionDelay) {
+      this.maxErrorTransitionDelay = maxErrorTransitionDelay;
+      return this;
+    }
+
+    /**
+     * Set the minimum delay on execution retry after an error.
+     *
+     * @param minErrorTransitionDelay
+     *          The delay.
+     * @return this.
+     */
+    public Builder setMinErrorTransitionDelay(Duration minErrorTransitionDelay) {
+      this.minErrorTransitionDelay = minErrorTransitionDelay;
+      return this;
+    }
+
+    /**
+     * Set the length of forced delay to break execution of a step that is considered to be busy looping.
+     *
+     * @param shortTransitionDelay
+     *          The delay.
+     * @return this.
+     */
+    public Builder setShortTransitionDelay(Duration shortTransitionDelay) {
+      this.shortTransitionDelay = shortTransitionDelay;
+      return this;
+    }
+
+    /**
+     * Set immediate transition delay.
+     *
+     * @param immediateTransitionDelay
+     *          The delay.
+     * @return this.
+     */
+    public Builder setImmediateTransitionDelay(Duration immediateTransitionDelay) {
       this.immediateTransitionDelay = immediateTransitionDelay;
       return this;
     }
@@ -215,8 +275,8 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
-     * Set the delay after which workflow history (actions, states) can be deleted from the database by nFlow.
-     * The default value (<code>null</code>) indicates that history is not deletable.
+     * Set the delay after which workflow history (actions, states) can be deleted from the database by nFlow. The default value
+     * (<code>null</code>) indicates that history is not deletable.
      *
      * @param period
      *          Delay after which history can be deleted.
@@ -299,7 +359,7 @@ public class WorkflowSettings extends ModelObject {
    * @return The delay in milliseconds.
    */
   public DateTime getShortTransitionActivation() {
-    return now().plusMillis(shortTransitionDelay);
+    return now().plus(shortTransitionDelay);
   }
 
   /**

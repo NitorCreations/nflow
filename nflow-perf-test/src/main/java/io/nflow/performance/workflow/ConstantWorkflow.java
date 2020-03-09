@@ -3,6 +3,7 @@ package io.nflow.performance.workflow;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardSeconds;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class ConstantWorkflow extends WorkflowDefinition<ConstantWorkflow.Consta
 
   public ConstantWorkflow() {
     super(ConstantWorkflow.class.getSimpleName(), ConstantState.start, ConstantState.error, new WorkflowSettings.Builder()
-        .setMaxErrorTransitionDelay(5000).build());
+        .setMaxErrorTransitionDelay(standardSeconds(5)).build());
     permit(ConstantState.start, ConstantState.quickState);
     permit(ConstantState.quickState, ConstantState.retryTwiceState);
     permit(ConstantState.retryTwiceState, ConstantState.scheduleState);

@@ -9,10 +9,12 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Duration.standardSeconds;
 
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,8 +35,8 @@ public class WorkflowSettingsTest {
   @Test
   public void verifyConstantDefaultValues() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
-    assertThat(s.immediateTransitionDelay, is(0));
-    assertThat(s.shortTransitionDelay, is(30000));
+    assertThat(s.immediateTransitionDelay, is(Duration.ZERO));
+    assertThat(s.shortTransitionDelay, is(standardSeconds(30)));
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));
@@ -44,14 +46,15 @@ public class WorkflowSettingsTest {
 
   @Test
   public void errorTransitionDelayIsBetweenMinAndMaxDelay() {
-    int maxDelay = 1_000_000;
-    int minDelay = 1000;
-    WorkflowSettings s = new WorkflowSettings.Builder().setMinErrorTransitionDelay(minDelay).setMaxErrorTransitionDelay(maxDelay).build();
+    Duration maxDelay = standardSeconds(1000);
+    Duration minDelay = standardSeconds(1);
+    WorkflowSettings s = new WorkflowSettings.Builder().setMinErrorTransitionDelay(minDelay).setMaxErrorTransitionDelay(maxDelay)
+        .build();
     long prevDelay = 0;
-    for(int retryCount = 0 ; retryCount < 100 ; retryCount++) {
-      long delay  = s.getErrorTransitionActivation(retryCount).getMillis() - now.getMillis();
-      assertThat(delay, greaterThanOrEqualTo((long)minDelay));
-      assertThat(delay, lessThanOrEqualTo((long)maxDelay));
+    for (int retryCount = 0; retryCount < 100; retryCount++) {
+      long delay = s.getErrorTransitionActivation(retryCount).getMillis() - now.getMillis();
+      assertThat(delay, greaterThanOrEqualTo(minDelay.getMillis()));
+      assertThat(delay, lessThanOrEqualTo(maxDelay.getMillis()));
       assertThat(delay, greaterThanOrEqualTo(prevDelay));
       prevDelay = delay;
     }

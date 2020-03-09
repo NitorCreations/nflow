@@ -48,10 +48,11 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
         reflectEquals(getSignal(1, "one")),
         reflectEquals(getSignal(2, "two"))));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.immediate, is(def.getSettings().immediateTransitionDelay));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
-    assertThat((int)resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));
+    assertThat(resp.settings.transitionDelaysInMilliseconds.immediate,
+        is(def.getSettings().immediateTransitionDelay.getMillis()));
+    assertThat(resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay.getMillis()));
+    assertThat(resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
+    assertThat(resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));
     assertThat(resp.settings.maxRetries, is(def.getSettings().maxRetries));
     assertThat(resp.settings.historyDeletableAfter, is(def.getSettings().historyDeletableAfter));
   }
