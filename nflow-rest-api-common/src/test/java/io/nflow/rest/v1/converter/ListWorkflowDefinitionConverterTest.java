@@ -48,8 +48,6 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
         reflectEquals(getSignal(1, "one")),
         reflectEquals(getSignal(2, "two"))));
-    assertThat(resp.settings.transitionDelaysInMilliseconds.immediate,
-        is(def.getSettings().immediateTransitionDelay.getMillis()));
     assertThat(resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay.getMillis()));
     assertThat(resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
     assertThat(resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));

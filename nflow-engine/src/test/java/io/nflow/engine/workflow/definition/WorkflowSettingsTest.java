@@ -35,7 +35,6 @@ public class WorkflowSettingsTest {
   @Test
   public void verifyConstantDefaultValues() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
-    assertThat(s.immediateTransitionDelay, is(Duration.ZERO));
     assertThat(s.shortTransitionDelay, is(standardSeconds(30)));
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));

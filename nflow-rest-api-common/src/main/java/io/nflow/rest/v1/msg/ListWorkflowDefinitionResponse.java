@@ -50,9 +50,6 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
 
   public static class TransitionDelays extends ModelObject {
 
-    @ApiModelProperty(value = "Delay in immediate transition", required = true)
-    public long immediate;
-
     @ApiModelProperty(value = "Short delay between transitions", required = true)
     public long waitShort;
 

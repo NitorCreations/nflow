@@ -42,10 +42,6 @@ public class WorkflowSettings extends ModelObject {
    */
   public final ReadableDuration shortTransitionDelay;
   /**
-   * Immediate transition delay.
-   */
-  public final ReadableDuration immediateTransitionDelay;
-  /**
    * Maximum retry attempts.
    */
   public final int maxRetries;
@@ -75,7 +71,6 @@ public class WorkflowSettings extends ModelObject {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay.getMillis();
     this.maxErrorTransitionDelay = builder.maxErrorTransitionDelay.getMillis();
     this.shortTransitionDelay = builder.shortTransitionDelay;
-    this.immediateTransitionDelay = builder.immediateTransitionDelay;
     this.maxRetries = builder.maxRetries;
     this.maxSubsequentStateExecutions = builder.maxSubsequentStateExecutions;
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
@@ -221,18 +216,6 @@ public class WorkflowSettings extends ModelObject {
      */
     public Builder setShortTransitionDelay(Duration shortTransitionDelay) {
       this.shortTransitionDelay = shortTransitionDelay;
-      return this;
-    }
-
-    /**
-     * Set immediate transition delay.
-     *
-     * @param immediateTransitionDelay
-     *          The delay.
-     * @return this.
-     */
-    public Builder setImmediateTransitionDelay(Duration immediateTransitionDelay) {
-      this.immediateTransitionDelay = immediateTransitionDelay;
       return this;
     }
 

@@ -18,7 +18,7 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
   private static final double ERROR_FRACTION = 0.5;
   private static final WorkflowSettings wordGeneratorErrorsWorkSettings = new WorkflowSettings.Builder()
       .setMinErrorTransitionDelay(millis(300)).setMaxErrorTransitionDelay(millis(1000)).setShortTransitionDelay(millis(200))
-      .setImmediateTransitionDelay(millis(100)).setMaxRetries(10).setHistoryDeletableAfter(days(2)).build();
+      .setMaxRetries(10).setHistoryDeletableAfter(days(2)).build();
 
   public WordGeneratorErrorsWorkflow() {
     super("wordGeneratorErrors", wordGeneratorErrorsWorkSettings);

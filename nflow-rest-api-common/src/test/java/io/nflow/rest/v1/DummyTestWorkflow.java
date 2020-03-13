@@ -45,8 +45,7 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Stat
   public DummyTestWorkflow() {
     super("dummy", start, error,
         new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(300)).setMaxErrorTransitionDelay(millis(1000))
-            .setShortTransitionDelay(millis(200)).setImmediateTransitionDelay(millis(100)).setMaxRetries(10)
-            .setHistoryDeletableAfter(days(3)).build());
+            .setShortTransitionDelay(millis(200)).setMaxRetries(10).setHistoryDeletableAfter(days(3)).build());
     permit(start, end, error);
     permit(start, error);
     permit(error, end);
