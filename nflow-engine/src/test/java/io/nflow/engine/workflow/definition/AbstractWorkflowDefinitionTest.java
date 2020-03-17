@@ -160,17 +160,17 @@ public class AbstractWorkflowDefinitionTest {
   }
 
   @Test
-  public void isRetryableReturnsTrueWhenStateIsRetryableAndExceptionIsNotAnnotatedWithNonRetryable() {
+  public void isRetryAllowedReturnsTrueWhenStateIsRetryableAndExceptionIsNotAnnotatedWithNonRetryable() {
     assertTrue(workflow.isRetryAllowed(new RuntimeException(), TestWorkflow.State.begin));
   }
 
   @Test
-  public void isRetryableReturnsFalseWhenStateIsNotRetryable() {
+  public void isRetryAllowedReturnsFalseWhenStateIsNotRetryable() {
     assertFalse(workflow.isRetryAllowed(new RuntimeException(), TestWorkflow.State.nonRetryable));
   }
 
   @Test
-  public void isRetryableReturnsFalseWhenExceptionIsAnnotatedWithNonRetryable() {
+  public void isRetryAllowedReturnsFalseWhenExceptionIsAnnotatedWithNonRetryable() {
     assertFalse(workflow.isRetryAllowed(new NonRetryableException(), TestWorkflow.State.begin));
   }
 
