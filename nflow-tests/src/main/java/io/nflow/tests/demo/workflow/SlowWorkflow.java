@@ -35,11 +35,6 @@ public class SlowWorkflow extends WorkflowDefinition<SlowWorkflow.State>{
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   public SlowWorkflow() {

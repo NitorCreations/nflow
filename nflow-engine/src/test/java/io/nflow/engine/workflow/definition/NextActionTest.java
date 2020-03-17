@@ -13,9 +13,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 
-import io.nflow.engine.internal.executor.InvalidNextActionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import io.nflow.engine.internal.executor.InvalidNextActionException;
 
 public class NextActionTest {
 
@@ -67,11 +68,6 @@ public class NextActionTest {
     @Override
     public WorkflowStateType getType() {
       return stateType;
-    }
-
-    @Override
-    public String getDescription() {
-      return name();
     }
   }
 }

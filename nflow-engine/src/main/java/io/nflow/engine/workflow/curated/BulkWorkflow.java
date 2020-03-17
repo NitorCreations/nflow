@@ -84,11 +84,6 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   /**

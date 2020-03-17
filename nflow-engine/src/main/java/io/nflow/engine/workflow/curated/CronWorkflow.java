@@ -54,11 +54,6 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   /**

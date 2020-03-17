@@ -12,14 +12,16 @@ import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.joda.time.DateTime;
-
-import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class AbstractWorkflowDefinitionTest {
 
@@ -85,11 +87,6 @@ public class AbstractWorkflowDefinitionTest {
       @Override
       public WorkflowStateType getType() {
         return stateType;
-      }
-
-      @Override
-      public String getDescription() {
-        return name();
       }
     }
 
@@ -159,8 +156,26 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void getSupportedSignalsReturnsEmptyMap() {
-    TestWorkflow wf = new TestWorkflow();
-    assertThat(wf.getSupportedSignals(), is(emptyMap()));
+    assertThat(workflow.getSupportedSignals(), is(emptyMap()));
   }
 
+  @Test
+  public void isRetryableReturnsTrueWhenStateIsRetryableAndExceptionIsNotAnnotatedWithNonRetryable() {
+    assertTrue(workflow.isRetryAllowed(new RuntimeException(), TestWorkflow.State.begin));
+  }
+
+  @Test
+  public void isRetryableReturnsFalseWhenStateIsNotRetryable() {
+    assertFalse(workflow.isRetryAllowed(new RuntimeException(), TestWorkflow.State.nonRetryable));
+  }
+
+  @Test
+  public void isRetryableReturnsFalseWhenExceptionIsAnnotatedWithNonRetryable() {
+    assertFalse(workflow.isRetryAllowed(new NonRetryableException(), TestWorkflow.State.begin));
+  }
+
+  @NonRetryable
+  static class NonRetryableException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+  }
 }

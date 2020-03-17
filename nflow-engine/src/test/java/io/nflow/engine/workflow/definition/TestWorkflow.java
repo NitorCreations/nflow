@@ -15,12 +15,18 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
   }
 
   public static enum State implements WorkflowState {
-    begin(start), startWithoutFailure(start), process(normal), done(end), failed(end), error(manual);
+    begin(start), startWithoutFailure(start), process(normal), nonRetryable(normal, false), done(end), failed(end), error(manual);
 
     private WorkflowStateType stateType;
+    private boolean isRetryable;
 
     private State(WorkflowStateType stateType) {
+      this(stateType, true);
+    }
+
+    private State(WorkflowStateType stateType, boolean isRetryable) {
       this.stateType = stateType;
+      this.isRetryable = isRetryable;
     }
 
     @Override
@@ -29,8 +35,8 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
     }
 
     @Override
-    public String getDescription() {
-      return name();
+    public boolean isRetryAllowed() {
+      return isRetryable;
     }
   }
 
@@ -39,6 +45,10 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
   }
 
   public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
+    return stopInState(State.done, "Done");
+  }
+
+  public NextAction nonRetryable(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(State.done, "Done");
   }
 

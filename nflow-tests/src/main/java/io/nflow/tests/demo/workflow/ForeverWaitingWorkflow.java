@@ -34,11 +34,6 @@ public class ForeverWaitingWorkflow extends WorkflowDefinition<ForeverWaitingWor
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   public static final String FOREVER_WAITING_WORKFLOW_TYPE = "foreverWaiting";
