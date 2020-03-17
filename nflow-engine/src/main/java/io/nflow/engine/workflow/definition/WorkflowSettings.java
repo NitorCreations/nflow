@@ -103,7 +103,7 @@ public class WorkflowSettings extends ModelObject {
      * Returns true randomly every n:th time.
      *
      * @param n The frequency of returning true.
-     * @return Producer of boolean values.
+     * @return Producer of boolean values
      */
     public static BooleanSupplier onAverageEveryNthExecution(int n) {
       return () -> ThreadLocalRandom.current().nextInt(n) == 0;
