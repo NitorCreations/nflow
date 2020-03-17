@@ -71,8 +71,8 @@ public class WorkflowSettings extends ModelObject {
   public final short defaultPriority;
   /**
    * Checks if the state method should be retried after an exception was thrown by it. By default, only exceptions that are
-   * annotated with <code>@NonRetryableError</code> will cause immediate transition to the failure state of the executed state,
-   * all others are considered retryable.
+   * annotated with {@code @NonRetryableError} will cause immediate transition to the failure state of the executed state, all
+   * others are considered retryable.
    */
   public final Function<Throwable, Boolean> isRetryable;
 
@@ -139,7 +139,7 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
-     * A function that returns false for exceptions that are annotated with <code>@NonRetryableError</code>, and true for others.
+     * A function that returns false for exceptions that are annotated with {@code @NonRetryableError}, and true for others.
      *
      * @return Function returning boolean values.
      */
@@ -364,8 +364,8 @@ public class WorkflowSettings extends ModelObject {
 
   /**
    * Return true if workflow state can be retried after throwing an exception or false when it should move directly to a failure
-   * state. With default settings, returns false for exceptions that are annotated with <code>@NonRetryableError</code>, and true
-   * for others.
+   * state. With default settings, returns false for exceptions that are annotated with {@code @NonRetryableError}, and true for
+   * others.
    *
    * @return True if the exception is retryable, false to move to a failure state.
    */
