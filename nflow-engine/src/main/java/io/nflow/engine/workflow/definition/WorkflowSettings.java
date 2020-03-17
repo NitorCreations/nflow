@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -69,12 +68,6 @@ public class WorkflowSettings extends ModelObject {
    * Default priority for new workflow instances.
    */
   public final short defaultPriority;
-  /**
-   * Checks if the state method should be retried after an exception was thrown by it. By default, only exceptions that are
-   * annotated with {@code @NonRetryableError} will cause immediate transition to the failure state of the executed state, all
-   * others are considered retryable.
-   */
-  public final Function<Throwable, Boolean> isRetryable;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -87,7 +80,6 @@ public class WorkflowSettings extends ModelObject {
     this.historyDeletableAfter = builder.historyDeletableAfter;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
     this.defaultPriority = builder.defaultPriority;
-    this.isRetryable = builder.isRetryable;
   }
 
   /**
@@ -106,7 +98,6 @@ public class WorkflowSettings extends ModelObject {
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
-    Function<Throwable, Boolean> isRetryable = isRetryableError();
 
     /**
      * Returns true randomly every n:th time.
@@ -136,15 +127,6 @@ public class WorkflowSettings extends ModelObject {
         }
         return false;
       };
-    }
-
-    /**
-     * A function that returns false for exceptions that are annotated with {@code @NonRetryableError}, and true for others.
-     *
-     * @return Function returning boolean values.
-     */
-    public static Function<Throwable, Boolean> isRetryableError() {
-      return throwable -> !throwable.getClass().isAnnotationPresent(NonRetryableError.class);
     }
 
     /**
@@ -271,18 +253,6 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
-     * Set the function that evaluates the thrown exception to decide if the state method can be retried or not.
-     *
-     * @param isRetryable
-     *          Function to be called.
-     * @return this.
-     */
-    public Builder setIsRetryable(Function<Throwable, Boolean> isRetryable) {
-      this.isRetryable = isRetryable;
-      return this;
-    }
-
-    /**
      * Create workflow settings object.
      *
      * @return Workflow settings.
@@ -362,14 +332,4 @@ public class WorkflowSettings extends ModelObject {
     return defaultPriority;
   }
 
-  /**
-   * Return true if workflow state can be retried after throwing an exception or false when it should move directly to a failure
-   * state. With default settings, returns false for exceptions that are annotated with {@code @NonRetryableError}, and true for
-   * others.
-   *
-   * @return True if the exception is retryable, false to move to a failure state.
-   */
-  public boolean isRetryable(Throwable throwable) {
-    return isRetryable.apply(throwable);
-  }
 }
