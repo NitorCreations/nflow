@@ -268,17 +268,6 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return historyCleaningForced;
   }
 
-  /**
-   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
-   * If there is no failure state defined for the retried state, moves the workflow to the generic error state. If the maximum
-   * retry attempts was exceeded while processing the error state, processing is stopped. If the maximum retry attempts is not
-   * exceeded, schedules the next attempt to the given activation time.
-   *
-   * @param activation
-   *          Time for next retry attempt.
-   * @param definition
-   *          Workflow definition
-   */
   public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition<?> definition) {
     if (getRetries() >= definition.getSettings().maxRetries) {
       isRetryCountExceeded = true;
@@ -288,16 +277,6 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
   }
 
-  /**
-   * Handle failure for the state execution. Moves the workflow to a failure state. If there is no failure state defined for the
-   * processed state, moves the workflow to the generic error state. If the failure happened while processing the generic error
-   * state, processing is stopped.
-   *
-   * @param definition
-   *          The workflow definition of the processed instance.
-   * @param reason
-   *          The reason why the handling failed.
-   */
   public void handleFailure(AbstractWorkflowDefinition<?> definition, String failureReason) {
     setRetry(false);
     String currentStateName = getCurrentStateName();

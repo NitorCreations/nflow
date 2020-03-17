@@ -30,6 +30,8 @@ public interface WorkflowState {
   /**
    * Return true if this state can be automatically retried after throwing an exception, or false if the workflow instance should
    * move directly to failure state. Default implementation returns true.
+   *
+   * @return True if the state can be retried.
    */
   default boolean isRetryAllowed() {
     return true;

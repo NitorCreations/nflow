@@ -17,8 +17,8 @@ import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.service.MaintenanceService;
 import io.nflow.engine.service.HealthCheckService;
+import io.nflow.engine.service.MaintenanceService;
 import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowExecutorService;
@@ -47,8 +47,11 @@ public class NflowEngine implements AutoCloseable {
    * started automatically. If nflow.autostart=false, then the thread can be started with start() method.
    *
    * @param dataSource
+   *          nFlow database data source.
    * @param sqlVariants
+   *          SQL variants for the configured database type.
    * @param workflowDefinitions
+   *          The registered workflow definitions.
    */
   public NflowEngine(DataSource dataSource, SQLVariants sqlVariants,
       Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
@@ -94,6 +97,8 @@ public class NflowEngine implements AutoCloseable {
 
   /**
    * Returns true if the nFlow engine is currently paused.
+   *
+   * @return True if engine is currently paused.
    */
   public boolean isPaused() {
     return workflowLifecycle.isPaused();
@@ -101,6 +106,8 @@ public class NflowEngine implements AutoCloseable {
 
   /**
    * Returns true if the nFlow engine is currently running.
+   *
+   * @return True if engine is currently running.
    */
   public boolean isRunning() {
     return workflowLifecycle.isRunning();

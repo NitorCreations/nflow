@@ -18,15 +18,15 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
     begin(start), startWithoutFailure(start), process(normal), nonRetryable(normal, false), done(end), failed(end), error(manual);
 
     private WorkflowStateType stateType;
-    private boolean isRetryable;
+    private boolean isRetryAllowed;
 
     private State(WorkflowStateType stateType) {
       this(stateType, true);
     }
 
-    private State(WorkflowStateType stateType, boolean isRetryable) {
+    private State(WorkflowStateType stateType, boolean isRetryAllowed) {
       this.stateType = stateType;
-      this.isRetryable = isRetryable;
+      this.isRetryAllowed = isRetryAllowed;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
 
     @Override
     public boolean isRetryAllowed() {
-      return isRetryable;
+      return isRetryAllowed;
     }
   }
 
