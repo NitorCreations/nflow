@@ -272,8 +272,8 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return true if the same state can be retried after throwing an exception or false if the workflow instance should move
-   * directly to a failure state. With default settings, returns false for exceptions that are annotated with
-   * {@code @NonRetryableError}, and true for others.
+   * directly to a failure state. The default implementation returns true when states {@link WorkflowState#isRetryable} returns
+   * true and the exception is not annotated with {@code @NonRetryable}, and false otherwise. Override for custom logic.
    *
    * @param throwable
    *          The thrown exception.
@@ -282,6 +282,6 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * @return True if the exception is retryable in the state, false to move to a failure state.
    */
   public boolean isRetryable(Throwable throwable, WorkflowState state) {
-    return !throwable.getClass().isAnnotationPresent(NonRetryableError.class);
+    return state.isRetryable() && !throwable.getClass().isAnnotationPresent(NonRetryable.class);
   }
 }

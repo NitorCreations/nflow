@@ -24,4 +24,12 @@ public interface WorkflowState {
    * @return The description.
    */
   String getDescription();
+
+  /**
+   * Return true if this state can be automatically retried after throwing an exception, or false if the workflow instance should
+   * move directly to failure state. Default implementation returns true.
+   */
+  default boolean isRetryable() {
+    return true;
+  }
 }
