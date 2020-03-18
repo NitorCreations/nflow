@@ -11,8 +11,6 @@
   - Add `isRetryable(Throwable thrown)` method to the `WorkflowState` interface with a default implementation that returns true when the thrown exception is not
     annotated with `@NonRetryable`.
   - Add default implementation for `WorkflowState.getDescription()` that returns the name of the state.
-  - JavaDoc updates.
-  - Add descriptions for `BulkWorkflow` and `CronWorkflow` states.
 
 ## 7.0.0 (2020-03-05)
 
