@@ -53,28 +53,4 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> exte
   public Set<S> getStates() {
     return allStates;
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public final boolean isRetryAllowed(Throwable throwable, WorkflowState state) {
-    return isRetryAllowed(throwable, (S) state);
-  }
-
-  /**
-   * Return true if processing the same state can be retried after throwing an exception or false if the workflow instance should
-   * move directly to a failure state. By default calls {@link AbstractWorkflowDefinition#isRetryAllowed(Throwable, WorkflowState)},
-   * override for custom logic.
-   *
-   * @param throwable
-   *          The thrown exception.
-   * @param state
-   *          The state that was processed.
-   * @return True if retrying is allowed, false to move to a failure state.
-   */
-  protected boolean isRetryAllowed(Throwable throwable, S state) {
-    return super.isRetryAllowed(throwable, state);
-  }
 }

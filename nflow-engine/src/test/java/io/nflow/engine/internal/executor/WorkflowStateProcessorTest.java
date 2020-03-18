@@ -1207,15 +1207,15 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       public WorkflowStateType getType() {
         return stateType;
       }
+
+      @Override
+      public boolean isRetryAllowed(Throwable thrown) {
+        return false;
+      }
     }
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       throw new RuntimeException();
-    }
-
-    @Override
-    protected boolean isRetryAllowed(Throwable throwable, State state) {
-      return false;
     }
   }
 }

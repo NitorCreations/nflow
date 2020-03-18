@@ -158,7 +158,7 @@ class WorkflowStateProcessor implements Runnable {
         saveInstanceState = false;
       } catch (Throwable t) {
         execution.setFailed(t);
-        if (definition.isRetryAllowed(t, state)) {
+        if (state.isRetryAllowed(t)) {
           logger.error("Handler threw a retryable exception, trying again later.", t);
           execution.setRetry(true);
           execution.setNextState(state);

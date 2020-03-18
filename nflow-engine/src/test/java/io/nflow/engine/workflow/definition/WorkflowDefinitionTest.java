@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -112,13 +111,6 @@ public class WorkflowDefinitionTest {
     assertThat(workflow.isStartState("state2"), equalTo(false));
     assertThat(workflow.isStartState("error"), equalTo(false));
     assertThat(workflow.isStartState("done"), equalTo(false));
-  }
-
-  @Test
-  public void isRetryAllowedWorks() {
-    TestDefinitionWithStateTypes workflow = new TestDefinitionWithStateTypes("y", TestDefinitionWithStateTypes.State.initial);
-
-    assertTrue(workflow.isRetryAllowed(new RuntimeException(), (WorkflowState) TestDefinitionWithStateTypes.State.initial));
   }
 
   public static class TestDefinition extends AbstractWorkflowDefinition<TestDefinition.TestState> {

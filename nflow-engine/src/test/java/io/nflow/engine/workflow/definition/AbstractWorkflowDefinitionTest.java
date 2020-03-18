@@ -12,8 +12,6 @@ import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.joda.time.DateTime;
@@ -132,16 +130,16 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void nonFinalStateMethodMustReturnNextAction() {
-    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new TestWorkflow3());
-    assertThat(thrown.getMessage(), containsString("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value"));
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> new TestWorkflow3());
+    assertThat(thrown.getMessage(), containsString(
+        "Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value"));
   }
 
   @Test
   public void finalStateMethodMustReturnVoid() {
-    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new TestWorkflow4());
-    assertThat(thrown.getMessage(), containsString("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction"));
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> new TestWorkflow4());
+    assertThat(thrown.getMessage(), containsString(
+        "Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction"));
   }
 
   @Test
@@ -157,25 +155,5 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void getSupportedSignalsReturnsEmptyMap() {
     assertThat(workflow.getSupportedSignals(), is(emptyMap()));
-  }
-
-  @Test
-  public void isRetryAllowedReturnsTrueWhenStateIsRetryableAndExceptionIsNotAnnotatedWithNonRetryable() {
-    assertTrue(workflow.isRetryAllowed(new RuntimeException(), TestWorkflow.State.begin));
-  }
-
-  @Test
-  public void isRetryAllowedReturnsFalseWhenStateIsNotRetryable() {
-    assertFalse(workflow.isRetryAllowed(new RuntimeException(), TestWorkflow.State.nonRetryable));
-  }
-
-  @Test
-  public void isRetryAllowedReturnsFalseWhenExceptionIsAnnotatedWithNonRetryable() {
-    assertFalse(workflow.isRetryAllowed(new NonRetryableException(), TestWorkflow.State.begin));
-  }
-
-  @NonRetryable
-  static class NonRetryableException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
   }
 }

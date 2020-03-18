@@ -35,7 +35,7 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
     }
 
     @Override
-    public boolean isRetryAllowed() {
+    public boolean isRetryAllowed(Throwable thrown) {
       return isRetryAllowed;
     }
   }
