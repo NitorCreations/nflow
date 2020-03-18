@@ -42,17 +42,27 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    * States of cron workflow.
    */
   public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    schedule(start), doWork(normal), handleFailure(normal), failed(manual);
+    schedule(start, "Schedule work to be done according to the cron state variable"), //
+    doWork(normal, "Execute the actual work"), //
+    handleFailure(normal, "Handle failure and decide if workflow should be re-scheduled or stopped"), //
+    failed(manual, "Processing failed, waiting for manual actions");
 
     private WorkflowStateType type;
+    private String description;
 
-    State(WorkflowStateType type) {
+    State(WorkflowStateType type, String description) {
       this.type = type;
+      this.description = description;
     }
 
     @Override
     public WorkflowStateType getType() {
       return type;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
     }
   }
 
