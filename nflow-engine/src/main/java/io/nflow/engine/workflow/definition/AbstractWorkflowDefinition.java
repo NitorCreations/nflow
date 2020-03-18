@@ -269,4 +269,5 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
   public Map<Integer, String> getSupportedSignals() {
     return emptyMap();
   }
+
 }
