@@ -133,11 +133,6 @@ public class WorkflowDefinitionTest {
       public WorkflowStateType getType() {
         return type;
       }
-
-      @Override
-      public String getDescription() {
-        return name();
-      }
     }
 
     public TestDefinition(String type, TestState initialState) {

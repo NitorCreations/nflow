@@ -15,11 +15,11 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.joda.time.DateTime;
-
-import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class AbstractWorkflowDefinitionTest {
 
@@ -86,11 +86,6 @@ public class AbstractWorkflowDefinitionTest {
       public WorkflowStateType getType() {
         return stateType;
       }
-
-      @Override
-      public String getDescription() {
-        return name();
-      }
     }
 
     public void begin(@SuppressWarnings("unused") StateExecution execution) {
@@ -135,16 +130,16 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void nonFinalStateMethodMustReturnNextAction() {
-    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new TestWorkflow3());
-    assertThat(thrown.getMessage(), containsString("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value"));
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> new TestWorkflow3());
+    assertThat(thrown.getMessage(), containsString(
+        "Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow3' has a final state method 'done' that returns a value"));
   }
 
   @Test
   public void finalStateMethodMustReturnVoid() {
-    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-            () -> new TestWorkflow4());
-    assertThat(thrown.getMessage(), containsString("Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction"));
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> new TestWorkflow4());
+    assertThat(thrown.getMessage(), containsString(
+        "Class 'io.nflow.engine.workflow.definition.AbstractWorkflowDefinitionTest$TestWorkflow4' has a non-final state method 'begin' that does not return NextAction"));
   }
 
   @Test
@@ -159,8 +154,6 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void getSupportedSignalsReturnsEmptyMap() {
-    TestWorkflow wf = new TestWorkflow();
-    assertThat(wf.getSupportedSignals(), is(emptyMap()));
+    assertThat(workflow.getSupportedSignals(), is(emptyMap()));
   }
-
 }

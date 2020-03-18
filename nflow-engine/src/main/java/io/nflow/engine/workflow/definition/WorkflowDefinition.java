@@ -47,8 +47,7 @@ public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> exte
   }
 
   /**
-   * Return all states of the workflow.
-   * @return Set of workflow states.
+   * {@inheritDoc}
    */
   @Override
   public Set<S> getStates() {

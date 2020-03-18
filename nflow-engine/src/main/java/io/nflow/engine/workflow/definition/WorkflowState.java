@@ -19,9 +19,24 @@ public interface WorkflowState {
   WorkflowStateType getType();
 
   /**
-   * Return the description of the workflow state.
+   * Return the description of the workflow state. Default implementation returns {@link #name()}.
    *
    * @return The description.
    */
-  String getDescription();
+  default String getDescription() {
+    return name();
+  }
+
+  /**
+   * Return true if this state can be automatically retried after throwing an exception, or false if the workflow instance should
+   * move directly to failure state. Default implementation returns true if the throwable class is not annotated with
+   * {@code @NonRetryable}.
+   *
+   * @param thrown
+   *          The thrown exception.
+   * @return True if the state can be retried.
+   */
+  default boolean isRetryAllowed(Throwable thrown) {
+    return !thrown.getClass().isAnnotationPresent(NonRetryable.class);
+  }
 }

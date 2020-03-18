@@ -46,11 +46,6 @@ public class FibonacciWorkflow extends WorkflowDefinition<FibonacciWorkflow.Stat
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   public FibonacciWorkflow() {

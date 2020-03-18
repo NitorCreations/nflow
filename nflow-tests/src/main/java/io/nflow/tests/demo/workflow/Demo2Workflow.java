@@ -30,11 +30,6 @@ public class Demo2Workflow extends WorkflowDefinition<Demo2Workflow.State> {
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   public Demo2Workflow() {

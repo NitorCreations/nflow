@@ -27,11 +27,6 @@ public class TestWorkflow extends WorkflowDefinition<TestWorkflow.State> {
     public WorkflowStateType getType() {
       return stateType;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {

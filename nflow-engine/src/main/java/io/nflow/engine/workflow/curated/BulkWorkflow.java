@@ -72,12 +72,17 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
    * Bulk workflow states.
    */
   public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    splitWork(start), waitForChildrenToFinish(wait), done(end), error(manual);
+    splitWork(start, "Create new child workflows"), //
+    waitForChildrenToFinish(wait, "Wait for all child workflows to finish, start new child workflows if possible"), //
+    done(end, "All child workflows have been processed"), //
+    error(manual, "Processing failed, waiting for manual actions");
 
     private WorkflowStateType type;
+    private String description;
 
-    State(WorkflowStateType type) {
+    State(WorkflowStateType type, String description) {
       this.type = type;
+      this.description = description;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
 
     @Override
     public String getDescription() {
-      return name();
+      return description;
     }
   }
 

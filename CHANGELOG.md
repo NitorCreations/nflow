@@ -1,8 +1,16 @@
 ## 7.0.1-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Add support for marking exceptions and workflow states as non-retryable. If processing the state method throws an exception, nFlow engine will check if it
+    is allowed to retry. If not, the workflow instance will go directly to a failure/error state. See `NoRetryWorkflow` for example.
 
 **Details**
+- `nflow-engine`
+  - Exceptions can be annotated with `@NonRetryable` to prevent retrying the state processing.
+  - Add `isRetryable(Throwable thrown)` method to the `WorkflowState` interface with a default implementation that returns true when the thrown exception is not
+    annotated with `@NonRetryable`.
+  - Add default implementation for `WorkflowState.getDescription()` that returns the name of the state.
 
 ## 7.0.0 (2020-03-05)
 

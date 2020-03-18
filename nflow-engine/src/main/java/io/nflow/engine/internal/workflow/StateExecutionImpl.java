@@ -268,41 +268,34 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return historyCleaningForced;
   }
 
-  /**
-   * Handle retries for the state execution. Moves the workflow to a failure state after the maximum retry attempts is exceeded.
-   * If there is no failure state defined for the retried state, moves the workflow to the generic error state and stops
-   * processing. Error state handler method, if it exists, is not executed. If the maximum retry attempts is not exceeded,
-   * schedules the next attempt to the given activation time.
-   *
-   * @param activation
-   *          Time for next retry attempt.
-   * @param definition
-   *          Workflow definition
-   */
   public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition<?> definition) {
     if (getRetries() >= definition.getSettings().maxRetries) {
-      setRetry(false);
       isRetryCountExceeded = true;
-      String currentStateName = getCurrentStateName();
-      WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
-      WorkflowState currentState = definition.getState(currentStateName);
-      if (failureState != null) {
-        setNextState(failureState);
-        setNextStateReason("Max retry count exceeded, going to failure state");
-        setNextActivation(now());
-      } else {
-        WorkflowState errorState = definition.getErrorState();
-        setNextState(errorState);
-        if (errorState.equals(currentState)) {
-          setNextStateReason("Max retry count exceeded when handling error state, processing stopped");
-          setNextActivation(null);
-        } else {
-          setNextStateReason("Max retry count exceeded, no failure state defined, going to error state");
-          setNextActivation(now());
-        }
-      }
+      handleFailure(definition, "Max retry count exceeded");
     } else {
       setNextActivation(activation);
+    }
+  }
+
+  public void handleFailure(AbstractWorkflowDefinition<?> definition, String failureReason) {
+    setRetry(false);
+    String currentStateName = getCurrentStateName();
+    WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
+    WorkflowState currentState = definition.getState(currentStateName);
+    if (failureState != null) {
+      setNextState(failureState);
+      setNextStateReason(failureReason + ", going to failure state");
+      setNextActivation(now());
+    } else {
+      WorkflowState errorState = definition.getErrorState();
+      setNextState(errorState);
+      if (errorState.equals(currentState)) {
+        setNextStateReason(failureReason + " when handling error state, processing stopped");
+        setNextActivation(null);
+      } else {
+        setNextStateReason(failureReason + ", no failure state defined, going to error state");
+        setNextActivation(now());
+      }
     }
   }
 

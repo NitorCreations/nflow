@@ -46,11 +46,6 @@ public class WordGeneratorWorkflow extends WorkflowDefinition<WordGeneratorWorkf
     public WorkflowStateType getType() {
       return type;
     }
-
-    @Override
-    public String getDescription() {
-      return name();
-    }
   }
 
   protected WordGeneratorWorkflow(String flowName, WorkflowSettings settings) {
