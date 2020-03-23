@@ -1,4 +1,4 @@
-## 7.0.1-SNAPSHOT (future release)
+## 7.1.0-SNAPSHOT (future release)
 
 **Highlights**
 - `nflow-engine`
