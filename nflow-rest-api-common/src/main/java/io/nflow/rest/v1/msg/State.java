@@ -5,10 +5,9 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@ApiModel(description = "Workflow definition states and transition to next states")
+@Schema(description = "Workflow definition states and transition to next states")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class State extends ModelObject {
 
@@ -22,18 +21,18 @@ public class State extends ModelObject {
     this.description = description;
   }
 
-  @ApiModelProperty(value = "State identifier", required = true)
+  @Schema(description = "State identifier", required = true)
   public String id;
 
-  @ApiModelProperty(value = "State type (start, normal, manual, end)", required = true)
+  @Schema(description = "State type (start, normal, manual, end)", required = true)
   public String type;
 
-  @ApiModelProperty(value = "State description", required = true)
+  @Schema(description = "State description", required = true)
   public String description;
 
-  @ApiModelProperty("Permitted transitions from this state")
+  @Schema(description ="Permitted transitions from this state")
   public Set<String> transitions = new LinkedHashSet<>();
 
-  @ApiModelProperty("Failure state for the this state")
+  @Schema(description ="Failure state for the this state")
   public String onFailure;
 }

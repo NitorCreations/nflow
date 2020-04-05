@@ -2,34 +2,33 @@ package io.nflow.rest.v1.msg;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "State change attempt. A new instance for every retry attempt.")
+@Schema(description = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class Action extends ModelObject {
 
-  @ApiModelProperty(value = "Identifier of the workflow instance action")
+  @Schema(description = "Identifier of the workflow instance action")
   public long id;
-  @ApiModelProperty(value = "Type of state (stateExecution, stateExecutionFailed, externalChange, recovery)")
+  @Schema(description = "Type of state (stateExecution, stateExecutionFailed, externalChange, recovery)")
   public String type;
-  @ApiModelProperty(value = "Name of state")
+  @Schema(description = "Name of state")
   public String state;
-  @ApiModelProperty(value = "Description of state")
+  @Schema(description = "Description of state")
   public String stateText;
-  @ApiModelProperty(value = "Number of retries in this state")
+  @Schema(description = "Number of retries in this state")
   public int retryNo;
-  @ApiModelProperty(value = "Start time for execution")
+  @Schema(description = "Start time for execution")
   public DateTime executionStartTime;
-  @ApiModelProperty(value = "End time for execution")
+  @Schema(description = "End time for execution")
   public DateTime executionEndTime;
-  @ApiModelProperty(value = "Identifier of the executor that executed this action")
+  @Schema(description = "Identifier of the executor that executed this action")
   public int executorId;
-  @ApiModelProperty(value = "Updated state variables", required = false)
+  @Schema(description = "Updated state variables", required = false)
   public Map<String, Object> updatedStateVariables;
 
   public Action() {

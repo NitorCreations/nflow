@@ -18,6 +18,17 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,16 +58,13 @@ import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WakeupRequest;
 import io.nflow.rest.v1.msg.WakeupResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_INSTANCE_PATH, produces = APPLICATION_JSON_VALUE)
-@Api("nFlow workflow instance management")
+@OpenAPIDefinition(info = @Info(
+        title = "nFlow workflow instance management"
+))
 @Component
 public class WorkflowInstanceResource extends SpringWebResource {
 
@@ -79,11 +87,11 @@ public class WorkflowInstanceResource extends SpringWebResource {
   }
 
   @PutMapping(consumes = APPLICATION_JSON_VALUE)
-  @ApiOperation(value = "Submit new workflow instance")
-  @ApiResponses({ @ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class),
-      @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
-  public Mono<ResponseEntity<?>> createWorkflowInstance(
-      @RequestBody @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
+  @Operation(summary = "Submit new workflow instance")
+  @ApiResponses({ @ApiResponse(responseCode = "201", description = "Workflow was created", content = @Content(schema = @Schema(implementation = CreateWorkflowInstanceResponse.class))),
+          @ApiResponse(responseCode = "400", description = "If instance could not be created, for example when state variable value was too long") })
+  public Mono<ResponseEntity<CreateWorkflowInstanceResponse>> createWorkflowInstance(
+          @RequestBody @Parameter(description = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       WorkflowInstance instance = createWorkflowConverter.convert(req);
       long id = workflowInstances.insertWorkflowInstance(instance);
@@ -93,14 +101,13 @@ public class WorkflowInstanceResource extends SpringWebResource {
   }
 
   @PutMapping(path = "/id/{id}", consumes = APPLICATION_JSON_VALUE)
-  @ApiOperation(value = "Update workflow instance", notes = "The service is typically used in manual state "
+  @Operation(summary = "Update workflow instance", description = "The service is typically used in manual state "
       + "transition via nFlow Explorer or a business UI.")
-  @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
-      @ApiResponse(code = 400, message = "If instance could not be updated, for example when state variable value was too long"),
-      @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
-  public Mono<ResponseEntity<?>> updateWorkflowInstance(
-      @ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
+  @ApiResponses({ @ApiResponse(responseCode = "204", description = "If update was successful"),
+          @ApiResponse(responseCode = "400", description = "If instance could not be updated, for example when state variable value was too long"),
+          @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
+  public Mono<ResponseEntity<?>> updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
+                                                  @RequestBody @Parameter(description = "Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
       return (updated ? noContent() : status(CONFLICT)).build();
@@ -112,31 +119,33 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @ApiResponses({ @ApiResponse(code = 200, response = ListWorkflowInstanceResponse.class, message = "If instance was found"),
       @ApiResponse(code = 404, message = "If instance was not found") })
   @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
-  public Mono<ResponseEntity<?>> fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
-      @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @ApiParam("Query also the archive if not found from main tables") boolean queryArchive,
-      @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
+  public Mono<ResponseEntity<ListWorkflowInstanceResponse>> fetchWorkflowInstance(
+          @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
+          @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC/*, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true*/) String include,
+          @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter("Query also the archive if not found from main tables") boolean queryArchive,
+          @RequestParam(value = "maxActions", required = false) @Parameter(description = "Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.fetchWorkflowInstance(id, include, maxActions, queryArchive, this.workflowInstances, this.listWorkflowConverter))));
   }
 
   @GetMapping
-  @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
-  public Mono<ResponseEntity<?>> listWorkflowInstances(
-      @RequestParam(value = "id", defaultValue = "") @ApiParam("Internal id of workflow instance") List<Long> ids,
-      @RequestParam(value = "type", defaultValue = "") @ApiParam("Workflow definition type of workflow instance") List<String> types,
-      @RequestParam(value = "parentWorkflowId", required = false) @ApiParam("Id of parent workflow instance") Long parentWorkflowId,
-      @RequestParam(value = "parentActionId", required = false) @ApiParam("Id of parent workflow instance action") Long parentActionId,
-      @RequestParam(value = "state", defaultValue = "") @ApiParam("Current state of workflow instance") List<String> states,
-      @RequestParam(value = "status", defaultValue = "") @ApiParam("Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
-      @RequestParam(value = "businessKey", required = false) @ApiParam("Business key for workflow instance") String businessKey,
-      @RequestParam(value = "externalId", required = false) @ApiParam("External id for workflow instance") String externalId,
-      @RequestParam(value = "stateVariableKey", required = false) @ApiParam("Key of state variable that must exist for workflow instance") String stateVariableKey,
-      @RequestParam(value = "stateVariableValue", required = false) @ApiParam("Current value of state variable defined by stateVariableKey") String stateVariableValue,
-      @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
-      @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @ApiParam("Query also the archive if not enough results found from main tables") boolean queryArchive,
-      @RequestParam(value = "maxResults", required = false) @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
-      @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
+  @Operation(summary = "List workflow instances")
+  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
+  public Mono<ResponseEntity<Stream<ListWorkflowInstanceResponse>>> listWorkflowInstances(
+          @RequestParam(value = "id", defaultValue = "") @Parameter(description ="Internal id of workflow instance") List<Long> ids,
+          @RequestParam(value = "type", defaultValue = "") @Parameter(description ="Workflow definition type of workflow instance") List<String> types,
+          @RequestParam(value = "parentWorkflowId", required = false) @Parameter(description ="Id of parent workflow instance") Long parentWorkflowId,
+          @RequestParam(value = "parentActionId", required = false) @Parameter(description ="Id of parent workflow instance action") Long parentActionId,
+          @RequestParam(value = "state", defaultValue = "") @Parameter(description ="Current state of workflow instance") List<String> states,
+          @RequestParam(value = "status", defaultValue = "") @Parameter(description ="Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
+          @RequestParam(value = "businessKey", required = false) @Parameter(description ="Business key for workflow instance") String businessKey,
+          @RequestParam(value = "externalId", required = false) @Parameter(description ="External id for workflow instance") String externalId,
+          @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC/*, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true*/) String include,
+          @RequestParam(value = "maxResults", required = false) @Parameter(description ="Maximum number of workflow instances to be returned") Long maxResults,
+          @RequestParam(value = "maxActions", required = false) @Parameter(description ="Maximum number of actions returned for each workflow instance") Long maxActions,
+      @RequestParam(value = "stateVariableKey", required = false) @Parameter("Key of state variable that must exist for workflow instance") String stateVariableKey,
+      @RequestParam(value = "stateVariableValue", required = false) @Parameter("Current value of state variable defined by stateVariableKey") String stateVariableValue,
+      @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter("Query also the archive if not enough results found from main tables") boolean queryArchive) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey,
             externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions, queryArchive, this.workflowInstances,
@@ -144,9 +153,10 @@ public class WorkflowInstanceResource extends SpringWebResource {
   }
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)
-  @ApiOperation(value = "Set workflow instance signal value", response = SetSignalResponse.class, notes = "The service may be used for example to interrupt executing workflow instance.")
-  public Mono<ResponseEntity<?>> setSignal(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestBody @Valid @ApiParam("New signal value") SetSignalRequest req) {
+    @Operation(summary = "Set workflow instance signal value", description = "The service may be used for example to interrupt executing workflow instance.")
+    @ApiResponse(responseCode = "200", description = "When operation was successful")
+  public Mono<ResponseEntity<SetSignalResponse> setSignal(@Parameter(description ="Internal id for workflow instance") @PathVariable("id") long id,
+    @RequestBody @Valid @Parameter(description ="New signal value") SetSignalRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       SetSignalResponse response = new SetSignalResponse();
       response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
@@ -156,14 +166,14 @@ public class WorkflowInstanceResource extends SpringWebResource {
   }
 
   @PutMapping(path = "/{id}/wakeup", consumes = APPLICATION_JSON_VALUE)
-  @ApiOperation(value = "Wake up sleeping workflow instance.", response = WakeupResponse.class, notes = "If expected states are given, only wake up if the instance is in one of the expected states.")
-  public Mono<ResponseEntity<?>> wakeup(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestBody @Valid @ApiParam("Expected states") WakeupRequest req) {
+  @Operation(description = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
+  @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted")
+  public Mono<ResponseEntity<WakeupResponse>> wakeup(@Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
+                               @RequestBody @Valid @Parameter(description = "Expected states") WakeupRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       WakeupResponse response = new WakeupResponse();
       List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
       response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
       return ok(response);
     }));
-  }
 }

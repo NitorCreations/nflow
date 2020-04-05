@@ -1,72 +1,71 @@
 package io.nflow.rest.v1.msg;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "Basic information of workflow definition")
+@Schema(description = "Basic information of workflow definition")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class ListWorkflowDefinitionResponse extends ModelObject implements Comparable<ListWorkflowDefinitionResponse> {
 
-  @ApiModelProperty(value = "Type of the workflow definition", required = true)
+  @Schema(description = "Type of the workflow definition", required = true)
   public String type;
 
-  @ApiModelProperty(value = "Name of the workflow definition", required = true)
+  @Schema(description = "Name of the workflow definition", required = true)
   public String name;
 
-  @ApiModelProperty("Description of the workflow definition")
+  @Schema(description ="Description of the workflow definition")
   public String description;
 
-  @ApiModelProperty(value = "Default error state", required = true)
+  @Schema(description = "Default error state", required = true)
   public String onError;
 
-  @ApiModelProperty(value = "Workflow definition states and transitions", required = true)
+  @Schema(description = "Workflow definition states and transitions", required = true)
   public State[] states;
 
-  @ApiModelProperty(value = "Workflow settings", required = true)
+  @Schema(description = "Workflow settings", required = true)
   public Settings settings;
 
-  @ApiModelProperty("Supported signals")
+  @Schema(description ="Supported signals")
   public Signal[] supportedSignals;
 
   public static class Settings extends ModelObject {
 
-    @ApiModelProperty(value = "Global transition delays for the workflow", required = true)
+    @Schema(description = "Global transition delays for the workflow", required = true)
     public TransitionDelays transitionDelaysInMilliseconds;
 
-    @ApiModelProperty(value = "Maximum retries for a state before moving to failure", required = true)
+    @Schema(description = "Maximum retries for a state before moving to failure", required = true)
     public int maxRetries;
 
-    @ApiModelProperty(value = "Delay after which workflow instance history (actions, states) can be deleted from database", required = false)
+    @Schema(description = "Delay after which workflow instance history (actions, states) can be deleted from database", required = false)
     public ReadablePeriod historyDeletableAfter;
 
-    @ApiModelProperty(value = "Default priority for new workflow instances", required = true)
+    @Schema(description = "Default priority for new workflow instances", required = true)
     public short defaultPriority;
 
   }
 
   public static class TransitionDelays extends ModelObject {
 
-    @ApiModelProperty(value = "Short delay between transitions", required = true)
+    @Schema(description = "Short delay between transitions", required = true)
     public long waitShort;
 
-    @ApiModelProperty(value = "First retry delay after failure", required = true)
+    @Schema(description = "First retry delay after failure", required = true)
     public long minErrorWait;
 
-    @ApiModelProperty(value = "Maximum delay between failure retries", required = true)
+    @Schema(description = "Maximum delay between failure retries", required = true)
     public long maxErrorWait;
 
   }
 
   public static class Signal extends ModelObject {
 
-    @ApiModelProperty(value = "Signal value", required = true)
+    @Schema(description = "Signal value", required = true)
     public int value;
 
-    @ApiModelProperty(value = "Signal description", required = true)
+    @Schema(description = "Signal description", required = true)
     public String description;
 
   }

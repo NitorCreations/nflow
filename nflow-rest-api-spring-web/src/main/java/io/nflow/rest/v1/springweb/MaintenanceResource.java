@@ -21,14 +21,17 @@ import io.nflow.rest.config.springweb.SchedulerService;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_MAINTENANCE_PATH, produces = APPLICATION_JSON_VALUE)
-@Api("nFlow maintenance")
+@OpenAPIDefinition(info = @Info(
+        title = "nFlow maintenance"
+))
 @Component
 public class MaintenanceResource extends SpringWebResource {
 
@@ -43,14 +46,13 @@ public class MaintenanceResource extends SpringWebResource {
   }
 
   @PostMapping(consumes = APPLICATION_JSON_VALUE)
-  @ApiOperation(value = "Do maintenance on old workflow instances synchronously", response = MaintenanceResponse.class)
-  public Mono<ResponseEntity<?>> cleanupWorkflows(
-      @RequestBody @ApiParam(value = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
+  @Operation(description = "Do maintenance on old workflow instances synchronously")
+  public MaintenanceResponse cleanupWorkflows(
+          @RequestBody @Parameter(description = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
     return handleExceptions(() -> wrapBlocking(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
       MaintenanceResults results = maintenanceService.cleanupWorkflows(configuration);
       return ok(converter.convert(results));
     }));
   }
-
 }

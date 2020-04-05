@@ -7,6 +7,10 @@ import static org.springframework.http.ResponseEntity.ok;
 
 import javax.inject.Inject;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
 import org.joda.time.DateTime;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -21,14 +25,13 @@ import io.nflow.rest.config.springweb.SchedulerService;
 import io.nflow.rest.v1.converter.StatisticsConverter;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_STATISTICS_PATH, produces = APPLICATION_JSON_VALUE)
-@Api("nFlow statistics")
+@OpenAPIDefinition(info = @Info(
+        title = "nFlow statistics"
+))
 @Component
 public class StatisticsResource extends SpringWebResource {
 
@@ -44,19 +47,20 @@ public class StatisticsResource extends SpringWebResource {
   }
 
   @GetMapping
-  @ApiOperation(value = "Get executor group statistics", response = StatisticsResponse.class, notes = "Returns counts of queued and executing workflow instances.")
-  public Mono<ResponseEntity<?>> queryStatistics() {
+  @GetMapping
+  @Operation(summary = "Get executor group statistics", description = "Returns counts of queued and executing workflow instances.")
+  public Mono<ResponseEntity<StatisticsResponse>> queryStatistics() {
     return handleExceptions(() -> wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
   }
 
-  @GetMapping(path = "/workflow/{type}")
-  @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
-  public Mono<ResponseEntity<?>> getStatistics(
-      @PathVariable("type") @ApiParam(value = "Workflow definition type", required = true) String type,
-      @RequestParam(value = "createdAfter", required = false) @ApiParam("Include only workflow instances created after given time") DateTime createdAfter,
-      @RequestParam(value = "createdBefore", required = false) @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
-      @RequestParam(value = "modifiedAfter", required = false) @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
-      @RequestParam(value = "modifiedBefore", required = false) @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
+  @GetMapping(path="/workflow/{type}")
+  @Operation(summary = "Get workflow definition statistics")
+  public Mono<ResponseEntity<WorkflowDefinitionStatisticsResponse>> getStatistics(
+          @PathVariable("type") @Parameter(description = "Workflow definition type", required = true) String type,
+          @RequestParam(value = "createdAfter", required = false) @Parameter(description = "Include only workflow instances created after given time") DateTime createdAfter,
+          @RequestParam(value = "createdBefore", required = false) @Parameter(description = "Include only workflow instances created before given time") DateTime createdBefore,
+          @RequestParam(value = "modifiedAfter", required = false) @Parameter(description = "Include only workflow instances modified after given time") DateTime modifiedAfter,
+          @RequestParam(value = "modifiedBefore", required = false) @Parameter(description = "Include only workflow instances modified before given time") DateTime modifiedBefore) {
     return handleExceptions(() -> wrapBlocking(() -> ok(statisticsConverter.convert(
         statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore)))));
   }
