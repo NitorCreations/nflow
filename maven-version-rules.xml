@@ -38,6 +38,11 @@
                 <ignoreVersion type="regex">.*Alpha.*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="io.swagger">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*rc*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
         <rule groupId="org.eclipse.jetty">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
