@@ -134,23 +134,23 @@
     <maven-asciidoctor.version>2.0.0-RC.1</maven-asciidoctor.version>
     <maven-clean.version>3.1.0</maven-clean.version>
     <maven-compiler.version>3.8.1</maven-compiler.version>
-    <maven-dependency.version>3.1.1</maven-dependency.version>
+    <maven-dependency.version>3.1.2</maven-dependency.version>
     <maven-deploy.version>3.0.0-M1</maven-deploy.version>
-    <maven-download.version>1.4.2</maven-download.version>
+    <maven-download.version>1.5.0</maven-download.version>
     <maven-eclipse.version>2.10</maven-eclipse.version>
     <maven-enforcer.version>3.0.0-M3</maven-enforcer.version>
     <maven-gpg.version>1.6</maven-gpg.version>
     <maven-install.version>3.0.0-M1</maven-install.version>
     <maven-jacoco.version>0.8.5</maven-jacoco.version>
     <maven-jar.version>3.2.0</maven-jar.version>
-    <maven-javadoc.version>3.1.1</maven-javadoc.version>
+    <maven-javadoc.version>3.2.0</maven-javadoc.version>
     <maven-jxr.version>3.0.0</maven-jxr.version>
-    <maven-pmd.version>3.12.0</maven-pmd.version>
+    <maven-pmd.version>3.13.0</maven-pmd.version>
     <maven-project-info.version>3.0.0</maven-project-info.version>
     <maven-release.version>3.0.0-M1</maven-release.version>
     <maven-resources.version>3.1.0</maven-resources.version>
-    <maven-shade.version>3.2.1</maven-shade.version>
-    <maven-site.version>3.8.2</maven-site.version>
+    <maven-shade.version>3.2.2</maven-shade.version>
+    <maven-site.version>3.9.0</maven-site.version>
     <maven-source.version>3.2.1</maven-source.version>
     <maven-surefire.version>3.0.0-M4</maven-surefire.version>
     <metrics.version>4.1.5</metrics.version>
