@@ -143,7 +143,7 @@
     <maven-install.version>3.0.0-M1</maven-install.version>
     <maven-jacoco.version>0.8.5</maven-jacoco.version>
     <maven-jar.version>3.2.0</maven-jar.version>
-    <maven-javadoc.version>3.2.0</maven-javadoc.version>
+    <maven-javadoc.version>3.1.1</maven-javadoc.version>
     <maven-jxr.version>3.0.0</maven-jxr.version>
     <maven-pmd.version>3.13.0</maven-pmd.version>
     <maven-project-info.version>3.0.0</maven-project-info.version>
