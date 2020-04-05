@@ -93,7 +93,7 @@ public class WorkflowDispatcher implements Runnable {
             logger.warn(pex.getMessage());
           } catch (@SuppressWarnings("unused") InterruptedException dropThrough) {
           } catch (Exception e) {
-            logger.error("Exception in executing dispatcher - retrying after sleep period (" + e.getMessage() + ")", e);
+            logger.error("Exception in executing dispatcher - retrying after sleep period ({})", e.getMessage(), e);
             sleep(false);
           }
         }

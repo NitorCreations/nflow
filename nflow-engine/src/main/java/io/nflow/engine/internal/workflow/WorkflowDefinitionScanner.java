@@ -108,7 +108,7 @@ public class WorkflowDefinitionScanner {
         ctr.newInstance();
         return ctr;
       } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        logger.warn("Could not instantiate " + clazz + " using empty constructor", e);
+        logger.warn("Could not instantiate {} using empty constructor", clazz, e);
       }
     }
     return null;

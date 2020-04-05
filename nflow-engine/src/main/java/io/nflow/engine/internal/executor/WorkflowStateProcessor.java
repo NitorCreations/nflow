@@ -152,7 +152,7 @@ class WorkflowStateProcessor implements Runnable {
       WorkflowState state;
       try {
         state = definition.getState(instance.state);
-      } catch (@SuppressWarnings("unused") IllegalStateException e) {
+      } catch (@SuppressWarnings("unused") IllegalArgumentException e) {
         rescheduleUnknownWorkflowState(instance);
         return;
       }
@@ -365,7 +365,7 @@ class WorkflowStateProcessor implements Runnable {
         maintenanceDao.deleteActionAndStateHistory(instanceId, olderThan);
       }
     } catch (Throwable t) {
-      logger.error("Failure in workflow instance " + instanceId + " history cleanup", t);
+      logger.error("Failure in workflow instance {} history cleanup", instanceId, t);
     }
   }
 
@@ -493,8 +493,8 @@ class WorkflowStateProcessor implements Runnable {
             }
           }
         } catch (InvalidNextActionException e) {
-          logger.error("State '" + instance.state
-              + "' handler method failed to return valid next action, proceeding to error state '" + errorState + "'", e);
+          logger.error("State '{}' handler method failed to return valid next action, proceeding to error state '{}'",
+              instance.state, errorState, e);
           nextAction = moveToState(errorState, e.getMessage());
           execution.setFailed(e);
         }
@@ -522,7 +522,7 @@ class WorkflowStateProcessor implements Runnable {
       try {
         listener.beforeProcessing(listenerContext);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".beforeProcessing (" + t.getMessage() + ")", t);
+        logger.error("Error in {}.beforeProcessing ({})", listener.getClass().getName(), t.getMessage(), t);
       }
     }
   }
@@ -532,7 +532,7 @@ class WorkflowStateProcessor implements Runnable {
       try {
         listener.afterProcessing(listenerContext);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterProcessing (" + t.getMessage() + ")", t);
+        logger.error("Error in {}.afterProcessing ({})", listener.getClass().getName(), t.getMessage(), t);
       }
     }
   }
@@ -542,7 +542,7 @@ class WorkflowStateProcessor implements Runnable {
       try {
         listener.afterFailure(listenerContext, ex);
       } catch (Throwable t) {
-        logger.error("Error in " + listener.getClass().getName() + ".afterFailure (" + t.getMessage() + ")", t);
+        logger.error("Error in {}.afterFailure ({})", listener.getClass().getName(), t.getMessage(), t);
       }
     }
   }
