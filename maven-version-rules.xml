@@ -35,28 +35,12 @@
         </rule>
         <rule groupId="org.hibernate.validator">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*(Alpha|CR).*</ignoreVersion>
-                <!-- newer hibernate work on jakarta instead of javax -->
-                <ignoreVersion type="regex">^[7-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="com.zaxxer">
-            <ignoreVersions>
-                <!-- newer hikaricp requires Java 11 -->
-                <ignoreVersion type="regex">^[5-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="io.swagger">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*rc.*</ignoreVersion>
+                <ignoreVersion type="regex">.*Alpha.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.eclipse.jetty">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
-                <!-- jetty 11 moves from javax.servlet-api to jakarta.servlet-api, requires spring 6.x -->
-                <!-- jetty 10 requires Java 11 -->
-                <ignoreVersion type="regex">^1[0-9].*</ignoreVersion>
+                <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="ch.qos.logback">
@@ -64,41 +48,5 @@
                 <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
             </ignoreVersions>
         </rule>
-        <rule groupId="org.glassfish.jersey.containers">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.glassfish.jersey.core">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.glassfish.jersey.inject">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.junit.jupiter">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.springframework">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.mariadb.jdbc">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*-(rc|beta|alpha)</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="com.google.inject">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*BETA.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
     </rules>
 </ruleset>
-
