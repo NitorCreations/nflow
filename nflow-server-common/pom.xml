@@ -17,7 +17,7 @@
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <swagger.ui.version>2.2.8</swagger.ui.version>
+    <swagger.ui.version>2.2.10</swagger.ui.version>
   </properties>
   <build>
     <plugins>
