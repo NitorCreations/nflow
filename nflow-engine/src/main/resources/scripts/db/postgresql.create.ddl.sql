@@ -121,12 +121,14 @@ create table if not exists nflow_archive_workflow (
   executor_group varchar(64) not null,
   business_key varchar(64),
   state_text varchar(128),
-  constraint nflow_archive_workflow_pkey primary key (id) WITH (fillfactor=100),
-  constraint nflow_archive_workflow_uniq unique (external_id, type, executor_group) with (fillfactor=100)
+  constraint nflow_archive_workflow_pkey primary key (id) WITH (fillfactor=100)
 );
 
 drop index if exists idx_workflow_archive_parent;
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id) with (fillfactor=100) where parent_workflow_id is not null;
+
+drop index if exists idx_workflow_archive_type;
+create index idx_workflow_archive_type on nflow_archive_workflow(type) with (fillfactor=100);
 
 create table if not exists nflow_archive_workflow_action (
   id integer not null,
