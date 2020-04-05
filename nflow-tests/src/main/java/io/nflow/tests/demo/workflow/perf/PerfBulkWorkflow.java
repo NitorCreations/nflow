@@ -1,7 +1,7 @@
 package io.nflow.tests.demo.workflow.perf;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.nflow.engine.workflow.definition.BulkWorkflow;
+import io.nflow.engine.workflow.curated.BulkWorkflow;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.springframework.stereotype.Component;
