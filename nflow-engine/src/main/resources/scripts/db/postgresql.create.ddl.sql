@@ -21,7 +21,7 @@ create table if not exists nflow_workflow (
   started timestamptz,
   executor_group varchar(64) not null,
   workflow_signal int,
-  constraint nflow_workflow_uniq unique (type, external_id, executor_group)
+  constraint nflow_workflow_uniq unique (external_id, type, executor_group)
 ) WITH (fillfactor=95);
 
 create or replace function update_modified() returns trigger language plpgsql as '
@@ -122,7 +122,7 @@ create table if not exists nflow_archive_workflow (
   executor_group varchar(64) not null,
   workflow_signal int,
   constraint nflow_archive_workflow_pkey primary key (id) WITH (fillfactor=100),
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group) with (fillfactor=100)
+  constraint nflow_archive_workflow_uniq unique (external_id, type, executor_group) with (fillfactor=100)
 );
 
 drop index if exists idx_workflow_archive_parent;
