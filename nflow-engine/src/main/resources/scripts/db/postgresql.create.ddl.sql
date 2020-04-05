@@ -40,7 +40,7 @@ drop index if exists nflow_workflow_polling;
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group) where next_activation is not null;
 
 drop index if exists idx_workflow_parent;
-create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id) where parent_workflow_id is not null;
 
 create type action_type as enum ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange');
 create table if not exists nflow_workflow_action (
@@ -124,7 +124,7 @@ create table if not exists nflow_archive_workflow (
 );
 
 drop index if exists idx_workflow_archive_parent;
-create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id) where parent_workflow_id is not null;
 
 create table if not exists nflow_archive_workflow_action (
   id integer primary key,
