@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "dependencies": {
     "angular": "1.7.9",
+    "json3": "3.3.2",
+    "es5-shim": "4.5.14",
     "bootstrap-sass": "3.4.1",
     "angular-resource": "1.7.9",
     "angular-cookies": "1.7.9",
@@ -10,15 +12,14 @@
     "angular-animate": "1.7.9",
     "angular-touch": "1.7.9",
     "angular-ui-router": "1.0.25",
-    "momentjs": "2.29.1",
-    "lodash": "4.17.21",
+    "momentjs": "2.24.0",
+    "lodash": "4.17.15",
     "dygraphs": "1.1.1",
     "dagre-d3": "0.6.4",
     "angular-chart.js": "1.1.1",
     "chart.js": "2.9.3",
     "svg-pan-zoom": "3.6.0",
-    "angular-toastr": "2.1.1",
-    "angular-smart-table": "2.1.11"
+    "angular-toastr": "2.1.1"
   },
   "devDependencies": {
     "angular-mocks": "1.7.9",
