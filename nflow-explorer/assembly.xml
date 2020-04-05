@@ -9,7 +9,7 @@
   <fileSets>
     <fileSet>
       <directory>${project.basedir}/dist</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory></outputDirectory>
       <excludes>
         <exclude>**/bower.json</exclude>
         <exclude>**/dagre-d3.js</exclude>
