@@ -1,0 +1,52 @@
+<ruleset comparisonMethod="maven"
+         xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 http://mojo.codehaus.org/versions-maven-plugin/xsd/rule-2.0.0.xsd">
+    <rules>
+        <rule groupId="com.microsoft.sqlserver">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*preview</ignoreVersion>
+                <ignoreVersion type="regex">.*jre1[0-9]</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="com.fasterxml.jackson">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*rc[0-9]+</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.slf4j">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="javax.xml.bind">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*-b[0-9]+.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.glassfish" artifactId="javax.el">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*-b[0-9]+.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.postgresql">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*jre[67]</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.hibernate.validator">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*Alpha.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.eclipse.jetty">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="ch.qos.logback">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+    </rules>
+</ruleset>

@@ -346,6 +346,7 @@
           <version>${versions-maven-plugin.version}</version>
           <configuration>
             <generateBackupPoms>false</generateBackupPoms>
+            <rulesUri>file:///${session.executionRootDirectory}/maven-version-rules.xml</rulesUri>
           </configuration>
         </plugin>
       </plugins>
