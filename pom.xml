@@ -149,7 +149,7 @@
     <maven-project-info.version>3.0.0</maven-project-info.version>
     <maven-release.version>3.0.0-M1</maven-release.version>
     <maven-resources.version>3.1.0</maven-resources.version>
-    <maven-shade.version>3.2.2</maven-shade.version>
+    <maven-shade.version>3.2.1</maven-shade.version>
     <maven-site.version>3.9.0</maven-site.version>
     <maven-source.version>3.2.1</maven-source.version>
     <maven-surefire.version>3.0.0-M4</maven-surefire.version>
