@@ -39,6 +39,7 @@ import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.mapper.CustomValidationExceptionMapper;
+import io.nflow.rest.mapper.IllegalArgumentExceptionMapper;
 import io.nflow.rest.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.v1.jaxrs.MaintenanceResource;
 import io.nflow.rest.v1.jaxrs.StatisticsResource;
@@ -78,6 +79,7 @@ public class NflowJettyConfiguration {
         new WebApplicationExceptionMapper(),
         new CustomValidationExceptionMapper(),
         new StateVariableValueTooLongExceptionMapper(),
+        new IllegalArgumentExceptionMapper(),
         new DateTimeParamConverterProvider()
         ));
     factory.setFeatures(asList(new LoggingFeature(), swaggerFeature()));
