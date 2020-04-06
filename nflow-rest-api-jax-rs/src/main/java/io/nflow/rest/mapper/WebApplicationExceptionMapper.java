@@ -1,4 +1,4 @@
-package io.nflow.jetty.mapper;
+package io.nflow.rest.mapper;
 
 import static javax.ws.rs.core.Response.status;
 

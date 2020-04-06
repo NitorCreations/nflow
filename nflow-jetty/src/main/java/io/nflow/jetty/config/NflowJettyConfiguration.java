@@ -35,11 +35,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import io.nflow.engine.config.NFlow;
-import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
-import io.nflow.jetty.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
+import io.nflow.rest.mapper.CustomValidationExceptionMapper;
+import io.nflow.rest.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.v1.jaxrs.MaintenanceResource;
 import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
@@ -74,7 +74,6 @@ public class NflowJettyConfiguration {
     }
     factory.setProviders(asList(
         jsonProvider(nflowRestObjectMapper),
-        validationExceptionMapper(),
         corsHeadersProvider(),
         new WebApplicationExceptionMapper(),
         new CustomValidationExceptionMapper(),
@@ -111,11 +110,6 @@ public class NflowJettyConfiguration {
   @Bean
   public JacksonJsonProvider jsonProvider(@Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
     return new JacksonJsonProvider(nflowRestObjectMapper);
-  }
-
-  @Bean
-  public CustomValidationExceptionMapper validationExceptionMapper() {
-    return new CustomValidationExceptionMapper();
   }
 
   @Bean(destroyMethod = "shutdown")
