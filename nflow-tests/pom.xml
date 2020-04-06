@@ -80,13 +80,6 @@
       <artifactId>postgresql-embedded</artifactId>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>pentaho-repo</id>
-      <name>pentaho-repo</name>
-      <url>https://public.nexus.pentaho.org/content/groups/omni/</url>
-    </repository>
-  </repositories>
   <profiles>
     <profile>
       <id>oracle</id>
