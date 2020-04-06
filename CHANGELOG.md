@@ -4,6 +4,32 @@
 
 **Details**
 
+- `nflow-engine`
+  - Dependency updates:
+    - spring 5.2.5
+    - jackson 2.10.3
+    - javassist 3.27.0
+    - jetty 9.4.27
+    - cxf 3.3.6
+    - metrics 4.1.5
+    - netty 0.9.6
+    - swagger 1.6.1
+    - lang3 3.10
+    - mariadb 2.6.0
+    - mssql 8.2.2
+    - postgresql 42.2.10
+    - junit 5.6.1
+    - mockito 3.3.3
+    - spotbugs 4.0.1
+- `nflow-explorer`
+  - Dependency updates:
+    - swagger-ui 2.2.10
+    - es5-shim 4.5.14
+    - npm 6.14.4
+    - autoprefixer 9.7.5
+    - grunt 1.1.0
+    - grunt-contrib-imagemin 4.0.0
+
 ## 7.1.0 (2020-03-25)
 
 **Highlights**
