@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import io.nflow.engine.service.MaintenanceConfiguration;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @Component
@@ -53,12 +54,16 @@ public class MaintenanceWorkflowStarter {
   public void start() {
     if (insertOnStartup) {
       insertOnStartup = false;
-      instanceService.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder() //
-          .setType(MAINTENANCE_WORKFLOW_TYPE) //
-          .putStateVariable(VAR_SCHEDULE, initialCronSchedule) //
-          .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, initialConfiguration) //
-          .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
-          .build());
+      QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(MAINTENANCE_WORKFLOW_TYPE)
+          .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID).build();
+      if (instanceService.listWorkflowInstances(query).isEmpty()) {
+        instanceService.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder() //
+            .setType(MAINTENANCE_WORKFLOW_TYPE) //
+            .putStateVariable(VAR_SCHEDULE, initialCronSchedule) //
+            .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, initialConfiguration) //
+            .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
+            .build());
+      }
     }
   }
 }
