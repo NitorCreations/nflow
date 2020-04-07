@@ -17,10 +17,12 @@ addons:
   postgresql: "9.6"
 services:
   - docker
+before_install:
+  - mkdir -p $HOME/m2
+  - cp travis/maven_settings.xml $HOME/.m2/settings.xml
 before_script:
   - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
   - ./travis/setup-db-$DB.sh
-  - mkdir -p ~/.m2 && echo -e '<?xml version="1.0"?>'"\n"'<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><mirrors><mirror><id>maven-central</id><name>Maven Central</name><mirrorOf>central</mirrorOf><url>https://repo1.maven.org/maven2/</url></mirror></mirrors></settings>' > ~/.m2/settings.xml
 script:
   - mvn jacoco:prepare-agent test -B -P $DB
 after_script:
@@ -32,6 +34,6 @@ after_success:
   - mvn jacoco:report coveralls:report
 cache:
   directories:
-  - $HOME/.m2
+  - $HOME/.m2/repository
 sudo: false
 
