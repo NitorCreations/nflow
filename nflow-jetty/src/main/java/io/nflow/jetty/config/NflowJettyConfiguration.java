@@ -36,7 +36,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
-import io.nflow.jetty.mapper.IllegalArgumentExceptionMapper;
 import io.nflow.jetty.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
@@ -79,7 +78,6 @@ public class NflowJettyConfiguration {
         new WebApplicationExceptionMapper(),
         new CustomValidationExceptionMapper(),
         new StateVariableValueTooLongExceptionMapper(),
-        new IllegalArgumentExceptionMapper(),
         new DateTimeParamConverterProvider()
         ));
     factory.setFeatures(asList(new LoggingFeature(), swaggerFeature()));
