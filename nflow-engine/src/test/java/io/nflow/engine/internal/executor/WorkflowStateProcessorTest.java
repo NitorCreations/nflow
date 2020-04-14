@@ -31,9 +31,10 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Period.hours;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -68,6 +69,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,23 +155,25 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowStateProcessor executor;
 
-  WorkflowDefinition<ExecuteTestWorkflow.State> executeWf = new ExecuteTestWorkflow();
+  ExecuteTestWorkflow executeWf = new ExecuteTestWorkflow();
 
-  WorkflowDefinition<ForceCleaningTestWorkflow.State> forceWf = new ForceCleaningTestWorkflow();
+  ForceCleaningTestWorkflow forceWf = new ForceCleaningTestWorkflow();
 
-  WorkflowDefinition<FailCleaningTestWorkflow.State> failCleaningWf = new FailCleaningTestWorkflow();
+  FailCleaningTestWorkflow failCleaningWf = new FailCleaningTestWorkflow();
 
-  WorkflowDefinition<SimpleTestWorkflow.State> simpleWf = new SimpleTestWorkflow();
+  SimpleTestWorkflow simpleWf = new SimpleTestWorkflow();
 
-  WorkflowDefinition<FailingTestWorkflow.State> failingWf = new FailingTestWorkflow();
+  FailingTestWorkflow failingWf = new FailingTestWorkflow();
 
-  WorkflowDefinition<NotifyTestWorkflow.State> wakeWf = new NotifyTestWorkflow();
+  NotifyTestWorkflow wakeWf = new NotifyTestWorkflow();
 
-  WorkflowDefinition<StateVariableWorkflow.State> stateVariableWf = new StateVariableWorkflow();
+  StateVariableWorkflow stateVariableWf = new StateVariableWorkflow();
 
-  WorkflowDefinition<NonRetryableWorkflow.State> nonRetryableWf = new NonRetryableWorkflow();
+  NonRetryableWorkflow nonRetryableWf = new NonRetryableWorkflow();
 
   LoopingTestWorkflow loopingWf = new LoopingTestWorkflow();
+
+  StuckWorkflow stuckWf = new StuckWorkflow();
 
   static WorkflowInstance newChildWorkflow = mock(WorkflowInstance.class);
 
@@ -205,6 +209,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     lenient().doReturn(stateVariableWf).when(workflowDefinitions).getWorkflowDefinition("state-variable");
     lenient().doReturn(nonRetryableWf).when(workflowDefinitions).getWorkflowDefinition("non-retryable");
     lenient().doReturn(loopingWf).when(workflowDefinitions).getWorkflowDefinition("looping-test");
+    lenient().doReturn(stuckWf).when(workflowDefinitions).getWorkflowDefinition("stuck");
     filterChain(listener1);
     filterChain(listener2);
     lenient().when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
@@ -917,6 +922,32 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     assertTimeoutPreemptively(ofSeconds(5), () -> executor.run());
   }
 
+  @Test
+  public void handlePotentiallyStuckCallsListeners() {
+    Duration processingTime = standardHours(1);
+
+    executor.handlePotentiallyStuck(processingTime);
+
+    verify(listener1).handlePotentiallyStuck(1L, processingTime);
+    verify(listener2).handlePotentiallyStuck(1L, processingTime);
+  }
+
+  @Test
+  public void handlePotentiallyStuckInterruptsThreadWhenListenerReturnsTrue() {
+    Duration processingTime = standardHours(1);
+    lenient().when(listener1.handlePotentiallyStuck(1L, processingTime)).thenReturn(true);
+    WorkflowInstance instance = executingInstanceBuilder().setType("stuck").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    Thread thread = new Thread(() -> executor.run());
+    thread.start();
+
+    executor.handlePotentiallyStuck(processingTime);
+
+    assertTrue(thread.isInterrupted(), "Thread was not interrupted");
+    verify(listener1).handlePotentiallyStuck(1L, processingTime);
+    verify(listener2).handlePotentiallyStuck(1L, processingTime);
+  }
+
   public static class Pojo {
     public String field;
     public boolean test;
@@ -1273,6 +1304,33 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       throw new RuntimeException();
+    }
+  }
+
+  public static class StuckWorkflow extends WorkflowDefinition<StuckWorkflow.State> {
+
+    protected StuckWorkflow() {
+      super("stuck", State.start, State.end);
+    }
+
+    public static enum State implements WorkflowState {
+      start(WorkflowStateType.start), end(WorkflowStateType.end);
+
+      private final WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+    }
+
+    public NextAction start(@SuppressWarnings("unused") StateExecution execution) throws InterruptedException {
+      SECONDS.sleep(10);
+      return stopInState(State.end, "Done");
     }
   }
 }

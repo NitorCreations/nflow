@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.executor;
 
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.DateTime.now;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -54,13 +56,14 @@ public class WorkflowStateProcessorFactory {
   }
 
   public int getPotentiallyStuckProcessors() {
-    long currentTimeSeconds = currentTimeMillis() / 1000;
+    DateTime currentTime = now();
     int potentiallyStuck = 0;
     for (WorkflowStateProcessor processor : processingInstances.values()) {
-      long processingTimeSeconds = currentTimeSeconds - processor.getStartTimeSeconds();
-      if (processingTimeSeconds > stuckThreadThresholdSeconds) {
+      Duration processingTime = new Duration(processor.getStartTime(), currentTime);
+      if (processingTime.getStandardSeconds() > stuckThreadThresholdSeconds) {
         potentiallyStuck++;
-        processor.logPotentiallyStuck(processingTimeSeconds);
+        processor.logPotentiallyStuck(processingTime.getStandardSeconds());
+        processor.handlePotentiallyStuck(processingTime);
       }
     }
     return potentiallyStuck;

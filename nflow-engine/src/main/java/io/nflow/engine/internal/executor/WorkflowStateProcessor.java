@@ -13,7 +13,6 @@ import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.joda.time.DateTime.now;
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.Duration.standardMinutes;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -80,7 +79,7 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
-  private long startTimeSeconds;
+  private DateTime startTime;
   private Thread thread;
 
   WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
@@ -109,7 +108,7 @@ class WorkflowStateProcessor implements Runnable {
   @Override
   public void run() {
     MDC.put(MDC_KEY, String.valueOf(instanceId));
-    startTimeSeconds = currentTimeMillis() / 1000;
+    startTime = now();
     thread = currentThread();
     processingInstances.put(instanceId, this);
     while (true) {
@@ -141,7 +140,7 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
     while (instance.status == executing && !shutdownRequested.get()) {
-      startTimeSeconds = currentTimeMillis() / 1000;
+      startTime = now();
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
           workflowInstancePreProcessor, workflowInstances);
       ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
@@ -541,8 +540,8 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  public long getStartTimeSeconds() {
-    return startTimeSeconds;
+  public DateTime getStartTime() {
+    return startTime;
   }
 
   public void logPotentiallyStuck(long processingTimeSeconds) {
@@ -558,4 +557,19 @@ class WorkflowStateProcessor implements Runnable {
     return sb;
   }
 
+  public void handlePotentiallyStuck(Duration processingTime) {
+    boolean interrupt = false;
+    for (WorkflowExecutorListener listener : executorListeners) {
+      try {
+        if (listener.handlePotentiallyStuck(instanceId, processingTime)) {
+          interrupt = true;
+        }
+      } catch (Throwable t) {
+        logger.error("Error in " + listener.getClass().getName() + ".handleStuck (" + t.getMessage() + ")", t);
+      }
+    }
+    if (interrupt) {
+      thread.interrupt();
+    }
+  }
 }
