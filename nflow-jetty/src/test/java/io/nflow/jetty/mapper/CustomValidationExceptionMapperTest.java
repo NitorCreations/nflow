@@ -1,4 +1,4 @@
-package io.nflow.rest.mapper;
+package io.nflow.jetty.mapper;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;

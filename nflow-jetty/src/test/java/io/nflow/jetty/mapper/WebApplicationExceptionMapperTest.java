@@ -1,4 +1,4 @@
-package io.nflow.rest.mapper;
+package io.nflow.jetty.mapper;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
-import io.nflow.rest.mapper.WebApplicationExceptionMapper;
+import io.nflow.jetty.mapper.WebApplicationExceptionMapper;
 import io.nflow.rest.v1.msg.ErrorResponse;
 
 public class WebApplicationExceptionMapperTest {

@@ -29,8 +29,9 @@
     - hibernate 6.1.4
     - commons-lang3 3.10
 - `nflow-rest-api-jax-rs`
-  - Move exception mappers from `nflow-jetty` / `io.nflow.jetty.mapper` to `nflow-rest-api-jax-rs` / `io.nflow.rest.mapper`
-  - Map `IllegalArgumentException`s to HTTP 400 Bad Request
+  - Convert IllegalArgumentException to HTTP Bad Request in `WorkflowInstanceResource.updateWorkflowInstance`
+- `nflow-rest-api-spring-web`
+  - Convert IllegalArgumentException to HTTP Bad Request in `WorkflowInstanceResource.updateWorkflowInstance`
 - `nflow-explorer`
   - Dependency updates:
     - swagger-ui 2.2.10

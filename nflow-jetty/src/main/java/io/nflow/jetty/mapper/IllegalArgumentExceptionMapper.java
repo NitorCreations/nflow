@@ -1,4 +1,4 @@
-package io.nflow.rest.mapper;
+package io.nflow.jetty.mapper;
 
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;

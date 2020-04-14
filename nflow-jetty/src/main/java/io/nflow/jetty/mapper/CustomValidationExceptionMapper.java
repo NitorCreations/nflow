@@ -1,4 +1,4 @@
-package io.nflow.rest.mapper;
+package io.nflow.jetty.mapper;
 
 import static java.util.stream.Collectors.joining;
 
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nflow.rest.v1.msg.ErrorResponse;
+
 
 @Provider
 public class CustomValidationExceptionMapper implements ExceptionMapper<ValidationException> {

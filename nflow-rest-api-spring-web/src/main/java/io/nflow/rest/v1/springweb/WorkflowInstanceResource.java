@@ -3,6 +3,7 @@ package io.nflow.rest.v1.springweb;
 import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
 import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
@@ -97,8 +98,12 @@ public class WorkflowInstanceResource extends ResourceBase {
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public ResponseEntity<?> updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
-    return (updated ? noContent() : status(CONFLICT)).build();
+    try {
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      return (updated ? noContent() : status(CONFLICT)).build();
+    } catch (IllegalArgumentException e) {
+      return status(BAD_REQUEST).body(e.getMessage());
+    }
   }
 
   @GetMapping(path = "/id/{id}")

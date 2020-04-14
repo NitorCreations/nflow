@@ -35,12 +35,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import io.nflow.engine.config.NFlow;
+import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
+import io.nflow.jetty.mapper.IllegalArgumentExceptionMapper;
+import io.nflow.jetty.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
 import io.nflow.rest.config.jaxrs.CorsHeaderContainerResponseFilter;
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
-import io.nflow.rest.mapper.CustomValidationExceptionMapper;
-import io.nflow.rest.mapper.IllegalArgumentExceptionMapper;
-import io.nflow.rest.mapper.StateVariableValueTooLongExceptionMapper;
 import io.nflow.rest.v1.jaxrs.MaintenanceResource;
 import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;

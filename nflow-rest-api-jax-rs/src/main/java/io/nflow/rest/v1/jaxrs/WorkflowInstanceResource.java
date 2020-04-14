@@ -9,6 +9,7 @@ import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 
 import java.net.URI;
@@ -110,8 +111,12 @@ public class WorkflowInstanceResource extends ResourceBase {
     @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
-    return (updated ? noContent() : status(CONFLICT)).build();
+    try {
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      return (updated ? noContent() : status(CONFLICT)).build();
+    } catch (IllegalArgumentException e) {
+      return status(BAD_REQUEST.getStatusCode(), e.getMessage()).build();
+    }
   }
 
   @GET
