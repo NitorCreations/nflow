@@ -17,6 +17,9 @@ addons:
   postgresql: "9.6"
 services:
   - docker
+before_install:
+  - mkdir -p $HOME/m2
+  - cp travis/maven_settings.xml $HOME/.m2/settings.xml
 before_script:
   - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
   - ./travis/setup-db-$DB.sh
@@ -31,6 +34,6 @@ after_success:
   - mvn jacoco:report coveralls:report
 cache:
   directories:
-  - $HOME/.m2
+  - $HOME/.m2/repository
 sudo: false
 
