@@ -1,7 +1,8 @@
 package io.nflow.engine.internal.guice;
 
+import static java.util.Arrays.asList;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,7 +16,7 @@ public class EngineEnvironmentModule extends EnvironmentModule {
     List<String> files = new ArrayList<>();
     files.add(defaultPropertiesFile);
     if (classpathPropertiesFiles != null) {
-      files.addAll(Arrays.asList(classpathPropertiesFiles));
+      files.addAll(asList(classpathPropertiesFiles));
     }
     return files.toArray(new String[0]);
   }

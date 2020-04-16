@@ -40,6 +40,7 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
    * @return SQL variants optimized for SQL Server.
    */
   @Bean
+  @Override
   public SQLVariants sqlVariants() {
     return new SQLServerVariants();
   }

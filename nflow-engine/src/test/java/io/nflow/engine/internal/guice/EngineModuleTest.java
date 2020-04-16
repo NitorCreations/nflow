@@ -1,19 +1,16 @@
 package io.nflow.engine.internal.guice;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.zaxxer.hikari.HikariDataSource;
-import io.nflow.engine.config.EngineConfiguration;
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.config.db.H2DatabaseConfiguration;
-import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
-import io.nflow.engine.internal.executor.WorkflowLifecycle;
-import io.nflow.engine.internal.storage.db.DatabaseInitializer;
-import io.nflow.engine.internal.storage.db.SQLVariants;
-import io.nflow.engine.service.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+
+import java.util.Properties;
+import java.util.concurrent.ThreadFactory;
+
+import javax.sql.DataSource;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.core.io.AbstractResource;
@@ -22,12 +19,26 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
-import java.util.Properties;
-import java.util.concurrent.ThreadFactory;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.zaxxer.hikari.HikariDataSource;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import io.nflow.engine.config.EngineConfiguration;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.config.db.H2DatabaseConfiguration;
+import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import io.nflow.engine.internal.executor.WorkflowLifecycle;
+import io.nflow.engine.internal.storage.db.DatabaseInitializer;
+import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.service.HealthCheckService;
+import io.nflow.engine.service.MaintenanceService;
+import io.nflow.engine.service.StatisticsService;
+import io.nflow.engine.service.WorkflowDefinitionService;
+import io.nflow.engine.service.WorkflowExecutorService;
+import io.nflow.engine.service.WorkflowInstanceService;
 
 public class EngineModuleTest {
 
@@ -74,7 +85,7 @@ public class EngineModuleTest {
     injector.getInstance(Key.get(NamedParameterJdbcTemplate.class, NFlow.class));
     injector.getInstance(Key.get(TransactionTemplate.class, NFlow.class));
 
-    injector.getInstance(ArchiveService.class);
+    injector.getInstance(MaintenanceService.class);
     injector.getInstance(HealthCheckService.class);
     injector.getInstance(StatisticsService.class);
     injector.getInstance(WorkflowDefinitionService.class);

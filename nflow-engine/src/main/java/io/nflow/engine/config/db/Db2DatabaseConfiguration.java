@@ -3,10 +3,15 @@ package io.nflow.engine.config.db;
 import static io.nflow.engine.config.Profiles.DB2;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static java.lang.System.currentTimeMillis;
+import static java.util.TimeZone.getTimeZone;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Objects;
@@ -32,6 +37,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 @Configuration
 public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
+  private String dbTimeZoneId;
+
   /**
    * Create a new instance.
    */
@@ -41,20 +48,20 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
   /**
    * Creates the SQL variants for DB2.
-   * @param env The Spring environment for getting the configuration property values.
    * @return SQL variants optimized for DB2.
    */
   @Bean
-  public SQLVariants sqlVariants(Environment env) {
-    return new Db2SQLVariants(property(env, "timezone"));
+  @Override
+  public SQLVariants sqlVariants() {
+    return new Db2SQLVariants(dbTimeZoneId);
   }
 
   @Override
   protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     Long dbTimeZoneOffsetHours = jdbc.queryForObject("select current timezone from sysibm.sysdummy1", Long.class);
-    Long propsTimeZoneOffsetHours = HOURS.convert(
-            TimeZone.getTimeZone(property(env, "timezone")).getOffset(currentTimeMillis()), MILLISECONDS);
+    dbTimeZoneId = property(env, "timezone");
+    Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(dbTimeZoneId).getOffset(currentTimeMillis()), MILLISECONDS);
     if (!Objects.equals(dbTimeZoneOffsetHours, propsTimeZoneOffsetHours)) {
       throw new RuntimeException("Database has unexpected time zone - hour offset in DB2 is " + dbTimeZoneOffsetHours +
             " but the expected hour offset based on timezone-property is " + propsTimeZoneOffsetHours +

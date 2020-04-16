@@ -74,6 +74,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
    * @return SQL variants optimized for MariaDB.
    */
   @Bean
+  @Override
   public SQLVariants sqlVariants() {
     return new MySQLVariants();
   }
