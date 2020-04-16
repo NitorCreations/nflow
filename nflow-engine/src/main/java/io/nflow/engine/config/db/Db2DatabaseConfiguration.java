@@ -23,10 +23,13 @@ import javax.sql.DataSource;
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -47,11 +50,25 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
+   * Creates the nFlow database initializer.
+   * @param nflowDataSource The nFlow datasource.
+   * @param env The Spring environment.
+   * @return The database initializer.
+   */
+  @Bean
+  @Override
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
+    dbTimeZoneId = property(env, "timezone");
+    return super.nflowDatabaseInitializer(nflowDataSource, env);
+  }
+
+  /**
    * Creates the SQL variants for DB2.
    * @return SQL variants optimized for DB2.
    */
   @Bean
   @Override
+  @DependsOn(NFLOW_DATABASE_INITIALIZER)
   public SQLVariants sqlVariants() {
     return new Db2SQLVariants(dbTimeZoneId);
   }
@@ -60,7 +77,6 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     Long dbTimeZoneOffsetHours = jdbc.queryForObject("select current timezone from sysibm.sysdummy1", Long.class);
-    dbTimeZoneId = property(env, "timezone");
     Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(dbTimeZoneId).getOffset(currentTimeMillis()), MILLISECONDS);
     if (!Objects.equals(dbTimeZoneOffsetHours, propsTimeZoneOffsetHours)) {
       throw new RuntimeException("Database has unexpected time zone - hour offset in DB2 is " + dbTimeZoneOffsetHours +
