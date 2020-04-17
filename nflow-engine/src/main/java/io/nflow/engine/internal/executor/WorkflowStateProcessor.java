@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -68,6 +69,7 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  private final Supplier<Boolean> shutdownRequested;
   final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final MaintenanceDao maintenanceDao;
@@ -83,11 +85,12 @@ class WorkflowStateProcessor implements Runnable {
   private long startTimeSeconds;
   private Thread thread;
 
-  WorkflowStateProcessor(long instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
+  WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
       Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
+    this.shutdownRequested = shutdownRequested;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
@@ -136,7 +139,7 @@ class WorkflowStateProcessor implements Runnable {
     }
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
-    while (instance.status == executing) {
+    while (instance.status == executing && !shutdownRequested.get()) {
       startTimeSeconds = currentTimeMillis() / 1000;
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
           workflowInstancePreProcessor, workflowInstances);
