@@ -12,6 +12,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
@@ -855,7 +857,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     shutdownRequest.set(true);
     executorService.awaitTermination(10, SECONDS);
 
-    assertThat(loopingWf.counter, Matchers.lessThan(20));
+    assertThat(loopingWf.counter, lessThan(20));
   }
 
   @Test
@@ -1045,7 +1047,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     protected ForceCleaningTestWorkflow() {
       super("test", State.start, State.error,
-          new WorkflowSettings.Builder().setHistoryDeletableAfter(hours(2)).setDeleteHistoryCondition(() -> false).build());
+          new WorkflowSettings.Builder().setHistoryDeletableAfter(hours(2)).setDeleteHistoryCondition(FALSE::booleanValue).build());
       permit(State.start, State.done, State.error);
     }
 

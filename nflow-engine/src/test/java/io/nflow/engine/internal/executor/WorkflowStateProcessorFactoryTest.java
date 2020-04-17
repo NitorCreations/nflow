@@ -62,14 +62,14 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
 
   @Test
   public void factoryCreatesExecutorsWithoutListeners() {
-    WorkflowStateProcessor executor = factory.createProcessor(12, () -> FALSE);
+    WorkflowStateProcessor executor = factory.createProcessor(12, FALSE::booleanValue);
     assertNotNull(executor);
   }
 
   @Test
   public void factoryCreatesExecutorsWithListeners() {
     factory.listeners = listeners;
-    WorkflowStateProcessor executor = factory.createProcessor(122, () -> FALSE);
+    WorkflowStateProcessor executor = factory.createProcessor(122, FALSE::booleanValue);
     assertNotNull(executor);
   }
 
