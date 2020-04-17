@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -174,6 +175,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CURRENT_STATE_VARIABLES);
 
+  private final AtomicBoolean shutdownRequest = new AtomicBoolean();
+
   @BeforeEach
   public void setup() {
     processingInstances = new ConcurrentHashMap<>();
@@ -184,7 +187,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     lenient().doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
@@ -370,7 +373,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         .setStateText("myStateText").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener);
 
     doAnswer((Answer<NextAction>) invocation ->
@@ -500,7 +503,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
@@ -769,7 +772,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
@@ -788,7 +791,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
