@@ -12,11 +12,13 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -165,6 +167,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<NonRetryableWorkflow.State> nonRetryableWf = new NonRetryableWorkflow();
 
+  LoopingTestWorkflow loopingWf = new LoopingTestWorkflow();
+
   static WorkflowInstance newChildWorkflow = mock(WorkflowInstance.class);
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
@@ -198,6 +202,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     lenient().doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
     lenient().doReturn(stateVariableWf).when(workflowDefinitions).getWorkflowDefinition("state-variable");
     lenient().doReturn(nonRetryableWf).when(workflowDefinitions).getWorkflowDefinition("non-retryable");
+    lenient().doReturn(loopingWf).when(workflowDefinitions).getWorkflowDefinition("looping-test");
     filterChain(listener1);
     filterChain(listener2);
     lenient().when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
@@ -813,10 +818,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doThrow(new RuntimeException("some failure")).when(workflowInstances).getWorkflowInstance(instance.id, INCLUDES, null);
 
     ExecutorService executorService = newSingleThreadExecutor();
-    newSingleThreadExecutor().submit(executor);
-    Thread.sleep(1500);
-    executor.setInternalRetryEnabled(false);
-    executorService.shutdownNow();
+    executorService.submit(executor);
+    sleep(1500);
+    executorService.shutdown();
+    shutdownRequest.set(true);
 
     verify(workflowInstances, atLeast(2)).getWorkflowInstance(instance.id, INCLUDES, null);
   }
@@ -829,12 +834,28 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         any(), any(), anyBoolean());
 
     ExecutorService executorService = newSingleThreadExecutor();
-    newSingleThreadExecutor().submit(executor);
-    Thread.sleep(1500);
-    executor.setInternalRetryEnabled(false);
-    executorService.shutdownNow();
+    executorService.submit(executor);
+    sleep(1500);
+    executorService.shutdown();
+    shutdownRequest.set(true);
 
     verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
+  }
+
+  @Test
+  public void stateProcessingSeriesStopsOnShutdown() throws InterruptedException {
+    WorkflowInstance instance = executingInstanceBuilder().setType("looping-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+
+    ExecutorService executorService = newSingleThreadExecutor();
+    executorService.submit(executor);
+    sleep(500);
+
+    executorService.shutdown();
+    shutdownRequest.set(true);
+    executorService.awaitTermination(10, SECONDS);
+
+    assertThat(loopingWf.counter, Matchers.lessThan(20));
   }
 
   @Test
@@ -1077,6 +1098,38 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.done, "Done.");
+    }
+
+  }
+
+  public static class LoopingTestWorkflow extends WorkflowDefinition<LoopingTestWorkflow.State> {
+
+    int counter = 0;
+
+    protected LoopingTestWorkflow() {
+      super("looping-test", State.start, State.error);
+      permit(State.start, State.start);
+      permit(State.start, State.done);
+    }
+
+    public enum State implements WorkflowState {
+      start(WorkflowStateType.start), done(WorkflowStateType.end), error(WorkflowStateType.manual);
+
+      private WorkflowStateType stateType;
+
+      State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+    }
+
+    public NextAction start(@SuppressWarnings("unused") StateExecution execution) throws InterruptedException {
+      sleep(100);
+      return counter++ < 100 ? moveToState(State.start, "loop") : moveToState(State.done, "done");
     }
 
   }

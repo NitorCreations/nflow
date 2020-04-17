@@ -80,7 +80,6 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
-  private boolean internalRetryEnabled = true;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
   private Thread thread;
@@ -123,7 +122,7 @@ class WorkflowStateProcessor implements Runnable {
         logger.error("Failed to process workflow instance, retrying after {} seconds", stateProcessingRetryDelay, ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
-    } while (!stateProcessingFinished && internalRetryEnabled);
+    } while (!stateProcessingFinished);
     processingInstances.remove(instanceId);
     MDC.remove(MDC_KEY);
   }
@@ -270,15 +269,8 @@ class WorkflowStateProcessor implements Runnable {
             ex);
         sleepIgnoreInterrupted(stateSaveRetryDelay);
       }
-    } while (internalRetryEnabled);
-    throw new IllegalStateException(format("Failed to save workflow instance %s new state", instance.id));
-  }
-
-  /**
-   * For unit testing only
-   */
-  void setInternalRetryEnabled(boolean internalRetryEnabled) {
-    this.internalRetryEnabled = internalRetryEnabled;
+    } while (!shutdownRequested.get());
+    throw new IllegalStateException(format("Failed to save workflow instance %s new state and shutdown requested", instance.id));
   }
 
   private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, Map<String, String> originalStateVars,
