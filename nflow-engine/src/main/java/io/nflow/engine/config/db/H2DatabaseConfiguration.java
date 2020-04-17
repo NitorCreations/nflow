@@ -65,7 +65,7 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
    */
   @Bean
   @Override
-  public SQLVariants sqlVariants() {
+  public SQLVariants sqlVariants(Environment env) {
     return new H2SQLVariants();
   }
 

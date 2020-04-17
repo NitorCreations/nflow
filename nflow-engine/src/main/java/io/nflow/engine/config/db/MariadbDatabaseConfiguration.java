@@ -75,7 +75,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
    */
   @Bean
   @Override
-  public SQLVariants sqlVariants() {
+  public SQLVariants sqlVariants(Environment env) {
     return new MySQLVariants();
   }
 }

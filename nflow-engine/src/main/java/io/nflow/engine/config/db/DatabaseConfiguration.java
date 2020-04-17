@@ -176,5 +176,5 @@ public abstract class DatabaseConfiguration {
     // no common checks for all databases
   }
 
-  public abstract SQLVariants sqlVariants();
+  public abstract SQLVariants sqlVariants(Environment env);
 }

@@ -147,8 +147,8 @@ public class EngineModule extends AbstractModule {
   @Provides
   @Singleton
   @Inject
-  public SQLVariants nflowSQLVariants(DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.sqlVariants();
+  public SQLVariants nflowSQLVariants(Environment env, DatabaseConfiguration databaseConfiguration) {
+    return databaseConfiguration.sqlVariants(env);
   }
 
   @Provides

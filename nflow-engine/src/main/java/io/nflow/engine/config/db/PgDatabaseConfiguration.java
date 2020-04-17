@@ -7,6 +7,7 @@ import java.sql.Types;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -31,7 +32,7 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
    */
   @Bean
   @Override
-  public SQLVariants sqlVariants() {
+  public SQLVariants sqlVariants(Environment env) {
     return new PostgreSQLVariants();
   }
 

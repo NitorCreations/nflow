@@ -23,13 +23,10 @@ import javax.sql.DataSource;
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -40,8 +37,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 @Configuration
 public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
-  private String dbTimeZoneId;
-
   /**
    * Create a new instance.
    */
@@ -50,38 +45,26 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the nFlow database initializer.
-   * @param nflowDataSource The nFlow datasource.
-   * @param env The Spring environment.
-   * @return The database initializer.
-   */
-  @Bean
-  @Override
-  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
-    dbTimeZoneId = property(env, "timezone");
-    return super.nflowDatabaseInitializer(nflowDataSource, env);
-  }
-
-  /**
    * Creates the SQL variants for DB2.
+   *
    * @return SQL variants optimized for DB2.
    */
   @Bean
   @Override
-  @DependsOn(NFLOW_DATABASE_INITIALIZER)
-  public SQLVariants sqlVariants() {
-    return new Db2SQLVariants(dbTimeZoneId);
+  public SQLVariants sqlVariants(Environment env) {
+    return new Db2SQLVariants(property(env, "timezone"));
   }
 
   @Override
   protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     Long dbTimeZoneOffsetHours = jdbc.queryForObject("select current timezone from sysibm.sysdummy1", Long.class);
-    Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(dbTimeZoneId).getOffset(currentTimeMillis()), MILLISECONDS);
+    Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(property(env, "timezone")).getOffset(currentTimeMillis()),
+        MILLISECONDS);
     if (!Objects.equals(dbTimeZoneOffsetHours, propsTimeZoneOffsetHours)) {
-      throw new RuntimeException("Database has unexpected time zone - hour offset in DB2 is " + dbTimeZoneOffsetHours +
-            " but the expected hour offset based on timezone-property is " + propsTimeZoneOffsetHours +
-            ". Change the timezone-property to match with your DB2 time zone.");
+      throw new RuntimeException("Database has unexpected time zone - hour offset in DB2 is " + dbTimeZoneOffsetHours
+          + " but the expected hour offset based on timezone-property is " + propsTimeZoneOffsetHours
+          + ". Change the timezone-property to match with your DB2 time zone.");
     }
   }
 
@@ -123,9 +106,9 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     @Override
     public String nextActivationUpdate() {
       return "(case " //
-              + "when ? is null then null " //
-              + "when external_next_activation is null then ? " //
-              + "else least(?, external_next_activation) end)";
+          + "when ? is null then null " //
+          + "when external_next_activation is null then ? " //
+          + "else least(?, external_next_activation) end)";
     }
 
     /**
@@ -192,15 +175,13 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
     @Override
     public Object getTimestamp(ResultSet rs, String columnName) throws SQLException {
-      return Optional.ofNullable(rs.getTimestamp(columnName))
-          .map(ts -> new Timestamp(ts.getTime() + timeZoneMismatchInMillis()))
+      return Optional.ofNullable(rs.getTimestamp(columnName)).map(ts -> new Timestamp(ts.getTime() + timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
     @Override
     public DateTime getDateTime(ResultSet rs, String columnName) throws SQLException {
-      return Optional.ofNullable(rs.getTimestamp(columnName))
-          .map(ts -> new DateTime(ts.getTime() + timeZoneMismatchInMillis()))
+      return Optional.ofNullable(rs.getTimestamp(columnName)).map(ts -> new DateTime(ts.getTime() + timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
@@ -211,14 +192,13 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
     @Override
     public Object toTimestampObject(DateTime timestamp) {
-      return Optional.ofNullable(timestamp)
-          .map(ts -> new Timestamp(timestamp.getMillis() - timeZoneMismatchInMillis()))
+      return Optional.ofNullable(timestamp).map(ts -> new Timestamp(timestamp.getMillis() - timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
     @Override
     public Object tuneTimestampForDb(Object timestamp) {
-      return new Timestamp(((Timestamp)timestamp).getTime() - timeZoneMismatchInMillis());
+      return new Timestamp(((Timestamp) timestamp).getTime() - timeZoneMismatchInMillis());
     }
 
     private long timeZoneMismatchInMillis() {
