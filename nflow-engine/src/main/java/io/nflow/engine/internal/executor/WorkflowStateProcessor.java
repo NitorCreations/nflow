@@ -113,16 +113,19 @@ class WorkflowStateProcessor implements Runnable {
     startTimeSeconds = currentTimeMillis() / 1000;
     thread = currentThread();
     processingInstances.put(instanceId, this);
-    boolean stateProcessingFinished = false;
-    do {
+    while (true) {
       try {
         runImpl();
-        stateProcessingFinished = true;
+        break;
       } catch (Throwable ex) {
+        if (shutdownRequested.get()) {
+          logger.error("Failed to process workflow instance and shutdown requested", ex);
+          break;
+        }
         logger.error("Failed to process workflow instance, retrying after {} seconds", stateProcessingRetryDelay, ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
-    } while (!stateProcessingFinished);
+    };
     processingInstances.remove(instanceId);
     MDC.remove(MDC_KEY);
   }
@@ -261,16 +264,21 @@ class WorkflowStateProcessor implements Runnable {
         .setStateText(getStateText(instance, execution)) //
         .setState(execution.getNextState()) //
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
-    do {
+    while (true) {
       try {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
+        if (shutdownRequested.get()) {
+          logger.error("Failed to save workflow instance {} new state, not retrying due to shutdown request. The state will be rerun on recovery.",
+                  instance.id, ex);
+          // return the original instance since persisting failed
+          return instance;
+        }
         logger.error("Failed to save workflow instance {} new state, retrying after {} seconds", instance.id, stateSaveRetryDelay,
             ex);
         sleepIgnoreInterrupted(stateSaveRetryDelay);
       }
-    } while (!shutdownRequested.get());
-    throw new IllegalStateException(format("Failed to save workflow instance %s new state and shutdown requested", instance.id));
+    }
   }
 
   private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, Map<String, String> originalStateVars,
