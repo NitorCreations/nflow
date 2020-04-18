@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -30,6 +31,7 @@ import io.nflow.netty.config.NflowNettyConfiguration;
 import io.nflow.server.spring.NflowStandardEnvironment;
 import reactor.netty.http.server.HttpServer;
 
+@SuppressFBWarnings(value = "OPM_OVERLY_PERMISSIVE_METHOD", justification = "All public methods are public on purpose")
 public class StartNflow {
 
   private static final Logger logger = LoggerFactory.getLogger(StartNflow.class);
@@ -94,12 +96,12 @@ public class StartNflow {
     // Create context
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     NflowStandardEnvironment env = new NflowStandardEnvironment(properties);
-    propertiesSources.stream().forEach(propertiesSource -> env.getPropertySources().addLast(propertiesSource));
+    propertiesSources.forEach(propertiesSource -> env.getPropertySources().addLast(propertiesSource));
     context.setEnvironment(env);
     annotatedContextClasses.add(DelegatingWebFluxConfiguration.class);
     annotatedContextClasses.add(NflowNettyConfiguration.class);
     context.register(annotatedContextClasses.stream().toArray(Class<?>[]::new));
-    applicationListeners.forEach(applicationListener -> context.addApplicationListener(applicationListener));
+    applicationListeners.forEach(context::addApplicationListener);
     context.refresh();
 
     // Start netty

@@ -20,6 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -102,6 +103,7 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @GetMapping(path = "/id/{id}")
   @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
+  @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
   public ResponseEntity<ListWorkflowInstanceResponse> fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,

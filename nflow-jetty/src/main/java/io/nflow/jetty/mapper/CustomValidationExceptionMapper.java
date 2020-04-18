@@ -17,7 +17,7 @@ import io.nflow.rest.v1.msg.ErrorResponse;
 @Provider
 public class CustomValidationExceptionMapper implements ExceptionMapper<ValidationException> {
 
-  static final Logger logger = LoggerFactory.getLogger(CustomValidationExceptionMapper.class);
+  private static final Logger logger = LoggerFactory.getLogger(CustomValidationExceptionMapper.class);
 
   @Override
   public Response toResponse(ValidationException exception) {

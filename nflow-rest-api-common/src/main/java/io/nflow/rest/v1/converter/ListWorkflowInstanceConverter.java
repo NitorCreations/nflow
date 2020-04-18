@@ -75,7 +75,7 @@ public class ListWorkflowInstanceConverter {
     if (isEmpty(stateVariables)) {
       return null;
     }
-    Map<String, Object> jsonStateVariables = new LinkedHashMap<>();
+    Map<String, Object> jsonStateVariables = new LinkedHashMap<>(stateVariables.size() * 2);
     for (Entry<String, String> entry : stateVariables.entrySet()) {
       String key = entry.getKey();
       jsonStateVariables.put(key, stringToJson(key, entry.getValue()));

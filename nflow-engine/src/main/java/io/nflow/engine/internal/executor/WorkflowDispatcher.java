@@ -28,6 +28,7 @@ public class WorkflowDispatcher implements Runnable {
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
+  private volatile boolean started;
   private volatile boolean shutdownRequested;
   private volatile boolean running;
   private volatile boolean paused;
@@ -67,6 +68,7 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Dispacther started.");
     try {
+      started = true;
       workflowDefinitions.postProcessWorkflowDefinitions();
       running = true;
       while (!shutdownRequested) {

@@ -2,6 +2,7 @@ package io.nflow.jetty.config;
 
 import static io.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import java.util.Arrays;
 
@@ -16,13 +17,11 @@ import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.feature.Feature;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
-import org.apache.cxf.message.Message;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -84,8 +83,8 @@ public class NflowJettyConfiguration {
         ));
     factory.setFeatures(asList(new LoggingFeature(), swaggerFeature()));
     factory.setBus(cxf());
-    factory.setInInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationInInterceptor()));
-    factory.setOutInterceptors(Arrays.< Interceptor< ? extends Message > >asList(new JAXRSBeanValidationOutInterceptor()));
+    factory.setInInterceptors(singletonList(new JAXRSBeanValidationInInterceptor()));
+    factory.setOutInterceptors(singletonList(new JAXRSBeanValidationOutInterceptor()));
     return factory.create();
   }
 
