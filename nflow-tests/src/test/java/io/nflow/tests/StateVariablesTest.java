@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.StateWorkflow;
@@ -109,7 +108,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
     try (Response response = getInstanceIdResource(createResponse.id).put(req)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
-      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
+      assertThat(response.readEntity(String.class), startsWith("Too long value"));
     }
   }
 
@@ -123,7 +122,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
     try (Response response = fromClient(workflowInstanceResource, true).put(createRequest)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
-      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
+      assertThat(response.readEntity(String.class), startsWith("Too long value"));
     }
   }
 

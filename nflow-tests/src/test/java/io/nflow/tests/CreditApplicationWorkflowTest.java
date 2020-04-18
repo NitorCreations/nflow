@@ -7,6 +7,7 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.joda.time.DateTime.now;
 
 import java.math.BigDecimal;
@@ -76,6 +77,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     ureq.state = "invalid";
     try (Response response = fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq)) {
       assertThat(response.getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+      assertThat(response.readEntity(String.class), startsWith("No state 'invalid'"));
     }
   }
 
