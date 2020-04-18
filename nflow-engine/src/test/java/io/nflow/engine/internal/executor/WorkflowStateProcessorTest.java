@@ -936,7 +936,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void handlePotentiallyStuckInterruptsThreadWhenListenerReturnsTrue() throws InterruptedException {
     Duration processingTime = standardHours(1);
-    lenient().when(listener1.handlePotentiallyStuck(1L, processingTime)).thenReturn(true);
+    when(listener1.handlePotentiallyStuck(1L, processingTime)).thenReturn(true);
     WorkflowInstance instance = executingInstanceBuilder().setType("stuck").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     Thread thread = new Thread(executor::run);
