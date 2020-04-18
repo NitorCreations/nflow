@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
@@ -33,6 +32,7 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.joda.time.Period.hours;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -855,9 +855,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executorService.shutdown();
     shutdownRequest.set(true);
-    executorService.awaitTermination(10, SECONDS);
+    boolean wasTerminated = executorService.awaitTermination(5, SECONDS);
 
-    assertThat(loopingWf.counter, lessThan(20));
+    assertTrue(wasTerminated);
   }
 
   @Test
@@ -1106,8 +1106,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   public static class LoopingTestWorkflow extends WorkflowDefinition<LoopingTestWorkflow.State> {
 
-    int counter = 0;
-
     protected LoopingTestWorkflow() {
       super("looping-test", State.start, State.error);
       permit(State.start, State.start);
@@ -1131,7 +1129,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) throws InterruptedException {
       sleep(100);
-      return counter++ < 100 ? moveToState(State.start, "loop") : moveToState(State.done, "done");
+      return moveToState(State.start, "loop");
     }
 
   }
