@@ -82,6 +82,7 @@ class WorkflowStateProcessor implements Runnable {
   private final Map<Long, WorkflowStateProcessor> processingInstances;
   private DateTime startTime;
   private Thread thread;
+  private ListenerContext listenerContext;
 
   WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
@@ -144,7 +145,7 @@ class WorkflowStateProcessor implements Runnable {
       startTime = now();
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
           workflowInstancePreProcessor, workflowInstances);
-      ListenerContext listenerContext = new ListenerContext(definition, instance, execution);
+      listenerContext = new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
       WorkflowState state;
       try {
@@ -155,8 +156,8 @@ class WorkflowStateProcessor implements Runnable {
       }
       boolean saveInstanceState = true;
       try {
-        processBeforeListeners(listenerContext);
-        listenerContext.nextAction = processWithListeners(listenerContext, instance, definition, execution, state);
+        processBeforeListeners();
+        listenerContext.nextAction = processWithListeners(instance, definition, execution, state);
       } catch (StateVariableValueTooLongException e) {
         instance = rescheduleStateVariableValueTooLong(e, instance);
         saveInstanceState = false;
@@ -178,9 +179,9 @@ class WorkflowStateProcessor implements Runnable {
       } finally {
         if (saveInstanceState) {
           if (execution.isFailed()) {
-            processAfterFailureListeners(listenerContext, execution.getThrown());
+            processAfterFailureListeners(execution.getThrown());
           } else {
-            processAfterListeners(listenerContext);
+            processAfterListeners();
             optionallyCleanupWorkflowInstanceHistory(definition.getSettings(), execution);
           }
           subsequentStateExecutions = busyLoopPrevention(state, settings, subsequentStateExecutions, execution);
@@ -340,7 +341,7 @@ class WorkflowStateProcessor implements Runnable {
         && !execution.getNextActivation().isAfterNow();
   }
 
-  private NextAction processWithListeners(ListenerContext listenerContext, WorkflowInstance instance,
+  private NextAction processWithListeners(WorkflowInstance instance,
       AbstractWorkflowDefinition<? extends WorkflowState> definition, StateExecutionImpl execution, WorkflowState state) {
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
     List<WorkflowExecutorListener> chain = new ArrayList<>(executorListeners.size() + 1);
@@ -403,7 +404,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    public NextAction process(ListenerContext listenerContext, ListenerChain chain) {
+    public NextAction process(ListenerContext context, ListenerChain chain) {
       return new NormalStateHandler(instance, definition, execution, state).processState();
     }
   }
@@ -514,7 +515,7 @@ class WorkflowStateProcessor implements Runnable {
 
   }
 
-  private void processBeforeListeners(ListenerContext listenerContext) {
+  private void processBeforeListeners() {
     for (WorkflowExecutorListener listener : executorListeners) {
       try {
         listener.beforeProcessing(listenerContext);
@@ -524,7 +525,7 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private void processAfterListeners(ListenerContext listenerContext) {
+  private void processAfterListeners() {
     for (WorkflowExecutorListener listener : executorListeners) {
       try {
         listener.afterProcessing(listenerContext);
@@ -534,7 +535,7 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private void processAfterFailureListeners(ListenerContext listenerContext, Throwable ex) {
+  private void processAfterFailureListeners(Throwable ex) {
     for (WorkflowExecutorListener listener : executorListeners) {
       try {
         listener.afterFailure(listenerContext, ex);
@@ -565,7 +566,7 @@ class WorkflowStateProcessor implements Runnable {
     boolean interrupt = false;
     for (WorkflowExecutorListener listener : executorListeners) {
       try {
-        if (listener.handlePotentiallyStuck(instanceId, processingTime)) {
+        if (listener.handlePotentiallyStuck(listenerContext, processingTime)) {
           interrupt = true;
         }
       } catch (Throwable t) {

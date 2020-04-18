@@ -133,14 +133,11 @@ public interface WorkflowExecutorListener {
   /**
    * Called when instance processing is potentially stuck. Return true to interrupt the processing thread. Default implementation
    * returns false.
-   *
-   * @param instanceId
-   *          The identifier of the workflow instance that is potentially stuck.
-   * @param processingTime
-   *          How long the instances has been processed.
+   * @param listenerContext The listener context.
+   * @param processingTime How long the instances has been processed.
    * @return True if processing should be interruped, false otherwise.
    */
-  default boolean handlePotentiallyStuck(long instanceId, Duration processingTime) {
+  default boolean handlePotentiallyStuck(ListenerContext listenerContext, Duration processingTime) {
     return false;
   }
 }

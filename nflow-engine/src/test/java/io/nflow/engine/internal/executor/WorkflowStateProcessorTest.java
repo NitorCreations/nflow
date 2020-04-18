@@ -929,14 +929,14 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     executor.handlePotentiallyStuck(processingTime);
 
-    verify(listener1).handlePotentiallyStuck(1L, processingTime);
-    verify(listener2).handlePotentiallyStuck(1L, processingTime);
+    verify(listener1).handlePotentiallyStuck(null, processingTime);
+    verify(listener2).handlePotentiallyStuck(null, processingTime);
   }
 
   @Test
   public void handlePotentiallyStuckInterruptsThreadWhenListenerReturnsTrue() throws InterruptedException {
     Duration processingTime = standardHours(1);
-    when(listener1.handlePotentiallyStuck(1L, processingTime)).thenReturn(true);
+    when(listener1.handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime))).thenReturn(true);
     WorkflowInstance instance = executingInstanceBuilder().setType("stuck").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     Thread thread = new Thread(executor::run);
@@ -950,8 +950,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     thread.join(1000);
     assertFalse("Processing thread did not die after interruption", thread.isAlive());
 
-    verify(listener1).handlePotentiallyStuck(1L, processingTime);
-    verify(listener2).handlePotentiallyStuck(1L, processingTime);
+    verify(listener1).handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime));
+    verify(listener2).handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime));
 
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture(),
             workflows.capture(), eq(true));
