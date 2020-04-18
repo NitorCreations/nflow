@@ -933,19 +933,29 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void handlePotentiallyStuckInterruptsThreadWhenListenerReturnsTrue() {
+  public void handlePotentiallyStuckInterruptsThreadWhenListenerReturnsTrue() throws InterruptedException {
     Duration processingTime = standardHours(1);
     lenient().when(listener1.handlePotentiallyStuck(1L, processingTime)).thenReturn(true);
     WorkflowInstance instance = executingInstanceBuilder().setType("stuck").setState("start").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
-    Thread thread = new Thread(() -> executor.run());
+    Thread thread = new Thread(executor::run);
     thread.start();
+
+    // let the workflow process until it is in stuck in the sleep
+    sleep(500);
 
     executor.handlePotentiallyStuck(processingTime);
 
-    assertTrue(thread.isInterrupted(), "Thread was not interrupted");
+    thread.join(1000);
+    assertThat("Processing thread did not die after interruption", thread.isAlive(), is(false));
+
     verify(listener1).handlePotentiallyStuck(1L, processingTime);
     verify(listener2).handlePotentiallyStuck(1L, processingTime);
+
+    verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture(),
+            workflows.capture(), eq(true));
+    assertThat(action.getValue().type, is(stateExecutionFailed));
+    assertThat(action.getValue().stateText, containsString("InterruptedException"));
   }
 
   public static class Pojo {
