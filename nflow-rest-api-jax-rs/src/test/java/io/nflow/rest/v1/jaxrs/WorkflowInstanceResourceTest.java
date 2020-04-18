@@ -5,13 +5,13 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -25,7 +25,6 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
@@ -222,10 +221,12 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void fetchingNonExistingWorkflowThrowsNotFoundException() {
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
-    .thenThrow(EmptyResultDataAccessException.class);
-    assertThrows(NotFoundException.class, () -> resource.fetchWorkflowInstance(42, null, null));
+  public void fetchingNonExistingWorkflowReturnsNotFound() {
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenThrow(EmptyResultDataAccessException.class);
+    try (Response response = resource.fetchWorkflowInstance(42, null, null)) {
+      assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
+      assertThat(response.readEntity(String.class), is(equalTo("Workflow instance 42 not found")));
+    }
   }
 
   @SuppressWarnings("unchecked")
