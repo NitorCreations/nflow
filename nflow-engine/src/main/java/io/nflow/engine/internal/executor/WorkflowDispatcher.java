@@ -28,7 +28,6 @@ public class WorkflowDispatcher implements Runnable {
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
-  private volatile boolean started;
   private volatile boolean shutdownRequested;
   private volatile boolean running;
   private volatile boolean paused;
@@ -68,7 +67,6 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Dispacther started.");
     try {
-      started = true;
       workflowDefinitions.postProcessWorkflowDefinitions();
       running = true;
       while (!shutdownRequested) {
@@ -101,20 +99,22 @@ public class WorkflowDispatcher implements Runnable {
         }
       }
     } finally {
-      running = false;
       shutdownPool();
       executorDao.markShutdown();
+      running = false;
+      logger.info("Shutdown completed.");
       shutdownDone.countDown();
     }
   }
 
   public void shutdown() {
-    shutdownRequested = true;
-    if (started && shutdownDone.getCount() > 0) {
-      logger.info("Shutdown initiated.");
+    if (running) {
+      if (!shutdownRequested) {
+        logger.info("Initiating shutdown.");
+        shutdownRequested = true;
+      }
       try {
         shutdownDone.await();
-        logger.info("Shutdown completed.");
       } catch (@SuppressWarnings("unused") InterruptedException e) {
         logger.warn("Shutdown interrupted.");
       }
