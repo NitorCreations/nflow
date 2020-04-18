@@ -28,9 +28,10 @@ public class WorkflowDispatcher implements Runnable {
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
+  private volatile boolean started;
   private volatile boolean shutdownRequested;
-  private volatile boolean running = false;
-  private volatile boolean paused = false;
+  private volatile boolean running;
+  private volatile boolean paused;
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;
@@ -65,8 +66,9 @@ public class WorkflowDispatcher implements Runnable {
 
   @Override
   public void run() {
-    logger.info("Starting.");
+    logger.info("Dispacther started.");
     try {
+      started = true;
       workflowDefinitions.postProcessWorkflowDefinitions();
       running = true;
       while (!shutdownRequested) {
@@ -102,33 +104,33 @@ public class WorkflowDispatcher implements Runnable {
       running = false;
       shutdownPool();
       executorDao.markShutdown();
-      logger.info("Shutdown finished.");
       shutdownDone.countDown();
     }
   }
 
   public void shutdown() {
     shutdownRequested = true;
-    if (running) {
-      logger.info("Shutdown requested.");
+    if (started && shutdownDone.getCount() > 0) {
+      logger.info("Shutdown initiated.");
+      try {
+        shutdownDone.await();
+        logger.info("Shutdown completed.");
+      } catch (@SuppressWarnings("unused") InterruptedException e) {
+        logger.warn("Shutdown interrupted.");
+      }
     } else {
-      logger.info("Shutdown requested, but executor not running, exiting.");
-      return;
-    }
-    try {
-      // TODO use timeout?
-      shutdownDone.await();
-    } catch (@SuppressWarnings("unused") InterruptedException e) {
-      logger.info("Shutdown interrupted.");
+      logger.info("Dispatcher was not started or was already shut down.");
     }
   }
 
   public void pause() {
     paused = true;
+    logger.info("Dispatcher paused.");
   }
 
   public void resume() {
     paused = false;
+    logger.info("Dispatcher resumed.");
   }
 
   public boolean isPaused() {
