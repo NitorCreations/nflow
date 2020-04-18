@@ -17,6 +17,7 @@ import static org.joda.time.Duration.standardMinutes;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -160,6 +161,9 @@ class WorkflowStateProcessor implements Runnable {
         instance = rescheduleStateVariableValueTooLong(e, instance);
         saveInstanceState = false;
       } catch (Throwable t) {
+        if (t instanceof UndeclaredThrowableException) {
+          t = t.getCause();
+        }
         execution.setFailed(t);
         if (state.isRetryAllowed(t)) {
           logger.error("Handler threw a retryable exception, trying again later.", t);
