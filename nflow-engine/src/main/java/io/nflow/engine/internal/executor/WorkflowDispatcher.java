@@ -46,7 +46,6 @@ public class WorkflowDispatcher implements Runnable {
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
-  private final Object waitObject = new Object();
 
   enum Status {
     notStarted(false, false), running(true, false), shuttingDown(true, true), finished(false, true);
@@ -132,9 +131,6 @@ public class WorkflowDispatcher implements Runnable {
     case running:
       if (status.compareAndSet(running, shuttingDown)) {
         logger.info("Shutdown initiated.");
-        synchronized (waitObject) {
-          waitObject.notifyAll();
-        }
       }
       break;
     default:
@@ -199,12 +195,10 @@ public class WorkflowDispatcher implements Runnable {
   @SuppressFBWarnings(value = "MDM_THREAD_YIELD", justification = "Intentionally masking race condition")
   private void sleep(boolean randomize) {
     try {
-      synchronized (waitObject) {
-        if (randomize) {
-          waitObject.wait((long) (sleepTimeMillis * rand.nextFloat()));
-        } else {
-          waitObject.wait(sleepTimeMillis);
-        }
+      if (randomize) {
+        Thread.sleep((long) (sleepTimeMillis * rand.nextFloat()));
+      } else {
+        Thread.sleep(sleepTimeMillis);
       }
     } catch (@SuppressWarnings("unused") InterruptedException ok) {
     }
