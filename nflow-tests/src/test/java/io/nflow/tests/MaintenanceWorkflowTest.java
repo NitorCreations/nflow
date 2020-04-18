@@ -16,7 +16,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.NotFoundException;
 
@@ -77,7 +80,17 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(4)
   public void waitForCleanup() throws InterruptedException {
-    SECONDS.sleep(6);
+    Set<Long> waiting = new HashSet<>(ids);
+    for (int i=0; i<10 && !waiting.isEmpty(); ++i) {
+      SECONDS.sleep(1);
+      for (Iterator<Long> it = waiting.iterator(); it.hasNext(); ) {
+        try {
+          getWorkflowInstance(it.next());
+        } catch (NotFoundException ex) {
+          it.remove();
+        }
+      }
+    }
   }
 
   @Test
