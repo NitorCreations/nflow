@@ -3,10 +3,13 @@
 **Highlights**
 - `nflow-engine`
   - Expedited clean shutdown for workflows that run many steps without delays.
+  - Add support for custom logic when nFlow engine thinks the workflow state processing may be stuck.
 
 **Details**
 - `nflow-engine`
   - When shutdown is requested, stop processing workflows immediately after the current state has been executed.
+  - Add `WorkflowExecutorLister.handlePotentiallyStuck(Duration processingTime)` to support custom handling when nFlow engine thinks the workflow state processing may be stuck. If any registered listener implementation returns true from this method, nFlow will interrupt the processing thread. The default implementation return false.
+>>>>>>> add entry to changelog
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3
