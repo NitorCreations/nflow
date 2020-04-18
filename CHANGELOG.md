@@ -6,7 +6,7 @@
 
 **Details**
 - `nflow-engine`
-  - After shutdown is requested workflows stop immediately after the in-progress step has been executed.
+  - When shutdown is requested, stop processing workflows immediately after the current state has been executed.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3
