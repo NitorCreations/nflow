@@ -3,14 +3,16 @@ package io.nflow.engine.internal.executor;
 import static java.lang.Boolean.FALSE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.joda.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -77,15 +79,18 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   public void checkIfStateProcessorsAreStuckLogsLongRunningInstance() {
     WorkflowStateProcessor executor1 = mock(WorkflowStateProcessor.class);
     WorkflowStateProcessor executor2 = mock(WorkflowStateProcessor.class);
-    when(executor1.getStartTimeSeconds()).thenReturn(currentTimeMillis() / 1000 - STUCK_THREAD_THRESHOLD - 1);
-    when(executor2.getStartTimeSeconds()).thenReturn(currentTimeMillis() / 1000 - STUCK_THREAD_THRESHOLD);
+    when(executor1.getStartTime()).thenReturn(now().minusSeconds(STUCK_THREAD_THRESHOLD + 1));
+    when(executor2.getStartTime()).thenReturn(now().minusSeconds(STUCK_THREAD_THRESHOLD));
     factory.processingInstances.put(111L, executor1);
     factory.processingInstances.put(222L, executor2);
+    factory.listeners = listeners;
 
     int potentiallyStuckProcessors = factory.getPotentiallyStuckProcessors();
 
     assertThat(potentiallyStuckProcessors, is(1));
     verify(executor1).logPotentiallyStuck(anyLong());
     verify(executor2, never()).logPotentiallyStuck(anyLong());
+    verify(executor1).handlePotentiallyStuck(any(Duration.class));
+    verify(executor2, never()).handlePotentiallyStuck(any(Duration.class));
   }
 }

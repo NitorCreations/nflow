@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
@@ -129,4 +130,14 @@ public interface WorkflowExecutorListener {
     // no-op
   }
 
+  /**
+   * Called when instance processing is potentially stuck. Return true to interrupt the processing thread. Default implementation
+   * returns false.
+   * @param listenerContext The listener context.
+   * @param processingTime How long the instances has been processed.
+   * @return True if processing should be interruped, false otherwise.
+   */
+  default boolean handlePotentiallyStuck(ListenerContext listenerContext, Duration processingTime) {
+    return false;
+  }
 }

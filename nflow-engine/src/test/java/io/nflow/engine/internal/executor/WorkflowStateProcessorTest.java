@@ -31,9 +31,11 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Period.hours;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -68,6 +70,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,23 +156,25 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowStateProcessor executor;
 
-  WorkflowDefinition<ExecuteTestWorkflow.State> executeWf = new ExecuteTestWorkflow();
+  ExecuteTestWorkflow executeWf = new ExecuteTestWorkflow();
 
-  WorkflowDefinition<ForceCleaningTestWorkflow.State> forceWf = new ForceCleaningTestWorkflow();
+  ForceCleaningTestWorkflow forceWf = new ForceCleaningTestWorkflow();
 
-  WorkflowDefinition<FailCleaningTestWorkflow.State> failCleaningWf = new FailCleaningTestWorkflow();
+  FailCleaningTestWorkflow failCleaningWf = new FailCleaningTestWorkflow();
 
-  WorkflowDefinition<SimpleTestWorkflow.State> simpleWf = new SimpleTestWorkflow();
+  SimpleTestWorkflow simpleWf = new SimpleTestWorkflow();
 
-  WorkflowDefinition<FailingTestWorkflow.State> failingWf = new FailingTestWorkflow();
+  FailingTestWorkflow failingWf = new FailingTestWorkflow();
 
-  WorkflowDefinition<NotifyTestWorkflow.State> wakeWf = new NotifyTestWorkflow();
+  NotifyTestWorkflow wakeWf = new NotifyTestWorkflow();
 
-  WorkflowDefinition<StateVariableWorkflow.State> stateVariableWf = new StateVariableWorkflow();
+  StateVariableWorkflow stateVariableWf = new StateVariableWorkflow();
 
-  WorkflowDefinition<NonRetryableWorkflow.State> nonRetryableWf = new NonRetryableWorkflow();
+  NonRetryableWorkflow nonRetryableWf = new NonRetryableWorkflow();
 
   LoopingTestWorkflow loopingWf = new LoopingTestWorkflow();
+
+  StuckWorkflow stuckWf = new StuckWorkflow();
 
   static WorkflowInstance newChildWorkflow = mock(WorkflowInstance.class);
 
@@ -205,6 +210,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     lenient().doReturn(stateVariableWf).when(workflowDefinitions).getWorkflowDefinition("state-variable");
     lenient().doReturn(nonRetryableWf).when(workflowDefinitions).getWorkflowDefinition("non-retryable");
     lenient().doReturn(loopingWf).when(workflowDefinitions).getWorkflowDefinition("looping-test");
+    lenient().doReturn(stuckWf).when(workflowDefinitions).getWorkflowDefinition("stuck");
     filterChain(listener1);
     filterChain(listener2);
     lenient().when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
@@ -914,7 +920,43 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   private void runExecutorWithTimeout() {
-    assertTimeoutPreemptively(ofSeconds(5), () -> executor.run());
+    assertTimeoutPreemptively(ofSeconds(5), executor::run);
+  }
+
+  @Test
+  public void handlePotentiallyStuckCallsListeners() {
+    Duration processingTime = standardHours(1);
+
+    executor.handlePotentiallyStuck(processingTime);
+
+    verify(listener1).handlePotentiallyStuck(null, processingTime);
+    verify(listener2).handlePotentiallyStuck(null, processingTime);
+  }
+
+  @Test
+  public void handlePotentiallyStuckInterruptsThreadWhenListenerReturnsTrue() throws InterruptedException {
+    Duration processingTime = standardHours(1);
+    when(listener1.handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime))).thenReturn(true);
+    WorkflowInstance instance = executingInstanceBuilder().setType("stuck").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    Thread thread = new Thread(executor::run);
+    thread.start();
+
+    // let the workflow process until it is in stuck in the sleep
+    sleep(500);
+
+    executor.handlePotentiallyStuck(processingTime);
+
+    thread.join(1000);
+    assertFalse("Processing thread did not die after interruption", thread.isAlive());
+
+    verify(listener1).handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime));
+    verify(listener2).handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime));
+
+    verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(), action.capture(), childWorkflows.capture(),
+            workflows.capture(), eq(true));
+    assertThat(action.getValue().type, is(stateExecutionFailed));
+    assertThat(action.getValue().stateText, containsString("InterruptedException"));
   }
 
   public static class Pojo {
@@ -1273,6 +1315,33 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       throw new RuntimeException();
+    }
+  }
+
+  public static class StuckWorkflow extends WorkflowDefinition<StuckWorkflow.State> {
+
+    protected StuckWorkflow() {
+      super("stuck", State.start, State.end);
+    }
+
+    public static enum State implements WorkflowState {
+      start(WorkflowStateType.start), end(WorkflowStateType.end);
+
+      private final WorkflowStateType stateType;
+
+      private State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+    }
+
+    public NextAction start(@SuppressWarnings("unused") StateExecution execution) throws InterruptedException {
+      SECONDS.sleep(10);
+      return stopInState(State.end, "Done");
     }
   }
 }
