@@ -88,7 +88,6 @@ public class WorkflowSettings extends ModelObject {
     ReadableDuration maxErrorTransitionDelay = standardDays(1);
     ReadableDuration minErrorTransitionDelay = standardMinutes(1);
     ReadableDuration shortTransitionDelay = standardSeconds(30);
-    ReadableDuration immediateTransitionDelay = Duration.ZERO;
     int maxRetries = 17;
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
@@ -125,62 +124,6 @@ public class WorkflowSettings extends ModelObject {
         }
         return false;
       };
-    }
-
-    /**
-     * Set the maximum delay on execution retry after an error.
-     *
-     * @param maxErrorTransitionDelay
-     *          Delay in milliseconds.
-     * @return this.
-     * @deprecated Define period as Duration instead of milliseconds.
-     */
-    @Deprecated
-    public Builder setMaxErrorTransitionDelay(int maxErrorTransitionDelay) {
-      this.maxErrorTransitionDelay = Duration.millis(maxErrorTransitionDelay);
-      return this;
-    }
-
-    /**
-     * Set the minimum delay on execution retry after an error.
-     *
-     * @param minErrorTransitionDelay
-     *          Delay in milliseconds.
-     * @return this.
-     * @deprecated Define period as Duration instead of milliseconds.
-     */
-    @Deprecated
-    public Builder setMinErrorTransitionDelay(int minErrorTransitionDelay) {
-      this.minErrorTransitionDelay = Duration.millis(minErrorTransitionDelay);
-      return this;
-    }
-
-    /**
-     * Set the length of forced delay to break execution of a step that is considered to be busy looping.
-     *
-     * @param shortTransitionDelay
-     *          Delay in milliseconds.
-     * @return this.
-     * @deprecated Define period as Duration instead of milliseconds.
-     */
-    @Deprecated
-    public Builder setShortTransitionDelay(int shortTransitionDelay) {
-      this.shortTransitionDelay = Duration.millis(shortTransitionDelay);
-      return this;
-    }
-
-    /**
-     * Set immediate transition delay.
-     *
-     * @param immediateTransitionDelay
-     *          Delay in milliseconds.
-     * @return this.
-     * @deprecated Define period as Duration instead of milliseconds.
-     */
-    @Deprecated
-    public Builder setImmediateTransitionDelay(int immediateTransitionDelay) {
-      this.immediateTransitionDelay = Duration.millis(immediateTransitionDelay);
-      return this;
     }
 
     /**
@@ -328,12 +271,12 @@ public class WorkflowSettings extends ModelObject {
    */
   protected long calculateBinaryBackoffDelay(int retryCount, long minDelay, long maxDelay) {
     BigInteger delay = BigInteger.valueOf(minDelay).multiply(BigInteger.valueOf(2).pow(retryCount));
-    if(!BigInteger.valueOf(delay.longValue()).equals(delay)) {
-      // got overflow in delay calculation
-      // Java 1.8 has delay.longValueExact()
-      return maxDelay;
+    if (BigInteger.valueOf(delay.longValue()).equals(delay)) {
+      return max(minDelay, min(delay.longValue(), maxDelay));
     }
-    return max(minDelay, min(delay.longValue(), maxDelay));
+    // got overflow in delay calculation
+    // Java 1.8 has delay.longValueExact()
+    return maxDelay;
   }
 
   /**
