@@ -856,6 +856,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executorService.shutdown();
     shutdownRequest.set(true);
     boolean wasTerminated = executorService.awaitTermination(5, SECONDS);
+    executorService.shutdownNow();
 
     assertTrue(wasTerminated);
   }
