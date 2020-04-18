@@ -7,7 +7,6 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
-import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -125,7 +124,7 @@ class WorkflowStateProcessor implements Runnable {
         logger.error("Failed to process workflow instance, retrying after {} seconds", stateProcessingRetryDelay, ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
-    };
+    }
     processingInstances.remove(instanceId);
     MDC.remove(MDC_KEY);
   }
