@@ -99,7 +99,11 @@ public class WorkflowInstanceResource extends ResourceBase {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
     long id = workflowInstances.insertWorkflowInstance(instance);
     instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-    return created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
+    try {
+      return created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
+    } catch (IllegalArgumentException e) {
+      return status(BAD_REQUEST.getStatusCode(), e.getMessage()).build();
+    }
   }
 
   @PUT

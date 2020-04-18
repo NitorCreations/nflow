@@ -1,6 +1,6 @@
 package io.nflow.engine.workflow.executor;
 
-public class StateVariableValueTooLongException extends RuntimeException {
+public class StateVariableValueTooLongException extends IllegalArgumentException {
 
   private static final long serialVersionUID = 1L;
 

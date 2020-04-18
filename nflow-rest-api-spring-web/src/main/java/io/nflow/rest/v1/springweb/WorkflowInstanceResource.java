@@ -82,12 +82,16 @@ public class WorkflowInstanceResource extends ResourceBase {
   @ApiOperation(value = "Submit new workflow instance")
   @ApiResponses({ @ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class),
       @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
-  public ResponseEntity<CreateWorkflowInstanceResponse> createWorkflowInstance(
+  public ResponseEntity<?> createWorkflowInstance(
       @RequestBody @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     WorkflowInstance instance = createWorkflowConverter.convert(req);
-    long id = workflowInstances.insertWorkflowInstance(instance);
-    instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-    return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
+    try {
+      long id = workflowInstances.insertWorkflowInstance(instance);
+      instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+      return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
+    } catch (IllegalArgumentException e) {
+      return status(BAD_REQUEST).body(e.getMessage());
+    }
   }
 
   @PutMapping(path = "/id/{id}", consumes = APPLICATION_JSON_VALUE)

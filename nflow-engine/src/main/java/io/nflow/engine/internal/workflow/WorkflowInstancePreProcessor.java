@@ -31,14 +31,14 @@ public class WorkflowInstancePreProcessor {
   public WorkflowInstance process(WorkflowInstance instance) {
     AbstractWorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {
-      throw new RuntimeException("No workflow definition found for type [" + instance.type + "]");
+      throw new IllegalArgumentException("No workflow definition found for type [" + instance.type + "]");
     }
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
       builder.setState(def.getInitialState().name());
     } else {
       if (!def.isStartState(instance.state)) {
-        throw new RuntimeException("Specified state [" + instance.state + "] is not a start state.");
+        throw new IllegalArgumentException("Specified state [" + instance.state + "] is not a start state.");
       }
     }
     if (isEmpty(instance.externalId)) {
