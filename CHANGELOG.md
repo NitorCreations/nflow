@@ -9,7 +9,9 @@
 - `nflow-engine`
   - When shutdown is requested, stop processing workflows immediately after the current state has been executed.
   - Add `WorkflowExecutorLister.handlePotentiallyStuck(Duration processingTime)` to support custom handling when nFlow engine thinks the workflow state processing may be stuck. If any registered listener implementation returns true from this method, nFlow will interrupt the processing thread. The default implementation returns false.
-  - Throw IllegalArgumentException instead of IllegalStateException when trying to update workflow instance state to an invalid value.
+  - Throw `IllegalArgumentException` instead of `IllegalStateException` when trying to update workflow instance state to an invalid value.
+  - Throw `IllegalArugmentException` instead of `RuntimeException` when trying to insert workflow instance with unknown type or with a state that is not a start state.
+  - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3
@@ -29,9 +31,9 @@
     - hibernate 6.1.4
     - commons-lang3 3.10
 - `nflow-rest-api-jax-rs`
-  - Convert IllegalArgumentException to HTTP Bad Request in `WorkflowInstanceResource.updateWorkflowInstance`
+  - Convert `IllegalArgumentException` to HTTP Bad Request in `WorkflowInstanceResource.insertWorkflowInstance` and `WorkflowInstanceResource.updateWorkflowInstance`.
 - `nflow-rest-api-spring-web`
-  - Convert IllegalArgumentException to HTTP Bad Request in `WorkflowInstanceResource.updateWorkflowInstance`
+  - Convert `IllegalArgumentException` to HTTP Bad Request in `WorkflowInstanceResource.insertWorkflowInstance` and `WorkflowInstanceResource.updateWorkflowInstance`.
 - `nflow-explorer`
   - Dependency updates:
     - swagger-ui 2.2.10
