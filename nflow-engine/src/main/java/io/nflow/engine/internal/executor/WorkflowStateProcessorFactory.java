@@ -4,6 +4,7 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -47,8 +48,8 @@ public class WorkflowStateProcessorFactory {
     this.env = env;
   }
 
-  public WorkflowStateProcessor createProcessor(long instanceId) {
-    return new WorkflowStateProcessor(instanceId, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+  public WorkflowStateProcessor createProcessor(long instanceId, Supplier<Boolean> shutdownRequested) {
+    return new WorkflowStateProcessor(instanceId, shutdownRequested, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listeners);
   }
 

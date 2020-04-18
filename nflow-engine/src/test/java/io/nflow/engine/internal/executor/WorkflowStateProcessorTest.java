@@ -12,11 +12,14 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.manual;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -29,6 +32,7 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.joda.time.Period.hours;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -57,6 +61,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -164,6 +169,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   WorkflowDefinition<NonRetryableWorkflow.State> nonRetryableWf = new NonRetryableWorkflow();
 
+  LoopingTestWorkflow loopingWf = new LoopingTestWorkflow();
+
   static WorkflowInstance newChildWorkflow = mock(WorkflowInstance.class);
 
   static WorkflowInstance newWorkflow = mock(WorkflowInstance.class);
@@ -173,6 +180,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   private final TestWorkflow testWorkflowDef = new TestWorkflow();
 
   private final Set<WorkflowInstanceInclude> INCLUDES = EnumSet.of(CURRENT_STATE_VARIABLES);
+
+  private final AtomicBoolean shutdownRequest = new AtomicBoolean();
 
   @BeforeEach
   public void setup() {
@@ -184,7 +193,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     lenient().doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
@@ -195,6 +204,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     lenient().doReturn(wakeWf).when(workflowDefinitions).getWorkflowDefinition("wake-test");
     lenient().doReturn(stateVariableWf).when(workflowDefinitions).getWorkflowDefinition("state-variable");
     lenient().doReturn(nonRetryableWf).when(workflowDefinitions).getWorkflowDefinition("non-retryable");
+    lenient().doReturn(loopingWf).when(workflowDefinitions).getWorkflowDefinition("looping-test");
     filterChain(listener1);
     filterChain(listener2);
     lenient().when(executionMock.getRetries()).thenReturn(testWorkflowDef.getSettings().maxRetries);
@@ -370,7 +380,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         .setStateText("myStateText").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener);
 
     doAnswer((Answer<NextAction>) invocation ->
@@ -500,7 +510,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
@@ -769,7 +779,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
@@ -788,7 +798,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
-    executor = new WorkflowStateProcessor(1, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
@@ -810,10 +820,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     doThrow(new RuntimeException("some failure")).when(workflowInstances).getWorkflowInstance(instance.id, INCLUDES, null);
 
     ExecutorService executorService = newSingleThreadExecutor();
-    newSingleThreadExecutor().submit(executor);
-    Thread.sleep(1500);
-    executor.setInternalRetryEnabled(false);
-    executorService.shutdownNow();
+    executorService.submit(executor);
+    sleep(1500);
+    executorService.shutdown();
+    shutdownRequest.set(true);
 
     verify(workflowInstances, atLeast(2)).getWorkflowInstance(instance.id, INCLUDES, null);
   }
@@ -826,12 +836,29 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         any(), any(), anyBoolean());
 
     ExecutorService executorService = newSingleThreadExecutor();
-    newSingleThreadExecutor().submit(executor);
-    Thread.sleep(1500);
-    executor.setInternalRetryEnabled(false);
-    executorService.shutdownNow();
+    executorService.submit(executor);
+    sleep(1500);
+    executorService.shutdown();
+    shutdownRequest.set(true);
 
     verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
+  }
+
+  @Test
+  public void stateProcessingSeriesStopsOnShutdown() throws InterruptedException {
+    WorkflowInstance instance = executingInstanceBuilder().setType("looping-test").setState("start").build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+
+    ExecutorService executorService = newSingleThreadExecutor();
+    executorService.submit(executor);
+    sleep(500);
+
+    executorService.shutdown();
+    shutdownRequest.set(true);
+    boolean wasTerminated = executorService.awaitTermination(5, SECONDS);
+    executorService.shutdownNow();
+
+    assertTrue(wasTerminated);
   }
 
   @Test
@@ -1021,7 +1048,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     protected ForceCleaningTestWorkflow() {
       super("test", State.start, State.error,
-          new WorkflowSettings.Builder().setHistoryDeletableAfter(hours(2)).setDeleteHistoryCondition(() -> false).build());
+          new WorkflowSettings.Builder().setHistoryDeletableAfter(hours(2)).setDeleteHistoryCondition(FALSE::booleanValue).build());
       permit(State.start, State.done, State.error);
     }
 
@@ -1074,6 +1101,36 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
       return moveToState(State.done, "Done.");
+    }
+
+  }
+
+  public static class LoopingTestWorkflow extends WorkflowDefinition<LoopingTestWorkflow.State> {
+
+    protected LoopingTestWorkflow() {
+      super("looping-test", State.start, State.error);
+      permit(State.start, State.start);
+      permit(State.start, State.done);
+    }
+
+    public enum State implements WorkflowState {
+      start(WorkflowStateType.start), done(WorkflowStateType.end), error(WorkflowStateType.manual);
+
+      private WorkflowStateType stateType;
+
+      State(WorkflowStateType stateType) {
+        this.stateType = stateType;
+      }
+
+      @Override
+      public WorkflowStateType getType() {
+        return stateType;
+      }
+    }
+
+    public NextAction start(@SuppressWarnings("unused") StateExecution execution) throws InterruptedException {
+      sleep(100);
+      return moveToState(State.start, "loop");
     }
 
   }

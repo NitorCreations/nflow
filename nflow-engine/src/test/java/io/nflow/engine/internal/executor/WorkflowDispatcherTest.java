@@ -1,13 +1,17 @@
 package io.nflow.engine.internal.executor;
 
 import static edu.umd.cs.mtc.TestFramework.runOnce;
+import static java.lang.Boolean.FALSE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -53,7 +57,6 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowDispatcherTest {
-
   WorkflowDispatcher dispatcher;
   WorkflowInstanceExecutor executor;
   MockEnvironment env = new MockEnvironment();
@@ -120,9 +123,9 @@ public class WorkflowDispatcherTest {
             .thenThrow(new RuntimeException("Expected: exception during dispatcher execution"))
             .thenAnswer(waitForTickAndAnswer(2, ids(2L), this));
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, noOpRunnable());
-        when(executorFactory.createProcessor(1)).thenReturn(fakeWorkflowExecutor);
+        when(executorFactory.createProcessor(eq(1L), any())).thenReturn(fakeWorkflowExecutor);
         WorkflowStateProcessor fakeWorkflowExecutor2 = fakeWorkflowExecutor(2, noOpRunnable());
-        when(executorFactory.createProcessor(2)).thenReturn(fakeWorkflowExecutor2);
+        when(executorFactory.createProcessor(eq(2L), any())).thenReturn(fakeWorkflowExecutor2);
         dispatcher.run();
       }
 
@@ -135,8 +138,8 @@ public class WorkflowDispatcherTest {
       public void finish() {
         verify(workflowInstances, times(3)).pollNextWorkflowInstanceIds(anyInt());
         InOrder inOrder = inOrder(executorFactory);
-        inOrder.verify(executorFactory).createProcessor(1);
-        inOrder.verify(executorFactory).createProcessor(2);
+        inOrder.verify(executorFactory).createProcessor(eq(1L), any());
+        inOrder.verify(executorFactory).createProcessor(eq(2L), any());
       }
     }
     runOnce(new ExceptionDuringDispatcherExecutionCausesRetry());
@@ -159,7 +162,7 @@ public class WorkflowDispatcherTest {
       @Override
       public void finish() {
         verify(workflowInstances).pollNextWorkflowInstanceIds(anyInt());
-        verify(executorFactory, never()).createProcessor(anyInt());
+        verify(executorFactory, never()).createProcessor(anyLong(), any());
       }
     }
     runOnce(new ErrorDuringDispatcherExecutionStopsDispatcher());
@@ -184,7 +187,7 @@ public class WorkflowDispatcherTest {
       @Override
       public void finish() {
         verify(workflowInstances, times(3)).pollNextWorkflowInstanceIds(anyInt());
-        verify(executorFactory, never()).createProcessor(anyInt());
+        verify(executorFactory, never()).createProcessor(anyLong(), any());
       }
     }
     runOnce(new EmptyPollResultCausesNoTasksToBeScheduled());
@@ -197,7 +200,7 @@ public class WorkflowDispatcherTest {
       public void threadDispatcher() {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(1L), this));
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
-        when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
+        when(executorFactory.createProcessor(anyLong(), any())).thenReturn(fakeWorkflowExecutor);
         dispatcher.run();
       }
 
@@ -238,7 +241,7 @@ public class WorkflowDispatcherTest {
           }
         });
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
-        when(executorFactory.createProcessor(anyInt())).thenReturn(fakeWorkflowExecutor);
+        when(executorFactory.createProcessor(anyLong(), any())).thenReturn(fakeWorkflowExecutor);
         dispatcher.run();
       }
 
@@ -369,7 +372,7 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, final Runnable fakeCommand) {
-    return new WorkflowStateProcessor(instanceId, null, null, null, null, null, null, env, new ConcurrentHashMap<>(),
+    return new WorkflowStateProcessor(instanceId, FALSE::booleanValue, null, null, null, null, null, null, env, new ConcurrentHashMap<>(),
         (WorkflowExecutorListener) null) {
       @Override
       public void run() {

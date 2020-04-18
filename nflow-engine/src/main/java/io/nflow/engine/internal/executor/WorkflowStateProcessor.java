@@ -7,7 +7,6 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
-import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -25,6 +24,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -68,6 +68,7 @@ class WorkflowStateProcessor implements Runnable {
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  private final Supplier<Boolean> shutdownRequested;
   final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowInstanceDao;
   private final MaintenanceDao maintenanceDao;
@@ -78,16 +79,16 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateProcessingRetryDelay;
   private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
-  private boolean internalRetryEnabled = true;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
   private long startTimeSeconds;
   private Thread thread;
 
-  WorkflowStateProcessor(long instanceId, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
+  WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
       WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
       Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
+    this.shutdownRequested = shutdownRequested;
     this.objectMapper = objectMapper;
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
@@ -111,16 +112,19 @@ class WorkflowStateProcessor implements Runnable {
     startTimeSeconds = currentTimeMillis() / 1000;
     thread = currentThread();
     processingInstances.put(instanceId, this);
-    boolean stateProcessingFinished = false;
-    do {
+    while (true) {
       try {
         runImpl();
-        stateProcessingFinished = true;
+        break;
       } catch (Throwable ex) {
+        if (shutdownRequested.get()) {
+          logger.error("Failed to process workflow instance and shutdown requested", ex);
+          break;
+        }
         logger.error("Failed to process workflow instance, retrying after {} seconds", stateProcessingRetryDelay, ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
-    } while (!stateProcessingFinished && internalRetryEnabled);
+    }
     processingInstances.remove(instanceId);
     MDC.remove(MDC_KEY);
   }
@@ -136,7 +140,7 @@ class WorkflowStateProcessor implements Runnable {
     }
     WorkflowSettings settings = definition.getSettings();
     int subsequentStateExecutions = 0;
-    while (instance.status == executing) {
+    while (instance.status == executing && !shutdownRequested.get()) {
       startTimeSeconds = currentTimeMillis() / 1000;
       StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
           workflowInstancePreProcessor, workflowInstances);
@@ -259,23 +263,21 @@ class WorkflowStateProcessor implements Runnable {
         .setStateText(getStateText(instance, execution)) //
         .setState(execution.getNextState()) //
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
-    do {
+    while (true) {
       try {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
+        if (shutdownRequested.get()) {
+          logger.error("Failed to save workflow instance {} new state, not retrying due to shutdown request. The state will be rerun on recovery.",
+                  instance.id, ex);
+          // return the original instance since persisting failed
+          return instance;
+        }
         logger.error("Failed to save workflow instance {} new state, retrying after {} seconds", instance.id, stateSaveRetryDelay,
             ex);
         sleepIgnoreInterrupted(stateSaveRetryDelay);
       }
-    } while (internalRetryEnabled);
-    throw new IllegalStateException(format("Failed to save workflow instance %s new state", instance.id));
-  }
-
-  /**
-   * For unit testing only
-   */
-  void setInternalRetryEnabled(boolean internalRetryEnabled) {
-    this.internalRetryEnabled = internalRetryEnabled;
+    }
   }
 
   private WorkflowInstance persistWorkflowInstanceState(StateExecutionImpl execution, Map<String, String> originalStateVars,

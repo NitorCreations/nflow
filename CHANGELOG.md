@@ -1,10 +1,12 @@
 ## 7.1.1-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Expedited clean shutdown for workflows that run many steps without delays.
 
 **Details**
-
 - `nflow-engine`
+  - When shutdown is requested, stop processing workflows immediately after the current state has been executed.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3

@@ -1,5 +1,6 @@
 package io.nflow.engine.internal.executor;
 
+import static java.lang.Boolean.FALSE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
@@ -61,14 +62,14 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
 
   @Test
   public void factoryCreatesExecutorsWithoutListeners() {
-    WorkflowStateProcessor executor = factory.createProcessor(12);
+    WorkflowStateProcessor executor = factory.createProcessor(12, FALSE::booleanValue);
     assertNotNull(executor);
   }
 
   @Test
   public void factoryCreatesExecutorsWithListeners() {
     factory.listeners = listeners;
-    WorkflowStateProcessor executor = factory.createProcessor(122);
+    WorkflowStateProcessor executor = factory.createProcessor(122, FALSE::booleanValue);
     assertNotNull(executor);
   }
 
