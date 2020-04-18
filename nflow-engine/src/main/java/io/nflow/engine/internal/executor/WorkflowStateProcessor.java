@@ -364,7 +364,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private void sleepIgnoreInterrupted(int seconds) {
     try {
-      Thread.sleep(SECONDS.toMillis(seconds));
+      SECONDS.sleep(seconds);
     } catch (@SuppressWarnings("unused") InterruptedException ok) {
     }
   }
