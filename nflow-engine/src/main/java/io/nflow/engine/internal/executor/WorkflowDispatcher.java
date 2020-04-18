@@ -1,10 +1,16 @@
 package io.nflow.engine.internal.executor;
 
+import static io.nflow.engine.internal.executor.WorkflowDispatcher.Status.finished;
+import static io.nflow.engine.internal.executor.WorkflowDispatcher.Status.notStarted;
+import static io.nflow.engine.internal.executor.WorkflowDispatcher.Status.running;
+import static io.nflow.engine.internal.executor.WorkflowDispatcher.Status.shuttingDown;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
@@ -28,10 +34,8 @@ public class WorkflowDispatcher implements Runnable {
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
-  private volatile boolean started;
-  private volatile boolean shutdownRequested;
-  private volatile boolean running;
-  private volatile boolean paused;
+  private final AtomicReference<Status> status = new AtomicReference<>(notStarted);
+  private final AtomicBoolean paused = new AtomicBoolean();
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;
@@ -42,6 +46,19 @@ public class WorkflowDispatcher implements Runnable {
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
+  private final Object waitObject = new Object();
+
+  enum Status {
+    notStarted(false, false), running(true, false), shuttingDown(true, true), finished(false, true);
+
+    public final boolean isRunning;
+    public final boolean isShutdownRequested;
+
+    Status(boolean isRunning, boolean isShutdownRequested) {
+      this.isRunning = isRunning;
+      this.isShutdownRequested = isShutdownRequested;
+    }
+  }
 
   @Inject
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
@@ -68,16 +85,15 @@ public class WorkflowDispatcher implements Runnable {
   public void run() {
     logger.info("Dispacther started.");
     try {
-      started = true;
+      status.set(running);
       workflowDefinitions.postProcessWorkflowDefinitions();
-      running = true;
-      while (!shutdownRequested) {
-        if (paused) {
+      while (status.get() == running) {
+        if (paused.get()) {
           sleep(false);
         } else {
           try {
             executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
-            if (!shutdownRequested) {
+            if (status.get() == running) {
               if (executorDao.tick()) {
                 workflowInstances.recoverWorkflowInstancesFromDeadNodes();
               }
@@ -101,7 +117,6 @@ public class WorkflowDispatcher implements Runnable {
         }
       }
     } finally {
-      running = false;
       shutdownPool();
       executorDao.markShutdown();
       shutdownDone.countDown();
@@ -109,36 +124,50 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   public void shutdown() {
-    shutdownRequested = true;
-    if (started && shutdownDone.getCount() > 0) {
-      logger.info("Shutdown initiated.");
-      try {
-        shutdownDone.await();
-        logger.info("Shutdown completed.");
-      } catch (@SuppressWarnings("unused") InterruptedException e) {
-        logger.warn("Shutdown interrupted.");
-      }
-    } else {
+    switch (status.get()) {
+    case notStarted:
+    case finished:
       logger.info("Dispatcher was not started or was already shut down.");
+      return;
+    case running:
+      if (status.compareAndSet(running, shuttingDown)) {
+        logger.info("Shutdown initiated.");
+        synchronized (waitObject) {
+          waitObject.notifyAll();
+        }
+      }
+      break;
+    default:
+      break;
+    }
+    try {
+      shutdownDone.await();
+      if (status.compareAndSet(shuttingDown, finished)) {
+        logger.info("Shutdown completed.");
+      }
+    } catch (@SuppressWarnings("unused") InterruptedException e) {
+      logger.warn("Shutdown interrupted.");
     }
   }
 
   public void pause() {
-    paused = true;
-    logger.info("Dispatcher paused.");
+    if (paused.compareAndSet(false, true)) {
+      logger.info("Dispatcher paused.");
+    }
   }
 
   public void resume() {
-    paused = false;
-    logger.info("Dispatcher resumed.");
+    if (paused.compareAndSet(true, false)) {
+      logger.info("Dispatcher resumed.");
+    }
   }
 
   public boolean isPaused() {
-    return paused;
+    return paused.get();
   }
 
   public boolean isRunning() {
-    return running;
+    return status.get().isRunning;
   }
 
   private void shutdownPool() {
@@ -157,7 +186,7 @@ public class WorkflowDispatcher implements Runnable {
     }
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Long instanceId : nextInstanceIds) {
-      executor.execute(stateProcessorFactory.createProcessor(instanceId, () -> shutdownRequested));
+      executor.execute(stateProcessorFactory.createProcessor(instanceId, () -> status.get().isShutdownRequested));
     }
   }
 
@@ -170,10 +199,12 @@ public class WorkflowDispatcher implements Runnable {
   @SuppressFBWarnings(value = "MDM_THREAD_YIELD", justification = "Intentionally masking race condition")
   private void sleep(boolean randomize) {
     try {
-      if (randomize) {
-        Thread.sleep((long) (sleepTimeMillis * rand.nextFloat()));
-      } else {
-        Thread.sleep(sleepTimeMillis);
+      synchronized (waitObject) {
+        if (randomize) {
+          waitObject.wait((long) (sleepTimeMillis * rand.nextFloat()));
+        } else {
+          waitObject.wait(sleepTimeMillis);
+        }
       }
     } catch (@SuppressWarnings("unused") InterruptedException ok) {
     }
