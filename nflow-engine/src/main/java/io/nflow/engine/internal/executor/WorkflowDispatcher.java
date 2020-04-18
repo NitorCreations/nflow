@@ -110,8 +110,8 @@ public class WorkflowDispatcher implements Runnable {
   public void shutdown() {
     if (running) {
       if (!shutdownRequested) {
+        logger.info("Initiating shutdown.");
         shutdownRequested = true;
-        logger.info("Shutdown initiated.");
       }
       try {
         shutdownDone.await();
