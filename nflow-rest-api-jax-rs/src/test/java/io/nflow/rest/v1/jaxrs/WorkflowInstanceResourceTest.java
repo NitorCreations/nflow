@@ -235,7 +235,7 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null);
+    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null).readEntity(ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
     assertEquals(resp, result);
   }
@@ -249,7 +249,7 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
-        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L);
+        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L).readEntity(ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L);
     assertEquals(resp, result);
   }
