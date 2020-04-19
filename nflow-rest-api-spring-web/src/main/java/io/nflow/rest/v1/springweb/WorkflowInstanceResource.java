@@ -46,8 +46,10 @@ import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
+import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WakeupRequest;
 import io.nflow.rest.v1.msg.WakeupResponse;
@@ -91,7 +93,7 @@ public class WorkflowInstanceResource extends ResourceBase {
       instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
       return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
     } catch (IllegalArgumentException e) {
-      return status(BAD_REQUEST).body(e.getMessage());
+      return status(BAD_REQUEST).body(new ErrorResponse((e.getMessage())));
     }
   }
 
@@ -107,12 +109,14 @@ public class WorkflowInstanceResource extends ResourceBase {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
       return (updated ? noContent() : status(CONFLICT)).build();
     } catch (IllegalArgumentException e) {
-      return status(BAD_REQUEST).body(e.getMessage());
+      return status(BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
     }
   }
 
   @GetMapping(path = "/id/{id}")
   @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
+  @ApiResponses({ @ApiResponse(code = 200, response = ListWorkflowInstanceResponse.class, message = "If instance was found"),
+      @ApiResponse(code = 404, message = "If instance was not found") })
   @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
   public ResponseEntity<?> fetchWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
@@ -121,7 +125,7 @@ public class WorkflowInstanceResource extends ResourceBase {
     try {
       return ok().body(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter));
     } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
-      return status(NOT_FOUND).body(format("Workflow instance %s not found", id));
+      return status(NOT_FOUND).body(new ErrorResponse(format("Workflow instance %s not found", id)));
     }
   }
 
@@ -145,11 +149,13 @@ public class WorkflowInstanceResource extends ResourceBase {
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)
   @ApiOperation(value = "Set workflow instance signal value", notes = "The service may be used for example to interrupt executing workflow instance.")
-  @ApiResponses({ @ApiResponse(code = 200, message = "When operation was successful") })
-  public ResponseEntity<?> setSignal(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
+  @ApiResponses({ @ApiResponse(code = 200, message = "When setting the signal was attempted") })
+  public SetSignalResponse setSignal(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @Valid @ApiParam("New signal value") SetSignalRequest req) {
-    boolean updated = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
-    return (updated ? ok("Signal was set successfully") : ok("Signal was not set"));
+    SetSignalResponse response = new SetSignalResponse();
+    response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
+        WorkflowActionType.externalChange);
+    return response;
   }
 
   @PutMapping(path = "/{id}/wakeup", consumes = APPLICATION_JSON_VALUE)

@@ -6,9 +6,9 @@ import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import io.nflow.tests.extension.NflowServerConfig;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -22,6 +22,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
 import io.nflow.tests.demo.workflow.SlowWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SignalWorkflowTest extends AbstractNflowTest {
@@ -65,8 +66,7 @@ public class SignalWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(3)
   public void interruptWorkflowWithSignal() {
-    assertThat(setSignal(resp.id, SlowWorkflow.SIGNAL_INTERRUPT, "Setting signal via REST API"),
-        is("Signal was set successfully"));
+    assertTrue(setSignal(resp.id, SlowWorkflow.SIGNAL_INTERRUPT, "Setting signal via REST API").setSignalSuccess);
   }
 
   @Test

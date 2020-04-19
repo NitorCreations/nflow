@@ -33,6 +33,7 @@ import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
+import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WakeupRequest;
@@ -100,11 +101,11 @@ public abstract class AbstractNflowTest {
     return getInstanceResource(instanceId).path("wakeup").put(request, WakeupResponse.class);
   }
 
-  protected String setSignal(long instanceId, int signal, String reason) {
+  protected SetSignalResponse setSignal(long instanceId, int signal, String reason) {
     SetSignalRequest request = new SetSignalRequest();
     request.signal = signal;
     request.reason = reason;
-    return getInstanceResource(instanceId).path("signal").put(request, String.class);
+    return getInstanceResource(instanceId).path("signal").put(request, SetSignalResponse.class);
   }
 
   private WebClient getInstanceResource(long instanceId) {
