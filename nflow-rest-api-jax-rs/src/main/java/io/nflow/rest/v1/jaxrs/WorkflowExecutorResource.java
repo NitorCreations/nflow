@@ -41,6 +41,7 @@ public class WorkflowExecutorResource extends JaxRsResource {
   @GET
   @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
   public Response listWorkflowExecutors() {
-    return handleExceptions(() -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())).build());
+    return handleExceptions(
+        () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())).build());
   }
 }

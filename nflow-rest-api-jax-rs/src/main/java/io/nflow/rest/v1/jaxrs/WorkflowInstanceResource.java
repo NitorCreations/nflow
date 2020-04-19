@@ -70,7 +70,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @Inject
   public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
-      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory, WorkflowInstanceDao workflowInstanceDao) {
+      ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory,
+      WorkflowInstanceDao workflowInstanceDao) {
     this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
@@ -123,14 +124,14 @@ public class WorkflowInstanceResource extends JaxRsResource {
   public Response fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build(),
+    return handleExceptions(
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build(),
         format("Workflow instance %s", id));
   }
 
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
-  public Response listWorkflowInstances(
-      @QueryParam("id") @ApiParam("Internal id of workflow instance") List<Long> ids,
+  public Response listWorkflowInstances(@QueryParam("id") @ApiParam("Internal id of workflow instance") List<Long> ids,
       @QueryParam("type") @ApiParam("Workflow definition type of workflow instance") List<String> types,
       @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Long parentWorkflowId,
       @QueryParam("parentActionId") @ApiParam("Id of parent workflow instance action") Long parentActionId,
@@ -141,8 +142,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey, externalId,
-        include, maxResults, maxActions, workflowInstances, listWorkflowConverter).iterator()).build());
+    return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
+        businessKey, externalId, include, maxResults, maxActions, workflowInstances, listWorkflowConverter).iterator()).build());
   }
 
   @PUT
@@ -152,7 +153,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @Valid @ApiParam("New signal value") SetSignalRequest req) {
     return handleExceptions(() -> {
       SetSignalResponse response = new SetSignalResponse();
-      response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
+      response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
+          WorkflowActionType.externalChange);
       return ok(response).build();
     });
   }
