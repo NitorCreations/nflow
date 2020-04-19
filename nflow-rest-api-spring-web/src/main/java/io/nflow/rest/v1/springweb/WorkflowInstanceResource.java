@@ -4,9 +4,7 @@ import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.http.ResponseEntity.noContent;
@@ -22,7 +20,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,12 +38,10 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
-import io.nflow.rest.v1.ResourceBase;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.SetSignalResponse;
@@ -63,7 +58,7 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_INSTANCE_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow workflow instance management")
 @Component
-public class WorkflowInstanceResource extends ResourceBase {
+public class WorkflowInstanceResource extends SpringWebResource {
   private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
@@ -87,14 +82,12 @@ public class WorkflowInstanceResource extends ResourceBase {
       @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
   public ResponseEntity<?> createWorkflowInstance(
       @RequestBody @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
-    WorkflowInstance instance = createWorkflowConverter.convert(req);
-    try {
+    return handleExceptions(() -> {
+      WorkflowInstance instance = createWorkflowConverter.convert(req);
       long id = workflowInstances.insertWorkflowInstance(instance);
       instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
       return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
-    } catch (IllegalArgumentException e) {
-      return status(BAD_REQUEST).body(new ErrorResponse((e.getMessage())));
-    }
+    });
   }
 
   @PutMapping(path = "/id/{id}", consumes = APPLICATION_JSON_VALUE)
@@ -105,12 +98,10 @@ public class WorkflowInstanceResource extends ResourceBase {
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
   public ResponseEntity<?> updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    try {
+    return handleExceptions(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
       return (updated ? noContent() : status(CONFLICT)).build();
-    } catch (IllegalArgumentException e) {
-      return status(BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
-    }
+    });
   }
 
   @GetMapping(path = "/id/{id}")
@@ -122,11 +113,9 @@ public class WorkflowInstanceResource extends ResourceBase {
       @ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    try {
+    return handleExceptions(() -> {
       return ok().body(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter));
-    } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
-      return status(NOT_FOUND).body(new ErrorResponse(format("Workflow instance %s not found", id)));
-    }
+    }, format("Workflow instance %s", id));
   }
 
   @GetMapping
@@ -168,5 +157,4 @@ public class WorkflowInstanceResource extends ResourceBase {
     response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
     return response;
   }
-
 }
