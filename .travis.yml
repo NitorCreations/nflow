@@ -18,7 +18,7 @@ addons:
 services:
   - docker
 before_install:
-  - mkdir -p $HOME/m2
+  - mkdir -p $HOME/.m2
   - cp travis/maven_settings.xml $HOME/.m2/settings.xml
 before_script:
   - export SPRING_PROFILES_ACTIVE=nflow.db.$DB
