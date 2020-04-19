@@ -12,6 +12,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.util.Arrays.asList;
 import static java.util.Collections.reverse;
+import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
 import static org.joda.time.DateTime.now;
 
@@ -96,13 +97,13 @@ public class TestDataGenerator {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private WorkflowState selectRandomState(AbstractWorkflowDefinition definition, DateTime instanceNextActivation) {
     if (instanceNextActivation.isAfterNow()) {
-      return selectRandomState(definition.getStates(), asList(start));
+      return selectRandomState(definition.getStates(), singletonList(start));
     } else if (instanceNextActivation.isAfter(new DateTime().minusWeeks(1))) {
       return selectRandomState(definition.getStates(), asList(end, manual, normal));
     } else if (instanceNextActivation.isAfter(new DateTime().minusMonths(6))) {
       return selectRandomState(definition.getStates(), asList(end, manual));
     }
-    return selectRandomState(definition.getStates(), asList(end));
+    return selectRandomState(definition.getStates(), singletonList(end));
   }
 
   private WorkflowState selectRandomState(Set<WorkflowState> allStates, List<WorkflowStateType> stateTypeFilter) {

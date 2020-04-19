@@ -104,7 +104,7 @@ public class ProcessCreditApplicationWorkflow extends WorkflowDefinition<Process
 
   public NextAction waitCreditDecisionWorkflow(StateExecution execution,
       @StateVar(value = CREDIT_DECISION_RESULT) Mutable<String> creditDecisionResult) {
-    WorkflowInstance decisionWorkflow = execution.getAllChildWorkflows().iterator().next();
+    WorkflowInstance decisionWorkflow = execution.getAllChildWorkflows().get(0);
     creditDecisionResult.setVal(decisionWorkflow.state);
     if (CreditDecisionWorkflow.State.approved.name().equals(decisionWorkflow.state)) {
       return moveToState(createLoan, "Credit decision approved");

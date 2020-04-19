@@ -34,6 +34,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.Assert;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.PeriodicLogger;
@@ -59,6 +60,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
 
 class WorkflowStateProcessor implements Runnable {
 
+  @SuppressFBWarnings(value = "LO_NON_PRIVATE_STATIC_LOGGER", justification = "Used by inner class")
   static final Logger logger = getLogger(WorkflowStateProcessor.class);
   private static final PeriodicLogger laggingLogger = new PeriodicLogger(logger, 30);
   private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);

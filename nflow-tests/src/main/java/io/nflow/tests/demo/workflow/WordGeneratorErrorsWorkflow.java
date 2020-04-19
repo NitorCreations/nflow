@@ -3,6 +3,7 @@ package io.nflow.tests.demo.workflow;
 import static org.joda.time.Period.days;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
 
   @Override
   protected NextAction update(StateExecution execution, String state) {
-    Random random = new Random();
+    Random random = ThreadLocalRandom.current();
     if (random.nextDouble() < ERROR_FRACTION / 2.0) {
       logger.info("Generating error at state {} before new state is set", state);
       throw new RuntimeException("error at state " + state + " before new state is set");

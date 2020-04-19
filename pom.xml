@@ -6,7 +6,7 @@
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
-  <version>7.1.1-SNAPSHOT</version>
+  <version>7.2.0-SNAPSHOT</version>
   <url>http://nflow.io</url>
   <licenses>
     <license>
@@ -110,7 +110,7 @@
     <frontend-maven.version>1.9.1</frontend-maven.version>
     <h2.version>1.4.200</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <hibernate.validator.version>6.1.2.Final</hibernate.validator.version>
+    <hibernate.validator.version>6.1.4.Final</hibernate.validator.version>
     <hikaricp.version>3.4.2</hikaricp.version>
     <jackson.version>2.10.3</jackson.version>
     <jackson-databind.version>2.10.3</jackson-databind.version>
@@ -121,10 +121,10 @@
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxws-api.version>2.3.1</jaxws-api.version>
     <jersey.version>2.30.1</jersey.version>
-    <jetty.version>9.4.27.v20200227</jetty.version>
+    <jetty.version>9.4.28.v20200408</jetty.version>
     <jodatime.version>2.10.5</jodatime.version>
     <junit4.version>4.13</junit4.version>
-    <junit5.version>5.6.1</junit5.version>
+    <junit5.version>5.6.2</junit5.version>
     <mockito-junit-jupiter.version>3.3.3</mockito-junit-jupiter.version>
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
     <logback-classic.version>1.2.3</logback-classic.version>
@@ -148,11 +148,11 @@
     <maven-project-info.version>3.0.0</maven-project-info.version>
     <maven-release.version>3.0.0-M1</maven-release.version>
     <maven-resources.version>3.1.0</maven-resources.version>
-    <maven-shade.version>3.2.2</maven-shade.version>
+    <maven-shade.version>3.2.3</maven-shade.version>
     <maven-site.version>3.9.0</maven-site.version>
     <maven-source.version>3.2.1</maven-source.version>
     <maven-surefire.version>3.0.0-M4</maven-surefire.version>
-    <metrics.version>4.1.5</metrics.version>
+    <metrics.version>4.1.6</metrics.version>
     <mockito.version>3.3.3</mockito.version>
     <mssql.version>8.2.2.jre8</mssql.version>
     <multithreadedtc.version>1.01</multithreadedtc.version>
@@ -168,7 +168,7 @@
     <reactor.netty.version>0.9.6.RELEASE</reactor.netty.version>
     <reflections.version>0.9.12</reflections.version>
     <slf4j.version>1.7.30</slf4j.version>
-    <spotbugs.version>4.0.1</spotbugs.version>
+    <spotbugs.version>4.0.2</spotbugs.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
     <spring.version>5.2.5.RELEASE</spring.version>

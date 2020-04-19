@@ -33,7 +33,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Period.hours;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -948,7 +948,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     executor.handlePotentiallyStuck(processingTime);
 
     thread.join(1000);
-    assertFalse("Processing thread did not die after interruption", thread.isAlive());
+    assertFalse(thread.isAlive(), "Processing thread did not die after interruption");
 
     verify(listener1).handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime));
     verify(listener2).handlePotentiallyStuck(any(ListenerContext.class), eq(processingTime));

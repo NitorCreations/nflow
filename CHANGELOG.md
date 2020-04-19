@@ -1,4 +1,4 @@
-## 7.1.1-SNAPSHOT (future release)
+## 7.2.0-SNAPSHOT (future release)
 
 **Highlights**
 - `nflow-engine`
@@ -13,18 +13,20 @@
     - spring 5.2.5
     - jackson 2.10.3
     - javassist 3.27.0
-    - jetty 9.4.27
+    - jetty 9.4.28
     - cxf 3.3.6
-    - metrics 4.1.5
+    - metrics 4.1.6
     - netty 0.9.6
     - swagger 1.6.1
     - lang3 3.10
     - mariadb 2.6.0
     - mssql 8.2.2
     - postgresql 42.2.10
-    - junit 5.6.1
+    - junit 5.6.2
     - mockito 3.3.3
-    - spotbugs 4.0.1
+    - spotbugs 4.0.2
+    - hibernate 6.1.4
+    - commons-lang3 3.10
 - `nflow-explorer`
   - Dependency updates:
     - swagger-ui 2.2.10

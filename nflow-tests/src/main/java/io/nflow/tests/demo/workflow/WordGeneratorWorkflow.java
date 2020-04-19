@@ -5,6 +5,7 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class WordGeneratorWorkflow extends WorkflowDefinition<WordGeneratorWorkf
   }
 
   protected static State randState() {
-    Random random = new Random();
+    Random random = ThreadLocalRandom.current();
     double sum = 0;
     for (State v : State.values()) {
       sum += v.fraction;
