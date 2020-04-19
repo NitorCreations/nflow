@@ -28,8 +28,6 @@ script:
 after_script:
   - for i in nflow-*/target/surefire-reports/*.txt; do echo ">>>>>>>>>>>>>>>>>>>"; echo $i; echo "<<<<<<<<<<<<<<<<<<<<<"; cat $i; done
 notifications:
-  flowdock:
-    secure: QbIGfsj64a2Ms5y/aTO0PUAVBRv9mKxAwLFj5NxWACEVxm1JKZvrQ4ov/8XbVRbRl96sMIoWPox7Gu++ZgLjb7w+jeiCvWLwJwRDxlCgsYvb4hAcPXlNBO7SF4kcUifPfJpaDsb3EThUUK8EtsI5aOxvCqGKMChTDoQnej3kc0o=
 after_success:
   - mvn jacoco:report coveralls:report
 cache:
