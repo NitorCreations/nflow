@@ -14,7 +14,6 @@ import static javax.ws.rs.core.Response.Status.CONFLICT;
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -81,14 +80,14 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @OPTIONS
   @Path("{any: .*}")
-  @ApiOperation(value = "CORS preflight handling")
+  @ApiOperation("CORS preflight handling")
   @Consumes(WILDCARD)
   public Response corsPreflight() {
     return ok().build();
   }
 
   @PUT
-  @ApiOperation(value = "Submit new workflow instance")
+  @ApiOperation("Submit new workflow instance")
   @ApiResponses({ @ApiResponse(code = 201, message = "Workflow was created", response = CreateWorkflowInstanceResponse.class),
     @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
   public Response createWorkflowInstance(
@@ -124,14 +123,13 @@ public class WorkflowInstanceResource extends JaxRsResource {
   public Response fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return handleExceptions(() -> {
-      return ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build();
-    }, format("Workflow instance %s", id));
+    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build(),
+        format("Workflow instance %s", id));
   }
 
   @GET
   @ApiOperation(value = "List workflow instances", response = ListWorkflowInstanceResponse.class, responseContainer = "List")
-  public Iterator<ListWorkflowInstanceResponse> listWorkflowInstances(
+  public Response listWorkflowInstances(
       @QueryParam("id") @ApiParam("Internal id of workflow instance") List<Long> ids,
       @QueryParam("type") @ApiParam("Workflow definition type of workflow instance") List<String> types,
       @QueryParam("parentWorkflowId") @ApiParam("Id of parent workflow instance") Long parentWorkflowId,
@@ -143,31 +141,32 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states,
-        statuses, businessKey, externalId, include, maxResults, maxActions,
-        workflowInstances, listWorkflowConverter).iterator();
+    return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey, externalId,
+        include, maxResults, maxActions, workflowInstances, listWorkflowConverter).iterator()).build());
   }
 
   @PUT
   @Path("/{id}/signal")
-  @ApiOperation(value = "Set workflow instance signal value", notes = "The service may be used for example to interrupt executing workflow instance.")
-  @ApiResponses({ @ApiResponse(code = 200, message = "When setting the signal was attempted") })
-  public SetSignalResponse setSignal(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
+  @ApiOperation(value = "Set workflow instance signal value", response = SetSignalResponse.class, notes = "The service may be used for example to interrupt executing workflow instance.")
+  public Response setSignal(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @Valid @ApiParam("New signal value") SetSignalRequest req) {
-    SetSignalResponse response = new SetSignalResponse();
-    response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
-    return response;
+    return handleExceptions(() -> {
+      SetSignalResponse response = new SetSignalResponse();
+      response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason, WorkflowActionType.externalChange);
+      return ok(response).build();
+    });
   }
 
   @PUT
   @Path("/{id}/wakeup")
-  @ApiOperation(value = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
-  @ApiResponses({ @ApiResponse(code = 200, message = "When workflow wakeup was attempted") })
-  public WakeupResponse wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
+  @ApiOperation(value = "Wake up sleeping workflow instance", response = WakeupResponse.class, notes = "If expected states are given, only wake up if the instance is in one of the expected states.")
+  public Response wakeup(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @Valid @ApiParam("Expected states") WakeupRequest req) {
-    WakeupResponse response = new WakeupResponse();
-    List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
-    response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
-    return response;
+    return handleExceptions(() -> {
+      WakeupResponse response = new WakeupResponse();
+      List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
+      response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
+      return ok(response).build();
+    });
   }
 }

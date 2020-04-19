@@ -60,7 +60,7 @@ public class MaintenanceResourceTest {
     request.deleteWorkflows.olderThanPeriod = period3;
     request.deleteWorkflows.batchSize = batchSize * 3;
 
-    MaintenanceResponse response = resource.cleanupWorkflows(request);
+    MaintenanceResponse response = resource.cleanupWorkflows(request).readEntity(MaintenanceResponse.class);
 
     verify(service).cleanupWorkflows(configCaptor.capture());
     MaintenanceConfiguration configuration = configCaptor.getValue();

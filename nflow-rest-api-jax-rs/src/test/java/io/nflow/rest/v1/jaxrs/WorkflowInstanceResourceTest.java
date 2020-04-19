@@ -266,7 +266,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
 
-    SetSignalResponse response = resource.setSignal(99, req);
+    SetSignalResponse response = resource.setSignal(99, req).readEntity(SetSignalResponse.class);
 
     verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
     assertTrue(response.setSignalSuccess);
@@ -279,7 +279,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
 
-    SetSignalResponse response = resource.setSignal(99, req);
+    SetSignalResponse response = resource.setSignal(99, req).readEntity(SetSignalResponse.class);
 
     verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
     assertFalse(response.setSignalSuccess);

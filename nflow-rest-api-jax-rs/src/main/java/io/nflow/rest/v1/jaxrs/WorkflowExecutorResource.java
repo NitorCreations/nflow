@@ -1,16 +1,16 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_PATH;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-
-import java.util.Collection;
 import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.ok;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @Api("nFlow workflow executor management")
 @Component
 @NflowCors
-public class WorkflowExecutorResource {
+public class WorkflowExecutorResource extends JaxRsResource {
 
   private final WorkflowExecutorService workflowExecutors;
   private final ListWorkflowExecutorConverter converter;
@@ -40,7 +40,7 @@ public class WorkflowExecutorResource {
 
   @GET
   @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowExecutorResponse> listWorkflowExecutors() {
-    return workflowExecutors.getWorkflowExecutors().stream().map(executor -> converter.convert(executor)).collect(toList());
+  public Response listWorkflowExecutors() {
+    return handleExceptions(() -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())).build());
   }
 }
