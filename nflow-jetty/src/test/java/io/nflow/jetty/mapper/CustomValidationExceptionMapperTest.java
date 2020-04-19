@@ -1,8 +1,8 @@
 package io.nflow.jetty.mapper;
 
 import static java.util.Arrays.asList;
-import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
-import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -48,7 +48,7 @@ public class CustomValidationExceptionMapperTest {
     ConstraintViolationException exception = mock(ConstraintViolationException.class);
     when(exception.getConstraintViolations()).thenReturn(new LinkedHashSet(asList(violation)));
     try (Response response = exceptionMapper.toResponse(exception)) {
-      assertThat(response.getStatus(), is(BAD_REQUEST_400));
+      assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
       ErrorResponse error = (ErrorResponse) response.getEntity();
       assertThat(error.error, is("violationPath: violationMessage"));
     }
@@ -59,7 +59,7 @@ public class CustomValidationExceptionMapperTest {
     ConstraintViolationException exception = mock(ResponseConstraintViolationException.class);
     when(exception.getMessage()).thenReturn("error");
     try (Response response = exceptionMapper.toResponse(exception)) {
-      assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+      assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR.getStatusCode()));
       ErrorResponse error = (ErrorResponse) response.getEntity();
       assertThat(error.error, is("error"));
     }
@@ -70,7 +70,7 @@ public class CustomValidationExceptionMapperTest {
     ValidationException exception = mock(ValidationException.class);
     when(exception.getMessage()).thenReturn("error");
     try (Response response = exceptionMapper.toResponse(exception)) {
-      assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR_500));
+      assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR.getStatusCode()));
       ErrorResponse error = (ErrorResponse) response.getEntity();
       assertThat(error.error, is("error"));
     }

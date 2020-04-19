@@ -3,13 +3,18 @@ package io.nflow.tests;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.joda.time.DateTime.now;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -21,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
@@ -67,12 +73,25 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
+  public void moveToInvalidStateFails() {
+    UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
+    ureq.nextActivationTime = now();
+    ureq.state = "invalid";
+    try (Response response = fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq)) {
+      assertThat(response.getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+      assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
+      assertThat(response.readEntity(ErrorResponse.class).error, startsWith("No state 'invalid'"));
+    }
+  }
+
+  @Test
+  @Order(5)
   public void checkErrorStateReached() {
     getWorkflowInstanceWithTimeout(resp.id, "error", ofSeconds(5));
   }
 
   @Test
-  @Order(5)
+  @Order(6)
   public void checkWorkflowInstanceActions() {
     int i = 1;
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(

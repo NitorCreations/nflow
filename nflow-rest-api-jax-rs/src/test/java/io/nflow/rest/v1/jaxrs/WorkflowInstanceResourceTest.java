@@ -5,13 +5,15 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -25,7 +27,6 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
@@ -54,8 +55,10 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
+import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -146,7 +149,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void whenUpdatingNextActivationTimeUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    req.nextActivationTime = new DateTime(2014,11,12,17,55,0);
+    req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     resource.updateWorkflowInstance(3, req);
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
@@ -222,10 +225,12 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
-  public void fetchingNonExistingWorkflowThrowsNotFoundException() {
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
-    .thenThrow(EmptyResultDataAccessException.class);
-    assertThrows(NotFoundException.class, () -> resource.fetchWorkflowInstance(42, null, null));
+  public void fetchingNonExistingWorkflowReturnsNotFound() {
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenThrow(EmptyResultDataAccessException.class);
+    try (Response response = resource.fetchWorkflowInstance(42, null, null)) {
+      assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
+      assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -235,7 +240,7 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null);
+    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null).readEntity(ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
     assertEquals(resp, result);
   }
@@ -249,37 +254,34 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
-        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L);
+        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L).readEntity(ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L);
     assertEquals(resp, result);
   }
 
   @Test
-  public void setSignalWorks() {
+  public void setSignalSuccessIsTrueWhenSignalWasSet() {
     SetSignalRequest req = new SetSignalRequest();
     req.signal = 42;
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
 
-    try (Response response = resource.setSignal(99, req)) {
-      verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
-      assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
-      assertThat(response.readEntity(String.class), is("Signal was set successfully"));
-    }
+    SetSignalResponse response = resource.setSignal(99, req);
+
+    verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
+    assertTrue(response.setSignalSuccess);
   }
 
   @Test
-  public void setSignalReturnsOkWhenSignalIsNotUpdated() {
+  public void setSignalSuccessIsFalseWhenSignalWasNotSet() {
     SetSignalRequest req = new SetSignalRequest();
     req.signal = null;
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
 
-    try (Response response = resource.setSignal(99, req)) {
-      verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
-      assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
-      assertThat(response.readEntity(String.class), is("Signal was not set"));
-    }
-  }
+    SetSignalResponse response = resource.setSignal(99, req);
 
+    verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
+    assertFalse(response.setSignalSuccess);
+  }
 }

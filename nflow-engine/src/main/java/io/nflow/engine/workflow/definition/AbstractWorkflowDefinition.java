@@ -217,24 +217,26 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Returns the workflow state for the given state name.
-   * @param state The name of the workflow state.
+   *
+   * @param state
+   *          The name of the workflow state.
    * @return The workflos state matching the state name.
-   * @throws IllegalStateException when a matching state can not be found.
+   * @throws IllegalArgumentException
+   *           when a matching state can not be found.
    */
   public WorkflowState getState(String state) {
-    for (WorkflowState s : getStates()) {
-      if (Objects.equals(s.name(), state)) {
-        return s;
-      }
-    }
-    throw new IllegalStateException("No state '" + state + "' in workflow definiton " + getType());
+    return getStates().stream().filter(s -> Objects.equals(s.name(), state)).findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("No state '" + state + "' in workflow definiton " + getType()));
   }
 
   /**
    * Check if the given state is a valid start state.
-   * @param state The name of the workflow state.
+   *
+   * @param state
+   *          The name of the workflow state.
    * @return True if the given state is a valid start date, false otherwise.
-   * @throws IllegalStateException if the given state name does not match any state.
+   * @throws IllegalArgumentException
+   *           if the given state name does not match any state.
    */
   public boolean isStartState(String state) {
     return getState(state).getType() == WorkflowStateType.start;

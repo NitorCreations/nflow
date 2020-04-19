@@ -2,6 +2,7 @@ package io.nflow.tests;
 
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
@@ -109,6 +110,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
     try (Response response = getInstanceIdResource(createResponse.id).put(req)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
+      assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
     }
   }
@@ -123,6 +125,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
     try (Response response = fromClient(workflowInstanceResource, true).put(createRequest)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
+      assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
     }
   }
