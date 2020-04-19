@@ -4,10 +4,10 @@ import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_PATH;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.Collection;
+import static org.springframework.http.ResponseEntity.ok;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_EXECUTOR_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow workflow executor management")
 @Component
-public class WorkflowExecutorResource {
+public class WorkflowExecutorResource extends SpringWebResource {
 
   private final WorkflowExecutorService workflowExecutors;
   private final ListWorkflowExecutorConverter converter;
@@ -36,7 +36,8 @@ public class WorkflowExecutorResource {
 
   @GetMapping
   @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
-  public Collection<ListWorkflowExecutorResponse> listWorkflowExecutors() {
-    return workflowExecutors.getWorkflowExecutors().stream().map(executor -> converter.convert(executor)).collect(toList());
+  public ResponseEntity<?> listWorkflowExecutors() {
+    return handleExceptions(
+        () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));
   }
 }

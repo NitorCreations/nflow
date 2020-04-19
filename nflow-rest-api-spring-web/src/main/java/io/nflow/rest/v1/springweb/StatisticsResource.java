@@ -3,10 +3,12 @@ package io.nflow.rest.v1.springweb;
 import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_STATISTICS_PATH;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.ok;
 
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +28,7 @@ import io.swagger.annotations.ApiParam;
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_STATISTICS_PATH, produces = APPLICATION_JSON_VALUE)
 @Api("nFlow statistics")
 @Component
-public class StatisticsResource {
+public class StatisticsResource extends SpringWebResource {
 
   @Inject
   private StatisticsService statisticsService;
@@ -34,21 +36,20 @@ public class StatisticsResource {
   private StatisticsConverter statisticsConverter;
 
   @GetMapping
-  @ApiOperation(value = "Get executor group statistics", notes = "Returns counts of queued and executing workflow instances.")
-  public StatisticsResponse queryStatistics() {
-    return statisticsConverter.convert(statisticsService.getStatistics());
+  @ApiOperation(value = "Get executor group statistics", response = StatisticsResponse.class, notes = "Returns counts of queued and executing workflow instances.")
+  public ResponseEntity<?> queryStatistics() {
+    return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
   }
 
-  @GetMapping(path="/workflow/{type}")
-  @ApiOperation("Get workflow definition statistics")
-  public WorkflowDefinitionStatisticsResponse getStatistics(
+  @GetMapping(path = "/workflow/{type}")
+  @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
+  public ResponseEntity<?> getStatistics(
       @PathVariable("type") @ApiParam(value = "Workflow definition type", required = true) String type,
       @RequestParam(value = "createdAfter", required = false) @ApiParam("Include only workflow instances created after given time") DateTime createdAfter,
       @RequestParam(value = "createdBefore", required = false) @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
       @RequestParam(value = "modifiedAfter", required = false) @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
       @RequestParam(value = "modifiedBefore", required = false) @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
-    return statisticsConverter.convert(
-        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter,
-        modifiedBefore));
+    return handleExceptions(() -> ok(statisticsConverter.convert(
+        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore))));
   }
 }
