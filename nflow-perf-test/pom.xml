@@ -13,7 +13,7 @@
   <parent>
     <groupId>io.nflow</groupId>
     <artifactId>nflow-root</artifactId>
-    <version>7.1.1-SNAPSHOT</version>
+    <version>7.2.0-SNAPSHOT</version>
   </parent>
   <build>
     <plugins>
