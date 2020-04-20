@@ -1,10 +1,10 @@
 package io.nflow.engine.internal.guice;
 
-import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Stream.concat;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 public class EngineEnvironmentModule extends EnvironmentModule {
 
@@ -13,11 +13,9 @@ public class EngineEnvironmentModule extends EnvironmentModule {
   }
 
   protected static String[] addDefaultPropertiesFiles(String defaultPropertiesFile, String... classpathPropertiesFiles) {
-    List<String> files = new ArrayList<>();
-    files.add(defaultPropertiesFile);
-    if (classpathPropertiesFiles != null) {
-      files.addAll(asList(classpathPropertiesFiles));
+    if (classpathPropertiesFiles == null) {
+      return new String[] { defaultPropertiesFile };
     }
-    return files.toArray(new String[0]);
+    return concat(Stream.of(defaultPropertiesFile), stream(classpathPropertiesFiles)).toArray(String[]::new);
   }
 }
