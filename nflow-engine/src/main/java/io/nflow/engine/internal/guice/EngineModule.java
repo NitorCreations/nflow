@@ -28,10 +28,13 @@ import com.google.inject.Singleton;
 import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.DatabaseConfiguration;
+import io.nflow.engine.config.db.Db2DatabaseConfiguration;
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
+import io.nflow.engine.config.db.MariadbDatabaseConfiguration;
 import io.nflow.engine.config.db.MysqlDatabaseConfiguration;
 import io.nflow.engine.config.db.OracleDatabaseConfiguration;
 import io.nflow.engine.config.db.PgDatabaseConfiguration;
+import io.nflow.engine.config.db.SqlServerDatabaseConfiguration;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
@@ -155,25 +158,25 @@ public class EngineModule extends AbstractModule {
   @Singleton
   @Inject
   public DatabaseConfiguration databaseConfiguration(Environment env) {
-    DatabaseConfiguration db;
-    String dbtype = env.getProperty("nflow.db.type", String.class, "h2");
+    String dbtype = env.getRequiredProperty("nflow.db.type", String.class);
     switch (dbtype) {
+    case "db2":
+      return new Db2DatabaseConfiguration();
     case "h2":
-      db = new H2DatabaseConfiguration();
-      break;
+      return new H2DatabaseConfiguration();
+    case "mariadb":
+      return new MariadbDatabaseConfiguration();
     case "mysql":
-      db = new MysqlDatabaseConfiguration();
-      break;
+      return new MysqlDatabaseConfiguration();
     case "oracle":
-      db = new OracleDatabaseConfiguration();
-      break;
+      return new OracleDatabaseConfiguration();
     case "postgresql":
-      db = new PgDatabaseConfiguration();
-      break;
+      return new PgDatabaseConfiguration();
+    case "sqlserver":
+      return new SqlServerDatabaseConfiguration();
     default:
-      throw new RuntimeException("Unknown DB");
+      throw new RuntimeException("Unknown database type");
     }
-    return db;
   }
 
   class EngineInitModule extends AbstractModule {
