@@ -1,5 +1,6 @@
 package io.nflow.engine.service;
 
+import static java.util.Collections.emptySet;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -94,23 +95,29 @@ public class WorkflowInstanceService {
     Assert.notNull(instance, "Workflow instance can not be null");
     Assert.notNull(action, "Workflow instance action can not be null");
     Assert.notNull(workflowDefinitionService, "workflowDefinitionService can not be null");
-
-    WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
-    if (instance.state == null) {
-      builder.setStatus(null);
-    } else {
-      String type = workflowInstanceDao.getWorkflowInstanceType(instance.id);
-      AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
-      builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
+    try {
+      WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
+      if (instance.state == null) {
+        builder.setStatus(null);
+      } else {
+        String type = workflowInstanceDao.getWorkflowInstanceType(instance.id);
+        AbstractWorkflowDefinition<?> definition = workflowDefinitionService.getWorkflowDefinition(type);
+        builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
+      }
+      WorkflowInstance updatedInstance = builder.build();
+      boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);
+      if (updated) {
+        String currentState = workflowInstanceDao.getWorkflowInstanceState(updatedInstance.id);
+        WorkflowInstanceAction updatedAction = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
+        workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, updatedAction);
+      } else {
+        // this is to trigger EmptyResultDataAccessException if instance does not exist
+        workflowInstanceDao.getWorkflowInstance(instance.id, emptySet(), 0L);
+      }
+      return updated;
+    } catch (EmptyResultDataAccessException e) {
+      throw new NflowNotFoundException("Workflow instance", instance.id, e);
     }
-    WorkflowInstance updatedInstance = builder.build();
-    boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);
-    if (updated) {
-      String currentState = workflowInstanceDao.getWorkflowInstanceState(updatedInstance.id);
-      WorkflowInstanceAction updatedAction = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
-      workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, updatedAction);
-    }
-    return updated;
   }
 
   /**
