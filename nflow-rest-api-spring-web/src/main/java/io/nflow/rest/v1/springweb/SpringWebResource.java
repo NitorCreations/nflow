@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.springframework.http.ResponseEntity;
 
 import io.nflow.rest.v1.ResourceBase;
+import io.nflow.rest.v1.msg.ErrorResponse;
 
 public abstract class SpringWebResource extends ResourceBase {
 
@@ -14,7 +15,7 @@ public abstract class SpringWebResource extends ResourceBase {
     return handleExceptions(response::get, this::toErrorResponse);
   }
 
-  private ResponseEntity<?> toErrorResponse(int statusCode, Object body) {
+  private ResponseEntity<?> toErrorResponse(int statusCode, ErrorResponse body) {
     return status(statusCode).body(body);
   }
 }

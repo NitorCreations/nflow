@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import io.nflow.rest.v1.ResourceBase;
+import io.nflow.rest.v1.msg.ErrorResponse;
 
 public class JaxRsResource extends ResourceBase {
 
@@ -15,7 +16,7 @@ public class JaxRsResource extends ResourceBase {
     return handleExceptions(() -> responseBuilder.get().build(), this::toErrorResponse);
   }
 
-  private Response toErrorResponse(int statusCode, Object body) {
+  private Response toErrorResponse(int statusCode, ErrorResponse body) {
     return status(statusCode).entity(body).build();
   }
 }

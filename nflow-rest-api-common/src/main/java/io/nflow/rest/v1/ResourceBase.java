@@ -176,7 +176,7 @@ public abstract class ResourceBase {
     return listWorkflowConverter.convert(instance, includes);
   }
 
-  protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, Object, T> error) {
+  protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
     try {
       return response.get();
     } catch (IllegalArgumentException e) {
