@@ -45,9 +45,7 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for DB2.
-   *
-   * @return SQL variants optimized for DB2.
+   * {@inheritDoc}
    */
   @Bean
   @Override

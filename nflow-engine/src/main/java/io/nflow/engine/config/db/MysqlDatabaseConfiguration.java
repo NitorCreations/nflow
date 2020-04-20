@@ -65,8 +65,7 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for MySQL database.
-   * @return SQL variants optimized for MySQL.
+   * {@inheritDoc}
    */
   @Bean
   @Override

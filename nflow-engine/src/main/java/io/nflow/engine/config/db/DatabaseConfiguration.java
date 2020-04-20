@@ -176,5 +176,11 @@ public abstract class DatabaseConfiguration {
     // no common checks for all databases
   }
 
+  /**
+   * Creates the SQL variants for the database.
+   *
+   * @param env The Spring environment.
+   * @return SQL variants optimized for DB2.
+   */
   public abstract SQLVariants sqlVariants(Environment env);
 }

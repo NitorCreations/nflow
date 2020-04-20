@@ -37,8 +37,7 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for SQL Server database.
-   * @return SQL variants optimized for SQL Server.
+   * {@inheritDoc}
    */
   @Bean
   @Override

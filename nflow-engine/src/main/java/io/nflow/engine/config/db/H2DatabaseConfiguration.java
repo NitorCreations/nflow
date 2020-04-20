@@ -60,8 +60,7 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for H2 database.
-   * @return SQL variants optimized for H2.
+   * {@inheritDoc}
    */
   @Bean
   @Override

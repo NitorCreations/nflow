@@ -27,8 +27,7 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for PostgreSQL database.
-   * @return SQL variants optimized for PostgreSQL.
+   * {@inheritDoc}
    */
   @Bean
   @Override
