@@ -3,6 +3,7 @@ package io.nflow.engine.config.db;
 import static io.nflow.engine.config.Profiles.DB2;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static java.lang.System.currentTimeMillis;
+import static java.util.Optional.ofNullable;
 import static java.util.TimeZone.getTimeZone;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -15,7 +16,6 @@ import java.sql.Types;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TimeZone;
 
 import javax.sql.DataSource;
@@ -175,25 +175,24 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
     @Override
     public Object getTimestamp(ResultSet rs, String columnName) throws SQLException {
-      return Optional.ofNullable(rs.getTimestamp(columnName)).map(ts -> new Timestamp(ts.getTime() + timeZoneMismatchInMillis()))
+      return ofNullable(rs.getTimestamp(columnName)).map(ts -> new Timestamp(ts.getTime() + timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
     @Override
     public DateTime getDateTime(ResultSet rs, String columnName) throws SQLException {
-      return Optional.ofNullable(rs.getTimestamp(columnName)).map(ts -> new DateTime(ts.getTime() + timeZoneMismatchInMillis()))
+      return ofNullable(rs.getTimestamp(columnName)).map(ts -> new DateTime(ts.getTime() + timeZoneMismatchInMillis()))
           .orElse(null);
     }
 
     @Override
     public void setDateTime(PreparedStatement ps, int columnNumber, DateTime timestamp) throws SQLException {
-      ps.setTimestamp(columnNumber, toTimestamp(timestamp), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+      ps.setTimestamp(columnNumber, toTimestamp(timestamp), Calendar.getInstance(getTimeZone("UTC")));
     }
 
     @Override
     public Object toTimestampObject(DateTime timestamp) {
-      return Optional.ofNullable(timestamp).map(ts -> new Timestamp(timestamp.getMillis() - timeZoneMismatchInMillis()))
-          .orElse(null);
+      return ofNullable(timestamp).map(ts -> new Timestamp(timestamp.getMillis() - timeZoneMismatchInMillis())).orElse(null);
     }
 
     @Override
@@ -203,7 +202,7 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
     private long timeZoneMismatchInMillis() {
       long now = currentTimeMillis();
-      return TimeZone.getDefault().getOffset(now) - TimeZone.getTimeZone(dbTimeZoneId).getOffset(now);
+      return TimeZone.getDefault().getOffset(now) - getTimeZone(dbTimeZoneId).getOffset(now);
     }
   }
 }
