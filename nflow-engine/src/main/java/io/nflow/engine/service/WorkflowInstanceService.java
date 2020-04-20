@@ -52,10 +52,14 @@ public class WorkflowInstanceService {
    * @param includes Set of properties to be loaded.
    * @param maxActions Maximum number of actions to be loaded.
    * @return The workflow instance.
-   * @throws EmptyResultDataAccessException If workflow instance is not found.
+   * @throws NflowNotFoundException If workflow instance is not found.
    */
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
-    return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions);
+    try {
+      return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions);
+    } catch (EmptyResultDataAccessException e) {
+      throw new NflowNotFoundException("Workflow instance", id, e);
+    }
   }
 
   /**

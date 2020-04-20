@@ -2,7 +2,6 @@ package io.nflow.rest.v1.springweb;
 
 import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -112,8 +111,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(
-        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter)),
-        format("Workflow instance %s", id));
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter)));
   }
 
   @GetMapping

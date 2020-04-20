@@ -1,7 +1,6 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.WILDCARD;
@@ -125,8 +124,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(
-        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build(),
-        format("Workflow instance %s", id));
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build());
   }
 
   @GET
