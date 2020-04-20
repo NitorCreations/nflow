@@ -12,6 +12,7 @@
   - Throw `IllegalArgumentException` instead of `IllegalStateException` when trying to update workflow instance state to an invalid value.
   - Throw `IllegalArugmentException` instead of `RuntimeException` when trying to insert workflow instance with unknown type or with a state that is not a start state.
   - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
+  - Fix sql deadlocks in polling for PostgreSQL with skip locked
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3

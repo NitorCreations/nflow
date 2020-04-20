@@ -548,14 +548,15 @@ public class WorkflowInstanceDao {
   private List<Long> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
     String sql = updateInstanceForExecutionQuery() + " where id in ("
         + sqlVariants.limit("select id from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize)
+        + sqlVariants.forUpdateSkipLocked()
         + ") and executor_id is null returning id";
     return jdbc.queryForList(sql, Long.class);
   }
 
   private List<Long> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
-    List<OptimisticLockKey> instances = jdbc.query(sql,
-            (rs, rowNum) -> new OptimisticLockKey(rs.getLong("id"), sqlVariants.getTimestamp(rs, "modified")));
+    List<OptimisticLockKey> instances = transaction.execute(tx -> jdbc.query(sql,
+            (rs, rowNum) -> new OptimisticLockKey(rs.getLong("id"), sqlVariants.getTimestamp(rs, "modified"))));
     if (instances.isEmpty()) {
       return emptyList();
     }

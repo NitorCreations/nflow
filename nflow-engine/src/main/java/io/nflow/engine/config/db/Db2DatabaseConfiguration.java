@@ -138,7 +138,7 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String forUpdateInnerSelect() {
+    public String forUpdateSkipLocked() {
       return "";
     }
 

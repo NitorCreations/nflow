@@ -97,8 +97,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String forUpdateInnerSelect() {
-      return "";
+    public String forUpdateSkipLocked() {
+        return " with (updlock,readpast)";
     }
 
     @Override
