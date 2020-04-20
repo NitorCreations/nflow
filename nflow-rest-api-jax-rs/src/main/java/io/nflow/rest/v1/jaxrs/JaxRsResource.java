@@ -8,6 +8,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import java.util.function.Supplier;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import io.nflow.engine.service.NflowNotFoundException;
@@ -16,9 +17,9 @@ import io.nflow.rest.v1.msg.ErrorResponse;
 
 public class JaxRsResource extends ResourceBase {
 
-  protected Response handleExceptions(Supplier<Response> response) {
+  protected Response handleExceptions(Supplier<ResponseBuilder> responseBuilder) {
     try {
-      return response.get();
+      return responseBuilder.get().build();
     } catch (IllegalArgumentException e) {
       return toErrorResponse(BAD_REQUEST, e.getMessage());
     } catch (NflowNotFoundException e) {

@@ -41,7 +41,7 @@ public class StatisticsResource extends JaxRsResource {
   @GET
   @ApiOperation(value = "Get executor group statistics", response = StatisticsResponse.class, notes = "Returns counts of queued and executing workflow instances.")
   public Response queryStatistics() {
-    return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())).build());
+    return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
   }
 
   @GET
@@ -53,7 +53,6 @@ public class StatisticsResource extends JaxRsResource {
       @QueryParam("modifiedAfter") @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
       @QueryParam("modifiedBefore") @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
     return handleExceptions(() -> ok(statisticsConverter.convert(
-        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore)))
-        .build());
+        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore))));
   }
 }

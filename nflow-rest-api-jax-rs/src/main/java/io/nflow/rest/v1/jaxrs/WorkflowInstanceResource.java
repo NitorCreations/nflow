@@ -96,7 +96,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       WorkflowInstance instance = createWorkflowConverter.convert(req);
       long id = workflowInstances.insertWorkflowInstance(instance);
       instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-      return created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance)).build();
+      return created(URI.create(String.valueOf(id))).entity(createWorkflowConverter.convert(instance));
     });
   }
 
@@ -110,7 +110,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
-      return (updated ? noContent() : status(CONFLICT)).build();
+      return (updated ? noContent() : status(CONFLICT));
     });
   }
 
@@ -124,7 +124,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(
-        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)).build());
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, workflowInstances, listWorkflowConverter)));
   }
 
   @GET
@@ -141,7 +141,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
-        businessKey, externalId, include, maxResults, maxActions, workflowInstances, listWorkflowConverter).iterator()).build());
+        businessKey, externalId, include, maxResults, maxActions, workflowInstances, listWorkflowConverter).iterator()));
   }
 
   @PUT
@@ -153,7 +153,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       SetSignalResponse response = new SetSignalResponse();
       response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
           WorkflowActionType.externalChange);
-      return ok(response).build();
+      return ok(response);
     });
   }
 
@@ -166,7 +166,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       WakeupResponse response = new WakeupResponse();
       List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
       response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
-      return ok(response).build();
+      return ok(response);
     });
   }
 }

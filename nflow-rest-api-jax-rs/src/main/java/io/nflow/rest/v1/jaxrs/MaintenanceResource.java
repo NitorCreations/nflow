@@ -45,7 +45,7 @@ public class MaintenanceResource extends JaxRsResource {
     return handleExceptions(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
       MaintenanceResults results = maintenanceService.cleanupWorkflows(configuration);
-      return ok(converter.convert(results)).build();
+      return ok(converter.convert(results));
     });
   }
 }
