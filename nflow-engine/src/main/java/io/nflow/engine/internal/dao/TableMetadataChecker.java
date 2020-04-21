@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,6 +26,7 @@ import io.nflow.engine.model.ModelObject;
 public class TableMetadataChecker {
   private final JdbcTemplate jdbc;
 
+  @Inject
   public TableMetadataChecker(@NFlow JdbcTemplate jdbcTemplate) {
     this.jdbc = jdbcTemplate;
   }

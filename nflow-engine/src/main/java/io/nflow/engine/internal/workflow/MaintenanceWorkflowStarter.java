@@ -7,6 +7,8 @@ import static java.util.Optional.ofNullable;
 
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -30,6 +32,7 @@ public class MaintenanceWorkflowStarter {
   protected String initialCronSchedule;
   protected MaintenanceConfiguration initialConfiguration;
 
+  @Inject
   public MaintenanceWorkflowStarter(Environment env, WorkflowInstanceService instanceService,
       WorkflowInstanceFactory workflowInstanceFactory) {
     this.workflowInstanceFactory = workflowInstanceFactory;
