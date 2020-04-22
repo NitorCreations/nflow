@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.guice;
+package io.nflow.engine.guice;
 
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;

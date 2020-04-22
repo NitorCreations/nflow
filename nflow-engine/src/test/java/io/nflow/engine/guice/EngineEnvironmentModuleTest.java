@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.guice;
+package io.nflow.engine.guice;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

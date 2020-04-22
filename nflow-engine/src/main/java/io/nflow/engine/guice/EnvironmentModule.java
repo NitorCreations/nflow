@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.guice;
+package io.nflow.engine.guice;
 
 import java.io.IOException;
 import java.util.Properties;

@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.guice;
+package io.nflow.engine.guice;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
