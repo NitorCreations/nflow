@@ -89,6 +89,10 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
       return false;
     }
 
+    @Override
+    public String forUpdateSkipLocked() {
+      return " for update";
+    }
     /**
      * Returns false as H2 does not support updateable CTEs.
      */
