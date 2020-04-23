@@ -1,9 +1,10 @@
 ## 7.2.0-SNAPSHOT (future release)
 
 **Highlights**
-- Expedited clean shutdown for workflows that run many steps without delays.
+- Expedited clean shutdown for workflows that run many consequtive states.
 - Add support for custom logic when nFlow engine thinks the workflow state processing may be stuck.
-- Support for Guice
+- Convert all exceptions to proper error response messages in all nFlow REST API endpoints. Applies to both `nflow-rest-api-jax-rs` and `nflow-rest-api-spring-web`.
+- Support for Guice.
 
 **Details**
 - `nflow-engine`
@@ -12,7 +13,7 @@
   - Throw `IllegalArgumentException` instead of `IllegalStateException` when trying to update workflow instance state to an invalid value.
   - Throw `IllegalArugmentException` instead of `RuntimeException` when trying to insert workflow instance with unknown type or with a state that is not a start state.
   - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
-  - Fix sql deadlocks in polling for PostgreSQL with skip locked
+  - Fix SQL deadlocks in workflow instance polling for PostgreSQL with skip locked.
   - Add `EngineEnvironmentModule` and `EngineModule` for Guice support. Call `NflowController.start()` and `NflowController.stop()` to start and stop nFlow engine, as `nflow.autostart` and `nflow.autoinit` configuration options are not supported with Guice.
   - Dependency updates:
     - spring 5.2.5
@@ -32,10 +33,10 @@
     - spotbugs 4.0.2
     - hibernate 6.1.4
     - commons-lang3 3.10
-- `nflow-rest-api-jax-rs`
-  - Convert `IllegalArgumentException` to HTTP Bad Request in `WorkflowInstanceResource.insertWorkflowInstance` and `WorkflowInstanceResource.updateWorkflowInstance`.
-- `nflow-rest-api-spring-web`
-  - Convert `IllegalArgumentException` to HTTP Bad Request in `WorkflowInstanceResource.insertWorkflowInstance` and `WorkflowInstanceResource.updateWorkflowInstance`.
+- `nflow-rest-api-jax-rs` and `nflow-rest-api-spring-web`
+  - Convert `IllegalArgumentException` to `HTTP 400 Bad Request` with a valid JSON response body in all endpoints.
+  - Convert `NflowNotFoundException` to `HTTP 404 Not Found` with a valid JSON response body in all endpoints.
+  - Convert all other throwables to `HTTP 500 Internal Server Error` with a valid JSON response body in all endpoints.
 - `nflow-explorer`
   - Dependency updates:
     - swagger-ui 2.2.10
