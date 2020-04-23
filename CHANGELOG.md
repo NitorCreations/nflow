@@ -12,7 +12,7 @@
   - Throw `IllegalArgumentException` instead of `IllegalStateException` when trying to update workflow instance state to an invalid value.
   - Throw `IllegalArugmentException` instead of `RuntimeException` when trying to insert workflow instance with unknown type or with a state that is not a start state.
   - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
-  - Add `EngineEnvironmentModule` and `EngineModule` for Guice support
+  - Add `EngineEnvironmentModule` and `EngineModule` for Guice support. Call `NflowController.start()` and `NflowController.stop()` to start and stop nFlow engine, as `nflow.autostart` and `nflow.autoinit` configuration options are not supported with Guice.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3
