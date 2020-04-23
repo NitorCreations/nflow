@@ -5,6 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.springframework.context.SmartLifecycle;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import io.nflow.engine.config.NFlow;
 
 @Component
+@Singleton
 public class WorkflowLifecycle implements SmartLifecycle {
   private static final Logger logger = getLogger(WorkflowLifecycle.class);
 

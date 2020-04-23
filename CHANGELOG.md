@@ -1,9 +1,9 @@
 ## 7.2.0-SNAPSHOT (future release)
 
 **Highlights**
-- `nflow-engine`
-  - Expedited clean shutdown for workflows that run many steps without delays.
-  - Add support for custom logic when nFlow engine thinks the workflow state processing may be stuck.
+- Expedited clean shutdown for workflows that run many steps without delays.
+- Add support for custom logic when nFlow engine thinks the workflow state processing may be stuck.
+- Support for Guice
 
 **Details**
 - `nflow-engine`
@@ -13,6 +13,7 @@
   - Throw `IllegalArugmentException` instead of `RuntimeException` when trying to insert workflow instance with unknown type or with a state that is not a start state.
   - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
   - Fix sql deadlocks in polling for PostgreSQL with skip locked
+  - Add `EngineEnvironmentModule` and `EngineModule` for Guice support. Call `NflowController.start()` and `NflowController.stop()` to start and stop nFlow engine, as `nflow.autostart` and `nflow.autoinit` configuration options are not supported with Guice.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3

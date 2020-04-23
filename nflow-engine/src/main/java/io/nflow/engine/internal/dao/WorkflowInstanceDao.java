@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -86,6 +87,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
  */
 @Component
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
+@Singleton
 public class WorkflowInstanceDao {
 
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
