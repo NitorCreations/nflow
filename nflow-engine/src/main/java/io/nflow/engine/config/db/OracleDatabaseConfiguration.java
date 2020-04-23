@@ -97,14 +97,6 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as Oracle does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    /**
      * Returns false as Oracle does not support updateable CTEs.
      */
     @Override

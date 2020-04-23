@@ -6,7 +6,11 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Objects;
@@ -82,14 +86,6 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as DB2 does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    /**
      * Returns false as DB2 does not support updateable CTEs.
      */
     @Override
@@ -137,6 +133,9 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
       return "";
     }
 
+    /**
+     * DB2 does not support for update skip locked.
+     */
     @Override
     public String forUpdateSkipLocked() {
       return "";

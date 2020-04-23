@@ -81,14 +81,6 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as SQL Server does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    /**
      * Returns false as SQL Server does not support updateable CTEs.
      */
     @Override
@@ -96,6 +88,9 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
       return false;
     }
 
+    /**
+     * SQL Server supports for update skip locked.
+     */
     @Override
     public String forUpdateSkipLocked() {
         return " with (updlock,readpast)";

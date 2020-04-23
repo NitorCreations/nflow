@@ -82,18 +82,6 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as H2 does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    @Override
-    public String forUpdateSkipLocked() {
-      return " for update";
-    }
-    /**
      * Returns false as H2 does not support updateable CTEs.
      */
     @Override

@@ -3,16 +3,20 @@ package io.nflow.engine.internal.storage.db;
 import static io.nflow.engine.internal.dao.DaoUtil.toDateTime;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.joda.time.DateTime;
+
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 public interface SQLVariants {
   String currentTimePlusSeconds(int seconds);
 
-  boolean hasUpdateReturning();
+  default boolean hasUpdateReturning() {
+    return false;
+  }
 
   String workflowStatus(WorkflowInstanceStatus status);
 
@@ -33,7 +37,7 @@ public interface SQLVariants {
   boolean useBatchUpdate();
 
   default String forUpdateSkipLocked() {
-    return " for update skip locked";
+    return " for update";
   }
 
   default String dateLtEqDiff(String next_activation, String current_timestamp) {
