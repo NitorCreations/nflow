@@ -130,5 +130,13 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
     public boolean useBatchUpdate() {
       return true;
     }
+
+    /**
+     * PostgreSQL suppports for update skip locked.
+     */
+    @Override
+    public String forUpdateSkipLocked() {
+      return " for update skip locked";
+    }
   }
 }

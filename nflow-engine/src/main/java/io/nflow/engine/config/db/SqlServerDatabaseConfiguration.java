@@ -65,7 +65,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
         sqlServerResultSet = forName("com.microsoft.sqlserver.jdbc.ISQLServerResultSet");
         sqlServerPreparedStatement = forName("com.microsoft.sqlserver.jdbc.ISQLServerPreparedStatement");
         getDateTimeOffsetMethod = sqlServerResultSet.getMethod("getDateTimeOffset", String.class);
-        setDateTimeOffsetMethod = sqlServerPreparedStatement.getMethod("setDateTimeOffset", Integer.TYPE, sqlServerDateTimeOffset);
+        setDateTimeOffsetMethod = sqlServerPreparedStatement.getMethod("setDateTimeOffset", Integer.TYPE,
+            sqlServerDateTimeOffset);
         getTimestampMethod = sqlServerDateTimeOffset.getMethod("getTimestamp");
         createDateTimeOffsetMethod = sqlServerDateTimeOffset.getMethod("valueOf", Timestamp.class, Integer.TYPE);
       } catch (ClassNotFoundException | NoSuchMethodException e) {
@@ -82,14 +83,6 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as SQL Server does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    /**
      * Returns false as SQL Server does not support updateable CTEs.
      */
     @Override
@@ -97,9 +90,20 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
       return false;
     }
 
+    /**
+     * SQL Server supports withUpdateSkipLocked instead.
+     */
     @Override
-    public String forUpdateInnerSelect() {
+    public String forUpdateSkipLocked() {
       return "";
+    }
+
+    /**
+     * SQL Server supports withUpdateSkipLocked.
+     */
+    @Override
+    public String withUpdateSkipLocked() {
+      return " with (updlock,readpast)";
     }
 
     @Override
@@ -155,9 +159,7 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
      */
     @Override
     public String nextActivationUpdate() {
-      return "(case "
-              + "when ? is null then null "
-              + "else iif(datediff_big(ms, ?, external_next_activation) > 0, external_next_activation, ?) end)";
+      return "(case when ? is null then null else iif(datediff_big(ms, ?, external_next_activation) > 0, external_next_activation, ?) end)";
     }
 
     /**

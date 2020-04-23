@@ -86,14 +86,6 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as DB2 does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    /**
      * Returns false as DB2 does not support updateable CTEs.
      */
     @Override
@@ -141,8 +133,11 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
       return "";
     }
 
+    /**
+     * DB2 does not support for update skip locked.
+     */
     @Override
-    public String forUpdateInnerSelect() {
+    public String forUpdateSkipLocked() {
       return "";
     }
 

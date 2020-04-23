@@ -18,14 +18,6 @@ public class MySQLVariants implements SQLVariants {
   }
 
   /**
-   * Returns false as MySQL does not support update returning clause.
-   */
-  @Override
-  public boolean hasUpdateReturning() {
-    return false;
-  }
-
-  /**
    * Returns false as MySQL does not support updateable CTEs.
    */
   @Override

@@ -82,14 +82,6 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * Returns false as H2 does not support update returning clause.
-     */
-    @Override
-    public boolean hasUpdateReturning() {
-      return false;
-    }
-
-    /**
      * Returns false as H2 does not support updateable CTEs.
      */
     @Override

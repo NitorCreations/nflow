@@ -112,8 +112,14 @@ public class NflowServerConfig {
         stopDb();
     }
 
+    public NflowServerConfig anotherServer() {
+        Builder b = new Builder();
+        b.props.putAll(props);
+        return new NflowServerConfig(b.env(env).profiles(profiles).springContextClass(springContextClass));
+    }
+
     private void startDb() throws IOException {
-        if (profiles.contains(POSTGRESQL)) {
+        if (profiles.contains(POSTGRESQL) && !props.containsKey("nflow.db.postgresql.url")) {
             PostgresStarter<PostgresExecutable, PostgresProcess> runtime = PostgresStarter.getDefaultInstance();
             PostgresConfig config = new PostgresConfig(V11_1, new AbstractPostgresConfig.Net(),
                     new AbstractPostgresConfig.Storage("nflow"), new AbstractPostgresConfig.Timeout(),
