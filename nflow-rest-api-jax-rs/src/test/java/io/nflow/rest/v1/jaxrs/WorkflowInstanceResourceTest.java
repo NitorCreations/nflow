@@ -37,13 +37,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
+import io.nflow.engine.service.NflowNotFoundException;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
@@ -226,7 +226,8 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenThrow(EmptyResultDataAccessException.class);
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
+        .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
     try (Response response = resource.fetchWorkflowInstance(42, null, null)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
@@ -266,7 +267,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
 
-    SetSignalResponse response = resource.setSignal(99, req);
+    SetSignalResponse response = resource.setSignal(99, req).readEntity(SetSignalResponse.class);
 
     verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
     assertTrue(response.setSignalSuccess);
@@ -279,7 +280,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
 
-    SetSignalResponse response = resource.setSignal(99, req);
+    SetSignalResponse response = resource.setSignal(99, req).readEntity(SetSignalResponse.class);
 
     verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
     assertFalse(response.setSignalSuccess);

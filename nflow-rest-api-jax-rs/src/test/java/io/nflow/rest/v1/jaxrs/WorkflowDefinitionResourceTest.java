@@ -2,6 +2,7 @@ package io.nflow.rest.v1.jaxrs;
 
 import static com.nitorcreations.Matchers.containsElements;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
@@ -16,7 +17,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+
+import javax.ws.rs.core.GenericType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +54,7 @@ public class WorkflowDefinitionResourceTest {
   private ListWorkflowDefinitionResponse dummyResponse;
 
   private WorkflowDefinitionResource resource;
+  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<List<ListWorkflowDefinitionResponse>>() {/**/};
 
   @BeforeEach
   public void setup() {
@@ -63,14 +67,14 @@ public class WorkflowDefinitionResourceTest {
 
   @Test
   public void listWorkflowDefinitionsFindsExistingDefinition() {
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("dummy"));
+    List<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("dummy")).readEntity(definitionListType);
     assertThat(ret.size(), is(1));
     verify(workflowDefinitionDao, never()).queryStoredWorkflowDefinitions(anyCollection());
   }
 
   @Test
   public void listWorkflowDefinitionsDoesNotFindNonExistentDefinition() {
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("nonexistent"));
+    List<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("nonexistent")).readEntity(definitionListType);
     assertThat(ret.size(), is(0));
     verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(stringList.capture());
     assertThat(stringList.getValue(), containsElements(asList("nonexistent")));
@@ -78,7 +82,7 @@ public class WorkflowDefinitionResourceTest {
 
   @Test
   public void listWorkflowDefinitionsFindsExistingDefinitionWithoutArguments() {
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(Collections.<String>emptyList());
+    List<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(emptyList()).readEntity(definitionListType);
     assertThat(ret.size(), is(1));
     verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(stringList.capture());
     assertThat(stringList.getValue().size(), is(0));
@@ -88,14 +92,13 @@ public class WorkflowDefinitionResourceTest {
   public void listWorkflowDefinitionsFindsExistingAndStoredDefinitionsWithoutArguments() {
     StoredWorkflowDefinition storedDefinitionDummy = mock(StoredWorkflowDefinition.class);
     StoredWorkflowDefinition storedDefinitionNew = mock(StoredWorkflowDefinition.class);
-    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(
-        asList(storedDefinitionDummy, storedDefinitionNew));
+    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(asList(storedDefinitionDummy, storedDefinitionNew));
     ListWorkflowDefinitionResponse storedResponseDummy = mock(ListWorkflowDefinitionResponse.class, "dbDummy");
     ListWorkflowDefinitionResponse storedResponseNew = mock(ListWorkflowDefinitionResponse.class, "dbNew");
     storedDefinitionDummy.type = "dummy";
     when(converter.convert(storedDefinitionNew)).thenReturn(storedResponseNew);
     storedDefinitionNew.type = "new";
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(Collections.<String>emptyList());
+    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(emptyList()).readEntity(definitionListType);
     assertThat(ret, hasItems(storedResponseNew, dummyResponse));
     assertThat(ret, not(hasItem(storedResponseDummy)));
   }
@@ -103,12 +106,11 @@ public class WorkflowDefinitionResourceTest {
   @Test
   public void listWorkflowDefinitionsFindsExistingAndStoredDefinitionsWithDbType() {
     StoredWorkflowDefinition storedDefinitionNew = mock(StoredWorkflowDefinition.class);
-    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(
-        asList(storedDefinitionNew));
+    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(asList(storedDefinitionNew));
     ListWorkflowDefinitionResponse storedResponseNew = mock(ListWorkflowDefinitionResponse.class, "dbNew");
     when(converter.convert(storedDefinitionNew)).thenReturn(storedResponseNew);
     storedDefinitionNew.type = "new";
-    Collection<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("new"));
+    List<ListWorkflowDefinitionResponse> ret = resource.listWorkflowDefinitions(asList("new")).readEntity(definitionListType);
     assertThat(ret, hasItems(storedResponseNew));
   }
 }

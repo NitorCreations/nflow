@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -28,6 +30,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
+import io.nflow.engine.service.NflowNotFoundException;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -40,6 +43,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
+import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
@@ -172,4 +176,15 @@ public abstract class ResourceBase {
     return listWorkflowConverter.convert(instance, includes);
   }
 
+  protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
+    try {
+      return response.get();
+    } catch (IllegalArgumentException e) {
+      return error.apply(400, new ErrorResponse(e.getMessage()));
+    } catch (NflowNotFoundException e) {
+      return error.apply(404, new ErrorResponse(e.getMessage()));
+    } catch (Throwable t) {
+      return error.apply(500, new ErrorResponse(t.getMessage()));
+    }
+  }
 }
