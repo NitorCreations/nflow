@@ -1,15 +1,26 @@
 package io.nflow.tests;
 
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.tests.config.PropertiesConfiguration;
-import io.nflow.tests.config.RestClientConfiguration;
-import io.nflow.tests.demo.workflow.DemoWorkflow;
-import io.nflow.tests.extension.NflowServerConfig;
-import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
+import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
+import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static java.lang.Thread.sleep;
+import static java.time.Duration.ofSeconds;
+import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.ws.rs.core.UriBuilder;
+
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
@@ -21,26 +32,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.ws.rs.core.UriBuilder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
-
-import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
-import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
-import static java.lang.Thread.sleep;
-import static java.time.Duration.ofSeconds;
-import static java.util.stream.Collectors.toList;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.joda.time.DateTime.now;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.tests.config.PropertiesConfiguration;
+import io.nflow.tests.config.RestClientConfiguration;
+import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
+import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith({ SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
@@ -103,7 +102,6 @@ public class ConcurrentEnginesTest {
   @Order(2)
   public void waitWorkflowsReady() {
     ListWorkflowInstanceResponse[] wfr = assertTimeoutPreemptively(ofSeconds(60), () -> {
-      ListWorkflowInstanceResponse wf = null;
       while (true) {
         sleep(500);
         ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true)
