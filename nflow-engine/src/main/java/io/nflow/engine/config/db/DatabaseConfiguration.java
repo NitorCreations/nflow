@@ -180,7 +180,7 @@ public abstract class DatabaseConfiguration {
    * Creates the SQL variants for the database.
    *
    * @param env The Spring environment.
-   * @return SQL variants optimized for DB2.
+   * @return SQL variants optimized for the database.
    */
   public abstract SQLVariants sqlVariants(Environment env);
 }
