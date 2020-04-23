@@ -547,9 +547,9 @@ public class WorkflowInstanceDao {
 
   private List<Long> pollNextWorkflowInstanceIdsWithUpdateReturning(int batchSize) {
     String sql = updateInstanceForExecutionQuery() + " where id in ("
-        + sqlVariants.limit("select id from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize)
-        + sqlVariants.forUpdateSkipLocked()
-        + ") and executor_id is null returning id";
+        + sqlVariants.limit(
+            "select id from nflow_workflow " + sqlVariants.withUpdateSkipLocked() + whereConditionForInstanceUpdate(), batchSize)
+        + sqlVariants.forUpdateSkipLocked() + ") and executor_id is null returning id";
     return jdbc.queryForList(sql, Long.class);
   }
 

@@ -101,7 +101,8 @@ public class MaintenanceDao {
 
   private int archiveTable(String table, String workflowIdColumn, String columns, String workflowIdParams) {
     return jdbc.update("insert into " + ARCHIVE.nameOf(table) + "(" + columns + ") " + "select " + columns + " from "
-        + MAIN.nameOf(table) + " where " + workflowIdColumn + " in " + workflowIdParams + sqlVariants.forUpdateSkipLocked());
+        + MAIN.nameOf(table) + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams
+        + sqlVariants.forUpdateSkipLocked());
   }
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {

@@ -91,10 +91,18 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     /**
-     * SQL Server supports for update skip locked.
+     * SQL Server supports withUpdateSkipLocked instead.
      */
     @Override
     public String forUpdateSkipLocked() {
+      return "";
+    }
+
+    /**
+     * SQL Server supports withUpdateSkipLocked.
+     */
+    @Override
+    public String withUpdateSkipLocked() {
       return " with (updlock,readpast)";
     }
 

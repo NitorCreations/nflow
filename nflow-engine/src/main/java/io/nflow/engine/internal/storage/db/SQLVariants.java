@@ -63,4 +63,8 @@ public interface SQLVariants {
   default Object tuneTimestampForDb(Object timestamp) {
     return timestamp;
   }
+
+  default String withUpdateSkipLocked() {
+    return "";
+  }
 }
