@@ -70,11 +70,11 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for MariaDB database.
-   * @return SQL variants optimized for MariaDB.
+   * {@inheritDoc}
    */
   @Bean
-  public SQLVariants sqlVariants() {
+  @Override
+  public SQLVariants sqlVariants(Environment env) {
     return new MySQLVariants();
   }
 }

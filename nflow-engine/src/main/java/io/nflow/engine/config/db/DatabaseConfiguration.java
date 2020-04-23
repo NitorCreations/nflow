@@ -23,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
+import io.nflow.engine.internal.storage.db.SQLVariants;
 
 /**
  * Base class for different database configurations.
@@ -55,6 +56,19 @@ public abstract class DatabaseConfiguration {
   @Bean
   @NFlow
   public DataSource nflowDatasource(Environment env, BeanFactory appCtx) {
+    Object metricRegistry = null;
+    try {
+      Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
+      metricRegistry = appCtx.getBean(metricClass);
+    } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
+      // ignored - metrics is an optional dependency
+    }
+    DataSource datasource = nflowDatasource(env, metricRegistry);
+    checkDatabaseConfiguration(env, datasource);
+    return datasource;
+  }
+
+  public DataSource nflowDatasource(Environment env, Object metricRegistry) {
     String url = property(env, "url");
     logger.info("Database connection to {} using {}", dbType, url);
     HikariConfig config = new HikariConfig();
@@ -66,20 +80,10 @@ public abstract class DatabaseConfiguration {
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
     config.setIdleTimeout(property(env, "idle_timeout_seconds", Long.class) * 1000);
     config.setAutoCommit(true);
-    setMetricRegistryIfBeanFoundOnClassPath(config, appCtx);
-    DataSource nflowDataSource = new HikariDataSource(config);
-    checkDatabaseConfiguration(env, nflowDataSource);
-    return nflowDataSource;
-  }
-
-  private void setMetricRegistryIfBeanFoundOnClassPath(HikariConfig config, BeanFactory appCtx) {
-    try {
-      Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
-      Object metricRegistry = appCtx.getBean(metricClass);
+    if (metricRegistry != null) {
       config.setMetricRegistry(metricRegistry);
-    } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
-      // ignored - metrics is an optional dependency
     }
+    return new HikariDataSource(config);
   }
 
   /**
@@ -171,4 +175,12 @@ public abstract class DatabaseConfiguration {
   protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
     // no common checks for all databases
   }
+
+  /**
+   * Creates the SQL variants for the database.
+   *
+   * @param env The Spring environment.
+   * @return SQL variants optimized for DB2.
+   */
+  public abstract SQLVariants sqlVariants(Environment env);
 }

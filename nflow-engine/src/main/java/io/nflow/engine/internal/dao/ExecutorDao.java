@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ import io.nflow.engine.workflow.executor.WorkflowExecutor;
  */
 @Component
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
+@Singleton
 public class ExecutorDao {
 
   private static final Logger logger = getLogger(ExecutorDao.class);

@@ -64,12 +64,12 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
   }
 
   /**
-   * Creates the SQL variants for Oracle database.
-   * @return SQL variants optimized for Oracle.
+   * {@inheritDoc}
    */
   @Bean
+  @Override
   @DependsOn(NFLOW_DATABASE_INITIALIZER)
-  public SQLVariants sqlVariants() {
+  public SQLVariants sqlVariants(Environment env) {
     return new OracleSqlVariants(useBatchUpdate);
   }
 
