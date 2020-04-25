@@ -127,8 +127,7 @@ create table nflow_archive_workflow (
   modified datetimeoffset(3) not null,
   started datetimeoffset(3),
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
 if not exists (select 1 from sys.indexes where name='idx_workflow_archive_parent')

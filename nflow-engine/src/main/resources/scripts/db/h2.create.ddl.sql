@@ -104,7 +104,6 @@ create table if not exists nflow_archive_workflow (
   workflow_signal int
 );
 
-create unique index if not exists nflow_archive_workflow_uniq on nflow_archive_workflow(type, external_id, executor_group);
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
 
 create table if not exists nflow_archive_workflow_action (

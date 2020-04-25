@@ -111,8 +111,7 @@ create table nflow_archive_workflow (
   modified timestamp(3) not null,
   started timestamp(3),
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
