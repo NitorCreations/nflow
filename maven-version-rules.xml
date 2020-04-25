@@ -53,7 +53,17 @@
                 <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="org.glassfish.jersey.containers">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
         <rule groupId="org.glassfish.jersey.core">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.glassfish.jersey.inject">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*M*</ignoreVersion>
             </ignoreVersions>
@@ -65,3 +75,4 @@
         </rule>
     </rules>
 </ruleset>
+
