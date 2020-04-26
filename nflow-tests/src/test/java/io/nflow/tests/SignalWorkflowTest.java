@@ -2,7 +2,6 @@ package io.nflow.tests;
 
 import static io.nflow.tests.demo.workflow.SlowWorkflow.SLOW_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -46,7 +45,7 @@ public class SignalWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = SLOW_WORKFLOW_TYPE;
     req.businessKey = "1";
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
   }
 

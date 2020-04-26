@@ -4,7 +4,6 @@ import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.tests.demo.workflow.TestCronWorkflow.TYPE;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -49,7 +48,7 @@ public class CronWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = TYPE;
     req.stateVariables = singletonMap("cron", "*/3 * * * * *");
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertNotNull(resp.id);
   }
 
@@ -74,6 +73,6 @@ public class CronWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
     request.nextActivationTime = null;
     request.state = failed.name();
-    updateWorkflowInstance(resp.id, request);
+    updateWorkflowInstance(resp.id, request, String.class);
   }
 }

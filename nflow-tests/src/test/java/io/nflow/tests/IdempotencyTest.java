@@ -2,6 +2,7 @@ package io.nflow.tests;
 
 import static io.nflow.tests.demo.workflow.SimpleWorkflow.SIMPLE_WORKFLOW_TYPE;
 import static java.util.UUID.randomUUID;
+import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceRequest;
+import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
+import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.tests.demo.workflow.SimpleWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 
@@ -35,13 +39,13 @@ public class IdempotencyTest extends AbstractNflowTest {
   @Test
   @Order(2)
   public void createFirstWorkflow() {
-    firstWorkflowId = insertWorkflow(request);
+    firstWorkflowId = createWorkflowInstance(request).id;
   }
 
   @Test
   @Order(3)
   public void createFirstWorkflowAgainReturnsSameId() {
-    long workflowId = insertWorkflow(request);
+    long workflowId = createWorkflowInstance(request).id;
     assertEquals(firstWorkflowId, workflowId);
   }
 
@@ -56,14 +60,14 @@ public class IdempotencyTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void createSameWorkflowAgainsReturnsNewId() {
-    secondWorkflowId = insertWorkflow(request);
+    secondWorkflowId = createWorkflowInstance(request).id;
     assertNotEquals(firstWorkflowId, secondWorkflowId);
   }
 
   @Test
   @Order(6)
   public void createSecondWorkflowAgainReturnsSameId() {
-    long workflowId = insertWorkflow(request);
+    long workflowId = createWorkflowInstance(request).id;
     assertEquals(secondWorkflowId, workflowId);
   }
 
@@ -78,7 +82,7 @@ public class IdempotencyTest extends AbstractNflowTest {
   @Test
   @Order(8)
   public void createSameWorkflowAgainsReturnsNewIdAgain() {
-    long workflowId = insertWorkflow(request);
+    long workflowId = createWorkflowInstance(request).id;
     assertNotEquals(secondWorkflowId, workflowId);
   }
 
@@ -87,5 +91,12 @@ public class IdempotencyTest extends AbstractNflowTest {
     req.type = SIMPLE_WORKFLOW_TYPE;
     req.externalId = randomUUID().toString();
     return req;
+  }
+
+  private MaintenanceResponse archiveAllFinishedWorkflows() {
+    MaintenanceRequest req = new MaintenanceRequest();
+    req.archiveWorkflows = new MaintenanceRequestItem();
+    req.archiveWorkflows.olderThanPeriod = seconds(0);
+    return doMaintenance(req);
   }
 }

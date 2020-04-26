@@ -7,7 +7,6 @@ import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.time.Duration.ofSeconds;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
@@ -61,8 +60,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
     List<Integer> childData = IntStream.rangeClosed(1, CHILDREN_COUNT).boxed().collect(toList());
     req.stateVariables.put(BulkWorkflow.VAR_CHILD_DATA, nflowObjectMapper().valueToTree(childData));
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-        CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     workflowId = resp.id;
   }
@@ -80,8 +78,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     req.type = BULK_WORKFLOW_TYPE;
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
     req.activate = false;
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-        CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     workflowId = resp.id;
 
@@ -90,7 +87,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
       child.type = DEMO_WORKFLOW_TYPE;
       child.activate = false;
       child.parentWorkflowId = workflowId;
-      resp = fromClient(workflowInstanceResource, true).put(child, CreateWorkflowInstanceResponse.class);
+      resp = createWorkflowInstance(child);
       assertThat(resp.id, notNullValue());
     }
   }
@@ -100,7 +97,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   public void t12_startBulkWorkflow() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now();
-    try (Response resp = fromClient(workflowInstanceResource, true).path("id").path(workflowId).put(req, Response.class)) {
+    try (Response resp = updateWorkflowInstance(workflowId, req, Response.class)) {
       assertThat(resp.getStatus(), equalTo(204));
     }
   }

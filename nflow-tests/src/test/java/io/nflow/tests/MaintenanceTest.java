@@ -3,15 +3,12 @@ package io.nflow.tests;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +23,6 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
-import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 
@@ -35,7 +31,6 @@ public class MaintenanceTest extends AbstractNflowTest {
   private static final int STEP_1_WORKFLOWS = 4;
   private static final int STEP_2_WORKFLOWS = 7;
   private static final int STEP_3_WORKFLOWS = 4;
-  private static final Duration ARCHIVE_TIMEOUT = ofSeconds(15);
 
   public static NflowServerConfig server = new NflowServerConfig.Builder().prop("nflow.dispatcher.sleep.ms", 25).build();
 
@@ -153,8 +148,7 @@ public class MaintenanceTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = FibonacciWorkflow.WORKFLOW_TYPE;
     req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3)));
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-        CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     return resp.id;
   }
@@ -163,16 +157,14 @@ public class MaintenanceTest extends AbstractNflowTest {
     MaintenanceRequest req = new MaintenanceRequest();
     req.archiveWorkflows = new MaintenanceRequestItem();
     req.archiveWorkflows.olderThanPeriod = new Period(olderThan, now());
-    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT,
-        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class)).archivedWorkflows;
+    return doMaintenance(req).archivedWorkflows;
   }
 
   private int deleteOlderThan(DateTime olderThan) {
     MaintenanceRequest req = new MaintenanceRequest();
     req.deleteArchivedWorkflows = new MaintenanceRequestItem();
     req.deleteArchivedWorkflows.olderThanPeriod = new Period(olderThan, now());
-    return assertTimeoutPreemptively(ARCHIVE_TIMEOUT, () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req,
-        MaintenanceResponse.class)).deletedArchivedWorkflows;
+    return doMaintenance(req).deletedArchivedWorkflows;
   }
 
   private void waitUntilWorkflowsFinished(List<Long> workflowIds) {

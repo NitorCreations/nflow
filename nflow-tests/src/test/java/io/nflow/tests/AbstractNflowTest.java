@@ -49,11 +49,11 @@ import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 @ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
-  protected WebClient workflowInstanceResource;
-  protected WebClient workflowInstanceIdResource;
-  protected WebClient workflowDefinitionResource;
-  protected WebClient statisticsResource;
-  protected WebClient maintenanceResource;
+  private WebClient workflowInstanceResource;
+  private WebClient workflowInstanceIdResource;
+  private WebClient workflowDefinitionResource;
+  private WebClient statisticsResource;
+  private WebClient maintenanceResource;
 
   private final NflowServerConfig server;
 
@@ -109,24 +109,24 @@ public abstract class AbstractNflowTest {
     return getInstanceResource(instanceId).path("signal").put(request, SetSignalResponse.class);
   }
 
-  private WebClient getInstanceResource(long instanceId) {
-    WebClient client = fromClient(workflowInstanceResource, true).path(Long.toString(instanceId));
-    return client;
+  protected WebClient getInstanceResource() {
+    return fromClient(workflowInstanceResource, true);
+  }
+
+  protected WebClient getInstanceResource(long instanceId) {
+    return getInstanceResource().path(Long.toString(instanceId));
   }
 
   protected WebClient getInstanceIdResource(long instanceId) {
-    WebClient client = fromClient(workflowInstanceIdResource, true).path(Long.toString(instanceId));
-    return client;
+    return fromClient(workflowInstanceIdResource, true).path(Long.toString(instanceId));
   }
 
   protected ListWorkflowDefinitionResponse[] getWorkflowDefinitions() {
-    WebClient client = fromClient(workflowDefinitionResource, true);
-    return client.get(ListWorkflowDefinitionResponse[].class);
+    return fromClient(workflowDefinitionResource, true).get(ListWorkflowDefinitionResponse[].class);
   }
 
   public StatisticsResponse getStatistics() {
-    WebClient client = fromClient(statisticsResource, true);
-    return client.get(StatisticsResponse.class);
+    return fromClient(statisticsResource, true).get(StatisticsResponse.class);
   }
 
   public WorkflowDefinitionStatisticsResponse getDefinitionStatistics(String definitionType) {
@@ -173,7 +173,7 @@ public abstract class AbstractNflowTest {
   }
 
   protected CreateWorkflowInstanceResponse createWorkflowInstance(CreateWorkflowInstanceRequest request) {
-    return makeWorkflowInstanceQuery(request, CreateWorkflowInstanceResponse.class);
+    return fromClient(workflowInstanceResource, true).put(request, CreateWorkflowInstanceResponse.class);
   }
 
   protected ObjectMapper nflowObjectMapper() {
@@ -183,33 +183,21 @@ public abstract class AbstractNflowTest {
     return mapper;
   }
 
-  protected MaintenanceResponse archiveAllFinishedWorkflows() {
-    MaintenanceRequest req = new MaintenanceRequest();
-    req.archiveWorkflows = new MaintenanceRequestItem();
-    req.archiveWorkflows.olderThanPeriod = seconds(0);
-    return assertTimeoutPreemptively(ofSeconds(15),
-        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
-  }
-
   protected MaintenanceResponse deleteAllFinishedWorkflows() {
     MaintenanceRequest req = new MaintenanceRequest();
     req.deleteWorkflows = new MaintenanceRequestItem();
     req.deleteWorkflows.olderThanPeriod = seconds(0);
     req.deleteArchivedWorkflows = req.deleteWorkflows;
+    return doMaintenance(req);
+  }
+
+  protected MaintenanceResponse doMaintenance(MaintenanceRequest req) {
     return assertTimeoutPreemptively(ofSeconds(15),
         () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
   }
 
-  protected long insertWorkflow(CreateWorkflowInstanceRequest req) {
-    return fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class).id;
-  }
-
-  protected String updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request) {
-    return getInstanceIdResource(instanceId).put(request, String.class);
-  }
-
-  private <T> T makeWorkflowInstanceQuery(CreateWorkflowInstanceRequest request, Class<T> responseClass) {
-    return fromClient(workflowInstanceResource, true).put(request, responseClass);
+  protected <T> T updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request, Class<T> responseClass) {
+    return getInstanceIdResource(instanceId).put(request, responseClass);
   }
 
   public interface WorkflowInstanceValidator {

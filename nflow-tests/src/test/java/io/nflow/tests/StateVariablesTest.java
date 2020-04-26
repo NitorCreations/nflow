@@ -5,7 +5,6 @@ import static java.util.Collections.singletonMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -95,7 +94,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("testUpdate", "testValue");
 
-    updateWorkflowInstance(createResponse.id, req);
+    updateWorkflowInstance(createResponse.id, req, String.class);
 
     ListWorkflowInstanceResponse response = getWorkflowInstance(createResponse.id);
     assertEquals(7, response.actions.size());
@@ -108,7 +107,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("testUpdate", repeat('a', 8001));
 
-    try (Response response = getInstanceIdResource(createResponse.id).put(req)) {
+    try (Response response = updateWorkflowInstance(createResponse.id, req, Response.class)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
       assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
@@ -123,7 +122,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest.externalId = UUID.randomUUID().toString();
     createRequest.stateVariables.put("requestData", repeat('a', 8001));
 
-    try (Response response = fromClient(workflowInstanceResource, true).put(createRequest)) {
+    try (Response response = getInstanceResource().put(createRequest)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
       assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));

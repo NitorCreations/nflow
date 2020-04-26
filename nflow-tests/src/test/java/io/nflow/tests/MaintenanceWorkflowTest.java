@@ -7,7 +7,6 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.generate;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
@@ -57,7 +56,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
   @Order(2)
   public void verifyThatMaintenanceWorkflowIsRunning() throws InterruptedException {
     SECONDS.sleep(1);
-    ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true) //
+    ListWorkflowInstanceResponse[] instances = getInstanceResource() //
         .query("type", MAINTENANCE_WORKFLOW_TYPE) //
         .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
         .query("include", "currentStateVariables") //
@@ -90,7 +89,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
     request.nextActivationTime = null;
     request.state = failed.name();
-    updateWorkflowInstance(maintenanceWorkflowId, request);
+    updateWorkflowInstance(maintenanceWorkflowId, request, String.class);
   }
 
   private List<Long> createWorkflows(int count) {
@@ -101,8 +100,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = FibonacciWorkflow.WORKFLOW_TYPE;
     req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3)));
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-        CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     return resp.id;
   }

@@ -1,7 +1,6 @@
 package io.nflow.tests;
 
 import static java.time.Duration.ofSeconds;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -43,7 +42,7 @@ public class DeleteHistoryTest extends AbstractNflowTest {
   public void createWorkflowInstance() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DeleteHistoryWorkflow.TYPE;
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, is(notNullValue()));
   }
 

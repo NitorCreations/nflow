@@ -5,7 +5,6 @@ import static java.time.Duration.ofSeconds;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -53,7 +52,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "demo";
     req.businessKey = "1";
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
   }
 
@@ -64,8 +63,8 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       ListWorkflowInstanceResponse wf = null;
       do {
         sleep(200);
-        ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
-            .query("include", "actions").get(ListWorkflowInstanceResponse[].class);
+        ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", "demo").query("include", "actions")
+            .get(ListWorkflowInstanceResponse[].class);
         assertThat(instances.length, greaterThanOrEqualTo(1));
         for (ListWorkflowInstanceResponse instance : instances) {
           if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
@@ -82,8 +81,8 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(3)
   public void queryDemoWorkflowWithMultipleStatuses() {
-    ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true).query("type", "demo")
-        .query("status", "finished").query("status", "manual").get(ListWorkflowInstanceResponse[].class);
+    ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", "demo").query("status", "finished")
+        .query("status", "manual").get(ListWorkflowInstanceResponse[].class);
     assertThat(instances.length, greaterThanOrEqualTo(1));
   }
 
@@ -103,8 +102,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void queryWorkflowWithoutActionsReturnsNullActions() {
-    ListWorkflowInstanceResponse instance = fromClient(workflowInstanceIdResource, true).path(Long.toString(resp.id))
-        .get(ListWorkflowInstanceResponse.class);
+    ListWorkflowInstanceResponse instance = getInstanceIdResource(resp.id).get(ListWorkflowInstanceResponse.class);
 
     assertThat(instance.actions, is(nullValue()));
   }
@@ -115,7 +113,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now().plusDays(1);
 
-    try (Response response = getInstanceIdResource(resp.id).put(req)) {
+    try (Response response = updateWorkflowInstance(resp.id, req, Response.class)) {
       assertThat(response.getStatus(), is(NO_CONTENT.getStatusCode()));
       assertThat(response.readEntity(String.class), is(""));
     }
@@ -127,7 +125,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now().plusDays(2);
 
-    try (Response response = getInstanceIdResource(-1).put(req)) {
+    try (Response response = updateWorkflowInstance(-1, req, Response.class)) {
       assertThat(response.getStatus(), is(NOT_FOUND.getStatusCode()));
       assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, is("Workflow instance -1 not found"));

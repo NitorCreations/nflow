@@ -1,20 +1,20 @@
 package io.nflow.tests;
 
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
-import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.tests.demo.workflow.FibonacciWorkflow;
-import io.nflow.tests.extension.NflowServerConfig;
+import static java.time.Duration.ofSeconds;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.notNullValue;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static java.time.Duration.ofSeconds;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.notNullValue;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
+import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
+import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import io.nflow.tests.demo.workflow.FibonacciWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ChildWorkflowTest extends AbstractNflowTest {
@@ -32,8 +32,7 @@ public class ChildWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = "fibonacci";
     req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
-    CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-        CreateWorkflowInstanceResponse.class);
+    CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     workflowId = resp.id;
   }
