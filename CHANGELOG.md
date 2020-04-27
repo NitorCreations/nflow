@@ -14,8 +14,8 @@
     - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface.
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
-  - Query interfaces allow to request also scanning of archived workflow instances
-  - Dependency updates
+  - Query interfaces allow to request searching of archived workflow instances if not enough matches found from main tables.
+- Dependency updates
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
       - https://jira.qos.ch/browse/LOGBACK-1591
@@ -29,7 +29,7 @@
     - jodatime 2.10.3
     - slf4j 1.7.33
 - `nflow-rest-api-jax-rs` and `nflow-rest-api-spring-web`
-  - Support for querying also archived workflow instances when passing `queryArchive=true` query parameter.
+  - Support for querying archived workflow instances when passing `queryArchive=true` query parameter if not enough matches found from main tables.
 - `nflow-rest-api`
   - Dependency updates
     - swagger 1.6.4
@@ -59,7 +59,7 @@
     - mariadb 2.7.5
     - postgresql 42.3.1
 - `nflow-explorer`
-  - Query also archived workflow instances by default. Configurable in `config.js`.
+  - Query and show archived workflow instances by default if not enough matches found from main tables. Configurable in `config.js`.
 - Minimum supported Maven version for building is 3.6
 
 ## 7.4.0 (2021-12-27)

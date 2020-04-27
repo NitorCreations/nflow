@@ -1,6 +1,7 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static java.lang.Boolean.parseBoolean;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -70,6 +71,8 @@ public abstract class ResourceBase {
           new SimpleEntry<>(actionStateVariables, WorkflowInstanceInclude.ACTION_STATE_VARIABLES),
           new SimpleEntry<>(childWorkflows, WorkflowInstanceInclude.CHILD_WORKFLOW_IDS))
       .collect(toMap(Entry::getKey, Entry::getValue)));
+  protected static final String QUERY_ARCHIVED_DEFAULT_S = "false";
+  protected static final boolean QUERY_ARCHIVED_DEFAULT = parseBoolean(QUERY_ARCHIVED_DEFAULT_S);
 
   public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(final List<String> types,
       final WorkflowDefinitionService workflowDefinitions, final ListWorkflowDefinitionConverter converter,
