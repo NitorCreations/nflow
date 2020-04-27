@@ -123,7 +123,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   public Response fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions,
-      @QueryParam("queryArchive") @ApiParam("Query also the archive") Boolean queryArchive) {
+      @QueryParam("queryArchive") @ApiParam("Query also the archive if not found from prod tables") Boolean queryArchive) {
     return handleExceptions(
         () -> ok(super.fetchWorkflowInstance(id, include, maxActions, ofNullable(queryArchive).orElse(false), workflowInstances, listWorkflowConverter)));
   }

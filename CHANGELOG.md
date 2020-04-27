@@ -4,6 +4,8 @@
 - `nflow-engine`
   - BREAKING CHANGE: Remove `WorkflowDefinition`, workflow definitions should extend `AbstractWorkflowDefinition` instead.
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
+- `nflow-rest-api-spring-web` and `nflow-netty`
+  - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
 
 **Details**
 - `nflow-engine`
