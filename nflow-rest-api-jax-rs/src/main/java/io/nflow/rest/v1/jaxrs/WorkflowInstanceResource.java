@@ -123,7 +123,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   public Response fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions,
-      @QueryParam("queryArchive") @ApiParam("Query also the archive if not found from prod tables") Boolean queryArchive) {
+      @QueryParam("queryArchive") @ApiParam("Query also the archive if not found from main tables") Boolean queryArchive) {
     return handleExceptions(
         () -> ok(super.fetchWorkflowInstance(id, include, maxActions, ofNullable(queryArchive).orElse(false), workflowInstances, listWorkflowConverter)));
   }
@@ -143,7 +143,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions,
-      @QueryParam("queryArchive") @ApiParam("Query also the archive") Boolean queryArchive) {
+      @QueryParam("queryArchive") @ApiParam("Query also the archive if not enough results found from main tables") Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
         businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions,
         ofNullable(queryArchive).orElse(false), workflowInstances, listWorkflowConverter).iterator()));
