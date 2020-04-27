@@ -149,6 +149,8 @@ create table nflow_archive_workflow_action (
 
 if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_action_workflow')
 create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
+if not exists (select 1 from sys.indexes where name='idx_workflow_archive_type')
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow_state')
 create table nflow_archive_workflow_state (

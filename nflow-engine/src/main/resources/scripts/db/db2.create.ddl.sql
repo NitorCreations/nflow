@@ -115,6 +115,7 @@ create table nflow_archive_workflow (
 );
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 create table nflow_archive_workflow_action (
   id int not null primary key,
