@@ -109,11 +109,11 @@ create table if not exists nflow_archive_workflow (
   modified timestamp not null,
   started timestamp null,
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 create table if not exists nflow_archive_workflow_action (
   id int not null primary key,

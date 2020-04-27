@@ -36,7 +36,7 @@ if not exists (select 1 from sys.indexes where name='nflow_workflow_polling')
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group) where next_activation is not null;
 
 if not exists (select 1 from sys.indexes where name='idx_workflow_parent')
-create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id) where parent_workflow_id is not null;
 
 if not exists (select 1 from sys.tables where name='nflow_workflow_action')
 create table nflow_workflow_action (
@@ -127,15 +127,11 @@ create table nflow_archive_workflow (
   modified datetimeoffset(3) not null,
   started datetimeoffset(3),
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
-if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_parent')
-create index nflow_archive_workflow_parent on nflow_archive_workflow(parent_workflow_id, parent_action_id);
-
 if not exists (select 1 from sys.indexes where name='idx_workflow_archive_parent')
-create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id);
+create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id) where parent_workflow_id is not null;
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow_action')
 create table nflow_archive_workflow_action (
@@ -153,6 +149,8 @@ create table nflow_archive_workflow_action (
 
 if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_action_workflow')
 create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
+if not exists (select 1 from sys.indexes where name='idx_workflow_archive_type')
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow_state')
 create table nflow_archive_workflow_state (

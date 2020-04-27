@@ -15,6 +15,11 @@
   - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
   - Fix SQL deadlocks in workflow instance polling for PostgreSQL with skip locked.
   - Add `EngineEnvironmentModule` and `EngineModule` for Guice support. Call `NflowController.start()` and `NflowController.stop()` to start and stop nFlow engine, as `nflow.autostart` and `nflow.autoinit` configuration options are not supported with Guice.
+  - MySQL/MariaDB: use compressed table format for archives.
+  - PostgreSQL/SQLServer: use partial (not null) indices for parent hierarchy.
+  - PostgreSQL: tune fillfactors of tables and indices.
+  - PostgreSQL: reorder table column order to minimize space lost on padding. Only affects new tables.
+  - Drop `(type, external_id, executor_group)` unique constraint from `nflow_archive_workflow` table. Allows archiving workflow instances with same values multiple times. Only one instance is allowed in production table though.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3

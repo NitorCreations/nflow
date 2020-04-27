@@ -3,3 +3,4 @@ io.nflow.tests.demo.workflow.FibonacciWorkflow
 io.nflow.tests.demo.workflow.SlowWorkflow
 io.nflow.tests.demo.workflow.WordGeneratorErrorsWorkflow
 io.nflow.tests.demo.workflow.WordGeneratorWorkflow
+io.nflow.tests.demo.workflow.SimpleWorkflow

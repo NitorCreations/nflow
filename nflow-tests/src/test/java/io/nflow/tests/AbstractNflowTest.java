@@ -2,10 +2,12 @@ package io.nflow.tests;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Thread.sleep;
+import static java.time.Duration.ofSeconds;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.time.Duration;
@@ -16,7 +18,6 @@ import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.joda.time.Period;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -182,13 +183,25 @@ public abstract class AbstractNflowTest {
     return mapper;
   }
 
-  protected void deleteAllFinishedWorkflows() {
+  protected MaintenanceResponse archiveAllFinishedWorkflows() {
+    MaintenanceRequest req = new MaintenanceRequest();
+    req.archiveWorkflows = new MaintenanceRequestItem();
+    req.archiveWorkflows.olderThanPeriod = seconds(0);
+    return assertTimeoutPreemptively(ofSeconds(15),
+        () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
+  }
+
+  protected MaintenanceResponse deleteAllFinishedWorkflows() {
     MaintenanceRequest req = new MaintenanceRequest();
     req.deleteWorkflows = new MaintenanceRequestItem();
-    req.deleteWorkflows.olderThanPeriod = Period.seconds(0);
+    req.deleteWorkflows.olderThanPeriod = seconds(0);
     req.deleteArchivedWorkflows = req.deleteWorkflows;
-    assertTimeoutPreemptively(Duration.ofSeconds(15),
+    return assertTimeoutPreemptively(ofSeconds(15),
         () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
+  }
+
+  protected long insertWorkflow(CreateWorkflowInstanceRequest req) {
+    return fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class).id;
   }
 
   protected String updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request) {
@@ -201,5 +214,15 @@ public abstract class AbstractNflowTest {
 
   public interface WorkflowInstanceValidator {
     void validate(ListWorkflowInstanceResponse workflowInstance);
+  }
+
+  protected void waitUntilWorkflowIsFinished(long workflowId, String endState) {
+    assertTimeoutPreemptively(ofSeconds(10), () -> {
+      try {
+        getWorkflowInstance(workflowId, endState);
+      } catch (@SuppressWarnings("unused") InterruptedException e) {
+        // ignore
+      }
+    });
   }
 }
