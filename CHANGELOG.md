@@ -1,4 +1,10 @@
-## 7.2.0-SNAPSHOT (future release)
+## 7.2.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.2.0 (2020-04-27)
 
 **Highlights**
 - Expedited clean shutdown for workflows that run many consequtive states.
