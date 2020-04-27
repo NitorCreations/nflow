@@ -518,10 +518,10 @@ public class WorkflowInstanceDao {
 
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
     String sql = "select *, 0 as archived from " + MAIN.nameOf("workflow") + " where id = ?";
-    Object[] args = new Object[]{id};
+    Object[] args = new Object[]{ id };
     if (queryArchive) {
       sql += " union all select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " where id = ?";
-      args = new Object[]{id, id};
+      args = new Object[]{ id, id };
     }
     WorkflowInstance instance = jdbc.queryForObject(sql, args, new WorkflowInstanceRowMapper()).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
@@ -686,24 +686,26 @@ public class WorkflowInstanceDao {
     conditions.add("executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
 
-    String innerJoin = "";
+    String innerJoinMain = "";
+    String innerJoinArchive = "";
     if (query.stateVariableKey != null) {
-      innerJoin = "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
+      innerJoinMain = "inner join " + MAIN.nameOf("workflow_state") + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
+      innerJoinArchive = "inner join " + ARCHIVE.nameOf("workflow_state") + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
       conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
       params.addValue("state_key", query.stateVariableKey);
       params.addValue("state_value", query.stateVariableValue);
     }
 
-    String sqlQuery = innerJoin + " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    String whereCondition = " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
 
     long maxResults = getMaxResults(query.maxResults);
-    String sql = sqlVariants.limit("select *, 0 as archived from " + MAIN.nameOf("workflow") + sqlQuery, maxResults);
+    String sql = sqlVariants.limit("select *, 0 as archived from " + MAIN.nameOf("workflow") + " wf " + innerJoinMain + whereCondition, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper());
     maxResults -= results.size();
     Stream<WorkflowInstance.Builder> resultStream = results.stream();
 
     if (query.queryArchive && maxResults > 0) {
-      sql = sqlVariants.limit("select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + sqlQuery, maxResults);
+      sql = sqlVariants.limit("select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " wf " +  innerJoinArchive + whereCondition, maxResults);
       resultStream = concat(resultStream, namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream());
     }
 
