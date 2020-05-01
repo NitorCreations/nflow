@@ -4,6 +4,20 @@
 
 **Details**
 
+- `nflow-engine`
+  - Dependency updates:
+    - spring 5.2.6
+    - jackson 2.11.0
+    - hikaricp 3.4.3
+    - jodatime 2.10.6
+    - mysql 8.0.20
+    - node 12.16.2
+    - netty 0.9.7
+- `nflow-explorer`
+  - Dependency updates:
+    - autoprefixer 9.7.6
+    - node-sass 4.14.0
+
 ## 7.2.0 (2020-04-27)
 
 **Highlights**
