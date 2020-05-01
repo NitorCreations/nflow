@@ -136,5 +136,3 @@ create table if not exists nflow_archive_workflow_state (
   constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
-
-
