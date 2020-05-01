@@ -89,8 +89,6 @@ create or replace trigger nflow_workflow_definition_update_modified
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 create table nflow_archive_workflow (
   id int not null primary key,
@@ -106,7 +104,7 @@ create table nflow_archive_workflow (
   next_activation timestamp(3),
   external_next_activation timestamp(3),
   executor_id int,
-  retries int not null default 0,
+  retries int not null,
   created timestamp(3) not null,
   modified timestamp(3) not null,
   started timestamp(3),

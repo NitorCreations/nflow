@@ -141,8 +141,6 @@ end;
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 create table nflow_archive_workflow (
   id int not null primary key,
