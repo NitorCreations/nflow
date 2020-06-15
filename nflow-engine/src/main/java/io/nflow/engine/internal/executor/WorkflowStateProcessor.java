@@ -124,7 +124,7 @@ class WorkflowStateProcessor implements Runnable {
           logger.error("Failed to process workflow instance and shutdown requested", ex);
           break;
         }
-        logger.error("Failed to process workflow instance, retrying after {} seconds", stateProcessingRetryDelay, ex);
+        logger.error("Failed to process workflow instance {}, retrying after {} seconds", instanceId, stateProcessingRetryDelay, ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
     }
