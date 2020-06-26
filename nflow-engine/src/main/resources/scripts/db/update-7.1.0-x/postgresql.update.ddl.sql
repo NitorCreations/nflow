@@ -1,8 +1,8 @@
 drop index idx_workflow_parent;
-create index concurrently idx_workflow_parent on nflow_workflow(parent_workflow_id) where parent_workflow_id is not null;
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id) where parent_workflow_id is not null;
 
 drop index idx_workflow_archive_parent;
-create index concurrently idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id) where parent_workflow_id is not null;
+create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id) where parent_workflow_id is not null;
 
 alter table nflow_workflow set (fillfactor=95);
 
