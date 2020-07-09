@@ -98,14 +98,13 @@ create trigger update_nflow_definition_modified before update on nflow_workflow_
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
 -- - 100% fillfactor on everything
 
 create table if not exists nflow_archive_workflow (
   id integer not null,
   status workflow_status not null,
-  parent_workflow_id integer default null,
-  parent_action_id integer default null,
+  parent_workflow_id integer,
+  parent_action_id integer,
   retries int not null,
   priority smallint not null,
   created timestamptz not null,

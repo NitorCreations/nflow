@@ -104,8 +104,6 @@ end';
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow')
 create table nflow_archive_workflow (
@@ -122,7 +120,7 @@ create table nflow_archive_workflow (
   next_activation datetimeoffset(3),
   external_next_activation datetimeoffset(3),
   executor_id int,
-  retries int not null default 0,
+  retries int not null,
   created datetimeoffset(3) not null,
   modified datetimeoffset(3) not null,
   started datetimeoffset(3),
