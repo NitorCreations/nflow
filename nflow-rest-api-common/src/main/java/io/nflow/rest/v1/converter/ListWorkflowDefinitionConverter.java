@@ -37,9 +37,7 @@ public class ListWorkflowDefinitionConverter {
     }
     for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
       State state = states.get(entry.getKey());
-      for(String targetState : entry.getValue()) {
-        state.transitions.add(targetState);
-      }
+      state.transitions.addAll(entry.getValue());
     }
     for (Entry<String, WorkflowState> entry : definition.getFailureTransitions().entrySet()) {
       State state = states.get(entry.getKey());

@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.converter;
 
+import static java.lang.Boolean.TRUE;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.io.IOException;
@@ -50,6 +51,7 @@ public class ListWorkflowInstanceConverter {
     resp.started = instance.started;
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
+    resp.isArchived = instance.isArchived ? TRUE : null;
     if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {

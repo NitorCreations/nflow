@@ -149,6 +149,11 @@ public class WorkflowInstance extends ModelObject {
   public final Optional<Integer> signal;
 
   /**
+   * True if this instance is archived.
+   */
+  public final boolean isArchived;
+
+  /**
    * Child workflow instance IDs created by this workflow instance, grouped by instance action ID.
    */
   public Map<Long, List<Long>> childWorkflows;
@@ -178,6 +183,7 @@ public class WorkflowInstance extends ModelObject {
     this.started = builder.started;
     this.executorGroup = builder.executorGroup;
     this.signal = builder.signal;
+    this.isArchived = builder.isArchived;
     this.mapper = builder.mapper;
   }
 
@@ -251,6 +257,7 @@ public class WorkflowInstance extends ModelObject {
     DateTime started;
     DateTime modified;
     String executorGroup;
+    boolean isArchived;
     Optional<Integer> signal = Optional.empty();
     ObjectStringMapper mapper;
 
@@ -295,6 +302,7 @@ public class WorkflowInstance extends ModelObject {
       this.started = copy.started;
       this.executorGroup = copy.executorGroup;
       this.signal = copy.signal;
+      this.isArchived = copy.isArchived;
       this.mapper = copy.mapper;
     }
 
@@ -558,6 +566,16 @@ public class WorkflowInstance extends ModelObject {
      */
     public Builder setSignal(Optional<Integer> signal) {
       this.signal = signal;
+      return this;
+    }
+
+    /**
+     * Set the workflow source.
+     * @param isArchived True if this workflow is archived.
+     * @return this.
+     */
+    public Builder setArchived(boolean isArchived) {
+      this.isArchived = isArchived;
       return this;
     }
 

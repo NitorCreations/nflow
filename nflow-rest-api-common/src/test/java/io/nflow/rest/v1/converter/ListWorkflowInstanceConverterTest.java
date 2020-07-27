@@ -94,6 +94,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(i.signal.get()));
+    assertThat(resp.isArchived, nullValue());
     assertThat(resp.actions, contains(reflectEquals(
         new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo, a.executionStart, a.executionEnd, a.executorId))));
   }
@@ -112,7 +113,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setParentWorkflowId(942L).setParentActionId(842L).setExternalId("externalId")
         .setState("cState").setStateText("cState desc").setNextActivation(now()).setActions(asList(a))
         .setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
-        .setSignal(Optional.empty()).build();
+        .setSignal(Optional.empty()).setArchived(true).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
@@ -143,6 +144,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(nullValue()));
+    assertThat(resp.isArchived, is(true));
     assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId, expectedStateVariables))));
   }

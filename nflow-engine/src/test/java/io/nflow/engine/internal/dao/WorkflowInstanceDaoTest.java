@@ -145,7 +145,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .setIncludeCurrentStateVariables(true) //
         .setIncludeChildWorkflows(true) //
         .setMaxResults(1L) //
-        .setMaxActions(1L).build();
+        .setMaxActions(1L) //
+        .setQueryArchive(true) //
+        .build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
     checkSameWorkflowInfo(child, l.get(0));

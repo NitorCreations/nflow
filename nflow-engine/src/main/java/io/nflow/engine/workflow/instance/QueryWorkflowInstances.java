@@ -85,6 +85,11 @@ public class QueryWorkflowInstances extends ModelObject {
    */
   public final Long maxActions;
 
+  /**
+   * When set also the workflow archive will be queried.
+   */
+  public final boolean queryArchive;
+
   QueryWorkflowInstances(Builder builder) {
     this.ids = new ArrayList<>(builder.ids);
     this.types = new ArrayList<>(builder.types);
@@ -100,6 +105,7 @@ public class QueryWorkflowInstances extends ModelObject {
     this.includeChildWorkflows = builder.includeChildWorkflows;
     this.maxResults = builder.maxResults;
     this.maxActions = builder.maxActions;
+    this.queryArchive = builder.queryArchive;
   }
 
   /**
@@ -120,6 +126,7 @@ public class QueryWorkflowInstances extends ModelObject {
     boolean includeChildWorkflows;
     Long maxResults;
     Long maxActions;
+    boolean queryArchive;
 
     /**
      * Create a workflow instance query builder.
@@ -142,6 +149,7 @@ public class QueryWorkflowInstances extends ModelObject {
       this.includeChildWorkflows = copy.includeChildWorkflows;
       this.maxResults = copy.maxResults;
       this.maxActions = copy.maxActions;
+      this.queryArchive = copy.queryArchive;
     }
     /**
      * Add identifiers to query parameters.
@@ -284,6 +292,17 @@ public class QueryWorkflowInstances extends ModelObject {
      */
     public Builder setMaxActions(Long maxActions) {
       this.maxActions = maxActions;
+      return this;
+    }
+
+    /**
+     * If true the workflow instance archive is also searched.
+     *
+     * @param queryArchive True if archive should also be queried.
+     * @return this.
+     */
+    public Builder setQueryArchive(boolean queryArchive) {
+      this.queryArchive = queryArchive;
       return this;
     }
 

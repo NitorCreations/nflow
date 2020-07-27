@@ -184,7 +184,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null);
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null, true);
     verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42L)),
         hasField("types", contains("type")),
@@ -199,14 +199,16 @@ public class WorkflowInstanceResourceTest {
         hasField("includeActionStateVariables", equalTo(false)),
         hasField("includeChildWorkflows", equalTo(false)),
         hasField("maxResults", equalTo(null)),
-        hasField("maxActions", equalTo(null)))));
+        hasField("maxActions", equalTo(null)),
+        hasField("queryArchive", equalTo(true))
+    )));
   }
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
-        "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L);
+        "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L, false);
     verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
         hasField("ids", contains(42L)),
         hasField("types", contains("type")),
@@ -221,14 +223,16 @@ public class WorkflowInstanceResourceTest {
         hasField("includeActionStateVariables", equalTo(true)),
         hasField("includeChildWorkflows", equalTo(true)),
         hasField("maxResults", equalTo(1L)),
-        hasField("maxActions", equalTo(1L)))));
+        hasField("maxActions", equalTo(1L)),
+        hasField("queryArchive", equalTo(false))
+    )));
   }
 
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null, true))
         .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
-    try (Response response = resource.fetchWorkflowInstance(42, null, null)) {
+    try (Response response = resource.fetchWorkflowInstance(42, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
     }
@@ -238,11 +242,11 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingExistingWorkflowWorks() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null).readEntity(ListWorkflowInstanceResponse.class);
-    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
+    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null, false).readEntity(ListWorkflowInstanceResponse.class);
+    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
   }
 
@@ -251,12 +255,12 @@ public class WorkflowInstanceResourceTest {
   public void fetchingExistingWorkflowWorksWithAllIncludes() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
     EnumSet<WorkflowInstanceInclude> includes = EnumSet.allOf(WorkflowInstanceInclude.class);
-    when(workflowInstances.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, includes, 10L, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
     ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
-        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L).readEntity(ListWorkflowInstanceResponse.class);
-    verify(workflowInstances).getWorkflowInstance(42, includes, 10L);
+        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L, false).readEntity(ListWorkflowInstanceResponse.class);
+    verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
   }
 
