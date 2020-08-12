@@ -45,7 +45,7 @@
         </rule>
         <rule groupId="org.eclipse.jetty">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
+                <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="ch.qos.logback">
@@ -69,6 +69,11 @@
             </ignoreVersions>
         </rule>
         <rule groupId="org.junit.jupiter">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.springframework">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*M*</ignoreVersion>
             </ignoreVersions>
