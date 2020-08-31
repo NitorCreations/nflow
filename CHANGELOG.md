@@ -6,13 +6,22 @@
 
 - `nflow-engine`
   - Dependency updates:
-    - spring 5.2.6
-    - jackson 2.11.0
-    - hikaricp 3.4.3
+    - spring 5.2.8
+    - jackson 2.11.2
+    - hikaricp 3.4.5
     - jodatime 2.10.6
     - mysql 8.0.20
     - node 12.16.2
-    - netty 0.9.7
+    - netty 0.9.11
+    - apache cxf 3.3.7
+    - commons-lang3 3.11
+    - hibernate validator 6.1.5.Final
+    - mariadb 2.6.2
+    - metrics 4.1.12.1
+    - mssql 8.4.0.jre8
+    - mysql 8.0.21
+    - postgresql 42.2.14
+    - swagger 1.6.2
 - `nflow-explorer`
   - Dependency updates:
     - autoprefixer 9.7.6
