@@ -5,15 +5,12 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 
-import org.springframework.stereotype.Component;
-
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-@Component
 public class SimpleWorkflow extends WorkflowDefinition<SimpleWorkflow.State> {
 
   public static final String SIMPLE_WORKFLOW_TYPE = "simple";

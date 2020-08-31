@@ -11,7 +11,7 @@
     "url": "https://github.com/NitorCreations/nflow-explorer.git"
   },
   "devDependencies": {
-    "autoprefixer": "9.7.5",
+    "autoprefixer": "9.7.6",
     "bower": "1.8.8",
     "extend": ">=3.0.2",
     "grunt": "1.1.0",
@@ -40,7 +40,7 @@
     "grunt-wiredep": "3.0.1",
     "jshint-stylish": "2.2.1",
     "karma": "4.4.1",
-    "karma-coverage": "2.0.1",
+    "karma-coverage": "2.0.2",
     "karma-jasmine": "3.1.1",
     "karma-junit-reporter": "2.0.1",
     "karma-ng-html2js-preprocessor": "1.0.0",
@@ -49,7 +49,7 @@
     "karma-spec-reporter": "0.0.32",
     "load-grunt-tasks": "5.1.0",
     "moment": "2.24.0",
-    "node-sass": "4.13.1",
+    "node-sass": "4.14.0",
     "phantomjs-prebuilt": "2.1.16",
     "protractor": "6.0.0",
     "protractor-http-mock": "0.10.0",
