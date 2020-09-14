@@ -53,6 +53,7 @@ public class SpringBootFullStackApplication {
     }
   }
 
+  @SuppressWarnings("resource")
   public static void main(String[] args) {
     SpringApplication.run(SpringBootFullStackApplication.class, args);
   }

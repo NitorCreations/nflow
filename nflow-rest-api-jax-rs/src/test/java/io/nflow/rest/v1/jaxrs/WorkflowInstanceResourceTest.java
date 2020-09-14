@@ -26,6 +26,7 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.ws.rs.core.Response;
 
@@ -110,7 +111,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void whenUpdatingWithoutParametersNothingHappens() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
     verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
   }
 
@@ -118,7 +119,7 @@ public class WorkflowInstanceResourceTest {
   public void whenUpdatingMessageStateTextIsUpdated() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
 
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
@@ -129,7 +130,7 @@ public class WorkflowInstanceResourceTest {
   public void whenUpdatingStateUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
         (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API changed state to newState."))));
@@ -140,21 +141,23 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
     req.actionDescription = "description";
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+        (WorkflowInstanceAction) argThat(
+            allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
   }
 
   @Test
   public void whenUpdatingNextActivationTimeUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("API changed nextActivationTime to "
-            + req.nextActivationTime + ".")), hasField("type", equalTo(externalChange)))));
+        (WorkflowInstanceAction) argThat(
+            allOf(hasField("stateText", equalTo("API changed nextActivationTime to " + req.nextActivationTime + ".")),
+                hasField("type", equalTo(externalChange)))));
   }
 
   @Test
@@ -162,10 +165,11 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
     verify(workflowInstances).updateWorkflowInstance(
         (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+        (WorkflowInstanceAction) argThat(
+            allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
   }
 
   @Test
@@ -173,7 +177,7 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("foo", "bar");
     req.stateVariables.put("textNode", new TextNode("text"));
-    resource.updateWorkflowInstance(3, req);
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
     verify(workflowInstances).updateWorkflowInstance(workflowInstanceCaptor.capture(),
         (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API updated state variables."))));
     WorkflowInstance instance = workflowInstanceCaptor.getValue();
@@ -183,51 +187,36 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void listWorkflowInstancesWorks() {
-    resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null);
-    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
-        hasField("ids", contains(42L)),
-        hasField("types", contains("type")),
-        hasField("parentWorkflowId", is(99L)),
-        hasField("parentActionId", is(88L)),
-        hasField("states", contains("state")),
-        hasField("statuses", contains(WorkflowInstanceStatus.created)),
-        hasField("businessKey", equalTo("businessKey")),
-        hasField("externalId", equalTo("externalId")),
-        hasField("includeActions", equalTo(false)),
-        hasField("includeCurrentStateVariables", equalTo(false)),
-        hasField("includeActionStateVariables", equalTo(false)),
-        hasField("includeChildWorkflows", equalTo(false)),
-        hasField("maxResults", equalTo(null)),
-        hasField("maxActions", equalTo(null)))));
+    makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null));
+    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(hasField("ids", contains(42L)),
+        hasField("types", contains("type")), hasField("parentWorkflowId", is(99L)), hasField("parentActionId", is(88L)),
+        hasField("states", contains("state")), hasField("statuses", contains(WorkflowInstanceStatus.created)),
+        hasField("businessKey", equalTo("businessKey")), hasField("externalId", equalTo("externalId")),
+        hasField("includeActions", equalTo(false)), hasField("includeCurrentStateVariables", equalTo(false)),
+        hasField("includeActionStateVariables", equalTo(false)), hasField("includeChildWorkflows", equalTo(false)),
+        hasField("maxResults", equalTo(null)), hasField("maxActions", equalTo(null)))));
   }
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
-    resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing),
-        "businessKey", "externalId", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L);
-    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
-        hasField("ids", contains(42L)),
-        hasField("types", contains("type")),
-        hasField("parentWorkflowId", is(99L)),
-        hasField("parentActionId", is(88L)),
-        hasField("states", contains("state")),
-        hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
-        hasField("businessKey", equalTo("businessKey")),
-        hasField("externalId", equalTo("externalId")),
-        hasField("includeActions", equalTo(true)),
-        hasField("includeCurrentStateVariables", equalTo(true)),
-        hasField("includeActionStateVariables", equalTo(true)),
-        hasField("includeChildWorkflows", equalTo(true)),
-        hasField("maxResults", equalTo(1L)),
-        hasField("maxActions", equalTo(1L)))));
+    makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
+        asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId",
+        "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L));
+    verify(workflowInstances).listWorkflowInstancesAsStream(
+        (QueryWorkflowInstances) argThat(allOf(hasField("ids", contains(42L)), hasField("types", contains("type")),
+            hasField("parentWorkflowId", is(99L)), hasField("parentActionId", is(88L)), hasField("states", contains("state")),
+            hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
+            hasField("businessKey", equalTo("businessKey")), hasField("externalId", equalTo("externalId")),
+            hasField("includeActions", equalTo(true)), hasField("includeCurrentStateVariables", equalTo(true)),
+            hasField("includeActionStateVariables", equalTo(true)), hasField("includeChildWorkflows", equalTo(true)),
+            hasField("maxResults", equalTo(1L)), hasField("maxActions", equalTo(1L)))));
   }
 
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
-        .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
+    .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
     try (Response response = resource.fetchWorkflowInstance(42, null, null)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
@@ -241,7 +230,8 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42, null, null).readEntity(ListWorkflowInstanceResponse.class);
+    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null),
+        ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
     assertEquals(resp, result);
   }
@@ -254,8 +244,9 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = resource.fetchWorkflowInstance(42,
-        "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L).readEntity(ListWorkflowInstanceResponse.class);
+    ListWorkflowInstanceResponse result = getEntity(
+        () -> resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L),
+        ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L);
     assertEquals(resp, result);
   }
@@ -267,7 +258,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
 
-    SetSignalResponse response = resource.setSignal(99, req).readEntity(SetSignalResponse.class);
+    SetSignalResponse response = getEntity(() -> resource.setSignal(99, req), SetSignalResponse.class);
 
     verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
     assertTrue(response.setSignalSuccess);
@@ -280,9 +271,21 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
 
-    SetSignalResponse response = resource.setSignal(99, req).readEntity(SetSignalResponse.class);
+    SetSignalResponse response = getEntity(() -> resource.setSignal(99, req), SetSignalResponse.class);
 
     verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
     assertFalse(response.setSignalSuccess);
+  }
+
+  private int makeRequest(Supplier<Response> supplier) {
+    try (Response r = supplier.get()) {
+      return r.getStatus();
+    }
+  }
+
+  private <T> T getEntity(Supplier<Response> supplier, Class<T> entityClass) {
+    try (Response r = supplier.get()) {
+      return r.readEntity(entityClass);
+    }
   }
 }

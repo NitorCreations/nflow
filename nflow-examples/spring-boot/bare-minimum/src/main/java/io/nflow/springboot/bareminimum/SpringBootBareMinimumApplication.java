@@ -28,6 +28,7 @@ public class SpringBootBareMinimumApplication {
     return new ExampleWorkflow();
   }
 
+  @SuppressWarnings("resource")
   public static void main(String[] args) {
     SpringApplication.run(SpringBootBareMinimumApplication.class, args);
   }

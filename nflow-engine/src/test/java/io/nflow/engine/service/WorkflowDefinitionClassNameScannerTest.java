@@ -21,6 +21,7 @@ public class WorkflowDefinitionClassNameScannerTest extends BaseNflowTest {
   @Mock
   private WorkflowDefinitionService workflowDefinitionService;
 
+  @SuppressWarnings("resource")
   @Test
   public void definitionIsAdded() throws Exception {
     String dummyTestClassname = DummyTestWorkflow.class.getName();
