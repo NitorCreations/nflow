@@ -25,7 +25,8 @@
 - `nflow-explorer`
   - Dependency updates:
     - autoprefixer 9.7.6
-    - node-sass 4.14.0
+    - node-sass 4.14.1
+    - http-proxy 1.18.1
 
 ## 7.2.0 (2020-04-27)
 
