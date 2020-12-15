@@ -5,6 +5,7 @@
 **Details**
 
 - `nflow-engine`
+  - Fix potential resource leaks
   - Dependency updates:
     - spring 5.2.8
     - jackson 2.11.2
@@ -22,11 +23,13 @@
     - mysql 8.0.21
     - postgresql 42.2.14
     - swagger 1.6.2
+    - jetty 9.4.35.v20201120
 - `nflow-explorer`
   - Dependency updates:
     - autoprefixer 9.7.6
     - node-sass 4.14.1
     - http-proxy 1.18.1
+    - ini 1.3.7
 
 ## 7.2.0 (2020-04-27)
 
