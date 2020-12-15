@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.ws.rs.core.Response;
+
 import org.joda.time.ReadablePeriod;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,18 +62,20 @@ public class MaintenanceResourceTest {
     request.deleteWorkflows.olderThanPeriod = period3;
     request.deleteWorkflows.batchSize = batchSize * 3;
 
-    MaintenanceResponse response = resource.cleanupWorkflows(request).readEntity(MaintenanceResponse.class);
+    try (Response response = resource.cleanupWorkflows(request)) {
+      MaintenanceResponse maintenanceResponse = response.readEntity(MaintenanceResponse.class);
 
-    verify(service).cleanupWorkflows(configCaptor.capture());
-    MaintenanceConfiguration configuration = configCaptor.getValue();
-    assertEquals(period1, configuration.archiveWorkflows.olderThanPeriod);
-    assertEquals(batchSize, configuration.archiveWorkflows.batchSize);
-    assertEquals(period2, configuration.deleteArchivedWorkflows.olderThanPeriod);
-    assertEquals(batchSize * 2, configuration.deleteArchivedWorkflows.batchSize);
-    assertEquals(period3, configuration.deleteWorkflows.olderThanPeriod);
-    assertEquals(batchSize * 3, configuration.deleteWorkflows.batchSize);
-    assertEquals(maintenanceResults.archivedWorkflows, response.archivedWorkflows);
-    assertEquals(maintenanceResults.deletedArchivedWorkflows, response.deletedArchivedWorkflows);
-    assertEquals(maintenanceResults.deletedWorkflows, response.deletedWorkflows);
+      verify(service).cleanupWorkflows(configCaptor.capture());
+      MaintenanceConfiguration configuration = configCaptor.getValue();
+      assertEquals(period1, configuration.archiveWorkflows.olderThanPeriod);
+      assertEquals(batchSize, configuration.archiveWorkflows.batchSize);
+      assertEquals(period2, configuration.deleteArchivedWorkflows.olderThanPeriod);
+      assertEquals(batchSize * 2, configuration.deleteArchivedWorkflows.batchSize);
+      assertEquals(period3, configuration.deleteWorkflows.olderThanPeriod);
+      assertEquals(batchSize * 3, configuration.deleteWorkflows.batchSize);
+      assertEquals(maintenanceResults.archivedWorkflows, maintenanceResponse.archivedWorkflows);
+      assertEquals(maintenanceResults.deletedArchivedWorkflows, maintenanceResponse.deletedArchivedWorkflows);
+      assertEquals(maintenanceResults.deletedWorkflows, maintenanceResponse.deletedWorkflows);
+    }
   }
 }
