@@ -50,7 +50,7 @@ public class WorkflowDefinitionResource extends SpringWebResource {
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List", notes = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata. The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   public Mono<ResponseEntity<?>> listWorkflowDefinitions(
       @RequestParam(value = "type", defaultValue = "") @ApiParam("Included workflow types") List<String> types) {
-    return handleExceptions(
-        () -> scheduler.wrapBlocking(() -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao))));
+    return handleExceptions(() -> scheduler
+        .wrapBlocking(() -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao))));
   }
 }

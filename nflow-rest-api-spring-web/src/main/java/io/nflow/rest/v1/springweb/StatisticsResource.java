@@ -43,7 +43,8 @@ public class StatisticsResource extends SpringWebResource {
   @GetMapping
   @ApiOperation(value = "Get executor group statistics", response = StatisticsResponse.class, notes = "Returns counts of queued and executing workflow instances.")
   public Mono<ResponseEntity<?>> queryStatistics() {
-    return handleExceptions(() -> scheduler.wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
+    return handleExceptions(
+        () -> scheduler.wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
   }
 
   @GetMapping(path = "/workflow/{type}")

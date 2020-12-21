@@ -43,7 +43,7 @@ public class WorkflowExecutorResource extends SpringWebResource {
   @GetMapping
   @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
   public Mono<ResponseEntity<?>> listWorkflowExecutors() {
-    return handleExceptions(
-        () -> scheduler.wrapBlocking(() -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList()))));
+    return handleExceptions(() -> scheduler
+        .wrapBlocking(() -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList()))));
   }
 }

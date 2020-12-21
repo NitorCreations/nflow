@@ -34,8 +34,7 @@ public class SchedulerService {
     int dispatcherCount = workflowInstanceExecutor.getThreadCount();
     int threadPoolSize = Math.max(dbPoolSize - dispatcherCount, 2);
     logger.info("Initializing REST API thread pool size to {}", threadPoolSize);
-    this.scheduler = Schedulers.fromExecutor(
-        Executors.newFixedThreadPool(threadPoolSize));
+    this.scheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(threadPoolSize));
   }
 
   public <T> Mono<T> wrapBlocking(Callable<T> callable) {

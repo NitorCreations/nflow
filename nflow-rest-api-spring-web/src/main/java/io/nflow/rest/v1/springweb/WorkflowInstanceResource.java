@@ -70,8 +70,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @Inject
   public WorkflowInstanceResource(WorkflowInstanceService workflowInstances, CreateWorkflowConverter createWorkflowConverter,
       ListWorkflowInstanceConverter listWorkflowConverter, WorkflowInstanceFactory workflowInstanceFactory,
-      WorkflowInstanceDao workflowInstanceDao,
-      SchedulerService scheduler) {
+      WorkflowInstanceDao workflowInstanceDao, SchedulerService scheduler) {
     this.workflowInstances = workflowInstances;
     this.createWorkflowConverter = createWorkflowConverter;
     this.listWorkflowConverter = listWorkflowConverter;
@@ -102,7 +101,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @ApiResponses({ @ApiResponse(code = 204, message = "If update was successful"),
       @ApiResponse(code = 400, message = "If instance could not be updated, for example when state variable value was too long"),
       @ApiResponse(code = 409, message = "If workflow was executing and no update was done") })
-  public Mono<ResponseEntity<?>> updateWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
+  public Mono<ResponseEntity<?>> updateWorkflowInstance(
+      @ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
       return scheduler.wrapBlocking(() -> {
@@ -120,10 +120,9 @@ public class WorkflowInstanceResource extends SpringWebResource {
   public Mono<ResponseEntity<?>> fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return handleExceptions(
-        () -> scheduler.wrapBlocking(() -> {
-           return ok(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter));
-        }));
+    return handleExceptions(() -> scheduler.wrapBlocking(() -> {
+      return ok(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter));
+    }));
   }
 
   @GetMapping
@@ -140,8 +139,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @RequestParam(value = "maxResults", required = false) @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return handleExceptions(
-        () -> scheduler.wrapBlocking(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey,
+    return handleExceptions(() -> scheduler.wrapBlocking(
+        () -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey,
             externalId, include, maxResults, maxActions, this.workflowInstances, this.listWorkflowConverter).iterator())));
   }
 
@@ -150,7 +149,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
   public Mono<ResponseEntity<?>> setSignal(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @Valid @ApiParam("New signal value") SetSignalRequest req) {
     return handleExceptions(() -> {
-      return scheduler.wrapBlocking(() ->  {
+      return scheduler.wrapBlocking(() -> {
         SetSignalResponse response = new SetSignalResponse();
         response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
             WorkflowActionType.externalChange);
@@ -164,7 +163,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
   public Mono<ResponseEntity<?>> wakeup(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @Valid @ApiParam("Expected states") WakeupRequest req) {
     return handleExceptions(() -> {
-      return scheduler.wrapBlocking(() ->  {
+      return scheduler.wrapBlocking(() -> {
         WakeupResponse response = new WakeupResponse();
         List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
         response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
