@@ -1,12 +1,13 @@
 ## 7.2.1-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Fix SQL performance / memory issue when getting single workflow instance with action state variables, when the instance has lots of actions with lots of state variables. The old code fetched all state variables of all actions of the instance, the new code only fetches the state variables for the actions that will be returned.
 
 - `nflow-rest-api-spring-web` and `nflow-netty`
   - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
 
 **Details**
-
 - `nflow-engine`
   - Fix potential resource leaks
   - Dependency updates:
