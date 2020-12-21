@@ -17,12 +17,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.nflow.engine.service.StatisticsService;
+import io.nflow.rest.config.springweb.SchedulerService;
 import io.nflow.rest.v1.converter.StatisticsConverter;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_STATISTICS_PATH, produces = APPLICATION_JSON_VALUE)
@@ -34,22 +37,24 @@ public class StatisticsResource extends SpringWebResource {
   private StatisticsService statisticsService;
   @Inject
   private StatisticsConverter statisticsConverter;
+  @Inject
+  private SchedulerService scheduler;
 
   @GetMapping
   @ApiOperation(value = "Get executor group statistics", response = StatisticsResponse.class, notes = "Returns counts of queued and executing workflow instances.")
-  public ResponseEntity<?> queryStatistics() {
-    return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
+  public Mono<ResponseEntity<?>> queryStatistics() {
+    return handleExceptions(() -> scheduler.wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
   }
 
   @GetMapping(path = "/workflow/{type}")
   @ApiOperation(value = "Get workflow definition statistics", response = WorkflowDefinitionStatisticsResponse.class)
-  public ResponseEntity<?> getStatistics(
+  public Mono<ResponseEntity<?>> getStatistics(
       @PathVariable("type") @ApiParam(value = "Workflow definition type", required = true) String type,
       @RequestParam(value = "createdAfter", required = false) @ApiParam("Include only workflow instances created after given time") DateTime createdAfter,
       @RequestParam(value = "createdBefore", required = false) @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
       @RequestParam(value = "modifiedAfter", required = false) @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
       @RequestParam(value = "modifiedBefore", required = false) @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
-    return handleExceptions(() -> ok(statisticsConverter.convert(
-        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore))));
+    return handleExceptions(() -> scheduler.wrapBlocking(() -> ok(statisticsConverter.convert(
+        statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore)))));
   }
 }

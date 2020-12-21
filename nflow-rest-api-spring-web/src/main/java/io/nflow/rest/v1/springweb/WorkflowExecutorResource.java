@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.nflow.engine.service.WorkflowExecutorService;
+import io.nflow.rest.config.springweb.SchedulerService;
 import io.nflow.rest.v1.converter.ListWorkflowExecutorConverter;
 import io.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_EXECUTOR_PATH, produces = APPLICATION_JSON_VALUE)
@@ -27,17 +30,20 @@ public class WorkflowExecutorResource extends SpringWebResource {
 
   private final WorkflowExecutorService workflowExecutors;
   private final ListWorkflowExecutorConverter converter;
+  private final SchedulerService scheduler;
 
   @Autowired
-  public WorkflowExecutorResource(WorkflowExecutorService workflowExecutors, ListWorkflowExecutorConverter converter) {
+  public WorkflowExecutorResource(WorkflowExecutorService workflowExecutors, ListWorkflowExecutorConverter converter,
+      SchedulerService scheduler) {
     this.workflowExecutors = workflowExecutors;
     this.converter = converter;
+    this.scheduler = scheduler;
   }
 
   @GetMapping
   @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
-  public ResponseEntity<?> listWorkflowExecutors() {
+  public Mono<ResponseEntity<?>> listWorkflowExecutors() {
     return handleExceptions(
-        () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));
+        () -> scheduler.wrapBlocking(() -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList()))));
   }
 }
