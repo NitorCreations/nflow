@@ -5,13 +5,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.ok;
+import static reactor.core.publisher.Mono.just;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import io.nflow.rest.v1.msg.ErrorResponse;
-
-import reactor.core.publisher.Mono;
 
 public class SpringWebResourceTest {
 
@@ -19,7 +18,7 @@ public class SpringWebResourceTest {
 
   @Test
   public void handleExceptionsReturnsResponseWhenSuccessful() {
-    ResponseEntity<?> response = resource.handleExceptions(() -> Mono.just(ok("ok"))).block();
+    ResponseEntity<?> response = resource.handleExceptions(() -> just(ok("ok"))).block();
 
     assertThat(response.getStatusCode(), is(OK));
     assertThat(response.getBody(), is("ok"));

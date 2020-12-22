@@ -3,6 +3,7 @@ package io.nflow.netty;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_DEFINITION_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class StartNflowTest {
     ClientResponse response = client.get().uri(restApiPrefix + NFLOW_WORKFLOW_DEFINITION_PATH).exchange().block();
     assertEquals(HttpStatus.OK, response.statusCode());
     JsonNode responseBody = response.bodyToMono(JsonNode.class).block();
-    assertEquals(responseBody.isArray(), true);
+    assertTrue(responseBody.isArray());
   }
 
 }
