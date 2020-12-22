@@ -35,6 +35,9 @@ public class SpringWebResourceTest {
   }
 
   class TestResource extends SpringWebResource {
-    // test resource
+
+    protected TestResource() {
+      super(null);
+    }
   }
 }

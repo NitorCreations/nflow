@@ -37,7 +37,7 @@ public class SchedulerService {
     this.scheduler = fromExecutor(Executors.newFixedThreadPool(threadPoolSize));
   }
 
-  public <T> Mono<T> wrapBlocking(Callable<T> callable) {
+  public <T> Mono<T> callAsync(Callable<T> callable) {
     return fromCallable(callable).subscribeOn(this.scheduler);
   }
 }

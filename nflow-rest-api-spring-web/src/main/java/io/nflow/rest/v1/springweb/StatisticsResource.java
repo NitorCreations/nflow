@@ -24,7 +24,6 @@ import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -33,18 +32,21 @@ import reactor.core.publisher.Mono;
 @Component
 public class StatisticsResource extends SpringWebResource {
 
+  private final StatisticsService statisticsService;
+  private final StatisticsConverter statisticsConverter;
+
   @Inject
-  private StatisticsService statisticsService;
-  @Inject
-  private StatisticsConverter statisticsConverter;
-  @Inject
-  private SchedulerService scheduler;
+  public StatisticsResource(SchedulerService scheduler, StatisticsConverter statisticsConverter,
+      StatisticsService statisticsService) {
+    super(scheduler);
+    this.statisticsService = statisticsService;
+    this.statisticsConverter = statisticsConverter;
+  }
 
   @GetMapping
   @ApiOperation(value = "Get executor group statistics", response = StatisticsResponse.class, notes = "Returns counts of queued and executing workflow instances.")
   public Mono<ResponseEntity<?>> queryStatistics() {
-    return handleExceptions(
-        () -> scheduler.wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
+    return handleExceptions(() -> wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
   }
 
   @GetMapping(path = "/workflow/{type}")
@@ -55,7 +57,7 @@ public class StatisticsResource extends SpringWebResource {
       @RequestParam(value = "createdBefore", required = false) @ApiParam("Include only workflow instances created before given time") DateTime createdBefore,
       @RequestParam(value = "modifiedAfter", required = false) @ApiParam("Include only workflow instances modified after given time") DateTime modifiedAfter,
       @RequestParam(value = "modifiedBefore", required = false) @ApiParam("Include only workflow instances modified before given time") DateTime modifiedBefore) {
-    return handleExceptions(() -> scheduler.wrapBlocking(() -> ok(statisticsConverter.convert(
+    return handleExceptions(() -> wrapBlocking(() -> ok(statisticsConverter.convert(
         statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore)))));
   }
 }

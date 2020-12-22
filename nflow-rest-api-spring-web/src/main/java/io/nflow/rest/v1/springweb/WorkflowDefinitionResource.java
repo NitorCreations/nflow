@@ -7,7 +7,8 @@ import static org.springframework.http.ResponseEntity.ok;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,6 @@ import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -35,22 +35,21 @@ public class WorkflowDefinitionResource extends SpringWebResource {
   private final WorkflowDefinitionService workflowDefinitions;
   private final ListWorkflowDefinitionConverter converter;
   private final WorkflowDefinitionDao workflowDefinitionDao;
-  private final SchedulerService scheduler;
 
-  @Autowired
-  public WorkflowDefinitionResource(WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter,
-      WorkflowDefinitionDao workflowDefinitionDao, SchedulerService scheduler) {
+  @Inject
+  public WorkflowDefinitionResource(SchedulerService scheduler, WorkflowDefinitionService workflowDefinitions,
+      ListWorkflowDefinitionConverter converter, WorkflowDefinitionDao workflowDefinitionDao) {
+    super(scheduler);
     this.workflowDefinitions = workflowDefinitions;
     this.converter = converter;
     this.workflowDefinitionDao = workflowDefinitionDao;
-    this.scheduler = scheduler;
   }
 
   @GetMapping
   @ApiOperation(value = "List workflow definitions", response = ListWorkflowDefinitionResponse.class, responseContainer = "List", notes = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata. The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   public Mono<ResponseEntity<?>> listWorkflowDefinitions(
       @RequestParam(value = "type", defaultValue = "") @ApiParam("Included workflow types") List<String> types) {
-    return handleExceptions(() -> scheduler
-        .wrapBlocking(() -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao))));
+    return handleExceptions(() -> wrapBlocking(
+        () -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao))));
   }
 }
