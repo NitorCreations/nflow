@@ -4,6 +4,7 @@ import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_DEFINITION_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,9 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -53,11 +51,13 @@ public class StartNflowTest {
     assertEquals("false", ctx.getEnvironment().getProperty("nflow.autostart"));
     assertEquals("true", ctx.getEnvironment().getProperty("nflow.autoinit"));
 
-    // Smoke test here also the netty REST API by fetching workflow definitions
-    WebClient client = WebClient.builder().baseUrl("http://localhost:7500")
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
+    smokeTestRestApi(restApiPrefix);
+  }
+
+  private void smokeTestRestApi(String restApiPrefix) {
+    WebClient client = WebClient.builder().baseUrl("http://localhost:7500").build();
     ClientResponse response = client.get().uri(restApiPrefix + NFLOW_WORKFLOW_DEFINITION_PATH).exchange().block();
-    assertEquals(HttpStatus.OK, response.statusCode());
+    assertEquals(OK, response.statusCode());
     JsonNode responseBody = response.bodyToMono(JsonNode.class).block();
     assertTrue(responseBody.isArray());
   }
