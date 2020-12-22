@@ -42,7 +42,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -867,10 +866,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     String status = jdbc.queryForObject("select status from nflow_workflow where id = ?", String.class, id);
     assertThat(status, is(inProgress.name()));
 
-    List<WorkflowInstanceAction> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(sqlVariant, Collections.emptyMap()), id);
+    List<WorkflowInstanceAction.Builder> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
+        new WorkflowInstanceActionRowMapper(sqlVariant), id);
     assertThat(actions.size(), is(1));
-    WorkflowInstanceAction workflowInstanceAction = actions.get(0);
+    WorkflowInstanceAction workflowInstanceAction = actions.get(0).build();
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
@@ -881,7 +880,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(executorId, is(nullValue()));
 
     actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(sqlVariant, Collections.emptyMap()), id);
+        new WorkflowInstanceActionRowMapper(sqlVariant), id);
     assertThat(actions.size(), is(1));
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
