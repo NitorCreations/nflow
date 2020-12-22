@@ -2,6 +2,9 @@
 
 **Highlights**
 
+- `nflow-rest-api-spring-web` and `nflow-netty`
+  - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
+
 **Details**
 
 - `nflow-engine`
@@ -31,6 +34,9 @@
     - http-proxy 1.18.1
     - ini 1.3.7
     - bl 1.2.3
+- nflow-rest-api-spring-web
+  - Change deendency from spring-web to spring-webflux to be able to use Project Reactor's types.
+  - Introduce a thread pool in SchedulerService and wrap all blocking database calls in the REST API to it.
 
 ## 7.2.0 (2020-04-27)
 
