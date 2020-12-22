@@ -58,8 +58,12 @@ public class Mutable<T> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Mutable<?> mutable = (Mutable<?>) o;
     return Objects.equals(val, mutable.val);
   }

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.hamcrest.CustomMatcher;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -196,17 +195,20 @@ public class WorkflowDefinitionScannerTest {
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 
-  private CustomMatcher<StateParameter> stateParam(final String key, final Type type, final boolean readOnly, final boolean mutable) {
-    return new CustomMatcher<>("") {
+  private CustomMatcher<StateParameter> stateParam(final String key, final Type type, final boolean readOnly,
+      final boolean mutable) {
+    return new CustomMatcher<StateParameter>("") {
       @Override
       public boolean matches(Object item) {
         StateParameter p = (StateParameter) item;
-        return Objects.equals(key, p.key) && Objects.equals(type, p.type)
-            && Objects.equals(readOnly, p.readOnly) && Objects.equals(mutable, p.mutable);
-
+        return Objects.equals(key, p.key) //
+            && Objects.equals(type, p.type) //
+            && Objects.equals(readOnly, p.readOnly) //
+            && Objects.equals(mutable, p.mutable);
       }
     };
   }
+
   public static enum ScannerState implements WorkflowState{
     start(WorkflowStateType.start),
     end(WorkflowStateType.end);

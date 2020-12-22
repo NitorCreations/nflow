@@ -2,7 +2,7 @@
 
 **Highlights**
 - `nflow-engine`
-  - Optimize fetching workflow instance with large history with manh modified state variables.
+  - Optimize fetching workflow instance with large history with many modified state variables.
 
 - `nflow-rest-api-spring-web` and `nflow-netty`
   - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
