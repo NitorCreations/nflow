@@ -9,6 +9,8 @@ import static io.nflow.tests.demo.workflow.ActionStateVariableWorkflow.State.don
 import static io.nflow.tests.demo.workflow.ActionStateVariableWorkflow.State.error;
 import static io.nflow.tests.demo.workflow.ActionStateVariableWorkflow.State.setVariable;
 
+import io.nflow.engine.workflow.definition.Mutable;
+import io.nflow.engine.workflow.definition.StateVar;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.definition.NextAction;
@@ -47,13 +49,12 @@ public class ActionStateVariableWorkflow extends WorkflowDefinition<ActionStateV
     permit(setVariable, done);
   }
 
-  public NextAction setVariable(StateExecution execution) {
-    long newValue = execution.getVariable(STATE_VAR, Long.class, 0L) + 1;
-    if (newValue > MAX_STATE_VAR_VALUE) {
+  public NextAction setVariable(StateExecution execution, @StateVar(value=STATE_VAR, instantiateIfNotExists = true) Mutable<Long> val) {
+    if (val.getVal() >= MAX_STATE_VAR_VALUE) {
       execution.setCreateAction(false);
       return stopInState(done, "Done");
     }
-    execution.setVariable(STATE_VAR, newValue);
+    val.setVal(val.getVal() + 1);
     return moveToState(setVariable, "Continue");
   }
 }

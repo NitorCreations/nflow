@@ -2,13 +2,15 @@
 
 **Highlights**
 - `nflow-engine`
-  - Fix SQL performance / memory issue when getting single workflow instance with action state variables, when the instance has lots of actions with lots of state variables. The old code fetched all state variables of all actions of the instance, the new code only fetches the state variables for the actions that will be returned.
+  - Optimize fetching workflow instance with large history with manh modified state variables.
 
 - `nflow-rest-api-spring-web` and `nflow-netty`
   - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
 
 **Details**
 - `nflow-engine`
+  - Fix SQL performance / memory issue when getting single workflow instance with action state variables, when the instance has lots of actions with lots of state variables. The old code fetched all state variables of all actions of the instance, the new code only fetches the state variables for the actions that will be returned.
+  - Fix instantiation of @StateVar(instantiateIfNotExists=true) Mutable<Type> - the result was incorrectly a Mutable wrapped in Mutable.
   - Fix potential resource leaks
   - Dependency updates:
     - spring 5.2.8
@@ -265,7 +267,7 @@
 **Details**
 - `nflow-engine`
   - Add `priority` two byte integer to the `nflow_workflow` table. When the dispatcher chooses from many available scheduled workflow instances it primarily (unfairly) picks the workflow instances with the largest priority values, and for workflows with the same priority, the ones with oldest `next_activation` timestamp. Priority defaults to 0 and can also be negative. Default priority value for the new workflow instances can be set per workflow definition (`WorkflowSettings.Builder.setDefaultPriority`), and overridden per workflow instance (`WorkflowInstance.Builder.setPriority`). Requires database migration, see database update scripts for details.
-  - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
+  - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes.
   - Add `disableMariaDbDriver` to default MySQL JDBC URL so that in case there are both MySQL and MariaDB JDBC drivers in the classpath then MariaDB will not steal the MySQL URL.
   - Add support for `nflow.db.mariadb` profile.
   - Update database indices to match current workflow instance polling code.
@@ -407,8 +409,8 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
   - jetty 9.4.15.v20190215
   - h2 1.4.199
 - Fix workflow history cleanup to keep the actions that hold the latest values of state variables
-- nFlow Explorer: Custom content to workflow definition and workflow instance pages. 
-- nFlow Explorer: Executors page to use standard time formatting in tooltips 
+- nFlow Explorer: Custom content to workflow definition and workflow instance pages.
+- nFlow Explorer: Executors page to use standard time formatting in tooltips
 - nFlow netty: Add support for registering Spring ApplicationListeners
 - nFlow jetty: Replace deprecated NCSARequestLog with CustomRequestLog
 - Fix `WorkflowLifecycle.stop()` blocking forever if `nflow.autostart=false` and `WorkflowLifecycle.start()` not called
@@ -495,7 +497,7 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
 - `nflow-jetty` now serves all paths under `/nflow/*`. The new paths are as follows:
   - /nflow/api/v1           -> API v1 (was: /api/nflow/v1)
   - /nflow/api/swagger.json -> Swagger config (was: /api/swagger.json)
-  - /nflow/ui               -> nFlow statics assets 
+  - /nflow/ui               -> nFlow statics assets
   - /nflow/ui/explorer      -> nFlow UI (was: /explorer)
   - /nflow/ui/doc           -> Swagger UI (was: /doc)
   - /nflow/metrics          -> metrics and health checks (was: /metrics)
@@ -643,7 +645,7 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
   - fixed: workflow instance recovery functionality (broken by version 2.0.0)
   - fixed: Oracle database schema
 - nflow-rest-api:
-  - **_breaking change:_** Prefixed operation paths by "/nflow" (e.g. /v1/statistics -> /nflow/v1/statistics) 
+  - **_breaking change:_** Prefixed operation paths by "/nflow" (e.g. /v1/statistics -> /nflow/v1/statistics)
   - Support for Jersey JAX-RS implementation
   - **_breaking change:_** Moved exception mappers to nflow-jetty (BadRequestExceptionMapper, CustomValidationExceptionMapper, NotFoundExceptionMapper)
   - Improved Swagger documentation

@@ -1,5 +1,7 @@
 package io.nflow.engine.workflow.definition;
 
+import java.util.Objects;
+
 /**
  * Wrapper class to provide mutable object for immutable value.
  *
@@ -52,5 +54,18 @@ public class Mutable<T> {
   @Override
   public String toString() {
     return String.valueOf(val);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Mutable<?> mutable = (Mutable<?>) o;
+    return Objects.equals(val, mutable.val);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(val);
   }
 }
