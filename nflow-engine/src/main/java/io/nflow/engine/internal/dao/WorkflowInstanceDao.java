@@ -711,7 +711,7 @@ public class WorkflowInstanceDao {
         }
       });
     }
-    instance.actions.addAll(actionBuilders.stream().map(WorkflowInstanceAction.Builder::build).collect(toList()));
+    actionBuilders.stream().map(WorkflowInstanceAction.Builder::build).forEach(instance.actions::add);
   }
 
   private long getMaxActions(Long maxActions) {
