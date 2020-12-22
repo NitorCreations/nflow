@@ -26,7 +26,6 @@ public class SchedulerService {
 
   private static final Logger logger = getLogger(SchedulerService.class);
   private final Scheduler scheduler;
-  private WorkflowInstanceExecutor workflowInstanceExecutor;
 
   @Inject
   public SchedulerService(WorkflowInstanceExecutor workflowInstanceExecutor, Environment env) {

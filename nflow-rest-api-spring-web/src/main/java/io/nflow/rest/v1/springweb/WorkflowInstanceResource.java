@@ -59,6 +59,7 @@ import reactor.core.publisher.Mono;
 @Api("nFlow workflow instance management")
 @Component
 public class WorkflowInstanceResource extends SpringWebResource {
+
   private final WorkflowInstanceService workflowInstances;
   private final CreateWorkflowConverter createWorkflowConverter;
   private final ListWorkflowInstanceConverter listWorkflowConverter;
