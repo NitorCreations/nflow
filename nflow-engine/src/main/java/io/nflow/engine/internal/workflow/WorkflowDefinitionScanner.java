@@ -69,6 +69,7 @@ public class WorkflowDefinitionScanner {
             if (Mutable.class.isAssignableFrom(clazz)) {
               ParameterizedType pType = (ParameterizedType) type;
               type = pType.getActualTypeArguments()[0];
+              clazz = (Class<?>) type;
               readOnly = false;
               mutable = true;
             }

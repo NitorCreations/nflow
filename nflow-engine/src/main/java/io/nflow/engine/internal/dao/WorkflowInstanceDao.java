@@ -182,11 +182,10 @@ public class WorkflowInstanceDao {
     try {
       StringBuilder sqlb = new StringBuilder(256);
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
-      Object[] instanceValues = new Object[] { instance.type, instance.priority,
-          instance.parentWorkflowId, instance.parentActionId, instance.businessKey, instance.externalId,
-          executorInfo.getExecutorGroup(), instance.status.name(), instance.state,
-          abbreviate(instance.stateText, getInstanceStateTextLength()), toTimestamp(instance.nextActivation),
-          instance.signal.orElse(null) };
+      Object[] instanceValues = new Object[] { instance.type, instance.priority, instance.parentWorkflowId,
+          instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
+          instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
+          toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
       Object[] args = Arrays.copyOf(instanceValues, pos + instance.stateVariables.size() * 2);
       for (Entry<String, String> variable : instance.stateVariables.entrySet()) {
@@ -523,9 +522,9 @@ public class WorkflowInstanceDao {
     jdbc.query("select outside.state_key, outside.state_value from nflow_workflow_state outside inner join "
         + "(select workflow_id, max(action_id) action_id, state_key from nflow_workflow_state where workflow_id = ? group by workflow_id, state_key) inside "
         + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
-            rs -> {
-              instance.stateVariables.put(rs.getString(1), rs.getString(2));
-            }, instance.id);
+        rs -> {
+          instance.stateVariables.put(rs.getString(1), rs.getString(2));
+        }, instance.id);
     instance.originalStateVariables.putAll(instance.stateVariables);
   }
 
@@ -557,8 +556,8 @@ public class WorkflowInstanceDao {
 
   private List<Long> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
-    List<OptimisticLockKey> instances = transaction.execute(tx -> jdbc.query(sql,
-            (rs, rowNum) -> new OptimisticLockKey(rs.getLong("id"), sqlVariants.getTimestamp(rs, "modified"))));
+    List<OptimisticLockKey> instances = transaction.execute(
+        tx -> jdbc.query(sql, (rs, rowNum) -> new OptimisticLockKey(rs.getLong("id"), sqlVariants.getTimestamp(rs, "modified"))));
     if (instances.isEmpty()) {
       return emptyList();
     }
@@ -588,8 +587,7 @@ public class WorkflowInstanceDao {
   private List<Long> updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances) {
     String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
     List<Object[]> batchArgs = instances.stream()
-        .map(instance -> new Object[] { instance.id, sqlVariants.tuneTimestampForDb(instance.modified) })
-        .collect(toList());
+        .map(instance -> new Object[] { instance.id, sqlVariants.tuneTimestampForDb(instance.modified) }).collect(toList());
     int[] updateStatuses = jdbc.batchUpdate(sql, batchArgs);
     List<Long> ids = new ArrayList<>(instances.size());
     for (int i = 0; i < updateStatuses.length; ++i) {
@@ -669,7 +667,7 @@ public class WorkflowInstanceDao {
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
 
     Stream<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
-            .map(WorkflowInstance.Builder::build);
+        .map(WorkflowInstance.Builder::build);
     if (query.includeCurrentStateVariables) {
       ret = ret.peek(instance -> fillState(instance));
     }
@@ -698,13 +696,22 @@ public class WorkflowInstanceDao {
     return min(maxResults, workflowInstanceQueryMaxResults);
   }
 
-  private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long maxActions) {
-    Map<Long, Map<String, String>> actionStates = includeStateVariables ? fetchActionStateVariables(instance)
-        : EMPTY_ACTION_STATE_MAP;
-    String sql = sqlVariants.limit(
-        "select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc",
-        getMaxActions(maxActions));
-    instance.actions.addAll(jdbc.query(sql, new WorkflowInstanceActionRowMapper(sqlVariants, actionStates), instance.id));
+  private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
+    long maxActions = getMaxActions(requestedMaxActions);
+    String sql = sqlVariants
+        .limit("select nflow_workflow_action.* from nflow_workflow_action where workflow_id = ? order by id desc", maxActions);
+    List<WorkflowInstanceAction.Builder> actionBuilders = jdbc.query(sql, new WorkflowInstanceActionRowMapper(sqlVariants),
+        instance.id);
+    if (includeStateVariables) {
+      Map<Long, Map<String, String>> actionStates = fetchActionStateVariables(instance, actionBuilders.size(), maxActions);
+      actionBuilders.forEach(builder -> {
+        Map<String, String> actionState = actionStates.get(builder.getId());
+        if (actionState != null) {
+          builder.setUpdatedStateVariables(actionState);
+        }
+      });
+    }
+    actionBuilders.stream().map(WorkflowInstanceAction.Builder::build).forEach(instance.actions::add);
   }
 
   private long getMaxActions(Long maxActions) {
@@ -714,9 +721,17 @@ public class WorkflowInstanceDao {
     return min(maxActions, workflowInstanceQueryMaxActions);
   }
 
-  private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance) {
-    return jdbc.query("select * from nflow_workflow_state where workflow_id = ? order by action_id, state_key asc",
-        new WorkflowActionStateRowMapper(), instance.id);
+  private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {
+    String sql;
+    if (actions < maxActions) {
+      sql = "select * from nflow_workflow_state where workflow_id = ? order by action_id, state_key asc";
+    } else {
+      sql = "select nflow_workflow_state.* from ("
+          + sqlVariants.limit("select id from nflow_workflow_action where workflow_id = ? order by id desc", maxActions)
+          + ") action_id inner join nflow_workflow_state on action_id.id = nflow_workflow_state.action_id "
+          + "order by nflow_workflow_state.action_id, nflow_workflow_state.state_key asc";
+    }
+    return jdbc.query(sql, new WorkflowActionStateRowMapper(), instance.id);
   }
 
   @Transactional(propagation = MANDATORY)
@@ -780,30 +795,25 @@ public class WorkflowInstanceDao {
     }
   }
 
-  static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction> {
+  static class WorkflowInstanceActionRowMapper implements RowMapper<WorkflowInstanceAction.Builder> {
     private final SQLVariants sqlVariants;
-    private final Map<Long, Map<String, String>> actionStates;
 
-    public WorkflowInstanceActionRowMapper(SQLVariants sqlVariants, Map<Long, Map<String, String>> actionStates) {
+    public WorkflowInstanceActionRowMapper(SQLVariants sqlVariants) {
       this.sqlVariants = sqlVariants;
-      this.actionStates = actionStates;
     }
 
     @Override
-    public WorkflowInstanceAction mapRow(ResultSet rs, int rowNum) throws SQLException {
-      long actionId = rs.getLong("id");
-      Map<String, String> actionState = actionStates.getOrDefault(actionId, emptyMap());
+    public WorkflowInstanceAction.Builder mapRow(ResultSet rs, int rowNum) throws SQLException {
       return new WorkflowInstanceAction.Builder() //
-          .setId(actionId) //
+          .setId(rs.getLong("id")) //
           .setWorkflowInstanceId(rs.getLong("workflow_id")) //
           .setExecutorId(rs.getInt("executor_id")) //
           .setType(WorkflowActionType.valueOf(rs.getString("type"))) //
           .setState(rs.getString("state")) //
           .setStateText(rs.getString("state_text")) //
-          .setUpdatedStateVariables(actionState) //
           .setRetryNo(rs.getInt("retry_no")) //
           .setExecutionStart(sqlVariants.getDateTime(rs, "execution_start")) //
-          .setExecutionEnd(sqlVariants.getDateTime(rs, "execution_end")).build();
+          .setExecutionEnd(sqlVariants.getDateTime(rs, "execution_end"));
     }
   }
 
@@ -816,11 +826,7 @@ public class WorkflowInstanceDao {
         long actionId = rs.getLong("action_id");
         String stateKey = rs.getString("state_key");
         String stateValue = rs.getString("state_value");
-        if (!actionStates.containsKey(actionId)) {
-          actionStates.put(actionId, new LinkedHashMap<String, String>());
-        }
-        Map<String, String> stateMap = actionStates.get(actionId);
-        stateMap.put(stateKey, stateValue);
+        actionStates.computeIfAbsent(actionId, k -> new LinkedHashMap<>()).put(stateKey, stateValue);
       }
       return actionStates;
     }

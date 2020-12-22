@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -67,6 +68,9 @@ public class WorkflowDefinitionScannerTest {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(MutableParamWorkflow.class);
     assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, false, true));
+    assertThat(methods.get("end").params[0].nullValue, nullValue());
+    assertThat(methods.get("end").params[1], stateParam("longKey", Long.class, false, true));
+    assertThat(methods.get("end").params[1].nullValue, is(0L));
   }
 
   @Test
@@ -191,17 +195,20 @@ public class WorkflowDefinitionScannerTest {
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 
-  private CustomMatcher<StateParameter> stateParam(final String key, final Type type, final boolean readOnly, final boolean mutable) {
-    return new CustomMatcher<WorkflowStateMethod.StateParameter>("") {
+  private CustomMatcher<StateParameter> stateParam(final String key, final Type type, final boolean readOnly,
+      final boolean mutable) {
+    return new CustomMatcher<StateParameter>("") {
       @Override
       public boolean matches(Object item) {
         StateParameter p = (StateParameter) item;
-        return Objects.equals(key, p.key) && Objects.equals(type, p.type)
-            && Objects.equals(readOnly, p.readOnly) && Objects.equals(mutable, p.mutable);
-
+        return Objects.equals(key, p.key) //
+            && Objects.equals(type, p.type) //
+            && Objects.equals(readOnly, p.readOnly) //
+            && Objects.equals(mutable, p.mutable);
       }
     };
   }
+
   public static enum ScannerState implements WorkflowState{
     start(WorkflowStateType.start),
     end(WorkflowStateType.end);
@@ -261,7 +268,7 @@ public class WorkflowDefinitionScannerTest {
       super("mutableParam", ScannerState.start, ScannerState.end);
     }
     public NextAction start(StateExecution exec) { return null; }
-    public NextAction end(StateExecution exec, @StateVar("paramKey") Mutable<String> param) { return null; }
+    public NextAction end(StateExecution exec, @StateVar("paramKey") Mutable<String> param, @StateVar(value="longKey", instantiateIfNotExists=true) Mutable<Long> param2) { return null; }
   }
 
   public static class InitiateParameterWorkflow extends WorkflowDefinition<ScannerState> {
