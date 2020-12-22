@@ -35,7 +35,7 @@
         </rule>
         <rule groupId="org.hibernate.validator">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*Alpha.*</ignoreVersion>
+                <ignoreVersion type="regex">.*(Alpha|CR).*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="io.swagger">
@@ -76,6 +76,11 @@
         <rule groupId="org.springframework">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*M*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="com.google.inject">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*BETA.*</ignoreVersion>
             </ignoreVersions>
         </rule>
     </rules>

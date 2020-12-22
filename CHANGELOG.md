@@ -11,22 +11,24 @@
   - Fix potential resource leaks
   - Dependency updates:
     - spring 5.2.8
-    - jackson 2.11.2
+    - jackson 2.12.0
     - hikaricp 3.4.5
-    - jodatime 2.10.6
+    - jodatime 2.10.8
     - mysql 8.0.20
     - node 12.16.2
     - netty 0.9.11
-    - apache cxf 3.3.7
+    - apache cxf 3.4.1
     - commons-lang3 3.11
-    - hibernate validator 6.1.5.Final
-    - mariadb 2.6.2
-    - metrics 4.1.12.1
-    - mssql 8.4.0.jre8
-    - mysql 8.0.21
-    - postgresql 42.2.14
+    - hibernate validator 6.1.7.Final
+    - mariadb 2.7.1
+    - metrics 4.1.16
+    - mssql 8.4.1.jre8
+    - mysql 8.0.22
+    - postgresql 42.2.18
     - swagger 1.6.2
     - jetty 9.4.35.v20201120
+    - mockito 3.6.28
+    - spotbugs 4.2.0
 - `nflow-explorer`
   - Dependency updates:
     - autoprefixer 9.7.6
