@@ -84,14 +84,12 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @ApiResponse(code = 400, message = "If instance could not be created, for example when state variable value was too long") })
   public Mono<ResponseEntity<?>> createWorkflowInstance(
       @RequestBody @ApiParam(value = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
-    return handleExceptions(() -> {
-      return wrapBlocking(() -> {
-        WorkflowInstance instance = createWorkflowConverter.convert(req);
-        long id = workflowInstances.insertWorkflowInstance(instance);
-        instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
-        return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
-      });
-    });
+    return handleExceptions(() -> wrapBlocking(() -> {
+      WorkflowInstance instance = createWorkflowConverter.convert(req);
+      long id = workflowInstances.insertWorkflowInstance(instance);
+      instance = workflowInstances.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null);
+      return created(URI.create(String.valueOf(id))).body(createWorkflowConverter.convert(instance));
+    }));
   }
 
   @PutMapping(path = "/id/{id}", consumes = APPLICATION_JSON_VALUE)
@@ -103,12 +101,10 @@ public class WorkflowInstanceResource extends SpringWebResource {
   public Mono<ResponseEntity<?>> updateWorkflowInstance(
       @ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @ApiParam("Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
-    return handleExceptions(() -> {
-      return wrapBlocking(() -> {
-        boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
-        return (updated ? noContent() : status(CONFLICT)).build();
-      });
-    });
+    return handleExceptions(() -> wrapBlocking(() -> {
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      return (updated ? noContent() : status(CONFLICT)).build();
+    }));
   }
 
   @GetMapping(path = "/id/{id}")
@@ -119,9 +115,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
   public Mono<ResponseEntity<?>> fetchWorkflowInstance(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
-    return handleExceptions(() -> wrapBlocking(() -> {
-      return ok(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter));
-    }));
+    return handleExceptions(() -> wrapBlocking(
+        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, this.workflowInstances, this.listWorkflowConverter))));
   }
 
   @GetMapping
@@ -147,27 +142,23 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @ApiOperation(value = "Set workflow instance signal value", response = SetSignalResponse.class, notes = "The service may be used for example to interrupt executing workflow instance.")
   public Mono<ResponseEntity<?>> setSignal(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @Valid @ApiParam("New signal value") SetSignalRequest req) {
-    return handleExceptions(() -> {
-      return wrapBlocking(() -> {
-        SetSignalResponse response = new SetSignalResponse();
-        response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
-            WorkflowActionType.externalChange);
-        return ok(response);
-      });
-    });
+    return handleExceptions(() -> wrapBlocking(() -> {
+      SetSignalResponse response = new SetSignalResponse();
+      response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
+          WorkflowActionType.externalChange);
+      return ok(response);
+    }));
   }
 
   @PutMapping(path = "/{id}/wakeup", consumes = APPLICATION_JSON_VALUE)
   @ApiOperation(value = "Wake up sleeping workflow instance.", response = WakeupResponse.class, notes = "If expected states are given, only wake up if the instance is in one of the expected states.")
   public Mono<ResponseEntity<?>> wakeup(@ApiParam("Internal id for workflow instance") @PathVariable("id") long id,
       @RequestBody @Valid @ApiParam("Expected states") WakeupRequest req) {
-    return handleExceptions(() -> {
-      return wrapBlocking(() -> {
-        WakeupResponse response = new WakeupResponse();
-        List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
-        response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
-        return ok(response);
-      });
-    });
+    return handleExceptions(() -> wrapBlocking(() -> {
+      WakeupResponse response = new WakeupResponse();
+      List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);
+      response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
+      return ok(response);
+    }));
   }
 }
