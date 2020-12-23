@@ -31,6 +31,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.Assert;
 
@@ -308,11 +309,15 @@ class WorkflowStateProcessor implements Runnable {
   private void processSuccess(StateExecutionImpl execution, WorkflowInstance instance) {
     execution.getWakeUpParentWorkflowStates().ifPresent(expectedStates -> {
       logger.debug("Possibly waking up parent workflow instance {}", instance.parentWorkflowId);
-      boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId, expectedStates);
-      if (notified) {
-        logger.info("Woke up parent workflow instance {}", instance.parentWorkflowId);
-      } else {
-        logger.info("Did not woke up parent workflow instance {}", instance.parentWorkflowId);
+      try {
+        boolean notified = workflowInstanceDao.wakeUpWorkflowExternally(instance.parentWorkflowId, expectedStates);
+        if (notified) {
+          logger.info("Woke up parent workflow instance {}", instance.parentWorkflowId);
+        } else {
+          logger.info("Did not woke up parent workflow instance {}", instance.parentWorkflowId);
+        }
+      } catch (DataAccessException e) {
+        logger.error("Did not woke up parent workflow instance {}", instance.parentWorkflowId, e);
       }
     });
   }

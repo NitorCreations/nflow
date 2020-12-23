@@ -1,10 +1,14 @@
 ## 7.2.2-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Handle exceptions if waking up parent workflow fails after updating workflow instance state.
 - `nflow-explorer`
   - Remove "Save as PNG" button as it produced empty images. PR to restore functionality would be appreciated.
 
 **Details**
+- `nflow-engine`
+  - Catch and log error when waking up parent workflow fails after updating workflow instance state. Failure in waking up parent workflow should not trigger a retry for the workflow instance update, as the update has already been done. As the parent is expected to handle situations where child workflow does not explicitly wake up the parent, it is ok to just log this error and continue.
 
 ## 7.2.1 (2020-12-23)
 
