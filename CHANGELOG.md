@@ -8,7 +8,7 @@
 
 **Details**
 - `nflow-engine`
-  - Catch and log error when waking up parent workflow fails after updating workflow instance state. This should help for example in case of #399. Failure in waking up parent workflow should not trigger a retry for the workflow instance update, as the update has already been done. As the parent is expected to handle situations where child workflow does not explicitly wake up the parent, it is ok to just log the error and continue.
+  - Catch and log error when waking up parent workflow fails after updating workflow instance state. Failure in waking up parent workflow should not trigger a retry for the workflow instance update, as the update has already been done. As the parent is expected to handle situations where child workflow does not explicitly wake up the parent, it is ok to just log this error and continue.
 
 ## 7.2.1 (2020-12-23)
 
