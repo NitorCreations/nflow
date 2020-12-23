@@ -1,6 +1,8 @@
 ## 7.2.2-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-explorer`
+  - Remove "Save as PNG" button as it produced empty images. PR to restore functionality would be appreciated.
 
 **Details**
 
