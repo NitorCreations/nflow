@@ -3,6 +3,9 @@
 **Highlights**
 
 **Details**
+- `nflow-explorer`
+  - Dependency updates:
+    - urijs 1.19.5
 
 ## 7.2.2 (2020-12-25)
 
