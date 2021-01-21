@@ -6,6 +6,7 @@
 - `nflow-explorer`
   - Dependency updates:
     - urijs 1.19.5
+    - socket.io 2.4.1
 
 ## 7.2.2 (2020-12-25)
 
