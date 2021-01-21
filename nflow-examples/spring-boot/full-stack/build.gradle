@@ -23,10 +23,10 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-jersey'
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-  implementation 'io.nflow:nflow-rest-api-jax-rs:7.0.0'
+  implementation 'io.nflow:nflow-rest-api-jax-rs:7.2.2'
   runtimeOnly 'com.h2database:h2'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '7.0.0', ext: 'tar.gz'
+  nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '7.2.2', ext: 'tar.gz'
 }
 
 task resolveNflowExplorer(type: Copy) {
