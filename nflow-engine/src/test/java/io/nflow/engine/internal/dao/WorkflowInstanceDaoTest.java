@@ -108,9 +108,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void queryNonExistingWorkflowThrowsException() {
-    assertThrows(EmptyResultDataAccessException.class, () ->
-      dao.getWorkflowInstance(-42, emptySet(), null)
-    );
+    assertThrows(EmptyResultDataAccessException.class, () -> dao.getWorkflowInstance(-42, emptySet(), null));
   }
 
   @Test
@@ -382,6 +380,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
         assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is(instance.businessKey));
       }
     });
   }
@@ -401,6 +400,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), is("manualState"));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
         assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is(instance.businessKey));
       }
     });
   }
@@ -421,6 +421,27 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(tomorrow.getMillis()));
         assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is(instance.businessKey));
+      }
+    });
+  }
+
+  @Test
+  public void updateNotRunningWorkflowInstanceUpdatesBusinessKeyForNotRunningInstance() {
+    final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
+    long id = dao.insertWorkflowInstance(instance);
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setBusinessKey("modifiedKey")
+        .setStateText("modified").build();
+    boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
+    assertThat(updated, is(true));
+    jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        assertThat(rs.getString("status"), is(instance.status.name()));
+        assertThat(rs.getString("state"), is(instance.state));
+        assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
+        assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is("modifiedKey"));
       }
     });
   }
@@ -565,19 +586,17 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = now();
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
-        .setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
-        .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
-        .setStartedIfNotSet(started).setPriority((short) 10).build();
+        .setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43)
+        .putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1)).setStartedIfNotSet(started)
+        .setPriority((short) 10).build();
 
     d.insertWorkflowInstance(wf);
-    assertEquals(
-        "with wf as (insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, "
-            + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
-            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
-            + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
-            + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
-            + "select wf.id,0,?,? from wf) select wf.id from wf",
-        sql.getValue());
+    assertEquals("with wf as (insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, "
+        + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
+        + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
+        + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
+        + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+        + "select wf.id,0,?,? from wf) select wf.id from wf", sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
     int i = 0;

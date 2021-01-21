@@ -467,6 +467,10 @@ public class WorkflowInstanceDao {
       vars.add("status = " + sqlVariants.workflowStatus());
       args.add(instance.status.name());
     }
+    if (instance.businessKey != null) {
+      vars.add("business_key = ?");
+      args.add(instance.businessKey);
+    }
     String sql = "update nflow_workflow set " + join(vars, ", ") + " where id = ? and executor_id is null";
     args.add(instance.id);
     return jdbc.update(sql, args.toArray()) == 1;

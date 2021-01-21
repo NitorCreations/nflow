@@ -123,6 +123,12 @@ public abstract class ResourceBase {
         msg += "API updated state variables. ";
       }
     }
+    if (!isEmpty(req.businessKey)) {
+      builder.setBusinessKey(req.businessKey);
+      if (isBlank(req.actionDescription)) {
+        msg = "API changed business key to " + req.businessKey + ". ";
+      }
+    }
     if (msg.isEmpty()) {
       return true;
     }
