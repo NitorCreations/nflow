@@ -1,5 +1,6 @@
 package io.nflow.tests;
 
+import static io.nflow.tests.demo.workflow.StateWorkflow.STATEVAR_QUERYTEST;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -74,7 +75,7 @@ public class StateVariablesTest extends AbstractNflowTest {
   public void checkStateVariables() {
     ListWorkflowInstanceResponse listResponse = getWorkflowInstanceWithTimeout(createResponse.id, "done", ofSeconds(5));
 
-    assertEquals(3, listResponse.stateVariables.size());
+    assertEquals(4, listResponse.stateVariables.size());
     assertEquals(singletonMap("test", 5), listResponse.stateVariables.get("requestData"));
     assertEquals(singletonMap("value", "foo1"), listResponse.stateVariables.get("variable1"));
     assertEquals(singletonMap("value", "bar3"), listResponse.stateVariables.get("variable2"));
@@ -127,6 +128,28 @@ public class StateVariablesTest extends AbstractNflowTest {
       assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
     }
+  }
+
+  @Test
+  @Order(6)
+  public void queryWorkflowInstancesDoesNotFindInstanceWithOldStateVariableValue() {
+    ListWorkflowInstanceResponse[] instances = getInstanceResource()
+        .query("stateVariableKey", STATEVAR_QUERYTEST)
+        .query("stateVariableValue", "oldValue")
+        .get(ListWorkflowInstanceResponse[].class);
+
+    assertThat(instances.length, is(0));
+  }
+
+  @Test
+  @Order(7)
+  public void queryWorkflowInstancesFindsInstanceWithCurrentStateVariableValue() {
+    ListWorkflowInstanceResponse[] instances = getInstanceResource()
+        .query("stateVariableKey", STATEVAR_QUERYTEST)
+        .query("stateVariableValue", "newValue")
+        .get(ListWorkflowInstanceResponse[].class);
+
+    assertThat(instances.length, is(1));
   }
 
   private void assertState(List<Action> actions, int index, State state, String variable1, String variable2) {
