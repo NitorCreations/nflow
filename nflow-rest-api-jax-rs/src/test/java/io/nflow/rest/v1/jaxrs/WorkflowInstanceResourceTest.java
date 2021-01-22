@@ -186,6 +186,30 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
+  public void whenUpdatingBusinessKeyUpdateWorkflowInstanceWorks() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.businessKey = "modifiedKey";
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("businessKey", equalTo("modifiedKey"))),
+        (WorkflowInstanceAction) argThat(
+            allOf(hasField("stateText", equalTo("API changed business key to " + req.businessKey + ".")),
+                hasField("type", equalTo(externalChange)))));
+  }
+
+  @Test
+  public void whenUpdatingBusinessKeyWithDescriptionUpdateWorkflowInstanceWorks() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.businessKey = "modifiedKey";
+    req.actionDescription = "description";
+    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    verify(workflowInstances).updateWorkflowInstance(
+        (WorkflowInstance) argThat(hasField("businessKey", equalTo("modifiedKey"))),
+        (WorkflowInstanceAction) argThat(
+            allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+  }
+
+  @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null));

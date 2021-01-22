@@ -1,8 +1,13 @@
 ## 7.2.3-SNAPSHOT (future release)
 
 **Highlights**
+- Support updating workflow instance business key.
 
 **Details**
+- `nflow-engine`
+  - `WorkflowInstanceService.updateWorkflowInstance` can now be used to update business key of the workflow instance.
+- `nflow-rest-api-common`
+  - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
 - `nflow-explorer`
   - Dependency updates:
     - urijs 1.19.5
