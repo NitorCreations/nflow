@@ -5,6 +5,8 @@ import static java.util.Arrays.asList;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.util.Assert;
+
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -54,6 +56,16 @@ public class QueryWorkflowInstances extends ModelObject {
   public final String externalId;
 
   /**
+   * State variable key.
+   */
+  public final String stateVariableKey;
+
+  /**
+   * State variable value.
+   */
+  public final String stateVariableValue;
+
+  /**
    * Setting this to true will make the query return also workflow actions.
    */
   public final boolean includeActions;
@@ -94,6 +106,8 @@ public class QueryWorkflowInstances extends ModelObject {
     this.statuses = new ArrayList<>(builder.statuses);
     this.businessKey = builder.businessKey;
     this.externalId = builder.externalId;
+    this.stateVariableKey = builder.stateVariableKey;
+    this.stateVariableValue = builder.stateVariableValue;
     this.includeActions = builder.includeActions;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
@@ -114,6 +128,8 @@ public class QueryWorkflowInstances extends ModelObject {
     List<WorkflowInstanceStatus> statuses = new ArrayList<>();
     String businessKey;
     String externalId;
+    String stateVariableKey;
+    String stateVariableValue;
     boolean includeActions;
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
@@ -136,6 +152,8 @@ public class QueryWorkflowInstances extends ModelObject {
       this.statuses = copy.statuses;
       this.businessKey = copy.businessKey;
       this.externalId = copy.externalId;
+      this.stateVariableKey = copy.stateVariableKey;
+      this.stateVariableValue = copy.stateVariableValue;
       this.includeActions = copy.includeActions;
       this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
       this.includeActionStateVariables = copy.includeActionStateVariables;
@@ -220,6 +238,20 @@ public class QueryWorkflowInstances extends ModelObject {
      */
     public Builder setExternalId(String externalId) {
       this.externalId = externalId;
+      return this;
+    }
+
+    /**
+     * Set state variable key and value to query parameters.
+     * @param stateVariableKey State variable key.
+     * @param stateVariableValue State variable vaue.
+     * @return this.
+     */
+    public Builder setStateVariable(String stateVariableKey, String stateVariableValue) {
+      Assert.notNull("stateVariableKey cannot be null", stateVariableKey);
+      Assert.notNull("stateVariableValue cannot be null", stateVariableValue);
+      this.stateVariableKey = stateVariableKey;
+      this.stateVariableValue = stateVariableValue;
       return this;
     }
 

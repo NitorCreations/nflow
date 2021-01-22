@@ -628,46 +628,56 @@ public class WorkflowInstanceDao {
   }
 
   public Stream<WorkflowInstance> queryWorkflowInstancesAsStream(QueryWorkflowInstances query) {
-    String sql = "select * from nflow_workflow ";
+    StringBuilder sqlBuilder = new StringBuilder("select wf.* from nflow_workflow wf ");
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
-      conditions.add("id in (:ids)");
+      conditions.add("wf.id in (:ids)");
       params.addValue("ids", query.ids);
     }
     if (!isEmpty(query.types)) {
-      conditions.add("type in (:types)");
+      conditions.add("wf.type in (:types)");
       params.addValue("types", query.types);
     }
     if (query.parentWorkflowId != null) {
-      conditions.add("parent_workflow_id = :parent_workflow_id");
+      conditions.add("wf.parent_workflow_id = :parent_workflow_id");
       params.addValue("parent_workflow_id", query.parentWorkflowId);
     }
     if (query.parentActionId != null) {
-      conditions.add("parent_action_id = :parent_action_id");
+      conditions.add("wf.parent_action_id = :parent_action_id");
       params.addValue("parent_action_id", query.parentActionId);
     }
     if (!isEmpty(query.states)) {
-      conditions.add("state in (:states)");
+      conditions.add("wf.state in (:states)");
       params.addValue("states", query.states);
     }
     if (!isEmpty(query.statuses)) {
       List<String> convertedStatuses = query.statuses.stream().map(WorkflowInstanceStatus::name).collect(toList());
-      conditions.add("status" + sqlVariants.castToText() + " in (:statuses)");
+      conditions.add("wf.status" + sqlVariants.castToText() + " in (:statuses)");
       params.addValue("statuses", convertedStatuses);
     }
     if (query.businessKey != null) {
-      conditions.add("business_key = :business_key");
+      conditions.add("wf.business_key = :business_key");
       params.addValue("business_key", query.businessKey);
     }
     if (query.externalId != null) {
-      conditions.add("external_id = :external_id");
+      conditions.add("wf.external_id = :external_id");
       params.addValue("external_id", query.externalId);
     }
-    conditions.add("executor_group = :executor_group");
+    conditions.add("wf.executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
-    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    if (query.stateVariableKey != null) {
+      sqlBuilder.append("inner join nflow_workflow_state outside on wf.id = outside.workflow_id ")
+          .append("inner join (select workflow_id, max(action_id) action_id from nflow_workflow_state ")
+          .append("where state_key = :state_key group by workflow_id) inside ")
+          .append("on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id ");
+      conditions.add("outside.state_key = :state_key");
+      params.addValue("state_key", query.stateVariableKey);
+      conditions.add("outside.state_value = :state_value");
+      params.addValue("state_value", query.stateVariableValue);
+    }
+    String sql = sqlBuilder.append("where ").append(collectionToDelimitedString(conditions, " and ")).append(" order by id desc").toString();
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
 
     Stream<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()
