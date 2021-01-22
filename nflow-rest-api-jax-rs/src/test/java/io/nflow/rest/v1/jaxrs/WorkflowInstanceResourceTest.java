@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -212,29 +213,49 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", "", null, null));
-    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(hasField("ids", contains(42L)),
-        hasField("types", contains("type")), hasField("parentWorkflowId", is(99L)), hasField("parentActionId", is(88L)),
-        hasField("states", contains("state")), hasField("statuses", contains(WorkflowInstanceStatus.created)),
-        hasField("businessKey", equalTo("businessKey")), hasField("externalId", equalTo("externalId")),
-        hasField("includeActions", equalTo(false)), hasField("includeCurrentStateVariables", equalTo(false)),
-        hasField("includeActionStateVariables", equalTo(false)), hasField("includeChildWorkflows", equalTo(false)),
-        hasField("maxResults", equalTo(null)), hasField("maxActions", equalTo(null)))));
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, "", null, null));
+    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
+        hasField("ids", contains(42L)),
+        hasField("types", contains("type")),
+        hasField("parentWorkflowId", is(99L)),
+        hasField("parentActionId", is(88L)),
+        hasField("states", contains("state")),
+        hasField("statuses", contains(WorkflowInstanceStatus.created)),
+        hasField("businessKey", equalTo("businessKey")),
+        hasField("externalId", equalTo("externalId")),
+        hasField("stateVariableKey", nullValue()),
+        hasField("stateVariableValue", nullValue()),
+        hasField("includeActions", equalTo(false)),
+        hasField("includeCurrentStateVariables", equalTo(false)),
+        hasField("includeActionStateVariables", equalTo(false)),
+        hasField("includeChildWorkflows", equalTo(false)),
+        hasField("maxResults", equalTo(null)),
+        hasField("maxActions", equalTo(null)))));
   }
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId",
-        "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L));
+        "stateVarKey", "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L));
     verify(workflowInstances).listWorkflowInstancesAsStream(
-        (QueryWorkflowInstances) argThat(allOf(hasField("ids", contains(42L)), hasField("types", contains("type")),
-            hasField("parentWorkflowId", is(99L)), hasField("parentActionId", is(88L)), hasField("states", contains("state")),
+        (QueryWorkflowInstances) argThat(allOf(
+            hasField("ids", contains(42L)),
+            hasField("types", contains("type")),
+            hasField("parentWorkflowId", is(99L)),
+            hasField("parentActionId", is(88L)),
+            hasField("states", contains("state")),
             hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
-            hasField("businessKey", equalTo("businessKey")), hasField("externalId", equalTo("externalId")),
-            hasField("includeActions", equalTo(true)), hasField("includeCurrentStateVariables", equalTo(true)),
-            hasField("includeActionStateVariables", equalTo(true)), hasField("includeChildWorkflows", equalTo(true)),
-            hasField("maxResults", equalTo(1L)), hasField("maxActions", equalTo(1L)))));
+            hasField("businessKey", equalTo("businessKey")),
+            hasField("externalId", equalTo("externalId")),
+            hasField("stateVariableKey", equalTo("stateVarKey")),
+            hasField("stateVariableValue", equalTo("stateVarValue")),
+            hasField("includeActions", equalTo(true)),
+            hasField("includeCurrentStateVariables", equalTo(true)),
+            hasField("includeActionStateVariables", equalTo(true)),
+            hasField("includeChildWorkflows", equalTo(true)),
+            hasField("maxResults", equalTo(1L)),
+            hasField("maxActions", equalTo(1L)))));
   }
 
   @Test

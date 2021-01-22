@@ -130,12 +130,15 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "status", defaultValue = "") @ApiParam("Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
       @RequestParam(value = "businessKey", required = false) @ApiParam("Business key for workflow instance") String businessKey,
       @RequestParam(value = "externalId", required = false) @ApiParam("External id for workflow instance") String externalId,
+      @RequestParam(value = "stateVariableKey", required = false) @ApiParam("Key of state variable that must exist for workflow instance") String stateVariableKey,
+      @RequestParam(value = "stateVariableValue", required = false) @ApiParam("Current value of state variable defined by stateVariableKey") String stateVariableValue,
       @RequestParam(value = "include", required = false) @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @RequestParam(value = "maxResults", required = false) @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey,
-            externalId, include, maxResults, maxActions, this.workflowInstances, this.listWorkflowConverter).iterator())));
+            externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions, this.workflowInstances,
+            this.listWorkflowConverter).iterator())));
   }
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)
