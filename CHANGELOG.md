@@ -15,6 +15,8 @@
   - Dependency updates:
     - urijs 1.19.5
     - socket.io 2.4.1
+- Database
+  - Change `text` data types to `varchar(max)` for MS SQL Server
 
 ## 7.2.2 (2020-12-25)
 
