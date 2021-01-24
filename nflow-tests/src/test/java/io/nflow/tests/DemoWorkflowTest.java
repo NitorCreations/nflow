@@ -1,10 +1,12 @@
 package io.nflow.tests;
 
+import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -50,7 +52,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Order(1)
   public void startDemoWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.type = "demo";
+    req.type = DEMO_WORKFLOW_TYPE;
     req.businessKey = "1";
     resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
@@ -63,7 +65,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       ListWorkflowInstanceResponse wf = null;
       do {
         sleep(200);
-        ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", "demo").query("include", "actions")
+        ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", DEMO_WORKFLOW_TYPE).query("include", "actions")
             .get(ListWorkflowInstanceResponse[].class);
         assertThat(instances.length, greaterThanOrEqualTo(1));
         for (ListWorkflowInstanceResponse instance : instances) {
@@ -76,12 +78,13 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       return wf;
     });
     assertThat(wfr.actions.size(), is(2));
+    assertThat(wfr.businessKey, is(equalTo("newBusinessKey")));
   }
 
   @Test
   @Order(3)
   public void queryDemoWorkflowWithMultipleStatuses() {
-    ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", "demo").query("status", "finished")
+    ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", DEMO_WORKFLOW_TYPE).query("status", "finished")
         .query("status", "manual").get(ListWorkflowInstanceResponse[].class);
     assertThat(instances.length, greaterThanOrEqualTo(1));
   }
@@ -90,7 +93,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Order(4)
   public void queryWorkflowWithActionsReturnsEmptyActions() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.type = "demo";
+    req.type = DEMO_WORKFLOW_TYPE;
     req.businessKey = "2";
     resp = createWorkflowInstance(req);
 

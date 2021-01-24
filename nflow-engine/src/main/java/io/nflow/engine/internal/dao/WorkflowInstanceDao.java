@@ -337,8 +337,8 @@ public class WorkflowInstanceDao {
     Object nextActivation = sqlVariants.toTimestampObject(instance.nextActivation);
     return jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
         abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
-        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, toTimestamp(instance.started),
-        instance.id);
+        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, instance.businessKey,
+        toTimestamp(instance.started), instance.id);
   }
 
   private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action,
@@ -416,7 +416,7 @@ public class WorkflowInstanceDao {
         abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
         instance.status == executing ? executorId : null, instance.retries, toTimestamp(action.executionStart), instance.id,
         executorId, action.type.name(), action.state, abbreviate(action.stateText, getActionStateTextLength()), action.retryNo,
-        toTimestamp(action.executionStart), toTimestamp(action.executionEnd) };
+        instance.businessKey, toTimestamp(action.executionStart), toTimestamp(action.executionEnd) };
     int pos = fixedValues.length;
     Object[] args = Arrays.copyOf(fixedValues, pos + changedStateVariables.size() * 2);
     for (Entry<String, String> variable : changedStateVariables.entrySet()) {
@@ -443,7 +443,7 @@ public class WorkflowInstanceDao {
   private String updateWorkflowInstanceSql() {
     return "update nflow_workflow set status = " + sqlVariants.workflowStatus() + ", state = ?, state_text = ?, "
         + "next_activation = " + sqlVariants.nextActivationUpdate()
-        + ", external_next_activation = null, executor_id = ?, retries = ?, "
+        + ", external_next_activation = null, executor_id = ?, retries = ?, business_key = ?, "
         + "started = (case when started is null then ? else started end) where id = ? and executor_id = "
         + executorInfo.getExecutorId();
   }

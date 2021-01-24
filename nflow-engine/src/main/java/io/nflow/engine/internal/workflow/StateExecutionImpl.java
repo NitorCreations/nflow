@@ -45,6 +45,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private boolean createAction = true;
   private String[] wakeUpParentStates;
   private boolean historyCleaningForced = false;
+  private String businessKey;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
@@ -84,6 +85,15 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   @Override
   public String getBusinessKey() {
     return instance.businessKey;
+  }
+
+  @Override
+  public void setBusinessKey(String businessKey) {
+    this.businessKey = businessKey;
+  }
+
+  public String getNewBusinessKey() {
+    return businessKey;
   }
 
   @Override
