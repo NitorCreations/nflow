@@ -60,7 +60,7 @@ create table nflow_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
-  state_value text not null,
+  state_value varchar(max) not null,
   constraint pk_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_state_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
@@ -84,7 +84,7 @@ if not exists (select 1 from sys.tables where name='nflow_workflow_definition')
 create table nflow_workflow_definition (
   type varchar(64) not null,
   definition_sha1 varchar(40) not null,
-  definition text not null,
+  definition varchar(max) not null,
   created datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified_by int not null,
@@ -155,7 +155,7 @@ create table nflow_archive_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
-  state_value text not null,
+  state_value varchar(max) not null,
   constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );

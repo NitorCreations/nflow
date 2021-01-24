@@ -139,27 +139,28 @@ public abstract class ResourceBase {
     return workflowInstances.updateWorkflowInstance(instance, action);
   }
 
-  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(final List<Long> ids, final List<String> types,
-      final Long parentWorkflowId, final Long parentActionId, final List<String> states,
-      final List<WorkflowInstanceStatus> statuses, final String businessKey, final String externalId, final String include,
-      final Long maxResults, final Long maxActions, final WorkflowInstanceService workflowInstances,
-      final ListWorkflowInstanceConverter listWorkflowConverter) {
+  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(List<Long> ids, List<String> types, Long parentWorkflowId,
+      Long parentActionId, List<String> states, List<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
+      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions,
+      WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder() //
-        .addIds(ids.toArray(new Long[ids.size()])) //
-        .addTypes(types.toArray(new String[types.size()])) //
-        .setParentWorkflowId(parentWorkflowId) //
-        .setParentActionId(parentActionId) //
-        .addStates(states.toArray(new String[states.size()])) //
-        .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()])) //
-        .setBusinessKey(businessKey) //
-        .setExternalId(externalId) //
-        .setIncludeCurrentStateVariables(includeStrings.contains(currentStateVariables)) //
-        .setIncludeActions(includeStrings.contains(actions)) //
-        .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables)) //
-        .setMaxResults(maxResults) //
-        .setMaxActions(maxActions) //
-        .setIncludeChildWorkflows(includeStrings.contains(childWorkflows)).build();
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
+        .addIds(ids.toArray(new Long[ids.size()]))
+        .addTypes(types.toArray(new String[types.size()]))
+        .setParentWorkflowId(parentWorkflowId)
+        .setParentActionId(parentActionId)
+        .addStates(states.toArray(new String[states.size()]))
+        .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()]))
+        .setBusinessKey(businessKey)
+        .setExternalId(externalId)
+        .setIncludeCurrentStateVariables(includeStrings.contains(currentStateVariables))
+        .setIncludeActions(includeStrings.contains(actions))
+        .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables))
+        .setMaxResults(maxResults)
+        .setMaxActions(maxActions)
+        .setIncludeChildWorkflows(includeStrings.contains(childWorkflows))
+        .setStateVariable(stateVariableKey, stateVariableValue)
+        .build();
     Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
     Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
     return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums));

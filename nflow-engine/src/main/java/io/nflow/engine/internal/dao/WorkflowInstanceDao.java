@@ -628,7 +628,7 @@ public class WorkflowInstanceDao {
   }
 
   public Stream<WorkflowInstance> queryWorkflowInstancesAsStream(QueryWorkflowInstances query) {
-    String sql = "select * from nflow_workflow ";
+    StringBuilder sqlBuilder = new StringBuilder("select wf.* from nflow_workflow wf ");
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
@@ -667,7 +667,13 @@ public class WorkflowInstanceDao {
     }
     conditions.add("executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
-    sql += " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    if (query.stateVariableKey != null) {
+      sqlBuilder.append("inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ");
+      conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
+      params.addValue("state_key", query.stateVariableKey);
+      params.addValue("state_value", query.stateVariableValue);
+    }
+    String sql = sqlBuilder.append("where ").append(collectionToDelimitedString(conditions, " and ")).append(" order by id desc").toString();
     sql = sqlVariants.limit(sql, getMaxResults(query.maxResults));
 
     Stream<WorkflowInstance> ret = namedJdbc.query(sql, params, new WorkflowInstanceRowMapper()).stream()

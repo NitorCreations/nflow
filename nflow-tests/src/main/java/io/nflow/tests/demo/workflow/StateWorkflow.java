@@ -28,6 +28,7 @@ import io.nflow.engine.workflow.definition.WorkflowStateType;
 public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
 
   public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
+  public static final String STATEVAR_QUERYTEST = "queryTest";
 
   public static enum State implements io.nflow.engine.workflow.definition.WorkflowState {
     state1(start, "Set variable 1"),
@@ -71,18 +72,21 @@ public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
   public NextAction state1(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable1", instantiateIfNotExists = true) Variable variable1) {
     variable1.value = "foo1";
+    execution.setVariable(STATEVAR_QUERYTEST, "oldValue");
     return moveToState(state2, "variable1 is set to " + variable1.value);
   }
 
   public NextAction state2(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable2", instantiateIfNotExists = true) Variable variable2) {
     variable2.value = "bar1";
+    execution.setVariable(STATEVAR_QUERYTEST, "anotherOldValue");
     return moveToState(state3, "variable1 is set to " + variable2.value);
   }
 
   public NextAction state3(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable2") Variable variable2) {
     variable2.value = "bar2";
+    execution.setVariable(STATEVAR_QUERYTEST, "newValue");
     return moveToState(state4, "variable2 is set to " + variable2.value);
   }
 

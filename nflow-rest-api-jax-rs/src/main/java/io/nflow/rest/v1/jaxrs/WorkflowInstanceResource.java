@@ -137,11 +137,14 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("status") @ApiParam("Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
       @QueryParam("businessKey") @ApiParam("Business key for workflow instance") String businessKey,
       @QueryParam("externalId") @ApiParam("External id for workflow instance") String externalId,
+      @QueryParam("stateVariableKey") @ApiParam("Key of state variable that must exist for workflow instance") String stateVariableKey,
+      @QueryParam("stateVariableValue") @ApiParam("Current value of state variable defined by stateVariableKey") String stateVariableValue,
       @QueryParam("include") @ApiParam(value = INCLUDE_PARAM_DESC, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true) String include,
       @QueryParam("maxResults") @ApiParam("Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @ApiParam("Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
-        businessKey, externalId, include, maxResults, maxActions, workflowInstances, listWorkflowConverter).iterator()));
+        businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions, workflowInstances,
+        listWorkflowConverter).iterator()));
   }
 
   @PUT

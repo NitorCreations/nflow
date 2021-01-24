@@ -2,16 +2,21 @@
 
 **Highlights**
 - Support updating workflow instance business key.
+- Support for searching workflow instances by state variable key and value.
 
 **Details**
 - `nflow-engine`
   - `WorkflowInstanceService.updateWorkflowInstance` can now be used to update business key of the workflow instance.
-- `nflow-rest-api-common`
+  - Use `QueryWorkflowInstances.setStateVariable` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
+- `nflow-rest-api-common`, `nflow-rest-api-jax-rs`, `nflow-rest-api-spring-web`
   - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
+  - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
 - `nflow-explorer`
   - Dependency updates:
     - urijs 1.19.5
     - socket.io 2.4.1
+- Database
+  - Change `text` data types to `varchar(max)` for MS SQL Server
 
 ## 7.2.2 (2020-12-25)
 
