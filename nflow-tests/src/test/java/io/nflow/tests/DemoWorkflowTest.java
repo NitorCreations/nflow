@@ -6,7 +6,6 @@ import static java.time.Duration.ofSeconds;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -78,7 +77,6 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       return wf;
     });
     assertThat(wfr.actions.size(), is(2));
-    assertThat(wfr.businessKey, is(equalTo("newBusinessKey")));
   }
 
   @Test

@@ -90,7 +90,7 @@ public class ConcurrentEnginesTest {
   public void insertWorkflows() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DEMO_WORKFLOW_TYPE;
-    req.externalId = UNIQUE_KEY;
+    req.businessKey = UNIQUE_KEY;
     req.activationTime = now().plusSeconds(10);
     for (int i=0; i<WORKFLOWS; ++i) {
       CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
@@ -107,7 +107,7 @@ public class ConcurrentEnginesTest {
         ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true)
                 .query("type", DEMO_WORKFLOW_TYPE)
                 .query("maxResults", WORKFLOWS + 1)
-                .query("externalId", UNIQUE_KEY)
+                .query("businessKey", UNIQUE_KEY)
                 .query("status", finished)
                 .query("include", "").get(ListWorkflowInstanceResponse[].class);
         if (instances.length == WORKFLOWS) {
