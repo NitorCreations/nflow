@@ -218,13 +218,5 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     public boolean useBatchUpdate() {
       return true;
     }
-
-    /**
-     * Returns expression cast to varchar(max).
-     */
-    @Override
-    public String castToVarchar(String expression) {
-      return "cast (" + expression + " as varchar(max))";
-    }
   }
 }
