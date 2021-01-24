@@ -67,4 +67,8 @@ public interface SQLVariants {
   default String withUpdateSkipLocked() {
     return "";
   }
+
+  default String castToVarchar(String expression) {
+    return expression;
+  }
 }
