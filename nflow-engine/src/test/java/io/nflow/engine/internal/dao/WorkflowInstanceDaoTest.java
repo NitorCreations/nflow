@@ -564,6 +564,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) 42));
     assertThat(args.getAllValues().get(i++), is((Object) i2.retries));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.businessKey));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionStart.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) i2.id));
     assertThat(args.getAllValues().get(i++), is((Object) 42));
@@ -571,7 +572,6 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) a1.state));
     assertThat(args.getAllValues().get(i++), is((Object) a1.stateText));
     assertThat(args.getAllValues().get(i++), is((Object) a1.retryNo));
-    assertThat(args.getAllValues().get(i++), is((Object) i2.businessKey));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionStart.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionEnd.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) "A"));

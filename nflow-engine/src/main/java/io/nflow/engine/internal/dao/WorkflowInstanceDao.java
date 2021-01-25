@@ -414,9 +414,10 @@ public class WorkflowInstanceDao {
     Timestamp nextActivation = toTimestamp(instance.nextActivation);
     Object[] fixedValues = new Object[] { instance.status.name(), instance.state,
         abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
-        instance.status == executing ? executorId : null, instance.retries, toTimestamp(action.executionStart), instance.id,
-        executorId, action.type.name(), action.state, abbreviate(action.stateText, getActionStateTextLength()), action.retryNo,
-        instance.businessKey, toTimestamp(action.executionStart), toTimestamp(action.executionEnd) };
+        instance.status == executing ? executorId : null, instance.retries, instance.businessKey,
+        toTimestamp(action.executionStart), instance.id, executorId, action.type.name(), action.state,
+        abbreviate(action.stateText, getActionStateTextLength()), action.retryNo, toTimestamp(action.executionStart),
+        toTimestamp(action.executionEnd) };
     int pos = fixedValues.length;
     Object[] args = Arrays.copyOf(fixedValues, pos + changedStateVariables.size() * 2);
     for (Entry<String, String> variable : changedStateVariables.entrySet()) {
