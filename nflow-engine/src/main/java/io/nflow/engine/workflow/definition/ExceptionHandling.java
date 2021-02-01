@@ -16,7 +16,7 @@ public class ExceptionHandling {
   }
 
   public static class Builder {
-    private boolean isRetryable = false;
+    private boolean isRetryable = true;
     private Level logLevel = ERROR;
     private boolean logStackTrace = true;
 
