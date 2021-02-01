@@ -5,7 +5,7 @@ import static org.slf4j.event.Level.ERROR;
 import org.slf4j.event.Level;
 
 public class ExceptionSeverity {
-  public static final ExceptionSeverity DEFAULT = new ExceptionSeverity(ERROR, true);
+  public static final ExceptionSeverity DEFAULT = new ExceptionSeverity.Builder().build();
   public final Level logLevel;
   public final boolean logStackTrace;
 
