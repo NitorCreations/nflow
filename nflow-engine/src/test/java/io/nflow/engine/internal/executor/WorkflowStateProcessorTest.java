@@ -96,6 +96,7 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.curated.BulkWorkflow;
+import io.nflow.engine.workflow.definition.ExceptionHandling;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -1290,7 +1291,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public static class NonRetryableWorkflow extends WorkflowDefinition<NonRetryableWorkflow.State> {
 
     protected NonRetryableWorkflow() {
-      super("non-retryable", State.start, State.end);
+      super("non-retryable", State.start, State.end, new WorkflowSettings.Builder()
+          .setExceptionAnalyzer((s, t) -> new ExceptionHandling.Builder().setRetryable(false).build()).build());
     }
 
     public static enum State implements WorkflowState {
@@ -1305,11 +1307,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       @Override
       public WorkflowStateType getType() {
         return stateType;
-      }
-
-      @Override
-      public boolean isRetryAllowed(Throwable thrown) {
-        return false;
       }
     }
 

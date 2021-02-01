@@ -51,7 +51,7 @@ import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.ExceptionSeverity;
+import io.nflow.engine.workflow.definition.ExceptionHandling;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
@@ -169,19 +169,20 @@ class WorkflowStateProcessor implements Runnable {
       } catch (StateVariableValueTooLongException e) {
         instance = rescheduleStateVariableValueTooLong(e, instance);
         saveInstanceState = false;
-      } catch (Throwable t) {
-        if (t instanceof UndeclaredThrowableException) {
-          t = t.getCause();
+      } catch (Throwable thrown) {
+        if (thrown instanceof UndeclaredThrowableException) {
+          thrown = thrown.getCause();
         }
-        execution.setFailed(t);
-        if (state.isRetryAllowed(t)) {
-          logRetryableException(settings, state, t);
+        execution.setFailed(thrown);
+        ExceptionHandling exceptionHandling = settings.exceptionAnalyzer.apply(state, thrown);
+        if (exceptionHandling.isRetryable) {
+          logRetryableException(exceptionHandling, state.name(), thrown);
           execution.setRetry(true);
           execution.setNextState(state);
-          execution.setNextStateReason(getStackTrace(t));
+          execution.setNextStateReason(getStackTrace(thrown));
           execution.handleRetryAfter(definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
         } else {
-          logger.error("Handler threw an exception and retrying is not allowed, going to failure state.", t);
+          logger.error("Handler threw an exception and retrying is not allowed, going to failure state.", thrown);
           execution.handleFailure(definition, "Handler threw an exception and retrying is not allowed");
         }
       } finally {
@@ -200,15 +201,13 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Finished.");
   }
 
-  private void logRetryableException(WorkflowSettings settings, WorkflowState state, Throwable thrown) {
-    ExceptionSeverity exceptionSeverity = settings.exceptionSeverityResolver.apply(thrown);
-    BiConsumer<String, Object[]> logMethod = getLogMethod(exceptionSeverity.logLevel);
-    if (exceptionSeverity.logStackTrace) {
-      logMethod.accept("Handling state '{}' threw a retryable exception, trying again later.",
-          new Object[] { state.name(), thrown });
+  private void logRetryableException(ExceptionHandling exceptionHandling, String state, Throwable thrown) {
+    BiConsumer<String, Object[]> logMethod = getLogMethod(exceptionHandling.logLevel);
+    if (exceptionHandling.logStackTrace) {
+      logMethod.accept("Handling state '{}' threw a retryable exception, trying again later.", new Object[] { state, thrown });
     } else {
       logMethod.accept("Handling state '{}' threw a retryable exception, trying again later. Message: {}",
-          new Object[] { state.name(), thrown.getMessage() });
+          new Object[] { state, thrown.getMessage() });
     }
   }
 

@@ -35,7 +35,10 @@ public interface WorkflowState {
    * @param thrown
    *          The thrown exception.
    * @return True if the state can be retried.
+   * @deprecated This will be removed in the next major release. Use new WorkflowSettings.Builder().setExceptionAnalyzer(...)
+   *             instead.
    */
+  @Deprecated
   default boolean isRetryAllowed(Throwable thrown) {
     return !thrown.getClass().isAnnotationPresent(NonRetryable.class);
   }
