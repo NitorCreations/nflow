@@ -87,8 +87,9 @@ class WorkflowStateProcessor implements Runnable {
   private Thread thread;
   private ListenerContext listenerContext;
 
-  WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
+  WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper,
+      WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
+      WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
       Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
@@ -125,7 +126,8 @@ class WorkflowStateProcessor implements Runnable {
           logger.error("Failed to process workflow instance and shutdown requested", ex);
           break;
         }
-        logger.error("Failed to process workflow instance {}, retrying after {} seconds", instanceId, stateProcessingRetryDelay, ex);
+        logger.error("Failed to process workflow instance {}, retrying after {} seconds", instanceId, stateProcessingRetryDelay,
+            ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
     }
@@ -170,7 +172,7 @@ class WorkflowStateProcessor implements Runnable {
         }
         execution.setFailed(t);
         if (state.isRetryAllowed(t)) {
-          logger.error("Handler threw a retryable exception, trying again later.", t);
+          logRetryableException(state, t);
           execution.setRetry(true);
           execution.setNextState(state);
           execution.setNextStateReason(getStackTrace(t));
@@ -193,6 +195,21 @@ class WorkflowStateProcessor implements Runnable {
       }
     }
     logger.debug("Finished.");
+  }
+
+  private void logRetryableException(WorkflowState state, Throwable t) {
+    switch (state.getExceptionSeverity(t)) {
+    case INFO:
+      logger.info("Handler threw a retryable exception, trying again later. Message: ", t.getMessage());
+      return;
+    case WARNING:
+      logger.warn("Handler threw a retryable exception, trying again later.", t);
+      return;
+    case ERROR:
+    default:
+      logger.error("Handler threw a retryable exception, trying again later.", t);
+      return;
+    }
   }
 
   void logIfLagging(WorkflowInstance instance) {
@@ -275,8 +292,9 @@ class WorkflowStateProcessor implements Runnable {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
         if (shutdownRequested.get()) {
-          logger.error("Failed to save workflow instance {} new state, not retrying due to shutdown request. The state will be rerun on recovery.",
-                  instance.id, ex);
+          logger.error(
+              "Failed to save workflow instance {} new state, not retrying due to shutdown request. The state will be rerun on recovery.",
+              instance.id, ex);
           // return the original instance since persisting failed
           return instance;
         }
