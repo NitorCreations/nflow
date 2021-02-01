@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -69,7 +69,7 @@ public class WorkflowSettings extends ModelObject {
    * Default priority for new workflow instances.
    */
   public final short defaultPriority;
-  public final Function<Throwable, ExceptionSeverity> exceptionSeverityResolver;
+  public final BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -82,7 +82,7 @@ public class WorkflowSettings extends ModelObject {
     this.historyDeletableAfter = builder.historyDeletableAfter;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
     this.defaultPriority = builder.defaultPriority;
-    this.exceptionSeverityResolver = builder.exceptionSeverityResolver;
+    this.exceptionAnalyzer = builder.exceptionAnalyzer;
   }
 
   /**
@@ -101,7 +101,11 @@ public class WorkflowSettings extends ModelObject {
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
-    Function<Throwable, ExceptionSeverity> exceptionSeverityResolver = thrown -> ExceptionSeverity.DEFAULT;
+    // TODO: replace state.isRetryAllowed(thrown) with !thrown.getClass().isAnnotationPresent(NonRetryable.class) in the next
+    // major release
+    @SuppressWarnings("deprecation")
+    BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer = (state, thrown) -> new ExceptionHandling.Builder()
+        .setRetryable(state.isRetryAllowed(thrown)).build();
 
     /**
      * Returns true randomly every n:th time.
@@ -255,8 +259,8 @@ public class WorkflowSettings extends ModelObject {
       return this;
     }
 
-    public Builder setExceptionSeverityResolver(Function<Throwable, ExceptionSeverity> exceptionSeverityResolver) {
-      this.exceptionSeverityResolver = exceptionSeverityResolver;
+    public Builder setExceptionAnalyzer(BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer) {
+      this.exceptionAnalyzer = exceptionAnalyzer;
       return this;
     }
 
