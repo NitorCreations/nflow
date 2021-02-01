@@ -88,7 +88,6 @@ public class WorkflowSettings extends ModelObject {
   /**
    * Builder for workflow settings.
    */
-  @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure")
   public static class Builder {
 
     int maxErrorTransitionDelay = (int) DAYS.toMillis(1);
@@ -113,6 +112,7 @@ public class WorkflowSettings extends ModelObject {
      * @param n The frequency of returning true.
      * @return Producer of boolean values
      */
+    @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure here")
     public static BooleanSupplier onAverageEveryNthExecution(int n) {
       return () -> ThreadLocalRandom.current().nextInt(n) == 0;
     }
