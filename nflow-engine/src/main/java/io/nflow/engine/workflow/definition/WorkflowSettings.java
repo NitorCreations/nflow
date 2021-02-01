@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -69,7 +69,7 @@ public class WorkflowSettings extends ModelObject {
    * Default priority for new workflow instances.
    */
   public final short defaultPriority;
-  public final BiFunction<WorkflowState, Throwable, ExceptionSeverity> exceptionSeveritySupplier;
+  public final Function<Throwable, ExceptionSeverity> exceptionSeverityResolver;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -82,7 +82,7 @@ public class WorkflowSettings extends ModelObject {
     this.historyDeletableAfter = builder.historyDeletableAfter;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
     this.defaultPriority = builder.defaultPriority;
-    this.exceptionSeveritySupplier = builder.exceptionSeveritySupplier;
+    this.exceptionSeverityResolver = builder.exceptionSeverityResolver;
   }
 
   /**
@@ -101,7 +101,7 @@ public class WorkflowSettings extends ModelObject {
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
-    BiFunction<WorkflowState, Throwable, ExceptionSeverity> exceptionSeveritySupplier = (s, t) -> ExceptionSeverity.DEFAULT;
+    Function<Throwable, ExceptionSeverity> exceptionSeverityResolver = thrown -> ExceptionSeverity.DEFAULT;
 
     /**
      * Returns true randomly every n:th time.
@@ -255,9 +255,8 @@ public class WorkflowSettings extends ModelObject {
       return this;
     }
 
-    public Builder setExceptionSeveritySupplier(
-        BiFunction<WorkflowState, Throwable, ExceptionSeverity> exceptionSeveritySupplier) {
-      this.exceptionSeveritySupplier = exceptionSeveritySupplier;
+    public Builder setExceptionSeverityResolver(Function<Throwable, ExceptionSeverity> exceptionSeverityResolver) {
+      this.exceptionSeverityResolver = exceptionSeverityResolver;
       return this;
     }
 
@@ -339,9 +338,5 @@ public class WorkflowSettings extends ModelObject {
    */
   public Short getDefaultPriority() {
     return defaultPriority;
-  }
-
-  public ExceptionSeverity getExceptionSeverity(WorkflowState state, Throwable t) {
-    return exceptionSeveritySupplier.apply(state, t);
   }
 }
