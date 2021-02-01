@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
@@ -68,6 +69,7 @@ public class WorkflowSettings extends ModelObject {
    * Default priority for new workflow instances.
    */
   public final short defaultPriority;
+  public final BiFunction<WorkflowState, Throwable, ExceptionSeverity> exceptionSeveritySupplier;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -80,6 +82,7 @@ public class WorkflowSettings extends ModelObject {
     this.historyDeletableAfter = builder.historyDeletableAfter;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
     this.defaultPriority = builder.defaultPriority;
+    this.exceptionSeveritySupplier = builder.exceptionSeveritySupplier;
   }
 
   /**
@@ -98,6 +101,7 @@ public class WorkflowSettings extends ModelObject {
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
+    BiFunction<WorkflowState, Throwable, ExceptionSeverity> exceptionSeveritySupplier = (s, t) -> ExceptionSeverity.DEFAULT;
 
     /**
      * Returns true randomly every n:th time.
@@ -251,6 +255,12 @@ public class WorkflowSettings extends ModelObject {
       return this;
     }
 
+    public Builder setExceptionSeveritySupplier(
+        BiFunction<WorkflowState, Throwable, ExceptionSeverity> exceptionSeveritySupplier) {
+      this.exceptionSeveritySupplier = exceptionSeveritySupplier;
+      return this;
+    }
+
     /**
      * Create workflow settings object.
      *
@@ -331,4 +341,7 @@ public class WorkflowSettings extends ModelObject {
     return defaultPriority;
   }
 
+  public ExceptionSeverity getExceptionSeverity(WorkflowState state, Throwable t) {
+    return exceptionSeveritySupplier.apply(state, t);
+  }
 }

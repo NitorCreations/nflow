@@ -39,15 +39,4 @@ public interface WorkflowState {
   default boolean isRetryAllowed(Throwable thrown) {
     return !thrown.getClass().isAnnotationPresent(NonRetryable.class);
   }
-
-  /**
-   * Return the severity of the exception thrown by the state execution. Using default means ERROR level logging with stack trace.
-   *
-   * @param thrown
-   *          The thrown exception.
-   * @return Exception severity.
-   */
-  default ExceptionSeverity getExceptionSeverity(Throwable thrown) {
-    return ExceptionSeverity.DEFAULT;
-  }
 }
