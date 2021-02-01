@@ -69,6 +69,9 @@ public class WorkflowSettings extends ModelObject {
    * Default priority for new workflow instances.
    */
   public final short defaultPriority;
+  /**
+   * Exception analyzer controls how an exception thrown by a state method should be handled.
+   */
   public final BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer;
 
   WorkflowSettings(Builder builder) {
@@ -259,6 +262,13 @@ public class WorkflowSettings extends ModelObject {
       return this;
     }
 
+    /**
+     * Set the exception analyzer function.
+     *
+     * @param exceptionAnalyzer
+     *          The exception analyzer function.
+     * @return this.
+     */
     public Builder setExceptionAnalyzer(BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer) {
       this.exceptionAnalyzer = exceptionAnalyzer;
       return this;
