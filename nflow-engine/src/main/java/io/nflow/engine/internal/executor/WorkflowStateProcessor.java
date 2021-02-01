@@ -24,12 +24,14 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.slf4j.event.Level;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -49,6 +51,7 @@ import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.ExceptionSeverity;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
@@ -198,17 +201,28 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void logRetryableException(WorkflowState state, Throwable t) {
-    switch (state.getExceptionSeverity(t)) {
+    ExceptionSeverity exceptionSeverity = state.getExceptionSeverity(t);
+    BiConsumer<String, Object> logMethod = getLogMethod(exceptionSeverity.logLevel);
+    if (exceptionSeverity.logStackTrace) {
+      logMethod.accept("Handler threw a retryable exception, trying again later.", t);
+    } else {
+      logMethod.accept("Handler threw a retryable exception, trying again later. Message: {}", t.getMessage());
+    }
+  }
+
+  private BiConsumer<String, Object> getLogMethod(Level logLevel) {
+    switch (logLevel) {
+    case TRACE:
+      return logger::trace;
+    case DEBUG:
+      return logger::debug;
     case INFO:
-      logger.info("Handler threw a retryable exception, trying again later. Message: ", t.getMessage());
-      return;
-    case WARNING:
-      logger.warn("Handler threw a retryable exception, trying again later.", t);
-      return;
+      return logger::info;
+    case WARN:
+      return logger::warn;
     case ERROR:
     default:
-      logger.error("Handler threw a retryable exception, trying again later.", t);
-      return;
+      return logger::error;
     }
   }
 

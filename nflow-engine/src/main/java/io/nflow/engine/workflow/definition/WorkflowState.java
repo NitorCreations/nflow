@@ -41,14 +41,13 @@ public interface WorkflowState {
   }
 
   /**
-   * Return the severity of the exception thrown by the state execution. Default is ERROR. Stack trace will not be logged for
-   * INFO.
+   * Return the severity of the exception thrown by the state execution. Using default means ERROR level logging with stack trace.
    *
    * @param thrown
    *          The thrown exception.
    * @return Exception severity.
    */
   default ExceptionSeverity getExceptionSeverity(Throwable thrown) {
-    return ExceptionSeverity.ERROR;
+    return ExceptionSeverity.DEFAULT;
   }
 }
