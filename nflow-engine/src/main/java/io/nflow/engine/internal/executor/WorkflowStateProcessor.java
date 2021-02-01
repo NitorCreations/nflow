@@ -200,14 +200,15 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Finished.");
   }
 
-  private void logRetryableException(WorkflowSettings settings, WorkflowState state, Throwable t) {
-    ExceptionSeverity exceptionSeverity = settings.getExceptionSeverity(state, t);
+  private void logRetryableException(WorkflowSettings settings, WorkflowState state, Throwable thrown) {
+    ExceptionSeverity exceptionSeverity = settings.exceptionSeverityResolver.apply(thrown);
     BiConsumer<String, Object[]> logMethod = getLogMethod(exceptionSeverity.logLevel);
     if (exceptionSeverity.logStackTrace) {
-      logMethod.accept("Handling state '{}' threw a retryable exception, trying again later.", new Object[] { state.name(), t });
+      logMethod.accept("Handling state '{}' threw a retryable exception, trying again later.",
+          new Object[] { state.name(), thrown });
     } else {
       logMethod.accept("Handling state '{}' threw a retryable exception, trying again later. Message: {}",
-          new Object[] { state.name(), t.getMessage() });
+          new Object[] { state.name(), thrown.getMessage() });
     }
   }
 
