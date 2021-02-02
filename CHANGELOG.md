@@ -3,16 +3,16 @@
 **Highlights**
 - Support updating workflow instance business key.
 - Support for searching workflow instances by state variable key and value.
-- Control retryable exception handling via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`)
+- Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`)
 
 **Details**
 - `nflow-engine`
   - `WorkflowInstanceService.updateWorkflowInstance` can now be used to update business key of the workflow instance.
   - Use `QueryWorkflowInstances.setStateVariable` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
-  - Control retryable exception handling via `WorkflowSettings.Builder.setExceptionAnalyzer(...)` / `ExceptionHandling`:
-    - Allow setting the log entry level of the retryable exception thrown by state processing.
-    - Allow controlling whether the stack trace of the retryable exception is logged or not.
-    - Allow controlling whether the exception is retryable or not (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
+  - Control retrying and logging of an exception thrown by a state method via `WorkflowSettings.Builder.setExceptionAnalyzer(...)` / `ExceptionHandling`:
+    - Control whether the exception is considered retryable or not (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
+    - Control which log level is used to log the retryable exception.
+    - Control whether the stack trace of the retryable exception is logged or not.
 - `nflow-rest-api-common`, `nflow-rest-api-jax-rs`, `nflow-rest-api-spring-web`
   - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
   - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
