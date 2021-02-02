@@ -1,4 +1,4 @@
-<img src="https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo-no-borders.png" height="100" width="195" />
+<img src="./nflow-documentation/nflow-logo-dark.svg" height="100" width="195" />
 
 nFlow is a battle-proven solution for orchestrating business processes. Depending on where you're coming from, you can view nFlow as any of the following:
 
