@@ -28,8 +28,8 @@
 
   m.run(function (EndpointService, ExecutorService, $window, config) {
     if (config.htmlTitle) {
-      $window.document.title = config.htmlTitle
-    };
+      $window.document.title = config.htmlTitle;
+    }
     EndpointService.init();
     ExecutorService.start();
   });

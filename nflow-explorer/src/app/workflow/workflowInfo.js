@@ -6,7 +6,7 @@
     'nflowExplorer.workflow.graph',
   ]);
 
-  m.directive('workflowInfo', function(config) {
+  m.directive('workflowInfo', function() {
     return {
       restrict: 'E',
       replace: true,
