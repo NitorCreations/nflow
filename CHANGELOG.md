@@ -7,6 +7,8 @@
 - Facelift for workflow instance properties in nFlow Explorer
 - Control retryable exception handling via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`)
 - Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`)
+- Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
+- Control logging and sleeping after exceptions in `WorkflowDispatcher`.
 
 **Details**
 - `nflow-engine`
@@ -16,6 +18,12 @@
     - Control whether the exception is considered retryable or not (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
     - Control which log level is used to log the retryable exception.
     - Control whether the stack trace of the retryable exception is logged or not.
+  - Control logging and sleeping after exceptions in `WorkflowDispatcher` by providing a `DispatcherExceptionHandler` that returns `DispatcherExceptionHandling` objects:
+    - Control whether the exception is logged or not.
+    - Control which log level is used to log the exception.
+    - Control whether the stack trace of the exception is logged or not.
+    - Control whether dispatcher should sleep after the exception or not.
+    - Control whether the sleep time should be randomized or not.
 - `nflow-rest-api-common`, `nflow-rest-api-jax-rs`, `nflow-rest-api-spring-web`
   - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
   - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.

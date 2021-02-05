@@ -15,11 +15,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.quality.Strictness.LENIENT;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -39,6 +39,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.mock.env.MockEnvironment;
@@ -52,10 +53,12 @@ import ch.qos.logback.core.Appender;
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.service.WorkflowDefinitionService;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = LENIENT)
 public class WorkflowDispatcherTest {
   WorkflowDispatcher dispatcher;
   WorkflowInstanceExecutor executor;
@@ -72,6 +75,8 @@ public class WorkflowDispatcherTest {
   Appender<ILoggingEvent> mockAppender;
   @Captor
   ArgumentCaptor<ILoggingEvent> loggingEventCaptor;
+  final DispatcherExceptionAnalyzer exceptionAnalyzer = new DefaultDispatcherExceptionAnalyzer();
+  final NflowLogger nflowLogger = new NflowLogger();
 
   @BeforeEach
   public void setup() {
@@ -86,10 +91,12 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
-    lenient().when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
-    lenient().when(executorDao.isAutoCommitEnabled()).thenReturn(true);
+    when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
+    when(executorDao.isAutoCommitEnabled()).thenReturn(true);
+    when(executorDao.isAutoCommitEnabled()).thenReturn(true);
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
-    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
+    dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao,
+        exceptionAnalyzer, nflowLogger, env);
     Logger logger = (Logger) getLogger(ROOT_LOGGER_NAME);
     logger.addAppender(mockAppender);
   }
@@ -103,13 +110,15 @@ public class WorkflowDispatcherTest {
   @Test
   public void workflowDispatcherCreationFailsWithoutTransactionSupport() {
     when(executorDao.isTransactionSupportEnabled()).thenReturn(false);
-    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env));
+    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory,
+        workflowDefinitions, executorDao, exceptionAnalyzer, nflowLogger, env));
   }
 
   @Test
   public void workflowDispatcherCreationFailsWithAutoCommitDisabled() {
     when(executorDao.isAutoCommitEnabled()).thenReturn(false);
-    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao, env));
+    assertThrows(BeanCreationException.class, () -> new WorkflowDispatcher(executor, workflowInstances, executorFactory,
+        workflowDefinitions, executorDao, exceptionAnalyzer, nflowLogger, env));
   }
 
   @Test
@@ -265,7 +274,8 @@ public class WorkflowDispatcherTest {
       @Override
       public void initialize() {
         poolSpy = Mockito.spy(executor);
-        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, workflowDefinitions, executorDao, env);
+        dispatcher = new WorkflowDispatcher(poolSpy, workflowInstances, executorFactory, workflowDefinitions, executorDao,
+            exceptionAnalyzer, nflowLogger, env);
       }
 
       public void threadDispatcher() {
@@ -372,8 +382,8 @@ public class WorkflowDispatcherTest {
   }
 
   WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, final Runnable fakeCommand) {
-    return new WorkflowStateProcessor(instanceId, FALSE::booleanValue, null, null, null, null, null, null, env, new ConcurrentHashMap<>(),
-        (WorkflowExecutorListener) null) {
+    return new WorkflowStateProcessor(instanceId, FALSE::booleanValue, null, null, null, null, null, null, env,
+        new ConcurrentHashMap<>(), null, (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();

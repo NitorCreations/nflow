@@ -20,6 +20,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.listener.WorkflowExecutorListener;
@@ -46,6 +47,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   WorkflowExecutorListener listener2;
   WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[] { listener1, listener2 };
   WorkflowStateProcessorFactory factory;
+  final NflowLogger nflowLogger = new NflowLogger();
   private static final int STUCK_THREAD_THRESHOLD = 5;
 
   @BeforeEach
@@ -59,7 +61,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env);
+        maintenanceDao, workflowInstancePreProcessor, nflowLogger, env);
   }
 
   @Test

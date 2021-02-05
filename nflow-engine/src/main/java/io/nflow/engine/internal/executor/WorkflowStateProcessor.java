@@ -24,14 +24,12 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.slf4j.event.Level;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -40,6 +38,7 @@ import org.springframework.util.Assert;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -86,6 +85,7 @@ class WorkflowStateProcessor implements Runnable {
   private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
+  private final NflowLogger nflowLogger;
   private DateTime startTime;
   private Thread thread;
   private ListenerContext listenerContext;
@@ -94,7 +94,8 @@ class WorkflowStateProcessor implements Runnable {
       WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
       WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
-      Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
+      Map<Long, WorkflowStateProcessor> processingInstances, NflowLogger nflowLogger,
+      WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.shutdownRequested = shutdownRequested;
     this.objectMapper = objectMapper;
@@ -103,6 +104,7 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstanceDao = workflowInstanceDao;
     this.maintenanceDao = maintenanceDao;
     this.processingInstances = processingInstances;
+    this.nflowLogger = nflowLogger;
     this.executorListeners = asList(executorListeners);
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
@@ -202,28 +204,13 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void logRetryableException(ExceptionHandling exceptionHandling, String state, Throwable thrown) {
-    BiConsumer<String, Object[]> logMethod = getLogMethod(exceptionHandling.logLevel);
     if (exceptionHandling.logStackTrace) {
-      logMethod.accept("Handling state '{}' threw a retryable exception, trying again later.", new Object[] { state, thrown });
+      nflowLogger.log(logger, exceptionHandling.logLevel, "Handling state '{}' threw a retryable exception, trying again later.",
+          new Object[] { state, thrown });
     } else {
-      logMethod.accept("Handling state '{}' threw a retryable exception, trying again later. Message: {}",
+      nflowLogger.log(logger, exceptionHandling.logLevel,
+          "Handling state '{}' threw a retryable exception, trying again later. Message: {}",
           new Object[] { state, thrown.getMessage() });
-    }
-  }
-
-  private BiConsumer<String, Object[]> getLogMethod(Level logLevel) {
-    switch (logLevel) {
-    case TRACE:
-      return logger::trace;
-    case DEBUG:
-      return logger::debug;
-    case INFO:
-      return logger::info;
-    case WARN:
-      return logger::warn;
-    case ERROR:
-    default:
-      return logger::error;
     }
   }
 

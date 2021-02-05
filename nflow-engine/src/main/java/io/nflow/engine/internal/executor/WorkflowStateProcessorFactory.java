@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.listener.WorkflowExecutorListener;
@@ -30,6 +31,7 @@ public class WorkflowStateProcessorFactory {
   private final WorkflowInstanceDao workflowInstanceDao;
   private final MaintenanceDao maintenanceDao;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
+  private final NflowLogger nflowLogger;
   private final Environment env;
   @Autowired(required = false)
   protected WorkflowExecutorListener[] listeners = new WorkflowExecutorListener[0];
@@ -39,20 +41,21 @@ public class WorkflowStateProcessorFactory {
   @Inject
   public WorkflowStateProcessorFactory(WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
       ObjectStringMapper objectMapper, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
-      WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env) {
+      WorkflowInstancePreProcessor workflowInstancePreProcessor, NflowLogger nflowLogger, Environment env) {
     this.workflowDefinitions = workflowDefinitions;
     this.workflowInstances = workflowInstances;
     this.objectMapper = objectMapper;
     this.workflowInstanceDao = workflowInstanceDao;
     this.maintenanceDao = maintenanceDao;
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
+    this.nflowLogger = nflowLogger;
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
     this.env = env;
   }
 
   public WorkflowStateProcessor createProcessor(long instanceId, Supplier<Boolean> shutdownRequested) {
     return new WorkflowStateProcessor(instanceId, shutdownRequested, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, listeners);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, listeners);
   }
 
   public int getPotentiallyStuckProcessors() {

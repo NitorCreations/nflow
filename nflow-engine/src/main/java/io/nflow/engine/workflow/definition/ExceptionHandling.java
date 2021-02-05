@@ -39,7 +39,7 @@ public class ExceptionHandling {
      * Set if state method processing is retryable or not.
      *
      * @param isRetryable
-     *          True is state method processing should be retried.
+     *          True if state method processing should be retried.
      * @return This.
      */
     public Builder setRetryable(boolean isRetryable) {

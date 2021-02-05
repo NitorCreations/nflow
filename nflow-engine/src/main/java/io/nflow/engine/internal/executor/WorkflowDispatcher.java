@@ -15,9 +15,8 @@ import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ExecutorDao;
-import io.nflow.engine.internal.dao.PollingBatchException;
-import io.nflow.engine.internal.dao.PollingRaceConditionException;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.WorkflowDefinitionService;
 
@@ -38,6 +37,8 @@ public class WorkflowDispatcher implements Runnable {
   private final WorkflowStateProcessorFactory stateProcessorFactory;
   private final WorkflowDefinitionService workflowDefinitions;
   private final ExecutorDao executorDao;
+  private final DispatcherExceptionAnalyzer exceptionAnalyzer;
+  private final NflowLogger nflowLogger;
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
@@ -46,12 +47,14 @@ public class WorkflowDispatcher implements Runnable {
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
   public WorkflowDispatcher(WorkflowInstanceExecutor executor, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, WorkflowDefinitionService workflowDefinitions, ExecutorDao executorDao,
-      Environment env) {
+      DispatcherExceptionAnalyzer exceptionAnalyzer, NflowLogger nflowLogger, Environment env) {
     this.executor = executor;
     this.workflowInstances = workflowInstances;
     this.stateProcessorFactory = stateProcessorFactory;
     this.workflowDefinitions = workflowDefinitions;
     this.executorDao = executorDao;
+    this.exceptionAnalyzer = exceptionAnalyzer;
+    this.nflowLogger = nflowLogger;
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
 
@@ -86,15 +89,22 @@ public class WorkflowDispatcher implements Runnable {
               }
               dispatch(getNextInstanceIds());
             }
-          } catch (PollingRaceConditionException pex) {
-            logger.debug(pex.getMessage());
-            sleep(true);
-          } catch (PollingBatchException pex) {
-            logger.warn(pex.getMessage());
-          } catch (@SuppressWarnings("unused") InterruptedException dropThrough) {
           } catch (Exception e) {
-            logger.error("Exception in executing dispatcher - retrying after sleep period ({})", e.getMessage(), e);
-            sleep(false);
+            DispatcherExceptionHandling handling = exceptionAnalyzer.analyze(e);
+            if (handling.log) {
+              if (handling.logStackTrace) {
+                StringBuilder sb = new StringBuilder("Exception in executing dispatcher - retrying");
+                if (handling.sleep) {
+                  sb.append(" after sleep period");
+                }
+                nflowLogger.log(logger, handling.logLevel, sb.append(" ({})").toString(), new Object[] { e.getMessage(), e });
+              } else {
+                nflowLogger.log(logger, handling.logLevel, e.getMessage(), new Object[0]);
+              }
+            }
+            if (handling.sleep) {
+              sleep(handling.randomizeSleep);
+            }
           }
         }
       }
