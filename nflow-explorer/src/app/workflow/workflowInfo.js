@@ -6,7 +6,7 @@
     'nflowExplorer.workflow.graph',
   ]);
 
-  m.directive('workflowInfo', function() {
+  m.directive('workflowInfo', function(config) {
     return {
       restrict: 'E',
       replace: true,
@@ -27,6 +27,7 @@
     var self = this;
     self.currentStateTime = currentStateTime;
     self.selectAction = WorkflowGraphApi.onSelectNode;
+    self.workflowInfoTable = config.workflowInfoTable;
     self.contentGenerator = config.customInstanceContent;
 
     function currentStateTime() {

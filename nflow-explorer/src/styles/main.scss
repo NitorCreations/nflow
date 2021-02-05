@@ -276,3 +276,24 @@ ul.listing {
   width: 100%;
 }
 
+#workflow-properties tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#workflow-properties tr:hover {
+  background-color: #ddd;
+}
+
+#workflow-properties td:first-child {
+  font-weight: bold;
+}
+
+#workflow-properties td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#workflow-properties code {
+  color: black;
+  background-color: transparent;
+}

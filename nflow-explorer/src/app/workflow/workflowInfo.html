@@ -1,23 +1,80 @@
 <section class="wd-workflow-info">
-  <div ng-show="ctrl.parentWorkflow">Parent workflow:
-    <a ui-sref="workflow({id: ctrl.parentWorkflow.id})">{{ctrl.parentWorkflow.type}} ({{ctrl.parentWorkflow.id}})</a>
+  <div ng-if="ctrl.workflowInfoTable">
+    <table id="workflow-properties">
+      <tr ng-show="ctrl.parentWorkflow">
+        <td>Parent workflow</td>
+        <td><a ui-sref="workflow({id: ctrl.parentWorkflow.id})">{{ctrl.parentWorkflow.type}} ({{ctrl.parentWorkflow.id}})</a></td>
+      </tr>
+      <tr ng-show="ctrl.childWorkflows.length">
+        <td>Child workflows</td>
+        <td><a ui-sref="search({parentWorkflowId: ctrl.workflow.id})">{{ctrl.childWorkflows.length}}</a></td>
+      </tr>
+      <tr title="{{ctrl.workflow.stateText}}">
+        <td>Current state</td>
+        <td>
+          <a class="wd-active-state clickable" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Current status</td>
+        <td>{{ctrl.workflow.status}}<br/>
+      </tr>
+      <tr title={{ctrl.workflow.nextActivation}}>
+        <td>Next activation</td>
+        <td>{{ctrl.workflow.nextActivation | fromNowOrNever}}</td>
+      </tr>
+      <tr ng-show="ctrl.workflow.businessKey">
+        <td>Business key</td>
+        <td><code>{{ctrl.workflow.businessKey}}</code></td>
+      </tr>
+      <tr ng-show="ctrl.workflow.externalId">
+        <td>External id</td>
+        <td><code>{{ctrl.workflow.externalId}}</code></td>
+      </tr>
+      <tr ng-show="ctrl.workflow.signal" title="See supported signals tab in workflow definition">
+        <td>Current signal</td>
+        <td>{{ctrl.workflow.signal}}</td>
+      </tr>
+      <tr ng-show="!!ctrl.workflow.priority" title="High value means high priority">
+        <td>Priority</td>
+        <td>{{ctrl.workflow.priority}}</td>
+      </tr>
+      <tr title="{{ctrl.workflow.created | fromNow}}">
+        <td>Created</td>
+        <td>{{ctrl.workflow.created | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      </tr>
+      <tr ng-show="ctrl.workflow.started" title="{{ctrl.workflow.started | fromNow}}">
+        <td>Started</td>
+        <td>{{ctrl.workflow.started | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      </tr>
+      <tr title="{{ctrl.workflow.modified | fromNow}}">
+        <td>Modified</td>
+        <td>{{ctrl.workflow.modified | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      </tr>
+      <custom-content func="ctrl.contentGenerator(ctrl.definition, ctrl.workflow, ctrl.parentWorkflow, ctrl.childWorkflows)"></custom-content>
+    </table>
   </div>
-  <div ng-show="ctrl.childWorkflows.length">Child workflows:
-    <strong><a ui-sref="search({parentWorkflowId: ctrl.workflow.id})">{{ctrl.childWorkflows.length}}</a></strong>
+  <div ng-if="!ctrl.workflowInfoTable">
+    <div ng-show="ctrl.parentWorkflow">Parent workflow:
+      <a ui-sref="workflow({id: ctrl.parentWorkflow.id})">{{ctrl.parentWorkflow.type}} ({{ctrl.parentWorkflow.id}})</a>
+    </div>
+    <div ng-show="ctrl.childWorkflows.length">Child workflows:
+      <strong><a ui-sref="search({parentWorkflowId: ctrl.workflow.id})">{{ctrl.childWorkflows.length}}</a></strong>
+    </div>
+    Created: <strong title="{{ctrl.workflow.created | fromNow}}">{{ctrl.workflow.created | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+    Started: <strong title="{{ctrl.workflow.started | fromNow}}">{{ctrl.workflow.started | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+    Modified: <strong title="{{ctrl.workflow.modified | fromNow}}">{{ctrl.workflow.modified | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
+    Current state: <strong class="wd-active-state clickable" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
+    <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span><br/>
+    Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
+    <div ng-show="ctrl.workflow.signal">
+      Current signal: <strong title="See supported signals tab in workflow definition">{{ctrl.workflow.signal}}</strong><br/>
+    </div>
+    Next activation: <strong title={{ctrl.workflow.nextActivation}}>{{ctrl.workflow.nextActivation | fromNowOrNever}}</strong>
+    <div>Workflow id: <strong>{{ctrl.workflow.id}}</strong></div>
+    <div>Priority: <strong>{{ctrl.workflow.priority}}</strong><br/>
+    <div ng-show="ctrl.workflow.businessKey">Business key: <code>{{ctrl.workflow.businessKey}}</code></div>
+    <div ng-show="ctrl.workflow.externalId">External id: <code>{{ctrl.workflow.externalId}}</code></div>
+    <custom-content func="ctrl.contentGenerator(ctrl.definition, ctrl.workflow, ctrl.parentWorkflow, ctrl.childWorkflows)"></custom-content>
   </div>
-  Created: <strong title="{{ctrl.workflow.created | fromNow}}">{{ctrl.workflow.created | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
-  Started: <strong title="{{ctrl.workflow.started | fromNow}}">{{ctrl.workflow.started | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
-  Modified: <strong title="{{ctrl.workflow.modified | fromNow}}">{{ctrl.workflow.modified | date:'yyyy-MM-dd HH:mm:ss' }}</strong><br/>
-  Current state: <strong class="wd-active-state clickable" ng-click="ctrl.selectAction(ctrl.workflow.state)">{{ctrl.workflow.state}}</strong>
-  <span ng-show="ctrl.workflow.stateText">({{ctrl.workflow.stateText}})</span><br/>
-  Current status: <strong>{{ctrl.workflow.status}}</strong><br/>
-  <div ng-show="ctrl.workflow.signal">
-    Current signal: <strong title="See supported signals tab in workflow definition">{{ctrl.workflow.signal}}</strong><br/>
-  </div>
-  Next activation: <strong title={{ctrl.workflow.nextActivation}}>{{ctrl.workflow.nextActivation | fromNowOrNever}}</strong>
-  <div>Workflow id: <strong>{{ctrl.workflow.id}}</strong></div>
-  <div>Priority: <strong>{{ctrl.workflow.priority}}</strong><br/>
-  <div ng-show="ctrl.workflow.businessKey">Business key: <code>{{ctrl.workflow.businessKey}}</code></div>
-  <div ng-show="ctrl.workflow.externalId">External id: <code>{{ctrl.workflow.externalId}}</code></div>
-  <custom-content func="ctrl.contentGenerator(ctrl.definition, ctrl.workflow, ctrl.parentWorkflow, ctrl.childWorkflows)"></custom-content>
 </section>

@@ -1,12 +1,13 @@
 <section class="wd-workflow">
   <div class="row">
     <div class="col-md-6">
-      <h2>{{ctrl.definition.type}} ({{ctrl.workflow.id}})</h2>
+      <h2>
+        <a ui-sref="workflow-definition({type: ctrl.workflow.type})">
+          {{ctrl.definition.type}}
+        </a>
+        ({{ctrl.workflow.id}})
+      </h2>
       <blockquote ng-show="ctrl.definition.description">{{ctrl.definition.description}}</blockquote>
-      <ul class="listing">
-        <li><a ui-sref="workflow-definition({type: ctrl.workflow.type})">Go to workflow definition</a></li>
-      </ul>
-
       <workflow-info workflow="ctrl.workflow"
                      parent-workflow="ctrl.parentWorkflow"
                      child-workflows="ctrl.childWorkflows"
