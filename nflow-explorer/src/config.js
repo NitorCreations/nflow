@@ -71,6 +71,12 @@ var Config = function() {
     return null;
   };
 
+  // Replaces HTML page title by given string
   this.htmlTitle = undefined;
+
+  // Replaces nFlow logo in header by image in given location
+  this.nflowLogoFile = undefined;
+
+  // When true, hides the sticky footer with copyright
   this.hideFooter = false;
 };

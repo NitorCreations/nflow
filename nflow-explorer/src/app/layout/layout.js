@@ -31,7 +31,7 @@
     };
 });
 
-  m.controller('PageHeaderCtrl', function($location, $state, $window) {
+  m.controller('PageHeaderCtrl', function($location, $state, $window, config) {
     var self = this;
     // nope, $stateParams.radiator wont work here
     self.radiator = !!$location.search().radiator;
@@ -41,6 +41,7 @@
     self.isAboutTabActive = function() { return $state.includes('aboutTab'); };
     self.returnUrl = getServerParamFromUrl('returnUrl', $window);
     self.returnUrlLabel = getServerParamFromUrl('returnUrlLabel', $window) || 'Back';
+    self.nflowLogoFile = config.nflowLogoFile || 'images/nflow_logo.svg';
 
     function getServerParamFromUrl(paramName, $window) {
       var searchStr = $window.location.search.substring(1);
