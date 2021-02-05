@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.layout', []);
+  var m = angular.module('nflowExplorer.layout', ['nflowExplorer.config']);
 
   m.directive('layout', function() {
     return {
@@ -20,13 +20,16 @@
     };
   });
 
-  m.directive('pageFooter', function() {
+  m.directive('pageFooter', function(config) {
+    if (config.hideFooter) {
+      return {};
+    }
     return {
       restrict: 'E',
       replace: 'true',
       templateUrl: 'app/layout/footer.html'
     };
-  });
+});
 
   m.controller('PageHeaderCtrl', function($location, $state, $window) {
     var self = this;

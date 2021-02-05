@@ -71,4 +71,5 @@ var Config = function() {
     return null;
   };
 
+  this.hideFooter = false;
 };
