@@ -7,9 +7,15 @@ import io.nflow.engine.internal.dao.PollingBatchException;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
 import io.nflow.engine.internal.executor.DispatcherExceptionHandling.Builder;
 
+/**
+ * Default dispatcher exception analyzer.
+ */
 @Component
 public class DefaultDispatcherExceptionAnalyzer implements DispatcherExceptionAnalyzer {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DispatcherExceptionHandling analyze(Exception e) {
     Builder builder = new DispatcherExceptionHandling.Builder();
