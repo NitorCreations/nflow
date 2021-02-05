@@ -16,7 +16,7 @@ public class DefaultStateSaveExceptionAnalyzerTest {
 
   @Test
   void analyzeReturnsConfiguredDelay() {
-    StateSaveExceptionHandling handling = analyzer.analyze(new Exception());
+    StateSaveExceptionHandling handling = analyzer.analyze(new Exception(), 0);
 
     assertEquals(handling.logLevel, Level.ERROR);
     assertTrue(handling.logStackTrace);

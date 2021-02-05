@@ -291,6 +291,7 @@ class WorkflowStateProcessor implements Runnable {
         .setStateText(getStateText(instance, execution)) //
         .setState(execution.getNextState()) //
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
+    int saveRetryCount = 0;
     while (true) {
       try {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
@@ -302,7 +303,7 @@ class WorkflowStateProcessor implements Runnable {
           // return the original instance since persisting failed
           return instance;
         }
-        StateSaveExceptionHandling handling = stateSaveExceptionAnalyzer.analyze(ex);
+        StateSaveExceptionHandling handling = stateSaveExceptionAnalyzer.analyze(ex, saveRetryCount++);
         if (handling.logStackTrace) {
           nflowLogger.log(logger, handling.logLevel, "Failed to save workflow instance {} new state, retrying after {} seconds.",
               new Object[] { instance.id, handling.retryDelay, ex });

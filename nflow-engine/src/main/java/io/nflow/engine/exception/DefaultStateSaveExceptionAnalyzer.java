@@ -32,7 +32,7 @@ public class DefaultStateSaveExceptionAnalyzer implements StateSaveExceptionAnal
    * {@inheritDoc}
    */
   @Override
-  public StateSaveExceptionHandling analyze(Exception e) {
+  public StateSaveExceptionHandling analyze(Exception e, int saveRetryCount) {
     return handling;
   }
 }

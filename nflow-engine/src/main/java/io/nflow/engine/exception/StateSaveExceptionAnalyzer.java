@@ -14,7 +14,9 @@ public interface StateSaveExceptionAnalyzer {
    *
    * @param e
    *          The exception to be analyzed.
+   * @param saveRetryCount
+   *          How many times the saving has been attempted before this attempt.
    * @return How the exception should be handled.
    */
-  StateSaveExceptionHandling analyze(Exception e);
+  StateSaveExceptionHandling analyze(Exception e, int saveRetryCount);
 }
