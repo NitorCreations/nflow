@@ -41,7 +41,7 @@ public class DispatcherExceptionHandling extends ExceptionHandling {
     }
 
     /**
-     * Set if dispatcher should log the exception or not.
+     * Set if dispatcher should log the exception or not. Default is true.
      *
      * @param log
      *          True if dispatcher should log the exception.
@@ -53,7 +53,7 @@ public class DispatcherExceptionHandling extends ExceptionHandling {
     }
 
     /**
-     * Set if dispatcher should sleep a while after exception or not.
+     * Set if dispatcher should sleep a while after exception or not. Default is true.
      *
      * @param sleep
      *          True if dispatcher should sleep a while after exception.
@@ -65,7 +65,7 @@ public class DispatcherExceptionHandling extends ExceptionHandling {
     }
 
     /**
-     * Set if sleep time should be randomized or not.
+     * Set if sleep time should be randomized or not. Default is false.
      *
      * @param randomizeSleep
      *          True if sleep time should be randomized.

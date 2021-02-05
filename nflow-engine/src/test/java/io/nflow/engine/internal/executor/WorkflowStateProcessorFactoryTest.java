@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.mock.env.MockEnvironment;
 
+import io.nflow.engine.exception.StateSaveExceptionAnalyzer;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.NflowLogger;
@@ -42,6 +43,8 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
   MockEnvironment env = new MockEnvironment();
   @Mock
+  StateSaveExceptionAnalyzer stateSaveExceptionAnalyzer;
+  @Mock
   WorkflowExecutorListener listener1;
   @Mock
   WorkflowExecutorListener listener2;
@@ -61,7 +64,7 @@ public class WorkflowStateProcessorFactoryTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
     factory = new WorkflowStateProcessorFactory(workflowDefinitions, workflowInstances, objectMapper, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, nflowLogger, env);
+        maintenanceDao, workflowInstancePreProcessor, nflowLogger, stateSaveExceptionAnalyzer, env);
   }
 
   @Test

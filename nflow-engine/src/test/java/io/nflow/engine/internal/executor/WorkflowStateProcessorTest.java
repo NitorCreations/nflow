@@ -85,6 +85,7 @@ import org.springframework.mock.env.MockEnvironment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.exception.StateProcessExceptionHandling;
+import io.nflow.engine.exception.StateSaveExceptionAnalyzer;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.NflowLogger;
@@ -140,6 +141,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   WorkflowInstancePreProcessor workflowInstancePreProcessor;
 
   final NflowLogger nflowLogger = new NflowLogger();
+
+  @Mock
+  StateSaveExceptionAnalyzer stateSaveExceptionAnalyzer;
 
   @Mock
   StateExecutionImpl executionMock;
@@ -202,8 +206,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "1");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
-    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, listener1, listener2);
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances,
+        workflowInstanceDao, maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger,
+        stateSaveExceptionAnalyzer, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     lenient().doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition("execute-test");
     lenient().doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition("force-test");
@@ -390,8 +395,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         .setStateText("myStateText").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     WorkflowExecutorListener listener = mock(WorkflowExecutorListener.class);
-    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, listener);
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances,
+        workflowInstanceDao, maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger,
+        stateSaveExceptionAnalyzer, listener);
 
     doAnswer((Answer<NextAction>) invocation ->
             retryAfter(skipped, "")).when(listener).process(any(ListenerContext.class), any(ListenerChain.class));
@@ -521,7 +527,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
     executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, listener1, listener2);
+        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, stateSaveExceptionAnalyzer,
+        listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("failing-test").setState("invalidNextState").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
@@ -789,8 +796,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsLog() {
     env.setProperty("nflow.illegal.state.change.action", "log");
-    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, listener1, listener2);
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances,
+        workflowInstanceDao, maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger,
+        stateSaveExceptionAnalyzer, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
@@ -808,8 +816,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void illegalStateChangeGoesToIllegalStateWhenActionIsIgnore() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
-    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
-        maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, listener1, listener2);
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances,
+        workflowInstanceDao, maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger,
+        stateSaveExceptionAnalyzer, listener1, listener2);
 
     WorkflowInstance instance = executingInstanceBuilder().setType("simple-test").setState("illegalStateChange").build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);

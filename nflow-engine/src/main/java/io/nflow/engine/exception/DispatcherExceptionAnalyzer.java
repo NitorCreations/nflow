@@ -1,23 +1,26 @@
-package io.nflow.engine.internal.executor;
+package io.nflow.engine.exception;
 
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.exception.DispatcherExceptionHandling;
 import io.nflow.engine.exception.DispatcherExceptionHandling.Builder;
 import io.nflow.engine.internal.dao.PollingBatchException;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
 
 /**
- * Default dispatcher exception analyzer.
+ * Dispatcher exception analyzer analyzes exceptions thrown by the workflow dispatcher and determines how the exception is
+ * handled.
  */
 @Component
-public class DefaultDispatcherExceptionAnalyzer implements DispatcherExceptionAnalyzer {
+public class DispatcherExceptionAnalyzer {
 
   /**
-   * {@inheritDoc}
+   * Analyze the exception.
+   *
+   * @param e
+   *          The exception to be analyzed.
+   * @return How the exception should be handled.
    */
-  @Override
   public DispatcherExceptionHandling analyze(Exception e) {
     Builder builder = new DispatcherExceptionHandling.Builder();
     if (e instanceof PollingRaceConditionException) {

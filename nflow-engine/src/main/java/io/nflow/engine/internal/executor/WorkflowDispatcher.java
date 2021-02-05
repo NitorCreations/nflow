@@ -14,6 +14,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.exception.DispatcherExceptionAnalyzer;
 import io.nflow.engine.exception.DispatcherExceptionHandling;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;

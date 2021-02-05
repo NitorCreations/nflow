@@ -37,7 +37,7 @@ public class ExceptionHandling {
     public abstract T getThis();
 
     /**
-     * Set the log entry level.
+     * Set the log entry level. Default is ERROR.
      *
      * @param logLevel
      *          The log entry level.
@@ -49,7 +49,7 @@ public class ExceptionHandling {
     }
 
     /**
-     * Set if exception stack trace should be logged or not.
+     * Set if exception stack trace should be logged or not. Default is true.
      *
      * @param logStackTrace
      *          True to log the exception stack trace, false to log the exception message only.

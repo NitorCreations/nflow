@@ -1,4 +1,4 @@
-package io.nflow.engine.internal.executor;
+package io.nflow.engine.exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,13 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 
-import io.nflow.engine.exception.DispatcherExceptionHandling;
 import io.nflow.engine.internal.dao.PollingBatchException;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
 
-public class DefaultDispatcherExceptionAnalyzerTest {
+public class DispatcherExceptionAnalyzerTest {
 
-  DispatcherExceptionAnalyzer analyzer = new DefaultDispatcherExceptionAnalyzer();
+  DispatcherExceptionAnalyzer analyzer = new DispatcherExceptionAnalyzer();
 
   @Test
   void analyzeGenericExceptionReturnsDefaults() {

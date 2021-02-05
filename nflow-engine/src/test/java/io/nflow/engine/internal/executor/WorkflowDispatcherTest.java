@@ -51,6 +51,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import edu.umd.cs.mtc.MultithreadedTestCase;
+import io.nflow.engine.exception.DispatcherExceptionAnalyzer;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.NflowLogger;
@@ -75,7 +76,7 @@ public class WorkflowDispatcherTest {
   Appender<ILoggingEvent> mockAppender;
   @Captor
   ArgumentCaptor<ILoggingEvent> loggingEventCaptor;
-  final DispatcherExceptionAnalyzer exceptionAnalyzer = new DefaultDispatcherExceptionAnalyzer();
+  final DispatcherExceptionAnalyzer exceptionAnalyzer = new DispatcherExceptionAnalyzer();
   final NflowLogger nflowLogger = new NflowLogger();
 
   @BeforeEach
@@ -383,7 +384,7 @@ public class WorkflowDispatcherTest {
 
   WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, final Runnable fakeCommand) {
     return new WorkflowStateProcessor(instanceId, FALSE::booleanValue, null, null, null, null, null, null, env,
-        new ConcurrentHashMap<>(), null, (WorkflowExecutorListener) null) {
+        new ConcurrentHashMap<>(), null, null, (WorkflowExecutorListener) null) {
       @Override
       public void run() {
         fakeCommand.run();
