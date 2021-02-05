@@ -1,5 +1,7 @@
 package io.nflow.engine.internal.executor;
 
+import io.nflow.engine.exception.DispatcherExceptionHandling;
+
 /**
  * Dispatcher exception analyzer analyzes exceptions throws by the workflow dispatcher and determines how the exception is
  * handled.

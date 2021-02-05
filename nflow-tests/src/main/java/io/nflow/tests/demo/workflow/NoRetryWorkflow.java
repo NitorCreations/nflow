@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.definition.ExceptionHandling;
+import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.NonRetryable;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -56,8 +56,8 @@ public class NoRetryWorkflow extends WorkflowDefinition<State> {
     permit(State.process, State.done);
   }
 
-  private static BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer() {
-    return (s, t) -> new ExceptionHandling.Builder()
+  private static BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer() {
+    return (s, t) -> new StateProcessExceptionHandling.Builder()
         .setRetryable(s != State.begin && !t.getClass().isAnnotationPresent(NonRetryable.class)).build();
   }
 

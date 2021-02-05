@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 
+import io.nflow.engine.exception.StateProcessExceptionHandling;
 
 public class WorkflowSettingsTest {
   DateTime now = new DateTime(2014, 10, 22, 20, 44, 0);
@@ -108,7 +109,7 @@ public class WorkflowSettingsTest {
   public void defaultExceptionAnalyzer() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
 
-    ExceptionHandling exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin, new Throwable());
+    StateProcessExceptionHandling exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin, new Throwable());
     assertThat(exceptionHandling.isRetryable, is(true));
     assertThat(exceptionHandling.logLevel, is(Level.ERROR));
     assertThat(exceptionHandling.logStackTrace, is(true));
@@ -121,10 +122,12 @@ public class WorkflowSettingsTest {
 
   @Test
   public void customExceptionAnalyzer() {
-    WorkflowSettings s = new WorkflowSettings.Builder().setExceptionAnalyzer((state, thrown) -> new ExceptionHandling.Builder()
+    WorkflowSettings s = new WorkflowSettings.Builder()
+        .setExceptionAnalyzer((state, thrown) -> new StateProcessExceptionHandling.Builder()
         .setLogLevel(Level.INFO).setRetryable(true).setLogStackTrace(false).build()).build();
 
-    ExceptionHandling exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin, new NonRetryableException());
+    StateProcessExceptionHandling exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin,
+        new NonRetryableException());
     assertThat(exceptionHandling.isRetryable, is(true));
     assertThat(exceptionHandling.logLevel, is(Level.INFO));
     assertThat(exceptionHandling.logStackTrace, is(false));

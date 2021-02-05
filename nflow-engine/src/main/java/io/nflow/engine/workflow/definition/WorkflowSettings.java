@@ -21,6 +21,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.model.ModelObject;
 
 /**
@@ -72,7 +73,7 @@ public class WorkflowSettings extends ModelObject {
   /**
    * Exception analyzer controls how an exception thrown by a state method should be handled.
    */
-  public final BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer;
+  public final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -106,8 +107,8 @@ public class WorkflowSettings extends ModelObject {
     // TODO: replace state.isRetryAllowed(thrown) with !thrown.getClass().isAnnotationPresent(NonRetryable.class) in the next
     // major release
     @SuppressWarnings("deprecation")
-    BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer = (state, thrown) -> new ExceptionHandling.Builder()
-        .setRetryable(state.isRetryAllowed(thrown)).build();
+    BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer = (state,
+        thrown) -> new StateProcessExceptionHandling.Builder().setRetryable(state.isRetryAllowed(thrown)).build();
 
     /**
      * Returns true randomly every n:th time.
@@ -269,7 +270,7 @@ public class WorkflowSettings extends ModelObject {
      *          The exception analyzer function.
      * @return this.
      */
-    public Builder setExceptionAnalyzer(BiFunction<WorkflowState, Throwable, ExceptionHandling> exceptionAnalyzer) {
+    public Builder setExceptionAnalyzer(BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer) {
       this.exceptionAnalyzer = exceptionAnalyzer;
       return this;
     }

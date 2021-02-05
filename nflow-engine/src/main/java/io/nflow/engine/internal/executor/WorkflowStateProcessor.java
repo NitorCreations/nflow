@@ -36,6 +36,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.NflowLogger;
@@ -50,7 +51,6 @@ import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.ExceptionHandling;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
@@ -176,7 +176,7 @@ class WorkflowStateProcessor implements Runnable {
           thrown = thrown.getCause();
         }
         execution.setFailed(thrown);
-        ExceptionHandling exceptionHandling = settings.exceptionAnalyzer.apply(state, thrown);
+        StateProcessExceptionHandling exceptionHandling = settings.exceptionAnalyzer.apply(state, thrown);
         if (exceptionHandling.isRetryable) {
           logRetryableException(exceptionHandling, state.name(), thrown);
           execution.setRetry(true);
@@ -203,7 +203,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Finished.");
   }
 
-  private void logRetryableException(ExceptionHandling exceptionHandling, String state, Throwable thrown) {
+  private void logRetryableException(StateProcessExceptionHandling exceptionHandling, String state, Throwable thrown) {
     if (exceptionHandling.logStackTrace) {
       nflowLogger.log(logger, exceptionHandling.logLevel, "Handling state '{}' threw a retryable exception, trying again later.",
           new Object[] { state, thrown });

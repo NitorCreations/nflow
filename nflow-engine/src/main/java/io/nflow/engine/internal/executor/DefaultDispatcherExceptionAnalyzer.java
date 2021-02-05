@@ -3,9 +3,10 @@ package io.nflow.engine.internal.executor;
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.exception.DispatcherExceptionHandling;
+import io.nflow.engine.exception.DispatcherExceptionHandling.Builder;
 import io.nflow.engine.internal.dao.PollingBatchException;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
-import io.nflow.engine.internal.executor.DispatcherExceptionHandling.Builder;
 
 /**
  * Default dispatcher exception analyzer.
