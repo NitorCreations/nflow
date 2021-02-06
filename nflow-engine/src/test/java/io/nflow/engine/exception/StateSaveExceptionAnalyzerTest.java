@@ -25,7 +25,7 @@ public class StateSaveExceptionAnalyzerTest {
   }
 
   @Test
-  void customerAnalyzerCanBeUsed() {
+  void customAnalyzerCanBeUsed() {
     StateSaveExceptionAnalyzer analyzer = new StateSaveExceptionAnalyzer(env) {
       @Override
       protected StateSaveExceptionHandling analyze(Exception e, int saveRetryCount) {

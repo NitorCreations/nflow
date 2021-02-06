@@ -16,7 +16,7 @@ public class DispatcherExceptionAnalyzerTest {
 
   @Test
   void analyzeGenericExceptionReturnsDefaults() {
-    DispatcherExceptionHandling handling = analyzer.analyze(new Exception());
+    DispatcherExceptionHandling handling = analyzer.analyzeSafely(new Exception());
 
     assertTrue(handling.log);
     assertEquals(handling.logLevel, Level.ERROR);
@@ -27,7 +27,7 @@ public class DispatcherExceptionAnalyzerTest {
 
   @Test
   void analyzePollingRaceConditionException() {
-    DispatcherExceptionHandling handling = analyzer.analyze(new PollingRaceConditionException("error"));
+    DispatcherExceptionHandling handling = analyzer.analyzeSafely(new PollingRaceConditionException("error"));
 
     assertTrue(handling.log);
     assertEquals(handling.logLevel, Level.DEBUG);
@@ -38,7 +38,7 @@ public class DispatcherExceptionAnalyzerTest {
 
   @Test
   void analyzePollingBatchException() {
-    DispatcherExceptionHandling handling = analyzer.analyze(new PollingBatchException("error"));
+    DispatcherExceptionHandling handling = analyzer.analyzeSafely(new PollingBatchException("error"));
 
     assertTrue(handling.log);
     assertEquals(handling.logLevel, Level.WARN);
@@ -48,9 +48,41 @@ public class DispatcherExceptionAnalyzerTest {
 
   @Test
   void analyzeInterruptedException() {
-    DispatcherExceptionHandling handling = analyzer.analyze(new InterruptedException());
+    DispatcherExceptionHandling handling = analyzer.analyzeSafely(new InterruptedException());
 
     assertFalse(handling.log);
     assertFalse(handling.sleep);
+  }
+
+  @Test
+  void customAnalyzerCanBeUsed() {
+    DispatcherExceptionAnalyzer customAnalyzer = new DispatcherExceptionAnalyzer() {
+      @Override
+      protected DispatcherExceptionHandling analyze(Exception e) {
+        return new DispatcherExceptionHandling.Builder().setLogStackTrace(false).build();
+      }
+    };
+
+    DispatcherExceptionHandling handling = customAnalyzer.analyzeSafely(new Exception());
+
+    assertFalse(handling.logStackTrace);
+  }
+
+  @Test
+  void defaultAnalyzerIsUsedWhenCustomerAnalyzerFails() {
+    DispatcherExceptionAnalyzer customAnalyzer = new DispatcherExceptionAnalyzer() {
+      @Override
+      protected DispatcherExceptionHandling analyze(Exception e) {
+        throw new IllegalStateException("fail");
+      }
+    };
+
+    DispatcherExceptionHandling handling = customAnalyzer.analyzeSafely(new Exception());
+
+    assertTrue(handling.log);
+    assertEquals(handling.logLevel, Level.ERROR);
+    assertTrue(handling.logStackTrace);
+    assertTrue(handling.sleep);
+    assertFalse(handling.randomizeSleep);
   }
 }

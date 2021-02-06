@@ -92,7 +92,7 @@ public class WorkflowDispatcher implements Runnable {
               dispatch(getNextInstanceIds());
             }
           } catch (Exception e) {
-            DispatcherExceptionHandling handling = exceptionAnalyzer.analyze(e);
+            DispatcherExceptionHandling handling = exceptionAnalyzer.analyzeSafely(e);
             if (handling.log) {
               if (handling.logStackTrace) {
                 StringBuilder sb = new StringBuilder("Exception in executing dispatcher - retrying");
