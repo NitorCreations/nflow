@@ -27,7 +27,6 @@
     var self = this;
     self.currentStateTime = currentStateTime;
     self.selectAction = WorkflowGraphApi.onSelectNode;
-    self.workflowInfoTable = config.workflowInfoTable;
     self.contentGenerator = config.customInstanceContent;
 
     function currentStateTime() {

@@ -79,8 +79,4 @@ var Config = function() {
 
   // When true, hides the sticky footer with copyright
   this.hideFooter = false;
-
-  // When true, workflow instance properties shown in a table
-  // (if needed, update your customInstanceContent to generate table rows)
-  this.workflowInfoTable = false;
 };

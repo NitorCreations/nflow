@@ -259,24 +259,28 @@ ul.listing {
   cursor: pointer;
 }
 
-#workflow-properties tr:nth-child(even) {
+.workflow-properties tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
-#workflow-properties tr:hover {
+.workflow-properties tr:hover {
   background-color: #ddd;
 }
 
-#workflow-properties td:first-child {
+.workflow-properties td:first-child {
   font-weight: bold;
 }
 
-#workflow-properties td {
+.workflow-properties th {
+  background-color: #d9d9d9;
+}
+
+.workflow-properties td, .workflow-properties th {
   border: 1px solid #ddd;
   padding: 8px;
 }
 
-#workflow-properties code {
+.workflow-properties code {
   color: black;
   background-color: transparent;
 }
