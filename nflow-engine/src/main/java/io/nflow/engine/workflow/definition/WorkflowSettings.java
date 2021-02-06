@@ -7,6 +7,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.function.BooleanSupplier;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
+import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.exception.StateProcessExceptionHandling;
@@ -70,10 +72,16 @@ public class WorkflowSettings extends ModelObject {
    * Default priority for new workflow instances.
    */
   public final short defaultPriority;
-  /**
-   * Exception analyzer controls how an exception thrown by a state method should be handled.
-   */
-  public final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
+
+  private final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
+
+  // TODO: replace state.isRetryAllowed(thrown) with !thrown.getClass().isAnnotationPresent(NonRetryable.class) in the next
+  // major release
+  @SuppressWarnings("deprecation")
+  private static final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> DEFAULT_EXCEPTION_ANALYZER = (state,
+      thrown) -> new StateProcessExceptionHandling.Builder().setRetryable(state.isRetryAllowed(thrown)).build();
+
+  private static final Logger logger = getLogger(WorkflowSettings.class);
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay;
@@ -104,11 +112,7 @@ public class WorkflowSettings extends ModelObject {
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
-    // TODO: replace state.isRetryAllowed(thrown) with !thrown.getClass().isAnnotationPresent(NonRetryable.class) in the next
-    // major release
-    @SuppressWarnings("deprecation")
-    BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer = (state,
-        thrown) -> new StateProcessExceptionHandling.Builder().setRetryable(state.isRetryAllowed(thrown)).build();
+    BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
 
     /**
      * Returns true randomly every n:th time.
@@ -353,5 +357,25 @@ public class WorkflowSettings extends ModelObject {
    */
   public Short getDefaultPriority() {
     return defaultPriority;
+  }
+
+  /**
+   * Analyze exception thrown by a state method to determine how it should be handled.
+   *
+   * @param state
+   *          The state that failed to be processed.
+   * @param thrown
+   *          The exception to be analyzed.
+   * @return How the exception should be handled.
+   */
+  public StateProcessExceptionHandling analyzeExeption(WorkflowState state, Throwable thrown) {
+    if (exceptionAnalyzer != null) {
+      try {
+        return exceptionAnalyzer.apply(state, thrown);
+      } catch (Exception e) {
+        logger.error("Custom exception analysis failed, using default analyzer.", e);
+      }
+    }
+    return DEFAULT_EXCEPTION_ANALYZER.apply(state, thrown);
   }
 }

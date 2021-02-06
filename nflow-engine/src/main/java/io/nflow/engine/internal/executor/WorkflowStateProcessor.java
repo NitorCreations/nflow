@@ -178,7 +178,7 @@ class WorkflowStateProcessor implements Runnable {
           thrown = thrown.getCause();
         }
         execution.setFailed(thrown);
-        StateProcessExceptionHandling exceptionHandling = settings.exceptionAnalyzer.apply(state, thrown);
+        StateProcessExceptionHandling exceptionHandling = settings.analyzeExeption(state, thrown);
         if (exceptionHandling.isRetryable) {
           logRetryableException(exceptionHandling, state.name(), thrown);
           execution.setRetry(true);

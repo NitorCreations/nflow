@@ -10,6 +10,7 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
@@ -109,12 +110,12 @@ public class WorkflowSettingsTest {
   public void defaultExceptionAnalyzer() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
 
-    StateProcessExceptionHandling exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin, new Throwable());
+    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new Throwable());
     assertThat(exceptionHandling.isRetryable, is(true));
     assertThat(exceptionHandling.logLevel, is(Level.ERROR));
     assertThat(exceptionHandling.logStackTrace, is(true));
 
-    exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin, new NonRetryableException());
+    exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new NonRetryableException());
     assertThat(exceptionHandling.isRetryable, is(false));
     assertThat(exceptionHandling.logLevel, is(Level.ERROR));
     assertThat(exceptionHandling.logStackTrace, is(true));
@@ -126,11 +127,23 @@ public class WorkflowSettingsTest {
         .setExceptionAnalyzer((state, thrown) -> new StateProcessExceptionHandling.Builder()
         .setLogLevel(Level.INFO).setRetryable(true).setLogStackTrace(false).build()).build();
 
-    StateProcessExceptionHandling exceptionHandling = s.exceptionAnalyzer.apply(TestWorkflow.State.begin,
-        new NonRetryableException());
+    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new NonRetryableException());
     assertThat(exceptionHandling.isRetryable, is(true));
     assertThat(exceptionHandling.logLevel, is(Level.INFO));
     assertThat(exceptionHandling.logStackTrace, is(false));
+  }
+
+  @Test
+  public void defaultExceptionAnalyzerIsUsedWhenCustomAnalyzerFails() {
+    BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> failingExceptionAnalyzer = (state, thrown) -> {
+      throw new IllegalStateException("fail");
+    };
+    WorkflowSettings s = new WorkflowSettings.Builder().setExceptionAnalyzer(failingExceptionAnalyzer).build();
+
+    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new NonRetryableException());
+    assertThat(exceptionHandling.isRetryable, is(false));
+    assertThat(exceptionHandling.logLevel, is(Level.ERROR));
+    assertThat(exceptionHandling.logStackTrace, is(true));
   }
 
   @NonRetryable
