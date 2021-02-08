@@ -3,6 +3,8 @@
 **Highlights**
 - Support updating workflow instance business key.
 - Support for searching workflow instances by state variable key and value.
+- Added optional properties for tuning parts of nFlow Explorer
+- Facelift for workflow instance properties in nFlow Explorer
 
 **Details**
 - `nflow-engine`
@@ -12,6 +14,8 @@
   - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
   - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
 - `nflow-explorer`
+  - Added optional `config.js` properties (`htmlTitle`, `nflowLogoFile`, `hideFooter`)
+  - Facelift for workflow instance properties
   - Dependency updates:
     - urijs 1.19.5
     - socket.io 2.4.1
