@@ -111,22 +111,15 @@ a {
 
 /* for making svg images responsive */
 .svg-container {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  vertical-align: middle;
-  overflow: hidden;
+  margin: 10px;
 }
 
-.svg-content {
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  left: 0;
+.svg-content-responsive {
+  width: 100%;
 }
 
 .highlight {
-   font-weight: bold;
+  font-weight: bold;
 }
 
 .vertical-align {
@@ -266,13 +259,28 @@ ul.listing {
   cursor: pointer;
 }
 
-.svg-container {
-  width: 100%;
-  padding-top: 10px;
-  padding-bottom: 10px;
+.workflow-properties tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
-.svg-content-responsive {
-  width: 100%;
+.workflow-properties tr:hover {
+  background-color: #ddd;
 }
 
+.workflow-properties td:first-child {
+  font-weight: bold;
+}
+
+.workflow-properties th {
+  background-color: #d9d9d9;
+}
+
+.workflow-properties td, .workflow-properties th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.workflow-properties code {
+  color: black;
+  background-color: transparent;
+}
