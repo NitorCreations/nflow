@@ -11,6 +11,7 @@ import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.done;
 import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.error;
 import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.finishCreditApplication;
 import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.State.grantLoan;
+import static org.joda.time.Duration.millis;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.math.BigDecimal;
@@ -60,7 +61,9 @@ public class CreditApplicationWorkflow extends WorkflowDefinition<CreditApplicat
   }
 
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", createCreditApplication, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0).setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
+    super("creditApplicationProcess", createCreditApplication, error,
+        new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(0)).setMaxErrorTransitionDelay(millis(0))
+            .setShortTransitionDelay(millis(0)).setMaxRetries(3).build());
     setDescription("Mock workflow that makes credit decision, creates loan, deposits the money and updates credit application");
     permit(createCreditApplication, acceptCreditApplication);
     permit(acceptCreditApplication, grantLoan);
