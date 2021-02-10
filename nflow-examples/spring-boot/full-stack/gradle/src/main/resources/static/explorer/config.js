@@ -1,12 +1,6 @@
 var Config = function () {
-  this.nflowEndpoints = [
-    {
-      id: 'Full stack example',
-      title: 'Full stack example API',
-      apiUrl: '/rest'
-    }
-  ];
-
+  this.nflowUrl = 'http://localhost:8080/nflow/api';
+  this.nflowApiDocs = 'http://localhost:8080/nflow/ui/doc/';
   this.radiator = {
     // poll period in seconds
     pollPeriod: 15,

@@ -1,0 +1,38 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'de.undercouch.download' version '4.1.1'
+	id 'java'
+}
+
+group = 'io.nflow.springboot.fullstack.maven'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+  nflowExplorer
+}
+
+dependencies {
+	compile("io.nflow:nflow-rest-api-spring-web:7.2.2")
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	runtimeOnly 'com.h2database:h2'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '7.2.2', ext: 'tar.gz'
+}
+
+task resolveNflowExplorer(type: Copy) {
+  destinationDir = file("$buildDir/resources/main/static/explorer")
+  from { tarTree(resources.gzip(configurations.nflowExplorer.singleFile)) }
+}
+
+test {
+	useJUnitPlatform()
+}
+
+processResources.dependsOn resolveNflowExplorer
