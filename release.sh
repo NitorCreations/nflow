@@ -154,3 +154,32 @@ if mkdir -p "$NFLOW_WIKI_CHECKOUT_DIR" ; then
 else
   echo "failed to update version number in nFlow Wiki pages - do it manually"
 fi
+
+prompt_continue "updating nflow-examples dependencies to new release and verifying that their build works"
+
+EXAMPLE_DEPENDENCY_FILES=("bare-minimum/maven/pom.xml" "bare-minimum/gradle/build.gradle" "full-stack/maven/pom.xml" "full-stack/gradle/build.gradle" "full-stack-kotlin/gradle.properties")
+
+cd nflow-examples
+
+for dependency_file in "${EXAMPLE_DEPENDENCY_FILES[@]}"; do
+  sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" "spring-boot/$dependency_file"
+done
+
+if ./build_examples.sh; then
+  echo "changed nflow-examples files:"
+  git --no-pager diff
+
+  for dependency_file in "${EXAMPLE_DEPENDENCY_FILES[@]}"; do
+    git add "spring-boot/$dependency_file"
+  done
+  git commit -m "updated nflow-examples for version $RELEASE_VERSION"
+
+  prompt_continue "push version nflow-example to remote git repository"
+  git push
+else
+  echo "failed to build nflow-examples - check manually what is wrong"
+fi
+
+cd "$RELEASE_DIR"
+
+echo "*** RELEASE FINISHED ***"
