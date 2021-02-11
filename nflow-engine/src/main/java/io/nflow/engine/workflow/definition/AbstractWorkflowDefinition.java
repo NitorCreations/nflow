@@ -122,7 +122,7 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    * @return Set of workflow states.
    */
   public Set<WorkflowState> getStates() {
-    return states;
+    return new HashSet<>(states);
   }
 
   /**
