@@ -42,7 +42,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
   @BeforeEach
   public void setup() {
     dummyWorkflow = new DummyTestWorkflow(new WorkflowSettings.Builder().setDefaultPriority(DEFAULT_PRIORITY).build());
-    lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition("dummy");
+    lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition(DummyTestWorkflow.DUMMY_TYPE);
     preProcessor = new WorkflowInstancePreProcessor(workflowDefinitionService, workflowInstanceDao);
   }
 
@@ -64,7 +64,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
   public void createsMissingState() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().build();
     WorkflowInstance processed = preProcessor.process(i);
-    assertThat(processed.state, is("CreateLoan"));
+    assertThat(processed.state, is(TestState.BEGIN.name()));
   }
 
   @Test

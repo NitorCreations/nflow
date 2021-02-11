@@ -2,6 +2,10 @@ package io.nflow.performance.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static io.nflow.engine.workflow.definition.NextAction.stopInState;
+import static io.nflow.performance.workflow.TestState.BEGIN;
+import static io.nflow.performance.workflow.TestState.DONE;
+import static io.nflow.performance.workflow.TestState.ERROR;
 import static org.joda.time.DateTime.now;
 
 import org.slf4j.Logger;
@@ -13,7 +17,6 @@ import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 /**
  * Deterministic workflow that executes quickly.
@@ -22,23 +25,20 @@ public class ConstantWorkflow extends AbstractWorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ConstantWorkflow.class);
   private static final String KEY = "retries";
 
-  public static final WorkflowState START = new SimpleState("start", WorkflowStateType.start);
   public static final WorkflowState QUICK_STATE = new SimpleState("quickState", "This executes fast then goes to retryTwice");
   public static final WorkflowState RETRY_TWICE_STATE = new SimpleState("retryTwiceState",
       "Retries twice and goes then goes to scheduleState");
   public static final WorkflowState SCHEDULE_STATE = new SimpleState("scheduleState", "Goes to slowState, in 3 sec");
   public static final WorkflowState SLOW_STATE = new SimpleState("slowState", "This executes bit slower. Goes to end");
-  public static final WorkflowState END = new SimpleState("end", WorkflowStateType.end);
-  public static final WorkflowState ERROR = new SimpleState("error", WorkflowStateType.end, "Error. Should not be used.");
 
   public ConstantWorkflow() {
-    super(ConstantWorkflow.class.getSimpleName(), START, ERROR,
+    super(ConstantWorkflow.class.getSimpleName(), BEGIN, ERROR,
         new WorkflowSettings.Builder().setMaxErrorTransitionDelay(5000).build());
-    permit(START, QUICK_STATE);
+    permit(BEGIN, QUICK_STATE);
     permit(QUICK_STATE, RETRY_TWICE_STATE);
     permit(RETRY_TWICE_STATE, SCHEDULE_STATE);
     permit(SCHEDULE_STATE, SLOW_STATE);
-    permit(SLOW_STATE, END);
+    permit(SLOW_STATE, DONE);
   }
 
   public NextAction start(StateExecution execution) {
@@ -79,7 +79,7 @@ public class ConstantWorkflow extends AbstractWorkflowDefinition {
     } catch (@SuppressWarnings("unused") InterruptedException e) {
       // ignore
     }
-    return NextAction.stopInState(END, "Goto end");
+    return stopInState(DONE, "Goto end");
   }
 
   public void error(@SuppressWarnings("unused") StateExecution execution) {

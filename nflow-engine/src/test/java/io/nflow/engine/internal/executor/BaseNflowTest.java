@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.service.DummyTestWorkflow;
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -24,7 +25,7 @@ public abstract class BaseNflowTest {
     return new WorkflowInstance.Builder() //
         .setStatus(WorkflowInstanceStatus.inProgress) //
         .setType(DummyTestWorkflow.DUMMY_TYPE) //
-        .setState(DummyTestWorkflow.CREATE_LOAN.name()) //
+        .setState(TestState.BEGIN.name()) //
         .setStateText(null) //
         .setExternalId(randomUUID().toString()) //
         .setBusinessKey(randomUUID().toString()) //

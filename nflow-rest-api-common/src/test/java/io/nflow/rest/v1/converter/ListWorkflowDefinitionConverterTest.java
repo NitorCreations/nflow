@@ -1,9 +1,9 @@
 package io.nflow.rest.v1.converter;
 
 import static com.nitorcreations.Matchers.reflectEquals;
-import static io.nflow.rest.v1.DummyTestWorkflow.END;
-import static io.nflow.rest.v1.DummyTestWorkflow.ERROR;
-import static io.nflow.rest.v1.DummyTestWorkflow.START;
+import static io.nflow.rest.v1.TestState.BEGIN;
+import static io.nflow.rest.v1.TestState.DONE;
+import static io.nflow.rest.v1.TestState.ERROR;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -43,9 +43,9 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.description, is(def.getDescription()));
     assertThat(resp.onError, is(def.getErrorState().name()));
     assertThat(resp.states, arrayContainingInAnyOrder(
-        reflectEquals(getResponseState(END, Collections.<String> emptyList(), null)),
-        reflectEquals(getResponseState(ERROR, asList(END.name()), null)),
-        reflectEquals(getResponseState(START, asList(END.name(), ERROR.name()), ERROR.name()))));
+        reflectEquals(getResponseState(DONE, Collections.<String> emptyList(), null)),
+        reflectEquals(getResponseState(ERROR, asList(DONE.name()), null)),
+        reflectEquals(getResponseState(BEGIN, asList(DONE.name(), ERROR.name()), ERROR.name()))));
     assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
         reflectEquals(getSignal(1, "one")),
         reflectEquals(getSignal(2, "two"))));
