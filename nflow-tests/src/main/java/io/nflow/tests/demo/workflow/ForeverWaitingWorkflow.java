@@ -32,7 +32,7 @@ public class ForeverWaitingWorkflow extends AbstractWorkflowDefinition {
     return moveToStateAfter(POLL, now().plusYears(1), "Move to waiting after an year");
   }
 
-  public NextAction waiting(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction poll(@SuppressWarnings("unused") StateExecution execution) {
     logger.info("in waiting state");
     return moveToStateAfter(POLL, now().plusYears(1), "Move to waiting again after an year");
   }
