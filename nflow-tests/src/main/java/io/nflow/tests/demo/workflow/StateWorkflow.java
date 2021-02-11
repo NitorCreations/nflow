@@ -1,105 +1,76 @@
 package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.done;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.error;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.state1;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.state2;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.state3;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.state4;
-import static io.nflow.tests.demo.workflow.StateWorkflow.State.state5;
+import static io.nflow.tests.demo.workflow.TestState.DONE;
+import static io.nflow.tests.demo.workflow.TestState.ERROR;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
 
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
-public class StateWorkflow extends WorkflowDefinition<StateWorkflow.State> {
+public class StateWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
 
   public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
   public static final String STATEVAR_QUERYTEST = "queryTest";
 
-  public static enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    state1(start, "Set variable 1"),
-    state2(normal, "Set variable 2"),
-    state3(normal, "Update variable 2"),
-    state4(normal, "Do nothing"),
-    state5(normal, "Update variable 2"),
-    done(end, "Finished"),
-    error(manual, "Error state");
-
-    private final WorkflowStateType type;
-    private final String description;
-
-    private State(WorkflowStateType type, String description) {
-      this.type = type;
-      this.description = description;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    @Override
-    public String getDescription() {
-      return description;
-    }
-  }
+  public static final WorkflowState STATE_1 = new SimpleState("state1", start, "Set variable 1");
+  public static final WorkflowState STATE_2 = new SimpleState("state2", "Set variable 2");
+  public static final WorkflowState STATE_3 = new SimpleState("state3", "Update variable 2");
+  public static final WorkflowState STATE_4 = new SimpleState("state4", "Do nothing");
+  public static final WorkflowState STATE_5 = new SimpleState("state5", "Update variable 2");
 
   public StateWorkflow() {
-    super(STATE_WORKFLOW_TYPE, state1, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
+    super(STATE_WORKFLOW_TYPE, STATE_1, ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
         .setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
     setDescription("Workflow for testing state variables");
-    permit(state1, state2);
-    permit(state2, state3);
-    permit(state3, state4);
-    permit(state4, state5);
-    permit(state5, done);
+    permit(STATE_1, STATE_2);
+    permit(STATE_2, STATE_3);
+    permit(STATE_3, STATE_4);
+    permit(STATE_4, STATE_5);
+    permit(STATE_5, DONE);
   }
 
   public NextAction state1(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable1", instantiateIfNotExists = true) Variable variable1) {
     variable1.value = "foo1";
     execution.setVariable(STATEVAR_QUERYTEST, "oldValue");
-    return moveToState(state2, "variable1 is set to " + variable1.value);
+    return moveToState(STATE_2, "variable1 is set to " + variable1.value);
   }
 
   public NextAction state2(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable2", instantiateIfNotExists = true) Variable variable2) {
     variable2.value = "bar1";
     execution.setVariable(STATEVAR_QUERYTEST, "anotherOldValue");
-    return moveToState(state3, "variable1 is set to " + variable2.value);
+    return moveToState(STATE_3, "variable1 is set to " + variable2.value);
   }
 
   public NextAction state3(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable2") Variable variable2) {
     variable2.value = "bar2";
     execution.setVariable(STATEVAR_QUERYTEST, "newValue");
-    return moveToState(state4, "variable2 is set to " + variable2.value);
+    return moveToState(STATE_4, "variable2 is set to " + variable2.value);
   }
 
   public NextAction state4(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable1") Variable variable1,
       @StateVar(value = "variable2") Variable variable2) {
-    return moveToState(state5, format("variable1=%s variable2=%s", variable1, variable2));
+    return moveToState(STATE_5, format("variable1=%s variable2=%s", variable1, variable2));
   }
 
   public NextAction state5(@SuppressWarnings("unused") StateExecution execution,
       @StateVar(value = "variable2") Variable variable2) {
     variable2.value = "bar3";
-    return moveToState(done, "variable2 is set to " + variable2.value);
+    return moveToState(DONE, "variable2 is set to " + variable2.value);
   }
 
   public void done(@SuppressWarnings("unused") StateExecution execution) {

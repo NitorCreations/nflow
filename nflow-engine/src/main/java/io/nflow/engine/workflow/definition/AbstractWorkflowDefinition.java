@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
   private final S errorState;
   private final WorkflowSettings settings;
   protected final Map<String, List<String>> allowedTransitions = new LinkedHashMap<>();
-  protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
+  protected final Map<String, S> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
+  private final Set<S> states = new HashSet<>();
 
   protected AbstractWorkflowDefinition(String type, S initialState, S errorState) {
     this(type, initialState, errorState, new WorkflowSettings.Builder().build());
@@ -55,6 +57,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
       this.stateMethods = new WorkflowDefinitionScanner().getStateMethods(getClass());
     }
     requireStateMethodExists(initialState);
+    registerState(errorState);
   }
 
   /**
@@ -117,7 +120,17 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * Return all possible states of the workflow.
    * @return Set of workflow states.
    */
-  public abstract Set<S> getStates();
+  public Set<S> getStates() {
+    return states;
+  }
+
+  /**
+   * Register a state to the workflow.
+   * @param state The state to be registered.
+   */
+  public void registerState(S state) {
+    states.add(state);
+  }
 
   /**
    * Return allowed transitions between the states of the workflow.
@@ -159,8 +172,10 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     Assert.notNull(failureState, "Failure state can not be null");
     requireStateMethodExists(failureState);
     WorkflowState existingFailure = failureTransitions.put(originState.name(), failureState);
-    Assert.isTrue(existingFailure == null || existingFailure.equals(failureState), "Different failureState '" + existingFailure
-        + "' already defined for originState '" + originState.name() + "'");
+    if (existingFailure != null) {
+      Assert.isTrue(existingFailure.equals(failureState),
+          "Different failureState '" + existingFailure.name() + "' already defined for originState '" + originState.name() + "'");
+    }
     return permit(originState, targetState);
   }
 
@@ -204,6 +219,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
         throw new IllegalArgumentException(msg);
       }
     }
+    registerState(state);
   }
 
   /**

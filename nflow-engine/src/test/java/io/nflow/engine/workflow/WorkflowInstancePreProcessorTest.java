@@ -19,7 +19,7 @@ import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.service.WorkflowDefinitionService;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -34,7 +34,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   private WorkflowInstancePreProcessor preProcessor;
 
-  private WorkflowDefinition<?> dummyWorkflow;
+  private AbstractWorkflowDefinition<?> dummyWorkflow;
 
   private static final short DEFAULT_PRIORITY = 100;
 

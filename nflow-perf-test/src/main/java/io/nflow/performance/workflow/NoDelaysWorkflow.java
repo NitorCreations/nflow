@@ -1,67 +1,47 @@
 package io.nflow.performance.workflow;
 
+import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class NoDelaysWorkflow extends WorkflowDefinition<NoDelaysWorkflow.QuickState> {
-  public static enum QuickState implements WorkflowState {
+public class NoDelaysWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
 
-    state1(WorkflowStateType.start, "state1"), state2("state2"), state3("state3"), state4("state4"), state5("state5"), end(
-        WorkflowStateType.end, "end");
-
-    private final WorkflowStateType type;
-    private final String description;
-
-    private QuickState(String description) {
-      this(WorkflowStateType.normal, description);
-    }
-
-    private QuickState(WorkflowStateType type, String description) {
-      this.type = type;
-      this.description = description;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    @Override
-    public String getDescription() {
-      return description;
-    }
-  }
+  private static final WorkflowState STATE_1 = new SimpleState("state1", WorkflowStateType.start);
+  private static final WorkflowState STATE_2 = new SimpleState("state2");
+  private static final WorkflowState STATE_3 = new SimpleState("state3");
+  private static final WorkflowState STATE_4 = new SimpleState("state4");
+  private static final WorkflowState STATE_5 = new SimpleState("state5");
+  private static final WorkflowState END = new SimpleState("end", WorkflowStateType.end);
 
   public NoDelaysWorkflow() {
-    super(NoDelaysWorkflow.class.getSimpleName(), QuickState.state1, QuickState.end);
-    permit(QuickState.state1, QuickState.state2);
-    permit(QuickState.state2, QuickState.state3);
-    permit(QuickState.state3, QuickState.state4);
-    permit(QuickState.state4, QuickState.state5);
-    permit(QuickState.state5, QuickState.end);
+    super(NoDelaysWorkflow.class.getSimpleName(), STATE_1, END);
+    permit(STATE_1, STATE_2);
+    permit(STATE_2, STATE_3);
+    permit(STATE_3, STATE_4);
+    permit(STATE_4, STATE_5);
+    permit(STATE_5, END);
   }
 
   public NextAction state1(@SuppressWarnings("unused") StateExecution execution) {
-    return NextAction.moveToState(QuickState.state2, "");
+    return NextAction.moveToState(STATE_2, "");
   }
 
   public NextAction state2(@SuppressWarnings("unused") StateExecution execution) {
-    return NextAction.moveToState(QuickState.state3, "");
+    return NextAction.moveToState(STATE_3, "");
   }
 
   public NextAction state3(@SuppressWarnings("unused") StateExecution execution) {
-    return NextAction.moveToState(QuickState.state4, "");
+    return NextAction.moveToState(STATE_4, "");
   }
 
   public NextAction state4(@SuppressWarnings("unused") StateExecution execution) {
-    return NextAction.moveToState(QuickState.state5, "");
+    return NextAction.moveToState(STATE_5, "");
   }
 
   public NextAction state5(@SuppressWarnings("unused") StateExecution execution) {
-    return NextAction.stopInState(QuickState.end, "");
+    return NextAction.stopInState(END, "");
   }
-
 }

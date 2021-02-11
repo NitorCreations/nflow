@@ -10,17 +10,17 @@ import java.util.function.BiFunction;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.exception.StateProcessExceptionHandling;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.NonRetryable;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.tests.demo.workflow.NoRetryWorkflow.State;
 
 @Component
-public class NoRetryWorkflow extends WorkflowDefinition<State> {
+public class NoRetryWorkflow extends AbstractWorkflowDefinition<State> {
 
   public static final String TYPE = "noRetry";
 

@@ -33,8 +33,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.TestDefinition;
 import io.nflow.engine.workflow.definition.TestWorkflow;
-import io.nflow.engine.workflow.definition.WorkflowDefinitionTest.TestDefinition;
+import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
@@ -273,29 +274,29 @@ public class StateExecutionImplTest {
 
   @Test
   public void exceedingMaxRetriesInFailureStateGoesToErrorState() {
-    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.failed);
-    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
+    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.FAILED);
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 
   @Test
   public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
-    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.start1);
-    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.failed.name())));
+    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.START_1);
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.FAILED.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 
   @Test
   public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
-    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.start2);
-    assertThat(execution.getNextState(), is(equalTo(TestWorkflow.State.error.name())));
+    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.START_2);
+    assertThat(execution.getNextState(), is(equalTo(TestWorkflow.ERROR.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 
   @Test
   public void exceedingMaxRetriesInErrorStateStopsProcessing() {
-    handleRetryMaxRetriesExceeded(TestDefinition.TestState.start1, TestDefinition.TestState.error);
-    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
+    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.ERROR);
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR.name())));
     assertThat(execution.getNextActivation(), is(nullValue()));
   }
 
@@ -303,7 +304,7 @@ public class StateExecutionImplTest {
   public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
     TestWorkflow def = new TestWorkflow();
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext")
-        .setState(TestWorkflow.State.startWithoutFailure.name()).setBusinessKey("business").build();
+        .setState(TestWorkflow.START_WITHOUT_FAILURE.name()).setBusinessKey("business").build();
     createExecution();
 
     execution.handleRetryAfter(tomorrow, def);
@@ -312,7 +313,7 @@ public class StateExecutionImplTest {
     assertThat(execution.getNextActivation(), is(equalTo(tomorrow)));
   }
 
-  private void handleRetryMaxRetriesExceeded(TestDefinition.TestState initialState, TestDefinition.TestState currentState) {
+  private void handleRetryMaxRetriesExceeded(WorkflowState initialState, WorkflowState currentState) {
     TestDefinition def = new TestDefinition("x", initialState);
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState(currentState.name())
         .setBusinessKey("business").build();
@@ -322,30 +323,30 @@ public class StateExecutionImplTest {
 
   @Test
   public void handleFailureGoesToFailureState() {
-    handleFailure(TestDefinition.TestState.start1, TestDefinition.TestState.start1);
+    handleFailure(TestDefinition.START_1, TestDefinition.START_1);
 
     assertFalse(execution.isRetry());
-    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.failed.name())));
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.FAILED.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
     assertThat(execution.getNextStateReason(), is("reason, going to failure state"));
   }
 
   @Test
   public void handleFailureGoesToErrorStateWhenFailureStateIsNotDefined() {
-    handleFailure(TestDefinition.TestState.start2, TestDefinition.TestState.start2);
+    handleFailure(TestDefinition.START_2, TestDefinition.START_2);
 
     assertFalse(execution.isRetry());
-    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
     assertThat(execution.getNextStateReason(), is("reason, no failure state defined, going to error state"));
   }
 
   @Test
   public void handleFailureStopsProcessingWhenProcessingErrorState() {
-    handleFailure(TestDefinition.TestState.start2, TestDefinition.TestState.error);
+    handleFailure(TestDefinition.START_2, TestDefinition.ERROR);
 
     assertFalse(execution.isRetry());
-    assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
+    assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR.name())));
     assertThat(execution.getNextActivation(), is(nullValue()));
     assertThat(execution.getNextStateReason(), is("reason when handling error state, processing stopped"));
   }
@@ -361,7 +362,7 @@ public class StateExecutionImplTest {
     assertThat(execution.getNewBusinessKey(), is(equalTo(newKey)));
   }
 
-  private void handleFailure(TestDefinition.TestState initialState, TestDefinition.TestState currentState) {
+  private void handleFailure(WorkflowState initialState, WorkflowState currentState) {
     TestDefinition def = new TestDefinition("x", initialState);
     instance = new WorkflowInstance.Builder().setState(currentState.name()).build();
     createExecution();

@@ -1,37 +1,26 @@
 package io.nflow.engine.workflow.definition;
 
-import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static io.nflow.engine.workflow.definition.TestState.BEGIN;
+import static io.nflow.engine.workflow.definition.TestState.DONE;
+import static io.nflow.engine.workflow.definition.TestState.ERROR;
 
-public class TestDefinitionWithStateTypes extends WorkflowDefinition<TestDefinitionWithStateTypes.State> {
+import io.nflow.engine.workflow.curated.SimpleState;
 
-  public static enum State implements WorkflowState {
-    initial(start), state1(normal), state2(normal), error(manual), done(end);
+public class TestDefinitionWithStateTypes extends AbstractWorkflowDefinition<WorkflowState> {
 
-    private WorkflowStateType stateType;
+  static final WorkflowState STATE_1 = new SimpleState("state1");
+  static final WorkflowState STATE_2 = new SimpleState("state2");
 
-    private State(WorkflowStateType stateType) {
-      this.stateType = stateType;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return stateType;
-    }
+  public TestDefinitionWithStateTypes(String type, WorkflowState initialState) {
+    super(type, initialState, ERROR);
+    permit(BEGIN, DONE, ERROR);
+    permit(BEGIN, STATE_1);
+    permit(BEGIN, STATE_2);
+    permit(STATE_1, STATE_2);
+    permit(STATE_2, DONE);
   }
 
-  public TestDefinitionWithStateTypes(String type, State initialState) {
-    super(type, initialState, State.error);
-    permit(State.initial, State.done, State.error);
-    permit(State.initial, State.state1);
-    permit(State.initial, State.state2);
-    permit(State.state1, State.state2);
-    permit(State.state2, State.done);
-  }
-
-  public NextAction initial(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
     return null;
   }
 

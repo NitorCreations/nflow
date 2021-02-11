@@ -8,7 +8,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 /**
  * The base class for enum based workflow definitions.
  * @param <S> The enumeration of valid workflow states.
+ * @deprecated Removed in next major release, extend AbstractWorkflowDefinition directly.
  */
+@Deprecated
 public abstract class WorkflowDefinition<S extends Enum<S> & WorkflowState> extends AbstractWorkflowDefinition<S> {
 
   private final Set<S> allStates;

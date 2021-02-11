@@ -3,8 +3,6 @@ package io.nflow.engine.workflow.definition;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,43 +47,28 @@ public class AbstractWorkflowDefinitionTest {
 
   static class TestWorkflow2 extends TestWorkflow {
     public void permitDifferentFailure() {
-      permit(State.process, State.done);
-      permit(State.process, State.done, State.failed);
-      permit(State.process, State.error, State.error);
+      permit(TestWorkflow.PROCESS, TestWorkflow.DONE);
+      permit(TestWorkflow.PROCESS, TestWorkflow.DONE, TestWorkflow.FAILED);
+      permit(TestWorkflow.PROCESS, TestWorkflow.ERROR, TestWorkflow.ERROR);
     }
 
     public void permitSameFailure() {
-      permit(State.process, State.done);
-      permit(State.process, State.done, State.failed);
-      permit(State.process, State.error, State.failed);
+      permit(TestWorkflow.PROCESS, TestWorkflow.DONE);
+      permit(TestWorkflow.PROCESS, TestWorkflow.DONE, TestWorkflow.FAILED);
+      permit(TestWorkflow.PROCESS, TestWorkflow.ERROR, TestWorkflow.FAILED);
     }
   }
 
   static class TestWorkflow3 extends TestWorkflow {
     public NextAction done(@SuppressWarnings("unused") StateExecution execution) {
-      return stopInState(State.done, "Done");
+      return stopInState(TestWorkflow.DONE, "Done");
     }
   }
 
-  static class TestWorkflow4 extends WorkflowDefinition<TestWorkflow4.State> {
+  static class TestWorkflow4 extends AbstractWorkflowDefinition<WorkflowState> {
 
     protected TestWorkflow4() {
-      super("test", State.begin, State.error);
-    }
-
-    public static enum State implements WorkflowState {
-      begin(start), error(manual);
-
-      private WorkflowStateType stateType;
-
-      private State(WorkflowStateType stateType) {
-        this.stateType = stateType;
-      }
-
-      @Override
-      public WorkflowStateType getType() {
-        return stateType;
-      }
+      super("test", TestWorkflow.BEGIN, TestWorkflow.ERROR);
     }
 
     public void begin(@SuppressWarnings("unused") StateExecution execution) {
@@ -96,21 +79,21 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void isAllowedNextActionReturnsFalseForIllegalStateChange() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("begin").build();
-    NextAction nextAction = moveToState(TestWorkflow.State.process, "reason");
+    NextAction nextAction = moveToState(TestWorkflow.PROCESS, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(false));
   }
 
   @Test
   public void isAllowedNextActionReturnsTrueForMovingToFailureState() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("begin").build();
-    NextAction nextAction = moveToState(TestWorkflow.State.failed, "reason");
+    NextAction nextAction = moveToState(TestWorkflow.FAILED, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(true));
   }
 
   @Test
   public void isAllowedNextActionReturnsTrueForMovingToErrorState() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("process").build();
-    NextAction nextAction = moveToState(TestWorkflow.State.error, "reason");
+    NextAction nextAction = moveToState(TestWorkflow.ERROR, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(true));
   }
 
@@ -124,7 +107,7 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void isAllowedNextActionReturnsTrueForPermittedStateChange() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("begin").build();
-    NextAction nextAction = moveToState(TestWorkflow.State.done, "reason");
+    NextAction nextAction = moveToState(TestWorkflow.DONE, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(true));
   }
 
@@ -149,7 +132,7 @@ public class AbstractWorkflowDefinitionTest {
     wf.setDescription("description");
     assertThat(wf.getName(), is("name"));
     assertThat(wf.getDescription(), is("description"));
-    assertThat(wf.getInitialState(), is(TestWorkflow.State.begin));
+    assertThat(wf.getInitialState(), is(TestWorkflow.BEGIN));
   }
 
   @Test

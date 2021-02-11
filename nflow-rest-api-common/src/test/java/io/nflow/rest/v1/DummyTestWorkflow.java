@@ -1,57 +1,36 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
 import static org.joda.time.Period.days;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
+import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.State> {
+public class DummyTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
 
-  public static enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    start(WorkflowStateType.start, "start desc"),
-    error(WorkflowStateType.manual, "error desc"),
-    end(WorkflowStateType.end, "end desc");
-
-    private WorkflowStateType type;
-    private String description;
-
-    private State(WorkflowStateType type, String description) {
-      this.type = type;
-      this.description = description;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    @Override
-    public String getDescription() {
-      return description;
-    }
-  }
+  public static final WorkflowState START = new SimpleState("start", WorkflowStateType.start);
+  public static final WorkflowState ERROR = new SimpleState("error", WorkflowStateType.manual);
+  public static final WorkflowState END = new SimpleState("end", WorkflowStateType.end);
 
   public DummyTestWorkflow() {
-    super("dummy", start, error, new WorkflowSettings.Builder().setMinErrorTransitionDelay(300).setMaxErrorTransitionDelay(1000)
+    super("dummy", START, ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(300).setMaxErrorTransitionDelay(1000)
         .setShortTransitionDelay(200).setImmediateTransitionDelay(100).setMaxRetries(10).setHistoryDeletableAfter(days(3))
         .build());
-    permit(start, end, error);
-    permit(start, error);
-    permit(error, end);
+    permit(START, END, ERROR);
+    permit(START, ERROR);
+    permit(ERROR, END);
   }
 
   public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
-    return moveToState(end, "Go to end state");
+    return moveToState(END, "Go to end state");
   }
 
   public void error(@SuppressWarnings("unused") StateExecution execution) {
