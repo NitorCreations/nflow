@@ -13,11 +13,10 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 @Component
-public class DeleteHistoryWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class DeleteHistoryWorkflow extends AbstractWorkflowDefinition {
 
   public static final String TYPE = "deleteHistory";
 

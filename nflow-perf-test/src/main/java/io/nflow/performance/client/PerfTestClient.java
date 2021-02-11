@@ -33,7 +33,7 @@ public class PerfTestClient {
   @Inject
   private ObjectMapper objectMapper;
 
-  public CreateWorkflowInstanceResponse createWorkflow(AbstractWorkflowDefinition<?> def) {
+  public CreateWorkflowInstanceResponse createWorkflow(AbstractWorkflowDefinition def) {
     return createWorkflow(def.getType());
   }
 

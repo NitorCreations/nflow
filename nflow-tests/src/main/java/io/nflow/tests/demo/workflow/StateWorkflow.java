@@ -18,7 +18,7 @@ import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
-public class StateWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class StateWorkflow extends AbstractWorkflowDefinition {
 
   public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
   public static final String STATEVAR_QUERYTEST = "queryTest";

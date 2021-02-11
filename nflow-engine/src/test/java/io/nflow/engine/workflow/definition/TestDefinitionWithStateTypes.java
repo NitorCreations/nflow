@@ -6,7 +6,7 @@ import static io.nflow.engine.workflow.definition.TestState.ERROR;
 
 import io.nflow.engine.workflow.curated.SimpleState;
 
-public class TestDefinitionWithStateTypes extends AbstractWorkflowDefinition<WorkflowState> {
+public class TestDefinitionWithStateTypes extends AbstractWorkflowDefinition {
 
   static final WorkflowState STATE_1 = new SimpleState("state1");
   static final WorkflowState STATE_2 = new SimpleState("state2");

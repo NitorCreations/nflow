@@ -65,7 +65,7 @@ public class AbstractWorkflowDefinitionTest {
     }
   }
 
-  static class TestWorkflow4 extends AbstractWorkflowDefinition<WorkflowState> {
+  static class TestWorkflow4 extends AbstractWorkflowDefinition {
 
     protected TestWorkflow4() {
       super("test", TestWorkflow.BEGIN, TestWorkflow.ERROR);

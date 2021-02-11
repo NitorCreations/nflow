@@ -20,7 +20,7 @@ import io.nflow.tests.demo.domain.CreateLoanResponse;
 import io.nflow.tests.demo.domain.QueryCreditApplicationResponse;
 
 @Component
-public class WithdrawLoanWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class WithdrawLoanWorkflow extends AbstractWorkflowDefinition {
 
   private static final String CREDIT_APPLICATION_KEY = "credit_application_key";
   private static final String LOAN_KEY = "loan_key";

@@ -17,10 +17,9 @@ import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
-import io.nflow.tests.demo.workflow.NoRetryWorkflow.State;
 
 @Component
-public class NoRetryWorkflow extends AbstractWorkflowDefinition<State> {
+public class NoRetryWorkflow extends AbstractWorkflowDefinition {
 
   public static final String TYPE = "noRetry";
 

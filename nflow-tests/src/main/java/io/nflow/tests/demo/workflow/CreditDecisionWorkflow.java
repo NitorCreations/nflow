@@ -16,7 +16,7 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.tests.demo.domain.CreditDecisionData;
 
 @Component
-public class CreditDecisionWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class CreditDecisionWorkflow extends AbstractWorkflowDefinition {
 
   public static final String CREDIT_DECISION_TYPE = "creditDecision";
   public static final String VAR_REQUEST_DATA = "requestData";

@@ -7,7 +7,7 @@ import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class NoDelaysWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class NoDelaysWorkflow extends AbstractWorkflowDefinition {
 
   private static final WorkflowState STATE_1 = new SimpleState("state1", WorkflowStateType.start);
   private static final WorkflowState STATE_2 = new SimpleState("state2");

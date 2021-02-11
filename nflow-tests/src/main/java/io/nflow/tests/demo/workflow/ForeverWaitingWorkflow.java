@@ -13,10 +13,9 @@ import org.springframework.stereotype.Component;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
-public class ForeverWaitingWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class ForeverWaitingWorkflow extends AbstractWorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ForeverWaitingWorkflow.class);
 
   public static final String FOREVER_WAITING_WORKFLOW_TYPE = "foreverWaiting";

@@ -1011,7 +1011,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static List<Object> lastArgs;
 
-  public static class ExecuteTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class ExecuteTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String EXECUTE_TEST_TYPE = "executeTest";
 
@@ -1047,7 +1047,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class FailingTestWorkflow extends AbstractWorkflowDefinition<FailingTestWorkflow.State> {
+  public static class FailingTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String FAILING_TYPE = "failingTest";
 
@@ -1123,7 +1123,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class ForceCleaningTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class ForceCleaningTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String FORCE_CLEANING_TYPE = "forceCleaningTest";
 
@@ -1139,7 +1139,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class FailCleaningTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class FailCleaningTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String FAIL_CLEANING_TYPE = "failCleaningTest";
 
@@ -1156,7 +1156,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class LoopingTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class LoopingTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String LOOPING_TYPE = "loopingTest";
 
@@ -1172,7 +1172,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class SimpleTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class SimpleTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String SIMPLE_TYPE = "simpleTest";
 
@@ -1228,7 +1228,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class NotifyTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class NotifyTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String NOTIFY_TYPE = "notifyTest";
     public static final WorkflowState WAKE_PARENT = new SimpleState("wakeParent");
@@ -1249,7 +1249,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class StateVariableTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class StateVariableTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String STATE_VARIABLE_TYPE = "stateVariableTest";
 
@@ -1264,7 +1264,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class NonRetryableTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class NonRetryableTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String NON_RETRYABLE_TYPE = "nonRetryableTest";
 
@@ -1293,7 +1293,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class StuckTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class StuckTestWorkflow extends AbstractWorkflowDefinition {
 
     public static final String STUCK_TYPE = "stuckTest";
 

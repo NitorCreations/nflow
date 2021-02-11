@@ -15,27 +15,28 @@ import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class DummyTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class DummyTestWorkflow extends AbstractWorkflowDefinition {
 
+  public static final String DUMMY_TYPE = "dummy";
   private static final WorkflowState ALTERNATIVE_START = new SimpleState("alternativeStart", WorkflowStateType.start);
-  private static final WorkflowState CREATE_LOAN = new SimpleState("CreateLoan", WorkflowStateType.start);
+  public static final WorkflowState CREATE_LOAN = new SimpleState("CreateLoan", WorkflowStateType.start);
 
   public DummyTestWorkflow() {
     this(new WorkflowSettings.Builder().build());
   }
 
   public DummyTestWorkflow(WorkflowSettings settings) {
-    super("dummy", BEGIN, DONE, settings);
+    super(DUMMY_TYPE, BEGIN, DONE, settings);
     permit(BEGIN, DONE, DONE);
     permit(ALTERNATIVE_START, DONE);
     registerState(CREATE_LOAN);
   }
 
-  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
     return stopInState(DONE, "Finished");
   }
 
-  public void end(@SuppressWarnings("unused") StateExecution execution) {
+  public void done(@SuppressWarnings("unused") StateExecution execution) {
   }
 
   public NextAction alternativeStart(@SuppressWarnings("unused") StateExecution execution) {

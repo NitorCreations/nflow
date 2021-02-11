@@ -21,29 +21,30 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 /**
  * The base class for all workflow definitions.
  */
-public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extends ModelObject {
+public abstract class AbstractWorkflowDefinition extends ModelObject {
 
   private final String type;
   private String name;
   private String description;
-  private final S initialState;
-  private final S errorState;
+  private final WorkflowState initialState;
+  private final WorkflowState errorState;
   private final WorkflowSettings settings;
   protected final Map<String, List<String>> allowedTransitions = new LinkedHashMap<>();
-  protected final Map<String, S> failureTransitions = new LinkedHashMap<>();
+  protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
-  private final Set<S> states = new HashSet<>();
+  private final Set<WorkflowState> states = new HashSet<>();
 
-  protected AbstractWorkflowDefinition(String type, S initialState, S errorState) {
+  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState) {
     this(type, initialState, errorState, new WorkflowSettings.Builder().build());
   }
 
-  protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
+  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState,
+      WorkflowSettings settings) {
     this(type, initialState, errorState, settings, null);
   }
 
-  protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings,
-      Map<String, WorkflowStateMethod> stateMethods) {
+  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState,
+      WorkflowSettings settings, Map<String, WorkflowStateMethod> stateMethods) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -104,7 +105,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * Return the initial state of the workflow.
    * @return Workflow state.
    */
-  public S getInitialState() {
+  public WorkflowState getInitialState() {
     return initialState;
   }
 
@@ -112,7 +113,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * Return the generic error state of the workflow.
    * @return Workflow state.
    */
-  public S getErrorState() {
+  public WorkflowState getErrorState() {
     return errorState;
   }
 
@@ -120,7 +121,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * Return all possible states of the workflow.
    * @return Set of workflow states.
    */
-  public Set<S> getStates() {
+  public Set<WorkflowState> getStates() {
     return states;
   }
 
@@ -128,7 +129,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * Register a state to the workflow.
    * @param state The state to be registered.
    */
-  public void registerState(S state) {
+  public void registerState(WorkflowState state) {
     states.add(state);
   }
 
@@ -154,7 +155,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * @param targetState The target state.
    * @return This.
    */
-  protected AbstractWorkflowDefinition<S> permit(S originState, S targetState) {
+  protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState) {
     requireStateMethodExists(originState);
     requireStateMethodExists(targetState);
     allowedTransitionsFor(originState).add(targetState.name());
@@ -168,7 +169,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
    * @param failureState The failure state.
    * @return This.
    */
-  protected AbstractWorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
+  protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState, WorkflowState failureState) {
     Assert.notNull(failureState, "Failure state can not be null");
     requireStateMethodExists(failureState);
     WorkflowState existingFailure = failureTransitions.put(originState.name(), failureState);
@@ -179,7 +180,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     return permit(originState, targetState);
   }
 
-  private List<String> allowedTransitionsFor(S state) {
+  private List<String> allowedTransitionsFor(WorkflowState state) {
     String stateName = state.name();
     List<String> transitions = allowedTransitions.get(stateName);
     if (transitions == null) {
@@ -197,7 +198,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     return settings;
   }
 
-  final void requireStateMethodExists(S state) {
+  final void requireStateMethodExists(WorkflowState state) {
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
     if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(

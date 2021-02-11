@@ -63,7 +63,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @BeforeEach
   public void setup() {
-    AbstractWorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
+    AbstractWorkflowDefinition dummyWorkflow = new DummyTestWorkflow();
     lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowInstanceDao, workflowDefinitions, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
@@ -172,7 +172,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorks() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 
@@ -186,7 +186,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorksWithUnsupportedSignal() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 

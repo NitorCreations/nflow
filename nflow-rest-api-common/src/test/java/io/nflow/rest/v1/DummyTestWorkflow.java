@@ -14,7 +14,7 @@ import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class DummyTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class DummyTestWorkflow extends AbstractWorkflowDefinition {
 
   public static final WorkflowState START = new SimpleState("start", WorkflowStateType.start);
   public static final WorkflowState ERROR = new SimpleState("error", WorkflowStateType.manual);

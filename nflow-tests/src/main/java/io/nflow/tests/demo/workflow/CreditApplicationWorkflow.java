@@ -21,7 +21,7 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads public fields")
-public class CreditApplicationWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class CreditApplicationWorkflow extends AbstractWorkflowDefinition {
 
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
   private static final String VAR_KEY = "info";

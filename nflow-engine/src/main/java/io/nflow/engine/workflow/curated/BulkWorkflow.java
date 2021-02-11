@@ -40,7 +40,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
  * Bulk child workflow executor that does not overflow the system.
  */
 @Component
-public class BulkWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class BulkWorkflow extends AbstractWorkflowDefinition {
 
   /**
    * The type of default bulk workflow.

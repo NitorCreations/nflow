@@ -20,6 +20,7 @@ import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -34,7 +35,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   private WorkflowInstancePreProcessor preProcessor;
 
-  private AbstractWorkflowDefinition<?> dummyWorkflow;
+  private AbstractWorkflowDefinition dummyWorkflow;
 
   private static final short DEFAULT_PRIORITY = 100;
 
@@ -47,9 +48,9 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   @Test
   public void wrongStartStateCausesException() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState(TestState.DONE.name()).build();
     RuntimeException thrown = assertThrows(RuntimeException.class, () -> preProcessor.process(i));
-    assertThat(thrown.getMessage(), containsString("Specified state [end] is not a start state."));
+    assertThat(thrown.getMessage(), containsString("Specified state [done] is not a start state."));
   }
 
   @Test

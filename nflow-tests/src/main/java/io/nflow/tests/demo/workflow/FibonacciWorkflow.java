@@ -28,7 +28,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 /**
  * Fibonacci series generator using recursive process. Each step is handled by a new child workflow.
  */
-public class FibonacciWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class FibonacciWorkflow extends AbstractWorkflowDefinition {
   public static final String FIBONACCI_TYPE = "fibonacci";
   public static final String VAR_REQUEST_DATA = "requestData";
   private static final Logger logger = getLogger(FibonacciWorkflow.class);

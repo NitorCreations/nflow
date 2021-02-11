@@ -60,7 +60,7 @@ public class WorkflowDefinitionDao {
     this.executorInfo = executorDao;
   }
 
-  public void storeWorkflowDefinition(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
+  public void storeWorkflowDefinition(AbstractWorkflowDefinition definition) {
     StoredWorkflowDefinition storedDefinition = convert(definition);
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("type", definition.getType());
@@ -111,7 +111,7 @@ public class WorkflowDefinitionDao {
     });
   }
 
-  StoredWorkflowDefinition convert(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
+  StoredWorkflowDefinition convert(AbstractWorkflowDefinition definition) {
     StoredWorkflowDefinition resp = new StoredWorkflowDefinition();
     resp.type = definition.getType();
     resp.description = definition.getDescription();

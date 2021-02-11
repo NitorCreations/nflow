@@ -17,7 +17,7 @@ import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class WordGeneratorWorkflow extends AbstractWorkflowDefinition<WordGeneratorWorkflow.State> {
+public class WordGeneratorWorkflow extends AbstractWorkflowDefinition {
 
   private static final Logger logger = LoggerFactory.getLogger(WordGeneratorWorkflow.class);
 

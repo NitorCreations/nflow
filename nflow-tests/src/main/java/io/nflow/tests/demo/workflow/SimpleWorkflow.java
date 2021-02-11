@@ -8,9 +8,8 @@ import static io.nflow.tests.demo.workflow.TestState.ERROR;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowState;
 
-public class SimpleWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class SimpleWorkflow extends AbstractWorkflowDefinition {
 
   public static final String SIMPLE_WORKFLOW_TYPE = "simple";
 

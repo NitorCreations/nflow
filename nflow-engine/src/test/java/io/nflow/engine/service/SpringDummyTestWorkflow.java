@@ -10,18 +10,17 @@ import org.springframework.stereotype.Component;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
 @Profile("nflow-engine-test")
-public class SpringDummyTestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class SpringDummyTestWorkflow extends AbstractWorkflowDefinition {
 
   protected SpringDummyTestWorkflow() {
     super("springdummy", BEGIN, DONE);
     permit(BEGIN, DONE);
   }
 
-  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
     return moveToState(DONE, "Go to end state");
   }
 }

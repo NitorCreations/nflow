@@ -18,7 +18,7 @@ import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
-public class SlowWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class SlowWorkflow extends AbstractWorkflowDefinition {
 
   public static final String SLOW_WORKFLOW_TYPE = "slowWorkflow";
   public static final int SIGNAL_INTERRUPT = 1;

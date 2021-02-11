@@ -16,7 +16,7 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @Component
-public class ActionStateVariableWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class ActionStateVariableWorkflow extends AbstractWorkflowDefinition {
 
   public static final String WORKFLOW_TYPE = "actionStateVariableWorkflow";
   public static final int MAX_STATE_VAR_VALUE = 10;

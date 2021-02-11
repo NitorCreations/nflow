@@ -30,7 +30,6 @@ import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
-import io.nflow.engine.workflow.definition.WorkflowState;
 
 @SuppressWarnings("unused")
 public class WorkflowDefinitionScannerTest {
@@ -217,7 +216,7 @@ public class WorkflowDefinitionScannerTest {
 
   public static class ParamObj { }
 
-  public static class OverloadedStateMethodWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class OverloadedStateMethodWorkflow extends AbstractWorkflowDefinition {
     public OverloadedStateMethodWorkflow() {
       super("overload", BEGIN, DONE);
     }
@@ -227,7 +226,7 @@ public class WorkflowDefinitionScannerTest {
     public NextAction end(StateExecution exec, @StateVar("foo") String param) { return null; }
   }
 
-  public static class MissingStateVarWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class MissingStateVarWorkflow extends AbstractWorkflowDefinition {
     public MissingStateVarWorkflow() {
       super("missingStateVar", BEGIN, DONE);
     }
@@ -236,7 +235,7 @@ public class WorkflowDefinitionScannerTest {
     public NextAction end(StateExecution exec, String param) { return null; }
   }
 
-  public static class UnknownAnnotationWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class UnknownAnnotationWorkflow extends AbstractWorkflowDefinition {
     public UnknownAnnotationWorkflow() {
       super("unknownAnnotation", BEGIN, DONE);
     }
@@ -245,7 +244,7 @@ public class WorkflowDefinitionScannerTest {
     public NextAction end(StateExecution exec, @Dummy @StateVar("paramKey") String param) { return null; }
   }
 
-  public static class MutableParamWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class MutableParamWorkflow extends AbstractWorkflowDefinition {
     public MutableParamWorkflow() {
       super("mutableParam", BEGIN, DONE);
     }
@@ -253,7 +252,7 @@ public class WorkflowDefinitionScannerTest {
     public NextAction end(StateExecution exec, @StateVar("paramKey") Mutable<String> param, @StateVar(value="longKey", instantiateIfNotExists=true) Mutable<Long> param2) { return null; }
   }
 
-  public static class InitiateParameterWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class InitiateParameterWorkflow extends AbstractWorkflowDefinition {
     public InitiateParameterWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -263,7 +262,7 @@ public class WorkflowDefinitionScannerTest {
         @StateVar(value = "paramKey2", instantiateIfNotExists = true) long paramPrimitive) { return null; }
   }
 
-  public static class BooleanObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class BooleanObjectWorkflow extends AbstractWorkflowDefinition {
     public BooleanObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -273,7 +272,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Boolean paramBoxed) { return null; }
   }
 
-  public static class ByteObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class ByteObjectWorkflow extends AbstractWorkflowDefinition {
     public ByteObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -283,7 +282,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Byte paramBoxed) { return null; }
   }
 
-  public static class CharacterObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class CharacterObjectWorkflow extends AbstractWorkflowDefinition {
     public CharacterObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -293,7 +292,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Character paramBoxed) { return null; }
   }
 
-  public static class ShortObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class ShortObjectWorkflow extends AbstractWorkflowDefinition {
     public ShortObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -303,7 +302,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Short paramBoxed) { return null; }
   }
 
-  public static class IntegerObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class IntegerObjectWorkflow extends AbstractWorkflowDefinition {
     public IntegerObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -313,7 +312,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Integer paramBoxed) { return null; }
   }
 
-  public static class LongObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class LongObjectWorkflow extends AbstractWorkflowDefinition {
     public LongObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -323,7 +322,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Long paramBoxed) { return null; }
   }
 
-  public static class FloatObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class FloatObjectWorkflow extends AbstractWorkflowDefinition {
     public FloatObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -333,7 +332,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Float paramBoxed) { return null; }
   }
 
-  public static class DoubleObjectWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class DoubleObjectWorkflow extends AbstractWorkflowDefinition {
     public DoubleObjectWorkflow() {
       super("instantiateNull", BEGIN, DONE);
     }
@@ -343,7 +342,7 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Double paramBoxed) { return null; }
   }
 
-  public static class NonStateMethodsWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class NonStateMethodsWorkflow extends AbstractWorkflowDefinition {
     public NonStateMethodsWorkflow() {
       super("nonStateMethods", BEGIN, DONE);
     }
@@ -356,7 +355,7 @@ public class WorkflowDefinitionScannerTest {
     protected NextAction nonPublic(StateExecution exec) { return null; }
   }
 
-  public static class ReadOnlyStateVarWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+  public static class ReadOnlyStateVarWorkflow extends AbstractWorkflowDefinition {
     public ReadOnlyStateVarWorkflow() {
       super("readOnly", BEGIN, DONE);
     }

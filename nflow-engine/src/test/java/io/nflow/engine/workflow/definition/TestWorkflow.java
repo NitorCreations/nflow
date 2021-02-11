@@ -4,7 +4,7 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 
 import io.nflow.engine.workflow.curated.SimpleState;
 
-public class TestWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class TestWorkflow extends AbstractWorkflowDefinition {
 
   public static final WorkflowState BEGIN = new SimpleState("begin", WorkflowStateType.start);
   public static final WorkflowState START_WITHOUT_FAILURE = new SimpleState("startWithoutFailure", WorkflowStateType.start);

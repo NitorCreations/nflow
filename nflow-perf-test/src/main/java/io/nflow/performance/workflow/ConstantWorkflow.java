@@ -18,7 +18,7 @@ import io.nflow.engine.workflow.definition.WorkflowStateType;
 /**
  * Deterministic workflow that executes quickly.
  */
-public class ConstantWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class ConstantWorkflow extends AbstractWorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ConstantWorkflow.class);
   private static final String KEY = "retries";
 

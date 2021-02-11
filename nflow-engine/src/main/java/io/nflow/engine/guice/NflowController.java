@@ -15,13 +15,13 @@ public class NflowController {
     private final WorkflowLifecycle lifecycle;
     private final WorkflowDefinitionService workflowDefinitionService;
     private final MaintenanceWorkflowStarter maintenanceWorkflowStarter;
-    private final Set<AbstractWorkflowDefinition<?>> workflows;
+    private final Set<AbstractWorkflowDefinition> workflows;
 
     @Inject
     public NflowController(WorkflowLifecycle lifecycle,
                            WorkflowDefinitionService workflowDefinitionService,
                            MaintenanceWorkflowStarter maintenanceWorkflowStarter,
-                           Set<AbstractWorkflowDefinition<?>> workflowDefinitions
+        Set<AbstractWorkflowDefinition> workflowDefinitions
     ) {
         this.lifecycle = lifecycle;
         this.workflowDefinitionService = workflowDefinitionService;

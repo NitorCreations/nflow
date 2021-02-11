@@ -24,7 +24,7 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 /**
  * Workflow that wakes up periodically to execute a task.
  */
-public abstract class CronWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public abstract class CronWorkflow extends AbstractWorkflowDefinition {
   private static final Logger logger = getLogger(CronWorkflow.class);
 
   /**

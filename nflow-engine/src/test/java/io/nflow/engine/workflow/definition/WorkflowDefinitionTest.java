@@ -22,7 +22,7 @@ public class WorkflowDefinitionTest {
   @Test
   public void initialStateIsRequired() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-        () -> new AbstractWorkflowDefinition<WorkflowState>("withoutInitialState", null, ERROR) {
+        () -> new AbstractWorkflowDefinition("withoutInitialState", null, ERROR) {
         });
     assertThat(thrown.getMessage(), containsString("initialState must not be null"));
   }
@@ -30,7 +30,7 @@ public class WorkflowDefinitionTest {
   @Test
   public void initialStateMustBeStartState() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-        () -> new AbstractWorkflowDefinition<WorkflowState>("nonStartInitialState", DONE, ERROR) {
+        () -> new AbstractWorkflowDefinition("nonStartInitialState", DONE, ERROR) {
         });
     assertThat(thrown.getMessage(), containsString("initialState must be a start state"));
   }
@@ -38,7 +38,7 @@ public class WorkflowDefinitionTest {
   @Test
   public void errorStateIsRequired() {
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-        () -> new AbstractWorkflowDefinition<WorkflowState>("withoutErrorState", BEGIN, null) {
+        () -> new AbstractWorkflowDefinition("withoutErrorState", BEGIN, null) {
         });
     assertThat(thrown.getMessage(), containsString("errorState must not be null"));
   }
@@ -85,14 +85,14 @@ public class WorkflowDefinitionTest {
 
   @Test
   public void allowedTranstionsCanContainMultipleTargetStates() {
-    AbstractWorkflowDefinition<?> def = new TestDefinitionWithStateTypes("y", BEGIN);
+    AbstractWorkflowDefinition def = new TestDefinitionWithStateTypes("y", BEGIN);
     assertEquals(asList(DONE.name(), STATE_1.name(), STATE_2.name()), def.getAllowedTransitions().get(BEGIN.name()));
     assertEquals(TestState.ERROR, def.getFailureTransitions().get(BEGIN.name()));
   }
 
   @Test
   public void isStartStateWorks() {
-    AbstractWorkflowDefinition<?> workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+    AbstractWorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
 
     assertThat(workflow.isStartState(BEGIN.name()), equalTo(true));
     assertThat(workflow.isStartState(STATE_1.name()), equalTo(false));

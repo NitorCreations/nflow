@@ -34,7 +34,6 @@ import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 
@@ -50,7 +49,7 @@ public class WorkflowDefinitionResourceTest {
   @Captor
   private ArgumentCaptor<Collection<String>> stringList;
   @Mock
-  private AbstractWorkflowDefinition<WorkflowState> dummyDefinition;
+  private AbstractWorkflowDefinition dummyDefinition;
   @Mock
   private ListWorkflowDefinitionResponse dummyResponse;
 

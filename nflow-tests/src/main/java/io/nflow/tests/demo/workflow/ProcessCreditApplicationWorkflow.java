@@ -28,7 +28,7 @@ import io.nflow.tests.demo.domain.CreditDecisionData;
 import io.nflow.tests.demo.domain.QueryCreditApplicationResponse;
 
 @Component
-public class ProcessCreditApplicationWorkflow extends AbstractWorkflowDefinition<WorkflowState> {
+public class ProcessCreditApplicationWorkflow extends AbstractWorkflowDefinition {
 
   private static final String CREDIT_APPLICATION_KEY = "credit_application_key";
   private static final String LOAN_KEY = "loan_key";
