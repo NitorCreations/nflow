@@ -1,5 +1,7 @@
 #!/bin/bash
 
+RELEASE_DIR="$PWD"
+
 prompt_continue() {
   echo
   echo "Next: $1"
@@ -135,4 +137,20 @@ EOF
 )
 else
   echo "Github API token not found (.github_api_token -file), make Github release manually"
+fi
+
+NFLOW_WIKI_CHECKOUT_DIR="/tmp/nflow-release-tmp-$RANDOM"
+prompt_continue "cloning nFlow Wiki under $NFLOW_WIKI_CHECKOUT_DIR for version number updates"
+
+if mkdir -p "$NFLOW_WIKI_CHECKOUT_DIR" ; then
+  cd "$NFLOW_WIKI_CHECKOUT_DIR"
+  git clone https://github.com/NitorCreations/nflow.wiki.git
+  cd nflow.wiki
+  sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" Spring-Boot-guide.md
+  git add Spring-Boot-guide.md
+  git commit -m "updated version number to $RELEASE_VERSION in Spring-Boot-guide.md"
+  git push
+  cd $RELEASE_DIR
+else
+  echo "failed to update version number in nFlow Wiki pages - do it manually"
 fi
