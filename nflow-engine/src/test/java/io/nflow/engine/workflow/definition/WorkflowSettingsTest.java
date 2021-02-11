@@ -65,7 +65,7 @@ public class WorkflowSettingsTest {
   @Test
   public void getMaxSubsequentStateExecutionsReturns100ByDefault() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
-    assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.BEGIN), is(equalTo(100)));
+    assertThat(s.getMaxSubsequentStateExecutions(TestState.BEGIN), is(equalTo(100)));
   }
 
   @Test
@@ -73,15 +73,15 @@ public class WorkflowSettingsTest {
     int executionsDefault = 200;
     int executionsForBegin = 300;
     WorkflowSettings s = new WorkflowSettings.Builder().setMaxSubsequentStateExecutions(executionsDefault)
-        .setMaxSubsequentStateExecutions(TestWorkflow.BEGIN, executionsForBegin).build();
-    assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.BEGIN), is(equalTo(executionsForBegin)));
+        .setMaxSubsequentStateExecutions(TestState.BEGIN, executionsForBegin).build();
+    assertThat(s.getMaxSubsequentStateExecutions(TestState.BEGIN), is(equalTo(executionsForBegin)));
   }
 
   @Test
   public void getMaxSubsequentStateExecutionsReturnsGivenDefaultValueWhenNotDefinedForState() {
     int executionsDefault = 200;
     WorkflowSettings s = new WorkflowSettings.Builder().setMaxSubsequentStateExecutions(executionsDefault).build();
-    assertThat(s.getMaxSubsequentStateExecutions(TestWorkflow.BEGIN), is(equalTo(executionsDefault)));
+    assertThat(s.getMaxSubsequentStateExecutions(TestState.BEGIN), is(equalTo(executionsDefault)));
   }
 
   @Test

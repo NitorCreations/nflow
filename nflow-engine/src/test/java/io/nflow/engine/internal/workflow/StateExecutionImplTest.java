@@ -34,6 +34,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.TestDefinition;
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.definition.TestWorkflow;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
@@ -289,7 +290,7 @@ public class StateExecutionImplTest {
   @Test
   public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
     handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.START_2);
-    assertThat(execution.getNextState(), is(equalTo(TestWorkflow.ERROR.name())));
+    assertThat(execution.getNextState(), is(equalTo(TestState.ERROR.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 

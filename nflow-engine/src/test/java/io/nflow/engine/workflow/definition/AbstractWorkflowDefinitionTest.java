@@ -47,28 +47,28 @@ public class AbstractWorkflowDefinitionTest {
 
   static class TestWorkflow2 extends TestWorkflow {
     public void permitDifferentFailure() {
-      permit(TestWorkflow.PROCESS, TestWorkflow.DONE);
-      permit(TestWorkflow.PROCESS, TestWorkflow.DONE, TestWorkflow.FAILED);
-      permit(TestWorkflow.PROCESS, TestWorkflow.ERROR, TestWorkflow.ERROR);
+      permit(TestState.PROCESS, TestState.DONE);
+      permit(TestState.PROCESS, TestState.DONE, TestWorkflow.FAILED);
+      permit(TestState.PROCESS, TestState.ERROR, TestState.ERROR);
     }
 
     public void permitSameFailure() {
-      permit(TestWorkflow.PROCESS, TestWorkflow.DONE);
-      permit(TestWorkflow.PROCESS, TestWorkflow.DONE, TestWorkflow.FAILED);
-      permit(TestWorkflow.PROCESS, TestWorkflow.ERROR, TestWorkflow.FAILED);
+      permit(TestState.PROCESS, TestState.DONE);
+      permit(TestState.PROCESS, TestState.DONE, TestWorkflow.FAILED);
+      permit(TestState.PROCESS, TestState.ERROR, TestWorkflow.FAILED);
     }
   }
 
   static class TestWorkflow3 extends TestWorkflow {
     public NextAction done(@SuppressWarnings("unused") StateExecution execution) {
-      return stopInState(TestWorkflow.DONE, "Done");
+      return stopInState(TestState.DONE, "Done");
     }
   }
 
   static class TestWorkflow4 extends AbstractWorkflowDefinition {
 
     protected TestWorkflow4() {
-      super("test", TestWorkflow.BEGIN, TestWorkflow.ERROR);
+      super("test", TestState.BEGIN, TestState.ERROR);
     }
 
     public void begin(@SuppressWarnings("unused") StateExecution execution) {
@@ -79,7 +79,7 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void isAllowedNextActionReturnsFalseForIllegalStateChange() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("begin").build();
-    NextAction nextAction = moveToState(TestWorkflow.PROCESS, "reason");
+    NextAction nextAction = moveToState(TestState.PROCESS, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(false));
   }
 
@@ -93,7 +93,7 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void isAllowedNextActionReturnsTrueForMovingToErrorState() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("process").build();
-    NextAction nextAction = moveToState(TestWorkflow.ERROR, "reason");
+    NextAction nextAction = moveToState(TestState.ERROR, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(true));
   }
 
@@ -107,7 +107,7 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void isAllowedNextActionReturnsTrueForPermittedStateChange() {
     WorkflowInstance instance = new WorkflowInstance.Builder().setState("begin").build();
-    NextAction nextAction = moveToState(TestWorkflow.DONE, "reason");
+    NextAction nextAction = moveToState(TestState.DONE, "reason");
     assertThat(workflow.isAllowedNextAction(instance, nextAction), is(true));
   }
 
@@ -132,7 +132,7 @@ public class AbstractWorkflowDefinitionTest {
     wf.setDescription("description");
     assertThat(wf.getName(), is("name"));
     assertThat(wf.getDescription(), is("description"));
-    assertThat(wf.getInitialState(), is(TestWorkflow.BEGIN));
+    assertThat(wf.getInitialState(), is(TestState.BEGIN));
   }
 
   @Test
