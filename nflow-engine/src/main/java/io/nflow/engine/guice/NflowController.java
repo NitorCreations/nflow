@@ -12,34 +12,31 @@ import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 
 @Singleton
 public class NflowController {
-    private final WorkflowLifecycle lifecycle;
-    private final WorkflowDefinitionService workflowDefinitionService;
-    private final MaintenanceWorkflowStarter maintenanceWorkflowStarter;
-    private final Set<AbstractWorkflowDefinition> workflows;
+  private final WorkflowLifecycle lifecycle;
+  private final WorkflowDefinitionService workflowDefinitionService;
+  private final MaintenanceWorkflowStarter maintenanceWorkflowStarter;
+  private final Set<AbstractWorkflowDefinition> workflows;
 
-    @Inject
-    public NflowController(WorkflowLifecycle lifecycle,
-                           WorkflowDefinitionService workflowDefinitionService,
-                           MaintenanceWorkflowStarter maintenanceWorkflowStarter,
-        Set<AbstractWorkflowDefinition> workflowDefinitions
-    ) {
-        this.lifecycle = lifecycle;
-        this.workflowDefinitionService = workflowDefinitionService;
-        this.maintenanceWorkflowStarter = maintenanceWorkflowStarter;
-        this.workflows = workflowDefinitions;
-    }
+  @Inject
+  public NflowController(WorkflowLifecycle lifecycle, WorkflowDefinitionService workflowDefinitionService,
+      MaintenanceWorkflowStarter maintenanceWorkflowStarter, Set<AbstractWorkflowDefinition> workflowDefinitions) {
+    this.lifecycle = lifecycle;
+    this.workflowDefinitionService = workflowDefinitionService;
+    this.maintenanceWorkflowStarter = maintenanceWorkflowStarter;
+    this.workflows = workflowDefinitions;
+  }
 
-    public void start() {
-        try {
-            workflows.forEach(workflowDefinitionService::addWorkflowDefinition);
-            maintenanceWorkflowStarter.start();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to register workflows", e);
-        }
-        lifecycle.start();
+  public void start() {
+    try {
+      workflows.forEach(workflowDefinitionService::addWorkflowDefinition);
+      maintenanceWorkflowStarter.start();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to register workflows", e);
     }
+    lifecycle.start();
+  }
 
-    public void stop() {
-        lifecycle.stop();
-    }
+  public void stop() {
+    lifecycle.stop();
+  }
 }
