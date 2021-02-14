@@ -13,7 +13,8 @@
 
 **Details**
 - `nflow-engine`
-  - `WorkflowInstanceService.updateWorkflowInstance` can now be used to update business key of the workflow instance.
+  - Use `WorkflowInstanceService.updateWorkflowInstance` to update the business key of the workflow instance.
+  - Use `StateExecution.setBusinessKey` to update the business key of the workflow instance after processing a state.
   - Use `QueryWorkflowInstances.setStateVariable` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
   - Control retrying and logging of an exception thrown by a state method via `WorkflowSettings.Builder.setExceptionAnalyzer(...)` / `ExceptionHandling`:
     - Control whether the exception is considered retryable or not (replaces deprecated `WorkflowState.isRetryAllowed(...)`).

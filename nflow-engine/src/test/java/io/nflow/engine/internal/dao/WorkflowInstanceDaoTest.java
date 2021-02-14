@@ -172,7 +172,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     DateTime started = now();
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
         dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).setStatus(inProgress).setState("updateState")
-            .setStateText("update text").setStartedIfNotSet(started).build();
+            .setStateText("update text").setStartedIfNotSet(started).setBusinessKey("newBusinessKey").build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id, emptySet(), null);
     assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
@@ -192,6 +192,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getInt("executor_id") != 0, equalTo(i2.status == executing));
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
         assertThat(rs.getTimestamp("started").getTime(), is(equalTo(started.getMillis())));
+        assertThat(rs.getString("business_key"), is(equalTo(i2.businessKey)));
       }
     });
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().setBusinessKey("newKey").build();
@@ -546,11 +547,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertEquals("with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, "
         + "next_activation = (case when ?::timestamptz is null then null when external_next_activation is null then "
         + "?::timestamptz else least(?::timestamptz, external_next_activation) end), external_next_activation = null, "
-        + "executor_id = ?, retries = ?, started = (case when started is null then ? else started end) where id = ? "
-        + "and executor_id = 42 returning id), "
+        + "executor_id = ?, retries = ?, business_key = ?, started = (case when started is null then ? else started end) "
+        + "where id = ? and executor_id = 42 returning id), "
         + "act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, "
         + "execution_start, execution_end) select wf.id, ?, ?::action_type, ?, ?, ?, ?, ? from wf returning id), "
-        + "ins17 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+        + "ins18 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
         + "select wf.id,act.id,?,? from wf,act) select act.id from act", sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
@@ -563,6 +564,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) 42));
     assertThat(args.getAllValues().get(i++), is((Object) i2.retries));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.businessKey));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionStart.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) i2.id));
     assertThat(args.getAllValues().get(i++), is((Object) 42));

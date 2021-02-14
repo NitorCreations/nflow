@@ -350,6 +350,17 @@ public class StateExecutionImplTest {
     assertThat(execution.getNextStateReason(), is("reason when handling error state, processing stopped"));
   }
 
+  @Test
+  public void setBusinessKeyDoesNotChangeOriginalBusinessKey() {
+    String originalKey = execution.getBusinessKey();
+    String newKey = "newKey";
+
+    execution.setBusinessKey(newKey);
+
+    assertThat(execution.getBusinessKey(), is(equalTo(originalKey)));
+    assertThat(execution.getNewBusinessKey(), is(equalTo(newKey)));
+  }
+
   private void handleFailure(TestDefinition.TestState initialState, TestDefinition.TestState currentState) {
     TestDefinition def = new TestDefinition("x", initialState);
     instance = new WorkflowInstance.Builder().setState(currentState.name()).build();

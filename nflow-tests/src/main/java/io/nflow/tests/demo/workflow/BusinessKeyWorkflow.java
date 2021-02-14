@@ -16,9 +16,9 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @Component
-public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
+public class BusinessKeyWorkflow extends WorkflowDefinition<BusinessKeyWorkflow.State> {
 
-  public static final String DEMO_WORKFLOW_TYPE = "demo";
+  public static final String BUSINESS_KEY_WORKFLOW_TYPE = "businessKeyWorkflow";
 
   public static enum State implements WorkflowState {
     begin(start), process(normal), done(end), error(manual);
@@ -35,9 +35,9 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     }
   }
 
-  public DemoWorkflow() {
-    super(DEMO_WORKFLOW_TYPE, State.begin, State.error);
-    setDescription("Simple demo workflow: start -> process -> end");
+  public BusinessKeyWorkflow() {
+    super(BUSINESS_KEY_WORKFLOW_TYPE, State.begin, State.error);
+    setDescription("Workflow that updates business key");
     permit(State.begin, State.process);
     permit(State.process, State.done);
   }
@@ -46,7 +46,8 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
     return moveToState(State.process, "Go to process state");
   }
 
-  public NextAction process(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction process(StateExecution execution) {
+    execution.setBusinessKey("newBusinessKey");
     return stopInState(State.done, "Go to done state");
   }
 }
