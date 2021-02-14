@@ -5,12 +5,16 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 
+import java.util.function.BiFunction;
+
 import org.springframework.stereotype.Component;
 
+import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.NonRetryable;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 import io.nflow.tests.demo.workflow.NoRetryWorkflow.State;
@@ -21,23 +25,17 @@ public class NoRetryWorkflow extends WorkflowDefinition<State> {
   public static final String TYPE = "noRetry";
 
   public static enum State implements WorkflowState {
-    begin(start, "Retry always disabled for this state", false), //
+    begin(start, "Retry always disabled for this state"), //
     process(normal, "Retry disabled for exceptions annotated with @NonRetryable"), //
     done(end, "End state"), //
     error(manual, "Error state");
 
     private WorkflowStateType type;
     private String description;
-    private boolean isRetryAllowed;
 
     private State(WorkflowStateType type, String description) {
-      this(type, description, true);
-    }
-
-    private State(WorkflowStateType type, String description, boolean isRetryAllowed) {
       this.type = type;
       this.description = description;
-      this.isRetryAllowed = isRetryAllowed;
     }
 
     @Override
@@ -49,18 +47,18 @@ public class NoRetryWorkflow extends WorkflowDefinition<State> {
     public String getDescription() {
       return description;
     }
-
-    @Override
-    public boolean isRetryAllowed(Throwable thrown) {
-      return isRetryAllowed && WorkflowState.super.isRetryAllowed(thrown);
-    }
   }
 
   public NoRetryWorkflow() {
-    super(TYPE, State.begin, State.error);
+    super(TYPE, State.begin, State.error, new WorkflowSettings.Builder().setExceptionAnalyzer(exceptionAnalyzer()).build());
     setDescription("Workflow demonstrating how to avoid automatic retry");
     permit(State.begin, State.process);
     permit(State.process, State.done);
+  }
+
+  private static BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer() {
+    return (s, t) -> new StateProcessExceptionHandling.Builder()
+        .setRetryable(s != State.begin && !t.getClass().isAnnotationPresent(NonRetryable.class)).build();
   }
 
   public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {

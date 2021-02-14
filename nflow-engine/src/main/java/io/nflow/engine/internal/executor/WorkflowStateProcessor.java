@@ -36,8 +36,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.exception.StateProcessExceptionHandling;
+import io.nflow.engine.exception.StateSaveExceptionAnalyzer;
+import io.nflow.engine.exception.StateSaveExceptionHandling;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
+import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
@@ -80,17 +84,20 @@ class WorkflowStateProcessor implements Runnable {
   private final int unknownWorkflowTypeRetryDelay;
   private final int unknownWorkflowStateRetryDelay;
   private final int stateProcessingRetryDelay;
-  private final int stateSaveRetryDelay;
   private final int stateVariableValueTooLongRetryDelay;
   private final Map<Long, WorkflowStateProcessor> processingInstances;
+  private final NflowLogger nflowLogger;
+  private final StateSaveExceptionAnalyzer stateSaveExceptionAnalyzer;
   private DateTime startTime;
   private Thread thread;
   private ListenerContext listenerContext;
 
-  WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper, WorkflowDefinitionService workflowDefinitions,
-      WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
+  WorkflowStateProcessor(long instanceId, Supplier<Boolean> shutdownRequested, ObjectStringMapper objectMapper,
+      WorkflowDefinitionService workflowDefinitions, WorkflowInstanceService workflowInstances,
+      WorkflowInstanceDao workflowInstanceDao, MaintenanceDao maintenanceDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, Environment env,
-      Map<Long, WorkflowStateProcessor> processingInstances, WorkflowExecutorListener... executorListeners) {
+      Map<Long, WorkflowStateProcessor> processingInstances, NflowLogger nflowLogger,
+      StateSaveExceptionAnalyzer stateSaveExceptionAnalyzer, WorkflowExecutorListener... executorListeners) {
     this.instanceId = instanceId;
     this.shutdownRequested = shutdownRequested;
     this.objectMapper = objectMapper;
@@ -99,13 +106,14 @@ class WorkflowStateProcessor implements Runnable {
     this.workflowInstanceDao = workflowInstanceDao;
     this.maintenanceDao = maintenanceDao;
     this.processingInstances = processingInstances;
+    this.nflowLogger = nflowLogger;
+    this.stateSaveExceptionAnalyzer = stateSaveExceptionAnalyzer;
     this.executorListeners = asList(executorListeners);
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
     illegalStateChangeAction = env.getRequiredProperty("nflow.illegal.state.change.action");
     unknownWorkflowTypeRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.type.retry.delay.minutes", Integer.class);
     unknownWorkflowStateRetryDelay = env.getRequiredProperty("nflow.unknown.workflow.state.retry.delay.minutes", Integer.class);
     stateProcessingRetryDelay = env.getRequiredProperty("nflow.executor.stateProcessingRetryDelay.seconds", Integer.class);
-    stateSaveRetryDelay = env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Integer.class);
     stateVariableValueTooLongRetryDelay = env.getRequiredProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes",
         Integer.class);
   }
@@ -125,7 +133,8 @@ class WorkflowStateProcessor implements Runnable {
           logger.error("Failed to process workflow instance and shutdown requested", ex);
           break;
         }
-        logger.error("Failed to process workflow instance {}, retrying after {} seconds", instanceId, stateProcessingRetryDelay, ex);
+        logger.error("Failed to process workflow instance {}, retrying after {} seconds", instanceId, stateProcessingRetryDelay,
+            ex);
         sleepIgnoreInterrupted(stateProcessingRetryDelay);
       }
     }
@@ -164,19 +173,20 @@ class WorkflowStateProcessor implements Runnable {
       } catch (StateVariableValueTooLongException e) {
         instance = rescheduleStateVariableValueTooLong(e, instance);
         saveInstanceState = false;
-      } catch (Throwable t) {
-        if (t instanceof UndeclaredThrowableException) {
-          t = t.getCause();
+      } catch (Throwable thrown) {
+        if (thrown instanceof UndeclaredThrowableException) {
+          thrown = thrown.getCause();
         }
-        execution.setFailed(t);
-        if (state.isRetryAllowed(t)) {
-          logger.error("Handler threw a retryable exception, trying again later.", t);
+        execution.setFailed(thrown);
+        StateProcessExceptionHandling exceptionHandling = settings.analyzeExeption(state, thrown);
+        if (exceptionHandling.isRetryable) {
+          logRetryableException(exceptionHandling, state.name(), thrown);
           execution.setRetry(true);
           execution.setNextState(state);
-          execution.setNextStateReason(getStackTrace(t));
+          execution.setNextStateReason(getStackTrace(thrown));
           execution.handleRetryAfter(definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
         } else {
-          logger.error("Handler threw an exception and retrying is not allowed, going to failure state.", t);
+          logger.error("Handler threw an exception and retrying is not allowed, going to failure state.", thrown);
           execution.handleFailure(definition, "Handler threw an exception and retrying is not allowed");
         }
       } finally {
@@ -193,6 +203,17 @@ class WorkflowStateProcessor implements Runnable {
       }
     }
     logger.debug("Finished.");
+  }
+
+  private void logRetryableException(StateProcessExceptionHandling exceptionHandling, String state, Throwable thrown) {
+    if (exceptionHandling.logStackTrace) {
+      nflowLogger.log(logger, exceptionHandling.logLevel, "Handling state '{}' threw a retryable exception, trying again later.",
+          new Object[] { state, thrown });
+    } else {
+      nflowLogger.log(logger, exceptionHandling.logLevel,
+          "Handling state '{}' threw a retryable exception, trying again later. Message: {}",
+          new Object[] { state, thrown.getMessage() });
+    }
   }
 
   void logIfLagging(WorkflowInstance instance) {
@@ -270,19 +291,28 @@ class WorkflowStateProcessor implements Runnable {
         .setStateText(getStateText(instance, execution)) //
         .setState(execution.getNextState()) //
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
+    int saveRetryCount = 0;
     while (true) {
       try {
         return persistWorkflowInstanceState(execution, instance.stateVariables, actionBuilder, instanceBuilder);
       } catch (Exception ex) {
         if (shutdownRequested.get()) {
-          logger.error("Failed to save workflow instance {} new state, not retrying due to shutdown request. The state will be rerun on recovery.",
-                  instance.id, ex);
+          logger.error(
+              "Failed to save workflow instance {} new state, not retrying due to shutdown request. The state will be rerun on recovery.",
+              instance.id, ex);
           // return the original instance since persisting failed
           return instance;
         }
-        logger.error("Failed to save workflow instance {} new state, retrying after {} seconds", instance.id, stateSaveRetryDelay,
-            ex);
-        sleepIgnoreInterrupted(stateSaveRetryDelay);
+        StateSaveExceptionHandling handling = stateSaveExceptionAnalyzer.analyzeSafely(ex, saveRetryCount++);
+        if (handling.logStackTrace) {
+          nflowLogger.log(logger, handling.logLevel, "Failed to save workflow instance {} new state, retrying after {} seconds.",
+              new Object[] { instance.id, handling.retryDelay, ex });
+        } else {
+          nflowLogger.log(logger, handling.logLevel,
+              "Failed to save workflow instance {} new state, retrying after {} seconds. Error: {}",
+              new Object[] { instance.id, handling.retryDelay, ex.getMessage() });
+        }
+        sleepIgnoreInterrupted(handling.retryDelay.getStandardSeconds());
       }
     }
   }
@@ -374,7 +404,7 @@ class WorkflowStateProcessor implements Runnable {
     }
   }
 
-  private void sleepIgnoreInterrupted(int seconds) {
+  private void sleepIgnoreInterrupted(long seconds) {
     try {
       SECONDS.sleep(seconds);
     } catch (@SuppressWarnings("unused") InterruptedException ok) {
