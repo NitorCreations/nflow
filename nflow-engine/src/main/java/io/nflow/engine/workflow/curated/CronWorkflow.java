@@ -7,6 +7,7 @@ import static io.nflow.engine.workflow.curated.CronWorkflow.State.schedule;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.waitForWorkToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowSettings.Builder.oncePerDay;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
@@ -158,17 +159,6 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   /**
-   * When executed, moves to schedule state.
-   *
-   * @param execution
-   *          The workflow execution context.
-   * @return Action to go to schedule state.
-   */
-  public NextAction waitForWorkToFinish(StateExecution execution) {
-    return moveToState(schedule, "Work finished, rescheduling");
-  }
-
-  /**
    * Logs an error and continues. Override for custom error handling.
    *
    * @param execution
@@ -178,5 +168,31 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   protected boolean handleFailureImpl(StateExecution execution) {
     logger.error("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
     return true;
+  }
+
+  /**
+   * Calls {@link #waitForWorkToFinishImpl} to check if this instance should wait for work to finish or move to schedule state.
+   *
+   * @param execution
+   *          The workflow execution context.
+   * @return Action to retry later or move to schedule state.
+   */
+  public NextAction waitForWorkToFinish(StateExecution execution) {
+    DateTime waitUntil = waitForWorkToFinishImpl(execution);
+    if (waitUntil == null) {
+      return moveToState(schedule, "Work finished, rescheduling");
+    }
+    return retryAfter(waitUntil, "Waiting for work to finish");
+  }
+
+  /**
+   * Returns null to move to schedule state immediately. Override to return retry time.
+   *
+   * @param execution
+   *          The workflow execution context.
+   * @return Time when check should be retried. Null to go to schedule state immediately.
+   */
+  protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
+    return null;
   }
 }
