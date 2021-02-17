@@ -106,7 +106,8 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    *   if (waitForChildWorkflowsToFinish) {
    *     return NextAction.moveToState(schedule, "Work done");
    *   } else {
-   *     return NextAction.moveToStateAfter(waitForWorkToFinish, DateTime.now().plusHours(hoursToWait), "Work done");
+   *     return NextAction.moveToStateAfter(waitForWorkToFinish, DateTime.now().plusHours(hoursToWait),
+   *         "Waiting for work to finish");
    *   }
    * }
    * </pre>
