@@ -63,8 +63,10 @@ public class CronWorkflowTest extends AbstractNflowTest {
   public void verifyItHasRunPeriodically() {
     List<Action> actions = getWorkflowInstance(resp.id).actions;
     long scheduleActions = actions.stream().filter(a -> CronWorkflow.State.schedule.name().equals(a.state)).count();
+    long waitActions = actions.stream().filter(a -> CronWorkflow.State.waitForWorkToFinish.name().equals(a.state)).count();
     long doWorkActions = actions.stream().filter(a -> CronWorkflow.State.doWork.name().equals(a.state)).count();
     assertThat(scheduleActions, is(greaterThanOrEqualTo(1L)));
+    assertThat(waitActions, is(greaterThanOrEqualTo(1L)));
     assertThat(doWorkActions, is(greaterThanOrEqualTo(1L)));
   }
 
