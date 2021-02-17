@@ -1,6 +1,5 @@
 package io.nflow.engine.workflow.curated;
 
-import static io.nflow.engine.workflow.curated.CronWorkflow.State.schedule;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 
 import javax.inject.Inject;
@@ -66,7 +65,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
     if (sb.length() == 0) {
       sb.append("No actions");
     }
-    return moveToState(schedule, sb.toString());
+    return moveToState(SCHEDULE, sb.toString());
   }
 
   private void add(StringBuilder sb, String type, int count) {

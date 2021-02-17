@@ -24,7 +24,6 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowExecutorService;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
  * NflowEngine starts up nflow-engine with given database and workflow definitions.
@@ -53,8 +52,7 @@ public class NflowEngine implements AutoCloseable {
    * @param workflowDefinitions
    *          The registered workflow definitions.
    */
-  public NflowEngine(DataSource dataSource, SQLVariants sqlVariants,
-      Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions) {
+  public NflowEngine(DataSource dataSource, SQLVariants sqlVariants, Collection<AbstractWorkflowDefinition> workflowDefinitions) {
     ctx = new AnnotationConfigApplicationContext();
 
     ctx.registerBean("nflowDatasource", DataSource.class, () -> dataSource);

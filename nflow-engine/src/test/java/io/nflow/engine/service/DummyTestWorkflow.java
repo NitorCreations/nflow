@@ -1,62 +1,40 @@
 package io.nflow.engine.service;
 
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
+import static io.nflow.engine.workflow.definition.TestState.BEGIN;
+import static io.nflow.engine.workflow.definition.TestState.DONE;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.DummyTestState> {
+public class DummyTestWorkflow extends AbstractWorkflowDefinition {
 
-  public static enum DummyTestState implements io.nflow.engine.workflow.definition.WorkflowState {
-    start(WorkflowStateType.start), end(WorkflowStateType.end), alternativeStart(WorkflowStateType.start), CreateLoan(WorkflowStateType.start);
-
-    private WorkflowStateType stateType;
-
-    DummyTestState(WorkflowStateType type) {
-      stateType = type;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return stateType;
-    }
-
-    @Override
-    public String getDescription() {
-      return null;
-    }
-
-  }
+  public static final String DUMMY_TYPE = "dummy";
 
   public DummyTestWorkflow() {
     this(new WorkflowSettings.Builder().build());
   }
 
   public DummyTestWorkflow(WorkflowSettings settings) {
-    super("dummy", DummyTestState.start, DummyTestState.end, settings);
-    permit(DummyTestState.start, DummyTestState.end, DummyTestState.end);
-    permit(DummyTestState.alternativeStart, DummyTestState.end);
+    super(DUMMY_TYPE, BEGIN, DONE, settings);
+    permit(BEGIN, DONE, DONE);
   }
 
-  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
-    return stopInState(DummyTestState.end, "Finished");
-  }
-
-  public void end(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
+    return stopInState(DONE, "Finished");
   }
 
   public NextAction alternativeStart(@SuppressWarnings("unused") StateExecution execution) {
-    return stopInState(DummyTestState.end, "Finished");
+    return stopInState(DONE, "Finished");
   }
 
   public NextAction CreateLoan(@SuppressWarnings("unused") StateExecution execution) {
-    return stopInState(DummyTestState.end, "Finished");
+    return stopInState(DONE, "Finished");
   }
 
   @Override
@@ -66,5 +44,4 @@ public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.Dumm
     signals.put(1, "number one");
     return signals;
   }
-
 }

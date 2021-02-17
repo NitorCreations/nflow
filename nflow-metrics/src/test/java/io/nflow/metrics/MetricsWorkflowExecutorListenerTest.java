@@ -28,8 +28,8 @@ import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.listener.WorkflowExecutorListener;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
 import io.nflow.engine.service.HealthCheckService;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 
@@ -38,15 +38,12 @@ public class MetricsWorkflowExecutorListenerTest {
   AnnotationConfigApplicationContext ctx;
   MetricRegistry metricRegistry;
   MetricsWorkflowExecutorListener listener;
-  WorkflowDefinition<?> definition = mock(WorkflowDefinition.class);
+  AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
   WorkflowInstance instance = new WorkflowInstance.Builder().setRetries(2).setState("my-state").setNextActivation(null).build();
   WorkflowInstance instance2 = new WorkflowInstance.Builder().setRetries(2).setState("my-state").build();
   StateExecution stateExecution = mock(StateExecution.class);
-  ListenerContext context = new WorkflowExecutorListener.ListenerContext(
-      definition, instance, stateExecution);
-
-  ListenerContext context2 = new WorkflowExecutorListener.ListenerContext(
-      definition, instance2, stateExecution);
+  ListenerContext context = new WorkflowExecutorListener.ListenerContext(definition, instance, stateExecution);
+  ListenerContext context2 = new WorkflowExecutorListener.ListenerContext(definition, instance2, stateExecution);
 
   @BeforeEach
   public void setup() {

@@ -1,5 +1,6 @@
 package io.nflow.tests;
 
+import static io.nflow.tests.demo.workflow.TestState.POLL;
 import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
@@ -49,9 +50,9 @@ public class WakeupTest extends AbstractNflowTest {
   @Test
   @Order(2)
   public void waitUntilInWaitingState() throws InterruptedException {
-    getWorkflowInstance(createdWorkflow.id, "waiting");
+    getWorkflowInstance(createdWorkflow.id, POLL.name());
     ListWorkflowInstanceResponse instance = getWorkflowInstance(createdWorkflow.id);
-    assertEquals("waiting", instance.state);
+    assertEquals(POLL.name(), instance.state);
     assertEquals(1, getWorkflowInstance(createdWorkflow.id).actions.size());
   }
 
@@ -65,7 +66,7 @@ public class WakeupTest extends AbstractNflowTest {
   @Test
   @Order(4)
   public void wakeupWorkflowWithRightExpectedStateReturnsTrue() throws InterruptedException {
-    WakeupResponse response = wakeup(createdWorkflow.id, asList("waiting", "xxx"));
+    WakeupResponse response = wakeup(createdWorkflow.id, asList(POLL.name(), "xxx"));
     assertEquals(true, response.wakeupSuccess);
     waitUntilActionCount(createdWorkflow.id, 2, 10 * 1000);
   }
@@ -73,7 +74,7 @@ public class WakeupTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void wakeupAgain() throws InterruptedException {
-    WakeupResponse response = wakeup(createdWorkflow.id, asList("waiting"));
+    WakeupResponse response = wakeup(createdWorkflow.id, asList(POLL.name()));
     assertEquals(true, response.wakeupSuccess);
     waitUntilActionCount(createdWorkflow.id, 3, 10 * 1000);
   }

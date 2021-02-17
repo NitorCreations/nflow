@@ -1,5 +1,8 @@
 package io.nflow.tests;
 
+import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
+import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
+import static io.nflow.tests.demo.workflow.TestState.DONE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -146,8 +149,8 @@ public class MaintenanceTest extends AbstractNflowTest {
 
   private long createWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.type = FibonacciWorkflow.WORKFLOW_TYPE;
-    req.stateVariables.put("requestData", nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3)));
+    req.type = FIBONACCI_TYPE;
+    req.stateVariables.put(VAR_REQUEST_DATA, nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(3)));
     CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     return resp.id;
@@ -171,7 +174,7 @@ public class MaintenanceTest extends AbstractNflowTest {
     assertTimeoutPreemptively(ofSeconds(15), () -> {
       for (long workflowId : workflowIds) {
         try {
-          getWorkflowInstance(workflowId, "done");
+          getWorkflowInstance(workflowId, DONE.name());
         } catch (@SuppressWarnings("unused") InterruptedException e) {
           // ignore
         }

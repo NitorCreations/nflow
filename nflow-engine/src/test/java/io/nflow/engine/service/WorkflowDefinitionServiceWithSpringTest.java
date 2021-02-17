@@ -30,9 +30,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.config.NFlow;
-import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.HealthCheckDao;
+import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.StatisticsDao;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
@@ -41,7 +41,6 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @ExtendWith(SpringExtension.class)
@@ -156,7 +155,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
 
   @Test
   public void springWorkflowDefinitionsAreDetected() {
-    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = service.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
     assertThat(definitions.get(0).getType(), is(new SpringDummyTestWorkflow().getType()));
   }

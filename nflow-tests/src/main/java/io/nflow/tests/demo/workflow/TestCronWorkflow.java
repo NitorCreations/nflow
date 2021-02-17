@@ -1,6 +1,5 @@
 package io.nflow.tests.demo.workflow;
 
-import static io.nflow.engine.workflow.curated.CronWorkflow.State.schedule;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static org.joda.time.Period.hours;
 
@@ -21,7 +20,7 @@ public class TestCronWorkflow extends CronWorkflow {
   }
 
   public NextAction doWork(@SuppressWarnings("unused") StateExecution execution) {
-    return moveToState(schedule, "ok");
+    return moveToState(SCHEDULE, "ok");
   }
 
   @Override

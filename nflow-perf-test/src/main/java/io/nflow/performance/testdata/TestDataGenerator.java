@@ -57,15 +57,15 @@ public class TestDataGenerator {
 
   public List<WorkflowInstance> generateWorkflowInstances(int count) {
     List<WorkflowInstance> result = new ArrayList<>();
-    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition> definitions = workflowDefinitions.getWorkflowDefinitions();
     for (int i = 0; i < count; i++) {
       result.add(generateWorkflowInstance(definitions));
     }
     return result;
   }
 
-  private WorkflowInstance generateWorkflowInstance(List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions) {
-    AbstractWorkflowDefinition<? extends WorkflowState> definition = selectRandom(definitions);
+  private WorkflowInstance generateWorkflowInstance(List<AbstractWorkflowDefinition> definitions) {
+    AbstractWorkflowDefinition definition = selectRandom(definitions);
     DateTime nextActivation = now().minusYears(5).plusSeconds(random.nextInt(172800000)); // 2000 days
     WorkflowState state = selectRandomState(definition, nextActivation);
     WorkflowInstanceStatus status = selectRandomStatus(state, nextActivation);
@@ -94,7 +94,6 @@ public class TestDataGenerator {
     return alternatives.get((int) Math.floor(alternatives.size() * random.nextDouble()));
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   private WorkflowState selectRandomState(AbstractWorkflowDefinition definition, DateTime instanceNextActivation) {
     if (instanceNextActivation.isAfterNow()) {
       return selectRandomState(definition.getStates(), singletonList(start));
@@ -119,8 +118,7 @@ public class TestDataGenerator {
   /**
    * Generates actions by backtracking from the randomized current state to a start state.
    */
-  private List<WorkflowInstanceAction> generateWorkflowInstanceActions(
-      AbstractWorkflowDefinition<? extends WorkflowState> definition,
+  private List<WorkflowInstanceAction> generateWorkflowInstanceActions(AbstractWorkflowDefinition definition,
       WorkflowState currentState, DateTime nextActivation) {
     List<WorkflowInstanceAction> result = new ArrayList<>();
     Set<WorkflowState> cyclePrevention = new HashSet<>();

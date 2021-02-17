@@ -1,6 +1,7 @@
 package io.nflow.tests;
 
 import static io.nflow.tests.demo.workflow.SimpleWorkflow.SIMPLE_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.TestState.DONE;
 import static java.util.UUID.randomUUID;
 import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +16,6 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
-import io.nflow.tests.demo.workflow.SimpleWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -52,7 +52,7 @@ public class IdempotencyTest extends AbstractNflowTest {
   @Test
   @Order(4)
   public void firstWorkflowIsArchived() {
-    waitUntilWorkflowIsFinished(firstWorkflowId, SimpleWorkflow.State.done.name());
+    waitUntilWorkflowIsFinished(firstWorkflowId, DONE.name());
     int archived = archiveAllFinishedWorkflows().archivedWorkflows;
     assertEquals(1, archived);
   }
@@ -74,7 +74,7 @@ public class IdempotencyTest extends AbstractNflowTest {
   @Test
   @Order(7)
   public void secondWorkflowIsArchived() {
-    waitUntilWorkflowIsFinished(secondWorkflowId, SimpleWorkflow.State.done.name());
+    waitUntilWorkflowIsFinished(secondWorkflowId, DONE.name());
     int archived = archiveAllFinishedWorkflows().archivedWorkflows;
     assertEquals(1, archived);
   }

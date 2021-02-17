@@ -40,7 +40,7 @@ public interface WorkflowExecutorListener {
     /**
      * The definition of the workflow.
      */
-    public final AbstractWorkflowDefinition<?> definition;
+    public final AbstractWorkflowDefinition definition;
 
     /**
      * The name of the state of the workflow instance before processing.
@@ -70,7 +70,7 @@ public interface WorkflowExecutorListener {
      */
     public final Map<Object, Object> data = new LinkedHashMap<>();
 
-    public ListenerContext(AbstractWorkflowDefinition<?> definition, WorkflowInstance instance, StateExecution stateExecution) {
+    public ListenerContext(AbstractWorkflowDefinition definition, WorkflowInstance instance, StateExecution stateExecution) {
       this.definition = definition;
       this.instance = instance;
       this.stateExecution = stateExecution;

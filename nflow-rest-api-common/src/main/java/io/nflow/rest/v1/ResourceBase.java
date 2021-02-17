@@ -35,7 +35,6 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -72,11 +71,11 @@ public abstract class ResourceBase {
   public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(final List<String> types,
       final WorkflowDefinitionService workflowDefinitions, final ListWorkflowDefinitionConverter converter,
       final WorkflowDefinitionDao workflowDefinitionDao) {
-    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition> definitions = workflowDefinitions.getWorkflowDefinitions();
     Set<String> reqTypes = new HashSet<>(types);
     Set<String> foundTypes = new HashSet<>();
     List<ListWorkflowDefinitionResponse> response = new ArrayList<>();
-    for (AbstractWorkflowDefinition<? extends WorkflowState> definition : definitions) {
+    for (AbstractWorkflowDefinition definition : definitions) {
       if (reqTypes.isEmpty() || reqTypes.contains(definition.getType())) {
         foundTypes.add(definition.getType());
         response.add(converter.convert(definition));

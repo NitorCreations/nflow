@@ -1,9 +1,9 @@
 package io.nflow.rest.v1.converter;
 
 import static com.nitorcreations.Matchers.reflectEquals;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
+import static io.nflow.rest.v1.TestState.BEGIN;
+import static io.nflow.rest.v1.TestState.DONE;
+import static io.nflow.rest.v1.TestState.ERROR;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.rest.v1.DummyTestWorkflow;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse.Signal;
@@ -42,9 +43,9 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.description, is(def.getDescription()));
     assertThat(resp.onError, is(def.getErrorState().name()));
     assertThat(resp.states, arrayContainingInAnyOrder(
-        reflectEquals(getResponseState(end, Collections.<String>emptyList(), null)),
-        reflectEquals(getResponseState(error, asList(end.name()), null)),
-        reflectEquals(getResponseState(start, asList(end.name(), error.name()), error.name()))));
+        reflectEquals(getResponseState(DONE, Collections.<String> emptyList(), null)),
+        reflectEquals(getResponseState(ERROR, asList(DONE.name()), null)),
+        reflectEquals(getResponseState(BEGIN, asList(DONE.name(), ERROR.name()), ERROR.name()))));
     assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
         reflectEquals(getSignal(1, "one")),
         reflectEquals(getSignal(2, "two"))));
@@ -56,7 +57,7 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.settings.historyDeletableAfter, is(def.getSettings().historyDeletableAfter));
   }
 
-  private State getResponseState(DummyTestWorkflow.State workflowState, List<String> nextStateNames, String errorStateName) {
+  private State getResponseState(WorkflowState workflowState, List<String> nextStateNames, String errorStateName) {
     State state = new State(workflowState.name(), workflowState.getType().name(), workflowState.getDescription());
     state.transitions.addAll(nextStateNames);
     state.onFailure = errorStateName;

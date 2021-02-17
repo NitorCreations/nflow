@@ -12,12 +12,11 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.DummyTestWorkflow;
-import io.nflow.engine.service.DummyTestWorkflow.DummyTestState;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import org.junit.jupiter.api.Test;
 
 public class WorkflowDefinitionDaoTest extends BaseDaoTest {
 
@@ -70,7 +69,7 @@ public class WorkflowDefinitionDaoTest extends BaseDaoTest {
     assertThat(convertedOriginal.states.size(), is(original.getStates().size()));
     for (StoredWorkflowDefinition.State convertedState : convertedOriginal.states) {
       boolean foundMatchingState = false;
-      for (DummyTestState originalState : original.getStates()) {
+      for (WorkflowState originalState : original.getStates()) {
         if (originalState.name().equals(convertedState.id)) {
           assertThat(convertedState.description, is(originalState.getDescription()));
           WorkflowState originalFailureTransition = original.getFailureTransitions().get(originalState.name());

@@ -39,7 +39,6 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -64,7 +63,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @BeforeEach
   public void setup() {
-    WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
+    AbstractWorkflowDefinition dummyWorkflow = new DummyTestWorkflow();
     lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowInstanceDao, workflowDefinitions, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
@@ -173,7 +172,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorks() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 
@@ -187,7 +186,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorksWithUnsupportedSignal() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 

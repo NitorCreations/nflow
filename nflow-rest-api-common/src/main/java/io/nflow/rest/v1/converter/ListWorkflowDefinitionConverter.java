@@ -24,7 +24,7 @@ import io.nflow.rest.v1.msg.State;
 public class ListWorkflowDefinitionConverter {
 
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
-  public ListWorkflowDefinitionResponse convert(AbstractWorkflowDefinition<? extends WorkflowState> definition) {
+  public ListWorkflowDefinitionResponse convert(AbstractWorkflowDefinition definition) {
     ListWorkflowDefinitionResponse resp = new ListWorkflowDefinitionResponse();
     resp.type = definition.getType();
     resp.name = definition.getName();
