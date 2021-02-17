@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.context.annotation.ComponentScan;
 
-import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.TestState;
 import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
