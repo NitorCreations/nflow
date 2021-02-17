@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.context.annotation.ComponentScan;
 
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
@@ -59,7 +60,7 @@ public class BusinessKeyUpdateTest extends AbstractNflowTest {
             .get(ListWorkflowInstanceResponse[].class);
         assertThat(instances.length, greaterThanOrEqualTo(1));
         for (ListWorkflowInstanceResponse instance : instances) {
-          if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
+          if (instance.id == resp.id && TestState.DONE.name().equals(instance.state) && instance.nextActivation == null) {
             wf = instance;
             break;
           }

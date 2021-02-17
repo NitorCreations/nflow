@@ -110,12 +110,12 @@ public class WorkflowSettingsTest {
   public void defaultExceptionAnalyzer() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
 
-    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new Throwable());
+    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestState.BEGIN, new Throwable());
     assertThat(exceptionHandling.isRetryable, is(true));
     assertThat(exceptionHandling.logLevel, is(Level.ERROR));
     assertThat(exceptionHandling.logStackTrace, is(true));
 
-    exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new NonRetryableException());
+    exceptionHandling = s.analyzeExeption(TestState.BEGIN, new NonRetryableException());
     assertThat(exceptionHandling.isRetryable, is(false));
     assertThat(exceptionHandling.logLevel, is(Level.ERROR));
     assertThat(exceptionHandling.logStackTrace, is(true));
@@ -127,7 +127,7 @@ public class WorkflowSettingsTest {
         .setExceptionAnalyzer((state, thrown) -> new StateProcessExceptionHandling.Builder()
         .setLogLevel(Level.INFO).setRetryable(true).setLogStackTrace(false).build()).build();
 
-    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new NonRetryableException());
+    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestState.BEGIN, new NonRetryableException());
     assertThat(exceptionHandling.isRetryable, is(true));
     assertThat(exceptionHandling.logLevel, is(Level.INFO));
     assertThat(exceptionHandling.logStackTrace, is(false));
@@ -140,7 +140,7 @@ public class WorkflowSettingsTest {
     };
     WorkflowSettings s = new WorkflowSettings.Builder().setExceptionAnalyzer(failingExceptionAnalyzer).build();
 
-    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestWorkflow.State.begin, new NonRetryableException());
+    StateProcessExceptionHandling exceptionHandling = s.analyzeExeption(TestState.BEGIN, new NonRetryableException());
     assertThat(exceptionHandling.isRetryable, is(false));
     assertThat(exceptionHandling.logLevel, is(Level.ERROR));
     assertThat(exceptionHandling.logStackTrace, is(true));
