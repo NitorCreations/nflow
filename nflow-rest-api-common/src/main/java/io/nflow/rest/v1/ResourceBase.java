@@ -183,15 +183,22 @@ public abstract class ResourceBase {
     return listWorkflowConverter.convert(instance, includes);
   }
 
+  protected int resolveExceptionHttpStatus(Throwable t) {
+    if (t instanceof IllegalArgumentException) {
+      return 400;
+    } else if(t instanceof NflowNotFoundException) {
+      return 404;
+    }
+
+    return 500;
+  }
+
   protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
     try {
       return response.get();
-    } catch (IllegalArgumentException e) {
-      return error.apply(400, new ErrorResponse(e.getMessage()));
-    } catch (NflowNotFoundException e) {
-      return error.apply(404, new ErrorResponse(e.getMessage()));
     } catch (Throwable t) {
-      return error.apply(500, new ErrorResponse(t.getMessage()));
+      int code = resolveExceptionHttpStatus(t);
+      return error.apply(code, new ErrorResponse(t.getMessage()));
     }
   }
 }
