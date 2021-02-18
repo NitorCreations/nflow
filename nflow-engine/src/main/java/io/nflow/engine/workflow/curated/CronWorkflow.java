@@ -13,7 +13,7 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.wait;
-import static org.joda.time.Instant.now;
+import static org.joda.time.DateTime.now;
 import static org.joda.time.Period.days;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -29,6 +29,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
  * Workflow that wakes up periodically to execute a task.
@@ -185,13 +186,19 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   }
 
   /**
-   * Returns null to move to schedule state immediately. Override to return retry time.
+   * Returns null to move to schedule state immediately if there are no incompleted child workflows, or current time plus 1 hour
+   * to check again later. Override for custom logic.
    *
    * @param execution
    *          The workflow execution context.
    * @return Time when check should be retried. Null to go to schedule state immediately.
    */
   protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
+    if (execution.getAllChildWorkflows().stream().anyMatch(child -> child.status != WorkflowInstanceStatus.finished)) {
+      logger.info("Unfinished child workflow found, waiting before scheduling next work.");
+      return now().plusHours(1);
+    }
+    logger.info("No unfinished child workflows found, scheduling next work.");
     return null;
   }
 }
