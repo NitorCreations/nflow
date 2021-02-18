@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -74,7 +75,8 @@ public class MaintenanceService {
     }
     if (configuration.archiveWorkflows != null) {
       builder.setArchivedWorkflows(
-          doAction("Archiving workflows", configuration.archiveWorkflows, MAIN, maintenanceDao::archiveWorkflows));
+          doAction("Archiving workflows", configuration.archiveWorkflows, MAIN,
+                  idList -> maintenanceDao.archiveWorkflows(idList, configuration.archiveWorkflows.archiveItemLimit)));
     }
     if (configuration.deleteWorkflows != null) {
       builder.setDeletedWorkflows(doAction("Deleting workflows", configuration.deleteWorkflows, MAIN,

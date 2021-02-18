@@ -5,6 +5,7 @@ import static java.util.Optional.ofNullable;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.ReadablePeriod;
 import org.springframework.util.Assert;
 
@@ -94,6 +95,18 @@ public class MaintenanceConfiguration {
   public static class ConfigurationItem {
 
     /**
+     * Default archive item limit
+     */
+    @JsonIgnore
+    public static final int ARCHIVE_ITEM_LIMIT_UNLIMITED = -1;
+
+    /**
+     * Default batch size
+     */
+    @JsonIgnore
+    public static final int BATCH_SIZE_NORMAL = 1000;
+
+    /**
      * Items older than (now - period) are processed.
      */
     public final ReadablePeriod olderThanPeriod;
@@ -104,14 +117,23 @@ public class MaintenanceConfiguration {
     public final int batchSize;
 
     /**
+     * Maximum amount of items to be archived per batch. Items exceeding the limit will not be archived, but will be deleted.
+     */
+    public final int archiveItemLimit;
+
+    /**
      * The workflow types to be processed. If empty, process all types.
      */
     public final Set<String> workflowTypes;
 
-    ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod, @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
+    ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod,
+                      @JsonProperty("batchSize") Integer batchSize,
+                      @JsonProperty("workflowTypes") Set<String> workflowTypes,
+                      @JsonProperty("archiveItemLimit") Integer archiveItemLimit) {
       this.olderThanPeriod = olderThanPeriod;
       this.batchSize = batchSize;
       this.workflowTypes = ofNullable(workflowTypes).orElse(emptySet());
+      this.archiveItemLimit = ofNullable(archiveItemLimit).orElse(ARCHIVE_ITEM_LIMIT_UNLIMITED);
     }
 
     /**
@@ -121,8 +143,9 @@ public class MaintenanceConfiguration {
 
       private final MaintenanceConfiguration.Builder parentBuilder;
       private ReadablePeriod olderThanPeriod;
-      private Integer batchSize = 1000;
+      private Integer batchSize = BATCH_SIZE_NORMAL;
       private Set<String> workflowTypes = emptySet();
+      private Integer archiveItemLimit = ARCHIVE_ITEM_LIMIT_UNLIMITED;
 
       Builder(MaintenanceConfiguration.Builder parentBuilder) {
         this.parentBuilder = parentBuilder;
@@ -141,7 +164,7 @@ public class MaintenanceConfiguration {
       }
 
       /**
-       * Set the batch size for the maintenance operation. Default is 1000.
+       * Set the batch size for the maintenance operation. Default is {@value #BATCH_SIZE_NORMAL}.
        *
        * @param batchSize
        *          Number of workflows to operate on in single transaction. Typical value is 100-1000. This parameter mostly
@@ -166,6 +189,19 @@ public class MaintenanceConfiguration {
       }
 
       /**
+       * Set the maximum number of items to archive per batch. Default is {@value #ARCHIVE_ITEM_LIMIT_UNLIMITED}, which means unlimited.
+       *
+       * @param archiveItemLimit
+       *          Maximum number of items, e.g. workflow states, that will be archived per batch. Generally unlimited is
+       *          fine, but e.g. Galera cluster has a permitted maximum number of rows per write set.
+       * @return this
+       */
+      public Builder setArchiveItemLimit(Integer archiveItemLimit) {
+        this.archiveItemLimit = archiveItemLimit;
+        return this;
+      }
+
+      /**
        * Finish ConfigurationItem object and move back to MaintenanceConfiguration.
        *
        * @return The parent MaintenanceConfiguration builder object.
@@ -178,7 +214,8 @@ public class MaintenanceConfiguration {
         Assert.isTrue(olderThanPeriod != null, "olderThanPeriod must not be null");
         Assert.isTrue(batchSize > 0, "batchSize must be greater than 0");
         Assert.isTrue(workflowTypes != null, "workflowTypes must not be null");
-        return new ConfigurationItem(olderThanPeriod, batchSize, workflowTypes);
+        Assert.isTrue(archiveItemLimit != null, "archiveItemLimit must not be null");
+        return new ConfigurationItem(olderThanPeriod, batchSize, workflowTypes, archiveItemLimit);
       }
     }
   }

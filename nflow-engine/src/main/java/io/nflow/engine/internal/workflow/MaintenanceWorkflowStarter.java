@@ -40,17 +40,28 @@ public class MaintenanceWorkflowStarter {
     this.insertOnStartup = env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class);
     this.initialCronSchedule = env.getRequiredProperty("nflow.maintenance.initial.cron");
     MaintenanceConfiguration.Builder builder = new MaintenanceConfiguration.Builder();
-    apply(env, "archive", builder::withArchiveWorkflows);
-    apply(env, "delete", builder::withDeleteWorkflows);
-    apply(env, "deleteArchived", builder::withDeleteArchivedWorkflows);
+
+    Supplier<ConfigurationItem.Builder> archiveWorkflowSupplier = builder::withArchiveWorkflows;
+    applyInitialArchiveLimit(env, archiveWorkflowSupplier);
+    applyInitialOlderThan(env, "archive", archiveWorkflowSupplier);
+
+    applyInitialOlderThan(env, "delete", builder::withDeleteWorkflows);
+    applyInitialOlderThan(env, "deleteArchived", builder::withDeleteArchivedWorkflows);
     this.initialConfiguration = builder.build();
   }
 
-  private void apply(Environment env, String property, Supplier<ConfigurationItem.Builder> builderSupplier) {
+  private void applyInitialOlderThan(Environment env, String property, Supplier<ConfigurationItem.Builder> builderSupplier) {
     ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan")) //
         .map(StringUtils::trimToNull) //
         .map(Period::parse) //
         .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period).done());
+  }
+
+  private void applyInitialArchiveLimit(Environment env, Supplier<ConfigurationItem.Builder> builderSupplier) {
+     ofNullable(env.getProperty("nflow.maintenance.initial.archive.itemLimit")) //
+        .map(StringUtils::trimToNull) //
+        .map(Integer::valueOf) //
+        .ifPresent(limit -> builderSupplier.get().setArchiveItemLimit(limit));
   }
 
   @EventListener(ContextRefreshedEvent.class)

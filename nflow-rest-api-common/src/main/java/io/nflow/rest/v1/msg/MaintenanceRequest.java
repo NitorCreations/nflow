@@ -29,6 +29,7 @@ public class MaintenanceRequest extends ModelObject {
         dataType = "String", example = "PT15D", required = true)
     public ReadablePeriod olderThanPeriod;
 
+    // TODO: defaults here need changing?
     @ApiModelProperty(value = "Number of workflows to process in a single transaction.", example = "1000")
     public int batchSize = 1000;
 

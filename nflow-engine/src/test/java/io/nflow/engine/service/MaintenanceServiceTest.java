@@ -2,6 +2,7 @@ package io.nflow.engine.service;
 
 import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem.ARCHIVE_ITEM_LIMIT_UNLIMITED;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -114,14 +115,14 @@ public class MaintenanceServiceTest {
   public void archivingContinuesAsLongAsOldWorkflowsAreFound() {
     doReturn(oldWorkdlowIds, oldWorkdlowIds, oldWorkdlowIds, emptyList).when(dao).getOldWorkflowIds(MAIN, limit, BATCH_SIZE,
         emptySet());
-    when(dao.archiveWorkflows(oldWorkdlowIds)).thenReturn(oldWorkdlowIds.size());
+    when(dao.archiveWorkflows(oldWorkdlowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED)).thenReturn(oldWorkdlowIds.size());
 
     MaintenanceResults results = service.cleanupWorkflows(archiveConfig);
 
     assertEquals(oldWorkdlowIds.size() * 3, results.archivedWorkflows);
     assertValidArchiveTablesAreChecked();
     verify(dao, times(4)).getOldWorkflowIds(MAIN, limit, BATCH_SIZE, emptySet());
-    verify(dao, times(3)).archiveWorkflows(oldWorkdlowIds);
+    verify(dao, times(3)).archiveWorkflows(oldWorkdlowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED);
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 

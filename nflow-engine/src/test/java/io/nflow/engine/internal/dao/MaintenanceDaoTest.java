@@ -2,6 +2,7 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem.ARCHIVE_ITEM_LIMIT_UNLIMITED;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
@@ -100,7 +101,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     workflowIds.add(storePassiveWorkflow(archiveTime2));
 
     int workflowCountBefore = getActiveWorkflowCount();
-    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     int workflowCountAfter = getActiveWorkflowCount();
 
     assertActiveWorkflowsRemoved(workflowIds);
@@ -137,7 +138,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     List<Long> workflowIds = new ArrayList<>();
     workflowIds.add(storePassiveWorkflow(archiveTime1));
     workflowIds.add(storePassiveWorkflow(archiveTime2));
-    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     assertEquals(0, maintenanceDao.deleteWorkflows(MAIN, workflowIds));
 
     int workflowCountBefore = getArchivedWorkflowCount();
@@ -166,7 +167,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     workflowIds.addAll(asList(archivable1, archivable2));
 
     int actionCountBefore = getActiveActionCount();
-    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     int actionCountAfter = getActiveActionCount();
 
     assertActiveWorkflowsRemoved(workflowIds);
@@ -218,7 +219,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     actionIds.addAll(storeActions(archivable1, 1));
     actionIds.addAll(storeActions(archivable2, 3));
     workflowIds.addAll(asList(archivable1, archivable2));
-    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     assertEquals(0, maintenanceDao.deleteWorkflows(MAIN, workflowIds));
 
     int actionCountBefore = getArchiveActionCount();
@@ -260,7 +261,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     workflowIds.addAll(asList(archivable1, archivable2));
 
     int variablesCountBefore = getActiveStateCount();
-    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     int variablesCountAfter = getActiveStateCount();
 
     assertActiveWorkflowsRemoved(workflowIds);
@@ -344,7 +345,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     stateIds.addAll(storeStateVariables(archivable2, actions2, 2));
 
     workflowIds.addAll(asList(archivable1, archivable2));
-    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds));
+    assertEquals(workflowIds.size(), maintenanceDao.archiveWorkflows(workflowIds, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     assertEquals(0, maintenanceDao.deleteWorkflows(MAIN, workflowIds));
 
     int variablesCountBefore = getArchivedStateCount();
@@ -370,7 +371,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     archivableWorkflows.add(storePassiveChildWorkflow(archiveTime1, parentId));
 
     int activeWorkflowCountBefore = getActiveWorkflowCount();
-    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     int activeWorkflowCountAfter = getActiveWorkflowCount();
 
     assertActiveWorkflowsRemoved(archivableWorkflows);
@@ -389,7 +390,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     storeActiveChildWorkflow(archiveTime1, parentId);
 
     int activeWorkflowCountBefore = getActiveWorkflowCount();
-    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows));
+    assertEquals(archivableWorkflows.size(), maintenanceDao.archiveWorkflows(archivableWorkflows, ARCHIVE_ITEM_LIMIT_UNLIMITED));
     int activeWorkflowCountAfter = getActiveWorkflowCount();
 
     assertActiveWorkflowsRemoved(archivableWorkflows);

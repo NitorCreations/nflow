@@ -83,12 +83,13 @@ public class MaintenanceDao {
 }
 
   @Transactional
-  public int archiveWorkflows(Collection<Long> workflowIds) {
+  public int archiveWorkflows(Collection<Long> workflowIds, int archiveItemLimit) {
     String workflowIdParams = params(workflowIds);
-    int archivedInstances = archiveTable("workflow", "id", getWorkflowColumns(), workflowIdParams);
-    int archivedActions = archiveTable("workflow_action", "workflow_id", getActionColumns(), workflowIdParams);
-    int archivedStates = archiveTable("workflow_state", "workflow_id", getStateColumns(), workflowIdParams);
-    logger.info("Archived {} workflow instances, {} actions and {} states.", archivedInstances, archivedActions, archivedStates);
+    String archiveItemLimitSql = archiveItemLimitAsSql(archiveItemLimit);
+    int archivedInstances = archiveTable("workflow", "id", getWorkflowColumns(), workflowIdParams, archiveItemLimitSql);
+    int archivedActions = archiveTable("workflow_action", "workflow_id", getActionColumns(), workflowIdParams, archiveItemLimitSql);
+    int archivedStates = archiveTable("workflow_state", "workflow_id", getStateColumns(), workflowIdParams, archiveItemLimitSql);
+    logger.info("Archived {} workflow instances, {} actions and {} states with archiving item limit of {}", archivedInstances, archivedActions, archivedStates, archiveItemLimit);
     deleteWorkflows(MAIN, workflowIdParams);
     return archivedInstances;
   }
@@ -99,9 +100,9 @@ public class MaintenanceDao {
     return deleteWorkflows(table, workflowIdParams);
   }
 
-  private int archiveTable(String table, String workflowIdColumn, String columns, String workflowIdParams) {
+  private int archiveTable(String table, String workflowIdColumn, String columns, String workflowIdParams, String archiveItemLimit) {
     return jdbc.update("insert into " + ARCHIVE.nameOf(table) + "(" + columns + ") " + "select " + columns + " from "
-        + MAIN.nameOf(table) + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams
+        + MAIN.nameOf(table) + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams + archiveItemLimit
         + sqlVariants.forUpdateSkipLocked());
   }
 
@@ -121,6 +122,14 @@ public class MaintenanceDao {
 
   private String params(Collection<Long> workflowIds) {
     return "(" + join(workflowIds, ",") + ")";
+  }
+
+  private String archiveItemLimitAsSql(int archiveItemLimit) {
+    if (archiveItemLimit < 0) {
+      return "";
+    }
+
+    return " order by limit " + archiveItemLimit;
   }
 
   @Transactional
