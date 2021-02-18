@@ -55,7 +55,7 @@ public class CronWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(2)
   public void letItRunFor5Seconds() throws InterruptedException {
-    SECONDS.sleep(5);
+    SECONDS.sleep(10);
   }
 
   @Test
