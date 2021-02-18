@@ -1,8 +1,11 @@
 package io.nflow.tests;
 
+import static io.nflow.tests.demo.workflow.SimpleWorkflow.SIMPLE_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.StateWorkflow.STATEVAR_QUERYTEST;
+import static io.nflow.tests.demo.workflow.StateWorkflow.STATE_WORKFLOW_TYPE;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
+import static java.util.UUID.randomUUID;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.repeat;
@@ -17,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
@@ -30,12 +32,14 @@ import org.springframework.context.annotation.Bean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.engine.workflow.curated.CronWorkflow;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import io.nflow.tests.demo.workflow.SimpleWorkflow;
 import io.nflow.tests.demo.workflow.StateWorkflow;
 import io.nflow.tests.demo.workflow.StateWorkflow.State;
 import io.nflow.tests.extension.NflowServerConfig;
@@ -44,7 +48,9 @@ import io.nflow.tests.extension.NflowServerConfig;
 public class StateVariablesTest extends AbstractNflowTest {
 
   public static NflowServerConfig server = new NflowServerConfig.Builder()
-      .prop("nflow.workflow.state.variable.value.length", "8000").springContextClass(TestConfiguration.class).build();
+      .prop("nflow.workflow.state.variable.value.length", "8000")
+      .springContextClass(TestConfiguration.class)
+      .build();
   private static CreateWorkflowInstanceRequest createRequest;
   private static CreateWorkflowInstanceResponse createResponse;
 
@@ -63,8 +69,8 @@ public class StateVariablesTest extends AbstractNflowTest {
   @Order(1)
   public void createStateWorkflow() throws JsonProcessingException, IOException {
     createRequest = new CreateWorkflowInstanceRequest();
-    createRequest.type = "stateWorkflow";
-    createRequest.externalId = UUID.randomUUID().toString();
+    createRequest.type = STATE_WORKFLOW_TYPE;
+    createRequest.externalId = randomUUID().toString();
     createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
     createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
@@ -119,8 +125,8 @@ public class StateVariablesTest extends AbstractNflowTest {
   @Order(5)
   public void insertWorkflowWithTooLongStateVariableValueReturnsBadRequest() {
     createRequest = new CreateWorkflowInstanceRequest();
-    createRequest.type = "stateWorkflow";
-    createRequest.externalId = UUID.randomUUID().toString();
+    createRequest.type = STATE_WORKFLOW_TYPE;
+    createRequest.externalId = randomUUID().toString();
     createRequest.stateVariables.put("requestData", repeat('a', 8001));
 
     try (Response response = getInstanceResource().put(createRequest)) {
@@ -150,6 +156,24 @@ public class StateVariablesTest extends AbstractNflowTest {
         .get(ListWorkflowInstanceResponse[].class);
 
     assertThat(instances.length, is(1));
+  }
+
+  @Test
+  @Order(8)
+  public void insertCronStateVariable() {
+    createRequest = new CreateWorkflowInstanceRequest();
+    createRequest.type = SIMPLE_WORKFLOW_TYPE;
+    createRequest.externalId = randomUUID().toString();
+    String cronSchedule = "0 0 * * * *";
+    createRequest.stateVariables.put(CronWorkflow.VAR_SCHEDULE, cronSchedule);
+
+    createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
+    assertThat(createResponse.id, notNullValue());
+
+    ListWorkflowInstanceResponse listResponse = getWorkflowInstanceWithTimeout(createResponse.id,
+        SimpleWorkflow.State.done.name(), ofSeconds(5));
+    assertThat(listResponse.stateVariables.size(), is(1));
+    assertThat(listResponse.stateVariables.get(CronWorkflow.VAR_SCHEDULE), is(cronSchedule));
   }
 
   private void assertState(List<Action> actions, int index, State state, String variable1, String variable2) {
