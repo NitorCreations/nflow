@@ -29,7 +29,6 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
  * Workflow that wakes up periodically to execute a task.
@@ -194,7 +193,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    * @return Time when check should be retried. Null to go to schedule state immediately.
    */
   protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
-    if (execution.getAllChildWorkflows().stream().anyMatch(child -> child.status != WorkflowInstanceStatus.finished)) {
+    if (execution.hasUnfinishedChildren()) {
       logger.info("Unfinished child workflow found, waiting before scheduling next work.");
       return now().plusHours(1);
     }

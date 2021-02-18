@@ -184,4 +184,10 @@ public interface StateExecution {
    */
   Optional<Long> getParentId();
 
+  /**
+   * Return true if this workflow instance has unfinished child workflow instances.
+   *
+   * @return True if unfinished child workflow instances are found, false otherwise.
+   */
+  boolean hasUnfinishedChildren();
 }
