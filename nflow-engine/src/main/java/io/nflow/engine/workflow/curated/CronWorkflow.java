@@ -193,7 +193,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    * @return Time when check should be retried. Null to go to schedule state immediately.
    */
   protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
-    if (execution.hasUnfinishedChildren()) {
+    if (execution.hasUnfinishedChildWorkflows()) {
       logger.info("Unfinished child workflow found, waiting before scheduling next work.");
       return now().plusHours(1);
     }

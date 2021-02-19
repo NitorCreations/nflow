@@ -1,10 +1,12 @@
 package io.nflow.engine.service;
 
 import static java.util.Collections.emptySet;
+import static java.util.EnumSet.complementOf;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -24,6 +26,7 @@ import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
@@ -34,6 +37,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
 public class WorkflowInstanceService {
 
   private static final Logger logger = getLogger(WorkflowInstanceService.class);
+  private static final WorkflowInstanceStatus[] UNFINISHED_STATUSES = complementOf(EnumSet.of(WorkflowInstanceStatus.finished))
+      .toArray(new WorkflowInstanceStatus[0]);
 
   private final WorkflowDefinitionService workflowDefinitionService;
   private final WorkflowInstanceDao workflowInstanceDao;
@@ -181,4 +186,17 @@ public class WorkflowInstanceService {
     return workflowDefinitionService.getWorkflowDefinition(workflowInstanceDao.getWorkflowInstanceType(workflowInstanceId));
   }
 
+  /**
+   * Return true if this workflow instance has unfinished child workflow instances.
+   *
+   * @param workflowInstanceId
+   *          The parent workflow instance id.
+   *
+   * @return True if the workflow instance has unfinished child workflow instances, false otherwise.
+   */
+  public boolean hasUnfinishedChildWorkflows(long workflowInstanceId) {
+    QueryWorkflowInstances unfinishedChildren = new QueryWorkflowInstances.Builder().addStatuses(UNFINISHED_STATUSES)
+        .setParentWorkflowId(workflowInstanceId).build();
+    return !listWorkflowInstances(unfinishedChildren).isEmpty();
+  }
 }

@@ -1,13 +1,11 @@
 package io.nflow.engine.internal.workflow;
 
 import static java.util.Collections.unmodifiableList;
-import static java.util.EnumSet.complementOf;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -24,14 +22,11 @@ import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
-import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
 public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   private static final Logger LOG = getLogger(StateExecutionImpl.class);
-  private static final WorkflowInstanceStatus[] UNFINISHED_STATUSES = complementOf(EnumSet.of(WorkflowInstanceStatus.finished))
-      .toArray(new WorkflowInstanceStatus[0]);
   private final WorkflowInstance instance;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowDao;
@@ -315,9 +310,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   @Override
-  public boolean hasUnfinishedChildren() {
-    QueryWorkflowInstances unfinishedChildren = new QueryWorkflowInstances.Builder().addStatuses(UNFINISHED_STATUSES)
-        .setParentActionId(instance.id).build();
-    return !workflowDao.queryWorkflowInstances(unfinishedChildren).isEmpty();
+  public boolean hasUnfinishedChildWorkflows() {
+    return workflowInstanceService.hasUnfinishedChildWorkflows(instance.id);
   }
 }

@@ -189,5 +189,5 @@ public interface StateExecution {
    *
    * @return True if unfinished child workflow instances are found, false otherwise.
    */
-  boolean hasUnfinishedChildren();
+  boolean hasUnfinishedChildWorkflows();
 }
