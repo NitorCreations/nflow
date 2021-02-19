@@ -10,6 +10,7 @@
 - Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
 - Control logging and sleeping after exceptions in `WorkflowDispatcher`.
 - Control logging and sleeping after a failure to save workflow instance state.
+- Support in `CronWorkflow` to wait for created child workflow instances to finish before scheduling the next work.
 
 **Details**
 - `nflow-engine`
@@ -30,6 +31,8 @@
     - Control which log level is used to log the exception.
     - Control whether the stack trace of the exception is logged or not.
     - Control how long the `WorkflowStateProcessor` should sleep before retrying.
+  - Support in `CronWorkflow` to wait for child workflow instances created in `doWork` state method to finish before scheduling the next work. Return `NextAction.moveToStateAfter(waitForWorkToFinish, ...)` with some fail-safe waiting time instead of `NextAction.moveToState(schedule, ...)` to avoid immediate re-scheduling. When child workflows finish, they will wake up the parent workflow automatically, if it is still in the waiting state. Default implementation will check if any child workflows are still running, and keep waiting until they are all finished. Override `CronWorkflow.waitForWorkToFinishImpl` for custom logic.
+  - Add `hasUnfinishedChildWorkflows` helper in `StateExecution` and `WorkflowInstanceService` to check if the workflow instance has any child workflow instances with any other status than `WorkflowInstanceStatus.finished`.
 - `nflow-rest-api-common`, `nflow-rest-api-jax-rs`, `nflow-rest-api-spring-web`
   - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
   - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.

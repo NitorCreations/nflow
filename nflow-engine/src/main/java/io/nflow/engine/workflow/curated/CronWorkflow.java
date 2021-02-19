@@ -4,13 +4,16 @@ import static io.nflow.engine.workflow.curated.CronWorkflow.State.doWork;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.handleFailure;
 import static io.nflow.engine.workflow.curated.CronWorkflow.State.schedule;
+import static io.nflow.engine.workflow.curated.CronWorkflow.State.waitForWorkToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowSettings.Builder.oncePerDay;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.normal;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static org.joda.time.Instant.now;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.wait;
+import static org.joda.time.DateTime.now;
 import static org.joda.time.Period.days;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -44,6 +47,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
     schedule(start, "Schedule work to be done according to the cron state variable"), //
     doWork(normal, "Execute the actual work"), //
+    waitForWorkToFinish(wait, "Wait for work to finish"), //
     handleFailure(normal, "Handle failure and decide if workflow should be re-scheduled or stopped"), //
     failed(manual, "Processing failed, waiting for manual actions");
 
@@ -86,6 +90,8 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     super(type, schedule, handleFailure, settings);
     permit(schedule, doWork);
     permit(doWork, schedule);
+    permit(doWork, waitForWorkToFinish);
+    permit(waitForWorkToFinish, schedule);
     permit(handleFailure, schedule, failed);
   }
 
@@ -97,7 +103,10 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
    * <pre>
    * public NextAction doWork(StateExecution execution) {
    *   // do the work here
-   *   return NextAction.moveToState(schedule, "Work done");
+   *   if (rescheduleImmediately) {
+   *     return NextAction.moveToState(schedule, "Work done");
+   *   }
+   *   return NextAction.moveToStateAfter(waitForWorkToFinish, DateTime.now().plusHours(hoursToWait), "Waiting for work to finish");
    * }
    * </pre>
    *
@@ -158,5 +167,37 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
   protected boolean handleFailureImpl(StateExecution execution) {
     logger.error("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
     return true;
+  }
+
+  /**
+   * Calls {@link #waitForWorkToFinishImpl} to check if this instance should wait for work to finish or move to schedule state.
+   *
+   * @param execution
+   *          The workflow execution context.
+   * @return Action to retry later or move to schedule state.
+   */
+  public NextAction waitForWorkToFinish(StateExecution execution) {
+    DateTime waitUntil = waitForWorkToFinishImpl(execution);
+    if (waitUntil == null) {
+      return moveToState(schedule, "Work finished, rescheduling");
+    }
+    return retryAfter(waitUntil, "Waiting for work to finish");
+  }
+
+  /**
+   * Returns null to move to schedule state immediately if there are no incompleted child workflows, or current time plus 1 hour
+   * to check again later. Override for custom logic.
+   *
+   * @param execution
+   *          The workflow execution context.
+   * @return Time when check should be retried. Null to go to schedule state immediately.
+   */
+  protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
+    if (execution.hasUnfinishedChildWorkflows()) {
+      logger.info("Unfinished child workflow found, waiting before scheduling next work.");
+      return now().plusHours(1);
+    }
+    logger.info("No unfinished child workflows found, scheduling next work.");
+    return null;
   }
 }

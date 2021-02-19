@@ -309,4 +309,8 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
   }
 
+  @Override
+  public boolean hasUnfinishedChildWorkflows() {
+    return workflowInstanceService.hasUnfinishedChildWorkflows(instance.id);
+  }
 }
