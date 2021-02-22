@@ -55,7 +55,7 @@ dependencies {
     nflowExplorer(
             group = "io.nflow",
             name = "nflow-explorer",
-            version = "7.0.0",
+            version = nflowVersion,
             ext = "tar.gz"
     )
 }
