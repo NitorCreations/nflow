@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-	compile("io.nflow:nflow-engine:7.2.2")
+	compile("io.nflow:nflow-engine:7.2.3")
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
