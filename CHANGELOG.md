@@ -1,4 +1,10 @@
-## 7.2.3-SNAPSHOT (future release)
+## 7.2.4-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.2.3 (2021-02-22)
 
 **Highlights**
 - Support updating workflow instance business key.
