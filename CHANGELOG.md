@@ -1,8 +1,11 @@
 ## 7.2.4-SNAPSHOT (future release)
 
 **Highlights**
+- Support disabling `CronWorkflow`s.
 
 **Details**
+- `nflow-engine`
+  - Add `disabled` state (type `manual`) to `CronWorkflow` to support disabling the work. By default there is no state method for the `disabled` state, but it can added in your workflow definition that extends `CronWorkflow` to execute custom logic when the workflow enters the `disabled` state.
 
 ## 7.2.3 (2021-02-22)
 

@@ -49,6 +49,7 @@ public abstract class CronWorkflow extends WorkflowDefinition<State> {
     doWork(normal, "Execute the actual work"), //
     waitForWorkToFinish(wait, "Wait for work to finish"), //
     handleFailure(normal, "Handle failure and decide if workflow should be re-scheduled or stopped"), //
+    disabled(manual, "Workflow is disabled"), //
     failed(manual, "Processing failed, waiting for manual actions");
 
     private WorkflowStateType type;
