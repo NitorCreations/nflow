@@ -4,13 +4,14 @@ User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 ***
 
 ## Screenshots
-|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition-list.png" width="240" height="180">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition.png" width="240" height="180">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition.png" width="345" height="240">|
 |-|-|
-|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-list.png" width="240" height="180">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance.png" width="240" height="180">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance.png" width="345" height="240">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-variables.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-manage.png" width="345" height="240">|
 
 ## Demo
 
-http://bank.nflow.io/nflow/explorer/
+http://bank.nflow.io/nflow/ui/explorer/
 
 ## Quick Start
 
