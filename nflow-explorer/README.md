@@ -4,10 +4,10 @@ User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 ***
 
 ## Screenshots
-|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-definition.png" width="345" height="240">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-definition-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-definition.png" width="345" height="240">|
 |-|-|
-|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance.png" width="345" height="240">|
-|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-variables.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow-explorer/master/screenshots/nflow-explorer-workflow-instance-manage.png" width="345" height="240">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-instance-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-instance.png" width="345" height="240">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-instance-variables.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-instance-manage.png" width="345" height="240">|
 
 ## Demo
 
