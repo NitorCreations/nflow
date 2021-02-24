@@ -1,16 +1,17 @@
 package io.nflow.rest.v1.springweb;
 
-import io.nflow.rest.config.springweb.SchedulerService;
-import io.nflow.rest.v1.ResourceBase;
-import io.nflow.rest.v1.msg.ErrorResponse;
-import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
+import static org.springframework.http.ResponseEntity.status;
+import static reactor.core.publisher.Mono.just;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-import static org.springframework.http.ResponseEntity.status;
-import static reactor.core.publisher.Mono.just;
+import org.springframework.http.ResponseEntity;
+
+import io.nflow.rest.config.springweb.SchedulerService;
+import io.nflow.rest.v1.ResourceBase;
+import io.nflow.rest.v1.msg.ErrorResponse;
+import reactor.core.publisher.Mono;
 
 public abstract class SpringWebResource extends ResourceBase {
 
