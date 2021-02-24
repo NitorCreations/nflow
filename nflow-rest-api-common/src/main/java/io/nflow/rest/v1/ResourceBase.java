@@ -189,7 +189,6 @@ public abstract class ResourceBase {
     } else if (t instanceof NflowNotFoundException) {
       return 404;
     }
-
     return 500;
   }
 
