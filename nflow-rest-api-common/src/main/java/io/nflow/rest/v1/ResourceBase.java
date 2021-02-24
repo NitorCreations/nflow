@@ -186,7 +186,7 @@ public abstract class ResourceBase {
   protected int resolveExceptionHttpStatus(Throwable t) {
     if (t instanceof IllegalArgumentException) {
       return 400;
-    } else if(t instanceof NflowNotFoundException) {
+    } else if (t instanceof NflowNotFoundException) {
       return 404;
     }
 
