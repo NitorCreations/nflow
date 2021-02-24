@@ -1,6 +1,9 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toCollection;
@@ -185,11 +188,11 @@ public abstract class ResourceBase {
 
   protected int resolveExceptionHttpStatus(Throwable t) {
     if (t instanceof IllegalArgumentException) {
-      return 400;
+      return HTTP_BAD_REQUEST;
     } else if (t instanceof NflowNotFoundException) {
-      return 404;
+      return HTTP_NOT_FOUND;
     }
-    return 500;
+    return HTTP_INTERNAL_ERROR;
   }
 
   protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
