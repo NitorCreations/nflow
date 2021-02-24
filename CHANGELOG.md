@@ -6,6 +6,8 @@
 **Details**
 - `nflow-engine`
   - Add `disabled` state (type `manual`) to `CronWorkflow` to support disabling the work. By default there is no state method for the `disabled` state, but it can added in your workflow definition that extends `CronWorkflow` to execute custom logic when the workflow enters the `disabled` state.
+- `nflow-rest-api-common` and `nflow-rest-api-spring-web`
+  - Fix exception to HTTP status conversion issue when using Netty
 
 ## 7.2.3 (2021-02-22)
 
