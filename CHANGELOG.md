@@ -1,4 +1,10 @@
-## 7.2.4-SNAPSHOT (future release)
+## 7.2.5-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.2.4 (2021-02-25)
 
 **Highlights**
 - Support disabling `CronWorkflow`s.
