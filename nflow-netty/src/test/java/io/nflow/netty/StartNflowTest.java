@@ -69,9 +69,7 @@ public class StartNflowTest {
     assertTrue(responseBody.isArray());
   }
 
-  /*
-    Smoke test for io.nflow.rest.v1.springweb.SpringWebResource#handleExceptions
-   */
+  // Smoke test for io.nflow.rest.v1.springweb.SpringWebResource#handleExceptions
   private void smokeTestRestApiErrorHandling(String restApiPrefix) {
     ClientResponse response = getFromDefaultServer(restApiPrefix + NFLOW_WORKFLOW_INSTANCE_PATH + "/id/0213132");
     assertEquals(NOT_FOUND, response.statusCode());
@@ -84,6 +82,4 @@ public class StartNflowTest {
     WebClient client = WebClient.builder().baseUrl(DEFAULT_LOCALHOST_SERVER_ADDRESS).build();
     return client.get().uri(url).exchange().block();
   }
-
-
 }
