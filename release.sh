@@ -144,7 +144,7 @@ prompt_continue "cloning nFlow Wiki under $NFLOW_WIKI_CHECKOUT_DIR for version n
 
 if mkdir -p "$NFLOW_WIKI_CHECKOUT_DIR" ; then
   cd "$NFLOW_WIKI_CHECKOUT_DIR"
-  git clone git@github.com:NitorCreations/nflow.wiki.git
+  git clone ssh://git@github.com:NitorCreations/nflow.wiki.git
   cd nflow.wiki
   sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" Spring-Boot-guide.md
   git add Spring-Boot-guide.md
