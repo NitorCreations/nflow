@@ -3,6 +3,8 @@
 **Highlights**
 
 **Details**
+- `nflow-explorer`
+  - Sortable workflow instance search result table
 
 ## 7.2.4 (2021-02-25)
 
