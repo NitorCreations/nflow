@@ -287,6 +287,10 @@ ul.listing {
 
 /* angular-smart-table */
 
+.clickable-header > th {
+  cursor: pointer;
+}
+
 .st-sort-ascent:before {
   content: '\25B2';
 }

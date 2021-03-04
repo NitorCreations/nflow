@@ -5,18 +5,20 @@
   </div>
   <table st-table="displayedResults" st-safe-src="ctrl.results" ng-show="ctrl.results.length" id="search-result" class="table table-striped table-hover">
     <thead>
-    <th st-sort="id">Id</th>
-    <th st-sort="type">Workflow type</th>
-    <th st-sort="state">State</th>
-    <th st-sort="stateText">State text</th>
-    <th st-sort="status">Status</th>
-    <th st-sort="businessKey">Business key</th>
-    <th st-sort="externalId">External id</th>
-    <th st-sort="retries">Retries</th>
-    <th st-sort="created">Created</th>
-    <th st-sort="started">Started</th>
-    <th st-sort="modified">Modified</th>
-    <th st-sort="nextActivation">Next activation</th>
+      <tr class="clickable-header">
+        <th st-sort="id">Id</th>
+        <th st-sort="type">Workflow type</th>
+        <th st-sort="state">State</th>
+        <th st-sort="stateText">State text</th>
+        <th st-sort="status">Status</th>
+        <th st-sort="businessKey">Business key</th>
+        <th st-sort="externalId">External id</th>
+        <th st-sort="retries">Retries</th>
+        <th st-sort="created">Created</th>
+        <th st-sort="started">Started</th>
+        <th st-sort="modified">Modified</th>
+        <th st-sort="nextActivation">Next activation</th>
+      </tr>
     </thead>
     <tbody>
     <tr ng-repeat="result in displayedResults" ng-class="ctrl.getStateClass(result)">
