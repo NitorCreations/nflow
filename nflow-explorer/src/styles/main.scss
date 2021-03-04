@@ -284,3 +284,13 @@ ul.listing {
   color: black;
   background-color: transparent;
 }
+
+/* angular-smart-table */
+
+.st-sort-ascent:before {
+  content: '\25B2';
+}
+
+.st-sort-descent:before {
+  content: '\25BC';
+}
