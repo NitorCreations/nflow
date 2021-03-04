@@ -23,7 +23,8 @@
     'ui.bootstrap',
     'chart.js',
     'AdalAngular',
-    'toastr'
+    'toastr',
+    'smart-table'
   ]);
 
   m.run(function (EndpointService, ExecutorService, $window, config) {
