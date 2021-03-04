@@ -1,10 +1,10 @@
 ## 7.2.5-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-explorer`
+  - Sortable workflow definitions and instance search result table
 
 **Details**
-- `nflow-explorer`
-  - Sortable workflow instance search result table
 
 ## 7.2.4 (2021-02-25)
 
