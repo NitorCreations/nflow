@@ -5,6 +5,9 @@
   - Sortable workflow definitions and instance search result table
 
 **Details**
+- `nflow-explorer`
+  - Dependency updates:
+    - urijs 1.19.6
 
 ## 7.2.4 (2021-02-25)
 
