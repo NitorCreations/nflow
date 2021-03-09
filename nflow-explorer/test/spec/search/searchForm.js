@@ -99,7 +99,7 @@ describe('Directive: searchForm', function () {
         $httpBackend.flush();
         expect(ctrl.showIndicator).toBeFalsy();
 
-        ctrl.search();
+        ctrl.executeSearch();
         $timeout.flush(499);
         expect(ctrl.showIndicator).toBeFalsy();
         $timeout.flush(1);
