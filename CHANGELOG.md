@@ -3,6 +3,7 @@
 **Highlights**
 - `nflow-explorer`
   - Sortable workflow definitions and instance search result table
+  - Persist workflow instance query parameters to URL
 
 **Details**
 - `nflow-explorer`
