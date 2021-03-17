@@ -2,11 +2,14 @@
 
 **Highlights**
 - `nflow-explorer`
-  - Sortable workflow definitions and instance search result table
+  - Sortable workflow definitions, workflow instance search result and executors tables
   - Persist workflow instance query parameters to URL
 
 **Details**
 - `nflow-explorer`
+  - Added missing `executing` status to workflow instance search criteria
+  - Included child workflows when auto-refreshing workflow instance actions table
+  - Added more child workflow details to workflow instance actions
   - Dependency updates:
     - urijs 1.19.6
 
