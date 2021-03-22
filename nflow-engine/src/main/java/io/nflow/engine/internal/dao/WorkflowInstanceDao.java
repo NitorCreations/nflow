@@ -659,11 +659,11 @@ public class WorkflowInstanceDao {
       params.addValue("statuses", convertedStatuses);
     }
     if (query.businessKey != null) {
-      conditions.add("business_key = :business_key");
+      conditions.add("business_key like :business_key");
       params.addValue("business_key", query.businessKey);
     }
     if (query.externalId != null) {
-      conditions.add("external_id = :external_id");
+      conditions.add("external_id like :external_id");
       params.addValue("external_id", query.externalId);
     }
     conditions.add("executor_group = :executor_group");

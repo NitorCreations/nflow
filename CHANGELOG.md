@@ -4,6 +4,7 @@
 - `nflow-explorer`
   - Sortable workflow definitions, workflow instance search result and executors tables
   - Persist workflow instance query parameters to URL
+  - Support wildcard characters when searching workflow instances by business key or external id
 
 **Details**
 - `nflow-explorer`
@@ -12,6 +13,8 @@
   - Added more child workflow details to workflow instance actions
   - Dependency updates:
     - urijs 1.19.6
+- `nflow-engine`
+  - Support SQL wildcards in workflow instance queries by business key or external id
 
 ## 7.2.4 (2021-02-25)
 
