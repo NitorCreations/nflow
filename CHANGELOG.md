@@ -6,9 +6,13 @@
   - Persist workflow instance query parameters to URL
 
 **Details**
+- `nflow-jetty`
+  - Dependency updates:
+    - jetty 9.4.38.v20210224
 - `nflow-explorer`
   - Dependency updates:
     - urijs 1.19.6
+    - is-svg 4.3.1
 
 ## 7.2.4 (2021-02-25)
 
