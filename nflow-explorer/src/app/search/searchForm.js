@@ -30,6 +30,7 @@
     self.search = navigateSearch;
     self.executeSearch = executeSearch;
     self.onTypeChange = CriteriaModel.onDefinitionChange;
+    self.wildCardTooltip = 'Use % to replace many characters and _ to replace a single character';
 
     initialize();
 

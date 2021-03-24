@@ -28,7 +28,12 @@
         <div ng-click="$event.stopPropagation();" ng-if="ctrl.childWorkflowFromAction(action).length" >
           <strong>Child workflows</strong>
           <ul ng-repeat="childWorkflow in ctrl.childWorkflowFromAction(action)">
-            <li><small><a ui-sref="workflow({id: childWorkflow.id})">{{childWorkflow.type}} ({{childWorkflow.id}})</a></small></li>
+            <li>
+              <small title="Business key: {{childWorkflow.businessKey}}&#10;External id: {{childWorkflow.externalId}}&#10;State text: {{childWorkflow.stateText}}&#10;Retries: {{childWorkflow.retries}}&#10;Priority: {{childWorkflow.priority}}&#10;Started: {{childWorkflow.started}}&#10;Modified: {{childWorkflow.modified}}">
+                <a ui-sref="workflow({id: childWorkflow.id})">{{childWorkflow.type}} ({{childWorkflow.id}})</a>
+                - {{childWorkflow.status}} in {{childWorkflow.state}}
+              </small>
+            </li>
           </ul>
         </div>
       </td>
