@@ -7,12 +7,16 @@
   - Support wildcard characters when searching workflow instances by business key or external id
 
 **Details**
+- `nflow-jetty`
+  - Dependency updates:
+    - jetty 9.4.38.v20210224
 - `nflow-explorer`
   - Added missing `executing` status to workflow instance search criteria
   - Included child workflows when auto-refreshing workflow instance actions table
   - Added more child workflow details to workflow instance actions
   - Dependency updates:
     - urijs 1.19.6
+    - is-svg 4.3.1
 - `nflow-engine`
   - Support SQL wildcards in workflow instance queries by business key or external id
 
