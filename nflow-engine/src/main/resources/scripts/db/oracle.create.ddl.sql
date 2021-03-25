@@ -31,7 +31,7 @@ create index nflow_workflow_polling on nflow_workflow(next_activation, status, e
 create index idx_workflow_parent on nflow_workflow(parent_workflow_id)
 /
 
-create sequence nflow_workflow_id_seq
+create sequence nflow_workflow_id_seq nocache
 /
 
 create or replace trigger nflow_workflow_insert
@@ -70,7 +70,7 @@ create table nflow_workflow_action (
 create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id)
 /
 
-create sequence nflow_workflow_action_id_seq
+create sequence nflow_workflow_action_id_seq nocache
 /
 
 create or replace trigger nflow_workflow_action_insert
@@ -104,7 +104,7 @@ create table nflow_executor (
 )
 /
 
-create sequence nflow_executor_id_seq
+create sequence nflow_executor_id_seq nocache
 /
 
 create or replace trigger nflow_executor_insert

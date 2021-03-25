@@ -19,6 +19,7 @@
     - is-svg 4.3.1
 - `nflow-engine`
   - Support SQL wildcards in workflow instance queries by business key or external id
+  - Fix Oracle database scripts to disable cache for sequences
 
 ## 7.2.4 (2021-02-25)
 
