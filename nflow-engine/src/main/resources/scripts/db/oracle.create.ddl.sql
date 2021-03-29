@@ -78,7 +78,7 @@ create or replace trigger nflow_workflow_action_insert
   for each row
 declare
 begin
-  :new.id := nflow_workflow_id_seq.nextval;
+  :new.id := nflow_workflow_action_id_seq.nextval;
 end;
 /
 
