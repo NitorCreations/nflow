@@ -20,6 +20,7 @@
 - `nflow-engine`
   - Support SQL wildcards in workflow instance queries by business key or external id
   - Fix Oracle database scripts to disable cache for sequences
+  - Fix `nflow_workflow_action_insert` trigger in Oracle database scripts
 
 ## 7.2.4 (2021-02-25)
 
