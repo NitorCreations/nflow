@@ -17,6 +17,7 @@
   - Dependency updates:
     - urijs 1.19.6
     - is-svg 4.3.1
+    - y18n 4.0.1
 - `nflow-engine`
   - Support SQL wildcards in workflow instance queries by business key or external id
 
