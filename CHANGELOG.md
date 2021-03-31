@@ -5,6 +5,8 @@
   - Sortable workflow definitions, workflow instance search result and executors tables
   - Persist workflow instance query parameters to URL
   - Support wildcard characters when searching workflow instances by business key or external id
+- Database scripts
+  - Fix issues in Oracle scripts
 
 **Details**
 - `nflow-jetty`
@@ -20,6 +22,10 @@
     - y18n 4.0.1
 - `nflow-engine`
   - Support SQL wildcards in workflow instance queries by business key or external id
+- Database scripts
+  - Disable cache for Oracle sequences
+  - Fix `nflow_workflow_action_insert` trigger in Oracle database scripts
+  - Fix syntax error in `create table nflow_workflow` statement in `oracle.create.ddl.sql`
 
 ## 7.2.4 (2021-02-25)
 
