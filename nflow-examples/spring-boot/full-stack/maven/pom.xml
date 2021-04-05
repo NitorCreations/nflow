@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>io.nflow</groupId>
 			<artifactId>nflow-rest-api-spring-web</artifactId>
-			<version>7.2.4</version>
+			<version>7.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -64,7 +64,7 @@
 								<artifactItem>
 									<groupId>io.nflow</groupId>
 									<artifactId>nflow-explorer</artifactId>
-									<version>7.2.4</version>
+									<version>7.3.0</version>
 									<type>tar.gz</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${project.build.outputDirectory}/static/explorer</outputDirectory>
