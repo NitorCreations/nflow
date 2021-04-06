@@ -3,6 +3,9 @@
 **Highlights**
 
 **Details**
+- `nflow-jetty`
+  - Dependency updates:
+    - jetty 9.4.39.v20210325
 
 ## 7.3.0 (2021-04-05)
 
