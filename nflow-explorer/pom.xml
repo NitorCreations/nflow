@@ -5,10 +5,10 @@
   <packaging>pom</packaging>
   <name>nflow-explorer</name>
   <description>nFlow Explorer</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <artifactId>nflow-root</artifactId>
