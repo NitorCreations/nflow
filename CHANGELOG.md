@@ -3,6 +3,9 @@
 **Highlights**
 
 **Details**
+- `nflow-jetty`
+  - Dependency updates:
+    - jetty 9.4.39.v20210325
 
 ## 7.3.0 (2021-04-05)
 
@@ -28,7 +31,7 @@
     - y18n 4.0.1
 - `nflow-engine`
   - Support SQL wildcards in workflow instance queries by business key or external id
-- Database scripts
+- Database scripts:
   - Disable cache for Oracle sequences
   - Fix `nflow_workflow_action_insert` trigger in Oracle database scripts
   - Fix syntax error in `create table nflow_workflow` statement in `oracle.create.ddl.sql`
