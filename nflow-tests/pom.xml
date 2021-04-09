@@ -4,10 +4,10 @@
   <artifactId>nflow-tests</artifactId>
   <name>nflow-tests</name>
   <description>nFlow integration tests</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <groupId>io.nflow</groupId>

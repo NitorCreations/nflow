@@ -5,10 +5,10 @@
   <artifactId>nflow-perf-test</artifactId>
   <name>nflow-perf-test</name>
   <description>nFlow performance tests</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <groupId>io.nflow</groupId>

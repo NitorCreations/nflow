@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <description>nFlow Root</description>
   <version>7.3.1-SNAPSHOT</version>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <licenses>
     <license>
       <name>European Union Public Licence V. 1.1</name>
@@ -17,7 +17,7 @@
   </licenses>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <inceptionYear>2014</inceptionYear>
   <scm>
@@ -394,7 +394,7 @@
         <configuration>
           <!-- maven-javadoc-plugin may hang for a long time if it can't access these links http://maven.apache.org/plugins-archives/maven-javadoc-plugin-2.9/apidocs/org/apache/maven/plugin/javadoc/JavadocUtil.html#DEFAULT_TIMEOUT -->
           <links>
-            <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
+            <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
           </links>
           <excludePackageNames>io.nflow.engine.internal</excludePackageNames>
         </configuration>

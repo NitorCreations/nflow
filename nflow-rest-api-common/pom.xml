@@ -4,10 +4,10 @@
   <packaging>jar</packaging>
   <name>nflow-rest-api-common</name>
   <description>nFlow REST API Common</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <artifactId>nflow-root</artifactId>
