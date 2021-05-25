@@ -7,7 +7,6 @@ import {
   WorkflowSummaryStatistics,
 } from "./types";
 import { Cache } from "./cache";
-import _ from 'lodash';
 
 const cacheWD = new Cache<Array<WorkflowDefinition>>(10 * 20 * 1000);
 

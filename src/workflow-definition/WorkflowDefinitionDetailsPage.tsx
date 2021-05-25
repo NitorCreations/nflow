@@ -6,6 +6,7 @@ import { ConfigContext } from "../config";
 import { getWorkflowDefinition, getWorkflowSummaryStatistics,  } from "../service";
 import { WorkflowDefinition, WorkflowSummaryStatistics } from "../types";
 import { StatisticsSummaryTable } from "./StatisticsSummaryTable";
+import { SettingsTable } from "./SettingsTable";
 
 function WorkflowDefinitionDetailsPage() {
   let { type } = useParams() as any;
@@ -16,8 +17,6 @@ function WorkflowDefinitionDetailsPage() {
   const [statistics, setStatistics] = useState<WorkflowSummaryStatistics>()
 
   // TODO required features
-  // all instances summary table
-  // workflow settings
   // state graph
 
   // TODO new features
@@ -41,8 +40,6 @@ function WorkflowDefinitionDetailsPage() {
     }).finally(() => setLoading(false));
   }, [config, type]);
 
-
-
   const workflowDetails = (definition: WorkflowDefinition, statistics: WorkflowSummaryStatistics) => {
     return (
       <div>
@@ -50,6 +47,7 @@ function WorkflowDefinitionDetailsPage() {
         <blockquote>{definition.description}</blockquote>
         <p><Link to={searchPath}>Search related workflows</Link></p>
         <p>TODO put graph here</p>
+        <SettingsTable definition={definition} />
         <StatisticsSummaryTable statistics={statistics} />
       </div>
     );
