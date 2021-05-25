@@ -12,7 +12,7 @@ const SettingsTable = (props: {definition: WorkflowDefinition}) => {
             </thead>
             <tbody>
                 {Object.keys(settings).map(key => (
-                    <tr id={key}>
+                    <tr key={key}>
                         <td>{key}</td>
                         <td><pre><code>
                             {JSON.stringify(settings[key], null, 2)}

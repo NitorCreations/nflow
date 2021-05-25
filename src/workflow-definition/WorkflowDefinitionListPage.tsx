@@ -21,8 +21,10 @@ function WorkflowDefinitionListPage() {
         console.error("Error", error);
       })
       .finally(() => setInitialLoad(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => fetchDefinitions(), []);
 
   const definitionRow = (definition: any) => {

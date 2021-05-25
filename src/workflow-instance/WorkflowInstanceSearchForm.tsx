@@ -87,6 +87,7 @@ function WorkflowInstanceSearchForm(props: {
     if (queryParams.keys().next()?.value) {
       handleSubmit();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setWorkflowType = (type: string) => {

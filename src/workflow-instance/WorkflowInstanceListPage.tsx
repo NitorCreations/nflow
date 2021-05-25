@@ -23,8 +23,10 @@ function WorkflowInstanceListPage() {
         console.error("Error", error);
       })
       .finally(() => setInitialLoad(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => fetchDefinitions(), []);
 
   const searchInstances = useCallback((data: any) => {
@@ -34,6 +36,7 @@ function WorkflowInstanceListPage() {
         // TODO error handling
         console.error("Error", error);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const instanceRow = (instance: any) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, Fragment } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { Spinner } from "../component";
@@ -38,6 +38,7 @@ function WorkflowDefinitionDetailsPage() {
       // TODO handler error
       console.error(e);
     }).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, type]);
 
   const workflowDetails = (definition: WorkflowDefinition, statistics: WorkflowSummaryStatistics) => {
