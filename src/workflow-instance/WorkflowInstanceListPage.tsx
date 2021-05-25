@@ -14,9 +14,7 @@ function WorkflowInstanceListPage() {
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [definitions, setDefinitions] = useState<Array<any>>([]);
   const [instances, setInstances] = useState<Array<WorkflowInstance>>([]);
-  // TODO if query parameters are given this should do an immediate query
 
-  // TODO use this from a service, cache it here
   const fetchDefinitions = useCallback(() => {
     listWorkflowDefinitions(config)
       .then((data) => setDefinitions(data))
@@ -91,13 +89,12 @@ function WorkflowInstanceListPage() {
 
   // TODO fetch the list of all definitions
   const search = (data: any) => {
-    console.log("searching", data);
     searchInstances(data);
   };
 
   return (
     <div>
-      <h1>Workflow instance list</h1>
+      <h1>Search workflow instances</h1>
       {initialLoad ? (
         <Spinner />
       ) : (

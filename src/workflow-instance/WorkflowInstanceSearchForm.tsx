@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const statuses = [
@@ -27,7 +27,7 @@ function WorkflowInstanceSearchForm(props: {
   onSubmit: (data: any) => any;
 }) {
   const queryParams = new URLSearchParams(useLocation().search);
-
+  
   const [type, setType] = useState<string>(queryParams.get("type") || "");
   const [state, setState] = useState<string>(queryParams.get("state") || "");
   const [status, setStatus] = useState<string>(queryParams.get("status") || "");
@@ -52,8 +52,8 @@ function WorkflowInstanceSearchForm(props: {
   ).map((s: any) => s.id);
   const states = [""].concat(selectedStates);
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const handleSubmit = (e?: any) => {
+    e && e.preventDefault();
     let data: any = {
       type,
       state,
@@ -81,6 +81,13 @@ function WorkflowInstanceSearchForm(props: {
     }
     props.onSubmit(data);
   };
+
+  // if query parameters are give, trigger immediate search
+  useEffect(() => {
+    if (queryParams.keys().next()?.value) {
+      handleSubmit();
+    }
+  }, []);
 
   const setWorkflowType = (type: string) => {
     // when type is changed, need to reset all selections that depend on type
