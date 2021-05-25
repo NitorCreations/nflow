@@ -53,8 +53,7 @@ const getWorkflowDefinition = (config: Config, type: string): Promise<WorkflowDe
     .then(response => response[0])
 };
 
-// if there are no instances in db => returns undefined
-// TODO fill missing values for missing states?
+// if there are no instances in db => returns undefined?
 const getWorkflowStatistics = (config: Config, type: string): Promise<WorkflowStatistics> => {
   const url = config.baseUrl + "/api/v1/statistics/workflow/" + type;
   return fetch(url)
@@ -123,9 +122,19 @@ const listWorkflowInstances = (
     );
 };
 
+
+const getWorkflowInstance = (config: Config, id: number): Promise<WorkflowInstance> => {
+  const url = config.baseUrl + "/api/v1/workflow-instance/id/" + id + "?include=actions,currentStateVariables,actionStateVariables";
+  return fetch(url)
+    .then(response => response.json())
+    .then(convertDates(["nextActivation", "created", "modified", "started"]))
+    // TODO how to handle Not found case?
+};
+
+
 export { 
   listExecutors, 
   listWorkflowDefinitions, getWorkflowDefinition, 
   getWorkflowStatistics, getWorkflowSummaryStatistics,
-  listWorkflowInstances 
+  listWorkflowInstances, getWorkflowInstance,
 };

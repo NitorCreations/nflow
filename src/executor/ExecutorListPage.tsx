@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { formatAgo } from "../utils";
+import { formatAgo, formatTimestamp } from "../utils";
 import { ConfigContext } from "../config";
 import { Spinner } from "../component";
 import { Executor } from "../types";
@@ -36,10 +36,10 @@ function ExecutorListPage() {
       <td>{executor.host}</td>
       <td>{executor.pid}</td>
       <td>{executor.executorGroup}</td>
-      <td title={executor.started}>{formatAgo(executor.started)}</td>
-      <td title={executor.stopped}>{formatAgo(executor.stopped)}</td>
-      <td title={executor.active}>{formatAgo(executor.active)}</td>
-      <td title={executor.expires}>{formatAgo(executor.expires)}</td>
+      <td title={formatTimestamp(executor.started)}>{formatAgo(executor.started)}</td>
+      <td title={formatTimestamp(executor.stopped)}>{formatAgo(executor.stopped)}</td>
+      <td title={formatTimestamp(executor.active)}>{formatAgo(executor.active)}</td>
+      <td title={formatTimestamp(executor.expires)}>{formatAgo(executor.expires)}</td>
     </tr>
   );
 

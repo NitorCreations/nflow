@@ -14,4 +14,15 @@ const formatAgo = (timestamp?: string) => {
   return "now";
 };
 
-export { formatAgo };
+const formatTimestamp = (timestamp: Date | undefined) => {
+  // TODO implement better
+  if (!timestamp) {
+    return undefined;
+  }
+  if (typeof(timestamp) === 'string') {
+    timestamp = new Date(timestamp);
+  }
+  return timestamp.toUTCString();
+}
+
+export { formatAgo, formatTimestamp };

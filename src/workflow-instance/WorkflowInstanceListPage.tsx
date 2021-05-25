@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import WorkflowInstanceSearchForm from "./WorkflowInstanceSearchForm";
 import { ConfigContext } from "../config";
 import { Spinner } from "../component";
-import { formatAgo } from "../utils";
+import { formatAgo, formatTimestamp } from "../utils";
 import { listWorkflowDefinitions, listWorkflowInstances } from "../service";
 import { WorkflowInstance } from "../types";
 
@@ -53,11 +53,11 @@ function WorkflowInstanceListPage() {
         <td>{instance.businessKey}</td>
         <td>{instance.externalId}</td>
         <td>{instance.retries}</td>
-        <td title={formatAgo(instance.created)}>{instance.created}</td>
-        <td title={formatAgo(instance.started)}>{instance.started}</td>
-        <td title={formatAgo(instance.modified)}>{instance.modified}</td>
+        <td title={formatAgo(instance.created)}>{formatTimestamp(instance.created)}</td>
+        <td title={formatAgo(instance.started)}>{formatTimestamp(instance.started)}</td>
+        <td title={formatAgo(instance.modified)}>{formatTimestamp(instance.modified)}</td>
         <td title={formatAgo(instance.nextActivation)}>
-          {instance.nextActivation}
+          {formatTimestamp(instance.nextActivation)}
         </td>
       </tr>
     );
