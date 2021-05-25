@@ -16,6 +16,9 @@
     "@types/q": "^1.5.4",
     "@types/react": "^17.0.6",
     "@types/react-dom": "^17.0.0",
+    "@types/react-router-dom": "^5.1.7",
+    "dagre": "^0.8.5",
+    "dagre-d3": "^0.6.4",
     "date-fns": "^2.21.3",
     "eslint-config-react-app": "^6.0.0",
     "husky": "^4.3.8",
@@ -50,9 +53,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/react-router-dom": "^5.1.7"
   },
   "husky": {
     "hooks": {
