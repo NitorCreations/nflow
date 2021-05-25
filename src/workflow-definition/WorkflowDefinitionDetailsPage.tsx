@@ -1,12 +1,21 @@
-import React from "react";
+import React, { useState, useEffect, useContext, Fragment } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { Spinner } from "../component";
+import { ConfigContext } from "../config";
+import { getWorkflowDefinition, getWorkflowSummaryStatistics,  } from "../service";
+import { WorkflowDefinition, WorkflowSummaryStatistics } from "../types";
+import { StatisticsSummaryTable } from "./StatisticsSummaryTable";
+
 function WorkflowDefinitionDetailsPage() {
-  let { id } = useParams() as any;
+  let { type } = useParams() as any;
+  const config = useContext(ConfigContext);
+  const [loading, setLoading] = useState<boolean>(true)
+
+  const [definition, setDefinition] = useState<WorkflowDefinition>()
+  const [statistics, setStatistics] = useState<WorkflowSummaryStatistics>()
 
   // TODO required features
-  // description
-  // search related instances link: DONE
   // all instances summary table
   // workflow settings
   // state graph
@@ -16,15 +25,48 @@ function WorkflowDefinitionDetailsPage() {
 
   // TODO skipped features
   // radiator
-  const type = "creditDecision";
   const searchPath = "/search?type=" + type;
 
-  return (
-    <div>
-      <h1>Workflow definition details for id {id}</h1>
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      getWorkflowDefinition(config, type),
+      getWorkflowSummaryStatistics(config, type)
+    ]).then(([def, stats]) => {
+      setDefinition(def);
+      setStatistics(stats);
+    }).catch((e) => {
+      // TODO handler error
+      console.error(e);
+    }).finally(() => setLoading(false));
+  }, [config, type]);
 
-      <Link to={searchPath}>Search related workflows</Link>
-    </div>
+
+
+  const workflowDetails = (definition: WorkflowDefinition, statistics: WorkflowSummaryStatistics) => {
+    return (
+      <div>
+        <h1>{definition.type}</h1>
+        <blockquote>{definition.description}</blockquote>
+        <p><Link to={searchPath}>Search related workflows</Link></p>
+        <p>TODO put graph here</p>
+        <StatisticsSummaryTable statistics={statistics} />
+      </div>
+    );
+  };
+
+  if (definition && statistics) {
+    return workflowDetails(definition, statistics);
+  }
+  if (loading) {
+    return (
+      <Spinner />
+    )
+  }
+  return (
+    <span>
+      Workflow definition {type} not found
+    </span>
   );
 }
 

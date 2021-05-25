@@ -36,7 +36,7 @@ function App() {
           <Route path="/search">
             <WorkflowInstanceListPage />
           </Route>
-          <Route path="/workflow-definition/:id">
+          <Route path="/workflow-definition/:type">
             <WorkflowDefinitionDetailsPage />
           </Route>
           <Route path="/workflow/:id">

@@ -69,6 +69,28 @@ interface WorkflowInstance {
   priority?: number;
   businessKey?: string;
   externalId: string;
+};
+
+interface StateStatistics {
+  created: {allInstances: number, queuedInstances: 0};
+  inProgress: {allInstances: number, queuedInstances: 0};
+  executing: {allInstances: number};
+  manual: {allInstances: number};
+  finished: {allInstances: number};
+};
+interface WorkflowStatistics {
+  [key: string]: StateStatistics
+};
+
+interface WorkflowSummaryStatistics {
+  stats: Array<
+    {
+      state: string,
+      stats: {[status: string]: {allInstances: number, queuedInstances?: 0}},
+      total: number,
+    }
+  >
+  totalPerStatus: {[status: string]: {allInstances: number, queuedInstances?: 0}}
 }
 
 export type {
@@ -77,4 +99,6 @@ export type {
   WorkflowDefinition,
   WorkflowInstance,
   WorkflowInstanceAction,
+  WorkflowStatistics,
+  WorkflowSummaryStatistics,
 };
