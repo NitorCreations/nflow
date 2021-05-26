@@ -6,6 +6,7 @@ import { WorkflowInstance } from "../types";
 import { ConfigContext } from "../config";
 import { getWorkflowInstance} from "../service";
 import { formatTimestamp, formatRelativeTime } from "../utils";
+import { StateVariableTable } from "./StateVariableTable";
 
 function WorkflowInstanceDetailsPage() {
   const config = useContext(ConfigContext);
@@ -54,6 +55,7 @@ function WorkflowInstanceDetailsPage() {
       <div>
         <h2><InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})</h2>
         {instanceSummaryTable(instance, parentInstance)}
+        <StateVariableTable instance={instance} />
       </div>
       )
   };
