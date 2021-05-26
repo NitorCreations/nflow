@@ -1,7 +1,8 @@
 import { DataTable } from "./DataTable";
-import { ObjectTable } from "./ObjectTable";
-import { Navigation } from "./Navigation";
-import { Spinner } from "./Spinner";
 import { InternalLink } from "./InternalLink";
+import { Navigation } from "./Navigation";
+import { ObjectTable } from "./ObjectTable";
+import { Spinner } from "./Spinner";
+import { StateGraph } from "./StateGraph.js";
 
-export { Navigation, ObjectTable, DataTable, Spinner, InternalLink };
+export { DataTable, InternalLink, Navigation, ObjectTable, Spinner, StateGraph };
