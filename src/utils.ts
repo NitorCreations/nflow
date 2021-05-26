@@ -1,4 +1,4 @@
-import { formatDistance } from "date-fns";
+import { formatDistance, format } from "date-fns";
 
 const formatRelativeTime = (timestamp: string | Date | undefined, relationTo: Date = new Date()) => {
   if (!timestamp) return undefined;
@@ -15,7 +15,7 @@ const formatTimestamp = (timestamp: Date | undefined) => {
   if (typeof(timestamp) === 'string') {
     timestamp = new Date(timestamp);
   }
-  return timestamp.toUTCString();
+  return format(timestamp, 'yyyy-MM-dd kk:mm:ss');
 }
 
 export { formatRelativeTime, formatTimestamp };

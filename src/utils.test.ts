@@ -1,5 +1,5 @@
 import { formatRelativeTime, formatTimestamp } from "./utils";
-import { formatDistance, addDays, subDays } from "date-fns";
+import { addDays, subDays } from "date-fns";
 
 test("formatRelativeTime", () => {
     const now = new Date('2021-05-26T06:25:40.722Z');
@@ -12,4 +12,10 @@ test("formatRelativeTime", () => {
 
     expect(formatRelativeTime(addDays(now, 150), now)).toBe('in 5 months');
     expect(formatRelativeTime(subDays(now, 100), now)).toBe('3 months ago');
+});
+
+test('formatTimestamp', () => {
+    const now = new Date('2021-05-26T06:25:40.722Z');
+    // TODO what timezone?
+    expect(formatTimestamp(now)).toBe('2021-05-26 09:25:40');
 });
