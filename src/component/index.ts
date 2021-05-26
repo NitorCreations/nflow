@@ -1,3 +1,4 @@
+import { DataTable } from "./DataTable";
 import Spinner from "./Spinner";
 
-export { Spinner };
+export { DataTable, Spinner };
