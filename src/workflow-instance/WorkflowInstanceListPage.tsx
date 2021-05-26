@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import WorkflowInstanceSearchForm from "./WorkflowInstanceSearchForm";
 import { ConfigContext } from "../config";
-import { Spinner } from "../component";
+import { DataTable, Spinner } from "../component";
 import { formatAgo, formatTimestamp } from "../utils";
 import { listWorkflowDefinitions, listWorkflowInstances } from "../service";
 import { WorkflowInstance } from "../types";
@@ -39,58 +39,33 @@ function WorkflowInstanceListPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const instanceRow = (instance: any) => {
-    // TODO color
-    const path = "/workflow/" + instance.id;
-    return (
-      <tr key={instance.id}>
-        <td>
-          <Link to={path}>{instance.id}</Link>
-        </td>
-        <td>
-          <Link to={path}>{instance.type}</Link>
-        </td>
-        <td>{instance.state}</td>
-        <td>{instance.stateText}</td>
-        <td>{instance.status}</td>
-        <td>{instance.businessKey}</td>
-        <td>{instance.externalId}</td>
-        <td>{instance.retries}</td>
-        <td title={formatAgo(instance.created)}>{formatTimestamp(instance.created)}</td>
-        <td title={formatAgo(instance.started)}>{formatTimestamp(instance.started)}</td>
-        <td title={formatAgo(instance.modified)}>{formatTimestamp(instance.modified)}</td>
-        <td title={formatAgo(instance.nextActivation)}>
-          {formatTimestamp(instance.nextActivation)}
-        </td>
-      </tr>
-    );
-  };
-
   const instanceTable = () => {
-    return (
-      <table>
-        <thead>
-          <tr>
-            <td>Id</td>
-            <td>Workflow type</td>
-            <td>State</td>
-            <td>State text</td>
-            <td>Status</td>
-            <td>Business key</td>
-            <td>External id</td>
-            <td>Retries</td>
-            <td>Created</td>
-            <td>Started</td>
-            <td>Modified</td>
-            <td>Next activation</td>
-          </tr>
-        </thead>
-        <tbody>{instances.map(instanceRow)}</tbody>
-      </table>
-    );
-  };
+    // TODO colors
+    const idLinkRender = (instance: WorkflowInstance) => {
+      const path = "/workflow/" + instance.id;
+      return <Link to={path}>{instance.id}</Link>
+    };
+    const typeLinkRender = (instance: WorkflowInstance) => {
+      const path = "/workflow/" + instance.id;
+      return <Link to={path}>{instance.type}</Link>
+    };
+    const columns = [
+      {field: 'id', headerName: 'Id', rowRender: idLinkRender},
+      {field: 'type', headerName: 'Workflow type', rowRender: typeLinkRender},
+      {field: 'state', headerName: 'State'},
+      {field: 'stateText', headerName: 'State text'},
+      {field: 'status', headerName: 'Status'},
+      {field: 'businessKey', headerName: 'Business key'},
+      {field: 'externalId', headerName: 'External id'},
+      {field: 'retries', headerName: 'Retries', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'nextActivation', headerName: 'Next activation', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+    ];
+    return <DataTable rows={instances} columns={columns} />
+  }
 
-  // TODO fetch the list of all definitions
   const search = (data: any) => {
     searchInstances(data);
   };
