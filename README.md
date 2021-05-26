@@ -4,6 +4,17 @@ The old UI is at http://bank.nflow.io/nflow/ui/explorer/#!/
 
 ## Development
 
+Installation
+```
+npm install
+```
+Starting dev server
+```
+npm start
+```
+
+Point your browser to http://localhost:3000/
+
 Use `npm`. `yarn` has caused problems.
 
 ### Auto formatting
