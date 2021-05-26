@@ -70,6 +70,7 @@ const getWorkflowSummaryStatistics = (config: Config, type: string): Promise<Wor
     getWorkflowStatistics(config, type) 
   ])
   .then(([def, stats]) => {
+    stats = stats || {};
     // Gather all possible state names, from workflow definition and from the statistics.
     // It is possible that state name exists only in statistics (from an old version of the workflow definition).
     const definitionStates = def.states.map(state => state.id)
