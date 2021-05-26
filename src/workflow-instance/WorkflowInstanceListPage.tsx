@@ -1,10 +1,9 @@
 import React, { useContext, useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import Typography from '@material-ui/core/Typography';
 
 import WorkflowInstanceSearchForm from "./WorkflowInstanceSearchForm";
 import { ConfigContext } from "../config";
-import { DataTable, Spinner } from "../component";
+import { InternalLink, DataTable, Spinner } from "../component";
 import { formatRelativeTime, formatTimestamp } from "../utils";
 import { listWorkflowDefinitions, listWorkflowInstances } from "../service";
 import { WorkflowInstance } from "../types";
@@ -44,11 +43,11 @@ function WorkflowInstanceListPage() {
     // TODO colors
     const idLinkRender = (instance: WorkflowInstance) => {
       const path = "/workflow/" + instance.id;
-      return <Link to={path}>{instance.id}</Link>
+      return <InternalLink to={path}>{instance.id}</InternalLink>
     };
     const typeLinkRender = (instance: WorkflowInstance) => {
       const path = "/workflow/" + instance.id;
-      return <Link to={path}>{instance.type}</Link>
+      return <InternalLink to={path}>{instance.type}</InternalLink>
     };
     const columns = [
       {field: 'id', headerName: 'Id', rowRender: idLinkRender},

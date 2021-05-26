@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-import { ObjectTable, Spinner } from "../component";
+import { InternalLink, ObjectTable, Spinner } from "../component";
 import { WorkflowInstance } from "../types";
 import { ConfigContext } from "../config";
 import { getWorkflowInstance} from "../service";
@@ -31,7 +31,7 @@ function WorkflowInstanceDetailsPage() {
 
   const instanceSummaryTable = (instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
     // TODO childWorkflows
-    const parentLink = (x: any) => parentInstance && <Link to={"/workflow/" + parentInstance.id}>{parentInstance.type} ({parentInstance.id})</Link>;
+    const parentLink = (x: any) => parentInstance && <InternalLink to={"/workflow/" + parentInstance.id}>{parentInstance.type} ({parentInstance.id})</InternalLink>;
     const columns = [
       {field: 'parentWorkflowId', headerName: 'Parent workflow', fieldRender: parentLink},
       {field: 'state', headerName: 'Current state'},
@@ -52,7 +52,7 @@ function WorkflowInstanceDetailsPage() {
   const instanceSummary = (instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
     return (
       <div>
-        <h2><Link to={"/workflow-definition/" + instance.type}>{instance.type}</Link> ({instance.id})</h2>
+        <h2><InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})</h2>
         {instanceSummaryTable(instance, parentInstance)}
       </div>
       )

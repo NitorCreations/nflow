@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { ConfigContext } from "../config";
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
 
 function AboutPage() {
   const config = useContext(ConfigContext);
@@ -13,24 +14,24 @@ function AboutPage() {
           nFlow Explorer
       </Typography>
       <Typography variant="body1">
-        See <a href="https://nflow.io/">nflow.io</a> for more details about
+        See <Link href="https://nflow.io/">nflow.io</Link> for more details about
         nFlow.
         <p />
         For support, please send a message to nFlow{" "}
-        <a href="https://groups.google.com/forum/#!forum/nflow-users">
+        <Link href="https://groups.google.com/forum/#!forum/nflow-users">
           mailing list
-        </a>.
+        </Link>.
         <p />
         nFlow development happens in{" "}
-        <a href="https://github.com/NitorCreations/nflow">GitHub</a>.
+        <Link href="https://github.com/NitorCreations/nflow">GitHub</Link>.
       </Typography>
 
       <Typography variant="h3">Settings</Typography>
       <Typography variant="body1">
         This nFlow Explorer instance uses the nFlow API running at{" "}
-        <a href={apiUrl}>{apiUrl}</a>.
+        <Link href={apiUrl}>{apiUrl}</Link>.
         <p />
-        nFlow API documentation is available at <a href={docUrl}>{docUrl}</a>.
+        nFlow API documentation is available at <Link href={docUrl}>{docUrl}</Link>.
       </Typography>
     </div>
   );

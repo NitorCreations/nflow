@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Typography from '@material-ui/core/Typography';
 
-import { Spinner } from "../component";
+import { InternalLink, Spinner } from "../component";
 import { ConfigContext } from "../config";
 import { getWorkflowDefinition, getWorkflowSummaryStatistics,  } from "../service";
 import { WorkflowDefinition, WorkflowSummaryStatistics } from "../types";
@@ -47,7 +47,7 @@ function WorkflowDefinitionDetailsPage() {
       <div>
         <Typography variant="h2">{definition.type}</Typography>
         <blockquote>{definition.description}</blockquote>
-        <Typography><Link to={searchPath}>Search related workflows</Link></Typography>
+        <InternalLink to={searchPath}>Search related workflows</InternalLink>
         <Typography>TODO put graph here</Typography>
         <SettingsTable definition={definition} />
         <StatisticsSummaryTable statistics={statistics} />

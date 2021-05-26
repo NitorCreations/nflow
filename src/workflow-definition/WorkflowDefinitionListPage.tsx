@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Link } from "react-router-dom";
 import Typography from '@material-ui/core/Typography';
 
 import { ConfigContext } from "../config";
-import { DataTable, Spinner } from "../component";
+import { InternalLink, DataTable, Spinner } from "../component";
 
 import { WorkflowDefinition } from "../types";
 import { listWorkflowDefinitions } from "../service";
@@ -31,7 +30,7 @@ function WorkflowDefinitionListPage() {
   const definitionTable = () => {
     const linkRender = (definition: WorkflowDefinition) => {
       const path = "/workflow-definition/" + definition.type;
-      return <Link to={path}>{definition.type}</Link>
+      return <InternalLink to={path}>{definition.type}</InternalLink>
     }
     const columns = [
       { field: 'type', headerName: 'Type', rowRender: linkRender},
