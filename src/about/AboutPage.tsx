@@ -16,12 +16,10 @@ function AboutPage() {
       <Typography variant="body1">
         See <Link href="https://nflow.io/">nflow.io</Link> for more details about
         nFlow.
-        <p />
         For support, please send a message to nFlow{" "}
         <Link href="https://groups.google.com/forum/#!forum/nflow-users">
           mailing list
         </Link>.
-        <p />
         nFlow development happens in{" "}
         <Link href="https://github.com/NitorCreations/nflow">GitHub</Link>.
       </Typography>
@@ -30,7 +28,8 @@ function AboutPage() {
       <Typography variant="body1">
         This nFlow Explorer instance uses the nFlow API running at{" "}
         <Link href={apiUrl}>{apiUrl}</Link>.
-        <p />
+      </Typography>
+      <Typography variant="body1">
         nFlow API documentation is available at <Link href={docUrl}>{docUrl}</Link>.
       </Typography>
     </div>
