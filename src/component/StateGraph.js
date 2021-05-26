@@ -1,16 +1,27 @@
 import React, { useEffect } from "react";
-import './StateGraph.css';
-// import './graph.css';
 import * as d3 from 'd3';
-
 import dagreD3 from 'dagre-d3';
 
+import './StateGraph.css';
+
 // TODO this file is Javascript, typing is missing for dagre-d3
+
+// TODO missing features
+// - for instances
+//   - highlight current state
+//   - current path
+//   - retries
+//   - mark unsupported paths as red
+// - selecting node
+//   - highlight incoming/outgoing arrows, bold text
+//   - clicking should highlight state in other components e.g. action history
+// - selecting state elsewhere should select the state in the graph
+// - export graph as a PNG / SVG
+// - zoom and pan state graph
 
 // TODO move to service.ts?
 function createGraph(definition) {
     let g = new dagreD3.graphlib.Graph().setGraph({});
-
     const states = definition.states
     // create nodes
     for (let state of states) {
@@ -19,7 +30,6 @@ function createGraph(definition) {
         let node = g.node(state.id);
         node.rx = node.ry = 5;
     }
-    
     // create edges between nodes
     for (let state of states) {
         for (let transition of state.transitions || []) {
@@ -27,39 +37,51 @@ function createGraph(definition) {
         }
         if (state.onFailure) {
             g.setEdge(state.id, state.onFailure, {class: "edge-failure", curve: d3.curveBasis, arrowhead: 'normal'})
-        }
-        if (definition.onError) {
+        } else if (definition.onError) {
             g.setEdge(state.id, definition.onError, {class: 'edge-error', curve: d3.curveBasis, arrowhead: 'normal'})
         }
     }
     return g;
 }
 
+/**
+ * Render graph to SVG
+ */
 function render(g, selector) {
-    // Create the renderer
-    var render = new dagreD3.render();
+    const render = new dagreD3.render();
 
     // Set up an SVG group so that we can translate the final graph.
-    var svg = d3.select(selector),
+    const svg = d3.select(selector),
     svgGroup = svg.append("g");
 
     // Run the renderer. This is what draws the final graph.
-    render(d3.select("svg"), g);
+    render(svgGroup, g);
 
-    // Center the graph
-    var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
-    //svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-    svg.attr("height", g.graph().height + 40);
-    svg.attr("width", g.graph().height + 140);
+    // Zoom SVG image to fit the available container
+    const svgElem = document.querySelector(selector)
+    const bbox = svgElem.getBBox();
+    const margin = 5;
+    const viewBox = `${bbox.x - margin} ${bbox.y - margin} ${bbox.width + 2*margin} ${bbox.height + 2*margin}`;
+    svg.attr('viewBox', viewBox)
 }
 
 function StateGraph(props) {
     console.info('StateGraph', props.definition);
     const g = createGraph(props.definition);
     useEffect(() => {
-        render(g, '#stategraph svg')
-    })
-    return <div id="stategraph">Jee stategraph<svg/></div>;
+        render(g, 'svg#stategraph')
+        return () => {
+            // Remove svg element which is created in render(), since it is not managed by React
+            const svgContent = d3.select('svg#stategraph g');
+            svgContent.remove();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return (
+        <div className="svg-container">
+            <svg id="stategraph" className="svg-content-responsive" preserveAspectRatio="xMinYMin meet" />
+        </div>
+    );
 }
 
 export { StateGraph };

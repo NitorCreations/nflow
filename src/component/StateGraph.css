@@ -79,7 +79,8 @@
   ------------
   Basic edge types are
   - normal: normal transition
-  - error: error transition
+  - error: error transition via global error handler state
+  - failure: error transition via per state error handler state
   - unexpected: any transition not part of workflow definition. Unexpected is always active.
   
   Edges may be one of:
@@ -95,7 +96,7 @@
   
   If you need new colors for arrowheads see graph.js, addArrowheadMarker()
   */
-  .edge-normal, .edge-error {
+  .edge-normal, .edge-error, .edge-failure {
     stroke-width: 1px;
     stroke: black;
   }
@@ -104,20 +105,20 @@
     stroke: red;
   }
   
-  .edge-error {
+  .edge-error, .edge-failure {
     stroke: black;
     stroke-dasharray: 5,5;
   }
   
-  .edge-normal.active, .edge-error.active, .edge-unexpected {
+  .edge-normal.active, .edge-error.active, .edge-failure.active .edge-unexpected {
     stroke-width: 2px;
   }
   
-  .edge-normal.selected, .edge-error.selected, .edge-unexpected.selected {
+  .edge-normal.selected, .edge-error.selected, .edge-failure.selected, .edge-unexpected.selected {
     stroke-width: 2px;
   }
   
-  .edge-normal.active.selected, .edge-error.active.selected, .edge-unexpected.selected {
+  .edge-normal.active.selected, .edge-error.active.selected, .edge-failure.active.selected, .edge-unexpected.selected {
     stroke-width: 3px;
   }
   
@@ -149,4 +150,14 @@
   .label {
     font-size: 100%;
     font-weight: normal;
+  }
+
+  /*****************/
+  .svg-container {
+    margin: 10px;
+  }
+  
+
+  .svg-content-responsive {
+    width: 100%;
   }

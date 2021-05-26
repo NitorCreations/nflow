@@ -6,7 +6,7 @@ import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -48,7 +48,6 @@ function WorkflowInstanceSearchForm(props: {
   definitions: Array<any>;
   onSubmit: (data: any) => any;
 }) {
-  const theme = useTheme();
   const classes = useStyles();
 
   const queryParams = new URLSearchParams(useLocation().search);
