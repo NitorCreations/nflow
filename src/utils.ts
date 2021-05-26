@@ -1,6 +1,6 @@
 import { formatDistance } from "date-fns";
 
-const formatAgo = (timestamp?: string) => {
+const formatAgo = (timestamp?: string | Date) => {
   if (!timestamp) return undefined;
   const ts = new Date(timestamp);
   const now = new Date();

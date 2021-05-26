@@ -12,32 +12,21 @@ interface Column {
 };
 
 /**
- * Shows a list of objects in a table.
+ * Shows a single object in a table
  */
-function DataTable(props: {rows: any[], columns: Column[]}) {
-    const header = () => {
-        return (
-        <TableHead>
-            <TableRow>
-                {props.columns.map((column, index) => (
-                    <TableCell key={index} align={column.align}>{column.headerName}</TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-        )
-    };
+function ObjectTable(props: {object: any, columns: Column[]}) {
 
-    const bodyCell = (row: any, column: Column, index: number) => {
-        let value = row[column.field];
+    const bodyCell = (object: any, column: Column, index: number) => {
+        let value = object[column.field];
         if (column.fieldRender) {
-            value = column.fieldRender(row[column.field]);
+            value = column.fieldRender(object[column.field]);
         }
         if (column.rowRender) {
-            value = column.rowRender(row);
+            value = column.rowRender(object);
         }
         let tooltip = undefined;
         if (column.tooltipRender) {
-            tooltip = column.tooltipRender(row[column.field]);
+            tooltip = column.tooltipRender(object[column.field]);
         }
         return (<TableCell title={tooltip} key={index} align={column?.align || 'left'}>{value}</TableCell>)
     };
@@ -45,11 +34,11 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
     const body = () => {
         return (
             <TableBody>
-                {props.rows.map((row, index) => (
+                {props.columns.map((column, index) => (
+                    props.object[column.field] &&
                     <TableRow key={index}>
-                        {props.columns.map((column, index) => (
-                            bodyCell(row, column, index)
-                        ))}
+                        <TableCell>{column.headerName}</TableCell>
+                        {bodyCell(props.object, column, index)}
                     </TableRow>
                 ))}
             </TableBody>
@@ -59,11 +48,10 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
     return (
         <TableContainer component={Paper}>
             <Table aria-label="simple table" size="small" className="table-striped table-hover">
-                {header()}
                 {body()}
             </Table>
         </TableContainer>
     );
 };
 
-export { DataTable }
+export { ObjectTable }
