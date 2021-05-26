@@ -57,7 +57,7 @@ function WorkflowInstanceListPage() {
       {field: 'status', headerName: 'Status'},
       {field: 'businessKey', headerName: 'Business key'},
       {field: 'externalId', headerName: 'External id'},
-      {field: 'retries', headerName: 'Retries', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'retries', headerName: 'Retries'},
       {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatAgo},
       {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatAgo},
       {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatAgo},
