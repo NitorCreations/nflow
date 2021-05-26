@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 
-import { InternalLink, ObjectTable, Spinner } from "../component";
-import { WorkflowInstance } from "../types";
+import { StateGraph, InternalLink, ObjectTable, Spinner } from "../component";
+import { WorkflowDefinition, WorkflowInstance } from "../types";
 import { ConfigContext } from "../config";
-import { getWorkflowInstance} from "../service";
+import { getWorkflowDefinition, getWorkflowInstance} from "../service";
 import { formatTimestamp, formatRelativeTime } from "../utils";
 import { StateVariableTable } from "./StateVariableTable";
 
 function WorkflowInstanceDetailsPage() {
   const config = useContext(ConfigContext);
 
+  const [definition, setDefinition] = useState<WorkflowDefinition>();
   const [instance, setInstance] = useState<WorkflowInstance>();
   const [parentInstance, setParentInstance] = useState<WorkflowInstance>();
   const { id } = useParams() as any;
@@ -19,14 +20,22 @@ function WorkflowInstanceDetailsPage() {
     getWorkflowInstance(config, id)
       .then(workflow => {
         if (workflow.parentWorkflowId) {
-          return getWorkflowInstance(config, workflow.parentWorkflowId)
-            .then(parent => {
+          return Promise.all([
+            getWorkflowInstance(config, workflow.parentWorkflowId),
+            getWorkflowDefinition(config, workflow.type)
+          ])
+            .then(([parent, definition]) => {
+              setDefinition(definition);
               setParentInstance(parent);
               setInstance(workflow);
             })
         }
-        setParentInstance(undefined);
-        setInstance(workflow)
+        return getWorkflowDefinition(config, workflow.type)
+          .then(definition => {
+            setDefinition(definition);
+            setParentInstance(undefined);
+            setInstance(workflow);
+          });
       })
   }, [config, id]);
 
@@ -50,19 +59,20 @@ function WorkflowInstanceDetailsPage() {
   // TODO if the workflow is active, re-fetch peridodically
   // - status executing
   // - status create/inProgress and has nextActivation (which is less than 24h away?)
-  const instanceSummary = (instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
+  const instanceSummary = (definition: WorkflowDefinition, instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
     return (
       <div>
         <h2><InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})</h2>
         {instanceSummaryTable(instance, parentInstance)}
         <StateVariableTable instance={instance} />
+        <StateGraph definition={definition} />
       </div>
       )
   };
 
   return (
     <div>
-      { instance ? instanceSummary(instance, parentInstance) : <Spinner />}
+      { (definition && instance) ? instanceSummary(definition, instance, parentInstance) : <Spinner />}
     </div>
   );
 }
