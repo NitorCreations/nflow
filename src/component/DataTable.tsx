@@ -11,7 +11,6 @@ interface Column {
 };
 
 function DataTable(props: {rows: any[], columns: Column[]}) {
-    console.log('render DataTable')
     const header = () => {
         return (
         <TableHead>
@@ -23,7 +22,6 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
         </TableHead>
         )
     };
-
 
     const bodyCell = (row: any, column: Column, index: number) => {
         let value = row[column.field];
@@ -62,4 +60,3 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
 };
 
 export { DataTable }
-

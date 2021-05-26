@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
+
 import { formatAgo, formatTimestamp } from "../utils";
 import { ConfigContext } from "../config";
-import { Spinner } from "../component";
+import { DataTable, Spinner } from "../component";
 import { Executor } from "../types";
 import { listExecutors } from "../service";
 
@@ -29,39 +30,23 @@ function ExecutorListPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const executorRow = (executor: any) => (
-    // TODO colors based on stopped/hearbeat expiry
-    <tr key={executor.id}>
-      <td>{executor.id}</td>
-      <td>{executor.host}</td>
-      <td>{executor.pid}</td>
-      <td>{executor.executorGroup}</td>
-      <td title={formatTimestamp(executor.started)}>{formatAgo(executor.started)}</td>
-      <td title={formatTimestamp(executor.stopped)}>{formatAgo(executor.stopped)}</td>
-      <td title={formatTimestamp(executor.active)}>{formatAgo(executor.active)}</td>
-      <td title={formatTimestamp(executor.expires)}>{formatAgo(executor.expires)}</td>
-    </tr>
-  );
+  const executorTable = () => {
+    const columns = [
+      { field: 'id', headerName: 'ID'},
+      { field: 'host', headerName: 'Host'},
+      { field: 'pid', headerName: 'Process ID'},
+      { field: 'executorGroup', headerName: 'Executor Group'},
+      { field: 'started', headerName: 'Started', fieldRender: formatAgo, tooltipRender: formatTimestamp},
+      { field: 'stopped', headerName: 'Stopped', fieldRender: formatAgo, tooltipRender: formatTimestamp},
+      { field: 'active', headerName: 'Activity hearbeat', fieldRender: formatAgo, tooltipRender: formatTimestamp},
+      { field: 'expires', headerName: 'Hearbeat expires', fieldRender: formatAgo, tooltipRender: formatTimestamp}, ]
 
-  const executorTable = () => (
-    <table>
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Host</th>
-          <th>Process ID</th>
-          <th>Executor group</th>
-          <th>Started</th>
-          <th>Stopped</th>
-          <th>Activity hearbeat</th>
-          <th>Hearbeat expires</th>
-        </tr>
-      </thead>
-      <tbody>{executors.map(executorRow)}</tbody>
-    </table>
-  );
+    const rows = executors
+    return (
+      <DataTable rows={rows} columns={columns} />
+    )
+  };
 
-  // TODO make a spinner component
   return (
     <div>
       <h1>Workflow executors</h1>
