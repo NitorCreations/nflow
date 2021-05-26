@@ -20,7 +20,7 @@ function App() {
       <div className="App">
         <header className="App-header">
           <Link to="/">
-            <img src="/nflow_logo.svg" alt="nFlow-lo" />
+            <img src="/nflow_logo.svg" alt="nFlow-logo" />
           </Link>
           <Link to="/">Workflow definitions</Link>
           <Link to="/search">Workflow instances</Link>
