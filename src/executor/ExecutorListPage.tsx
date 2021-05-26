@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 
-import { formatAgo, formatTimestamp } from "../utils";
+import { formatRelativeTime, formatTimestamp } from "../utils";
 import { ConfigContext } from "../config";
 import { DataTable, Spinner } from "../component";
 import { Executor } from "../types";
@@ -36,10 +36,10 @@ function ExecutorListPage() {
       { field: 'host', headerName: 'Host'},
       { field: 'pid', headerName: 'Process ID'},
       { field: 'executorGroup', headerName: 'Executor Group'},
-      { field: 'started', headerName: 'Started', fieldRender: formatAgo, tooltipRender: formatTimestamp},
-      { field: 'stopped', headerName: 'Stopped', fieldRender: formatAgo, tooltipRender: formatTimestamp},
-      { field: 'active', headerName: 'Activity hearbeat', fieldRender: formatAgo, tooltipRender: formatTimestamp},
-      { field: 'expires', headerName: 'Hearbeat expires', fieldRender: formatAgo, tooltipRender: formatTimestamp}, ]
+      { field: 'started', headerName: 'Started', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp},
+      { field: 'stopped', headerName: 'Stopped', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp},
+      { field: 'active', headerName: 'Activity hearbeat', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp},
+      { field: 'expires', headerName: 'Hearbeat expires', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp}, ]
 
     const rows = executors
     return (

@@ -1,17 +1,10 @@
 import { formatDistance } from "date-fns";
 
-const formatAgo = (timestamp?: string | Date) => {
+const formatRelativeTime = (timestamp: string | Date | undefined, relationTo: Date = new Date()) => {
   if (!timestamp) return undefined;
   const ts = new Date(timestamp);
-  const now = new Date();
-  const diff = formatDistance(ts, now);
-  if (ts < now) {
-    return diff + " ago";
-  }
-  if (ts > now) {
-    return "in " + diff;
-  }
-  return "now";
+  const diff = formatDistance(ts, relationTo, { addSuffix: true});
+  return diff;
 };
 
 const formatTimestamp = (timestamp: Date | undefined) => {
@@ -25,4 +18,4 @@ const formatTimestamp = (timestamp: Date | undefined) => {
   return timestamp.toUTCString();
 }
 
-export { formatAgo, formatTimestamp };
+export { formatRelativeTime, formatTimestamp };

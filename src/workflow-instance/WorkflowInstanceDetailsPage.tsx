@@ -5,7 +5,7 @@ import { ObjectTable, Spinner } from "../component";
 import { WorkflowInstance } from "../types";
 import { ConfigContext } from "../config";
 import { getWorkflowInstance} from "../service";
-import { formatTimestamp, formatAgo } from "../utils";
+import { formatTimestamp, formatRelativeTime } from "../utils";
 
 function WorkflowInstanceDetailsPage() {
   const config = useContext(ConfigContext);
@@ -36,12 +36,12 @@ function WorkflowInstanceDetailsPage() {
       {field: 'parentWorkflowId', headerName: 'Parent workflow', fieldRender: parentLink},
       {field: 'state', headerName: 'Current state'},
       {field: 'status', headerName: 'Current status'},
-      {field: 'nextActivation', headerName: 'Next activation', fieldRender: formatAgo, tooltipRender: formatTimestamp},
+      {field: 'nextActivation', headerName: 'Next activation', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp},
       {field: 'businessKey', headerName: 'Business key'},
       {field: 'externalId', headerName: 'External id'},
-      {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatAgo},
-      {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatAgo},
-      {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
+      {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
+      {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
     ]
     return <ObjectTable object={instance} columns={columns} />
   };
@@ -57,7 +57,6 @@ function WorkflowInstanceDetailsPage() {
       </div>
       )
   };
-
 
   return (
     <div>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import WorkflowInstanceSearchForm from "./WorkflowInstanceSearchForm";
 import { ConfigContext } from "../config";
 import { DataTable, Spinner } from "../component";
-import { formatAgo, formatTimestamp } from "../utils";
+import { formatRelativeTime, formatTimestamp } from "../utils";
 import { listWorkflowDefinitions, listWorkflowInstances } from "../service";
 import { WorkflowInstance } from "../types";
 
@@ -58,10 +58,10 @@ function WorkflowInstanceListPage() {
       {field: 'businessKey', headerName: 'Business key'},
       {field: 'externalId', headerName: 'External id'},
       {field: 'retries', headerName: 'Retries'},
-      {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatAgo},
-      {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatAgo},
-      {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatAgo},
-      {field: 'nextActivation', headerName: 'Next activation', fieldRender: formatTimestamp, tooltipRender: formatAgo},
+      {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
+      {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
+      {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
+      {field: 'nextActivation', headerName: 'Next activation', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
     ];
     return <DataTable rows={instances} columns={columns} />
   }
