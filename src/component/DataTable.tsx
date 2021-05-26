@@ -1,5 +1,5 @@
 import React from "react";
-import { Paper, Tooltip, Table, TableHead, TableBody, TableRow, TableCell, TableContainer } from '@material-ui/core';
+import { Paper, Table, TableHead, TableBody, TableRow, TableCell, TableContainer } from '@material-ui/core';
 
 // https://material-ui.com/components/tables/
 interface Column {
@@ -7,6 +7,7 @@ interface Column {
     headerName: string;
     align?: "inherit" | "left" | "center" | "right" | "justify";
     fieldRender?: (value: any) => any;
+    rowRender?: (value: any) => any;
     tooltipRender?: (value: any) => string | undefined;
 };
 
@@ -27,6 +28,9 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
         let value = row[column.field];
         if (column.fieldRender) {
             value = column.fieldRender(row[column.field]);
+        }
+        if (column.rowRender) {
+            value = column.rowRender(row);
         }
         let tooltip = undefined;
         if (column.tooltipRender) {

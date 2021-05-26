@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import { ConfigContext } from "../config";
-import { Spinner } from "../component";
+import { DataTable, Spinner } from "../component";
 
 import { WorkflowDefinition } from "../types";
 import { listWorkflowDefinitions } from "../service";
@@ -27,37 +27,18 @@ function WorkflowDefinitionListPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => fetchDefinitions(), []);
 
-  const definitionRow = (definition: any) => {
-    const path = "/workflow-definition/" + definition.type;
-    return (
-      <tr key={definition.type}>
-        <td>
-          <Link to={path}>{definition.type}</Link>
-        </td>
-        <td>
-          <Link to={path}>
-            {definition.description ? (
-              definition.description
-            ) : (
-              <em>No description</em>
-            )}
-          </Link>
-        </td>
-      </tr>
-    );
+  const definitionTable = () => {
+    const linkRender = (definition: WorkflowDefinition) => {
+      const path = "/workflow-definition/" + definition.type;
+      return <Link to={path}>{definition.type}</Link>
+    }
+    const columns = [
+      { field: 'type', headerName: 'Type', rowRender: linkRender},
+      { field: 'description', headerName: 'Description'},
+    ];
+    return (<DataTable rows={definitions} columns={columns} />)
   };
 
-  const definitionTable = () => (
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>{definitions.map(definitionRow)}</tbody>
-    </table>
-  );
   return (
     <div>
       <h1>Workflow definitions</h1>
