@@ -1,5 +1,5 @@
 import React from "react";
-import { Paper, Table, TableHead, TableBody, TableRow, TableCell, TableContainer } from '@material-ui/core';
+import { Paper, Table, TableBody, TableRow, TableCell, TableContainer } from '@material-ui/core';
 
 // https://material-ui.com/components/tables/
 interface Column {

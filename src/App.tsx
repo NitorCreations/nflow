@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import WorkflowDefinitionListPage from "./workflow-definition/WorkflowDefinitionListPage";
 import WorkflowDefinitionDetailsPage from "./workflow-definition/WorkflowDefinitionDetailsPage";
@@ -11,23 +11,16 @@ import WorkflowInstanceDetailsPage from "./workflow-instance/WorkflowInstanceDet
 import ExecutorListPage from "./executor/ExecutorListPage";
 
 import AboutPage from "./about/AboutPage";
-
+import { Navigation } from "./component";
 import NotFoundPage from "./error/NotFoundPage";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <header className="App-header">
-          <Link to="/">
-            <img src="/nflow_logo.svg" alt="nFlow-logo" />
-          </Link>
-          <Link to="/">Workflow definitions</Link>
-          <Link to="/search">Workflow instances</Link>
-          <Link to="/executors">Executors</Link>
-          <Link to="/about">About</Link>
+        <header>
+          <Navigation />
         </header>
-
         <hr />
         <Switch>
           <Route exact path="/">

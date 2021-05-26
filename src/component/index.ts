@@ -1,5 +1,6 @@
 import { DataTable } from "./DataTable";
 import { ObjectTable } from "./ObjectTable";
-import Spinner from "./Spinner";
+import { Navigation } from "./Navigation";
+import { Spinner } from "./Spinner";
 
-export { ObjectTable, DataTable, Spinner };
+export { Navigation, ObjectTable, DataTable, Spinner };
