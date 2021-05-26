@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Link } from "react-router-dom";
+import Typography from '@material-ui/core/Typography';
 
 import { ConfigContext } from "../config";
 import { DataTable, Spinner } from "../component";
@@ -41,7 +42,7 @@ function WorkflowDefinitionListPage() {
 
   return (
     <div>
-      <h1>Workflow definitions</h1>
+      <Typography variant="h2">Workflow definitions</Typography>
       {initialLoad ? <Spinner /> : definitionTable()}
     </div>
   );

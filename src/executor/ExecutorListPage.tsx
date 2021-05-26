@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 
+import Typography from '@material-ui/core/Typography';
 import { formatRelativeTime, formatTimestamp } from "../utils";
 import { ConfigContext } from "../config";
 import { DataTable, Spinner } from "../component";
@@ -49,7 +50,7 @@ function ExecutorListPage() {
 
   return (
     <div>
-      <h1>Workflow executors</h1>
+      <Typography variant="h2">Workflow executors</Typography>
       {initialLoad ? <Spinner /> : executorTable()}
     </div>
   );

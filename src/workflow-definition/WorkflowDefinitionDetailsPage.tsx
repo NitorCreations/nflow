@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
+import Typography from '@material-ui/core/Typography';
 
 import { Spinner } from "../component";
 import { ConfigContext } from "../config";
@@ -44,10 +45,10 @@ function WorkflowDefinitionDetailsPage() {
   const workflowDetails = (definition: WorkflowDefinition, statistics: WorkflowSummaryStatistics) => {
     return (
       <div>
-        <h1>{definition.type}</h1>
+        <Typography variant="h2">{definition.type}</Typography>
         <blockquote>{definition.description}</blockquote>
-        <p><Link to={searchPath}>Search related workflows</Link></p>
-        <p>TODO put graph here</p>
+        <Typography><Link to={searchPath}>Search related workflows</Link></Typography>
+        <Typography>TODO put graph here</Typography>
         <SettingsTable definition={definition} />
         <StatisticsSummaryTable statistics={statistics} />
       </div>
@@ -63,9 +64,9 @@ function WorkflowDefinitionDetailsPage() {
     )
   }
   return (
-    <span>
+    <Typography>
       Workflow definition {type} not found
-    </span>
+    </Typography>
   );
 }
 

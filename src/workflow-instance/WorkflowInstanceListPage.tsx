@@ -1,5 +1,6 @@
 import React, { useContext, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Typography from '@material-ui/core/Typography';
 
 import WorkflowInstanceSearchForm from "./WorkflowInstanceSearchForm";
 import { ConfigContext } from "../config";
@@ -72,7 +73,7 @@ function WorkflowInstanceListPage() {
 
   return (
     <div>
-      <h1>Search workflow instances</h1>
+      <Typography variant="h2">Search workflow instances</Typography>
       {initialLoad ? (
         <Spinner />
       ) : (
