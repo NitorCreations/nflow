@@ -1,3 +1,8 @@
+:root {
+  --color-light-gray: #e7e7e7;
+  --color-hover: #c7c7c7;
+}
+
 body {
   margin: 0;
   font-family: "Roboto";
@@ -8,4 +13,16 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+  background-color: var(--color-light-gray);
+}
+
+.table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
+  background-color: white;
+}
+
+.table-hover > tbody > tr > td:hover, .table-hover > tbody > tr > th:hover, .table-hover > tbody > tr:hover > td, .table-hover > tbody > tr > td, .table-hover > tbody > tr:hover > th {
+  background-color: var(--color-hover);
 }

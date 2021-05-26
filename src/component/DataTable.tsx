@@ -55,7 +55,7 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
 
     return (
         <TableContainer component={Paper}>
-            <Table aria-label="simple table">
+            <Table aria-label="simple table" size="small" className="table-striped table-hover">
                 {header()}
                 {body()}
             </Table>

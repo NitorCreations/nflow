@@ -9,7 +9,7 @@ const StatisticsSummaryTable = (props: {statistics: WorkflowSummaryStatistics}) 
     }
     return (
       <TableContainer component={Paper}>
-        <Table>
+        <Table size="small" className="table-striped table-hover">
           <TableHead>
             <TableRow>
               <TableCell>State</TableCell>
