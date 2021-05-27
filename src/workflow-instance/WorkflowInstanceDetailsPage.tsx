@@ -62,7 +62,7 @@ function WorkflowInstanceDetailsPage() {
     ];
 
     const valueClassRender = (column: any, instance: any) => {
-      if (column.field != 'status') {
+      if (column.field !== 'status') {
         return '';
       }
       switch(instance.status) {

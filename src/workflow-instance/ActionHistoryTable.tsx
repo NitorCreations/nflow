@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
-import { formatDuration, formatDistance, Duration } from "date-fns"
+import { formatDistance } from "date-fns"
 
-import { Paper, Table, TableHead, TableFooter, TableBody, TableRow, TableCell, TableContainer } from '@material-ui/core';
+import { Paper, Table, TableHead, TableBody, TableRow, TableCell, TableContainer } from '@material-ui/core';
 import { WorkflowInstance, WorkflowInstanceAction } from "../types";
 import { formatTimestamp } from "../utils";
 import { InternalLink } from "../component";
