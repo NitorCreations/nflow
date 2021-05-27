@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-
+import { addDays, addHours } from 'date-fns';
 import Typography from '@material-ui/core/Typography';
+
 import { formatRelativeTime, formatTimestamp } from "../utils";
 import { ConfigContext } from "../config";
 import { DataTable, Spinner } from "../component";
@@ -42,9 +43,32 @@ function ExecutorListPage() {
       { field: 'active', headerName: 'Activity hearbeat', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp},
       { field: 'expires', headerName: 'Hearbeat expires', fieldRender: formatRelativeTime, tooltipRender: formatTimestamp}, ]
 
-    const rows = executors
+    const rowClassRender = (executor: any) => {
+      const now = new Date();
+      if (executor.stopped) {
+        return '';
+      }
+      if (!executor.expires) { // has never been active yet
+        if (addDays(executor.started, 1) < now) {
+          return ''; // dead
+        }
+        if (addHours(executor.started, 1) < now) {
+          return 'warning'; // expired
+        }
+        return 'successs'; // alice
+      }
+      // has been active at some point
+      if (addDays(executor.active, 1) < now) {
+        return ''; // dead
+      }
+      if (executor.expires < now) {
+        return 'warning'; // expiry date is in past
+      }
+      return 'success'; // alive
+    };
+
     return (
-      <DataTable rows={rows} columns={columns} />
+      <DataTable rows={executors} columns={columns} rowClassRender={rowClassRender} />
     )
   };
 
