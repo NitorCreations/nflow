@@ -26,3 +26,7 @@ code {
 .table-hover > tbody > tr > td:hover, .table-hover > tbody > tr > th:hover, .table-hover > tbody > tr:hover > td, .table-hover > tbody > tr > td, .table-hover > tbody > tr:hover > th {
   background-color: var(--color-hover);
 }
+
+.clickable {
+  cursor: pointer;
+}

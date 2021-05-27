@@ -44,8 +44,8 @@ interface WorkflowInstanceAction {
   stateText?: string;
   updatedStateVariables: { [key: string]: string };
   retryNo: number;
-  executionStart: Date;
-  executionEnd: Date;
+  executionStartTime: Date;
+  executionEndTime: Date;
 }
 
 interface WorkflowInstance {

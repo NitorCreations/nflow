@@ -20,12 +20,19 @@ const convertDates = (dateFields: Array<string>) => (item: any) => {
   return newItem;
 };
 
+const convertExecutor = (executor: any) => {
+  return convertDates(["started", "stopped", "active", "expires"])(executor);
+}
+
+const convertWorkflowInstance = (instance: any) => {
+  // TODO actions have fields executionStart, executionEnd
+  return convertDates(["nextActivation", "created", "modified", "started"])(instance);
+}
+
 const listExecutors = (config: Config): Promise<Array<Executor>> => {
   return fetch(config.baseUrl + "/api/v1/workflow-executor")
     .then((response) => response.json())
-    .then((items: any) =>
-      items.map(convertDates(["started", "stopped", "active", "expires"]))
-    );
+    .then((items: any) => items.map(convertExecutor));
 };
 
 const listWorkflowDefinitions = (
@@ -109,26 +116,30 @@ const getWorkflowSummaryStatistics = (config: Config, type: string): Promise<Wor
 const listWorkflowInstances = (
   config: Config,
   query?: any
-): Promise<Array<WorkflowInstance>> => {
+): Promise<WorkflowInstance[]> => {
   const params = new URLSearchParams(query).toString();
   return fetch(
     config.baseUrl + "/api/v1/workflow-instance?" + params.toString()
   )
     .then((response) => response.json())
-    .then((items: any) =>
-      // TODO actions have fields executionStart, executionEnd
-      items.map(
-        convertDates(["nextActivation", "created", "modified", "started"])
-      )
-    );
+    .then((items: any) => items.map(convertWorkflowInstance));
 };
+
+
+const listChildWorkflowInstances = (config: Config, id: number): Promise<WorkflowInstance[]> => {
+  const url = config.baseUrl + "/api/v1/workflow-instance?parentWorkflowId=" + id;
+  return fetch(url)
+    .then(response => response.json())
+    .then((items: any) => items.map(convertWorkflowInstance)
+  );
+}
 
 
 const getWorkflowInstance = (config: Config, id: number): Promise<WorkflowInstance> => {
   const url = config.baseUrl + "/api/v1/workflow-instance/id/" + id + "?include=actions,currentStateVariables,actionStateVariables";
   return fetch(url)
     .then(response => response.json())
-    .then(convertDates(["nextActivation", "created", "modified", "started"]))
+    .then(convertWorkflowInstance)
     // TODO how to handle Not found case?
 };
 
@@ -137,5 +148,5 @@ export {
   listExecutors, 
   listWorkflowDefinitions, getWorkflowDefinition, 
   getWorkflowStatistics, getWorkflowSummaryStatistics,
-  listWorkflowInstances, getWorkflowInstance,
+  listWorkflowInstances, getWorkflowInstance, listChildWorkflowInstances,
 };

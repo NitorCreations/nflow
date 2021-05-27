@@ -4,37 +4,44 @@ import { useParams } from "react-router-dom";
 import { StateGraph, InternalLink, ObjectTable, Spinner } from "../component";
 import { WorkflowDefinition, WorkflowInstance } from "../types";
 import { ConfigContext } from "../config";
-import { getWorkflowDefinition, getWorkflowInstance} from "../service";
+import { getWorkflowDefinition, getWorkflowInstance, listChildWorkflowInstances} from "../service";
 import { formatTimestamp, formatRelativeTime } from "../utils";
 import { StateVariableTable } from "./StateVariableTable";
+import { ActionHistoryTable } from "./ActionHistoryTable";
 
 function WorkflowInstanceDetailsPage() {
   const config = useContext(ConfigContext);
 
   const [definition, setDefinition] = useState<WorkflowDefinition>();
   const [instance, setInstance] = useState<WorkflowInstance>();
+  const [childInstances, setChildInstances] = useState<WorkflowInstance[]>([])
   const [parentInstance, setParentInstance] = useState<WorkflowInstance>();
   const { id } = useParams() as any;
 
+  // TODO This fetches childWorkflows for ActionHistoryTable
+  //      There may be a lot of child workflows => possible performance problem
   useEffect(() => {
-    getWorkflowInstance(config, id)
-      .then(workflow => {
-        if (workflow.parentWorkflowId) {
+    Promise.all([getWorkflowInstance(config, id),
+                listChildWorkflowInstances(config, id)])
+      .then(([instance, childInstances]) => {
+        if (instance.parentWorkflowId) {
           return Promise.all([
-            getWorkflowInstance(config, workflow.parentWorkflowId),
-            getWorkflowDefinition(config, workflow.type)
+            getWorkflowInstance(config, instance.parentWorkflowId),
+            getWorkflowDefinition(config, instance.type)
           ])
             .then(([parent, definition]) => {
               setDefinition(definition);
               setParentInstance(parent);
-              setInstance(workflow);
+              setInstance(instance);
+              setChildInstances(childInstances)
             })
         }
-        return getWorkflowDefinition(config, workflow.type)
+        return getWorkflowDefinition(config, instance.type)
           .then(definition => {
             setDefinition(definition);
             setParentInstance(undefined);
-            setInstance(workflow);
+            setInstance(instance);
+            setChildInstances(childInstances);
           });
       })
   }, [config, id]);
@@ -64,8 +71,9 @@ function WorkflowInstanceDetailsPage() {
       <div>
         <h2><InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})</h2>
         {instanceSummaryTable(instance, parentInstance)}
+        <ActionHistoryTable instance={instance} childInstances={childInstances} />
         <StateVariableTable instance={instance} />
-        <StateGraph definition={definition} />
+        { /* <StateGraph definition={definition} /> */ }
       </div>
       )
   };
