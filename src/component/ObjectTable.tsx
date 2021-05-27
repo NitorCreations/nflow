@@ -14,7 +14,12 @@ interface Column {
 /**
  * Shows a single object in a table
  */
-function ObjectTable(props: {object: any, columns: Column[]}) {
+function ObjectTable(props: {
+    object: any, 
+    columns: Column[], 
+    valueClassRender?: (column: any, object: any) => string | undefined
+}) {
+    const valueClassRender = props.valueClassRender || ((column: any, object: any) => '');
 
     const bodyCell = (object: any, column: Column, index: number) => {
         let value = object[column.field];
@@ -28,7 +33,10 @@ function ObjectTable(props: {object: any, columns: Column[]}) {
         if (column.tooltipRender) {
             tooltip = column.tooltipRender(object[column.field]);
         }
-        return (<TableCell title={tooltip} key={index} align={column?.align || 'left'}>{value}</TableCell>)
+        return (<TableCell key={index} 
+            title={tooltip} 
+            className={valueClassRender(column, props.object)}
+            align={column?.align || 'left'}>{value}</TableCell>)
     };
 
     const body = () => {
@@ -47,7 +55,7 @@ function ObjectTable(props: {object: any, columns: Column[]}) {
 
     return (
         <TableContainer component={Paper}>
-            <Table aria-label="simple table" size="small" className="table-striped table-hover">
+            <Table aria-label="simple table" size="small" className="table table-striped table-hover">
                 {body()}
             </Table>
         </TableContainer>
