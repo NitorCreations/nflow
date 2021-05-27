@@ -5,10 +5,14 @@ import {
   WorkflowInstance,
   WorkflowStatistics,
   WorkflowSummaryStatistics,
+  NewWorkflowInstance,
+  NewWorkflowInstanceResponse,
 } from "./types";
 import { Cache } from "./cache";
 
 const cacheWD = new Cache<Array<WorkflowDefinition>>(10 * 20 * 1000);
+
+// TODO timeouts to requests?
 
 const convertDates = (dateFields: Array<string>) => (item: any) => {
   let newItem = { ...item };
@@ -41,10 +45,8 @@ const listWorkflowDefinitions = (
   const url = config.baseUrl + "/api/v1/workflow-definition";
   const cached = cacheWD.get(url);
   if (cached) {
-    console.info("Return from cache ", url);
     return Promise.resolve(cached);
   }
-  console.info("Return from service ", url);
   return fetch(url)
     .then((response) => response.json())
     .then((response: Array<WorkflowDefinition>) =>
@@ -143,10 +145,21 @@ const getWorkflowInstance = (config: Config, id: number): Promise<WorkflowInstan
     // TODO how to handle Not found case?
 };
 
+const createWorkflowInstance = (config: Config, data: NewWorkflowInstance): Promise<NewWorkflowInstanceResponse> => {
+  const url = config.baseUrl + "/api/v1/workflow-instance";
+  return fetch(url, {
+    method: 'PUT',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+};
+
 
 export { 
   listExecutors, 
   listWorkflowDefinitions, getWorkflowDefinition, 
   getWorkflowStatistics, getWorkflowSummaryStatistics,
   listWorkflowInstances, getWorkflowInstance, listChildWorkflowInstances,
+  createWorkflowInstance, 
 };

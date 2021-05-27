@@ -5,6 +5,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 
+// TODO check if this index business is needed?
 let index = 0;
 function Selection(props: {
     label: string,

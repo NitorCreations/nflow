@@ -17,15 +17,11 @@ function WorkflowDefinitionDetailsPage() {
   const [definition, setDefinition] = useState<WorkflowDefinition>()
   const [statistics, setStatistics] = useState<WorkflowSummaryStatistics>()
 
-  // TODO required features
-  // state graph
-
   // TODO new features
   // launch a new instance
 
   // TODO skipped features
   // radiator
-  const searchPath = "/search?type=" + type;
 
   useEffect(() => {
     setLoading(true);
@@ -43,11 +39,14 @@ function WorkflowDefinitionDetailsPage() {
   }, [config, type]);
 
   const workflowDetails = (definition: WorkflowDefinition, statistics: WorkflowSummaryStatistics) => {
+    const searchPath = "/search?type=" + type;
+    const createPath = "/workflow/create?type=" + type;
     return (
       <div>
         <Typography variant="h2">{definition.type}</Typography>
         <blockquote>{definition.description}</blockquote>
-        <InternalLink to={searchPath}>Search related workflows</InternalLink>
+        <div><InternalLink to={searchPath}>Search related workflows</InternalLink></div>
+        <div><InternalLink to={createPath}>Create a new workflow instance</InternalLink></div>
         <StateGraph definition={definition} />
 
         <SettingsTable definition={definition} />

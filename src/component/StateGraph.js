@@ -66,9 +66,9 @@ function render(g, selector) {
 }
 
 function StateGraph(props) {
-    console.info('StateGraph', props.definition);
-    const g = createGraph(props.definition);
     useEffect(() => {
+        console.info('StateGraph', props.definition);
+        const g = createGraph(props.definition);
         render(g, 'svg#stategraph')
         return () => {
             // Remove svg element which is created in render(), since it is not managed by React
@@ -76,7 +76,7 @@ function StateGraph(props) {
             svgContent.remove();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [props.definition]);
     return (
         <div className="svg-container">
             <svg id="stategraph" className="svg-content-responsive" preserveAspectRatio="xMinYMin meet" />

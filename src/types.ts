@@ -93,6 +93,24 @@ interface WorkflowSummaryStatistics {
   totalPerStatus: {[status: string]: {allInstances: number, queuedInstances?: 0}}
 }
 
+/**
+ * Used when creating a new Workflow instance to database
+ */
+interface NewWorkflowInstance {
+  type: string;
+  businessKey?: string;
+  externalId?: string;
+  activationTime?: Date;
+  activate: boolean;
+  stateVariables?: {[key: string]: any};
+}
+
+interface NewWorkflowInstanceResponse {
+  id: number;
+  type: string
+  externalId: string;
+}
+
 export type {
   Config,
   Executor,
@@ -101,4 +119,6 @@ export type {
   WorkflowInstanceAction,
   WorkflowStatistics,
   WorkflowSummaryStatistics,
+  NewWorkflowInstance,
+  NewWorkflowInstanceResponse,
 };

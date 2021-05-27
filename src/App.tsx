@@ -2,11 +2,13 @@ import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
+// TODO get rid of default exports in Pages
 import WorkflowDefinitionListPage from "./workflow-definition/WorkflowDefinitionListPage";
 import WorkflowDefinitionDetailsPage from "./workflow-definition/WorkflowDefinitionDetailsPage";
 
 import WorkflowInstanceListPage from "./workflow-instance/WorkflowInstanceListPage";
 import WorkflowInstanceDetailsPage from "./workflow-instance/WorkflowInstanceDetailsPage";
+import { CreateWorkflowInstancePage } from "./workflow-instance/CreateWorkflowInstancePage";
 
 import ExecutorListPage from "./executor/ExecutorListPage";
 
@@ -31,6 +33,9 @@ function App() {
           </Route>
           <Route path="/workflow-definition/:type">
             <WorkflowDefinitionDetailsPage />
+          </Route>
+          <Route path="/workflow/create">
+            <CreateWorkflowInstancePage />
           </Route>
           <Route path="/workflow/:id">
             <WorkflowInstanceDetailsPage />
