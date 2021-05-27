@@ -47,7 +47,7 @@ function WorkflowInstanceDetailsPage() {
   }, [config, id]);
 
   const instanceSummaryTable = (instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
-    // TODO childWorkflows
+    // TODO clicking currentState should highlight in state graph
     const parentLink = (x: any) => parentInstance && <InternalLink to={"/workflow/" + parentInstance.id}>{parentInstance.type} ({parentInstance.id})</InternalLink>;
     const columns = [
       {field: 'parentWorkflowId', headerName: 'Parent workflow', fieldRender: parentLink},
@@ -59,8 +59,19 @@ function WorkflowInstanceDetailsPage() {
       {field: 'created', headerName: 'Created', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
       {field: 'started', headerName: 'Started', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
       {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
-    ]
-    return <ObjectTable object={instance} columns={columns} />
+    ];
+
+    const valueClassRender = (column: any, instance: any) => {
+      if (column.field != 'status') {
+        return '';
+      }
+      switch(instance.status) {
+        case 'manual': return 'danger';
+        case 'finished': return 'success';
+        case 'inProgress': return 'info';
+      }
+    };
+    return <ObjectTable object={instance} columns={columns} valueClassRender={valueClassRender}/>
   };
 
   // TODO if the workflow is active, re-fetch peridodically
