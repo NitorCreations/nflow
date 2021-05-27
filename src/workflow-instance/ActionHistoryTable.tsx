@@ -39,7 +39,8 @@ const ActionHistoryTable = (props: {instance: WorkflowInstance, childInstances: 
 
         const childWorkflows = actionChildInstanceMap[action.id] || [];
         const description = (
-            <Fragment>{action.stateText}
+            <Fragment>
+                <div>{action.stateText}</div>
                 {childWorkflows.length > 0 && (
                     <ul>
                         {childWorkflows.map(child => (
@@ -49,11 +50,19 @@ const ActionHistoryTable = (props: {instance: WorkflowInstance, childInstances: 
                             ))}
                     </ul>
                 )}
+                <div><small>{action.type}</small></div>
             </Fragment>
         );
 
+        const className = () => {
+            switch (action.type) {
+                case 'stateExecution': return 'success';
+                case 'stateExecutionFailed': return 'danger';
+            }
+            return 'info';
+        }
         return (
-            <TableRow key={action.id}>
+            <TableRow key={action.id} className={className()}>
                 <TableCell>{actionNumber}</TableCell>
                 <TableCell onClick={(e) => clickAction(action)} className="clickable">{action.state}</TableCell>
                 <TableCell>{description}</TableCell>
@@ -68,7 +77,7 @@ const ActionHistoryTable = (props: {instance: WorkflowInstance, childInstances: 
         <Fragment>
             <h3>Action history</h3>
             <TableContainer component={Paper}>
-                <Table>
+                <Table aria-label="simple table" size="small" className="table table-striped table-hover">
                     <TableHead>
                         <TableRow>
                             <TableCell>No</TableCell>
