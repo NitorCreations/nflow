@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { Selection } from "../component";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -123,41 +121,26 @@ function WorkflowInstanceSearchForm(props: {
     setState(allMarker);
   };
 
-  // TODO move to components
-  const selection = (
-    label: string,
-    items: Array<any>,
-    selected: string,
-    onChange: (v: string) => any,
-    nameMap: any
-  ) => {
-    return (
-      <FormControl className={classes.formControl}>
-      <InputLabel id="demo-simple-select-label">{label}</InputLabel>
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={selected}
-        onChange={(e: any) => onChange(e.target.value)}
-      >
-        {items.map((item) => (
-          <MenuItem key={item} value={item}>
-            {nameMap[item] || item}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-    );
-  };
-
   return (
     <form className={classes.root}>
       <div>
-          {selection('Workflow type', types, type, setWorkflowType, typeNames)}
-  
-          {selection('Workflow state', states, state, setState, stateNames)}
+        <Selection label='Workflow type'
+                  items={types}
+                  selected={type}
+                  onChange={setWorkflowType}
+                  getSelectionLabel={(type: string) => typeNames[type] || type} />
 
-          {selection('Workflow status', statuses, status, setStatus, statusNames)}
+        <Selection label='Workflow state'
+                  items={states}
+                  selected={state}
+                  onChange={setState}
+                  getSelectionLabel={(state: string) => stateNames[state] || state} />
+
+        <Selection label='Workflow status'
+                  items={statuses}
+                  selected={status}
+                  onChange={setStatus}
+                  getSelectionLabel={(status: string) => statusNames[status] || status} />
       </div>
 
       <div>
