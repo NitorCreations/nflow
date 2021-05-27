@@ -14,7 +14,7 @@ interface Column {
 /**
  * Shows a list of objects in a table.
  */
-function DataTable(props: {rows: any[], columns: Column[]}) {
+function DataTable(props: {rows: any[], columns: Column[], rowClassRender?: (value: any) => string | undefined}) {
     const header = () => {
         return (
         <TableHead>
@@ -43,10 +43,11 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
     };
 
     const body = () => {
+        const rowClassRender = props.rowClassRender || ((x:any) => "");
         return (
             <TableBody>
                 {props.rows.map((row, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} className={rowClassRender(row)}>
                         {props.columns.map((column, index) => (
                             bodyCell(row, column, index)
                         ))}
@@ -58,7 +59,7 @@ function DataTable(props: {rows: any[], columns: Column[]}) {
 
     return (
         <TableContainer component={Paper}>
-            <Table aria-label="simple table" size="small" className="table-striped table-hover">
+            <Table aria-label="simple table" size="small" className="table table-striped table-hover">
                 {header()}
                 {body()}
             </Table>

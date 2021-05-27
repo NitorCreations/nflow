@@ -63,7 +63,14 @@ function WorkflowInstanceListPage() {
       {field: 'modified', headerName: 'Modified', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
       {field: 'nextActivation', headerName: 'Next activation', fieldRender: formatTimestamp, tooltipRender: formatRelativeTime},
     ];
-    return <DataTable rows={instances} columns={columns} />
+    const rowClassRender = (instance: any) => {
+      switch(instance.status) {
+        case 'manual': return 'danger';
+        case 'finished': return 'success';
+        case 'inProgress': return 'info';
+      }
+    };
+    return <DataTable rows={instances} columns={columns} rowClassRender={rowClassRender}/>
   }
 
   const search = (data: any) => {
