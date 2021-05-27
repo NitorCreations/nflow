@@ -84,7 +84,7 @@ function WorkflowInstanceDetailsPage() {
         {instanceSummaryTable(instance, parentInstance)}
         <ActionHistoryTable instance={instance} childInstances={childInstances} />
         <StateVariableTable instance={instance} />
-        { /* <StateGraph definition={definition} /> */ }
+        <StateGraph definition={definition} />
       </div>
       )
   };

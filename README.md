@@ -22,11 +22,17 @@ Use `npm`. `yarn` has caused problems.
 This repository has code auto formatting enabled. Auto formatter runs before commit.
 
 ## TODO
-- proper testing
+- Testing and automated tests
 - Integrate with nflow deployment/build
-  - requires http server support: (return index.html on 404)
-- config.json file
-- config.js with code injection, some solution needed?
-- redirect old style #! urls to new urls
-- Modify workflow instance
+  - Requires http server support: (return index.html on 404)
+- Layout
+- Configuration
+  - config.json file
+  - config.js with code injection, some solution needed?
+- Compatibility with the old
+  - redirect old style #! urls to new urls
+- State graph
+  - highlight
+  - Show workflow instance data
+- Modify existing workflow instance
 - Create new workflow instance via UI
