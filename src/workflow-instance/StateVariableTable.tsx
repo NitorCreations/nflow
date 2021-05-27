@@ -6,7 +6,7 @@ function StateVariableTable(props: {instance: WorkflowInstance}) {
     const renderValue = (value: any) => {
         return (<pre><code>{JSON.stringify(value, null, 2)}</code></pre>);
     };
-    const columns = Object.keys(props.instance.stateVariables)
+    const columns = Object.keys(props.instance.stateVariables || {})
                         .map(key => ({
                             field: key,
                             headerName: key,
