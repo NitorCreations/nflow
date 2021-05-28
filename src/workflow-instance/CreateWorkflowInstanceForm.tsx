@@ -4,7 +4,7 @@ import { useLocation, useHistory } from "react-router-dom";
 import { Container, Button, TextField, Paper, Typography } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Selection, StateGraph } from '../component';
+import { Selection, StateGraph, useFeedback } from '../component';
 import { NewWorkflowInstance, NewWorkflowInstanceResponse, WorkflowDefinition } from "../types";
 import { createWorkflowInstance } from "../service";
 import { ConfigContext } from "../config";
@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 function CreateWorkflowInstanceForm(props: {
     definitions: WorkflowDefinition[]
 }) {
+    const feedback = useFeedback();
     const config = useContext(ConfigContext);
     const history = useHistory();
     const classes = useStyles();
@@ -41,6 +42,8 @@ function CreateWorkflowInstanceForm(props: {
     const [stateVariableError, setStateVariableError] = useState<string|undefined>();
 
     const selectDefinition = (type: string) => setDefinition(definitionFromType(type));
+
+    // Do not run validation every time a new character is added (debounce).
     const validateJSON = debounce((value: string) => {
         if(value.trim() === '') {
             setStateVariableError(undefined);
@@ -49,7 +52,7 @@ function CreateWorkflowInstanceForm(props: {
         try {
             const object = JSON.parse(value);
             setStateVariableError(undefined)
-            // TODO check that the object is a 
+            // TODO check that the object is an object? Lists are not allowed here?
             setStateVariablesParsed(object);
         } catch(err) {
             setStateVariableError(err.message);
@@ -85,11 +88,14 @@ function CreateWorkflowInstanceForm(props: {
         };
         createWorkflowInstance(config, data)
             .then((response: NewWorkflowInstanceResponse) => {
-                console.info('New workflow created successfully', response)
-                // TODO show feedback on the new page
+                console.info(`A new workflow was created. id=${response.id}`, response)
+                feedback.addFeedback({message: `A new workflow was created`, severity: 'success'});
                 history.push('/workflow/' + response.id);
             })
-        .catch(err => console.error('Creating workflow failed', err));
+        .catch(err => {
+            console.error('Creating workflow failed', err);
+            feedback.addFeedback({message: 'Creating workflow failed: ' + err.message, severity: 'error'});
+        });
     };
 
     return (

@@ -111,8 +111,11 @@ interface NewWorkflowInstanceResponse {
   externalId: string;
 }
 
+type FeedbackMessage = {message: string, severity: 'info' | 'success' | 'error'};
+
 export type {
   Config,
+  FeedbackMessage,
   Executor,
   WorkflowDefinition,
   WorkflowInstance,
