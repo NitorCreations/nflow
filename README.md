@@ -25,7 +25,6 @@ This repository has code auto formatting enabled. Auto formatter runs before com
 - Testing and automated tests
 - Integrate with nflow deployment/build
   - Requires http server support: (return index.html on 404)
-- Layout
 - Configuration
   - config.json file
   - config.js with code injection, some solution needed?
@@ -35,4 +34,3 @@ This repository has code auto formatting enabled. Auto formatter runs before com
   - highlight
   - Show workflow instance data
 - Modify existing workflow instance
-- Create new workflow instance via UI

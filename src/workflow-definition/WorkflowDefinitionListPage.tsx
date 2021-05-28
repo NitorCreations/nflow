@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Typography, Grid, Container, Paper } from '@material-ui/core';
+import { Typography, Grid, Container } from '@material-ui/core';
 
 import { ConfigContext } from "../config";
 import { InternalLink, DataTable, Spinner } from "../component";

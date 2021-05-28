@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-import { Typography, Grid, Container, Paper } from '@material-ui/core';
+import { Typography, Grid, Container } from '@material-ui/core';
 
 import { StateGraph, InternalLink, ObjectTable, Spinner } from "../component";
 import { WorkflowDefinition, WorkflowInstance } from "../types";
@@ -81,7 +81,7 @@ function WorkflowInstanceDetailsPage() {
   const instanceSummary = (definition: WorkflowDefinition, instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
     return (
       <Fragment>
-        <Grid xs={12} sm={6}>
+        <Grid item xs={12} sm={6}>
           <Container>
             <Typography variant="h2">
               <InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})
@@ -89,7 +89,7 @@ function WorkflowInstanceDetailsPage() {
             {instanceSummaryTable(instance, parentInstance)}
           </Container>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid item xs={12} sm={6}>
           <Container>
             <Typography variant="h3">State variables</Typography>
             <StateVariableTable instance={instance} />
@@ -99,7 +99,7 @@ function WorkflowInstanceDetailsPage() {
             <ActionHistoryTable instance={instance} childInstances={childInstances} />
           </Container>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid item xs={12} sm={6}>
           <Container>
             <StateGraph definition={definition} />
           </Container>
@@ -111,7 +111,7 @@ function WorkflowInstanceDetailsPage() {
   return (
     <Grid container spacing={3}>
         { (definition && instance) ? instanceSummary(definition, instance, parentInstance) : 
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <Container>
             <Spinner />
           </Container>

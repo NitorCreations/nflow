@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { ConfigContext } from "../config";
-import { Typography, Grid, Container, Paper } from '@material-ui/core';
+import { Typography, Grid, Container } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
 
 function AboutPage() {

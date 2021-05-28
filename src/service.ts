@@ -17,8 +17,8 @@ const cacheWD = new Cache<Array<WorkflowDefinition>>(10 * 20 * 1000);
 const convertDates = (dateFields: Array<string>) => (item: any) => {
   let newItem = { ...item };
   for (let field of dateFields) {
-    if (item[field]) {
-      item[field] = new Date(item[field]);
+    if (newItem[field]) {
+      newItem[field] = new Date(item[field]);
     }
   }
   return newItem;
