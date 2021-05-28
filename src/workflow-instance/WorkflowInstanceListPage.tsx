@@ -1,5 +1,5 @@
 import React, { useContext, useCallback, useEffect, useState } from "react";
-import Typography from '@material-ui/core/Typography';
+import { Typography, Grid, Container, Paper } from '@material-ui/core';
 
 import WorkflowInstanceSearchForm from "./WorkflowInstanceSearchForm";
 import { ConfigContext } from "../config";
@@ -78,18 +78,22 @@ function WorkflowInstanceListPage() {
   };
 
   return (
-    <div>
-      <Typography variant="h2">Search workflow instances</Typography>
-      {initialLoad ? (
-        <Spinner />
-      ) : (
-        <WorkflowInstanceSearchForm
-          definitions={definitions}
-          onSubmit={search}
-        />
-      )}
-      {instanceTable()}
-    </div>
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Container>
+          <Typography variant="h2">Search workflow instances</Typography>
+          {initialLoad ? (
+            <Spinner />
+          ) : (
+            <WorkflowInstanceSearchForm
+              definitions={definitions}
+              onSubmit={search}
+            />
+          )}
+        </Container>
+        {instanceTable()}
+      </Grid>
+    </Grid>
   );
 }
 

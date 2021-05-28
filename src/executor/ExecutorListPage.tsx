@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { addDays, addHours } from 'date-fns';
-import Typography from '@material-ui/core/Typography';
+import { Typography, Grid, Container } from '@material-ui/core';
 
 import { formatRelativeTime, formatTimestamp } from "../utils";
 import { ConfigContext } from "../config";
@@ -73,10 +73,12 @@ function ExecutorListPage() {
   };
 
   return (
-    <div>
-      <Typography variant="h2">Workflow executors</Typography>
-      {initialLoad ? <Spinner /> : executorTable()}
-    </div>
+    <Grid container spacing={3}>
+    <Grid item xs={12}>
+      <Container><Typography variant="h2">Workflow executors</Typography></Container>
+      {initialLoad ? <Container><Spinner /></Container> : executorTable()}
+    </Grid>
+    </Grid>
   );
 }
 

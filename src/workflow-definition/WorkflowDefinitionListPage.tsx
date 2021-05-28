@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import Typography from '@material-ui/core/Typography';
+import { Typography, Grid, Container, Paper } from '@material-ui/core';
 
 import { ConfigContext } from "../config";
 import { InternalLink, DataTable, Spinner } from "../component";
-
 import { WorkflowDefinition } from "../types";
 import { listWorkflowDefinitions } from "../service";
 
@@ -40,10 +39,14 @@ function WorkflowDefinitionListPage() {
   };
 
   return (
-    <div>
-      <Typography variant="h2">Workflow definitions</Typography>
-      {initialLoad ? <Spinner /> : definitionTable()}
-    </div>
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Container>
+          <Typography variant="h2">Workflow definitions</Typography>
+        </Container>
+        {initialLoad ? <Container><Spinner /></Container> : definitionTable()}
+      </Grid>
+    </Grid>
   );
 }
 

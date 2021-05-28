@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { debounce } from 'lodash';
 import { useLocation, useHistory } from "react-router-dom";
-import { Button, TextField, Paper, Typography } from "@material-ui/core";
+import { Container, Button, TextField, Paper, Typography } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Selection, StateGraph } from '../component';
@@ -92,8 +92,10 @@ function CreateWorkflowInstanceForm(props: {
         .catch(err => console.error('Creating workflow failed', err));
     };
 
-    return (<form className={classes.root}>
-        <Paper>
+    return (
+        <form className={classes.root}>
+            <Paper>
+                <Container>
                 <Selection label='Workflow definition'
                     items={definitionNames}
                     selected={definition.type}
@@ -110,28 +112,31 @@ function CreateWorkflowInstanceForm(props: {
                     onChange={(e: any) => setBusinessKey(e.target.value)}
                 />
                 {/* TODO need to set bigger width for the field */}
-            <div>
-                <TextField
-                    error={!!stateVariableError}
-                    helperText={stateVariableError}
-                    className="json-field"
-                    label="State variables"
-                    InputLabelProps={{ shrink: true }}
-                    placeholder='Add state variables as a JSON document'
-                    multiline
-                    rows={10}
-                    value={stateVariables}
-                    onChange={(e: any) => setStateVariablesStr(e.target.value)}
-                    />
-            </div>
-            <div>
-            <Button variant="contained" onClick={sendCreateRequest} disabled={!formValid()}>Create</Button>
-            </div>
-        </Paper>
+                <div>
+                    <TextField
+                        error={!!stateVariableError}
+                        helperText={stateVariableError}
+                        className="json-field"
+                        label="State variables"
+                        InputLabelProps={{ shrink: true }}
+                        placeholder='Add state variables as a JSON document'
+                        multiline
+                        rows={10}
+                        value={stateVariables}
+                        onChange={(e: any) => setStateVariablesStr(e.target.value)}
+                        />
+                </div>
+                <div>
+                <Button variant="contained" onClick={sendCreateRequest} disabled={!formValid()}>Create</Button>
+                </div>
+                </Container>
+                </Paper>
         <Paper>
+            <Container>
             <Typography variant="h3">{definition.type}</Typography>
             <Typography>{definition.description}</Typography>
             <div style={{width: '25%'}}><StateGraph definition={definition} /></div>
+            </Container>
         </Paper>
     </form>)
 }

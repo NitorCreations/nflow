@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { ConfigContext } from "../config";
-import Typography from '@material-ui/core/Typography';
+import { Typography, Grid, Container, Paper } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
 
 function AboutPage() {
@@ -9,8 +9,10 @@ function AboutPage() {
   let apiUrl = config.baseUrl + "/api";
   let docUrl = config.baseUrl + "/ui/doc/";
   return (
-    <div>
-      <Typography variant="h2">
+    <Grid container spacing={3}>
+    <Grid item xs={12}>
+      <Container>
+              <Typography variant="h2">
           nFlow Explorer
       </Typography>
       <Typography variant="body1">
@@ -32,7 +34,9 @@ function AboutPage() {
       <Typography variant="body1">
         nFlow API documentation is available at <Link href={docUrl}>{docUrl}</Link>.
       </Typography>
-    </div>
+      </Container>
+    </Grid>
+    </Grid>
   );
 }
 

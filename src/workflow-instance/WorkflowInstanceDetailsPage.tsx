@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { Fragment, useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { Typography, Grid, Container, Paper } from '@material-ui/core';
 
 import { StateGraph, InternalLink, ObjectTable, Spinner } from "../component";
 import { WorkflowDefinition, WorkflowInstance } from "../types";
@@ -79,20 +80,43 @@ function WorkflowInstanceDetailsPage() {
   // - status create/inProgress and has nextActivation (which is less than 24h away?)
   const instanceSummary = (definition: WorkflowDefinition, instance: WorkflowInstance, parentInstance?: WorkflowInstance) => {
     return (
-      <div>
-        <h2><InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})</h2>
-        {instanceSummaryTable(instance, parentInstance)}
-        <ActionHistoryTable instance={instance} childInstances={childInstances} />
-        <StateVariableTable instance={instance} />
-        <StateGraph definition={definition} />
-      </div>
-      )
+      <Fragment>
+        <Grid xs={12} sm={6}>
+          <Container>
+            <Typography variant="h2">
+              <InternalLink to={"/workflow-definition/" + instance.type}>{instance.type}</InternalLink> ({instance.id})
+            </Typography>
+            {instanceSummaryTable(instance, parentInstance)}
+          </Container>
+        </Grid>
+        <Grid xs={12} sm={6}>
+          <Container>
+            <Typography variant="h3">State variables</Typography>
+            <StateVariableTable instance={instance} />
+          </Container>
+          <Container>
+            <Typography variant="h3">Action history</Typography>
+            <ActionHistoryTable instance={instance} childInstances={childInstances} />
+          </Container>
+        </Grid>
+        <Grid xs={12} sm={6}>
+          <Container>
+            <StateGraph definition={definition} />
+          </Container>
+        </Grid>
+      </Fragment>
+    );
   };
 
   return (
-    <div>
-      { (definition && instance) ? instanceSummary(definition, instance, parentInstance) : <Spinner />}
-    </div>
+    <Grid container spacing={3}>
+        { (definition && instance) ? instanceSummary(definition, instance, parentInstance) : 
+        <Grid xs={12}>
+          <Container>
+            <Spinner />
+          </Container>
+        </Grid>}
+    </Grid>
   );
 }
 

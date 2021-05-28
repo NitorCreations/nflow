@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, Fragment } from "react";
-import { Typography } from "@material-ui/core";
+import { Typography, Grid, Container } from '@material-ui/core';
 
 import { CreateWorkflowInstanceForm } from "./CreateWorkflowInstanceForm";
 import { WorkflowDefinition } from "../types";
@@ -19,15 +19,27 @@ function CreateWorkflowInstancePage() {
     }, [])
 
     const showForm = (definitions: WorkflowDefinition[]) => {
-        return (<div>
+        return (        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Container>
             <Typography variant="h2">Create a new workflow instance</Typography>
             <CreateWorkflowInstanceForm definitions={definitions} />
-        </div>)
+            </Container>
+            </Grid>
+            </Grid>)
     }
     if (definitions) {
         return showForm(definitions);
     }
-    return <Spinner />
+    return (
+        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Container>
+                    <Spinner />    
+                </Container>
+            </Grid>
+        </Grid>
+    );  
 }
 
 export { CreateWorkflowInstancePage };

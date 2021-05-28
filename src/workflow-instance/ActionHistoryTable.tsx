@@ -8,7 +8,6 @@ import { InternalLink } from "../component";
 
 // TODO clicking state highlight state in state graph
 const ActionHistoryTable = (props: {instance: WorkflowInstance, childInstances: WorkflowInstance[]}) => {
-    console.log('instance', props.instance);
     const clickAction = (action: WorkflowInstanceAction) => {
         // TODO call state graph highlight from here
         console.log('Action clicked', action);
@@ -75,7 +74,6 @@ const ActionHistoryTable = (props: {instance: WorkflowInstance, childInstances: 
     }
     return (
         <Fragment>
-            <h3>Action history</h3>
             <TableContainer component={Paper}>
                 <Table aria-label="simple table" size="small" className="table table-striped table-hover">
                     <TableHead>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import Typography from '@material-ui/core/Typography';
+import { Typography, Grid, Container, Paper } from '@material-ui/core';
 
 import { StateGraph, InternalLink, Spinner } from "../component";
 import { ConfigContext } from "../config";
@@ -42,16 +42,30 @@ function WorkflowDefinitionDetailsPage() {
     const searchPath = "/search?type=" + type;
     const createPath = "/workflow/create?type=" + type;
     return (
-      <div>
-        <Typography variant="h2">{definition.type}</Typography>
-        <blockquote>{definition.description}</blockquote>
-        <div><InternalLink to={searchPath}>Search related workflows</InternalLink></div>
-        <div><InternalLink to={createPath}>Create a new workflow instance</InternalLink></div>
-        <StateGraph definition={definition} />
 
-        <SettingsTable definition={definition} />
-        <StatisticsSummaryTable statistics={statistics} />
-      </div>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
+          <Container>
+          <Typography variant="h2">{definition.type}</Typography>
+          <blockquote>{definition.description}</blockquote>
+          <div><InternalLink to={searchPath}>Search related workflows</InternalLink></div>
+          <div><InternalLink to={createPath}>Create a new workflow instance</InternalLink></div>
+          <StateGraph definition={definition} />
+          </Container>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Container>
+            <Paper>
+              <Typography variant="h3">Settings</Typography>
+              <SettingsTable definition={definition} />
+            </Paper>
+            <Paper>
+              <Typography variant="h3">Statistics summary</Typography>
+              <StatisticsSummaryTable statistics={statistics} />
+            </Paper>
+          </Container>
+        </Grid>
+      </Grid>
     );
   };
 
@@ -60,13 +74,21 @@ function WorkflowDefinitionDetailsPage() {
   }
   if (loading) {
     return (
-      <Spinner />
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Spinner />
+        </Grid>
+      </Grid>
     )
   }
   return (
-    <Typography>
-      Workflow definition {type} not found
-    </Typography>
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography>
+          Workflow definition {type} not found
+        </Typography>
+      </Grid>
+    </Grid>
   );
 }
 
