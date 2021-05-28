@@ -69,7 +69,7 @@ function CreateWorkflowInstanceForm(props: {
         return !stateVariableError;
     };
 
-    // TODO belongs to Page class
+    // TODO belongs to Page class?
     const sendCreateRequest = () => {
         // TODO activationTime
         // TODO startState
@@ -84,11 +84,11 @@ function CreateWorkflowInstanceForm(props: {
             stateVariables: stateVariablesParsed
         };
         createWorkflowInstance(config, data)
-        .then((response: NewWorkflowInstanceResponse) => {
-            console.info('New workflow created successfully', response)
-            // TODO show feedback on the new page
-            history.push('/workflow/' + response.id);
-        })
+            .then((response: NewWorkflowInstanceResponse) => {
+                console.info('New workflow created successfully', response)
+                // TODO show feedback on the new page
+                history.push('/workflow/' + response.id);
+            })
         .catch(err => console.error('Creating workflow failed', err));
     };
 
@@ -96,46 +96,46 @@ function CreateWorkflowInstanceForm(props: {
         <form className={classes.root}>
             <Paper>
                 <Container>
-                <Selection label='Workflow definition'
-                    items={definitionNames}
-                    selected={definition.type}
-                    onChange={selectDefinition}
-                    getSelectionLabel={(x:any) => x} />
-                <TextField
-                    label="External id"
-                    value={externalId}
-                    onChange={(e: any) => setExternalId(e.target.value)}
-                />
-                <TextField
-                    label="Business key"
-                    value={businessKey}
-                    onChange={(e: any) => setBusinessKey(e.target.value)}
-                />
-                {/* TODO need to set bigger width for the field */}
-                <div>
+                    <Selection label='Workflow definition'
+                        items={definitionNames}
+                        selected={definition.type}
+                        onChange={selectDefinition}
+                        getSelectionLabel={(x:any) => x} />
                     <TextField
-                        error={!!stateVariableError}
-                        helperText={stateVariableError}
-                        className="json-field"
-                        label="State variables"
-                        InputLabelProps={{ shrink: true }}
-                        placeholder='Add state variables as a JSON document'
-                        multiline
-                        rows={10}
-                        value={stateVariables}
-                        onChange={(e: any) => setStateVariablesStr(e.target.value)}
-                        />
-                </div>
-                <div>
-                <Button variant="contained" onClick={sendCreateRequest} disabled={!formValid()}>Create</Button>
-                </div>
+                        label="External id"
+                        value={externalId}
+                        onChange={(e: any) => setExternalId(e.target.value)}
+                    />
+                    <TextField
+                        label="Business key"
+                        value={businessKey}
+                        onChange={(e: any) => setBusinessKey(e.target.value)}
+                    />
+                    {/* TODO need to set bigger width for the field */}
+                    <div>
+                        <TextField
+                            error={!!stateVariableError}
+                            helperText={stateVariableError}
+                            className="json-field"
+                            label="State variables"
+                            InputLabelProps={{ shrink: true }}
+                            placeholder='Add state variables as a JSON document'
+                            multiline
+                            rows={10}
+                            value={stateVariables}
+                            onChange={(e: any) => setStateVariablesStr(e.target.value)}
+                            />
+                    </div>
+                    <div>
+                        <Button variant="contained" onClick={sendCreateRequest} disabled={!formValid()}>Create</Button>
+                    </div>
                 </Container>
-                </Paper>
+            </Paper>
         <Paper>
             <Container>
-            <Typography variant="h3">{definition.type}</Typography>
-            <Typography>{definition.description}</Typography>
-            <div style={{width: '25%'}}><StateGraph definition={definition} /></div>
+                <Typography variant="h3">{definition.type}</Typography>
+                <Typography>{definition.description}</Typography>
+                <StateGraph definition={definition} />
             </Container>
         </Paper>
     </form>)

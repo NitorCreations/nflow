@@ -19,14 +19,16 @@ function CreateWorkflowInstancePage() {
     }, [])
 
     const showForm = (definitions: WorkflowDefinition[]) => {
-        return (        <Grid container spacing={3}>
-            <Grid item xs={12}>
-                <Container>
-            <Typography variant="h2">Create a new workflow instance</Typography>
-            <CreateWorkflowInstanceForm definitions={definitions} />
-            </Container>
+        return (        
+            <Grid container spacing={3}>
+                <Grid item xs={12}>
+                    <Container>
+                        <Typography variant="h2">Create a new workflow instance</Typography>
+                        <CreateWorkflowInstanceForm definitions={definitions} />
+                    </Container>
+                </Grid>
             </Grid>
-            </Grid>)
+        );
     }
     if (definitions) {
         return showForm(definitions);
