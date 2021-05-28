@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
@@ -47,6 +47,7 @@ function WorkflowInstanceSearchForm(props: {
   onSubmit: (data: any) => any;
 }) {
   const classes = useStyles();
+  const history = useHistory();
 
   const queryParams = new URLSearchParams(useLocation().search);
   
@@ -104,6 +105,8 @@ function WorkflowInstanceSearchForm(props: {
         delete data[k];
       }
     }
+    // Update query parameters to URL
+    history.push('/search?' + new URLSearchParams(data).toString());
     props.onSubmit(data);
   };
 

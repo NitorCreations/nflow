@@ -30,6 +30,7 @@ function WorkflowInstanceListPage() {
   useEffect(() => fetchDefinitions(), []);
 
   const searchInstances = useCallback((data: any) => {
+    console.log('search instances', data);
     listWorkflowInstances(config, data)
       .then((data) => setInstances(data))
       .catch((error) => {
