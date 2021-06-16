@@ -30,26 +30,27 @@ function createGraph(definition) {
     const node = g.node(state.id);
     node.rx = node.ry = 5;
   }
+  
   // create edges between nodes
-  const edgeProps = {
-    class: 'edge-normal',
-    curve: d3.curveBasis,
-    arrowhead: 'normal'
-  };
-
   for (let state of states) {
     for (let transition of state.transitions || []) {
-      g.setEdge(state.id, transition, edgeProps);
+      g.setEdge(state.id, transition, {
+        class: 'edge-normal',
+        curve: d3.curveBasis,
+        arrowhead: 'normal'
+      });
     }
     if (state.onFailure) {
       g.setEdge(state.id, state.onFailure, {
-        ...edgeProps,
-        class: 'edge-failure'
+        class: 'edge-failure',
+        curve: d3.curveBasis,
+        arrowhead: 'normal'
       });
     } else if (definition.onError) {
       g.setEdge(state.id, definition.onError, {
-        ...edgeProps,
-        class: 'edge-error'
+        class: 'edge-error',
+        curve: d3.curveBasis,
+        arrowhead: 'normal'
       });
     }
   }
