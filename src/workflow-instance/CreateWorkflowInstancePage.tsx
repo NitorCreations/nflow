@@ -1,47 +1,49 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Typography, Grid, Container } from '@material-ui/core';
+import React, {useEffect, useState} from 'react';
+import {Typography, Grid, Container} from '@material-ui/core';
 
-import { CreateWorkflowInstanceForm } from "./CreateWorkflowInstanceForm";
-import { WorkflowDefinition } from "../types";
-import { ConfigContext } from "../config";
-import { Spinner } from "../component";
-import { listWorkflowDefinitions } from "../service";
+import {CreateWorkflowInstanceForm} from './CreateWorkflowInstanceForm';
+import {WorkflowDefinition} from '../types';
+import {useConfig} from '../config';
+import {Spinner} from '../component';
+import {listWorkflowDefinitions} from '../service';
+
+const ShowForm = ({definitions}: {definitions: WorkflowDefinition[]}) => {
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Container>
+          <Typography variant="h2" gutterBottom>
+            Create a new workflow instance
+          </Typography>
+          <CreateWorkflowInstanceForm definitions={definitions} />
+        </Container>
+      </Grid>
+    </Grid>
+  );
+};
 
 function CreateWorkflowInstancePage() {
-    const config = useContext(ConfigContext);
+  const config = useConfig();
 
-    const [definitions, setDefinitions] = useState<WorkflowDefinition[]>()
+  const [definitions, setDefinitions] = useState<WorkflowDefinition[]>();
 
-    useEffect(() => {
-        listWorkflowDefinitions(config)
-            .then(setDefinitions)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+  useEffect(() => {
+    listWorkflowDefinitions(config).then(setDefinitions);
+  }, [config]);
 
-    const showForm = (definitions: WorkflowDefinition[]) => {
-        return (        
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Container>
-                        <Typography variant="h2">Create a new workflow instance</Typography>
-                        <CreateWorkflowInstanceForm definitions={definitions} />
-                    </Container>
-                </Grid>
-            </Grid>
-        );
-    }
-    if (definitions) {
-        return showForm(definitions);
-    }
-    return (
-        <Grid container spacing={3}>
-            <Grid item xs={12}>
-                <Container>
-                    <Spinner />    
-                </Container>
-            </Grid>
-        </Grid>
-    );  
+  if (definitions) {
+    return <ShowForm definitions={definitions} />;
+  }
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Container>
+          <Spinner />
+        </Container>
+      </Grid>
+    </Grid>
+  );
 }
 
-export { CreateWorkflowInstancePage };
+export {CreateWorkflowInstancePage};
