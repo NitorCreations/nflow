@@ -6,7 +6,7 @@
 - `nflow-jetty`
   - Explicitly depend on jackson-databind so that projects including the nflow-jetty do not have to specify the version explicitly
   - Dependency updates:
-    - jetty 9.4.39.v20210325
+    - jetty 9.4.41.v20210516
 
 ## 7.3.0 (2021-04-05)
 
