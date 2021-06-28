@@ -1,5 +1,7 @@
 #!/bin/bash -ev
 
+service mysql start
+
 mysql -v -e "create database nflow character set utf8mb4;" -u root
 mysql -v -e "create user 'nflow'@'%' identified by 'nflow';" -u root
 mysql -v -e "create user 'nflow'@'localhost' identified by 'nflow';" -u root

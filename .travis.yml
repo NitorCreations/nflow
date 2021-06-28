@@ -1,8 +1,8 @@
-dist: trusty
+dist: bionic
 language: java
 jdk:
   - openjdk11
-  - oraclejdk8
+  - openjdk8
 env:
   global:
   - BUILD_SYSTEM=travis
