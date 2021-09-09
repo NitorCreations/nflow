@@ -739,10 +739,10 @@ public class WorkflowInstanceDao {
     } else {
       sql = "select nflow_workflow_state.* from ("
           + sqlVariants.limit("select id from nflow_workflow_action where workflow_id = ? order by id desc", maxActions)
-          + ") action_id inner join nflow_workflow_state on action_id.id = nflow_workflow_state.action_id "
+          + ") action_id inner join nflow_workflow_state on nflow_workflow_state.workflow_id = ? and action_id.id = nflow_workflow_state.action_id "
           + "order by nflow_workflow_state.action_id, nflow_workflow_state.state_key asc";
     }
-    return jdbc.query(sql, new WorkflowActionStateRowMapper(), instance.id);
+    return jdbc.query(sql, new WorkflowActionStateRowMapper(), instance.id, instance.id);
   }
 
   @Transactional(propagation = MANDATORY)
