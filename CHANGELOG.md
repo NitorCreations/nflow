@@ -1,12 +1,16 @@
 ## 7.3.1-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Optimize fetching workflow with large action history with many modified state variables.
 
 **Details**
 - `nflow-jetty`
   - Explicitly depend on jackson-databind so that projects including the nflow-jetty do not have to specify the version explicitly
   - Dependency updates:
     - jetty 9.4.41.v20210516
+- `nflow-engine`
+  - Improve SQL performance by using workflowId in the query which fetches the state of actions from `nflow_workflow_state`
 
 ## 7.3.0 (2021-04-05)
 
