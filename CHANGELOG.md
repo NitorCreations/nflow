@@ -1,4 +1,10 @@
-## 7.3.1-SNAPSHOT (future release)
+## 7.3.2-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.3.1 (2021-09-15)
 
 **Highlights**
 - `nflow-engine`
