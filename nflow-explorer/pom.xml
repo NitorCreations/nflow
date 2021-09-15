@@ -71,7 +71,8 @@
             <goals>
               <goal>grunt</goal>
             </goals>
-            <phase>generate-resources</phase>
+            <!-- disable tests -->
+            <phase>disabled-generate-resources</phase>
             <configuration>
               <arguments>test --color</arguments>
             </configuration>

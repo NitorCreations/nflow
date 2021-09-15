@@ -11,6 +11,8 @@
     - jetty 9.4.41.v20210516
 - `nflow-engine`
   - Improve SQL performance by using workflowId in the query which fetches the state of actions from `nflow_workflow_state`
+- `nflow-explorer`
+  - Disable karma tests
 
 ## 7.3.0 (2021-04-05)
 
