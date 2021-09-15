@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>io.nflow</groupId>
 			<artifactId>nflow-engine</artifactId>
-			<version>7.3.0</version>
+			<version>7.3.1</version>
 		</dependency>
 
 		<dependency>
