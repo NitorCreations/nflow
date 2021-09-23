@@ -15,9 +15,9 @@
 
     var getStateVariablesInQuery = false;
     if (config.searchResultColumns) {
-      getStateVariablesInQuery = config.searchResultColumns.filter(function (column) {
+      getStateVariablesInQuery = config.searchResultColumns.find(function (column) {
         return column.field.startsWith('stateVariables');
-      }).length > 0;
+      });
     }
 
     function get(workflowId) {
