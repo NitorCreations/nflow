@@ -1,6 +1,8 @@
 ## 7.3.2-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-explorer`
+  - Customizable workflow search result table columns
 
 **Details**
 

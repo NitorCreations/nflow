@@ -13,6 +13,13 @@
     api.query = query;
     api.signal = signal;
 
+    var getStateVariablesInQuery = false;
+    if (config.searchResultColumns) {
+      getStateVariablesInQuery = config.searchResultColumns.find(function (column) {
+        return column.field.startsWith('stateVariables');
+      });
+    }
+
     function get(workflowId) {
       return RestHelper.get({
         path: '/v1/workflow-instance/id/' + workflowId + '?include=actions,currentStateVariables,actionStateVariables'
@@ -28,7 +35,7 @@
     }
 
     function query(queryCriteria) {
-      return RestHelper.query({path: '/v1/workflow-instance'}, queryCriteria);
+      return RestHelper.query({path: '/v1/workflow-instance' + (getStateVariablesInQuery ? '?include=currentStateVariables' : '')}, queryCriteria);
     }
 
   });

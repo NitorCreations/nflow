@@ -8,32 +8,25 @@
       <tr class="clickable-header">
         <th st-sort="id">Id</th>
         <th st-sort="type">Workflow type</th>
-        <th st-sort="state">State</th>
-        <th st-sort="stateText">State text</th>
-        <th st-sort="status">Status</th>
-        <th st-sort="businessKey">Business key</th>
-        <th st-sort="externalId">External id</th>
-        <th st-sort="retries">Retries</th>
-        <th st-sort="created">Created</th>
-        <th st-sort="started">Started</th>
-        <th st-sort="modified">Modified</th>
-        <th st-sort="nextActivation">Next activation</th>
+        <th st-sort="{{col}}" ng-repeat="col in ctrl.columns">{{col.label ? col.label : col.field}}</th>
       </tr>
     </thead>
     <tbody>
     <tr ng-repeat="result in displayedResults" ng-class="ctrl.getStateClass(result)">
       <td><a ui-sref="workflow({id: result.id})">{{result.id}}</a></td>
       <td><a ui-sref="workflow({id: result.id})">{{result.type}}</a></td>
-      <td>{{result.state}}</td>
-      <td>{{result.stateText}}</td>
-      <td>{{result.status}}</td>
-      <td>{{result.businessKey}}</td>
-      <td>{{result.externalId}}</td>
-      <td>{{result.retries}}</td>
-      <td title="{{result.created | fromNowOrNever}}">{{result.created | date:'yyyy-MM-dd HH:mm:ss'}}</td>
-      <td title="{{result.started | fromNowOrNever}}">{{result.started | date:'yyyy-MM-dd HH:mm:ss'}}</td>
-      <td title="{{result.modified | fromNowOrNever}}">{{result.modified | date:'yyyy-MM-dd HH:mm:ss'}}</td>
-      <td title="{{result.nextActivation | fromNowOrNever}}">{{result.nextActivation | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+
+      <td ng-repeat="col in ctrl.columns">
+        <span ng-show="ctrl.isStateVariableField(col.field)">
+          {{ctrl.formatStateVariable(col.field, result)}}
+        </span>
+        <span ng-show="col.type === 'timestamp'" title="{{result[col.field] | fromNowOrNever}}">
+          {{result[col.field] | date:'yyyy-MM-dd HH:mm:ss'}}
+        </span>
+        <span ng-show="!ctrl.isStateVariableField(col.field) && !col.type">
+          {{result[col.field]}}
+        </span>
+      </td>
     </tr>
     </tbody>
   </table>
