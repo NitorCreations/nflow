@@ -1,7 +1,7 @@
 import {Button, FormLabel, Grid, MenuItem} from '@material-ui/core';
 import {TextField, Select} from 'mui-rff';
 import React, {useContext, useState} from 'react';
-import {Form, Field} from 'react-final-form';
+import {Form} from 'react-final-form';
 import {ConfigContext} from '../../config';
 
 import {WorkflowDefinition, WorkflowInstance, WorkflowState} from '../../types';
