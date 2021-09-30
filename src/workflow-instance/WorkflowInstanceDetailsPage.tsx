@@ -1,6 +1,13 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {
+  AppBar,
+  Tab,
+  Tabs,
+  Typography,
+  Grid,
+  Container
+} from '@material-ui/core';
 
 import {StateGraph, InternalLink, ObjectTable, Spinner} from '../component';
 import {WorkflowDefinition, WorkflowInstance} from '../types';
@@ -13,6 +20,7 @@ import {
 import {formatTimestamp, formatRelativeTime} from '../utils';
 import {StateVariableTable} from './StateVariableTable';
 import {ActionHistoryTable} from './ActionHistoryTable';
+import {TabPanel} from '../component/TabPanel';
 
 const InstanceSummaryTable = ({
   instance,
@@ -100,6 +108,13 @@ const InstanceSummary = ({
   parentInstance?: WorkflowInstance;
   childInstances: WorkflowInstance[];
 }) => {
+  const [selectedTab, setSelectedTab] = React.useState(0);
+  const handleChange = (
+    event: React.ChangeEvent<{}>,
+    newSelectedTab: number
+  ) => {
+    setSelectedTab(newSelectedTab);
+  };
   return (
     <Fragment>
       <Grid item xs={12} sm={6}>
@@ -117,17 +132,27 @@ const InstanceSummary = ({
         </Container>
       </Grid>
       <Grid item xs={12} sm={6}>
-        <Container>
-          <Typography variant="h3">State variables</Typography>
-          <StateVariableTable instance={instance} />
-        </Container>
-        <Container>
-          <Typography variant="h3">Action history</Typography>
-          <ActionHistoryTable
-            instance={instance}
-            childInstances={childInstances}
-          />
-        </Container>
+        <AppBar position="static">
+          <Tabs value={selectedTab} onChange={handleChange}>
+            <Tab label="Action history" />
+            <Tab label="State variables" />
+            <Tab label="Manage" />
+          </Tabs>
+        </AppBar>
+        <TabPanel value={selectedTab} index={0}>
+          <Container>
+            <ActionHistoryTable
+              instance={instance}
+              childInstances={childInstances}
+            />
+          </Container>
+        </TabPanel>
+        <TabPanel value={selectedTab} index={1}>
+          <Container>
+            <Typography variant="h3">State variables</Typography>
+            <StateVariableTable instance={instance} />
+          </Container>
+        </TabPanel>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Container>
