@@ -21,6 +21,7 @@ import {formatTimestamp, formatRelativeTime} from '../utils';
 import {StateVariableTable} from './StateVariableTable';
 import {ActionHistoryTable} from './ActionHistoryTable';
 import {TabPanel} from '../component/TabPanel';
+import {ManageWorkflowInstancePage} from './manage/ManageWorkflowInstancePage';
 
 const InstanceSummaryTable = ({
   instance,
@@ -149,9 +150,14 @@ const InstanceSummary = ({
         </TabPanel>
         <TabPanel value={selectedTab} index={1}>
           <Container>
-            <Typography variant="h3">State variables</Typography>
             <StateVariableTable instance={instance} />
           </Container>
+        </TabPanel>
+        <TabPanel value={selectedTab} index={2}>
+          <ManageWorkflowInstancePage
+            instance={instance}
+            definition={definition}
+          />
         </TabPanel>
       </Grid>
       <Grid item xs={12} sm={6}>

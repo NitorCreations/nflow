@@ -16,7 +16,7 @@ interface Executor {
 
 interface WorkflowState {
   id: string;
-  type: "start" | "normal" | "wait" | "manual" | "end";
+  type: 'start' | 'normal' | 'wait' | 'manual' | 'end';
   description?: string;
   transitions: Array<string>;
   onFailure?: string;
@@ -36,13 +36,13 @@ interface WorkflowInstanceAction {
   workflowInstanceId: number;
   executorId: number;
   type:
-    | "stateExecution"
-    | "stateExecutionFailed"
-    | "externalChange"
-    | "recovery";
+    | 'stateExecution'
+    | 'stateExecutionFailed'
+    | 'externalChange'
+    | 'recovery';
   state: string;
   stateText?: string;
-  updatedStateVariables: { [key: string]: string };
+  updatedStateVariables: {[key: string]: string};
   retryNo: number;
   executionStartTime: Date;
   executionEndTime: Date;
@@ -51,12 +51,12 @@ interface WorkflowInstanceAction {
 interface WorkflowInstance {
   id: number;
   type: string;
-  status: "created" | "inProgress" | "executing" | "manual" | "finished";
+  status: 'created' | 'inProgress' | 'executing' | 'manual' | 'finished';
   state: string;
   stateText?: string;
   nextActivation?: Date;
-  stateVariables: { [key: string]: string };
-  originalVariables: { [key: string]: string };
+  stateVariables: {[key: string]: string};
+  originalVariables: {[key: string]: string};
   actions: Array<WorkflowInstanceAction>;
   retries: number;
   created: Date;
@@ -69,28 +69,28 @@ interface WorkflowInstance {
   priority?: number;
   businessKey?: string;
   externalId: string;
-};
+}
 
 interface StateStatistics {
-  created: {allInstances: number, queuedInstances: 0};
-  inProgress: {allInstances: number, queuedInstances: 0};
+  created: {allInstances: number; queuedInstances: 0};
+  inProgress: {allInstances: number; queuedInstances: 0};
   executing: {allInstances: number};
   manual: {allInstances: number};
   finished: {allInstances: number};
-};
+}
 interface WorkflowStatistics {
-  [key: string]: StateStatistics
-};
+  [key: string]: StateStatistics;
+}
 
 interface WorkflowSummaryStatistics {
-  stats: Array<
-    {
-      state: string,
-      stats: {[status: string]: {allInstances: number, queuedInstances?: 0}},
-      total: number,
-    }
-  >
-  totalPerStatus: {[status: string]: {allInstances: number, queuedInstances?: 0}}
+  stats: Array<{
+    state: string;
+    stats: {[status: string]: {allInstances: number; queuedInstances?: 0}};
+    total: number;
+  }>;
+  totalPerStatus: {
+    [status: string]: {allInstances: number; queuedInstances?: 0};
+  };
 }
 
 /**
@@ -107,11 +107,14 @@ interface NewWorkflowInstance {
 
 interface NewWorkflowInstanceResponse {
   id: number;
-  type: string
+  type: string;
   externalId: string;
 }
 
-type FeedbackMessage = {message: string, severity: 'info' | 'success' | 'error'};
+type FeedbackMessage = {
+  message: string;
+  severity: 'info' | 'success' | 'error';
+};
 
 export type {
   Config,
@@ -120,8 +123,9 @@ export type {
   WorkflowDefinition,
   WorkflowInstance,
   WorkflowInstanceAction,
+  WorkflowState,
   WorkflowStatistics,
   WorkflowSummaryStatistics,
   NewWorkflowInstance,
-  NewWorkflowInstanceResponse,
+  NewWorkflowInstanceResponse
 };
