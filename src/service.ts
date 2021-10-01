@@ -205,6 +205,22 @@ const updateWorkflowInstance = (
   });
 };
 
+const sendWorkflowInstanceSignal = (
+  config: Config,
+  workflowId: number,
+  data: any
+): Promise<any> => {
+  const url = serviceUrl(
+    config,
+    '/v1/workflow-instance/' + workflowId + '/signal'
+  );
+  return fetch(url, {
+    method: 'PUT',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify(data)
+  });
+};
+
 export {
   listExecutors,
   listWorkflowDefinitions,
@@ -215,5 +231,6 @@ export {
   getWorkflowInstance,
   listChildWorkflowInstances,
   createWorkflowInstance,
+  sendWorkflowInstanceSignal,
   updateWorkflowInstance
 };

@@ -73,6 +73,10 @@ const InstanceSummaryTable = ({
       headerName: 'Modified',
       fieldRender: formatTimestamp,
       tooltipRender: formatRelativeTime
+    },
+    {
+      field: 'signal',
+      headerName: 'Current signal'
     }
   ];
 

@@ -36,12 +36,17 @@ interface WorkflowState {
   onFailure?: string;
 }
 
+interface WorkflowSignal {
+  value: number;
+  description: string;
+}
+
 interface WorkflowDefinition {
   type: string;
   description?: string;
   onError: string;
   states: Array<WorkflowState>;
-
+  supportedSignals: Array<WorkflowSignal>;
   settings: any;
 }
 
@@ -83,6 +88,7 @@ interface WorkflowInstance {
   priority?: number;
   businessKey?: string;
   externalId: string;
+  signal?: number;
 }
 
 interface StateStatistics {
@@ -137,6 +143,7 @@ export type {
   WorkflowDefinition,
   WorkflowInstance,
   WorkflowInstanceAction,
+  WorkflowSignal,
   WorkflowState,
   WorkflowStatistics,
   WorkflowSummaryStatistics,
