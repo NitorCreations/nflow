@@ -22,7 +22,6 @@ import {StateVariableTable} from './StateVariableTable';
 import {ActionHistoryTable} from './ActionHistoryTable';
 import {TabPanel} from '../component/TabPanel';
 import {ManageWorkflowInstancePage} from './manage/ManageWorkflowInstancePage';
-import {isConstructorDeclaration} from 'typescript';
 
 const InstanceSummaryTable = ({
   instance,
