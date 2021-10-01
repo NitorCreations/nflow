@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './App.scss';
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {HashRouter as Router, Switch, Route} from 'react-router-dom';
 import {Snackbar} from '@material-ui/core';
 
 import {Navigation, Feedback, FeedbackContext} from './component';
@@ -31,7 +31,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router hashType="hashbang">
       <FeedbackContext.Provider value={{addFeedback}}>
         <div className="App">
           <header>
