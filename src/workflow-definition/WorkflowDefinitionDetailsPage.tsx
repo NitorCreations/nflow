@@ -19,7 +19,7 @@ const WorkflowDetails = ({
   statistics: WorkflowSummaryStatistics;
   type: string;
 }) => {
-  const searchPath = `/search?type=${type}`;
+  const searchPath = `/workflow?type=${type}`;
   const createPath = `/workflow/create?type=${type}`;
 
   return (

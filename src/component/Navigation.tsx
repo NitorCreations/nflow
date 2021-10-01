@@ -1,56 +1,66 @@
-import React from 'react'
-import {NavLink} from 'react-router-dom'
-import Link from '@material-ui/core/Link'
-import Typography from '@material-ui/core/Typography'
+import React from 'react';
+import {NavLink} from 'react-router-dom';
+import Typography from '@material-ui/core/Typography';
 
-import './Navigation.scss'
+import './Navigation.scss';
+import {AppBar, Button, Toolbar} from '@material-ui/core';
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 
-const isActive = (regexps: string[]) => (match: any, location: any) => {
-  return !!regexps.find(regexp => location.pathname.match(regexp))
-}
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    activeLink: {
+      background: 'white',
+      color: 'blue!important'
+    },
+    passiveLink: {
+      color: 'white',
+      fontSize: 'large'
+    }
+  })
+);
 
 const Navigation = () => {
+  const classes = useStyles();
   return (
-    <nav>
-      <Typography>
-        <img src="/nflow_logo.svg" style={{height: '2.5em'}} alt="nFlow-logo" />
-        <span style={{verticalAlign: 'top'}}>
-          <Link
-            component={NavLink}
-            to="/"
-            isActive={isActive(['^/$', '^/workflow-definition/.*'])}
-            activeClassName="navi-selected"
-          >
-            Workflow definitions
-          </Link>
-          <Link
-            component={NavLink}
-            to="/search"
-            isActive={isActive(['search', '^/workflow/.*'])}
-            activeClassName="navi-selected"
-          >
-            Workflow instances
-          </Link>
-          <Link
-            component={NavLink}
-            to="/executors"
-            isActive={isActive(['executors'])}
-            activeClassName="navi-selected"
-          >
-            Executors
-          </Link>
-          <Link
-            component={NavLink}
-            to="/about"
-            isActive={isActive(['about'])}
-            activeClassName="navi-selected"
-          >
-            About
-          </Link>
-        </span>
-      </Typography>
-    </nav>
-  )
-}
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h4">nFlow</Typography>
+        <Button
+          component={NavLink}
+          to="/"
+          activeClassName={classes.activeLink}
+          className={classes.passiveLink}
+          exact={true}
+        >
+          Workflow definitions
+        </Button>
+        <Button
+          component={NavLink}
+          to="/workflow"
+          activeClassName={classes.activeLink}
+          className={classes.passiveLink}
+        >
+          Workflow instances
+        </Button>
+        <Button
+          component={NavLink}
+          to="/executors"
+          activeClassName={classes.activeLink}
+          className={classes.passiveLink}
+        >
+          Executors
+        </Button>
+        <Button
+          component={NavLink}
+          to="/about"
+          activeClassName={classes.activeLink}
+          className={classes.passiveLink}
+        >
+          About
+        </Button>
+      </Toolbar>
+    </AppBar>
+  );
+};
 
-export {Navigation}
+export {Navigation};

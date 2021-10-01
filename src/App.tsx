@@ -42,17 +42,17 @@ function App() {
             <Route exact path="/">
               <WorkflowDefinitionListPage />
             </Route>
-            <Route path="/search">
-              <WorkflowInstanceListPage />
-            </Route>
-            <Route path="/workflow-definition/:type">
-              <WorkflowDefinitionDetailsPage />
-            </Route>
             <Route path="/workflow/create">
               <CreateWorkflowInstancePage />
             </Route>
             <Route path="/workflow/:id">
               <WorkflowInstanceDetailsPage />
+            </Route>
+            <Route path={['/workflow', '/search']}>
+              <WorkflowInstanceListPage />
+            </Route>
+            <Route path="/workflow-definition/:type">
+              <WorkflowDefinitionDetailsPage />
             </Route>
             <Route path="/executors">
               <ExecutorListPage />
