@@ -1,7 +1,6 @@
 var Config = new function() {
 
-  this.baseUrl = 'https://bank.nflow.io/nflow',
-  this.refreshSeconds = 60
+  this.refreshSeconds = 60;
 
   this.nflowEndpoints = [
     {

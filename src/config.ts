@@ -11,10 +11,12 @@ const config = window.Config;
 
 const ConfigContext = React.createContext<Config>(config);
 
-const readConfig = (configUrl: string) => {
+const readConfig = () => {
   console.info('Read config from', config);
-
-  return Promise.resolve(config);
+  return Promise.resolve(config).then(config => {
+    config.activeNflowEndpoint = config.nflowEndpoints[0];
+    return config;
+  });
 };
 
 const useConfig = (): Config => {

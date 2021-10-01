@@ -1,6 +1,14 @@
+interface Endpoint {
+  id: string;
+  title: string;
+  apiUrl: string;
+  docUrl: string;
+}
+
 interface Config {
-  baseUrl: string;
   refreshSeconds: number;
+  activeNflowEndpoint: Endpoint;
+  nflowEndpoints: Array<Endpoint>;
   customInstanceContent: (
     definition: WorkflowDefinition,
     workflow: WorkflowInstance,

@@ -24,7 +24,7 @@ const theme = createTheme({
   }
 });
 
-readConfig('/config.json').then(config => {
+readConfig().then(config => {
   console.info('Config read');
   ReactDOM.render(
     <React.StrictMode>

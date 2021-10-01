@@ -6,8 +6,8 @@ import Link from '@material-ui/core/Link';
 function AboutPage() {
   const config = useConfig();
 
-  let apiUrl = config.baseUrl + '/api';
-  let docUrl = config.baseUrl + '/ui/doc/';
+  let apiUrl = config.activeNflowEndpoint.apiUrl;
+  let docUrl = config.activeNflowEndpoint.docUrl;
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>

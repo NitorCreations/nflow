@@ -14,6 +14,10 @@ const cacheWD = new Cache<Array<WorkflowDefinition>>(10 * 20 * 1000);
 
 // TODO timeouts to requests?
 
+const serviceUrl = (config: Config, servicePath: string) => {
+  return config.activeNflowEndpoint.apiUrl + servicePath;
+};
+
 const convertDates = (dateFields: Array<string>) => (item: any) => {
   let newItem = {...item};
   for (let field of dateFields) {
@@ -36,7 +40,7 @@ const convertWorkflowInstance = (instance: any) => {
 };
 
 const listExecutors = (config: Config): Promise<Array<Executor>> => {
-  return fetch(config.baseUrl + '/api/v1/workflow-executor')
+  return fetch(serviceUrl(config, '/v1/workflow-executor'))
     .then(response => response.json())
     .then((items: any) => items.map(convertExecutor));
 };
@@ -44,7 +48,7 @@ const listExecutors = (config: Config): Promise<Array<Executor>> => {
 const listWorkflowDefinitions = (
   config: Config
 ): Promise<Array<WorkflowDefinition>> => {
-  const url = config.baseUrl + '/api/v1/workflow-definition';
+  const url = serviceUrl(config, '/v1/workflow-definition');
   const cached = cacheWD.get(url);
   if (cached) {
     return Promise.resolve(cached);
@@ -60,7 +64,7 @@ const getWorkflowDefinition = (
   config: Config,
   type: string
 ): Promise<WorkflowDefinition> => {
-  const url = config.baseUrl + '/api/v1/workflow-definition?type=' + type;
+  const url = serviceUrl(config, '/v1/workflow-definition?type=' + type);
   return (
     fetch(url)
       .then(response => response.json())
@@ -74,7 +78,7 @@ const getWorkflowStatistics = (
   config: Config,
   type: string
 ): Promise<WorkflowStatistics> => {
-  const url = config.baseUrl + '/api/v1/statistics/workflow/' + type;
+  const url = serviceUrl(config, '/v1/statistics/workflow/' + type);
   return fetch(url)
     .then(response => response.json())
     .then(response => response.stateStatistics);
@@ -142,9 +146,7 @@ const listWorkflowInstances = (
   query?: any
 ): Promise<WorkflowInstance[]> => {
   const params = new URLSearchParams(query).toString();
-  return fetch(
-    config.baseUrl + '/api/v1/workflow-instance?' + params.toString()
-  )
+  return fetch(serviceUrl(config, '/v1/workflow-instance?' + params.toString()))
     .then(response => response.json())
     .then((items: any) => items.map(convertWorkflowInstance));
 };
@@ -153,8 +155,10 @@ const listChildWorkflowInstances = (
   config: Config,
   id: number
 ): Promise<WorkflowInstance[]> => {
-  const url =
-    config.baseUrl + '/api/v1/workflow-instance?parentWorkflowId=' + id;
+  const url = serviceUrl(
+    config,
+    '/v1/workflow-instance?parentWorkflowId=' + id
+  );
   return fetch(url)
     .then(response => response.json())
     .then((items: any) => items.map(convertWorkflowInstance));
@@ -164,11 +168,12 @@ const getWorkflowInstance = (
   config: Config,
   id: number
 ): Promise<WorkflowInstance> => {
-  const url =
-    config.baseUrl +
-    '/api/v1/workflow-instance/id/' +
-    id +
-    '?include=actions,currentStateVariables,actionStateVariables';
+  const url = serviceUrl(
+    config,
+    '/v1/workflow-instance/id/' +
+      id +
+      '?include=actions,currentStateVariables,actionStateVariables'
+  );
   return fetch(url)
     .then(response => response.json())
     .then(convertWorkflowInstance);
@@ -179,7 +184,7 @@ const createWorkflowInstance = (
   config: Config,
   data: NewWorkflowInstance
 ): Promise<NewWorkflowInstanceResponse> => {
-  const url = config.baseUrl + '/api/v1/workflow-instance';
+  const url = serviceUrl(config, '/v1/workflow-instance');
   return fetch(url, {
     method: 'PUT',
     headers: {'content-type': 'application/json'},
@@ -192,7 +197,7 @@ const updateWorkflowInstance = (
   workflowId: number,
   data: any
 ): Promise<any> => {
-  const url = config.baseUrl + '/api/v1/workflow-instance/id/' + workflowId;
+  const url = serviceUrl(config, '/v1/workflow-instance/id/' + workflowId);
   return fetch(url, {
     method: 'PUT',
     headers: {'content-type': 'application/json'},
