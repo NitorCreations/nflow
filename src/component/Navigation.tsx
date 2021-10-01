@@ -27,20 +27,19 @@ const Navigation = () => {
         <Typography variant="h4">nFlow</Typography>
         <Button
           component={NavLink}
-          to="/"
-          activeClassName={classes.activeLink}
-          className={classes.passiveLink}
-          exact={true}
-        >
-          Workflow definitions
-        </Button>
-        <Button
-          component={NavLink}
           to="/workflow"
           activeClassName={classes.activeLink}
           className={classes.passiveLink}
         >
           Workflow instances
+        </Button>
+        <Button
+          component={NavLink}
+          to="/workflow-definition"
+          activeClassName={classes.activeLink}
+          className={classes.passiveLink}
+        >
+          Workflow definitions
         </Button>
         <Button
           component={NavLink}

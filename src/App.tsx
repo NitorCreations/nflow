@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './App.scss';
-import {HashRouter as Router, Switch, Route} from 'react-router-dom';
+import {HashRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
 import {Snackbar} from '@material-ui/core';
 
 import {Navigation, Feedback, FeedbackContext} from './component';
@@ -40,7 +40,10 @@ function App() {
           <hr />
           <Switch>
             <Route exact path="/">
-              <WorkflowDefinitionListPage />
+              <Redirect to="/workflow" />
+            </Route>
+            <Route path="/search">
+              <Redirect to="/workflow" />
             </Route>
             <Route path="/workflow/create">
               <CreateWorkflowInstancePage />
@@ -48,11 +51,14 @@ function App() {
             <Route path="/workflow/:id">
               <WorkflowInstanceDetailsPage />
             </Route>
-            <Route path={['/workflow', '/search']}>
+            <Route path="/workflow">
               <WorkflowInstanceListPage />
             </Route>
             <Route path="/workflow-definition/:type">
               <WorkflowDefinitionDetailsPage />
+            </Route>
+            <Route path="/workflow-definition">
+              <WorkflowDefinitionListPage />
             </Route>
             <Route path="/executors">
               <ExecutorListPage />
