@@ -1,6 +1,12 @@
 interface Config {
   baseUrl: string;
   refreshSeconds: number;
+  customInstanceContent: (
+    definition: WorkflowDefinition,
+    workflow: WorkflowInstance,
+    parentWorkflow: WorkflowInstance | undefined,
+    childWorkflows: Array<WorkflowInstance>
+  ) => void;
 }
 
 interface Executor {

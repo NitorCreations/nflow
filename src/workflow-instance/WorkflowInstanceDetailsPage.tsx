@@ -22,13 +22,16 @@ import {StateVariableTable} from './StateVariableTable';
 import {ActionHistoryTable} from './ActionHistoryTable';
 import {TabPanel} from '../component/TabPanel';
 import {ManageWorkflowInstancePage} from './manage/ManageWorkflowInstancePage';
+import {isConstructorDeclaration} from 'typescript';
 
 const InstanceSummaryTable = ({
   instance,
-  parentInstance
+  parentInstance,
+  externalContent
 }: {
   instance: WorkflowInstance;
   parentInstance?: WorkflowInstance;
+  externalContent?: any;
 }) => {
   // TODO clicking currentState should highlight in state graph
   const parentLink = (x: any) =>
@@ -37,6 +40,7 @@ const InstanceSummaryTable = ({
         {parentInstance.type} ({parentInstance.id})
       </InternalLink>
     );
+
   const columns = [
     {
       field: 'parentWorkflowId',
@@ -87,11 +91,14 @@ const InstanceSummaryTable = ({
     }
   };
   return (
-    <ObjectTable
-      object={instance}
-      columns={columns}
-      valueClassRender={valueClassRender}
-    />
+    <div>
+      <ObjectTable
+        object={instance}
+        columns={columns}
+        valueClassRender={valueClassRender}
+      />
+      <div dangerouslySetInnerHTML={{__html: externalContent}} />
+    </div>
   );
 };
 
@@ -102,12 +109,14 @@ const InstanceSummary = ({
   definition,
   instance,
   parentInstance,
-  childInstances
+  childInstances,
+  externalContent
 }: {
   definition: WorkflowDefinition;
   instance: WorkflowInstance;
   parentInstance?: WorkflowInstance;
   childInstances: WorkflowInstance[];
+  externalContent: any;
 }) => {
   const [selectedTab, setSelectedTab] = React.useState(0);
   const handleChange = (
@@ -129,6 +138,7 @@ const InstanceSummary = ({
           <InstanceSummaryTable
             instance={instance}
             parentInstance={parentInstance}
+            externalContent={externalContent}
           />
         </Container>
       </Grid>
@@ -176,6 +186,7 @@ function WorkflowInstanceDetailsPage() {
   const [instance, setInstance] = useState<WorkflowInstance>();
   const [childInstances, setChildInstances] = useState<WorkflowInstance[]>([]);
   const [parentInstance, setParentInstance] = useState<WorkflowInstance>();
+  const [externalContent, setExternalContent] = useState<any>();
   const {id} = useParams() as any;
 
   // TODO This fetches childWorkflows for ActionHistoryTable
@@ -196,12 +207,26 @@ function WorkflowInstanceDetailsPage() {
           setChildInstances(childInstances);
         });
       }
-      return getWorkflowDefinition(config, instance.type).then(definition => {
-        setDefinition(definition);
-        setParentInstance(undefined);
-        setInstance(instance);
-        setChildInstances(childInstances);
-      });
+      return getWorkflowDefinition(config, instance.type)
+        .then(definition => {
+          setDefinition(definition);
+          setParentInstance(undefined);
+          setInstance(instance);
+          setChildInstances(childInstances);
+          return definition;
+        })
+        .then(definition =>
+          Promise.resolve(
+            config.customInstanceContent(
+              definition,
+              instance,
+              undefined,
+              childInstances
+            )
+          ).then(content => {
+            setExternalContent(content);
+          })
+        );
     });
   }, [config, id]);
 
@@ -213,6 +238,7 @@ function WorkflowInstanceDetailsPage() {
           instance={instance}
           childInstances={childInstances}
           parentInstance={parentInstance}
+          externalContent={externalContent}
         />
       ) : (
         <Grid item xs={12}>
