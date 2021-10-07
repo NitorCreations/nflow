@@ -18,6 +18,7 @@ import ExecutorListPage from './executor/ExecutorListPage';
 
 import AboutPage from './about/AboutPage';
 import NotFoundPage from './error/NotFoundPage';
+import {ReturnLink} from './component/ReturnLink';
 
 function App() {
   const [feedback, setFeedback] = useState<FeedbackMessage | undefined>();
@@ -35,6 +36,7 @@ function App() {
       <FeedbackContext.Provider value={{addFeedback}}>
         <div className="App">
           <header>
+            <ReturnLink />
             <Navigation />
           </header>
           <hr />
