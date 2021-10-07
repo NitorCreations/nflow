@@ -144,6 +144,9 @@ const InstanceSummary = ({
             externalContent={externalContent}
           />
         </Container>
+        <Container>
+          <StateGraph definition={definition} />
+        </Container>
       </Grid>
       <Grid item xs={12} sm={6}>
         <AppBar position="static">
@@ -172,11 +175,6 @@ const InstanceSummary = ({
             definition={definition}
           />
         </TabPanel>
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Container>
-          <StateGraph definition={definition} />
-        </Container>
       </Grid>
     </Fragment>
   );
