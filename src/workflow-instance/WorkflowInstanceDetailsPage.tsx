@@ -218,12 +218,13 @@ function WorkflowInstanceDetailsPage() {
         })
         .then(definition =>
           Promise.resolve(
-            config.customInstanceContent(
-              definition,
-              instance,
-              undefined,
-              childInstances
-            )
+            config.customInstanceContent &&
+              config.customInstanceContent(
+                definition,
+                instance,
+                undefined,
+                childInstances
+              )
           ).then(content => {
             setExternalContent(content);
           })

@@ -4,16 +4,16 @@ var Config = new function() {
 
   this.nflowEndpoints = [
     {
-      id: 'localhost',
-      title: 'local nflow instance',
-      apiUrl: 'http://localhost:7500/nflow/api',
-      docUrl: 'http://localhost:7500/nflow/ui/doc/'
-    },
-    {
       id: 'nbank',
       title: 'nBank at nflow.io',
       apiUrl: 'https://bank.nflow.io/nflow/api',
       docUrl: 'https://bank.nflow.io/nflow/ui/doc/'
+    },
+    {
+      id: 'localhost',
+      title: 'local nflow instance',
+      apiUrl: 'http://localhost:7500/nflow/api',
+      docUrl: 'http://localhost:7500/nflow/ui/doc/'
     },
   ];
 
@@ -59,9 +59,6 @@ var Config = new function() {
 
   // Replaces nFlow text in header by given text
   this.nflowLogoTitle = undefined;
-
-  // When true, hides the sticky footer with copyright
-  this.hideFooter = false;
 
   /**
    * Customizes columns shown in workflow instance search, for example following shows workflow id and type (which are

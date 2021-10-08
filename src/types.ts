@@ -14,7 +14,8 @@ interface Config {
     workflow: WorkflowInstance,
     parentWorkflow: WorkflowInstance | undefined,
     childWorkflows: Array<WorkflowInstance>
-  ) => void;
+  ) => any;
+  customDefinitionContent: (definition: WorkflowDefinition) => any;
   htmlTitle?: string;
   nflowLogoFile?: string;
   nflowLogoTitle?: string;
