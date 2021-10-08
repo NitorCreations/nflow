@@ -54,8 +54,11 @@ var Config = new function() {
   // Replaces HTML page title by given string
   this.htmlTitle = undefined;
 
-  // Replaces nFlow logo in header by image in given location
+  // Replaces nFlow text in header by image in given location
   this.nflowLogoFile = undefined;
+
+  // Replaces nFlow text in header by given text
+  this.nflowLogoTitle = undefined;
 
   // When true, hides the sticky footer with copyright
   this.hideFooter = false;

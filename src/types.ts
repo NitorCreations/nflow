@@ -6,7 +6,6 @@ interface Endpoint {
 }
 
 interface Config {
-  htmlTitle?: string;
   refreshSeconds: number;
   activeNflowEndpoint: Endpoint;
   nflowEndpoints: Array<Endpoint>;
@@ -16,6 +15,9 @@ interface Config {
     parentWorkflow: WorkflowInstance | undefined,
     childWorkflows: Array<WorkflowInstance>
   ) => void;
+  htmlTitle?: string;
+  nflowLogoFile?: string;
+  nflowLogoTitle?: string;
 }
 
 interface Executor {

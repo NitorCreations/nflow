@@ -6,6 +6,7 @@ import './Navigation.scss';
 import {AppBar, Button, MenuItem, Select, Toolbar} from '@material-ui/core';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import {useConfig} from '../config';
+import {Config} from '../types';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -23,6 +24,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const renderLogo = (config: Config) => {
+  const nflowLogoTitle = config.nflowLogoTitle
+    ? config.nflowLogoTitle
+    : 'nFlow';
+  if (config.nflowLogoFile) {
+    return <img src={config.nflowLogoFile} alt={nflowLogoTitle} />;
+  }
+  return <Typography variant="h4">{nflowLogoTitle}</Typography>;
+};
+
 const Navigation = () => {
   const config = useConfig();
   const history = useHistory();
@@ -33,7 +44,7 @@ const Navigation = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h4">nFlow</Typography>
+        {renderLogo(config)}
         {config.nflowEndpoints.length > 1 && (
           <Select
             value={selectedEndpointId}
