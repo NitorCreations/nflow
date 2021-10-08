@@ -1,7 +1,22 @@
 var Config = new function() {
 
+  /**
+   * Controls how often data is polled from the selected nFlow REST API, when an automatically refreshing
+   * UI element is displayed (e.g. active executors list)
+   */
   this.refreshSeconds = 60;
 
+  /**
+   * Defines nFlow API REST API endpoints that Explorer will use. If there's more than >1 endpoints defined,
+   * the navigation bar will display a dropdown for endpoint selection and the first defined endpoint
+   * is selected by default.
+   * 
+   * Endpoint properties:
+   * - id: unique technical identifier for the endpoint, can be arbitrary string (required)
+   * - title: string shown in the endpoint selection dropdown (required)
+   * - apiUrl: nFlow REST API base URL (required)
+   * - docUrl: Swagger UI URL for nFlow REST API (optional)
+   */
   this.nflowEndpoints = [
     {
       id: 'nbank',
@@ -57,7 +72,7 @@ var Config = new function() {
   // Replaces nFlow text in header by image in given location
   this.nflowLogoFile = undefined;
 
-  // Replaces nFlow text in header by given text
+  // Replaces nFlow text in header by given text (nflowLogoFile takes precedence, if it is defined)
   this.nflowLogoTitle = undefined;
 
   /**

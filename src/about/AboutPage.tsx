@@ -32,10 +32,12 @@ function AboutPage() {
             This nFlow Explorer instance uses the nFlow API running at{' '}
             <Link href={apiUrl}>{apiUrl}</Link>.
           </Typography>
-          <Typography variant="body1">
-            nFlow API documentation is available at{' '}
-            <Link href={docUrl}>{docUrl}</Link>.
-          </Typography>
+          {config.activeNflowEndpoint.docUrl && (
+            <Typography variant="body1">
+              nFlow API documentation is available at{' '}
+              <Link href={docUrl}>{docUrl}</Link>.
+            </Typography>
+          )}
         </Container>
       </Grid>
     </Grid>
