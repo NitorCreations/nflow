@@ -1,5 +1,10 @@
 var Config = new function() {
 
+  //------------------------------------------------------------------------
+  // NOTE: FULL NFLOW EXPLORER CONFIGURATION DOCUMENTATION IN:
+  // https://github.com/NitorCreations/nflow/wiki/Explorer-Configuration
+  //------------------------------------------------------------------------
+
   /**
    * Controls how often data is polled from the selected nFlow REST API, when an automatically refreshing
    * UI element is displayed (e.g. active executors list)
