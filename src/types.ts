@@ -6,6 +6,7 @@ interface Endpoint {
 }
 
 interface Config {
+  htmlTitle?: string;
   refreshSeconds: number;
   activeNflowEndpoint: Endpoint;
   nflowEndpoints: Array<Endpoint>;
