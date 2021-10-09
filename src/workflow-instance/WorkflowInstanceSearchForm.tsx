@@ -137,6 +137,7 @@ function WorkflowInstanceSearchForm(props: {
       handleSubmit();
     }
     // TODO: adding proper deps here causes a render loop. This works ok for now but it should be fixed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setWorkflowType = (type: string) => {
