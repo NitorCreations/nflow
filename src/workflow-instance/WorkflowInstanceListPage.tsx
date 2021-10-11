@@ -1,63 +1,141 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {
+  Typography,
+  Grid,
+  Container,
+  createTheme,
+  MuiThemeProvider
+} from '@material-ui/core';
+import MUIDataTable from 'mui-datatables';
 
 import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
-import {InternalLink, DataTable, Spinner} from '../component';
+import {InternalLink, Spinner} from '../component';
 import {formatRelativeTime, formatTimestamp} from '../utils';
 import {listWorkflowDefinitions, listWorkflowInstances} from '../service';
 import {WorkflowInstance} from '../types';
 import './workflow-instance.scss';
+import '../index.scss';
 
 const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
+  const getMuiTheme = () =>
+    createTheme({
+      overrides: {
+        MUIDataTableBodyRow: {
+          root: {
+            '&:nth-child(odd)': {
+              backgroundColor: '#e7e7e7'
+            }
+          }
+        },
+        MUIDataTableBodyCell: {
+          root: {
+            padding: 8,
+            wordBreak: 'break-all'
+          }
+        }
+      }
+    });
+
   // TODO colors
-  const idLinkRender = (instance: WorkflowInstance) => {
-    const path = '/workflow/' + instance.id;
-    return <InternalLink to={path}>{instance.id}</InternalLink>;
+  const idLinkRender = (id: string) => {
+    const path = '/workflow/' + id;
+    return <InternalLink to={path}>{id}</InternalLink>;
   };
 
-  const typeLinkRender = (instance: WorkflowInstance) => {
-    const path = '/workflow/' + instance.id;
-    return <InternalLink to={path}>{instance.type}</InternalLink>;
+  const typeLinkRender = (type: string) => {
+    const path = '/workflow-definition/' + type;
+    return <InternalLink to={path}>{type}</InternalLink>;
+  };
+
+  const renderTimestamp = (value: string) => {
+    return (
+      <div title={formatRelativeTime(value)}>{formatTimestamp(value)}</div>
+    );
   };
 
   const columns = [
-    {field: 'id', headerName: 'Id', rowRender: idLinkRender},
-    {field: 'type', headerName: 'Workflow type', rowRender: typeLinkRender},
-    {field: 'state', headerName: 'State'},
-    {field: 'stateText', headerName: 'State text'},
-    {field: 'status', headerName: 'Status'},
-    {field: 'businessKey', headerName: 'Business key'},
-    {field: 'externalId', headerName: 'External id'},
-    {field: 'retries', headerName: 'Retries'},
     {
-      field: 'created',
-      headerName: 'Created',
-      fieldRender: formatTimestamp,
-      tooltipRender: formatRelativeTime
+      name: 'id',
+      label: 'Id',
+      options: {
+        customBodyRender: idLinkRender
+      }
     },
     {
-      field: 'started',
-      headerName: 'Started',
-      fieldRender: formatTimestamp,
-      tooltipRender: formatRelativeTime
+      name: 'parentWorkflowId',
+      label: 'Parent Id',
+      options: {
+        customBodyRender: idLinkRender,
+        display: false
+      }
     },
     {
-      field: 'modified',
-      headerName: 'Modified',
-      fieldRender: formatTimestamp,
-      tooltipRender: formatRelativeTime
+      name: 'type',
+      label: 'Workflow type',
+      options: {
+        customBodyRender: typeLinkRender
+      }
+    },
+    {name: 'state', label: 'State'},
+    {
+      name: 'stateText',
+      label: 'State text',
+      options: {
+        display: false
+      }
+    },
+    {name: 'status', label: 'Status'},
+    {name: 'businessKey', label: 'Business key'},
+    {
+      name: 'externalId',
+      label: 'External Id',
+      options: {
+        display: false
+      }
+    },
+    {name: 'retries', label: 'Retries'},
+    {
+      name: 'started',
+      label: 'Started',
+      options: {
+        customBodyRender: renderTimestamp,
+        display: false
+      }
     },
     {
-      field: 'nextActivation',
-      headerName: 'Next activation',
-      fieldRender: formatTimestamp,
-      tooltipRender: formatRelativeTime
+      name: 'created',
+      label: 'Created',
+      options: {
+        customBodyRender: renderTimestamp
+      }
+    },
+    {
+      name: 'modified',
+      label: 'Modified',
+      options: {
+        customBodyRender: renderTimestamp,
+        display: false
+      }
+    },
+    {
+      name: 'nextActivation',
+      label: 'Next activation',
+      options: {
+        customBodyRender: renderTimestamp
+      }
+    },
+    {
+      name: 'priority',
+      label: 'Priority',
+      options: {
+        display: false
+      }
     }
   ];
 
-  const rowClassRender = (instance: any) => {
-    switch (instance.status) {
+  const rowClassRender = (status: any): string => {
+    switch (status) {
       case 'manual':
         return 'danger';
       case 'finished':
@@ -65,14 +143,31 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
       case 'inProgress':
         return 'info';
     }
+    return '';
   };
 
   return (
-    <DataTable
-      rows={instances}
-      columns={columns}
-      rowClassRender={rowClassRender}
-    />
+    <MuiThemeProvider theme={getMuiTheme()}>
+      <MUIDataTable
+        title="Search result"
+        data={instances}
+        columns={columns}
+        options={{
+          selectableRows: 'none',
+          setRowProps: (row, dataIndex, rowIndex) => {
+            const rowClassName = rowClassRender(row[5]); // status-column = 5
+            return {
+              className: `${rowClassName}`
+            };
+          },
+          setTableProps: () => {
+            return {
+              className: 'table table-hover'
+            };
+          }
+        }}
+      />
+    </MuiThemeProvider>
   );
 };
 
