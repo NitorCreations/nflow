@@ -4,30 +4,97 @@ import {
   Grid,
   Container,
   createTheme,
-  MuiThemeProvider
+  MuiThemeProvider,
+  TableRow,
+  TableCell
 } from '@material-ui/core';
-import MUIDataTable from 'mui-datatables';
+import MUIDataTable, {ExpandButton} from 'mui-datatables';
 
 import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
-import {InternalLink, Spinner} from '../component';
+import {DataTable, InternalLink, Spinner} from '../component';
 import {formatRelativeTime, formatTimestamp} from '../utils';
 import {listWorkflowDefinitions, listWorkflowInstances} from '../service';
 import {WorkflowInstance} from '../types';
 import './workflow-instance.scss';
 import '../index.scss';
 
+// TODO colors
+const idLinkRender = (id: string) => {
+  const path = '/workflow/' + id;
+  return <InternalLink to={path}>{id}</InternalLink>;
+};
+
+const typeLinkRender = (type: string) => {
+  const path = '/workflow-definition/' + type;
+  return <InternalLink to={path}>{type}</InternalLink>;
+};
+
+const renderTimestamp = (value: string) => {
+  return <div title={formatRelativeTime(value)}>{formatTimestamp(value)}</div>;
+};
+
+const ChildWorkflowTable = ({workflowId}: {workflowId: number}) => {
+  const config = useConfig();
+  const [childWorkflows, setChildWorkflows] = useState(
+    new Array<WorkflowInstance>()
+  );
+  useEffect(() => {
+    const query = {
+      parentWorkflowId: workflowId
+    };
+    listWorkflowInstances(config, query)
+      .then(data => setChildWorkflows(data))
+      .catch(error => {
+        // TODO error handling
+        console.error('Error', error);
+      });
+  }, [config, workflowId]);
+  const columns = [
+    {
+      field: 'id',
+      headerName: 'Id',
+      fieldRender: idLinkRender
+    },
+    {
+      field: 'type',
+      headerName: 'Type',
+      fieldRender: typeLinkRender
+    },
+    {
+      field: 'state',
+      headerName: 'State'
+    },
+    {
+      field: 'status',
+      headerName: 'Status'
+    },
+    {
+      field: 'businessKey',
+      headerName: 'Business key'
+    },
+    {
+      field: 'retries',
+      headerName: 'Retries'
+    },
+    {
+      field: 'modified',
+      headerName: 'Last modified',
+      fieldRender: renderTimestamp
+    },
+    {
+      field: 'nextActivation',
+      headerName: 'Next activation',
+      fieldRender: renderTimestamp
+    }
+  ];
+  return <DataTable columns={columns} rows={childWorkflows} />;
+};
+
 const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
   const getMuiTheme = () =>
     createTheme({
       overrides: {
-        MUIDataTableBodyRow: {
-          root: {
-            '&:nth-child(odd)': {
-              backgroundColor: '#e7e7e7'
-            }
-          }
-        },
         MUIDataTableBodyCell: {
           root: {
             padding: 8,
@@ -37,29 +104,13 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
       }
     });
 
-  // TODO colors
-  const idLinkRender = (id: string) => {
-    const path = '/workflow/' + id;
-    return <InternalLink to={path}>{id}</InternalLink>;
-  };
-
-  const typeLinkRender = (type: string) => {
-    const path = '/workflow-definition/' + type;
-    return <InternalLink to={path}>{type}</InternalLink>;
-  };
-
-  const renderTimestamp = (value: string) => {
-    return (
-      <div title={formatRelativeTime(value)}>{formatTimestamp(value)}</div>
-    );
-  };
-
   const columns = [
     {
       name: 'id',
       label: 'Id',
       options: {
-        customBodyRender: idLinkRender
+        customBodyRender: idLinkRender,
+        filter: false
       }
     },
     {
@@ -67,7 +118,8 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
       label: 'Parent Id',
       options: {
         customBodyRender: idLinkRender,
-        display: false
+        display: false,
+        filter: false
       }
     },
     {
@@ -86,43 +138,60 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
       }
     },
     {name: 'status', label: 'Status'},
-    {name: 'businessKey', label: 'Business key'},
+    {
+      name: 'businessKey',
+      label: 'Business key',
+      options: {
+        filter: false
+      }
+    },
     {
       name: 'externalId',
       label: 'External Id',
       options: {
-        display: false
+        display: false,
+        filter: false
       }
     },
-    {name: 'retries', label: 'Retries'},
+    {
+      name: 'retries',
+      label: 'Retries',
+      options: {
+        filter: false
+      }
+    },
     {
       name: 'started',
       label: 'Started',
       options: {
         customBodyRender: renderTimestamp,
-        display: false
+        display: false,
+        filter: false
       }
     },
     {
       name: 'created',
       label: 'Created',
       options: {
-        customBodyRender: renderTimestamp
+        customBodyRender: renderTimestamp,
+        display: false,
+        filter: false
       }
     },
     {
       name: 'modified',
-      label: 'Modified',
+      label: 'Last modified',
       options: {
         customBodyRender: renderTimestamp,
-        display: false
+        filter: false
       }
     },
     {
       name: 'nextActivation',
       label: 'Next activation',
       options: {
-        customBodyRender: renderTimestamp
+        customBodyRender: renderTimestamp,
+        filter: false
       }
     },
     {
@@ -146,14 +215,42 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
     return '';
   };
 
+  const components = {
+    ExpandButton: function (props: any) {
+      if (
+        instances &&
+        instances[props.dataIndex] &&
+        !instances[props.dataIndex].childWorkflows
+      ) {
+        return <div style={{width: '24px'}} />;
+      }
+      return <ExpandButton {...props} />;
+    }
+  };
+
   return (
     <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title="Search result"
         data={instances}
         columns={columns}
+        components={components}
         options={{
           selectableRows: 'none',
+          expandableRows: true,
+          expandableRowsHeader: false,
+          renderExpandableRow: (rowData, rowMeta) => {
+            const colSpan = rowData.length + 1;
+            return (
+              <TableRow>
+                <TableCell colSpan={colSpan}>
+                  <ChildWorkflowTable
+                    workflowId={instances[rowMeta.dataIndex].id}
+                  />
+                </TableCell>
+              </TableRow>
+            );
+          },
           setRowProps: (row, dataIndex, rowIndex) => {
             const rowClassName = rowClassRender(row[5]); // status-column = 5
             return {
@@ -192,6 +289,7 @@ function WorkflowInstanceListPage() {
 
   const searchInstances = useCallback(
     (data: any) => {
+      data['include'] = 'childWorkflows'; // TODO: add checkbox to form
       console.log('search instances', data);
       listWorkflowInstances(config, data)
         .then(data => setInstances(data))
