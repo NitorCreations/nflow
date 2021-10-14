@@ -733,17 +733,15 @@ public class WorkflowInstanceDao {
   }
 
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {
-    String sql;
     if (actions < maxActions) {
-      sql = "select * from nflow_workflow_state where workflow_id = ? order by action_id, state_key asc";
-      return jdbc.query(sql, new WorkflowActionStateRowMapper(), instance.id);
-    } else {
-      sql = "select nflow_workflow_state.* from ("
-          + sqlVariants.limit("select id from nflow_workflow_action where workflow_id = ? order by id desc", maxActions)
-          + ") action_id inner join nflow_workflow_state on nflow_workflow_state.workflow_id = ? and action_id.id = nflow_workflow_state.action_id "
-          + "order by nflow_workflow_state.action_id, nflow_workflow_state.state_key asc";
-      return jdbc.query(sql, new WorkflowActionStateRowMapper(), instance.id, instance.id);
+      return jdbc.query("select * from nflow_workflow_state where workflow_id = ? order by action_id, state_key asc",
+          new WorkflowActionStateRowMapper(), instance.id);
     }
+    return jdbc.query("select nflow_workflow_state.* from ("
+        + sqlVariants.limit("select id from nflow_workflow_action where workflow_id = ? order by id desc", maxActions)
+        + ") action_id inner join nflow_workflow_state on nflow_workflow_state.workflow_id = ? and action_id.id = nflow_workflow_state.action_id "
+        + "order by nflow_workflow_state.action_id, nflow_workflow_state.state_key asc", new WorkflowActionStateRowMapper(),
+        instance.id, instance.id);
   }
 
   @Transactional(propagation = MANDATORY)
