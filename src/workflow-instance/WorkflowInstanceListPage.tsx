@@ -92,6 +92,8 @@ const ChildWorkflowTable = ({workflowId}: {workflowId: number}) => {
 };
 
 const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
+  const config = useConfig();
+
   const getMuiTheme = () =>
     createTheme({
       overrides: {
@@ -104,7 +106,58 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
       }
     });
 
-  const columns = [
+  const getUserDefinedColumns = (columns: any[]) => {
+    if (config.searchResultColumns) {
+      const newColumns: any[] = [];
+      const staticColumns = ['id', 'type'];
+
+      // preserve static columns and hide all others
+      columns.forEach((column, i) => {
+        if (staticColumns.includes(column.name)) {
+          newColumns.push(column);
+          delete columns[i];
+        } else {
+          column.options = Object.assign({}, column.options, {display: false});
+        }
+      });
+
+      // pick user defined columns and create new columns for state variables
+      config.searchResultColumns.forEach(userColumnDefinition => {
+        let tmp = columns.find(
+          col => col && col.name === userColumnDefinition.field
+        );
+        if (!tmp && userColumnDefinition.field.startsWith('stateVariables')) {
+          tmp = {
+            name: userColumnDefinition.field,
+            label: userColumnDefinition.label,
+            options: {
+              filter: false
+            }
+          };
+        } else {
+          delete columns[
+            columns.findIndex(
+              col => col && col.name === userColumnDefinition.field
+            )
+          ];
+        }
+        if (tmp) {
+          tmp.options.display = true;
+          newColumns.push(tmp);
+        } else {
+          console.error(
+            `Unsupported column name ${userColumnDefinition.field}`
+          );
+        }
+      });
+
+      // final columns are static columns, user defined columns and the rest of the internal columns
+      return newColumns.concat(columns.filter(v => v));
+    }
+    return columns;
+  };
+
+  let columns: any[] = getUserDefinedColumns([
     {
       name: 'id',
       label: 'Id',
@@ -201,7 +254,7 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
         display: false
       }
     }
-  ];
+  ]);
 
   const rowClassRender = (status: any): string => {
     switch (status) {
@@ -239,6 +292,7 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
           selectableRows: 'none',
           expandableRows: true,
           expandableRowsHeader: false,
+          enableNestedDataAccess: '.',
           renderExpandableRow: (rowData, rowMeta) => {
             const colSpan = rowData.length + 1;
             return (
@@ -252,7 +306,7 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
             );
           },
           setRowProps: (row, dataIndex, rowIndex) => {
-            const rowClassName = rowClassRender(row[5]); // status-column = 5
+            const rowClassName = rowClassRender(instances[dataIndex].status);
             return {
               className: `${rowClassName}`
             };
@@ -289,7 +343,7 @@ function WorkflowInstanceListPage() {
 
   const searchInstances = useCallback(
     (data: any) => {
-      data['include'] = 'childWorkflows'; // TODO: add checkbox to form
+      data['include'] = 'childWorkflows,currentStateVariables'; // TODO: add checkbox to form
       console.log('search instances', data);
       listWorkflowInstances(config, data)
         .then(data => setInstances(data))

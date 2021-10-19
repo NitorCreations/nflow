@@ -81,8 +81,15 @@ var Config = new function() {
   this.nflowLogoTitle = undefined;
 
   /**
-   * Customizes columns shown in workflow instance search, for example following shows workflow id and type (which are
-   * always first columns by default) followed by business key, state variable "cron" and next activation.
+   * Customizes columns shown in workflow instance search as visible, for example following shows workflow id
+   * and type (which are always first columns by default) followed by business key, state variable "cron" and
+   * next activation.
+   * 
+   * Supported fields: parentWorkflowId, state, stateText, status, businessKey, externalId, retries,
+   * started, created, modified, nextActivation, priority, stateVariables.<stateVariableName>
+   * 
+   * Supported types for state variables: undefined (rendered as string), timestamp
+   * 
    * this.searchResultColumns = [
    *   {
    *     field: 'businessKey',

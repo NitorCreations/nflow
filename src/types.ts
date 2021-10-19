@@ -5,6 +5,11 @@ interface Endpoint {
   docUrl: string;
 }
 
+interface ColumnConfig {
+  field: string;
+  label?: string;
+  type?: string;
+}
 interface Config {
   refreshSeconds: number;
   activeNflowEndpoint: Endpoint;
@@ -19,6 +24,7 @@ interface Config {
   htmlTitle?: string;
   nflowLogoFile?: string;
   nflowLogoTitle?: string;
+  searchResultColumns?: Array<ColumnConfig>;
 }
 
 interface Executor {
