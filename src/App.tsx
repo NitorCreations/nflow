@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './App.scss';
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {HashRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
 import {Snackbar} from '@material-ui/core';
 
 import {Navigation, Feedback, FeedbackContext} from './component';
@@ -18,6 +18,7 @@ import ExecutorListPage from './executor/ExecutorListPage';
 
 import AboutPage from './about/AboutPage';
 import NotFoundPage from './error/NotFoundPage';
+import {ReturnLink} from './component/ReturnLink';
 
 function App() {
   const [feedback, setFeedback] = useState<FeedbackMessage | undefined>();
@@ -31,28 +32,35 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router hashType="hashbang">
       <FeedbackContext.Provider value={{addFeedback}}>
         <div className="App">
           <header>
+            <ReturnLink />
             <Navigation />
           </header>
           <hr />
           <Switch>
             <Route exact path="/">
-              <WorkflowDefinitionListPage />
+              <Redirect to="/workflow" />
             </Route>
             <Route path="/search">
-              <WorkflowInstanceListPage />
-            </Route>
-            <Route path="/workflow-definition/:type">
-              <WorkflowDefinitionDetailsPage />
+              <Redirect to="/workflow" />
             </Route>
             <Route path="/workflow/create">
               <CreateWorkflowInstancePage />
             </Route>
             <Route path="/workflow/:id">
               <WorkflowInstanceDetailsPage />
+            </Route>
+            <Route path="/workflow">
+              <WorkflowInstanceListPage />
+            </Route>
+            <Route path="/workflow-definition/:type">
+              <WorkflowDefinitionDetailsPage />
+            </Route>
+            <Route path="/workflow-definition">
+              <WorkflowDefinitionListPage />
             </Route>
             <Route path="/executors">
               <ExecutorListPage />

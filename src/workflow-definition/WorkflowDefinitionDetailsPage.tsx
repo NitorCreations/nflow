@@ -13,13 +13,15 @@ import './workflow-definition.scss';
 const WorkflowDetails = ({
   definition,
   statistics,
-  type
+  type,
+  externalContent
 }: {
   definition: WorkflowDefinition;
   statistics: WorkflowSummaryStatistics;
   type: string;
+  externalContent: any;
 }) => {
-  const searchPath = `/search?type=${type}`;
+  const searchPath = `/workflow?type=${type}`;
   const createPath = `/workflow/create?type=${type}`;
 
   return (
@@ -30,6 +32,7 @@ const WorkflowDetails = ({
             {definition.type}
           </Typography>
           <blockquote>{definition.description}</blockquote>
+          <div dangerouslySetInnerHTML={{__html: externalContent}} />
           <div>
             <InternalLink to={searchPath}>
               Search related workflows
@@ -70,6 +73,7 @@ function WorkflowDefinitionDetailsPage() {
 
   const [definition, setDefinition] = useState<WorkflowDefinition>();
   const [statistics, setStatistics] = useState<WorkflowSummaryStatistics>();
+  const [externalContent, setExternalContent] = useState<any>();
 
   // TODO new features
   // launch a new instance
@@ -86,6 +90,15 @@ function WorkflowDefinitionDetailsPage() {
       .then(([def, stats]) => {
         setDefinition(def);
         setStatistics(stats);
+        return def;
+      })
+      .then(definition => {
+        Promise.resolve(
+          config.customDefinitionContent &&
+            config.customDefinitionContent(definition)
+        ).then(content => {
+          setExternalContent(content);
+        });
       })
       .catch(e => {
         // TODO handler error
@@ -100,6 +113,7 @@ function WorkflowDefinitionDetailsPage() {
         type={type}
         definition={definition}
         statistics={statistics}
+        externalContent={externalContent}
       />
     );
   }

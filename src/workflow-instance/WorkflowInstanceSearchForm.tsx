@@ -115,7 +115,7 @@ function WorkflowInstanceSearchForm(props: {
         }
       }
       // Update query parameters to URL
-      history.push(`/search?${new URLSearchParams(data).toString()}`);
+      history.push(`/workflow?${new URLSearchParams(data).toString()}`);
       props.onSubmit(data);
     },
     [

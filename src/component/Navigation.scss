@@ -1,10 +1,4 @@
-nav a {
-    font-size: 1.5em;
-    padding-left: 10px;
+.MuiToolbar-root {
+  display: flex;
+  justify-content: space-between;
 }
-
-nav a.navi-selected {
-    text-decoration: underline;
-    color: var(--color-nitor-black)
-}
-

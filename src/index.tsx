@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {readConfig, ConfigContext} from './config';
-import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles';
+import {createTheme, MuiThemeProvider} from '@material-ui/core/styles';
 
 // https://material-ui.com/components/typography/#general
 // https://fontsource.org/docs/getting-started
@@ -13,7 +13,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './index.scss';
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: {
       light: '#6DC4E2',
@@ -24,7 +24,7 @@ const theme = createMuiTheme({
   }
 });
 
-readConfig('/config.json').then(config => {
+readConfig().then(config => {
   console.info('Config read');
   ReactDOM.render(
     <React.StrictMode>

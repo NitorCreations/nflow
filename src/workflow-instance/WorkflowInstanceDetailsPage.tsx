@@ -1,6 +1,13 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {
+  AppBar,
+  Tab,
+  Tabs,
+  Typography,
+  Grid,
+  Container
+} from '@material-ui/core';
 
 import {StateGraph, InternalLink, ObjectTable, Spinner} from '../component';
 import {WorkflowDefinition, WorkflowInstance} from '../types';
@@ -13,13 +20,17 @@ import {
 import {formatTimestamp, formatRelativeTime} from '../utils';
 import {StateVariableTable} from './StateVariableTable';
 import {ActionHistoryTable} from './ActionHistoryTable';
+import {TabPanel} from '../component/TabPanel';
+import {ManageWorkflowInstancePage} from './manage/ManageWorkflowInstancePage';
 
 const InstanceSummaryTable = ({
   instance,
-  parentInstance
+  parentInstance,
+  externalContent
 }: {
   instance: WorkflowInstance;
   parentInstance?: WorkflowInstance;
+  externalContent?: any;
 }) => {
   // TODO clicking currentState should highlight in state graph
   const parentLink = (x: any) =>
@@ -28,6 +39,7 @@ const InstanceSummaryTable = ({
         {parentInstance.type} ({parentInstance.id})
       </InternalLink>
     );
+
   const columns = [
     {
       field: 'parentWorkflowId',
@@ -61,6 +73,10 @@ const InstanceSummaryTable = ({
       headerName: 'Modified',
       fieldRender: formatTimestamp,
       tooltipRender: formatRelativeTime
+    },
+    {
+      field: 'signal',
+      headerName: 'Current signal'
     }
   ];
 
@@ -78,11 +94,14 @@ const InstanceSummaryTable = ({
     }
   };
   return (
-    <ObjectTable
-      object={instance}
-      columns={columns}
-      valueClassRender={valueClassRender}
-    />
+    <div>
+      <ObjectTable
+        object={instance}
+        columns={columns}
+        valueClassRender={valueClassRender}
+      />
+      <div dangerouslySetInnerHTML={{__html: externalContent}} />
+    </div>
   );
 };
 
@@ -93,13 +112,22 @@ const InstanceSummary = ({
   definition,
   instance,
   parentInstance,
-  childInstances
+  childInstances,
+  externalContent
 }: {
   definition: WorkflowDefinition;
   instance: WorkflowInstance;
   parentInstance?: WorkflowInstance;
   childInstances: WorkflowInstance[];
+  externalContent: any;
 }) => {
+  const [selectedTab, setSelectedTab] = React.useState(0);
+  const handleChange = (
+    event: React.ChangeEvent<{}>,
+    newSelectedTab: number
+  ) => {
+    setSelectedTab(newSelectedTab);
+  };
   return (
     <Fragment>
       <Grid item xs={12} sm={6}>
@@ -113,26 +141,40 @@ const InstanceSummary = ({
           <InstanceSummaryTable
             instance={instance}
             parentInstance={parentInstance}
+            externalContent={externalContent}
           />
         </Container>
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Container>
-          <Typography variant="h3">State variables</Typography>
-          <StateVariableTable instance={instance} />
-        </Container>
-        <Container>
-          <Typography variant="h3">Action history</Typography>
-          <ActionHistoryTable
-            instance={instance}
-            childInstances={childInstances}
-          />
-        </Container>
-      </Grid>
-      <Grid item xs={12} sm={6}>
         <Container>
           <StateGraph definition={definition} />
         </Container>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <AppBar position="static">
+          <Tabs value={selectedTab} onChange={handleChange}>
+            <Tab label="Action history" />
+            <Tab label="State variables" />
+            <Tab label="Manage" />
+          </Tabs>
+        </AppBar>
+        <TabPanel value={selectedTab} index={0}>
+          <Container>
+            <ActionHistoryTable
+              instance={instance}
+              childInstances={childInstances}
+            />
+          </Container>
+        </TabPanel>
+        <TabPanel value={selectedTab} index={1}>
+          <Container>
+            <StateVariableTable instance={instance} />
+          </Container>
+        </TabPanel>
+        <TabPanel value={selectedTab} index={2}>
+          <ManageWorkflowInstancePage
+            instance={instance}
+            definition={definition}
+          />
+        </TabPanel>
       </Grid>
     </Fragment>
   );
@@ -145,6 +187,7 @@ function WorkflowInstanceDetailsPage() {
   const [instance, setInstance] = useState<WorkflowInstance>();
   const [childInstances, setChildInstances] = useState<WorkflowInstance[]>([]);
   const [parentInstance, setParentInstance] = useState<WorkflowInstance>();
+  const [externalContent, setExternalContent] = useState<any>();
   const {id} = useParams() as any;
 
   // TODO This fetches childWorkflows for ActionHistoryTable
@@ -165,12 +208,27 @@ function WorkflowInstanceDetailsPage() {
           setChildInstances(childInstances);
         });
       }
-      return getWorkflowDefinition(config, instance.type).then(definition => {
-        setDefinition(definition);
-        setParentInstance(undefined);
-        setInstance(instance);
-        setChildInstances(childInstances);
-      });
+      return getWorkflowDefinition(config, instance.type)
+        .then(definition => {
+          setDefinition(definition);
+          setParentInstance(undefined);
+          setInstance(instance);
+          setChildInstances(childInstances);
+          return definition;
+        })
+        .then(definition =>
+          Promise.resolve(
+            config.customInstanceContent &&
+              config.customInstanceContent(
+                definition,
+                instance,
+                undefined,
+                childInstances
+              )
+          ).then(content => {
+            setExternalContent(content);
+          })
+        );
     });
   }, [config, id]);
 
@@ -182,6 +240,7 @@ function WorkflowInstanceDetailsPage() {
           instance={instance}
           childInstances={childInstances}
           parentInstance={parentInstance}
+          externalContent={externalContent}
         />
       ) : (
         <Grid item xs={12}>

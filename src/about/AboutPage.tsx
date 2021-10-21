@@ -6,8 +6,8 @@ import Link from '@material-ui/core/Link';
 function AboutPage() {
   const config = useConfig();
 
-  let apiUrl = config.baseUrl + '/api';
-  let docUrl = config.baseUrl + '/ui/doc/';
+  let apiUrl = config.activeNflowEndpoint.apiUrl;
+  let docUrl = config.activeNflowEndpoint.docUrl;
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -32,10 +32,12 @@ function AboutPage() {
             This nFlow Explorer instance uses the nFlow API running at{' '}
             <Link href={apiUrl}>{apiUrl}</Link>.
           </Typography>
-          <Typography variant="body1">
-            nFlow API documentation is available at{' '}
-            <Link href={docUrl}>{docUrl}</Link>.
-          </Typography>
+          {config.activeNflowEndpoint.docUrl && (
+            <Typography variant="body1">
+              nFlow API documentation is available at{' '}
+              <Link href={docUrl}>{docUrl}</Link>.
+            </Typography>
+          )}
         </Container>
       </Grid>
     </Grid>
