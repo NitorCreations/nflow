@@ -31,11 +31,11 @@ const statuses = [
 ];
 
 const typeNames: any = {
-  [allMarker]: '-- All workflow types --'
+  [allMarker]: '-- All types --'
 };
 
 const stateNames: any = {
-  [allMarker]: '-- All workflow states --'
+  [allMarker]: '-- All states --'
 };
 
 const statusNames: any = {
@@ -148,10 +148,10 @@ function WorkflowInstanceSearchForm(props: {
 
   return (
     <form className={classes.root}>
-      <Grid container>
-        <Grid item xs={11}>
+      <Grid container alignItems="center">
+        <Grid container xs={11}>
           <Selection
-            label="Workflow type"
+            label="Type"
             items={types}
             selected={type}
             onChange={setWorkflowType}
@@ -159,7 +159,7 @@ function WorkflowInstanceSearchForm(props: {
           />
 
           <Selection
-            label="Workflow state"
+            label="State"
             items={states}
             selected={state}
             onChange={setState}
@@ -167,7 +167,7 @@ function WorkflowInstanceSearchForm(props: {
           />
 
           <Selection
-            label="Workflow status"
+            label="Status"
             items={statuses}
             selected={status}
             onChange={setStatus}
@@ -183,20 +183,20 @@ function WorkflowInstanceSearchForm(props: {
           />
 
           <TextField
-            label="External id"
+            label="External ID"
             value={externalId}
             onChange={e => setExternalId(e.target.value)}
           />
 
           <TextField
-            label="Workflow id"
+            label="Instance ID"
             type="number"
             value={id}
             onChange={e => setId(e.target.value)}
           />
 
           <TextField
-            label="Workflow parent id"
+            label="Parent instance ID"
             type="number"
             value={parentInstanceId}
             onChange={e => setParentInstanceId(e.target.value)}
@@ -204,7 +204,7 @@ function WorkflowInstanceSearchForm(props: {
         </Grid>
 
         <Grid item xs={1}>
-          <Box display="flex" flexDirection="column" alignItems="flex-end">
+          <Box display="flex" flexDirection="column">
             <Button onClick={handleSubmit} variant="contained">
               Search
             </Button>

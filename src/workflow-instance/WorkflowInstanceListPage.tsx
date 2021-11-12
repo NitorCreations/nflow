@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
-  Typography,
   Grid,
   createTheme,
   MuiThemeProvider,
@@ -8,6 +7,7 @@ import {
   TableCell
 } from '@material-ui/core';
 import MUIDataTable, {ExpandButton} from 'mui-datatables';
+import {Warning} from '@material-ui/icons';
 
 import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
@@ -27,6 +27,20 @@ const idLinkRender = (id: string) => {
 const typeLinkRender = (type: string) => {
   const path = '/workflow-definition/' + type;
   return <InternalLink to={path}>{type}</InternalLink>;
+};
+
+const statusRender = (status: string) => {
+  return (
+    <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
+      <span>{status}</span>
+      {status === 'manual' && (
+        <span>
+          &nbsp;
+          <Warning fontSize="small" />
+        </span>
+      )}
+    </div>
+  );
 };
 
 const renderTimestamp = (value: string) => {
@@ -96,9 +110,22 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
   const getMuiTheme = () =>
     createTheme({
       overrides: {
+        MUIDataTable: {
+          root: {},
+          paper: {
+            boxShadow: 'none'
+          }
+        },
+        MUIDataTableBodyRow: {
+          root: {
+            '&:nth-child(odd)': {
+              backgroundColor: '#efefef'
+            }
+          }
+        },
         MUIDataTableBodyCell: {
           root: {
-            padding: 8,
+            padding: 6,
             wordBreak: 'break-all'
           }
         }
@@ -189,7 +216,13 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
         display: false
       }
     },
-    {name: 'status', label: 'Status'},
+    {
+      name: 'status',
+      label: 'Status',
+      options: {
+        customBodyRender: statusRender
+      }
+    },
     {
       name: 'businessKey',
       label: 'Business key',
@@ -255,18 +288,6 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
     }
   ]);
 
-  const rowClassRender = (status: any): string => {
-    switch (status) {
-      case 'manual':
-        return 'danger';
-      case 'finished':
-        return 'success';
-      case 'inProgress':
-        return 'info';
-    }
-    return '';
-  };
-
   const components = {
     ExpandButton: function (props: any) {
       if (
@@ -303,17 +324,6 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
                 </TableCell>
               </TableRow>
             );
-          },
-          setRowProps: (row, dataIndex, rowIndex) => {
-            const rowClassName = rowClassRender(instances[dataIndex].status);
-            return {
-              className: `${rowClassName}`
-            };
-          },
-          setTableProps: () => {
-            return {
-              className: 'table table-hover'
-            };
           }
         }}
       />
@@ -359,11 +369,12 @@ function WorkflowInstanceListPage() {
   };
 
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Typography variant="h5" gutterBottom>
-          Search workflow instances
-        </Typography>
+    <Grid container spacing={0}>
+      <Grid
+        item
+        style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10}}
+        xs={12}
+      >
         {initialLoad ? (
           <Spinner />
         ) : (

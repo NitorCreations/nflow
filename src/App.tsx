@@ -39,7 +39,6 @@ function App() {
             <ReturnLink />
             <Navigation />
           </header>
-          <hr />
           <Switch>
             <Route exact path="/">
               <Redirect to="/workflow" />
