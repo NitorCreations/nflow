@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   Typography,
   Grid,
-  Container,
   createTheme,
   MuiThemeProvider,
   TableRow,
@@ -362,19 +361,19 @@ function WorkflowInstanceListPage() {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Container className="search-container">
-          <Typography variant="h2" gutterBottom>
-            Search workflow instances
-          </Typography>
-          {initialLoad ? (
-            <Spinner />
-          ) : (
-            <WorkflowInstanceSearchForm
-              definitions={definitions}
-              onSubmit={search}
-            />
-          )}
-        </Container>
+        <Typography variant="h5" gutterBottom>
+          Search workflow instances
+        </Typography>
+        {initialLoad ? (
+          <Spinner />
+        ) : (
+          <WorkflowInstanceSearchForm
+            definitions={definitions}
+            onSubmit={search}
+          />
+        )}
+      </Grid>
+      <Grid item xs={12}>
         <InstanceTable instances={instances} />
       </Grid>
     </Grid>

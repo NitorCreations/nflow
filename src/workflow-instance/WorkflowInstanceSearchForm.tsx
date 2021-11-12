@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useLocation, useHistory} from 'react-router-dom';
-import TextField from '@material-ui/core/TextField';
+import {Box, Grid, TextField} from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 
@@ -148,63 +148,69 @@ function WorkflowInstanceSearchForm(props: {
 
   return (
     <form className={classes.root}>
-      <div>
-        <Selection
-          label="Workflow type"
-          items={types}
-          selected={type}
-          onChange={setWorkflowType}
-          getSelectionLabel={(type: string) => typeNames[type] || type}
-        />
+      <Grid container>
+        <Grid item xs={11}>
+          <Selection
+            label="Workflow type"
+            items={types}
+            selected={type}
+            onChange={setWorkflowType}
+            getSelectionLabel={(type: string) => typeNames[type] || type}
+          />
 
-        <Selection
-          label="Workflow state"
-          items={states}
-          selected={state}
-          onChange={setState}
-          getSelectionLabel={(state: string) => stateNames[state] || state}
-        />
+          <Selection
+            label="Workflow state"
+            items={states}
+            selected={state}
+            onChange={setState}
+            getSelectionLabel={(state: string) => stateNames[state] || state}
+          />
 
-        <Selection
-          label="Workflow status"
-          items={statuses}
-          selected={status}
-          onChange={setStatus}
-          getSelectionLabel={(status: string) => statusNames[status] || status}
-        />
-      </div>
+          <Selection
+            label="Workflow status"
+            items={statuses}
+            selected={status}
+            onChange={setStatus}
+            getSelectionLabel={(status: string) =>
+              statusNames[status] || status
+            }
+          />
 
-      <div>
-        <TextField
-          label="Business key"
-          value={businessKey}
-          onChange={e => setBusinessKey(e.target.value)}
-        />
+          <TextField
+            label="Business key"
+            value={businessKey}
+            onChange={e => setBusinessKey(e.target.value)}
+          />
 
-        <TextField
-          label="External id"
-          value={externalId}
-          onChange={e => setExternalId(e.target.value)}
-        />
+          <TextField
+            label="External id"
+            value={externalId}
+            onChange={e => setExternalId(e.target.value)}
+          />
 
-        <TextField
-          label="Workflow id"
-          type="number"
-          value={id}
-          onChange={e => setId(e.target.value)}
-        />
+          <TextField
+            label="Workflow id"
+            type="number"
+            value={id}
+            onChange={e => setId(e.target.value)}
+          />
 
-        <TextField
-          label="Workflow parent id"
-          type="number"
-          value={parentInstanceId}
-          onChange={e => setParentInstanceId(e.target.value)}
-        />
-      </div>
+          <TextField
+            label="Workflow parent id"
+            type="number"
+            value={parentInstanceId}
+            onChange={e => setParentInstanceId(e.target.value)}
+          />
+        </Grid>
 
-      <Button onClick={handleSubmit} variant="contained">
-        Search
-      </Button>
+        <Grid item xs={1}>
+          <Box display="flex" flexDirection="column" alignItems="flex-end">
+            <Button onClick={handleSubmit} variant="contained">
+              Search
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
     </form>
   );
 }
