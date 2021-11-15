@@ -12,14 +12,14 @@ const ManageWorkflowInstancePage = function (props: {
   return (
     <Grid container>
       <Grid item xs={12}>
-        <Typography variant="h3">Update state</Typography>
+        <Typography variant="h5">Update state</Typography>
         <UpdateWorkflowInstanceStateForm
           instance={props.instance}
           definition={props.definition}
         />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h3">Update state variable</Typography>
+        <Typography variant="h5">Update state variable</Typography>
         <UpdateWorkflowInstanceStateVariableForm
           instance={props.instance}
           definition={props.definition}
@@ -28,7 +28,7 @@ const ManageWorkflowInstancePage = function (props: {
       {props.definition.supportedSignals &&
         props.definition.supportedSignals.length > 0 && (
           <Grid item xs={12}>
-            <Typography variant="h3">Send signal</Typography>
+            <Typography variant="h5">Send signal</Typography>
             <UpdateWorkflowInstanceSignalForm
               instance={props.instance}
               definition={props.definition}

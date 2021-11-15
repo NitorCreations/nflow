@@ -132,7 +132,7 @@ const InstanceSummary = ({
     <Fragment>
       <Grid item xs={12} sm={6}>
         <Container>
-          <Typography variant="h2">
+          <Typography variant="h4">
             <InternalLink to={'/workflow-definition/' + instance.type}>
               {instance.type}
             </InternalLink>{' '}
@@ -149,7 +149,7 @@ const InstanceSummary = ({
         </Container>
       </Grid>
       <Grid item xs={12} sm={6}>
-        <AppBar position="static">
+        <AppBar position="static" style={{background: '#7f77ee'}}>
           <Tabs value={selectedTab} onChange={handleChange}>
             <Tab label="Action history" />
             <Tab label="State variables" />
@@ -157,17 +157,13 @@ const InstanceSummary = ({
           </Tabs>
         </AppBar>
         <TabPanel value={selectedTab} index={0}>
-          <Container>
-            <ActionHistoryTable
-              instance={instance}
-              childInstances={childInstances}
-            />
-          </Container>
+          <ActionHistoryTable
+            instance={instance}
+            childInstances={childInstances}
+          />
         </TabPanel>
         <TabPanel value={selectedTab} index={1}>
-          <Container>
-            <StateVariableTable instance={instance} />
-          </Container>
+          <StateVariableTable instance={instance} />
         </TabPanel>
         <TabPanel value={selectedTab} index={2}>
           <ManageWorkflowInstancePage

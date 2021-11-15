@@ -28,7 +28,7 @@ const WorkflowDetails = ({
     <Grid container spacing={3}>
       <Grid item xs={12} sm={6}>
         <Container>
-          <Typography variant="h2" gutterBottom>
+          <Typography variant="h4" gutterBottom>
             {definition.type}
           </Typography>
           <blockquote>{definition.description}</blockquote>
@@ -49,16 +49,16 @@ const WorkflowDetails = ({
       <Grid item xs={12} sm={6}>
         <Container>
           <Paper className="workflow-definition-paper">
-            <Typography variant="h3" gutterBottom>
-              Settings
-            </Typography>
-            <SettingsTable definition={definition} />
-          </Paper>
-          <Paper className="workflow-definition-paper">
-            <Typography variant="h3" gutterBottom>
+            <Typography variant="h5" gutterBottom>
               Statistics summary
             </Typography>
             <StatisticsSummaryTable statistics={statistics} />
+          </Paper>
+          <Paper className="workflow-definition-paper">
+            <Typography variant="h5" gutterBottom>
+              Settings
+            </Typography>
+            <SettingsTable definition={definition} />
           </Paper>
         </Container>
       </Grid>

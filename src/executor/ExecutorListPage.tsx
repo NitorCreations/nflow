@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {addDays, addHours} from 'date-fns';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {Grid, Container} from '@material-ui/core';
 
 import {formatRelativeTime, formatTimestamp} from '../utils';
 import {useConfig} from '../config';
