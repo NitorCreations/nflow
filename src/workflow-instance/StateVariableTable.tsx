@@ -1,5 +1,6 @@
 import React from 'react';
 import {ObjectTable} from '../component';
+import {Alert} from '@material-ui/lab';
 import {WorkflowInstance} from '../types';
 
 function StateVariableTable(props: {instance: WorkflowInstance}) {
@@ -15,6 +16,10 @@ function StateVariableTable(props: {instance: WorkflowInstance}) {
     headerName: key,
     fieldRender: renderValue
   }));
+
+  if (!props.instance.stateVariables) {
+    return <Alert severity="info">No state variables</Alert>;
+  }
 
   return (
     <ObjectTable object={props.instance.stateVariables} columns={columns} />
