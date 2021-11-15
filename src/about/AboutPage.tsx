@@ -12,7 +12,7 @@ function AboutPage() {
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Container>
-          <Typography variant="h2" gutterBottom>
+          <Typography variant="h3" gutterBottom>
             nFlow Explorer
           </Typography>
           <Typography variant="body1" gutterBottom>
@@ -25,7 +25,7 @@ function AboutPage() {
             <Link href="https://github.com/NitorCreations/nflow">GitHub</Link>.
           </Typography>
 
-          <Typography variant="h3" gutterBottom>
+          <Typography variant="h5" gutterBottom>
             Settings
           </Typography>
           <Typography variant="body1">
