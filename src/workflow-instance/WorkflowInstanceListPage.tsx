@@ -104,7 +104,11 @@ const ChildWorkflowTable = ({workflowId}: {workflowId: number}) => {
   return <DataTable columns={columns} rows={childWorkflows} />;
 };
 
-const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
+const InstanceTable = ({
+  instances
+}: {
+  instances: WorkflowInstance[] | undefined;
+}) => {
   const config = useConfig();
 
   const getMuiTheme = () =>
@@ -301,6 +305,10 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
     }
   };
 
+  if (!instances) {
+    return <div />;
+  }
+
   return (
     <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
@@ -313,6 +321,11 @@ const InstanceTable = ({instances}: {instances: WorkflowInstance[]}) => {
           expandableRows: true,
           expandableRowsHeader: false,
           enableNestedDataAccess: '.',
+          textLabels: {
+            body: {
+              noMatch: 'No workflow instances found'
+            }
+          },
           renderExpandableRow: (rowData, rowMeta) => {
             const colSpan = rowData.length + 1;
             return (
@@ -336,7 +349,7 @@ function WorkflowInstanceListPage() {
 
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [definitions, setDefinitions] = useState<Array<any>>([]);
-  const [instances, setInstances] = useState<Array<WorkflowInstance>>([]);
+  const [instances, setInstances] = useState<Array<WorkflowInstance>>();
 
   const fetchDefinitions = useCallback(() => {
     listWorkflowDefinitions(config)
