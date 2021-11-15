@@ -366,7 +366,7 @@ function WorkflowInstanceListPage() {
         });
       })
       .finally(() => setInitialLoad(false));
-  }, [config]);
+  }, [config, feedback]);
 
   useEffect(() => fetchDefinitions(), [fetchDefinitions]);
 
@@ -384,7 +384,7 @@ function WorkflowInstanceListPage() {
           });
         });
     },
-    [config]
+    [config, feedback]
   );
 
   const search = (data: any) => {
