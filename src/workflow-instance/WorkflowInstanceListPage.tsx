@@ -11,7 +11,7 @@ import {Warning} from '@material-ui/icons';
 
 import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
-import {DataTable, InternalLink, Spinner} from '../component';
+import {DataTable, InternalLink, Spinner, useFeedback} from '../component';
 import {formatRelativeTime, formatTimestamp} from '../utils';
 import {listWorkflowDefinitions, listWorkflowInstances} from '../service';
 import {WorkflowInstance} from '../types';
@@ -346,6 +346,7 @@ const InstanceTable = ({
 
 function WorkflowInstanceListPage() {
   const config = useConfig();
+  const feedback = useFeedback();
 
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [definitions, setDefinitions] = useState<Array<any>>([]);
@@ -355,8 +356,11 @@ function WorkflowInstanceListPage() {
     listWorkflowDefinitions(config)
       .then(data => setDefinitions(data))
       .catch(error => {
-        // TODO error handling
         console.error('Error', error);
+        feedback.addFeedback({
+          message: `Failed to query workflow instances from nFlow REST API`,
+          severity: 'error'
+        });
       })
       .finally(() => setInitialLoad(false));
   }, [config]);
@@ -370,8 +374,11 @@ function WorkflowInstanceListPage() {
       listWorkflowInstances(config, data)
         .then(data => setInstances(data))
         .catch(error => {
-          // TODO error handling
           console.error('Error', error);
+          feedback.addFeedback({
+            message: `Failed to connect to nFlow REST API.`,
+            severity: 'error'
+          });
         });
     },
     [config]
