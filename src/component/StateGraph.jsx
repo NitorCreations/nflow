@@ -30,7 +30,7 @@ function createGraph(definition) {
     const node = g.node(state.id);
     node.rx = node.ry = 5;
   }
-  
+
   // create edges between nodes
   for (let state of states) {
     for (let transition of state.transitions || []) {
@@ -79,6 +79,7 @@ function render(g, selector) {
     bbox.width + 2 * margin
   } ${bbox.height + 2 * margin}`;
   svg.attr('viewBox', viewBox);
+  svg.attr('height', g.graph().height);
 }
 
 function StateGraph(props) {

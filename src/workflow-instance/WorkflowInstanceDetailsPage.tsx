@@ -131,22 +131,24 @@ const InstanceSummary = ({
   return (
     <Fragment>
       <Grid item xs={12} sm={6}>
-        <Container>
-          <Typography variant="h4">
-            <InternalLink to={'/workflow-definition/' + instance.type}>
-              {instance.type}
-            </InternalLink>{' '}
-            ({instance.id})
-          </Typography>
-          <InstanceSummaryTable
-            instance={instance}
-            parentInstance={parentInstance}
-            externalContent={externalContent}
-          />
-        </Container>
-        <Container>
-          <StateGraph definition={definition} />
-        </Container>
+        <Typography variant="h4">
+          <InternalLink to={'/workflow-definition/' + instance.type}>
+            {instance.type}
+          </InternalLink>{' '}
+          ({instance.id})
+        </Typography>
+        <Grid container>
+          <Grid item xs={12} lg={6}>
+            <InstanceSummaryTable
+              instance={instance}
+              parentInstance={parentInstance}
+              externalContent={externalContent}
+            />
+          </Grid>
+          <Grid item xs={6} lg={6}>
+            <StateGraph definition={definition} />
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item xs={12} sm={6}>
         <AppBar position="static" style={{background: '#7f77ee'}}>
