@@ -45,11 +45,6 @@ function WorkflowDefinitionListPage() {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Container>
-          <Typography variant="h2" gutterBottom>
-            Workflow definitions
-          </Typography>
-        </Container>
         {initialLoad ? (
           <Container>
             <Spinner />
