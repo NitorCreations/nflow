@@ -316,29 +316,32 @@ const InstanceTable = ({
         data={instances}
         columns={columns}
         components={components}
-        options={{
-          selectableRows: 'none',
-          expandableRows: true,
-          expandableRowsHeader: false,
-          enableNestedDataAccess: '.',
-          textLabels: {
-            body: {
-              noMatch: 'No workflow instances found'
+        options={
+          {
+            storageKey: 'workflowInstancesTableState',
+            selectableRows: 'none',
+            expandableRows: true,
+            expandableRowsHeader: false,
+            enableNestedDataAccess: '.',
+            textLabels: {
+              body: {
+                noMatch: 'No workflow instances found'
+              }
+            },
+            renderExpandableRow: (rowData: any, rowMeta: any) => {
+              const colSpan = rowData.length + 1;
+              return (
+                <TableRow>
+                  <TableCell colSpan={colSpan}>
+                    <ChildWorkflowTable
+                      workflowId={instances[rowMeta.dataIndex].id}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
             }
-          },
-          renderExpandableRow: (rowData, rowMeta) => {
-            const colSpan = rowData.length + 1;
-            return (
-              <TableRow>
-                <TableCell colSpan={colSpan}>
-                  <ChildWorkflowTable
-                    workflowId={instances[rowMeta.dataIndex].id}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-          }
-        }}
+          } as any
+        } // TODO: types do not support storageKey property yet
       />
     </MuiThemeProvider>
   );
