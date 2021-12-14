@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 import {Typography, Grid, Container, Paper} from '@material-ui/core';
+import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
+import Search from '@material-ui/icons/Search';
 
 import {StateGraph, InternalLink, Spinner} from '../component';
 import {useConfig} from '../config';
@@ -30,19 +32,19 @@ const WorkflowDetails = ({
         <Container>
           <Typography variant="h4" gutterBottom>
             {definition.type}
-          </Typography>
-          <blockquote>{definition.description}</blockquote>
-          <div dangerouslySetInnerHTML={{__html: externalContent}} />
-          <div>
-            <InternalLink to={searchPath}>
-              Search related workflows
-            </InternalLink>
-          </div>
-          <div>
+            &nbsp;&nbsp;&nbsp;
             <InternalLink to={createPath}>
-              Create a new workflow instance
+              <AddCircleOutlineOutlinedIcon fontSize="inherit" />
             </InternalLink>
-          </div>
+            &nbsp;&nbsp;
+            <InternalLink to={searchPath}>
+              <Search fontSize="inherit" />
+            </InternalLink>
+          </Typography>
+          <Typography variant="h6" color="textSecondary" gutterBottom>
+            {definition.description}
+          </Typography>
+          <div dangerouslySetInnerHTML={{__html: externalContent}} />
           <StateGraph definition={definition} />
         </Container>
       </Grid>
