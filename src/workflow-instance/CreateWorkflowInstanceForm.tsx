@@ -1,21 +1,16 @@
 import React, {useContext, useState} from 'react';
 import {debounce} from 'lodash';
 import {useLocation, useHistory} from 'react-router-dom';
-import {
-  Container,
-  Button,
-  TextField,
-  Paper,
-  Typography
-} from '@material-ui/core';
+import {Container, Button, TextField} from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
-import {Selection, StateGraph, useFeedback} from '../component';
+import {Selection, useFeedback} from '../component';
 import {
   NewWorkflowInstance,
   NewWorkflowInstanceResponse,
   WorkflowDefinition
 } from '../types';
 import {createWorkflowInstance} from '../service';
+import {SelectedDefinitionContext} from './CreateWorkflowInstancePage';
 import {ConfigContext} from '../config';
 import './workflow-instance.scss';
 
@@ -39,6 +34,7 @@ function CreateWorkflowInstanceForm(props: {
   const config = useContext(ConfigContext);
   const history = useHistory();
   const classes = useStyles();
+  const selectedDefinitionContext = useContext(SelectedDefinitionContext);
   const queryParams = new URLSearchParams(useLocation().search);
   const definitionFromType = (type: string | null) =>
     props.definitions.filter(d => d.type === type)[0];
@@ -48,6 +44,9 @@ function CreateWorkflowInstanceForm(props: {
   const [definition, setDefinition] = useState<WorkflowDefinition>(
     defaultDefinition()
   );
+  if (!selectedDefinitionContext.selectedDefinition) {
+    selectedDefinitionContext.setSelectedDefinition(defaultDefinition());
+  }
   const [externalId, setExternalId] = useState<string>(
     queryParams.get('externalId') || ''
   );
@@ -63,8 +62,11 @@ function CreateWorkflowInstanceForm(props: {
   const [stateVariableError, setStateVariableError] =
     useState<string | undefined>();
 
-  const selectDefinition = (type: string) =>
+  const selectDefinition = (type: string) => {
+    const definition = definitionFromType(type);
     setDefinition(definitionFromType(type));
+    selectedDefinitionContext.setSelectedDefinition(definition);
+  };
 
   // Do not run validation every time a new character is added (debounce).
   const validateJSON = debounce((value: string) => {
@@ -129,58 +131,49 @@ function CreateWorkflowInstanceForm(props: {
 
   return (
     <form className={classes.root}>
-      <Paper>
-        <Container className="create-workflow-container">
-          <Selection
-            label="Workflow definition"
-            items={definitionNames}
-            selected={definition.type}
-            onChange={selectDefinition}
-            getSelectionLabel={(x: any) => x}
-          />
+      <Container className="create-workflow-container">
+        <Selection
+          label="Workflow definition"
+          items={definitionNames}
+          selected={definition.type}
+          onChange={selectDefinition}
+          getSelectionLabel={(x: any) => x}
+        />
+        <TextField
+          label="External id"
+          value={externalId}
+          onChange={(e: any) => setExternalId(e.target.value)}
+        />
+        <TextField
+          label="Business key"
+          value={businessKey}
+          onChange={(e: any) => setBusinessKey(e.target.value)}
+        />
+        <div>
           <TextField
-            label="External id"
-            value={externalId}
-            onChange={(e: any) => setExternalId(e.target.value)}
+            fullWidth
+            error={!!stateVariableError}
+            helperText={stateVariableError}
+            className="json-field"
+            label="State variables"
+            InputLabelProps={{shrink: true}}
+            placeholder="Add state variables as a JSON document"
+            multiline
+            rows={10}
+            value={stateVariables}
+            onChange={(e: any) => setStateVariablesStr(e.target.value)}
           />
-          <TextField
-            label="Business key"
-            value={businessKey}
-            onChange={(e: any) => setBusinessKey(e.target.value)}
-          />
-          {/* TODO need to set bigger width for the field */}
-          <div>
-            <TextField
-              error={!!stateVariableError}
-              helperText={stateVariableError}
-              className="json-field"
-              label="State variables"
-              InputLabelProps={{shrink: true}}
-              placeholder="Add state variables as a JSON document"
-              multiline
-              rows={10}
-              value={stateVariables}
-              onChange={(e: any) => setStateVariablesStr(e.target.value)}
-            />
-          </div>
-          <div>
-            <Button
-              variant="contained"
-              onClick={sendCreateRequest}
-              disabled={!formValid()}
-            >
-              Create
-            </Button>
-          </div>
-        </Container>
-      </Paper>
-      <Paper>
-        <Container>
-          <Typography variant="h3">{definition.type}</Typography>
-          <Typography>{definition.description}</Typography>
-          <StateGraph definition={definition} />
-        </Container>
-      </Paper>
+        </div>
+        <div>
+          <Button
+            variant="contained"
+            onClick={sendCreateRequest}
+            disabled={!formValid()}
+          >
+            Create
+          </Button>
+        </div>
+      </Container>
     </form>
   );
 }
