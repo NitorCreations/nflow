@@ -114,7 +114,7 @@
     <el.version>3.0.0</el.version>
     <frontend-maven.version>1.9.1</frontend-maven.version>
     <guice.version>4.2.3</guice.version>
-    <h2.version>1.4.200</h2.version>
+    <h2.version>2.0.202</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
     <hibernate.validator.version>6.1.7.Final</hibernate.validator.version>
     <hikaricp.version>3.4.5</hikaricp.version>
