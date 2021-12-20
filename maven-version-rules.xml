@@ -78,6 +78,11 @@
                 <ignoreVersion type="regex">.*M*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="org.mariadb.jdbc">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*-(rc|beta|alpha)</ignoreVersion>
+            </ignoreVersions>
+        </rule>
         <rule groupId="com.google.inject">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*BETA.*</ignoreVersion>
