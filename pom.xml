@@ -169,6 +169,7 @@
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <reactor.core.version>3.4.13</reactor.core.version>
     <reactor.netty.version>1.0.14</reactor.netty.version>
     <reflections.version>0.10.2</reflections.version>
     <slf4j.version>1.7.32</slf4j.version>
@@ -734,6 +735,11 @@
         <groupId>io.projectreactor.netty</groupId>
         <artifactId>reactor-netty</artifactId>
         <version>${reactor.netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-core</artifactId>
+        <version>${reactor.core.version}</version>
       </dependency>
       <!-- validation -->
       <dependency>
