@@ -158,7 +158,6 @@
     <metrics.version>4.2.7</metrics.version>
     <mockito.version>4.2.0</mockito.version>
     <mssql.version>9.4.1.jre8</mssql.version>
-    <multithreadedtc.version>1.01</multithreadedtc.version>
     <mysql.version>8.0.27</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
     <node.version>v12.16.2</node.version> <!-- https://nodejs.org/en/download/releases/ -->
@@ -964,11 +963,6 @@
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.googlecode.multithreadedtc</groupId>
-        <artifactId>multithreadedtc</artifactId>
-        <version>${multithreadedtc.version}</version>
       </dependency>
       <dependency>
         <groupId>ru.yandex.qatools.embed</groupId>
