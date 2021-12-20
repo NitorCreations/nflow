@@ -46,6 +46,8 @@
         <rule groupId="org.eclipse.jetty">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
+                <!-- jetty 11 moves from javax.servlet-api to jakarta.servlet-api, requires spring 6.x" -->
+                <ignoreVersion type="regex">^1[1-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="ch.qos.logback">
