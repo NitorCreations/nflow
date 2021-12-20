@@ -116,7 +116,7 @@
     <guice.version>5.0.1</guice.version>
     <h2.version>2.0.202</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <hibernate.validator.version>7.0.1.Final</hibernate.validator.version>
+    <hibernate.validator.version>6.2.0.Final</hibernate.validator.version>
     <hikaricp.version>5.0.0</hikaricp.version>
     <jackson.version>2.13.1</jackson.version>
     <javassist.version>3.28.0-GA</javassist.version>

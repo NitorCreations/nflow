@@ -36,6 +36,8 @@
         <rule groupId="org.hibernate.validator">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*(Alpha|CR).*</ignoreVersion>
+                <!-- newer hibernate work on jakarta instead of javax -->
+                <ignoreVersion type="regex">^[7-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="io.swagger">
