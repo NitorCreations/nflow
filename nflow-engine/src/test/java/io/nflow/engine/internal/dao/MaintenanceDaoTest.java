@@ -9,9 +9,9 @@ import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     expectedIds.add(storePassiveWorkflow(archiveTime2));
 
     List<Long> oldWorkflowIds = maintenanceDao.getOldWorkflowIds(MAIN, archiveTimeLimit, 10, emptySet());
-    assertArrayEquals(oldWorkflowIds.toArray(), expectedIds.toArray());
+    assertArrayEquals(expectedIds.toArray(), oldWorkflowIds.toArray());
   }
 
   @Test

@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.joda.time.DateTime.now;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -324,7 +323,7 @@ public class StateExecutionImplTest {
   public void handleFailureGoesToFailureState() {
     handleFailure(TestDefinition.TestState.start1, TestDefinition.TestState.start1);
 
-    assertFalse(execution.isRetry());
+    assertThat(execution.isRetry(), is(false));
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.failed.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
     assertThat(execution.getNextStateReason(), is("reason, going to failure state"));
@@ -334,7 +333,7 @@ public class StateExecutionImplTest {
   public void handleFailureGoesToErrorStateWhenFailureStateIsNotDefined() {
     handleFailure(TestDefinition.TestState.start2, TestDefinition.TestState.start2);
 
-    assertFalse(execution.isRetry());
+    assertThat(execution.isRetry(), is(false));
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
     assertThat(execution.getNextActivation(), is(notNullValue()));
     assertThat(execution.getNextStateReason(), is("reason, no failure state defined, going to error state"));
@@ -344,7 +343,7 @@ public class StateExecutionImplTest {
   public void handleFailureStopsProcessingWhenProcessingErrorState() {
     handleFailure(TestDefinition.TestState.start2, TestDefinition.TestState.error);
 
-    assertFalse(execution.isRetry());
+    assertThat(execution.isRetry(), is(false));
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.TestState.error.name())));
     assertThat(execution.getNextActivation(), is(nullValue()));
     assertThat(execution.getNextStateReason(), is("reason when handling error state, processing stopped"));

@@ -1,6 +1,7 @@
 package io.nflow.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +30,6 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
 
     // Then validate that the right number of AsciiDoc files have been created
     String[] files = SWAGGER2_MARKUP_ASCIIDOC_DIR.toFile().list();
-    assertEquals(5, files.length);
+    assertThat(files, arrayWithSize(5));
   }
 }
