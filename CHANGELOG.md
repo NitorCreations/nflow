@@ -3,11 +3,12 @@
 **Highlights**
 - `nflow-explorer`
   - Customizable workflow search result table columns
-- logback-classic update to version 1.2.8
-  - http://mailman.qos.ch/pipermail/announce/2021/000164.html
-  - https://jira.qos.ch/browse/LOGBACK-1591
 
 **Details**
+- `nflow-engine`
+  - logback-classic update to version 1.2.9
+    - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+    - https://jira.qos.ch/browse/LOGBACK-1591
 
 ## 7.3.1 (2021-09-15)
 
