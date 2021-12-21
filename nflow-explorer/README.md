@@ -11,7 +11,7 @@ User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 
 ## Demo
 
-http://bank.nflow.io/nflow/ui/explorer/
+https://bank.nflow.io/nflow/ui/explorer/
 
 ## Quick Start
 
@@ -61,7 +61,7 @@ nflow-explorer/
 - `dist/` - release is built into this directory.
 - `src/` - our application sources. [Read more &raquo;](src/README.md)
 - `test/` - test sources and configuration. [Read more &raquo;](test/README.md)
-- `bower_components/` - third-party libraries. [Bower](http://bower.io) will install packages here. Anything added to this directory will need to be manually
+- `bower_components/` - third-party libraries. [Bower](https://bower.io) will install packages here. Anything added to this directory will need to be manually
   added to `src/index.html` and `test/karma.conf.js` to be picked up by the build system.
 - `.bowerrc` - the Bower configuration file. This tells Bower to install components into the `bower_components/` directory.
 - `bower.json` - this is our project configuration for Bower and it contains the list of Bower dependencies we need.
