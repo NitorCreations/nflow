@@ -11,12 +11,40 @@
   - Customizable workflow search result table columns
 
 **Details**
-- `nflow-engine`
-  - logback-classic update to version 1.2.9
-    - http://mailman.qos.ch/pipermail/announce/2021/000164.html
-    - https://jira.qos.ch/browse/LOGBACK-1591
 - `nflow-explorer`
   - Make some external urls https instead of http
+- `nflow-engine`
+  - Dependency updates:
+    - logback-classic update to version 1.2.9
+      - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+      - https://jira.qos.ch/browse/LOGBACK-1591
+    - cxf 3.4.5
+    - commons.lang3 3.12.0
+    - guice 5.0.1
+    - hibernate validator 6.2.0
+    - hikaricp 5.0.0
+    - jackson 2.13.1
+    - javassist 3.28.0
+    - jodatime 2.10.3
+    - slf4j 1.7.32
+- `nflow-rest-api`
+    - swagger 1.7.32
+- `nflow-jetty`
+  - Dependency updates
+    - jetty 10.0.7
+    - reflections 0.10.2
+- `nflow-netty`
+  - Dependency updates
+    - reactor-netty 1.0.14
+- `nflow-metrics`
+  - Dependency updates
+    - metrics 4.2.7
+- `nflow-tests`
+    - h2 2.0.202
+    - mssql 9.4.1
+    - mysql 8.0.27
+    - mariadb 2.7.4
+    - postgresql 42.3.1
 
 ## 7.3.1 (2021-09-15)
 
