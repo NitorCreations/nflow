@@ -1,7 +1,7 @@
 package io.nflow.rest.v1.jaxrs;
 
-import static com.nitorcreations.Matchers.hasField;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static io.nflow.rest.v1.jaxrs.WorkflowInstanceResourceTest.FieldMatcher.hasField;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static javax.ws.rs.core.Response.Status.CREATED;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import java.lang.reflect.Field;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +32,9 @@ import java.util.function.Supplier;
 
 import javax.ws.rs.core.Response;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -331,6 +335,36 @@ public class WorkflowInstanceResourceTest {
   private <T> T getEntity(Supplier<Response> supplier, Class<T> entityClass) {
     try (Response r = supplier.get()) {
       return r.readEntity(entityClass);
+    }
+  }
+
+  public static class FieldMatcher<T> extends TypeSafeDiagnosingMatcher<T> {
+    private final String fieldName;
+    private final Matcher<?> valueMatcher;
+
+    public FieldMatcher(String fieldName, Matcher<?> valueMatcher) {
+      this.fieldName = fieldName;
+      this.valueMatcher = valueMatcher;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+      description.appendText("has field \"").appendText(fieldName).appendText("\"");
+      description.appendText(" with value ").appendDescriptionOf(valueMatcher);
+    }
+
+    @Override
+    protected boolean matchesSafely(T item, Description mismatchDescription) {
+      try {
+        Field field = item.getClass().getField(fieldName);
+        return valueMatcher.matches(field.get(item));
+      } catch (NoSuchFieldException | IllegalAccessException e) {
+        return false;
+      }
+    }
+
+    public static <T> FieldMatcher<T> hasField(String fieldName, Matcher<?> withValue) {
+      return new FieldMatcher<T>(fieldName, withValue);
     }
   }
 }

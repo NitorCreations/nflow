@@ -4,7 +4,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;

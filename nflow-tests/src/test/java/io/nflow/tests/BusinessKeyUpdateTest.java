@@ -3,7 +3,7 @@ package io.nflow.tests;
 import static io.nflow.tests.demo.workflow.BusinessKeyWorkflow.BUSINESS_KEY_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;

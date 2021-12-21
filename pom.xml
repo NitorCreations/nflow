@@ -584,11 +584,6 @@
         <artifactId>core-utils</artifactId>
         <version>${core-utils.version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.nitorcreations</groupId>
-        <artifactId>matchers</artifactId>
-        <version>${nitor-matchers.version}</version>
-      </dependency>
       <!-- guice -->
       <dependency>
         <groupId>com.google.inject</groupId>
@@ -919,12 +914,6 @@
       <dependency>
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest</artifactId>
-        <version>${hamcrest.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
         <version>${hamcrest.version}</version>
         <scope>test</scope>
       </dependency>
