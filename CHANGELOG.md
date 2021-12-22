@@ -9,6 +9,8 @@
   - logback-classic update to version 1.2.9
     - http://mailman.qos.ch/pipermail/announce/2021/000164.html
     - https://jira.qos.ch/browse/LOGBACK-1591
+- `nflow-explorer`
+  - Make some external urls https instead of http
 
 ## 7.3.1 (2021-09-15)
 
