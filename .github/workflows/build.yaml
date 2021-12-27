@@ -26,5 +26,7 @@ jobs:
           cache: 'maven'
       - name: Setup DB
         run: ./travis/setup-db-${{ matrix.db }}.sh
-      - name: Run the Maven verify phase
-        run: mvn -X -B -P ${{ matrix.db }} test
+      - name: Create frontend package
+        run: mvn -X -B -pl nflow-explorer install
+      - name: Run the Maven test phase
+        run: mvn -X -B -P -pl install ${{ matrix.db }} test
