@@ -1,8 +1,13 @@
-## 7.4.1-SNAPSHOT (future release)
+## 8.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - `WorkflowDefinition` is replaced by `AbstractWorkflowDefinition`
 
 **Details**
+- `nflow-engine`
+  - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
+  - It is not necessary to define the workflow states as an enum anymore. You can define the states as instances of `SimpleState` or anything else that implements the required `WorkflowState` interface.
 
 ## 7.4.0 (2021-12-27)
 
