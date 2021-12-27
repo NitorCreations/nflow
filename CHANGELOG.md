@@ -1,4 +1,4 @@
-## 7.3.2-SNAPSHOT (future release)
+## 7.4.0-SNAPSHOT (future release)
 
 **Highlights**
 - `nflow-explorer`
