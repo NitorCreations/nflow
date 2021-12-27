@@ -1,4 +1,10 @@
-## 7.4.0-SNAPSHOT (future release)
+## 7.4.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.4.0 (2021-12-27)
 
 **Highlights**
 - `nflow-explorer`
