@@ -27,4 +27,4 @@ jobs:
       - name: Setup DB
         run: ./travis/setup-db-${{ matrix.db }}.sh
       - name: Run the Maven verify phase
-        run: mvn -B -P ${{ matrix.db }} test
+        run: mvn -X -B -P ${{ matrix.db }} test
