@@ -4,15 +4,15 @@
   <packaging>jar</packaging>
   <name>nflow-rest-api-spring-web</name>
   <description>nFlow REST API Spring Web</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>io.nflow</groupId>
-    <version>7.2.3-SNAPSHOT</version>
+    <version>7.4.1-SNAPSHOT</version>
   </parent>
   <properties>
     <EMPTY></EMPTY>

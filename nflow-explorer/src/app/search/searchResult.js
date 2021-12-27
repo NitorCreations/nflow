@@ -3,6 +3,7 @@
 
   var m = angular.module('nflowExplorer.search.searchResult', [
     'nflowExplorer.components',
+    'nflowExplorer.config'
   ]);
 
   m.directive('searchResult', function() {
@@ -19,9 +20,57 @@
     };
   });
 
-  m.controller('SearchResultCtrl', function(WorkflowStateType) {
+  m.controller('SearchResultCtrl', function(WorkflowStateType, config) {
     var self = this;
     self.getStateClass = getStateClass;
+    self.formatStateVariable = formatStateVariable;
+    self.isStateVariableField = isStateVariableField;
+    self.columns = config.searchResultColumns ? config.searchResultColumns : [
+      {
+        field: 'state',
+        label: 'State'
+      },
+      {
+        field: 'stateText',
+        label: 'State text'
+      },
+      {
+        field: 'status',
+        label: 'Status'
+      },
+      {
+        field: 'businessKey',
+        label: 'Business key'
+      },
+      {
+        field: 'externalId',
+        label: 'External id'
+      },
+      {
+        field: 'retries',
+        label: 'Retries'
+      },
+      {
+        field: 'created',
+        label: 'Created',
+        type: 'timestamp'
+      },
+      {
+        field: 'started',
+        label: 'Started',
+        type: 'timestamp'
+      },
+      {
+        field: 'modified',
+        label: 'Modified',
+        type: 'timestamp'
+      },
+      {
+        field: 'nextActivation',
+        label: 'Next activation',
+        type: 'timestamp'
+      },
+    ];
 
     var classByStateType = {};
     classByStateType[WorkflowStateType.NORMAL] = 'info';
@@ -43,6 +92,16 @@
       return '';
     }
 
+    function formatStateVariable(field, result) {
+      if (!result.stateVariables) {
+        return '';
+      }
+      return result.stateVariables[field.replace('stateVariables.','')];
+    }
+
+    function isStateVariableField(field) {
+      return field.startsWith('stateVariables.');
+    }
   });
 
 })();

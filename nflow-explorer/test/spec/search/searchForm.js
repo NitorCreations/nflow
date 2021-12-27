@@ -40,7 +40,7 @@ describe('Directive: searchForm', function () {
     });
 
     it('sets instance statuses into view model', function () {
-      expect(getCtrl(WorkflowService).instanceStatuses).toEqual([ 'created', 'inProgress', 'finished', 'manual' ]);
+      expect(getCtrl(WorkflowService).instanceStatuses).toEqual([ 'created', 'inProgress', 'finished', 'manual', 'executing' ]);
     });
 
     it('with empty criteria does not trigger search', function () {
@@ -99,7 +99,7 @@ describe('Directive: searchForm', function () {
         $httpBackend.flush();
         expect(ctrl.showIndicator).toBeFalsy();
 
-        ctrl.search();
+        ctrl.executeSearch();
         $timeout.flush(499);
         expect(ctrl.showIndicator).toBeFalsy();
         $timeout.flush(1);

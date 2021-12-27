@@ -2,10 +2,11 @@ package io.nflow.engine.workflow.curated;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowSettings.Builder.oncePerDay;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static org.joda.time.Instant.now;
+import static org.joda.time.DateTime.now;
 import static org.joda.time.Period.days;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -38,8 +39,10 @@ public abstract class CronWorkflow extends AbstractWorkflowDefinition {
   public static final WorkflowState SCHEDULE = new SimpleState("schedule", start,
       "Schedule work to be done according to the cron state variable");
   public static final WorkflowState DO_WORK = new SimpleState("doWork", "Execute the actual work");
+  public static final WorkflowState WAIT_FOR_WORK_TO_FINISH = new SimpleState("waitForWorkToFinish", "Wait for work to finish");
   public static final WorkflowState HANDLE_FAILURE = new SimpleState("handleFailure",
       "Handle failure and decide if workflow should be re-scheduled or stopped");
+  public static final WorkflowState DISABLED = new SimpleState("disabled", manual, "Workflow is disabled");
   public static final WorkflowState FAILED = new SimpleState("failed", manual, "Processing failed, waiting for manual actions");
 
   /**
@@ -62,6 +65,8 @@ public abstract class CronWorkflow extends AbstractWorkflowDefinition {
     super(type, SCHEDULE, HANDLE_FAILURE, settings);
     permit(SCHEDULE, DO_WORK);
     permit(DO_WORK, SCHEDULE);
+    permit(DO_WORK, WAIT_FOR_WORK_TO_FINISH);
+    permit(WAIT_FOR_WORK_TO_FINISH, SCHEDULE);
     permit(HANDLE_FAILURE, SCHEDULE, FAILED);
   }
 
@@ -73,7 +78,10 @@ public abstract class CronWorkflow extends AbstractWorkflowDefinition {
    * <pre>
    * public NextAction doWork(StateExecution execution) {
    *   // do the work here
-   *   return NextAction.moveToState(schedule, "Work done");
+   *   if (rescheduleImmediately) {
+   *     return NextAction.moveToState(schedule, "Work done");
+   *   }
+   *   return NextAction.moveToStateAfter(waitForWorkToFinish, DateTime.now().plusHours(hoursToWait), "Waiting for work to finish");
    * }
    * </pre>
    *
@@ -134,5 +142,37 @@ public abstract class CronWorkflow extends AbstractWorkflowDefinition {
   protected boolean handleFailureImpl(StateExecution execution) {
     logger.error("Cron workflow {} / {} work failed", getType(), execution.getWorkflowInstanceId());
     return true;
+  }
+
+  /**
+   * Calls {@link #waitForWorkToFinishImpl} to check if this instance should wait for work to finish or move to schedule state.
+   *
+   * @param execution
+   *          The workflow execution context.
+   * @return Action to retry later or move to schedule state.
+   */
+  public NextAction waitForWorkToFinish(StateExecution execution) {
+    DateTime waitUntil = waitForWorkToFinishImpl(execution);
+    if (waitUntil == null) {
+      return moveToState(SCHEDULE, "Work finished, rescheduling");
+    }
+    return retryAfter(waitUntil, "Waiting for work to finish");
+  }
+
+  /**
+   * Returns null to move to schedule state immediately if there are no incompleted child workflows, or current time plus 1 hour
+   * to check again later. Override for custom logic.
+   *
+   * @param execution
+   *          The workflow execution context.
+   * @return Time when check should be retried. Null to go to schedule state immediately.
+   */
+  protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
+    if (execution.hasUnfinishedChildWorkflows()) {
+      logger.info("Unfinished child workflow found, waiting before scheduling next work.");
+      return now().plusHours(1);
+    }
+    logger.info("No unfinished child workflows found, scheduling next work.");
+    return null;
   }
 }

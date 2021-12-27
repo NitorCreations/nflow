@@ -1,4 +1,80 @@
-## 7.2.3-SNAPSHOT (future release)
+## 7.4.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 7.4.0 (2021-12-27)
+
+**Highlights**
+- `nflow-explorer`
+  - Customizable workflow search result table columns
+
+**Details**
+- `nflow-engine`
+  - logback-classic update to version 1.2.9
+    - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+    - https://jira.qos.ch/browse/LOGBACK-1591
+- `nflow-explorer`
+  - Make some external urls https instead of http
+
+## 7.3.1 (2021-09-15)
+
+**Highlights**
+- `nflow-engine`
+  - Optimize fetching workflow with large action history with many modified state variables.
+
+**Details**
+- `nflow-jetty`
+  - Explicitly depend on jackson-databind so that projects including the nflow-jetty do not have to specify the version explicitly
+  - Dependency updates:
+    - jetty 9.4.41.v20210516
+- `nflow-engine`
+  - Improve SQL performance by using workflowId in the query which fetches the state of actions from `nflow_workflow_state`
+- `nflow-explorer`
+  - Disable karma tests
+
+## 7.3.0 (2021-04-05)
+
+**Highlights**
+- `nflow-explorer`
+  - Sortable workflow definitions, workflow instance search result and executors tables
+  - Persist workflow instance query parameters to URL
+  - Support wildcard characters when searching workflow instances by business key or external id
+- Database scripts
+  - Fix issues in Oracle scripts
+
+**Details**
+- `nflow-jetty`
+  - Dependency updates:
+    - jetty 9.4.38.v20210224
+- `nflow-explorer`
+  - Added missing `executing` status to workflow instance search criteria
+  - Included child workflows when auto-refreshing workflow instance actions table
+  - Added more child workflow details to workflow instance actions
+  - Dependency updates:
+    - urijs 1.19.6
+    - is-svg 4.3.1
+    - y18n 4.0.1
+- `nflow-engine`
+  - Support SQL wildcards in workflow instance queries by business key or external id
+- Database scripts:
+  - Disable cache for Oracle sequences
+  - Fix `nflow_workflow_action_insert` trigger in Oracle database scripts
+  - Fix syntax error in `create table nflow_workflow` statement in `oracle.create.ddl.sql`
+
+## 7.2.4 (2021-02-25)
+
+**Highlights**
+- Support disabling `CronWorkflow`s.
+
+**Details**
+- `nflow-engine`
+  - Add `disabled` state (type `manual`) to `CronWorkflow` to support disabling the work. By default there is no state method for the `disabled` state, but it can added in your workflow definition that extends `CronWorkflow` to execute custom logic when the workflow enters the `disabled` state.
+- `nflow-rest-api-common` and `nflow-rest-api-spring-web`
+  - Fix exception to HTTP status conversion issue when using Netty
+
+## 7.2.3 (2021-02-22)
 
 **Highlights**
 - Support updating workflow instance business key.
@@ -10,6 +86,7 @@
 - Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
 - Control logging and sleeping after exceptions in `WorkflowDispatcher`.
 - Control logging and sleeping after a failure to save workflow instance state.
+- Support in `CronWorkflow` to wait for created child workflow instances to finish before scheduling the next work.
 
 **Details**
 - `nflow-engine`
@@ -30,9 +107,12 @@
     - Control which log level is used to log the exception.
     - Control whether the stack trace of the exception is logged or not.
     - Control how long the `WorkflowStateProcessor` should sleep before retrying.
+  - Support in `CronWorkflow` to wait for child workflow instances created in `doWork` state method to finish before scheduling the next work. Return `NextAction.moveToStateAfter(waitForWorkToFinish, ...)` with some fail-safe waiting time instead of `NextAction.moveToState(schedule, ...)` to avoid immediate re-scheduling. When child workflows finish, they will wake up the parent workflow automatically, if it is still in the waiting state. Default implementation will check if any child workflows are still running, and keep waiting until they are all finished. Override `CronWorkflow.waitForWorkToFinishImpl` for custom logic.
+  - Add `hasUnfinishedChildWorkflows` helper in `StateExecution` and `WorkflowInstanceService` to check if the workflow instance has any child workflow instances with any other status than `WorkflowInstanceStatus.finished`.
 - `nflow-rest-api-common`, `nflow-rest-api-jax-rs`, `nflow-rest-api-spring-web`
   - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
   - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
+  - Fix REST API serialization of state variable values that are not valid JSON by failing the serialization on trailing tokens and resorting to string representation as expected.
 - `nflow-explorer`
   - Added optional `config.js` properties (`htmlTitle`, `nflowLogoFile`, `hideFooter`)
   - Facelift for workflow instance properties

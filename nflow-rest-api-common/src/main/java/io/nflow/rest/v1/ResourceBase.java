@@ -1,6 +1,9 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toCollection;
@@ -182,15 +185,21 @@ public abstract class ResourceBase {
     return listWorkflowConverter.convert(instance, includes);
   }
 
+  protected int resolveExceptionHttpStatus(Throwable t) {
+    if (t instanceof IllegalArgumentException) {
+      return HTTP_BAD_REQUEST;
+    } else if (t instanceof NflowNotFoundException) {
+      return HTTP_NOT_FOUND;
+    }
+    return HTTP_INTERNAL_ERROR;
+  }
+
   protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
     try {
       return response.get();
-    } catch (IllegalArgumentException e) {
-      return error.apply(400, new ErrorResponse(e.getMessage()));
-    } catch (NflowNotFoundException e) {
-      return error.apply(404, new ErrorResponse(e.getMessage()));
     } catch (Throwable t) {
-      return error.apply(500, new ErrorResponse(t.getMessage()));
+      int code = resolveExceptionHttpStatus(t);
+      return error.apply(code, new ErrorResponse(t.getMessage()));
     }
   }
 }

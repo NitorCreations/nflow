@@ -19,7 +19,10 @@
     function reloadWorkflow(workflowId) {
       console.log('Fetching workflow id ' + workflowId);
       WorkflowService.get(workflowId).then(function(workflow) {
-        self.workflow = workflow;
+        WorkflowService.query({parentWorkflowId: workflow.id}).then(function(childWorkflows) {
+          self.workflow = workflow;
+          self.childWorkflows = childWorkflows;
+        });
       });
     }
     self.poller = $interval(function() { reloadWorkflow(self.workflow.id); },

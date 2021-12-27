@@ -18,7 +18,12 @@
 
       self.model.definition = ensureTypeInDefinitions(initValues.type, definitions);
       self.model.state = ensureStateIdInDefinitionStates(initValues.stateId, self.model.definition);
+      self.model.status = nonValueToNull(initValues.status);
+      self.model.businessKey = nonValueToNull(initValues.businessKey);
+      self.model.externalId = nonValueToNull(initValues.externalId);
+      self.model.id = nonValueToNull(initValues.id);
       self.model.parentWorkflowId = nonValueToNull(initValues.parentWorkflowId);
+      self.allDefinitions = initValues.type === 'all';
     }
 
     function toQuery() {
@@ -31,7 +36,7 @@
     }
 
     function isEmpty() {
-      return _.isEmpty(omitNonValues(self.model));
+      return _.isEmpty(omitNonValues(self.model)) && !self.allDefinitions;
     }
 
     function onDefinitionChange() {

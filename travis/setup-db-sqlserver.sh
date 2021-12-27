@@ -1,6 +1,6 @@
 #!/bin/bash -ev
 
-docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433  --name mssql --detach microsoft/mssql-server-linux:latest
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433  --name mssql --detach mcr.microsoft.com/mssql/server:latest
 
 sleep 5
 

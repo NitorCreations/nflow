@@ -16,6 +16,10 @@
     CriteriaModel.initialize({
         type: $stateParams.type,
         stateId: $stateParams.state,
+        status: $stateParams.status,
+        businessKey: $stateParams.businessKey,
+        externalId: $stateParams.externalId,
+        id: toInt($stateParams.id),
         parentWorkflowId: toInt($stateParams.parentWorkflowId)
       },
       definitions);

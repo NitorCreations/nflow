@@ -4,15 +4,15 @@
   <artifactId>nflow-tests</artifactId>
   <name>nflow-tests</name>
   <description>nFlow integration tests</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <groupId>io.nflow</groupId>
     <artifactId>nflow-root</artifactId>
-    <version>7.2.3-SNAPSHOT</version>
+    <version>7.4.1-SNAPSHOT</version>
   </parent>
   <dependencies>
     <dependency>
@@ -26,10 +26,6 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-joda</artifactId>
     </dependency>
     <dependency>
       <groupId>com.github.spotbugs</groupId>

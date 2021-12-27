@@ -3,16 +3,16 @@
   <artifactId>nflow-metrics</artifactId>
   <packaging>jar</packaging>
   <name>nflow-metrics</name>
-  <description>Integrate http://metrics.dropwizard.io/ with nFlow</description>
-  <url>http://nflow.io</url>
+  <description>Integrate https://metrics.dropwizard.io/ with nFlow</description>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <groupId>io.nflow</groupId>
     <artifactId>nflow-root</artifactId>
-    <version>7.2.3-SNAPSHOT</version>
+    <version>7.4.1-SNAPSHOT</version>
   </parent>
   <dependencies>
     <dependency>
