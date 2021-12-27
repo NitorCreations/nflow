@@ -25,7 +25,7 @@ public class TestCronWorkflow extends CronWorkflow {
   public NextAction doWork(StateExecution execution) {
     WorkflowInstance childWorkflow = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).build();
     execution.addChildWorkflows(childWorkflow);
-    return moveToStateAfter(WAIT_FOR_WORK_TO_FINISH, now().plusMinutes(1), "Work delegated to child workflow");
+    return moveToStateAfter(WAIT_FOR_WORK_TO_FINISH, now().plusSeconds(1), "Work delegated to child workflow");
   }
 
   @Override
