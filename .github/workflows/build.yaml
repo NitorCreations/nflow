@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         java: [ '11' ]
-        db: h2, mariadb
         db: [ 'h2', 'mariadb' ]
     runs-on: ubuntu-latest
     env:
