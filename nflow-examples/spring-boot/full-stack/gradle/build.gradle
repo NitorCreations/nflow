@@ -18,12 +18,12 @@ configurations {
 }
 
 dependencies {
-	compile("io.nflow:nflow-rest-api-spring-web:7.3.1")
+	compile("io.nflow:nflow-rest-api-spring-web:7.4.0")
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '7.3.1', ext: 'tar.gz'
+	nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '7.4.0', ext: 'tar.gz'
 }
 
 task resolveNflowExplorer(type: Copy) {
