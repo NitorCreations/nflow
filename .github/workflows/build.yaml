@@ -1,0 +1,30 @@
+name: PR Build
+on:
+  push:
+    branches-ignore:
+    - 'master'
+concurrency: 
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    strategy:
+      matrix:
+        java: [ '8', '11' ]
+        db: h2, mariadb
+    runs-on: ubuntu-latest
+    env:
+      SPRING_PROFILES_ACTIVE=nflow.db.${{ matrix.java }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Setup DB
+        run: ./travis/setup-db-${{ matrix.db }}.sh
+      - name: Run the Maven verify phase
+        run: mvn -B -P ${{ matrix.java }} test
