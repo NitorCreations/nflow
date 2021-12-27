@@ -41,6 +41,7 @@
     - metrics 4.2.7
 - `nflow-tests`
     - h2 2.0.202
+      - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nflow h2 schema changed to work with 2.x release of h2.
     - mssql 9.4.1
     - mysql 8.0.27
     - mariadb 2.7.4
