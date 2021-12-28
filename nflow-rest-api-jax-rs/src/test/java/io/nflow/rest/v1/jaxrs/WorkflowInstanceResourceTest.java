@@ -1,13 +1,11 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
-import static io.nflow.rest.v1.jaxrs.WorkflowInstanceResourceTest.FieldMatcher.hasField;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -22,9 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import java.lang.reflect.Field;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
@@ -32,9 +28,6 @@ import java.util.function.Supplier;
 
 import javax.ws.rs.core.Response;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,7 +81,13 @@ public class WorkflowInstanceResourceTest {
   private WorkflowInstanceResource resource;
 
   @Captor
-  private ArgumentCaptor<WorkflowInstance> workflowInstanceCaptor;
+  private ArgumentCaptor<WorkflowInstance> instanceCaptor;
+
+  @Captor
+  private ArgumentCaptor<WorkflowInstanceAction> actionCaptor;
+
+  @Captor
+  private ArgumentCaptor<QueryWorkflowInstances> queryCaptor;
 
   @BeforeEach
   public void setup() {
@@ -124,21 +123,30 @@ public class WorkflowInstanceResourceTest {
   public void whenUpdatingMessageStateTextIsUpdated() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
 
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("my desc"))));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.state, is(req.state));
+    assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
   }
 
   @Test
   public void whenUpdatingStateUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API changed state to newState."))));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.state, is(req.state));
+    assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is("API changed state to newState."));
   }
 
   @Test
@@ -146,23 +154,32 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
     req.actionDescription = "description";
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(req.state)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(
-            allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.state, is(req.state));
+    assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+    assertThat(action.type, is(externalChange));
   }
 
   @Test
   public void whenUpdatingNextActivationTimeUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(
-            allOf(hasField("stateText", equalTo("API changed nextActivationTime to " + req.nextActivationTime + ".")),
-                hasField("type", equalTo(externalChange)))));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.state, is(nullValue()));
+    assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is("API changed nextActivationTime to " + req.nextActivationTime + "."));
+    assertThat(action.type, is(externalChange));
   }
 
   @Test
@@ -170,11 +187,16 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(allOf(hasField("state", equalTo(null)), hasField("status", equalTo(null)))),
-        (WorkflowInstanceAction) argThat(
-            allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.state, is(nullValue()));
+    assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+    assertThat(action.type, is(externalChange));
   }
 
   @Test
@@ -182,24 +204,30 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("foo", "bar");
     req.stateVariables.put("textNode", new TextNode("text"));
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(workflowInstanceCaptor.capture(),
-        (WorkflowInstanceAction) argThat(hasField("stateText", equalTo("API updated state variables."))));
-    WorkflowInstance instance = workflowInstanceCaptor.getValue();
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.getStateVariable("foo"), is("bar"));
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is("API updated state variables."));
   }
 
   @Test
   public void whenUpdatingBusinessKeyUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.businessKey = "modifiedKey";
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("businessKey", equalTo("modifiedKey"))),
-        (WorkflowInstanceAction) argThat(
-            allOf(hasField("stateText", equalTo("API changed business key to " + req.businessKey + ".")),
-                hasField("type", equalTo(externalChange)))));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.businessKey, is(req.businessKey));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is("API changed business key to " + req.businessKey + "."));
+    assertThat(action.type, is(externalChange));
   }
 
   @Test
@@ -207,59 +235,66 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.businessKey = "modifiedKey";
     req.actionDescription = "description";
+
     makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances).updateWorkflowInstance(
-        (WorkflowInstance) argThat(hasField("businessKey", equalTo("modifiedKey"))),
-        (WorkflowInstanceAction) argThat(
-            allOf(hasField("stateText", equalTo("description")), hasField("type", equalTo(externalChange)))));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.businessKey, is(req.businessKey));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+    assertThat(action.type, is(externalChange));
   }
 
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, "", null, null));
-    verify(workflowInstances).listWorkflowInstancesAsStream((QueryWorkflowInstances) argThat(allOf(
-        hasField("ids", contains(42L)),
-        hasField("types", contains("type")),
-        hasField("parentWorkflowId", is(99L)),
-        hasField("parentActionId", is(88L)),
-        hasField("states", contains("state")),
-        hasField("statuses", contains(WorkflowInstanceStatus.created)),
-        hasField("businessKey", equalTo("businessKey")),
-        hasField("externalId", equalTo("externalId")),
-        hasField("stateVariableKey", nullValue()),
-        hasField("stateVariableValue", nullValue()),
-        hasField("includeActions", equalTo(false)),
-        hasField("includeCurrentStateVariables", equalTo(false)),
-        hasField("includeActionStateVariables", equalTo(false)),
-        hasField("includeChildWorkflows", equalTo(false)),
-        hasField("maxResults", equalTo(null)),
-        hasField("maxActions", equalTo(null)))));
+
+    verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
+    QueryWorkflowInstances query = queryCaptor.getValue();
+    assertThat(query.ids, contains(42L));
+    assertThat(query.types, contains("type"));
+    assertThat(query.parentWorkflowId, is(99L));
+    assertThat(query.parentActionId, is(88L));
+    assertThat(query.states, contains("state"));
+    assertThat(query.statuses, contains(WorkflowInstanceStatus.created));
+    assertThat(query.businessKey, equalTo("businessKey"));
+    assertThat(query.externalId, equalTo("externalId"));
+    assertThat(query.stateVariableKey, nullValue());
+    assertThat(query.stateVariableValue, nullValue());
+    assertThat(query.includeActions, is(false));
+    assertThat(query.includeCurrentStateVariables, is(false));
+    assertThat(query.includeActionStateVariables, is(false));
+    assertThat(query.includeChildWorkflows, is(false));
+    assertThat(query.maxResults, is(nullValue()));
+    assertThat(query.maxActions, is(nullValue()));
   }
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId",
-        "stateVarKey", "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 1L));
-    verify(workflowInstances).listWorkflowInstancesAsStream(
-        (QueryWorkflowInstances) argThat(allOf(
-            hasField("ids", contains(42L)),
-            hasField("types", contains("type")),
-            hasField("parentWorkflowId", is(99L)),
-            hasField("parentActionId", is(88L)),
-            hasField("states", contains("state")),
-            hasField("statuses", contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing)),
-            hasField("businessKey", equalTo("businessKey")),
-            hasField("externalId", equalTo("externalId")),
-            hasField("stateVariableKey", equalTo("stateVarKey")),
-            hasField("stateVariableValue", equalTo("stateVarValue")),
-            hasField("includeActions", equalTo(true)),
-            hasField("includeCurrentStateVariables", equalTo(true)),
-            hasField("includeActionStateVariables", equalTo(true)),
-            hasField("includeChildWorkflows", equalTo(true)),
-            hasField("maxResults", equalTo(1L)),
-            hasField("maxActions", equalTo(1L)))));
+        "stateVarKey", "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 2L));
+
+    verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
+    QueryWorkflowInstances query = queryCaptor.getValue();
+    assertThat(query.ids, contains(42L));
+    assertThat(query.types, contains("type"));
+    assertThat(query.parentWorkflowId, is(99L));
+    assertThat(query.parentActionId, is(88L));
+    assertThat(query.states, contains("state"));
+    assertThat(query.statuses, contains(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing));
+    assertThat(query.businessKey, equalTo("businessKey"));
+    assertThat(query.externalId, equalTo("externalId"));
+    assertThat(query.stateVariableKey, equalTo("stateVarKey"));
+    assertThat(query.stateVariableValue, equalTo("stateVarValue"));
+    assertThat(query.includeActions, is(true));
+    assertThat(query.includeCurrentStateVariables, is(true));
+    assertThat(query.includeActionStateVariables, is(true));
+    assertThat(query.includeChildWorkflows, is(true));
+    assertThat(query.maxResults, is(1L));
+    assertThat(query.maxActions, is(2L));
   }
 
   @Test
@@ -335,36 +370,6 @@ public class WorkflowInstanceResourceTest {
   private <T> T getEntity(Supplier<Response> supplier, Class<T> entityClass) {
     try (Response r = supplier.get()) {
       return r.readEntity(entityClass);
-    }
-  }
-
-  public static class FieldMatcher<T> extends TypeSafeDiagnosingMatcher<T> {
-    private final String fieldName;
-    private final Matcher<?> valueMatcher;
-
-    public FieldMatcher(String fieldName, Matcher<?> valueMatcher) {
-      this.fieldName = fieldName;
-      this.valueMatcher = valueMatcher;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-      description.appendText("has field \"").appendText(fieldName).appendText("\"");
-      description.appendText(" with value ").appendDescriptionOf(valueMatcher);
-    }
-
-    @Override
-    protected boolean matchesSafely(T item, Description mismatchDescription) {
-      try {
-        Field field = item.getClass().getField(fieldName);
-        return valueMatcher.matches(field.get(item));
-      } catch (NoSuchFieldException | IllegalAccessException e) {
-        return false;
-      }
-    }
-
-    public static <T> FieldMatcher<T> hasField(String fieldName, Matcher<?> withValue) {
-      return new FieldMatcher<T>(fieldName, withValue);
     }
   }
 }
