@@ -26,20 +26,4 @@ public interface WorkflowState {
   default String getDescription() {
     return name();
   }
-
-  /**
-   * Return true if this state can be automatically retried after throwing an exception, or false if the workflow instance should
-   * move directly to failure state. Default implementation returns true if the throwable class is not annotated with
-   * {@code @NonRetryable}.
-   *
-   * @param thrown
-   *          The thrown exception.
-   * @return True if the state can be retried.
-   * @deprecated This will be removed in the next major release. Use new WorkflowSettings.Builder().setExceptionAnalyzer(...)
-   *             instead.
-   */
-  @Deprecated
-  default boolean isRetryAllowed(Throwable thrown) {
-    return !thrown.getClass().isAnnotationPresent(NonRetryable.class);
-  }
 }
