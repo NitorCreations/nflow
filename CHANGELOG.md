@@ -3,11 +3,13 @@
 **Highlights**
 - `nflow-engine`
   - `WorkflowDefinition` is replaced by `AbstractWorkflowDefinition`
+  - Remove deprecated `WorkflowState.isRetryAllowed`
 
 **Details**
 - `nflow-engine`
   - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
   - It is not necessary to define the workflow states as an enum anymore. You can define the states as instances of `SimpleState` or anything else that implements the required `WorkflowState` interface.
+  - `WorkflowState.isRetryAllowed` was removed, use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` instead.
 
 ## 7.4.0 (2021-12-27)
 
