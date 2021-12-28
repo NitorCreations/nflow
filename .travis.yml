@@ -18,7 +18,7 @@ addons:
 services:
   - docker
 before_install:
-  - wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.zip
+  - wget --no-check-certificate https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.zip
   - unzip -qq apache-maven-3.8.4-bin.zip
   - export M2_HOME=$PWD/apache-maven-3.8.4
   - export PATH=$M2_HOME/bin:$PATH
