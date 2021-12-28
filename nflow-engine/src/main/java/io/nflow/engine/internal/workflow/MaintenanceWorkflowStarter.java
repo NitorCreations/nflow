@@ -37,7 +37,8 @@ public class MaintenanceWorkflowStarter {
       WorkflowInstanceFactory workflowInstanceFactory) {
     this.workflowInstanceFactory = workflowInstanceFactory;
     this.instanceService = instanceService;
-    this.insertOnStartup = env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class);
+    this.insertOnStartup = env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class)
+        && env.getRequiredProperty("nflow.autostart", Boolean.class);
     this.initialCronSchedule = env.getRequiredProperty("nflow.maintenance.initial.cron");
     MaintenanceConfiguration.Builder builder = new MaintenanceConfiguration.Builder();
     apply(env, "archive", builder::withArchiveWorkflows);
