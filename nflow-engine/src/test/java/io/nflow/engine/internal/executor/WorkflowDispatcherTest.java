@@ -5,8 +5,8 @@ import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -417,10 +417,10 @@ public class WorkflowDispatcherTest {
 
   static class MultithreadedTestCase {
     private static final boolean debug = false;
-    private final Map<String, Thread> threads = new HashMap<>();
+    final Map<String, Thread> threads = new HashMap<>();
     private final AtomicInteger tick = new AtomicInteger();
-    private final List<Throwable> errors = synchronizedList(new ArrayList<>());
-    private Map<Integer, List<Thread>> waiters = new ConcurrentHashMap<>();
+    final List<Throwable> errors = synchronizedList(new ArrayList<>());
+    private final Map<Integer, List<Thread>> waiters = new ConcurrentHashMap<>();
 
     public Thread getThreadByName(String name) {
       return threads.get(name);
@@ -428,7 +428,7 @@ public class WorkflowDispatcherTest {
 
     private void debug(String msg) {
       if (debug) {
-        System.out.println(debug);
+        System.out.println(msg);
       }
     }
 
@@ -453,7 +453,7 @@ public class WorkflowDispatcherTest {
               return;
             }
           }
-        } catch (InterruptedException ex) {
+        } catch (@SuppressWarnings("unused") InterruptedException ex) {
           throw new RuntimeException("Interrupted while waiting for tick");
         }
         boolean allWaiting = true;

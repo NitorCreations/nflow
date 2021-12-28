@@ -4,10 +4,9 @@ import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Collections;
 import java.util.List;

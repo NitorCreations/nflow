@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 
 import org.h2.tools.TriggerAdapter;
 
@@ -30,7 +30,8 @@ public class H2ModifiedColumnTrigger extends TriggerAdapter {
       return ((OffsetDateTime) h2Time).toInstant().toEpochMilli();
     }
     if (h2Time instanceof LocalDateTime) {
-      return ((LocalDateTime) h2Time).toInstant(ZoneOffset.systemDefault().getRules().getOffset((LocalDateTime) h2Time)).toEpochMilli();
+      return ((LocalDateTime) h2Time).toInstant(ZoneId.systemDefault().getRules().getOffset((LocalDateTime) h2Time))
+          .toEpochMilli();
     }
     throw new UnsupportedOperationException("No support for converting " + h2Time.getClass() + " to milliseconds");
   }

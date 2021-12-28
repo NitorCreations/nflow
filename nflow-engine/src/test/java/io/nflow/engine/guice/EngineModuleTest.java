@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ThreadFactory;
 
@@ -44,7 +43,7 @@ import io.nflow.engine.service.WorkflowInstanceService;
 public class EngineModuleTest {
 
   @Test
-  public void testEngineConfiguration() throws SQLException {
+  public void testEngineConfiguration() {
     Properties props = new Properties();
     props.setProperty("nflow.db.type", "h2");
     props.setProperty("nflow.executor.thread.count", "1");
