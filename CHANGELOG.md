@@ -1,8 +1,12 @@
-## 7.4.1-SNAPSHOT (future release)
+## 8.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-engine`
+  - Enable maintenance (archiving and deleting old workflow instances) by default
 
 **Details**
+- `nflow-engine`
+  - Maintenance workflow instance is added to nFlow database by default in startup. Set `nflow.maintenance.insertWorkflowIfMissing=false` before starting nFlow to avoid it. 
 
 ## 7.4.0 (2021-12-27)
 
