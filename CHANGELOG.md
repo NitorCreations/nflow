@@ -3,12 +3,12 @@
 **Highlights**
 - `nflow-engine`
   - Enable maintenance (archiving and deleting old workflow instances) by default
-  - Enable workflow instance history clean-up (actions and state variables) by default
+  - Enable workflow instance history clean-up (deleting old actions and state variables) by default
 
 **Details**
 - `nflow-engine`
-  - Maintenance workflow instance is added to nFlow database by default in startup. Set `nflow.maintenance.insertWorkflowIfMissing=false` before starting nFlow to avoid it.
-  - Workflow instance actions and state variables that are older than 45 days are automatically cleaned up occasionally when the instance is processed. Use `WorkflowSettingsBuilder.setDeleteHistoryCondition(() -> false)` in all workflow definitions where you want to avoid it.
+  - Maintenance workflow instance is added to nFlow database by default in startup. Instances that have been in final state longer than 45 days are archived. Archived instances that have been in final state longer than one year are deleted. Maintenance is run every night. Use `nflow.maintenance` configuration options to change the defaults before startup, or update the maintenance workflow instance state variables after the instance has been created.
+  - Workflow instance actions and state variables that are older than 45 days are automatically cleaned up occasionally when the instance is processed. Use workflow settings to change the default time period (`setHistoryDeletableAfter`) and condition (`setDeleteHistoryCondition`) of the clean-up.
 
 ## 7.4.0 (2021-12-27)
 
