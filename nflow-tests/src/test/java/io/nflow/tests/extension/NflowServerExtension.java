@@ -43,7 +43,7 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
     Field configField = fields.get(0);
     config = (NflowServerConfig) configField.get(null);
     logger.debug("Initialize with {}: {}", NflowServerConfig.class.getSimpleName(), config);
-    config.before();
+    config.before(testClass.getSimpleName());
   }
 
   @Override

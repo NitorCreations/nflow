@@ -65,11 +65,11 @@ public class ConcurrentEnginesTest {
         .prop("nflow.dispatcher.sleep.ms", 5)
         .prop("nflow.dispatcher.sleep.ms", 2)
         .springContextClass(DemoConfiguration.class).build());
-    servers.get(0).before();
+    servers.get(0).before("ConcurrentEnginesTest");
     for (int i = 1; i < ENGINES; ++i) {
       NflowServerConfig server = servers.get(0).anotherServer();
       servers.add(server);
-      server.before();
+      server.before("ConcurrentEnginesTest");
     }
   }
 

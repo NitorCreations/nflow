@@ -102,7 +102,10 @@ public class NflowServerConfig {
         this.springContextClass = springContextClass;
     }
 
-    public void before() throws Exception {
+    public void before(String testName) throws Exception {
+        if (getInstanceName() == null) {
+            props.put("nflow.executor.group", testName);
+        }
         startDb();
         startJetty();
     }
