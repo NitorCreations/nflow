@@ -1,15 +1,14 @@
 package io.nflow.rest.v1.converter;
 
-import static com.nitorcreations.Matchers.reflectEquals;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.joda.time.DateTime.now;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -94,8 +93,8 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(i.signal.get()));
-    assertThat(resp.actions, contains(reflectEquals(
-        new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo, a.executionStart, a.executionEnd, a.executorId))));
+    assertThat(resp.actions, containsInAnyOrder(
+        new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo, a.executionStart, a.executionEnd, a.executorId)));
   }
 
   @Test
@@ -143,8 +142,8 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(nullValue()));
-    assertThat(resp.actions, contains(reflectEquals(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
-        a.executionStart, a.executionEnd, a.executorId, expectedStateVariables))));
+    assertThat(resp.actions, containsInAnyOrder(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
+        a.executionStart, a.executionEnd, a.executorId, expectedStateVariables)));
   }
 
   @Test

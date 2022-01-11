@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadFactory;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -70,8 +70,8 @@ public class EngineModuleTest {
     DataSource dataSource = injector.getInstance(Key.get(DataSource.class, NFlow.class));
     assertThat(dataSource, instanceOf(HikariDataSource.class));
     assertThat(((HikariDataSource) dataSource).getPoolName(), is("nflow"));
-    assertThat(((HikariDataSource) dataSource).getDataSourceClassName(), is("org.h2.jdbcx.JdbcDataSource"));
-    assertThat(((HikariDataSource) dataSource).getDataSourceProperties().get("url"), is("jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
+    assertThat(((HikariDataSource) dataSource).getDriverClassName(), is("org.h2.Driver"));
+    assertThat(((HikariDataSource) dataSource).getJdbcUrl(), is("jdbc:h2:mem:test;TRACE_LEVEL_FILE=4"));
     assertThat(((HikariDataSource) dataSource).getMaximumPoolSize(), is(4));
     assertThat(((HikariDataSource) dataSource).getIdleTimeout(), is(600000L));
     assertThat(((HikariDataSource) dataSource).isAutoCommit(), is(true));

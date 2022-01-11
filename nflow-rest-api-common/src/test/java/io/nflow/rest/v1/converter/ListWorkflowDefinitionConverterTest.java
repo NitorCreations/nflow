@@ -1,6 +1,5 @@
 package io.nflow.rest.v1.converter;
 
-import static com.nitorcreations.Matchers.reflectEquals;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
 import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
@@ -42,12 +41,12 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.description, is(def.getDescription()));
     assertThat(resp.onError, is(def.getErrorState().name()));
     assertThat(resp.states, arrayContainingInAnyOrder(
-        reflectEquals(getResponseState(end, Collections.<String>emptyList(), null)),
-        reflectEquals(getResponseState(error, asList(end.name()), null)),
-        reflectEquals(getResponseState(start, asList(end.name(), error.name()), error.name()))));
+        getResponseState(end, Collections.<String>emptyList(), null),
+        getResponseState(error, asList(end.name()), null),
+        getResponseState(start, asList(end.name(), error.name()), error.name())));
     assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
-        reflectEquals(getSignal(1, "one")),
-        reflectEquals(getSignal(2, "two"))));
+        getSignal(1, "one"),
+        getSignal(2, "two")));
     assertThat((int)resp.settings.transitionDelaysInMilliseconds.immediate, is(def.getSettings().immediateTransitionDelay));
     assertThat((int)resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay));
     assertThat((int)resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));

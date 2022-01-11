@@ -1,11 +1,12 @@
 package io.nflow.engine.internal.workflow;
 
-import static com.nitorcreations.Matchers.hasItemsOf;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,14 +60,14 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void unknownAnnotationOnParameterIsIgnored() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(UnknownAnnotationWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 
   @Test
   public void mutableStateParamSetsMutableFlag() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(MutableParamWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, false, true));
     assertThat(methods.get("end").params[0].nullValue, nullValue());
     assertThat(methods.get("end").params[1], stateParam("longKey", Long.class, false, true));
@@ -76,7 +77,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateNullFlagCausesParameterObjectToInstantiate() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(InitiateParameterWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramKey", ParamObj.class, false, false));
 
@@ -88,7 +89,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithBoolean() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(BooleanObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", boolean.class, true, false));
 
@@ -100,7 +101,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithByte() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ByteObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", byte.class, true, false));
 
@@ -112,7 +113,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithCharacter() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(CharacterObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", char.class, true, false));
 
@@ -124,7 +125,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithShort() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ShortObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", short.class, true, false));
 
@@ -136,7 +137,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithInteger() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(IntegerObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", int.class, true, false));
 
@@ -148,7 +149,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithLong() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(LongObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", long.class, true, false));
 
@@ -160,7 +161,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithFloat() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(FloatObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", float.class, true, false));
 
@@ -172,7 +173,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithDouble() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(DoubleObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", double.class, true, false));
 
@@ -184,14 +185,14 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void onlyPublicMethodsWithCorrectSignatureAreReturned() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(NonStateMethodsWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end", "doesNotReturnNextState")));
+    assertThat(methods, allOf(hasKey("start"), hasKey("end"), hasKey("doesNotReturnNextState")));
     assertThat(methods.keySet().size(), is(3));
   }
 
   @Test
   public void readOnlyStateVarFlagSetsFlagInStateParameter() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ReadOnlyStateVarWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 

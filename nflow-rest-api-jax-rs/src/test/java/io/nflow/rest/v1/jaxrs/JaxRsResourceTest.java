@@ -3,7 +3,7 @@ package io.nflow.rest.v1.jaxrs;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.OK;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import javax.ws.rs.core.Response;

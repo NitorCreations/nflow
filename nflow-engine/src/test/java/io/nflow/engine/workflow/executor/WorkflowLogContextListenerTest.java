@@ -53,7 +53,7 @@ public class WorkflowLogContextListenerTest {
     listener.beforeProcessing(context);
 
     assertThat(MDC.get(LOG_CONTEXT), is(equalTo("type:type, instanceId:1, extId:extId, businessKey:businessKey")));
-    verify(stateVariables).entrySet();
+    verify(stateVariables).size();
   }
 
   @Test

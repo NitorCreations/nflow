@@ -59,9 +59,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.nitorcreations</groupId>
-      <artifactId>matchers</artifactId>
-      <scope>test</scope>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
     </dependency>
   </dependencies>
   <build>
