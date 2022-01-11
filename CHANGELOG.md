@@ -15,6 +15,7 @@
   - Make some external urls https instead of http
 - `nflow-engine`
   - Dependency updates:
+    - minimum supported maven version for buliding is 3.8
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
       - https://jira.qos.ch/browse/LOGBACK-1591
