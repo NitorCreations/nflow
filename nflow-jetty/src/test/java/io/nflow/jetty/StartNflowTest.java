@@ -1,5 +1,6 @@
 package io.nflow.jetty;
 
+import static io.nflow.engine.config.Profiles.H2;
 import static io.nflow.engine.config.Profiles.JMX;
 import static io.nflow.engine.config.Profiles.MARIADB;
 import static io.nflow.engine.config.Profiles.MYSQL;
@@ -20,7 +21,7 @@ public class StartNflowTest {
 
   @Test
   public void startNflowJettyToRandomFreeLocalPort() throws Exception {
-    JettyServerContainer jetty = initJettyStart(0, JMX);
+    JettyServerContainer jetty = initJettyStart(0, JMX + "," + H2);
     assertThat(jetty.getPort(), is(not(0)));
     startStop(jetty);
   }
