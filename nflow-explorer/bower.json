@@ -16,7 +16,7 @@
     "dagre-d3": "0.6.4",
     "angular-chart.js": "1.1.1",
     "chart.js": "2.9.3",
-    "svg-pan-zoom": "3.6.1",
+    "svg-pan-zoom": "3.6.0",
     "angular-toastr": "2.1.1",
     "angular-smart-table": "2.1.11"
   },
