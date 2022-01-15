@@ -36,4 +36,12 @@ public class StaticStateFieldsWorkflow extends AbstractWorkflowDefinition {
   public void done(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) {
     // do nothing
   }
+
+  public String invalidReturnValue(StateExecution exec) {
+    return null;
+  }
+
+  public NextAction invalidParameters() {
+    return null;
+  }
 }

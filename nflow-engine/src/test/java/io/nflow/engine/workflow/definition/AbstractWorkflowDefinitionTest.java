@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.StaticStateFieldsWorkflow;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class AbstractWorkflowDefinitionTest {
@@ -151,5 +152,19 @@ public class AbstractWorkflowDefinitionTest {
         .collect(toSet());
     assertThat(registeredStateNames, containsInAnyOrder(TestState.BEGIN.name(), TestState.ERROR.name(), "origin", "target",
         "failure", "register", "staticPrivate", "staticPackageProtected", "staticProtected", "staticPublic"));
+  }
+
+  @Test
+  public void finalStateCannotBeRegisteredWithStateMethodThatReturnsValue() {
+    AbstractWorkflowDefinition wf = new StaticStateFieldsWorkflow();
+    assertThrows(IllegalArgumentException.class,
+        () -> wf.registerState(new State(TestState.BEGIN.name(), WorkflowStateType.end)));
+  }
+
+  @Test
+  public void nonFinalStateCannotBeRegisteredWithStateMethodThatDoesNotReturnsNextAction() {
+    AbstractWorkflowDefinition wf = new StaticStateFieldsWorkflow();
+    assertThrows(IllegalArgumentException.class, () -> wf.registerState(new State("invalidReturnValue")));
+    assertThrows(IllegalArgumentException.class, () -> wf.registerState(new State("invalidParameters")));
   }
 }
