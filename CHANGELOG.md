@@ -3,16 +3,6 @@
 **Highlights**
 
 **Details**
-
-## 7.4.0 (2021-12-27)
-
-**Highlights**
-- `nflow-explorer`
-  - Customizable workflow search result table columns
-
-**Details**
-- `nflow-explorer`
-  - Make some external urls https instead of http
 - `nflow-engine`
   - Dependency updates:
     - minimum supported maven version for buliding is 3.8
@@ -47,6 +37,20 @@
     - mysql 8.0.27
     - mariadb 2.7.4
     - postgresql 42.3.1
+
+## 7.4.0 (2021-12-27)
+
+**Highlights**
+- `nflow-explorer`
+  - Customizable workflow search result table columns
+
+**Details**
+- `nflow-engine`
+  - logback-classic update to version 1.2.9
+    - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+    - https://jira.qos.ch/browse/LOGBACK-1591
+- `nflow-explorer`
+  - Make some external urls https instead of http
 
 ## 7.3.1 (2021-09-15)
 
