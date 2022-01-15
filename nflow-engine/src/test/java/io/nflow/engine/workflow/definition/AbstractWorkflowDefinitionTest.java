@@ -4,19 +4,24 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static java.util.Collections.emptyMap;
-import static org.hamcrest.Matchers.containsString;
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
+
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.nflow.engine.internal.workflow.StaticStateFieldsWorkflow;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class AbstractWorkflowDefinitionTest {
@@ -138,5 +143,13 @@ public class AbstractWorkflowDefinitionTest {
   @Test
   public void getSupportedSignalsReturnsEmptyMap() {
     assertThat(workflow.getSupportedSignals(), is(emptyMap()));
+  }
+
+  @Test
+  public void registersWorkflowStates() {
+    Set<String> registeredStateNames = new StaticStateFieldsWorkflow().getStates().stream().map(WorkflowState::name)
+        .collect(toSet());
+    assertThat(registeredStateNames, containsInAnyOrder(TestState.BEGIN.name(), TestState.ERROR.name(), "origin", "target",
+        "failure", "register", "staticPrivate", "staticPackageProtected", "staticProtected", "staticPublic"));
   }
 }

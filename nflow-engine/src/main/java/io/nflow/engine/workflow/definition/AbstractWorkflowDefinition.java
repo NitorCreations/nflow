@@ -25,7 +25,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
  * <li>Using them as initialState or errorState parameter when calling the super constructor</li>
  * <li>Using them as one of the parameters when registering allowed state transfers using <code>permit()</code> method</li>
  * <li>Defining them as static fields in the workflow definition class</li>
- * <li>Registering them using <code>register()</code> method</li>
+ * <li>Registering them using <code>registerState()</code> method</li>
  * </ul>
  */
 public abstract class AbstractWorkflowDefinition extends ModelObject {

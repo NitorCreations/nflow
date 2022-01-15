@@ -29,14 +29,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
-import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @SuppressWarnings("unused")
 public class WorkflowDefinitionScannerTest {
@@ -374,28 +372,5 @@ public class WorkflowDefinitionScannerTest {
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) { return null; }
-  }
-
-  public static class StaticStateFieldsWorkflow extends AbstractWorkflowDefinition {
-    private static WorkflowState staticPrivateState = new State("staticPrivate", WorkflowStateType.manual);
-    static WorkflowState staticPackageProtectedState = new State("staticPackageProtected", WorkflowStateType.manual);
-    protected static WorkflowState staticProtectedState = new State("staticProtected", WorkflowStateType.manual);
-    public static WorkflowState staticPublicState = new State("staticPublic", WorkflowStateType.manual);
-    private final WorkflowState privateState = new State("private", WorkflowStateType.manual);
-    WorkflowState packageProtectedState = new State("packageProtected", WorkflowStateType.manual);
-    protected WorkflowState protectedState = new State("protected", WorkflowStateType.manual);
-    public WorkflowState publicState = new State("public", WorkflowStateType.manual);
-
-    public StaticStateFieldsWorkflow() {
-      super("staticStateFields", BEGIN, DONE);
-    }
-
-    public NextAction start(StateExecution exec) {
-      return null;
-    }
-
-    public NextAction end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) {
-      return null;
-    }
   }
 }
