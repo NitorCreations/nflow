@@ -13,7 +13,6 @@
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed, use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` instead.
   - Dependency updates
-    - minimum supported Maven version for building is 3.6
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
       - https://jira.qos.ch/browse/LOGBACK-1591
@@ -47,6 +46,7 @@
     - mysql 8.0.27
     - mariadb 2.7.4
     - postgresql 42.3.1
+- Minimum supported Maven version for building is 3.6
 
 ## 7.4.0 (2021-12-27)
 
