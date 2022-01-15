@@ -8,7 +8,7 @@
 **Details**
 - `nflow-engine`
   - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
-  - It is not necessary to define the workflow states as an enum anymore. You can define the states as instances of `SimpleState` or anything else that implements the required `WorkflowState` interface.
+  - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions. You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface. However, the workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed, use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` instead.
 
 ## 7.4.0 (2021-12-27)
@@ -19,7 +19,7 @@
 
 **Details**
 - `nflow-explorer`
-  - Make some external urls https instead of http
+  - Make some external URLs https instead of http
 - `nflow-engine`
   - Dependency updates:
     - minimum supported maven version for buliding is 3.8
