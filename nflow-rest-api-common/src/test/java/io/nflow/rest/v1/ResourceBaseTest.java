@@ -1,7 +1,7 @@
 package io.nflow.rest.v1;
 
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.jupiter.api.Test;

@@ -1,13 +1,16 @@
 package io.nflow.engine.internal.executor;
 
-import static edu.umd.cs.mtc.TestFramework.runOnce;
 import static java.lang.Boolean.FALSE;
+import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.CoreMatchers.is;
+import static java.util.Collections.synchronizedList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -23,12 +26,18 @@ import static org.mockito.quality.Strictness.LENIENT;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +59,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import edu.umd.cs.mtc.MultithreadedTestCase;
 import io.nflow.engine.exception.DispatcherExceptionAnalyzer;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -163,7 +171,7 @@ public class WorkflowDispatcherTest {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenThrow(new AssertionError()).thenReturn(ids(1L));
         try {
           dispatcher.run();
-          Assertions.fail("Error should stop the dispatcher");
+          fail("Error should stop the dispatcher");
         } catch (AssertionError expected) {
           assertPoolIsShutdown(true);
         }
@@ -259,7 +267,7 @@ public class WorkflowDispatcherTest {
         assertPoolIsShutdown(false);
         waitForTick(1);
         dispatcher.shutdown();
-        waitForTick(3);
+        waitForTick(4);
         assertPoolIsShutdown(true);
       }
     }
@@ -346,7 +354,7 @@ public class WorkflowDispatcherTest {
             return;
           }
         }
-        Assertions.fail("Expected warning was not logged");
+        fail("Expected warning was not logged");
       }
     }
     runOnce(new DispatcherLogsWarning());
@@ -404,6 +412,147 @@ public class WorkflowDispatcherTest {
     @Override
     protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
       return new ThresholdBlockingQueue<>(queueCapacity, 0);
+    }
+  }
+
+  static class MultithreadedTestCase {
+    private static final boolean debug = false;
+    final Map<String, Thread> threads = new HashMap<>();
+    private final AtomicInteger tick = new AtomicInteger();
+    final List<Throwable> errors = synchronizedList(new ArrayList<>());
+    private final Map<Integer, List<Thread>> waiters = new ConcurrentHashMap<>();
+
+    public Thread getThreadByName(String name) {
+      return threads.get(name);
+    }
+
+    private void debug(String msg) {
+      if (debug) {
+        System.out.println(msg);
+      }
+    }
+
+    public synchronized void waitForTick(int wantedTick) {
+      Thread thread = currentThread();
+      String name = thread.getName();
+      debug(name + " waiting for tick " + wantedTick);
+      waiters.computeIfAbsent(wantedTick, t -> synchronizedList(new ArrayList<>())).add(thread);
+      for (int i=0; i<200; ++i) {
+        if (tick.get() == wantedTick) {
+          debug(name + " got tick " + wantedTick);
+          waiters.get(wantedTick).remove(thread);
+          return;
+        }
+        try {
+          synchronized (thread) {
+            debug(name + " still waiting for tick " + wantedTick);
+            thread.wait(100);
+            if (tick.get() == wantedTick) {
+              debug(name + " got tick " + wantedTick);
+              waiters.get(wantedTick).remove(thread);
+              return;
+            }
+          }
+        } catch (@SuppressWarnings("unused") InterruptedException ex) {
+          throw new RuntimeException("Interrupted while waiting for tick");
+        }
+        boolean allWaiting = true;
+        for (Thread t : threads.values()) {
+          if (t == currentThread()) {
+            continue;
+          }
+          if (t.getState() != Thread.State.WAITING && t.isAlive()) {
+            if (Stream.of(t.getStackTrace()).map(StackTraceElement::getMethodName)
+                    .limit(8)
+                    .noneMatch(n -> n.contains("waitForTick") || n.equals("park"))) {
+              debug(t.getName() + " not ready: " + Stream.of(t.getStackTrace()).map(StackTraceElement::getMethodName)
+                      .collect(Collectors.joining(", ")));
+              allWaiting = false;
+              break;
+            }
+          }
+        }
+        if (allWaiting) {
+          int previousTick = tick.get() - 1;
+          if (previousTick > 0 && !waiters.getOrDefault(previousTick, emptyList()).isEmpty()) {
+            debug("All waiting but tick is previous tick is still busy: " + waiters.get(previousTick));
+            continue;
+          }
+          int nextTick = tick.incrementAndGet();
+          List<Thread> wakeupThreads = waiters.getOrDefault(nextTick, emptyList());
+          debug("notifying tick " + nextTick + ": " + wakeupThreads);
+          wakeupThreads.forEach(t -> { synchronized (t) { t.notifyAll(); } });
+        }
+      }
+      throw new RuntimeException("tick did not advance for thread " + name);
+    }
+
+    public void initialize() {
+    }
+
+    public void finish() {
+    }
+
+    public void start() {
+      initialize();
+      for (Thread t : threads.values()) {
+        t.start();
+      }
+    }
+
+    public void stop() {
+      for (Thread t : threads.values()) {
+        try {
+          t.join(5_000);
+        } catch (Throwable err) {
+          errors.add(err);
+        }
+        if (t.isAlive()) {
+          t.interrupt();
+          try {
+            t.join(5_000);
+          } catch (Throwable err) {
+            errors.add(err);
+          }
+          if (t.isAlive()) {
+            errors.add(new AssertionError("Thread " + t.getName() + " did not die fast enough"));
+          }
+        }
+      }
+      finish();
+    }
+  }
+
+  static void runOnce(MultithreadedTestCase test) throws Throwable {
+    for (Method m : test.getClass().getMethods()) {
+      String name = m.getName();
+      if (name.startsWith("thread")) {
+        test.threads.put(name, new Thread(name) {
+          @Override
+          public void run() {
+            try {
+              m.invoke(test);
+            } catch (Throwable t) {
+              test.errors.add(t);
+            }
+          }
+        });
+      }
+    }
+    try {
+      test.start();
+    } finally {
+      try {
+        test.stop();
+      } catch (Throwable t) {
+        test.errors.add(t);
+      }
+      if (!test.errors.isEmpty()) {
+        if (test.errors.size() == 1) {
+          throw test.errors.get(0);
+        }
+        assertAll(test.errors.stream().map(err -> () -> { throw err; }));
+      }
     }
   }
 

@@ -4,7 +4,7 @@ import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
 import static io.nflow.tests.demo.workflow.TestCronWorkflow.TYPE;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

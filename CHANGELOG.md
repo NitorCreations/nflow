@@ -9,6 +9,39 @@
 - `nflow-engine`
   - Maintenance workflow instance is added to nFlow database by default in startup. Instances that have been in final state longer than 45 days are archived. Archived instances that have been in final state longer than one year are deleted. Maintenance is run every night. Use `nflow.maintenance` configuration options to change the defaults before startup, or update the maintenance workflow instance state variables after the instance has been created.
   - Workflow instance actions and state variables that are older than 45 days are automatically cleaned up occasionally when the instance is processed. Use workflow settings to change the default time period (`setHistoryDeletableAfter`) and condition (`setDeleteHistoryCondition`) of the clean-up.
+  - Dependency updates:
+    - minimum supported maven version for buliding is 3.8
+    - logback-classic update to version 1.2.10
+      - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+      - https://jira.qos.ch/browse/LOGBACK-1591
+    - cxf 3.5.0
+    - commons.lang3 3.12.0
+    - guice 5.0.1
+    - hibernate validator 6.2.0
+    - hikaricp 4.0.3
+    - jackson 2.13.1
+    - javassist 3.28.0
+    - jodatime 2.10.3
+    - slf4j 1.7.32
+- `nflow-rest-api`
+    - swagger 1.6.4
+- `nflow-jetty`
+  - Dependency updates
+    - jetty 9.4.44.v20210927
+    - reflections 0.10.2
+- `nflow-netty`
+  - Dependency updates
+    - reactor-netty 1.0.14
+- `nflow-metrics`
+  - Dependency updates
+    - metrics 4.2.7
+- `nflow-tests`
+    - h2 2.0.206
+      - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nflow h2 schema changed to work with 2.x release of h2.
+    - mssql 9.4.1
+    - mysql 8.0.27
+    - mariadb 2.7.4
+    - postgresql 42.3.1
 
 ## 7.4.0 (2021-12-27)
 
