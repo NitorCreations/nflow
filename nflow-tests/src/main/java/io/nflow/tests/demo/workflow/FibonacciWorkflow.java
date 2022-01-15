@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -33,8 +33,8 @@ public class FibonacciWorkflow extends AbstractWorkflowDefinition {
   public static final String VAR_REQUEST_DATA = "requestData";
   private static final Logger logger = getLogger(FibonacciWorkflow.class);
 
-  private static final WorkflowState N_MINUS_1 = new SimpleState("nMinus1");
-  private static final WorkflowState N_MINUS_2 = new SimpleState("nMinus2");
+  private static final WorkflowState N_MINUS_1 = new State("nMinus1");
+  private static final WorkflowState N_MINUS_2 = new State("nMinus2");
 
   public FibonacciWorkflow() {
     super(FIBONACCI_TYPE, BEGIN, ERROR);

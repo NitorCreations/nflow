@@ -14,7 +14,7 @@ import static org.joda.time.DateTime.now;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -34,21 +34,21 @@ public class ProcessCreditApplicationWorkflow extends AbstractWorkflowDefinition
   private static final String LOAN_KEY = "loan_key";
   private static final String CREDIT_DECISION_RESULT = "credit_decision_result";
 
-  private static final WorkflowState CREATE_CREDIT_APPLICATION = new SimpleState("createCreditApplication", start,
+  private static final WorkflowState CREATE_CREDIT_APPLICATION = new State("createCreditApplication", start,
       "Create new credit application");
-  private static final WorkflowState START_CREDIT_DECISION_WORKFLOW = new SimpleState("startCreditDecisionWorkflow",
+  private static final WorkflowState START_CREDIT_DECISION_WORKFLOW = new State("startCreditDecisionWorkflow",
       "Start credit decision workflow");
-  private static final WorkflowState WAIT_CREDIT_DECISION_WORKFLOW = new SimpleState("waitCreditDecisionWorkflow",
+  private static final WorkflowState WAIT_CREDIT_DECISION_WORKFLOW = new State("waitCreditDecisionWorkflow",
       "Poll for result of credit decision process");
-  private static final WorkflowState CREATE_LOAN = new SimpleState("createLoan", "Create the loan based on application");
-  private static final WorkflowState TRANSFER_MONEY = new SimpleState("transferMoney", "Transfer money to deposit account");
-  private static final WorkflowState TRANSFER_MONEY_FAILED = new SimpleState("transferMoneyFailed",
+  private static final WorkflowState CREATE_LOAN = new State("createLoan", "Create the loan based on application");
+  private static final WorkflowState TRANSFER_MONEY = new State("transferMoney", "Transfer money to deposit account");
+  private static final WorkflowState TRANSFER_MONEY_FAILED = new State("transferMoneyFailed",
       "Transfering money failed, reverse creating loan");
-  private static final WorkflowState UPDATE_CREDIT_APPLICATION = new SimpleState("updateCreditApplication",
+  private static final WorkflowState UPDATE_CREDIT_APPLICATION = new State("updateCreditApplication",
       "Update the credit application state");
-  private static final WorkflowState MANUAL_PROCESSING = new SimpleState("manualProcessing", manual,
+  private static final WorkflowState MANUAL_PROCESSING = new State("manualProcessing", manual,
       "Process must be handled manually because of an unexpected situation");
-  private static final WorkflowState DONE = new SimpleState("done", end, "Credit application has been completed.");
+  private static final WorkflowState DONE = new State("done", end, "Credit application has been completed.");
 
   public ProcessCreditApplicationWorkflow() {
     super("processCreditApplication", CREATE_CREDIT_APPLICATION, MANUAL_PROCESSING);

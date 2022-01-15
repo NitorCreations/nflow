@@ -112,7 +112,7 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.curated.BulkWorkflow;
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -1038,13 +1038,13 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     public static final String FAILING_TYPE = "failingTest";
 
-    public static final WorkflowState PROCESS_RETURN_NULL = new SimpleState("processReturnNull");
-    public static final WorkflowState PROCESS_RETURN_NULL_NEXT_STATE = new SimpleState("processReturnNullNextState");
-    public static final WorkflowState NEXT_STATE_NO_METHOD = new SimpleState("nextStateNoMethod");
-    public static final WorkflowState NO_METHOD_END_STATE = new SimpleState("noMethodEndState", WorkflowStateType.end);
-    public static final WorkflowState RETRYING_STATE = new SimpleState("retryingState");
-    public static final WorkflowState INVALID = new SimpleState("invalid", WorkflowStateType.manual);
-    public static final WorkflowState INVALID_NEXT_STATE = new SimpleState("invalidNextState");
+    public static final WorkflowState PROCESS_RETURN_NULL = new State("processReturnNull");
+    public static final WorkflowState PROCESS_RETURN_NULL_NEXT_STATE = new State("processReturnNullNextState");
+    public static final WorkflowState NEXT_STATE_NO_METHOD = new State("nextStateNoMethod");
+    public static final WorkflowState NO_METHOD_END_STATE = new State("noMethodEndState", WorkflowStateType.end);
+    public static final WorkflowState RETRYING_STATE = new State("retryingState");
+    public static final WorkflowState INVALID = new State("invalid", WorkflowStateType.manual);
+    public static final WorkflowState INVALID_NEXT_STATE = new State("invalidNextState");
 
     protected FailingTestWorkflow() {
       super(FAILING_TYPE, TestState.BEGIN, TestState.ERROR);
@@ -1143,10 +1143,10 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public static class SimpleTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
 
     public static final String SIMPLE_TYPE = "simpleTest";
-    public static final WorkflowState ERROR = new SimpleState("error", WorkflowStateType.end);
-    public static final WorkflowState BEFORE_MANUAL = new SimpleState("beforeManual");
-    public static final WorkflowState MANUAL = new SimpleState("manualState", WorkflowStateType.manual);
-    public static final WorkflowState ILLEGAL_STATE_CHANGE = new SimpleState("illegalStateChange");
+    public static final WorkflowState ERROR = new State("error", WorkflowStateType.end);
+    public static final WorkflowState BEFORE_MANUAL = new State("beforeManual");
+    public static final WorkflowState MANUAL = new State("manualState", WorkflowStateType.manual);
+    public static final WorkflowState ILLEGAL_STATE_CHANGE = new State("illegalStateChange");
 
     protected SimpleTestWorkflow() {
       super(SIMPLE_TYPE, TestState.BEGIN, ERROR);
@@ -1182,7 +1182,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   public static class NotifyTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
 
     public static final String NOTIFY_TYPE = "notifyTest";
-    public static final WorkflowState WAKE_PARENT = new SimpleState("wakeParent");
+    public static final WorkflowState WAKE_PARENT = new State("wakeParent");
 
     protected NotifyTestWorkflow() {
       super(NOTIFY_TYPE, TestState.BEGIN, TestState.DONE);

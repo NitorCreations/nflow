@@ -11,7 +11,7 @@ import static org.joda.time.DateTime.now;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -25,11 +25,11 @@ public class ConstantWorkflow extends AbstractWorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ConstantWorkflow.class);
   private static final String KEY = "retries";
 
-  public static final WorkflowState QUICK_STATE = new SimpleState("quickState", "This executes fast then goes to retryTwice");
-  public static final WorkflowState RETRY_TWICE_STATE = new SimpleState("retryTwiceState",
+  public static final WorkflowState QUICK_STATE = new State("quickState", "This executes fast then goes to retryTwice");
+  public static final WorkflowState RETRY_TWICE_STATE = new State("retryTwiceState",
       "Retries twice and goes then goes to scheduleState");
-  public static final WorkflowState SCHEDULE_STATE = new SimpleState("scheduleState", "Goes to slowState, in 3 sec");
-  public static final WorkflowState SLOW_STATE = new SimpleState("slowState", "This executes bit slower. Goes to end");
+  public static final WorkflowState SCHEDULE_STATE = new State("scheduleState", "Goes to slowState, in 3 sec");
+  public static final WorkflowState SLOW_STATE = new State("slowState", "This executes bit slower. Goes to end");
 
   public ConstantWorkflow() {
     super(ConstantWorkflow.class.getSimpleName(), BEGIN, ERROR,

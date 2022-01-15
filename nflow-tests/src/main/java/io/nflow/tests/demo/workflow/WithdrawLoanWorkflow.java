@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -26,15 +26,15 @@ public class WithdrawLoanWorkflow extends AbstractWorkflowDefinition {
   private static final String LOAN_KEY = "loan_key";
   private static final String COMPLETED_KEY = "completed_key";
 
-  private static final WorkflowState CREATE_LOAN = new SimpleState("createLoan", start, "Start process by creating the loan");
-  private static final WorkflowState TRANSFER_MONEY = new SimpleState("transferMoney", "Transfer money to deposit account");
-  private static final WorkflowState TRANSFER_MONEY_FAILED = new SimpleState("transferMoneyFailed",
+  private static final WorkflowState CREATE_LOAN = new State("createLoan", start, "Start process by creating the loan");
+  private static final WorkflowState TRANSFER_MONEY = new State("transferMoney", "Transfer money to deposit account");
+  private static final WorkflowState TRANSFER_MONEY_FAILED = new State("transferMoneyFailed",
       "Transfering money failed, reverse creating loan");
-  private static final WorkflowState UPDATE_CREDIT_APPLICATION = new SimpleState("updateCreditApplication",
+  private static final WorkflowState UPDATE_CREDIT_APPLICATION = new State("updateCreditApplication",
       "Update the credit application state");
-  private static final WorkflowState MANUAL_PROCESSING = new SimpleState("manualProcessing", manual,
+  private static final WorkflowState MANUAL_PROCESSING = new State("manualProcessing", manual,
       "Process must be handled manually because of an unexpected situation");
-  private static final WorkflowState DONE = new SimpleState("done", end, "Credit application has been completed.");
+  private static final WorkflowState DONE = new State("done", end, "Credit application has been completed.");
 
   @Inject
   public WithdrawLoanWorkflow() {

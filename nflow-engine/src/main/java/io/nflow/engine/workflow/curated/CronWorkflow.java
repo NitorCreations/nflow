@@ -36,14 +36,14 @@ public abstract class CronWorkflow extends AbstractWorkflowDefinition {
   /**
    * States of cron workflow.
    */
-  public static final WorkflowState SCHEDULE = new SimpleState("schedule", start,
+  public static final WorkflowState SCHEDULE = new State("schedule", start,
       "Schedule work to be done according to the cron state variable");
-  public static final WorkflowState DO_WORK = new SimpleState("doWork", "Execute the actual work");
-  public static final WorkflowState WAIT_FOR_WORK_TO_FINISH = new SimpleState("waitForWorkToFinish", "Wait for work to finish");
-  public static final WorkflowState HANDLE_FAILURE = new SimpleState("handleFailure",
+  public static final WorkflowState DO_WORK = new State("doWork", "Execute the actual work");
+  public static final WorkflowState WAIT_FOR_WORK_TO_FINISH = new State("waitForWorkToFinish", "Wait for work to finish");
+  public static final WorkflowState HANDLE_FAILURE = new State("handleFailure",
       "Handle failure and decide if workflow should be re-scheduled or stopped");
-  public static final WorkflowState DISABLED = new SimpleState("disabled", manual, "Workflow is disabled");
-  public static final WorkflowState FAILED = new SimpleState("failed", manual, "Processing failed, waiting for manual actions");
+  public static final WorkflowState DISABLED = new State("disabled", manual, "Workflow is disabled");
+  public static final WorkflowState FAILED = new State("failed", manual, "Processing failed, waiting for manual actions");
 
   /**
    * Extend cron workflow definition with customized workflow settings. It is recommended to enable the workflow state and action

@@ -5,7 +5,7 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
@@ -22,7 +22,7 @@ public class ActionStateVariableWorkflow extends AbstractWorkflowDefinition {
   public static final int MAX_STATE_VAR_VALUE = 10;
   private static final String STATE_VAR = "stateVar";
 
-  private static final WorkflowState SET_VARIABLE = new SimpleState("setVariable", WorkflowStateType.start);
+  private static final WorkflowState SET_VARIABLE = new State("setVariable", WorkflowStateType.start);
 
   public ActionStateVariableWorkflow() {
     super(WORKFLOW_TYPE, SET_VARIABLE, TestState.ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -26,17 +26,17 @@ public class CreditApplicationWorkflow extends AbstractWorkflowDefinition {
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
   private static final String VAR_KEY = "info";
 
-  private static final WorkflowState CREATE_CREDIT_APPLICATION = new SimpleState("createCreditApplication",
+  private static final WorkflowState CREATE_CREDIT_APPLICATION = new State("createCreditApplication",
       WorkflowStateType.start, "Credit application is persisted to database");
-  public static final WorkflowState PREVIEW_CREDIT_APPLICATION = new SimpleState("previewCreditApplication", start,
+  public static final WorkflowState PREVIEW_CREDIT_APPLICATION = new State("previewCreditApplication", start,
       "Check if credit application would be accepted (ie. simulate)");
-  private static final WorkflowState ACCEPT_CREDIT_APPLICATION = new SimpleState("acceptCreditApplication", manual,
+  private static final WorkflowState ACCEPT_CREDIT_APPLICATION = new State("acceptCreditApplication", manual,
       "Manual credit decision is made");
-  private static final WorkflowState GRANT_LOAN = new SimpleState("grantLoan", "Loan is created to loan system");
-  private static final WorkflowState FINISH_CREDIT_APPLICATION = new SimpleState("finishCreditApplication",
+  private static final WorkflowState GRANT_LOAN = new State("grantLoan", "Loan is created to loan system");
+  private static final WorkflowState FINISH_CREDIT_APPLICATION = new State("finishCreditApplication",
       "Credit application status is set");
-  private static final WorkflowState DONE = new SimpleState("done", end, "Credit application process finished");
-  private static final WorkflowState ERROR = new SimpleState("error", manual, "Manual processing of failed applications");
+  private static final WorkflowState DONE = new State("done", end, "Credit application process finished");
+  private static final WorkflowState ERROR = new State("error", manual, "Manual processing of failed applications");
 
   public CreditApplicationWorkflow() {
     super("creditApplicationProcess", CREATE_CREDIT_APPLICATION, ERROR, new WorkflowSettings.Builder()

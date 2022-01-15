@@ -66,11 +66,11 @@ public class BulkWorkflow extends AbstractWorkflowDefinition {
   /**
    * Bulk workflow states.
    */
-  public static final WorkflowState SPLIT_WORK = new SimpleState("splitWork", start, "Create new child workflows");
-  public static final WorkflowState WAIT_FOR_CHILDREN_TO_FINISH = new SimpleState("waitForChildrenToFinish", wait,
+  public static final WorkflowState SPLIT_WORK = new State("splitWork", start, "Create new child workflows");
+  public static final WorkflowState WAIT_FOR_CHILDREN_TO_FINISH = new State("waitForChildrenToFinish", wait,
       "Wait for all child workflows to finish, start new child workflows if possible");
-  public static final WorkflowState DONE = new SimpleState("done", end, "All child workflows have been processed");
-  public static final WorkflowState ERROR = new SimpleState("error", manual, "Processing failed, waiting for manual actions");
+  public static final WorkflowState DONE = new State("done", end, "All child workflows have been processed");
+  public static final WorkflowState ERROR = new State("error", manual, "Processing failed, waiting for manual actions");
 
   /**
    * Extend bulk workflow definition.

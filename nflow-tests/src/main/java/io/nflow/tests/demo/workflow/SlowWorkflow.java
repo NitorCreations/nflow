@@ -12,7 +12,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.util.Map;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -23,7 +23,7 @@ public class SlowWorkflow extends AbstractWorkflowDefinition {
   public static final String SLOW_WORKFLOW_TYPE = "slowWorkflow";
   public static final int SIGNAL_INTERRUPT = 1;
 
-  public static final WorkflowState INTERRUPTED = new SimpleState("interrupted", end);
+  public static final WorkflowState INTERRUPTED = new State("interrupted", end);
 
   public SlowWorkflow() {
     super(SLOW_WORKFLOW_TYPE, BEGIN, ERROR);

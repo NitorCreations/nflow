@@ -9,7 +9,7 @@ import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToStrin
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -23,11 +23,11 @@ public class StateWorkflow extends AbstractWorkflowDefinition {
   public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
   public static final String STATEVAR_QUERYTEST = "queryTest";
 
-  public static final WorkflowState STATE_1 = new SimpleState("state1", start, "Set variable 1");
-  public static final WorkflowState STATE_2 = new SimpleState("state2", "Set variable 2");
-  public static final WorkflowState STATE_3 = new SimpleState("state3", "Update variable 2");
-  public static final WorkflowState STATE_4 = new SimpleState("state4", "Do nothing");
-  public static final WorkflowState STATE_5 = new SimpleState("state5", "Update variable 2");
+  public static final WorkflowState STATE_1 = new State("state1", start, "Set variable 1");
+  public static final WorkflowState STATE_2 = new State("state2", "Set variable 2");
+  public static final WorkflowState STATE_3 = new State("state3", "Update variable 2");
+  public static final WorkflowState STATE_4 = new State("state4", "Do nothing");
+  public static final WorkflowState STATE_5 = new State("state5", "Update variable 2");
 
   public StateWorkflow() {
     super(STATE_WORKFLOW_TYPE, STATE_1, ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)

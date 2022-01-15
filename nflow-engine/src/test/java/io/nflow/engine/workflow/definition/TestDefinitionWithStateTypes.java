@@ -4,12 +4,12 @@ import static io.nflow.engine.workflow.definition.TestState.BEGIN;
 import static io.nflow.engine.workflow.definition.TestState.DONE;
 import static io.nflow.engine.workflow.definition.TestState.ERROR;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 
 public class TestDefinitionWithStateTypes extends AbstractWorkflowDefinition {
 
-  static final WorkflowState STATE_1 = new SimpleState("state1");
-  static final WorkflowState STATE_2 = new SimpleState("state2");
+  static final WorkflowState STATE_1 = new State("state1");
+  static final WorkflowState STATE_2 = new State("state2");
 
   public TestDefinitionWithStateTypes(String type, WorkflowState initialState) {
     super(type, initialState, ERROR);

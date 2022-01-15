@@ -5,12 +5,12 @@ import static io.nflow.engine.workflow.definition.TestState.BEGIN;
 import static io.nflow.engine.workflow.definition.TestState.DONE;
 import static io.nflow.engine.workflow.definition.TestState.ERROR;
 
-import io.nflow.engine.workflow.curated.SimpleState;
+import io.nflow.engine.workflow.curated.State;
 
 public class TestWorkflow extends AbstractWorkflowDefinition {
 
-  public static final WorkflowState START_WITHOUT_FAILURE = new SimpleState("startWithoutFailure", WorkflowStateType.start);
-  public static final WorkflowState FAILED = new SimpleState("failed", WorkflowStateType.end);
+  public static final WorkflowState START_WITHOUT_FAILURE = new State("startWithoutFailure", WorkflowStateType.start);
+  public static final WorkflowState FAILED = new State("failed", WorkflowStateType.end);
 
   public TestWorkflow() {
     super("test", BEGIN, ERROR);
