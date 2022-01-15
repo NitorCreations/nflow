@@ -381,7 +381,7 @@
                     <exclude>commons-logging:commons-logging</exclude>
                   </excludes>
                 </bannedDependencies>
-                <requireMavenVersion><version>3.8</version></requireMavenVersion>
+                <requireMavenVersion><version>3.6</version></requireMavenVersion>
                 <requireJavaVersion><version>${jdk.version}</version></requireJavaVersion>
               </rules>
             </configuration>
