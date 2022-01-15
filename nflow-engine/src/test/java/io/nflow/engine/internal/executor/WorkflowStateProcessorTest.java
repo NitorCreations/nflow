@@ -1050,10 +1050,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       super(FAILING_TYPE, TestState.BEGIN, TestState.ERROR);
       permit(TestState.BEGIN, TestState.PROCESS, TestState.ERROR);
       permit(NEXT_STATE_NO_METHOD, NO_METHOD_END_STATE);
-      registerState(PROCESS_RETURN_NULL);
-      registerState(PROCESS_RETURN_NULL_NEXT_STATE);
-      registerState(RETRYING_STATE);
-      registerState(INVALID_NEXT_STATE);
     }
 
     public NextAction begin(StateExecution execution) {
@@ -1153,7 +1149,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
       permit(TestState.BEGIN, TestState.PROCESS);
       permit(TestState.PROCESS, TestState.DONE);
       permit(BEFORE_MANUAL, MANUAL);
-      registerState(ILLEGAL_STATE_CHANGE);
     }
 
     public NextAction beforeManual(@SuppressWarnings("unused") StateExecution execution) {

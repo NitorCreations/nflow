@@ -46,7 +46,6 @@ public class CreditApplicationWorkflow extends AbstractWorkflowDefinition {
     permit(ACCEPT_CREDIT_APPLICATION, GRANT_LOAN);
     permit(ACCEPT_CREDIT_APPLICATION, FINISH_CREDIT_APPLICATION);
     permit(FINISH_CREDIT_APPLICATION, DONE);
-    registerState(PREVIEW_CREDIT_APPLICATION);
   }
 
   public NextAction createCreditApplication(@SuppressWarnings("unused") StateExecution execution,

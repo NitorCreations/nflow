@@ -23,8 +23,9 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
  * using one of the following methods:
  * <ul>
  * <li>Using them as initialState or errorState parameter when calling the super constructor</li>
- * <li>Using them as one of the parameters when registering allowed state transfers using <code>permit()</code></li>
- * <li>Registering the states using <code>register()</code></li>
+ * <li>Using them as one of the parameters when registering allowed state transfers using <code>permit()</code> method</li>
+ * <li>Defining them as static fields in the workflow definition class</li>
+ * <li>Registering them using <code>register()</code> method</li>
  * </ul>
  */
 public abstract class AbstractWorkflowDefinition extends ModelObject {
@@ -100,13 +101,15 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
     this.initialState = initialState;
     this.errorState = errorState;
     this.settings = settings;
+    WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
     if (stateMethods != null) {
       this.stateMethods = stateMethods;
     } else {
-      this.stateMethods = new WorkflowDefinitionScanner().getStateMethods(getClass());
+      this.stateMethods = scanner.getStateMethods(getClass());
     }
-    requireStateMethodExists(initialState);
+    registerState(initialState);
     registerState(errorState);
+    scanner.getStaticWorkflowStates(getClass()).forEach(this::registerState);
   }
 
   /**
@@ -189,7 +192,8 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    * @param state
    *          The state to be registered.
    */
-  public void registerState(WorkflowState state) {
+  public final void registerState(WorkflowState state) {
+    requireStateMethodExists(state);
     states.add(state);
   }
 
@@ -221,8 +225,8 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    * @return This.
    */
   protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState) {
-    requireStateMethodExists(originState);
-    requireStateMethodExists(targetState);
+    registerState(originState);
+    registerState(targetState);
     allowedTransitionsFor(originState).add(targetState.name());
     return this;
   }
@@ -240,7 +244,7 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    */
   protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState, WorkflowState failureState) {
     Assert.notNull(failureState, "Failure state can not be null");
-    requireStateMethodExists(failureState);
+    registerState(failureState);
     WorkflowState existingFailure = failureTransitions.put(originState.name(), failureState);
     if (existingFailure != null) {
       Assert.isTrue(existingFailure.equals(failureState),
@@ -290,7 +294,6 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
         throw new IllegalArgumentException(msg);
       }
     }
-    registerState(state);
   }
 
   /**
