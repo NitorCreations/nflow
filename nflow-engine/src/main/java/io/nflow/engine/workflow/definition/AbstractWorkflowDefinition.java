@@ -19,8 +19,8 @@ import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 /**
- * The base class for all workflow definitions. Extending workflow definition classes shoud register all states of the workflow
- * using one of the following methods:
+ * The base class for all workflow definitions. Extending workflow definition classes should register all their states using at
+ * least one of the following ways:
  * <ul>
  * <li>Using them as initialState or errorState parameter when calling the super constructor</li>
  * <li>Using them as one of the parameters when registering allowed state transfers using <code>permit()</code> method</li>
