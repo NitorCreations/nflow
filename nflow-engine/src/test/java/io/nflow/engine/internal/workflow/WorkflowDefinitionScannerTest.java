@@ -4,9 +4,11 @@ import static io.nflow.engine.workflow.definition.TestState.BEGIN;
 import static io.nflow.engine.workflow.definition.TestState.DONE;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
@@ -20,17 +22,21 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.hamcrest.CustomMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowState;
+import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @SuppressWarnings("unused")
 public class WorkflowDefinitionScannerTest {
@@ -196,8 +202,14 @@ public class WorkflowDefinitionScannerTest {
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 
-  private CustomMatcher<StateParameter> stateParam(final String key, final Type type, final boolean readOnly,
-      final boolean mutable) {
+  @Test
+  public void getStaticWorkflowStatesReturnsCorrectStates() {
+    Set<String> stateNames = scanner.getStaticWorkflowStates(StaticStateFieldsWorkflow.class).stream().map(WorkflowState::name)
+        .collect(toSet());
+    assertThat(stateNames, containsInAnyOrder("staticPrivate", "staticPackageProtected", "staticProtected", "staticPublic"));
+  }
+
+  private CustomMatcher<StateParameter> stateParam(String key, Type type, boolean readOnly, boolean mutable) {
     return new CustomMatcher<StateParameter>("") {
       @Override
       public boolean matches(Object item) {
@@ -362,5 +374,28 @@ public class WorkflowDefinitionScannerTest {
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) { return null; }
+  }
+
+  public static class StaticStateFieldsWorkflow extends AbstractWorkflowDefinition {
+    private static WorkflowState staticPrivateState = new State("staticPrivate", WorkflowStateType.manual);
+    static WorkflowState staticPackageProtectedState = new State("staticPackageProtected", WorkflowStateType.manual);
+    protected static WorkflowState staticProtectedState = new State("staticProtected", WorkflowStateType.manual);
+    public static WorkflowState staticPublicState = new State("staticPublic", WorkflowStateType.manual);
+    private final WorkflowState privateState = new State("private", WorkflowStateType.manual);
+    WorkflowState packageProtectedState = new State("packageProtected", WorkflowStateType.manual);
+    protected WorkflowState protectedState = new State("protected", WorkflowStateType.manual);
+    public WorkflowState publicState = new State("public", WorkflowStateType.manual);
+
+    public StaticStateFieldsWorkflow() {
+      super("staticStateFields", BEGIN, DONE);
+    }
+
+    public NextAction start(StateExecution exec) {
+      return null;
+    }
+
+    public NextAction end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) {
+      return null;
+    }
   }
 }
