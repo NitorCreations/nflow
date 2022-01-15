@@ -1,9 +1,9 @@
 package io.nflow.rest.v1.jaxrs;
 
-import static com.nitorcreations.Matchers.containsElements;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -77,7 +77,7 @@ public class WorkflowDefinitionResourceTest {
     List<ListWorkflowDefinitionResponse> ret = getDefinitionListType(asList("nonexistent"));
     assertThat(ret.size(), is(0));
     verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(stringList.capture());
-    assertThat(stringList.getValue(), containsElements(asList("nonexistent")));
+    assertThat(stringList.getValue(), contains("nonexistent"));
   }
 
   @Test

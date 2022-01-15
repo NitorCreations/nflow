@@ -8,7 +8,7 @@ import static io.nflow.engine.workflow.definition.TestState.DONE;
 import static io.nflow.engine.workflow.definition.TestState.ERROR;
 import static io.nflow.engine.workflow.definition.TestState.POLL;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
