@@ -8,21 +8,12 @@
 **Details**
 - `nflow-engine`
   - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
-  - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions. You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface. However, the workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
+    - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions.
+    - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface.
+    - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed, use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` instead.
-
-## 7.4.0 (2021-12-27)
-
-**Highlights**
-- `nflow-explorer`
-  - Customizable workflow search result table columns
-
-**Details**
-- `nflow-explorer`
-  - Make some external URLs https instead of http
-- `nflow-engine`
-  - Dependency updates:
-    - minimum supported maven version for buliding is 3.8
+  - Dependency updates
+    - minimum supported Maven version for building is 3.6
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
       - https://jira.qos.ch/browse/LOGBACK-1591
@@ -36,6 +27,7 @@
     - jodatime 2.10.3
     - slf4j 1.7.32
 - `nflow-rest-api`
+  - Dependency updates
     - swagger 1.6.4
 - `nflow-jetty`
   - Dependency updates
@@ -48,12 +40,27 @@
   - Dependency updates
     - metrics 4.2.7
 - `nflow-tests`
+  - Dependency updates
     - h2 2.0.206
-      - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nflow h2 schema changed to work with 2.x release of h2.
+      - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
     - mssql 9.4.1
     - mysql 8.0.27
     - mariadb 2.7.4
     - postgresql 42.3.1
+
+## 7.4.0 (2021-12-27)
+
+**Highlights**
+- `nflow-explorer`
+  - Customizable workflow search result table columns
+
+**Details**
+- `nflow-engine`
+  - logback-classic update to version 1.2.9
+    - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+    - https://jira.qos.ch/browse/LOGBACK-1591
+- `nflow-explorer`
+  - Make some external urls https instead of http
 
 ## 7.3.1 (2021-09-15)
 
