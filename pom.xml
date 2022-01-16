@@ -212,6 +212,7 @@
             <parallel>classes</parallel>
             <perCoreThreadCount>true</perCoreThreadCount>
             <threadCount>1</threadCount>
+          	<forkCount>1.5C</forkCount>
           </configuration>
         </plugin>
         <plugin>
