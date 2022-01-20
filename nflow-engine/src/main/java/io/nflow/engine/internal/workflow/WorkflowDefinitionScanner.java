@@ -97,8 +97,12 @@ public class WorkflowDefinitionScanner {
   public Set<WorkflowState> getStaticWorkflowStates(Class<?> definition) {
     final Set<WorkflowState> states = new HashSet<>();
     doWithFields(definition, field -> {
-      field.setAccessible(true);
-      states.add((WorkflowState) field.get(null));
+      try {
+        field.setAccessible(true);
+        states.add((WorkflowState) field.get(null));
+      } catch (Exception e) {
+        logger.warn("Failed to access state field {}", field, e);
+      }
     }, field -> isStatic(field.getModifiers()) && WorkflowState.class.isAssignableFrom(field.getType()));
     return states;
   }
