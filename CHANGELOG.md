@@ -11,7 +11,7 @@
     - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions.
     - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface.
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
-  - `WorkflowState.isRetryAllowed` was removed, use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` instead.
+  - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
   - Dependency updates
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
