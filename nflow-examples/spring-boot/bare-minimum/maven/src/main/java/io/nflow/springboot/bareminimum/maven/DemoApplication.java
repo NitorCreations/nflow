@@ -17,27 +17,27 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 @Import(EngineConfiguration.class)
 public class DemoApplication {
 
-	@Inject
-	private WorkflowInstanceService workflowInstances;
+  @Inject
+  private WorkflowInstanceService workflowInstances;
 
-	@Inject
-	private WorkflowInstanceFactory workflowInstanceFactory;
+  @Inject
+  private WorkflowInstanceFactory workflowInstanceFactory;
 
-	@EventListener(ApplicationReadyEvent.class)
-	public void insertWorkflowInstance() {
-	  workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
-		  .setType(ExampleWorkflow.TYPE)
-		  .setExternalId("example")
-		  .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
-		  .build());
-	}
+  @EventListener(ApplicationReadyEvent.class)
+  public void insertWorkflowInstance() {
+    workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
+        .setType(ExampleWorkflow.TYPE)
+        .setExternalId("example")
+        .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
+        .build());
+  }
 
-	@Bean
-	public ExampleWorkflow exampleWorkflow() {
-		return new ExampleWorkflow();
-	}
+  @Bean
+  public ExampleWorkflow exampleWorkflow() {
+    return new ExampleWorkflow();
+  }
 
-	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(DemoApplication.class, args);
+  }
 }
