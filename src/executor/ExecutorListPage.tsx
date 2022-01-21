@@ -1,42 +1,81 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {addDays, addHours} from 'date-fns';
-import {Grid, Container} from '@material-ui/core';
+import {
+  createTheme,
+  Grid,
+  Container,
+  MuiThemeProvider
+} from '@material-ui/core';
+import MUIDataTable from 'mui-datatables';
 
 import {formatRelativeTime, formatTimestamp} from '../utils';
 import {useConfig} from '../config';
-import {DataTable, Spinner} from '../component';
+import {Spinner} from '../component';
 import {Executor} from '../types';
 import {listExecutors} from '../service';
 
 const ExecutorTable = ({executors}: {executors: Executor[]}) => {
+  const getMuiTheme = () =>
+    createTheme({
+      overrides: {
+        MUIDataTable: {
+          root: {},
+          paper: {
+            boxShadow: 'none'
+          }
+        },
+        MUIDataTableBodyCell: {
+          root: {
+            padding: 6,
+            wordBreak: 'break-all'
+          }
+        },
+        MUIDataTableToolbar: {
+          root: {
+            display: 'none'
+          }
+        }
+      }
+    });
+
+  const renderTimestamp = (value: string) => {
+    return (
+      <div title={formatRelativeTime(value)}>{formatTimestamp(value)}</div>
+    );
+  };
+
   const columns = [
-    {field: 'id', headerName: 'ID'},
-    {field: 'host', headerName: 'Host'},
-    {field: 'pid', headerName: 'Process ID'},
-    {field: 'executorGroup', headerName: 'Executor Group'},
+    {name: 'id', label: 'ID'},
+    {name: 'host', label: 'Host'},
+    {name: 'pid', label: 'Process ID'},
+    {name: 'executorGroup', label: 'Executor Group'},
     {
-      field: 'started',
-      headerName: 'Started',
-      fieldRender: formatRelativeTime,
-      tooltipRender: formatTimestamp
+      name: 'started',
+      label: 'Started',
+      options: {
+        customBodyRender: renderTimestamp
+      }
     },
     {
-      field: 'stopped',
-      headerName: 'Stopped',
-      fieldRender: formatRelativeTime,
-      tooltipRender: formatTimestamp
+      name: 'stopped',
+      label: 'Stopped',
+      options: {
+        customBodyRender: renderTimestamp
+      }
     },
     {
-      field: 'active',
-      headerName: 'Activity hearbeat',
-      fieldRender: formatRelativeTime,
-      tooltipRender: formatTimestamp
+      name: 'active',
+      label: 'Activity hearbeat',
+      options: {
+        customBodyRender: renderTimestamp
+      }
     },
     {
-      field: 'expires',
-      headerName: 'Hearbeat expires',
-      fieldRender: formatRelativeTime,
-      tooltipRender: formatTimestamp
+      name: 'expires',
+      label: 'Hearbeat expires',
+      options: {
+        customBodyRender: renderTimestamp
+      }
     }
   ];
 
@@ -53,7 +92,7 @@ const ExecutorTable = ({executors}: {executors: Executor[]}) => {
       if (addHours(executor.started, 1) < now) {
         return 'warning'; // expired
       }
-      return 'successs'; // alice
+      return 'success'; // alive
     }
     // has been active at some point
     if (addDays(executor.active, 1) < now) {
@@ -66,11 +105,36 @@ const ExecutorTable = ({executors}: {executors: Executor[]}) => {
   };
 
   return (
-    <DataTable
-      rows={executors}
-      columns={columns}
-      rowClassRender={rowClassRender}
-    />
+    <MuiThemeProvider theme={getMuiTheme()}>
+      <MUIDataTable
+        title={undefined}
+        data={executors}
+        columns={columns}
+        options={
+          {
+            storageKey: 'workflowExecutorTableState',
+            selectableRows: 'none',
+            expandableRowsHeader: false,
+            textLabels: {
+              body: {
+                noMatch: 'No workflow executors found'
+              }
+            },
+            setRowProps: (_row: any, dataIndex: any, _rowIndex: any) => {
+              const rowClassName = rowClassRender(executors[dataIndex]);
+              return {
+                className: `${rowClassName}`
+              };
+            },
+            setTableProps: () => {
+              return {
+                className: 'table table-hover'
+              };
+            }
+          } as any
+        } // TODO: types do not support storageKey property yet
+      />
+    </MuiThemeProvider>
   );
 };
 
