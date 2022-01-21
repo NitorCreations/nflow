@@ -146,7 +146,7 @@ class WorkflowStateProcessor implements Runnable {
     logger.debug("Starting.");
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId, EnumSet.of(CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
-    AbstractWorkflowDefinition<? extends WorkflowState> definition = workflowDefinitions.getWorkflowDefinition(instance.type);
+    AbstractWorkflowDefinition definition = workflowDefinitions.getWorkflowDefinition(instance.type);
     if (definition == null) {
       rescheduleUnknownWorkflowType(instance);
       return;
@@ -263,7 +263,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
-      AbstractWorkflowDefinition<?> definition, WorkflowInstanceAction.Builder actionBuilder) {
+      AbstractWorkflowDefinition definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
       logger.debug("No handler method defined for {}, clearing next activation", execution.getNextState());
       execution.setNextActivation(null);
@@ -272,8 +272,7 @@ class WorkflowStateProcessor implements Runnable {
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
       try {
         String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
-        AbstractWorkflowDefinition<? extends WorkflowState> parentDefinition = workflowDefinitions
-            .getWorkflowDefinition(parentType);
+        AbstractWorkflowDefinition parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
         String[] waitStates = parentDefinition.getStates().stream() //
             .filter(state -> state.getType() == WorkflowStateType.wait) //
             .map(WorkflowState::name) //
@@ -381,8 +380,8 @@ class WorkflowStateProcessor implements Runnable {
         && !execution.getNextActivation().isAfterNow();
   }
 
-  private NextAction processWithListeners(WorkflowInstance instance,
-      AbstractWorkflowDefinition<? extends WorkflowState> definition, StateExecutionImpl execution, WorkflowState state) {
+  private NextAction processWithListeners(WorkflowInstance instance, AbstractWorkflowDefinition definition,
+      StateExecutionImpl execution, WorkflowState state) {
     ProcessingExecutorListener processingListener = new ProcessingExecutorListener(instance, definition, execution, state);
     List<WorkflowExecutorListener> chain = new ArrayList<>(executorListeners.size() + 1);
     chain.addAll(executorListeners);
@@ -431,11 +430,11 @@ class WorkflowStateProcessor implements Runnable {
 
   private class ProcessingExecutorListener implements WorkflowExecutorListener {
     private final WorkflowInstance instance;
-    private final AbstractWorkflowDefinition<? extends WorkflowState> definition;
+    private final AbstractWorkflowDefinition definition;
     private final StateExecutionImpl execution;
     private final WorkflowState state;
 
-    public ProcessingExecutorListener(WorkflowInstance instance, AbstractWorkflowDefinition<? extends WorkflowState> definition,
+    public ProcessingExecutorListener(WorkflowInstance instance, AbstractWorkflowDefinition definition,
         StateExecutionImpl execution, WorkflowState state) {
       this.instance = instance;
       this.definition = definition;
@@ -451,7 +450,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private class NormalStateHandler extends StateHandler {
 
-    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution,
+    public NormalStateHandler(WorkflowInstance instance, AbstractWorkflowDefinition definition, StateExecutionImpl execution,
         WorkflowState currentState) {
       super(instance, definition, execution, currentState);
     }
@@ -466,7 +465,7 @@ class WorkflowStateProcessor implements Runnable {
   private class SkippedStateHandler extends StateHandler {
     private final NextAction nextAction;
 
-    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition<?> definition,
+    public SkippedStateHandler(NextAction nextAction, WorkflowInstance instance, AbstractWorkflowDefinition definition,
         StateExecutionImpl execution, WorkflowState currentState) {
       super(instance, definition, execution, currentState);
       this.nextAction = nextAction;
@@ -480,11 +479,11 @@ class WorkflowStateProcessor implements Runnable {
 
   private abstract class StateHandler {
     protected final WorkflowInstance instance;
-    protected final AbstractWorkflowDefinition<?> definition;
+    protected final AbstractWorkflowDefinition definition;
     protected final StateExecutionImpl execution;
     protected final WorkflowState currentState;
 
-    public StateHandler(WorkflowInstance instance, AbstractWorkflowDefinition<?> definition, StateExecutionImpl execution,
+    public StateHandler(WorkflowInstance instance, AbstractWorkflowDefinition definition, StateExecutionImpl execution,
         WorkflowState currentState) {
       this.instance = instance;
       this.definition = definition;

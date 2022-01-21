@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 import static org.apache.commons.lang3.ClassUtils.primitiveToWrapper;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.util.ReflectionUtils.doWithFields;
 import static org.springframework.util.ReflectionUtils.doWithMethods;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,20 +38,21 @@ import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowState;
 
 public class WorkflowDefinitionScanner {
 
   private static final Logger logger = getLogger(WorkflowDefinitionScanner.class);
 
   private static final Set<Class<?>> boxedPrimitiveTypes = Stream
-          .of(Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class)
-          .collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));
+      .of(Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class)
+      .collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));
 
   private static final Set<Type> knownImmutableTypes = Stream
-          .of(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class,
-                  Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class,
-                  BigDecimal.class, BigInteger.class, Enum.class)
-          .collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));
+      .of(Boolean.TYPE, Boolean.class, Byte.TYPE, Byte.class, Character.TYPE, Character.class, Short.TYPE, Short.class,
+          Integer.TYPE, Integer.class, Long.TYPE, Long.class, Float.TYPE, Float.class, Double.TYPE, Double.class, String.class,
+          BigDecimal.class, BigInteger.class, Enum.class)
+      .collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));
 
   public Map<String, WorkflowStateMethod> getStateMethods(Class<?> definition) {
     final Map<String, WorkflowStateMethod> methods = new LinkedHashMap<>();
@@ -91,6 +94,19 @@ public class WorkflowDefinitionScanner {
     return methods;
   }
 
+  public Set<WorkflowState> getStaticWorkflowStates(Class<?> definition) {
+    final Set<WorkflowState> states = new HashSet<>();
+    doWithFields(definition, field -> {
+      try {
+        field.setAccessible(true);
+        states.add((WorkflowState) field.get(null));
+      } catch (Exception e) {
+        logger.warn("Failed to access state field {}", field, e);
+      }
+    }, field -> isStatic(field.getModifiers()) && WorkflowState.class.isAssignableFrom(field.getType()));
+    return states;
+  }
+
   boolean isReadOnly(Type type) {
     return knownImmutableTypes.contains(type);
   }
@@ -108,7 +124,8 @@ public class WorkflowDefinitionScanner {
         Constructor<?> ctr = clazz.getConstructor();
         ctr.newInstance();
         return ctr;
-      } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+          | IllegalArgumentException | InvocationTargetException e) {
         logger.warn("Could not instantiate {} using empty constructor", clazz, e);
       }
     }
@@ -120,8 +137,8 @@ public class WorkflowDefinitionScanner {
     public boolean matches(Method method) {
       int mod = method.getModifiers();
       Class<?>[] parameterTypes = method.getParameterTypes();
-      return isPublic(mod) && !isStatic(mod) && hasStateExecutionParameter(parameterTypes) &&
-          hasValidReturnType(method.getReturnType());
+      return isPublic(mod) && !isStatic(mod) && hasStateExecutionParameter(parameterTypes)
+          && hasValidReturnType(method.getReturnType());
     }
 
     private boolean hasValidReturnType(Class<?> returnType) {

@@ -1,7 +1,7 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.curated.BulkWorkflow.BULK_WORKFLOW_TYPE;
-import static io.nflow.engine.workflow.curated.BulkWorkflow.State.done;
+import static io.nflow.engine.workflow.curated.BulkWorkflow.DONE;
 import static io.nflow.tests.demo.workflow.DemoBulkWorkflow.DEMO_BULK_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.time.Duration.ofSeconds;
@@ -109,7 +109,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
   }
 
   private void waitForBulkToFinish() {
-    ListWorkflowInstanceResponse instance = getWorkflowInstanceWithTimeout(workflowId, done.name(), ofSeconds(30));
+    ListWorkflowInstanceResponse instance = getWorkflowInstanceWithTimeout(workflowId, DONE.name(), ofSeconds(30));
     assertThat(instance.childWorkflows.size(), equalTo(1));
     List<Long> childWorkflowIds = instance.childWorkflows.values().iterator().next();
     assertThat(childWorkflowIds.size(), equalTo(CHILDREN_COUNT));

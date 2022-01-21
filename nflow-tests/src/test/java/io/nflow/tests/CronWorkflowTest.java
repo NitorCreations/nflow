@@ -1,6 +1,9 @@
 package io.nflow.tests;
 
-import static io.nflow.engine.workflow.curated.CronWorkflow.State.failed;
+import static io.nflow.engine.workflow.curated.CronWorkflow.DO_WORK;
+import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
+import static io.nflow.engine.workflow.curated.CronWorkflow.SCHEDULE;
+import static io.nflow.engine.workflow.curated.CronWorkflow.WAIT_FOR_WORK_TO_FINISH;
 import static io.nflow.tests.demo.workflow.TestCronWorkflow.TYPE;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -17,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.context.annotation.ComponentScan;
 
-import io.nflow.engine.workflow.curated.CronWorkflow;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -62,9 +64,9 @@ public class CronWorkflowTest extends AbstractNflowTest {
   @Order(3)
   public void verifyItHasRunPeriodically() {
     List<Action> actions = getWorkflowInstance(resp.id).actions;
-    long scheduleActions = actions.stream().filter(a -> CronWorkflow.State.schedule.name().equals(a.state)).count();
-    long waitActions = actions.stream().filter(a -> CronWorkflow.State.waitForWorkToFinish.name().equals(a.state)).count();
-    long doWorkActions = actions.stream().filter(a -> CronWorkflow.State.doWork.name().equals(a.state)).count();
+    long scheduleActions = actions.stream().filter(a -> SCHEDULE.name().equals(a.state)).count();
+    long waitActions = actions.stream().filter(a -> WAIT_FOR_WORK_TO_FINISH.name().equals(a.state)).count();
+    long doWorkActions = actions.stream().filter(a -> DO_WORK.name().equals(a.state)).count();
     assertThat(scheduleActions, is(greaterThanOrEqualTo(1L)));
     assertThat(waitActions, is(greaterThanOrEqualTo(1L)));
     assertThat(doWorkActions, is(greaterThanOrEqualTo(1L)));
@@ -74,7 +76,7 @@ public class CronWorkflowTest extends AbstractNflowTest {
   public void stopMaintenanceWorkflow() {
     UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
     request.nextActivationTime = null;
-    request.state = failed.name();
+    request.state = FAILED.name();
     updateWorkflowInstance(resp.id, request, String.class);
   }
 }

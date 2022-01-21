@@ -10,7 +10,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
@@ -33,7 +33,7 @@ public class PerfTestClient {
   @Inject
   private ObjectMapper objectMapper;
 
-  public CreateWorkflowInstanceResponse createWorkflow(WorkflowDefinition<?> def) {
+  public CreateWorkflowInstanceResponse createWorkflow(AbstractWorkflowDefinition def) {
     return createWorkflow(def.getType());
   }
 
