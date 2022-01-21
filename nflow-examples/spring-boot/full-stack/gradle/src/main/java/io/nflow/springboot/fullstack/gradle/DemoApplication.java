@@ -1,4 +1,4 @@
-package io.nflow.springboot.fullstack.gradle;
+package io.nflow.springboot.bareminimum.gradle;
 
 import javax.inject.Inject;
 
@@ -9,36 +9,35 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 
-import io.nflow.rest.config.RestConfiguration;
+import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @SpringBootApplication
-@Import(RestConfiguration.class)
+@Import(EngineConfiguration.class)
 public class DemoApplication {
 
-	@Inject
-	private WorkflowInstanceService workflowInstances;
+  @Inject
+  private WorkflowInstanceService workflowInstances;
 
-	@Inject
-	private WorkflowInstanceFactory workflowInstanceFactory;
+  @Inject
+  private WorkflowInstanceFactory workflowInstanceFactory;
 
-	@EventListener(ApplicationReadyEvent.class)
-	public void insertWorkflowInstance() {
-	  workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
-		  .setType(ExampleWorkflow.TYPE)
-		  .setExternalId("example")
-		  .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
-		  .build());
-	}
+  @EventListener(ApplicationReadyEvent.class)
+  public void insertWorkflowInstance() {
+    workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
+        .setType(ExampleWorkflow.TYPE)
+        .setExternalId("example")
+        .putStateVariable(ExampleWorkflow.VAR_COUNTER, 0)
+        .build());
+  }
 
-	@Bean
-	public ExampleWorkflow exampleWorkflow() {
-		return new ExampleWorkflow();
-	}
+  @Bean
+  public ExampleWorkflow exampleWorkflow() {
+    return new ExampleWorkflow();
+  }
 
-	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(DemoApplication.class, args);
+  }
 }

@@ -20,6 +20,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.TestState;
 import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -59,7 +60,7 @@ public class BusinessKeyUpdateTest extends AbstractNflowTest {
             .get(ListWorkflowInstanceResponse[].class);
         assertThat(instances.length, greaterThanOrEqualTo(1));
         for (ListWorkflowInstanceResponse instance : instances) {
-          if (instance.id == resp.id && "done".equals(instance.state) && instance.nextActivation == null) {
+          if (instance.id == resp.id && TestState.DONE.name().equals(instance.state) && instance.nextActivation == null) {
             wf = instance;
             break;
           }

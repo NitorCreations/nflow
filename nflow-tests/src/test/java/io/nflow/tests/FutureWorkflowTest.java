@@ -1,6 +1,7 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.config.Profiles.MYSQL;
+import static io.nflow.tests.demo.workflow.TestState.BEGIN;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -80,7 +81,7 @@ public class FutureWorkflowTest extends AbstractNflowTest {
   private void verifyWorkflowNotStarted() {
     ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
     assertThat(wf.started, nullValue());
-    assertThat(wf.state, is(DemoWorkflow.State.begin.name()));
+    assertThat(wf.state, is(BEGIN.name()));
     assertThat(wf.nextActivation.getMillis(), is(FUTURE.getMillis()));
   }
 
@@ -98,6 +99,6 @@ public class FutureWorkflowTest extends AbstractNflowTest {
     SECONDS.sleep(10);
     ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
     assertThat(wf.started, notNullValue());
-    assertThat(wf.state, not(is(DemoWorkflow.State.begin.name())));
+    assertThat(wf.state, not(is(BEGIN.name())));
   }
 }

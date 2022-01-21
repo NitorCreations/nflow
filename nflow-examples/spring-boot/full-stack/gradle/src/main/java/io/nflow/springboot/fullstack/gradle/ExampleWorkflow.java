@@ -1,51 +1,29 @@
-package io.nflow.springboot.fullstack.gradle;
+package io.nflow.springboot.bareminimum.gradle;
 
-import org.joda.time.DateTime;
+import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
+import static org.joda.time.DateTime.now;
 
+import io.nflow.engine.workflow.curated.State;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
-import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+public class ExampleWorkflow extends AbstractWorkflowDefinition {
 
-public class ExampleWorkflow extends WorkflowDefinition<ExampleWorkflow.State> {
+  public static final String TYPE = "repeatingWorkflow";
+  public static final String VAR_COUNTER = "VAR_COUNTER";
+  private static final State REPEAT = new State("repeat", WorkflowStateType.start, "Repeating state");
+  private static final State ERROR = new State("error", WorkflowStateType.manual, "Error state");
 
-	public static final String TYPE = "repeatingWorkflow";
-	public static final String VAR_COUNTER = "VAR_COUNTER";
+  public ExampleWorkflow() {
+    super(TYPE, REPEAT, ERROR);
+    permit(REPEAT, REPEAT);
+  }
 
-	public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-		repeat(start, "Repeating state"),
-		error(manual, "Error state");
-
-		private WorkflowStateType type;
-		private String description;
-
-		State(WorkflowStateType type, String description) {
-			this.type = type;
-			this.description = description;
-		}
-
-		@Override
-		public WorkflowStateType getType() {
-			return type;
-		}
-
-		@Override
-		public String getDescription() {
-			return description;
-		}
-	}
-
-	public ExampleWorkflow() {
-		super(TYPE, State.repeat, State.error);
-		permit(State.repeat, State.repeat);
-	}
-
-	public NextAction repeat(StateExecution execution) {
-		System.out.println("Counter: " + execution.getVariable(VAR_COUNTER));
-		execution.setVariable(VAR_COUNTER, execution.getVariable(VAR_COUNTER, Integer.class) + 1);
-		return NextAction.moveToStateAfter(State.repeat, DateTime.now().plusSeconds(10), "Next iteration");
-	}
+  public NextAction repeat(StateExecution execution) {
+    System.out.println("Counter: " + execution.getVariable(VAR_COUNTER));
+    execution.setVariable(VAR_COUNTER, execution.getVariable(VAR_COUNTER, Integer.class) + 1);
+    return moveToStateAfter(REPEAT, now().plusSeconds(10), "Next iteration");
+  }
 }

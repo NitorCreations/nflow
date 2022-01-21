@@ -18,7 +18,8 @@ import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.service.WorkflowDefinitionService;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,22 +35,22 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
 
   private WorkflowInstancePreProcessor preProcessor;
 
-  private WorkflowDefinition<?> dummyWorkflow;
+  private AbstractWorkflowDefinition dummyWorkflow;
 
   private static final short DEFAULT_PRIORITY = 100;
 
   @BeforeEach
   public void setup() {
     dummyWorkflow = new DummyTestWorkflow(new WorkflowSettings.Builder().setDefaultPriority(DEFAULT_PRIORITY).build());
-    lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition("dummy");
+    lenient().doReturn(dummyWorkflow).when(workflowDefinitionService).getWorkflowDefinition(DummyTestWorkflow.DUMMY_TYPE);
     preProcessor = new WorkflowInstancePreProcessor(workflowDefinitionService, workflowInstanceDao);
   }
 
   @Test
   public void wrongStartStateCausesException() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState("end").build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setExternalId("123").setState(TestState.DONE.name()).build();
     RuntimeException thrown = assertThrows(RuntimeException.class, () -> preProcessor.process(i));
-    assertThat(thrown.getMessage(), containsString("Specified state [end] is not a start state."));
+    assertThat(thrown.getMessage(), containsString("Specified state [done] is not a start state."));
   }
 
   @Test
@@ -63,7 +64,7 @@ public class WorkflowInstancePreProcessorTest extends BaseNflowTest {
   public void createsMissingState() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().build();
     WorkflowInstance processed = preProcessor.process(i);
-    assertThat(processed.state, is("CreateLoan"));
+    assertThat(processed.state, is(TestState.BEGIN.name()));
   }
 
   @Test

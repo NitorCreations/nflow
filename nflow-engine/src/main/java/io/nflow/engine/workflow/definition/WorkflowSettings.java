@@ -75,11 +75,9 @@ public class WorkflowSettings extends ModelObject {
 
   private final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
 
-  // TODO: replace state.isRetryAllowed(thrown) with !thrown.getClass().isAnnotationPresent(NonRetryable.class) in the next
-  // major release
-  @SuppressWarnings("deprecation")
   private static final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> DEFAULT_EXCEPTION_ANALYZER = (state,
-      thrown) -> new StateProcessExceptionHandling.Builder().setRetryable(state.isRetryAllowed(thrown)).build();
+      thrown) -> new StateProcessExceptionHandling.Builder()
+          .setRetryable(!thrown.getClass().isAnnotationPresent(NonRetryable.class)).build();
 
   private static final Logger logger = getLogger(WorkflowSettings.class);
 

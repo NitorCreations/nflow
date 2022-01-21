@@ -68,6 +68,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRo
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -765,7 +766,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     String state = dao.getWorkflowInstanceState(workflowInstanceId);
 
-    assertThat(state, is("CreateLoan"));
+    assertThat(state, is(TestState.BEGIN.name()));
   }
 
   @Test
@@ -815,7 +816,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, new ArrayList<String>());
+    dao.wakeUpWorkflowExternally(parentWorkflowId, emptyList());
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId, emptySet(), null);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }
@@ -840,7 +841,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, asList("CreateLoan"));
+    dao.wakeUpWorkflowExternally(parentWorkflowId, asList(TestState.BEGIN.name()));
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId, emptySet(), null);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }

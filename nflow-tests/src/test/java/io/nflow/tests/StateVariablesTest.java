@@ -33,15 +33,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.workflow.curated.CronWorkflow;
+import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
-import io.nflow.tests.demo.workflow.SimpleWorkflow;
 import io.nflow.tests.demo.workflow.StateWorkflow;
-import io.nflow.tests.demo.workflow.StateWorkflow.State;
+import io.nflow.tests.demo.workflow.TestState;
 import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -87,12 +87,12 @@ public class StateVariablesTest extends AbstractNflowTest {
     assertEquals(singletonMap("value", "bar3"), listResponse.stateVariables.get("variable2"));
 
     assertEquals(6, listResponse.actions.size());
-    assertState(listResponse.actions, 5, StateWorkflow.State.state1, "foo1", null);
-    assertState(listResponse.actions, 4, StateWorkflow.State.state2, null, "bar1");
-    assertState(listResponse.actions, 3, StateWorkflow.State.state3, null, "bar2");
-    assertState(listResponse.actions, 2, StateWorkflow.State.state4, null, null);
-    assertState(listResponse.actions, 1, StateWorkflow.State.state5, null, "bar3");
-    assertState(listResponse.actions, 0, StateWorkflow.State.done, null, null);
+    assertState(listResponse.actions, 5, StateWorkflow.STATE_1, "foo1", null);
+    assertState(listResponse.actions, 4, StateWorkflow.STATE_2, null, "bar1");
+    assertState(listResponse.actions, 3, StateWorkflow.STATE_3, null, "bar2");
+    assertState(listResponse.actions, 2, StateWorkflow.STATE_4, null, null);
+    assertState(listResponse.actions, 1, StateWorkflow.STATE_5, null, "bar3");
+    assertState(listResponse.actions, 0, TestState.DONE, null, null);
   }
 
   @Test
@@ -170,13 +170,13 @@ public class StateVariablesTest extends AbstractNflowTest {
     createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
 
-    ListWorkflowInstanceResponse listResponse = getWorkflowInstanceWithTimeout(createResponse.id,
-        SimpleWorkflow.State.done.name(), ofSeconds(5));
+    ListWorkflowInstanceResponse listResponse = getWorkflowInstanceWithTimeout(createResponse.id, TestState.DONE.name(),
+        ofSeconds(5));
     assertThat(listResponse.stateVariables.size(), is(1));
     assertThat(listResponse.stateVariables.get(CronWorkflow.VAR_SCHEDULE), is(cronSchedule));
   }
 
-  private void assertState(List<Action> actions, int index, State state, String variable1, String variable2) {
+  private void assertState(List<Action> actions, int index, WorkflowState state, String variable1, String variable2) {
     Action action = actions.get(index);
     assertEquals(state.name(), action.state);
     assertVariable(action, "variable1", variable1);

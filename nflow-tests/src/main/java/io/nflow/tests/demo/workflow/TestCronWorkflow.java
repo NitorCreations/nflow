@@ -1,6 +1,5 @@
 package io.nflow.tests.demo.workflow;
 
-import static io.nflow.engine.workflow.curated.CronWorkflow.State.waitForWorkToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static org.joda.time.DateTime.now;
@@ -26,7 +25,7 @@ public class TestCronWorkflow extends CronWorkflow {
   public NextAction doWork(StateExecution execution) {
     WorkflowInstance childWorkflow = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).build();
     execution.addChildWorkflows(childWorkflow);
-    return moveToStateAfter(waitForWorkToFinish, now().plusMinutes(1), "Work delegated to child workflow");
+    return moveToStateAfter(WAIT_FOR_WORK_TO_FINISH, now().plusSeconds(1), "Work delegated to child workflow");
   }
 
   @Override

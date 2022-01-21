@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,30 +19,81 @@ import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 /**
- * The base class for all workflow definitions.
+ * The base class for all workflow definitions. Extending workflow definition classes should register all their states using at
+ * least one of the following ways:
+ * <ul>
+ * <li>Using them as initialState or errorState parameter when calling the super constructor</li>
+ * <li>Using them as one of the parameters when registering allowed state transfers using <code>permit()</code> method</li>
+ * <li>Defining them as static fields in the workflow definition class</li>
+ * <li>Registering them using <code>registerState()</code> method</li>
+ * </ul>
  */
-public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extends ModelObject {
+public abstract class AbstractWorkflowDefinition extends ModelObject {
 
   private final String type;
   private String name;
   private String description;
-  private final S initialState;
-  private final S errorState;
+  private final WorkflowState initialState;
+  private final WorkflowState errorState;
   private final WorkflowSettings settings;
   protected final Map<String, List<String>> allowedTransitions = new LinkedHashMap<>();
   protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
+  private final Set<WorkflowState> states = new HashSet<>();
 
-  protected AbstractWorkflowDefinition(String type, S initialState, S errorState) {
+  /**
+   * Create a workflow definition with default settings and automatically scanned state methods.
+   *
+   * @param type
+   *          The unique identifier of this workflow definition.
+   * @param initialState
+   *          The default start state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param errorState
+   *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   */
+  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState) {
     this(type, initialState, errorState, new WorkflowSettings.Builder().build());
   }
 
-  protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings) {
+  /**
+   * Create a workflow definition with given settings and automatically scanned state methods.
+   *
+   * @param type
+   *          The unique identifier of this workflow definition.
+   * @param initialState
+   *          The default start state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param errorState
+   *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param settings
+   *          The configuration for the workflow instances of this workflow type.
+   */
+  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState,
+      WorkflowSettings settings) {
     this(type, initialState, errorState, settings, null);
   }
 
-  protected AbstractWorkflowDefinition(String type, S initialState, S errorState, WorkflowSettings settings,
-      Map<String, WorkflowStateMethod> stateMethods) {
+  /**
+   * Create a workflow definition with given settings and state methods.
+   *
+   * @param type
+   *          The unique identifier of this workflow definition.
+   * @param initialState
+   *          The default start state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param errorState
+   *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param settings
+   *          The configuration for the workflow instances of this workflow type.
+   * @param stateMethods
+   *          The state methods to be used for the states of this workflow type.
+   */
+  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState,
+      WorkflowSettings settings, Map<String, WorkflowStateMethod> stateMethods) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -49,16 +101,20 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
     this.initialState = initialState;
     this.errorState = errorState;
     this.settings = settings;
+    WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
     if (stateMethods != null) {
       this.stateMethods = stateMethods;
     } else {
-      this.stateMethods = new WorkflowDefinitionScanner().getStateMethods(getClass());
+      this.stateMethods = scanner.getStateMethods(getClass());
     }
-    requireStateMethodExists(initialState);
+    registerState(initialState);
+    registerState(errorState);
+    scanner.getStaticWorkflowStates(getClass()).forEach(this::registerState);
   }
 
   /**
    * Return the name of the workflow.
+   *
    * @return The name.
    */
   public String getName() {
@@ -67,7 +123,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Set the name of the workflow.
-   * @param name The name.
+   *
+   * @param name
+   *          The name.
    */
   public void setName(String name) {
     this.name = name;
@@ -75,6 +133,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return the description of the workflow.
+   *
    * @return The description.
    */
   public String getDescription() {
@@ -83,7 +142,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Set the description of the workflow.
-   * @param description The description.
+   *
+   * @param description
+   *          The description.
    */
   public void setDescription(String description) {
     this.description = description;
@@ -91,6 +152,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return the type of the workflow.
+   *
    * @return The type.
    */
   public String getType() {
@@ -99,28 +161,45 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return the initial state of the workflow.
+   *
    * @return Workflow state.
    */
-  public S getInitialState() {
+  public WorkflowState getInitialState() {
     return initialState;
   }
 
   /**
    * Return the generic error state of the workflow.
+   *
    * @return Workflow state.
    */
-  public S getErrorState() {
+  public WorkflowState getErrorState() {
     return errorState;
   }
 
   /**
    * Return all possible states of the workflow.
+   *
    * @return Set of workflow states.
    */
-  public abstract Set<S> getStates();
+  public Set<WorkflowState> getStates() {
+    return new HashSet<>(states);
+  }
+
+  /**
+   * Register a state as one of the allowed states in this workflow.
+   *
+   * @param state
+   *          The state to be registered.
+   */
+  public final void registerState(WorkflowState state) {
+    requireStateMethodExists(state);
+    states.add(state);
+  }
 
   /**
    * Return allowed transitions between the states of the workflow.
+   *
    * @return Map from origin states to a list of target states.
    */
   public Map<String, List<String>> getAllowedTransitions() {
@@ -129,6 +208,7 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return transitions from states to failure states.
+   *
    * @return Map from origin state to failure state.
    */
   public Map<String, WorkflowState> getFailureTransitions() {
@@ -136,35 +216,44 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
   }
 
   /**
-   * Add a state transition to the allowed transitions.
-   * @param originState The origin state.
-   * @param targetState The target state.
+   * Register a state transition to the allowed transitions.
+   *
+   * @param originState
+   *          The origin state. The state is automatically registered as one of the allowed states in this workflow.
+   * @param targetState
+   *          The target state. The state is automatically registered as one of the allowed states in this workflow.
    * @return This.
    */
-  protected AbstractWorkflowDefinition<S> permit(S originState, S targetState) {
-    requireStateMethodExists(originState);
-    requireStateMethodExists(targetState);
+  protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState) {
+    registerState(originState);
+    registerState(targetState);
     allowedTransitionsFor(originState).add(targetState.name());
     return this;
   }
 
   /**
-   * Add a state and failure state transitions to the allowed transitions.
-   * @param originState The origin state.
-   * @param targetState The target state.
-   * @param failureState The failure state.
+   * Register a state and failure state transitions to the allowed transitions.
+   *
+   * @param originState
+   *          The origin state. The state is automatically registered as one of the allowed states in this workflow.
+   * @param targetState
+   *          The target state. The state is automatically registered as one of the allowed states in this workflow.
+   * @param failureState
+   *          The failure state. The state is automatically registered as one of the allowed states in this workflow.
    * @return This.
    */
-  protected AbstractWorkflowDefinition<S> permit(S originState, S targetState, S failureState) {
+  protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState, WorkflowState failureState) {
     Assert.notNull(failureState, "Failure state can not be null");
-    requireStateMethodExists(failureState);
+    registerState(failureState);
     WorkflowState existingFailure = failureTransitions.put(originState.name(), failureState);
-    Assert.isTrue(existingFailure == null || existingFailure.equals(failureState), "Different failureState '" + existingFailure
-        + "' already defined for originState '" + originState.name() + "'");
+    if (existingFailure != null) {
+      Assert.isTrue(existingFailure.equals(failureState),
+          "Different failureState '" + existingFailure.name() + "' already defined for originState '" + originState.name() + "'");
+    }
     return permit(originState, targetState);
   }
 
-  private List<String> allowedTransitionsFor(S state) {
+  private List<String> allowedTransitionsFor(WorkflowState state) {
     String stateName = state.name();
     List<String> transitions = allowedTransitions.get(stateName);
     if (transitions == null) {
@@ -176,13 +265,14 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return the workflow settings.
+   *
    * @return Workflow settings.
    */
   public WorkflowSettings getSettings() {
     return settings;
   }
 
-  final void requireStateMethodExists(S state) {
+  final void requireStateMethodExists(WorkflowState state) {
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
     if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(
@@ -194,8 +284,8 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
       WorkflowStateType stateType = state.getType();
       Class<?> returnType = stateMethod.method.getReturnType();
       if (!stateType.isFinal() && !NextAction.class.equals(returnType)) {
-        String msg = format("Class '%s' has a non-final state method '%s' that does not return NextAction", this.getClass()
-            .getName(), state.name());
+        String msg = format("Class '%s' has a non-final state method '%s' that does not return NextAction",
+            this.getClass().getName(), state.name());
         throw new IllegalArgumentException(msg);
       }
       if (stateType.isFinal() && !Void.TYPE.equals(returnType)) {
@@ -208,7 +298,9 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Returns the workflow state method for the given state name.
-   * @param stateName The name of the workflow state.
+   *
+   * @param stateName
+   *          The name of the workflow state.
    * @return The workflow state method, or null if not found.
    */
   public WorkflowStateMethod getMethod(String stateName) {
@@ -244,8 +336,11 @@ public abstract class AbstractWorkflowDefinition<S extends WorkflowState> extend
 
   /**
    * Return true if the given nextAction is permitted for given instance.
-   * @param instance The workflow instance for which the action is checked.
-   * @param nextAction The action to be checked.
+   *
+   * @param instance
+   *          The workflow instance for which the action is checked.
+   * @param nextAction
+   *          The action to be checked.
    * @return True if the nextAction is permitted, false otherwise.
    */
   public boolean isAllowedNextAction(WorkflowInstance instance, NextAction nextAction) {
