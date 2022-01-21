@@ -115,6 +115,9 @@ function WorkflowInstanceSearchForm(props: {
         }
       }
       // Update query parameters to URL
+      if (Object.values(data).every(x => !x)) {
+        data.emptyCriteria = true;
+      }
       history.push(`/workflow?${new URLSearchParams(data).toString()}`);
       props.onSubmit(data);
     },
