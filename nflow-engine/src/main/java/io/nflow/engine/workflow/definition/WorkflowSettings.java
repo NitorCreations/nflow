@@ -298,12 +298,11 @@ public class WorkflowSettings extends ModelObject {
    */
   protected long calculateBinaryBackoffDelay(int retryCount, long minDelay, long maxDelay) {
     BigInteger delay = BigInteger.valueOf(minDelay).multiply(BigInteger.valueOf(2).pow(retryCount));
-    if (BigInteger.valueOf(delay.longValue()).equals(delay)) {
-      return max(minDelay, min(delay.longValue(), maxDelay));
+    try {
+      return max(minDelay, min(delay.longValueExact(), maxDelay));
+    } catch (@SuppressWarnings("unused") ArithmeticException overflow) {
+      return maxDelay;
     }
-    // got overflow in delay calculation
-    // Java 1.8 has delay.longValueExact()
-    return maxDelay;
   }
 
   /**
