@@ -301,7 +301,7 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null, true))
     .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
     try (Response response = resource.fetchWorkflowInstance(42, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
@@ -318,7 +318,7 @@ public class WorkflowInstanceResourceTest {
     when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, false),
         ListWorkflowInstanceResponse.class);
-    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
+    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
   }
 
@@ -333,7 +333,7 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse result = getEntity(
         () -> resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L, false),
         ListWorkflowInstanceResponse.class);
-    verify(workflowInstances).getWorkflowInstance(42, includes, 10L);
+    verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
   }
 

@@ -4,8 +4,6 @@
 - `nflow-engine`
   - BREAKING CHANGE: Remove `WorkflowDefinition`, workflow definitions should extend `AbstractWorkflowDefinition` instead.
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
-- `nflow-rest-api-spring-web` and `nflow-netty`
-  - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
 
 **Details**
 - `nflow-engine`
@@ -15,7 +13,7 @@
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
   - Query interfaces allow to request searching of archived workflow instances if not enough matches found from main tables.
-- Dependency updates
+  - Dependency updates
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
       - https://jira.qos.ch/browse/LOGBACK-1591
