@@ -38,6 +38,11 @@ var Config = function() {
   };
 
   /**
+   * Set to false to avoid skip querying the nflow archive.
+   */
+  this.queryArchive = true
+
+  /**
    * Generate custom content for workflow definition details page.
    * Optional function that returns either a string or a Promise
    * that resolves to a string. The string is added to the page DOM.

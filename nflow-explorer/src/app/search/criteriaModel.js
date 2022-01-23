@@ -1,9 +1,11 @@
 (function () {
   'use strict';
 
-  var m = angular.module('nflowExplorer.search.criteriaModel', []);
+  var m = angular.module('nflowExplorer.search.criteriaModel', [
+    'nflowExplorer.config'
+  ]);
 
-  m.factory('CriteriaModel', function() {
+  m.factory('CriteriaModel', function(config) {
     var self  = {};
     self.model = {};
     self.initialize = initialize;
@@ -31,7 +33,7 @@
 
       q.type = _.result(self.model.definition, 'type');
       q.state = _.result(self.model.state, 'id');
-      q.queryArchive = true;
+      q.queryArchive = config.queryArchive;
       _.defaults(q, _.omit(self.model, ['definition', 'state']));
       return omitNonValues(q);
     }
@@ -40,11 +42,11 @@
       return _.isEmpty(omitNonValues(self.model)) && !self.allDefinitions;
     }
 
-    function onDefinitionChange() {
+    function onDefinitionChange() {
       self.model.state = ensureStateIdInDefinitionStates(_.result(self.model.state, 'id'), self.model.definition);
     }
 
-    function ensureTypeInDefinitions(type, definitions) {
+    function ensureTypeInDefinitions(type, definitions) {
       return nonValueToNull(_.find(definitions, function (d) { return d.type === type; }));
     }
 
@@ -57,7 +59,7 @@
     }
 
     function nonValueToNull(v) {
-      return v || null;
+      return v || null;
     }
   });
 })();

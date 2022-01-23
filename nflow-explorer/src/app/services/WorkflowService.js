@@ -22,7 +22,7 @@
 
     function get(workflowId) {
       return RestHelper.get({
-        path: '/v1/workflow-instance/id/' + workflowId + '?include=actions,currentStateVariables,actionStateVariables&queryArchive=true'
+        path: '/v1/workflow-instance/id/' + workflowId + '?include=actions,currentStateVariables,actionStateVariables&queryArchive=' + config.queryArchive
       });
     }
 
