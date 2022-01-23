@@ -10,10 +10,13 @@ sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
+	maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
 }
 
 dependencies {
-	compile("io.nflow:nflow-engine:8.0.0-SNAPSHOT")
+	implementation 'io.nflow:nflow-engine:8.0.0-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
