@@ -38,6 +38,13 @@
 - `nflow-metrics`
   - Dependency updates
     - metrics 4.2.7
+- `nflow-explorer`
+  - Dependency updates
+    - nodejs 16.13.2
+    - npm 8.1.2
+    - lodash 4.17.21
+    - momentjs 2.29.1
+    - removed IE browser support
 - `nflow-tests`
   - Dependency updates
     - h2 2.1.210
