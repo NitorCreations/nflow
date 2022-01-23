@@ -98,7 +98,7 @@ public class QueryWorkflowInstances extends ModelObject {
   public final Long maxActions;
 
   /**
-   * When set also the workflow archive will be queried.
+   * When set also the workflow archive will be queried if enough results are not found from main tables.
    */
   public final boolean queryArchive;
 
@@ -328,7 +328,7 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * If true the workflow instance archive is also searched.
+     * If true the workflow instance archive is also searched if enough results are not found from main tables.
      *
      * @param queryArchive True if archive should also be queried.
      * @return this.

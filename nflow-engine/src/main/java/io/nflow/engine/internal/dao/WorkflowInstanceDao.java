@@ -742,7 +742,7 @@ public class WorkflowInstanceDao {
     return min(maxResults, workflowInstanceQueryMaxResults);
   }
 
-   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
+  private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
     long maxActions = getMaxActions(requestedMaxActions);
     TablePrefix tablePrefix = sourceTable(instance);
     String sql = sqlVariants
