@@ -427,24 +427,6 @@
   <profiles>
     <profile>
       <activation>
-        <jdk>9</jdk>
-      </activation>
-      <id>java9</id>
-      <properties>
-        <jdk.version>9</jdk.version>
-      </properties>
-    </profile>
-    <profile>
-      <activation>
-        <jdk>10</jdk>
-      </activation>
-      <id>java10</id>
-      <properties>
-        <jdk.version>10</jdk.version>
-      </properties>
-    </profile>
-    <profile>
-      <activation>
         <jdk>11</jdk>
       </activation>
       <id>java11</id>
@@ -518,14 +500,14 @@
             <artifactId>maven-enforcer-plugin</artifactId>
             <executions>
               <execution>
-                <id>require-java8</id>
+                <id>require-java11</id>
                 <goals>
                   <goal>enforce</goal>
                 </goals>
                 <configuration>
                   <rules>
                     <requireJavaVersion>
-                      <version>[1.8,9)</version>
+                      <version>[11)</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
@@ -895,7 +877,6 @@
         <version>${javassist.version}</version>
         <scope>runtime</scope>
       </dependency>
-      <!-- moved to external deps in java 9 -->
       <dependency>
         <groupId>javax.annotation</groupId>
         <artifactId>javax.annotation-api</artifactId>

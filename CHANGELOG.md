@@ -1,11 +1,13 @@
 ## 8.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- BREAKING CHANGE: Remove support for Java 8.
 - `nflow-engine`
   - BREAKING CHANGE: Remove `WorkflowDefinition`, workflow definitions should extend `AbstractWorkflowDefinition` instead.
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
 
 **Details**
+- Remove support for Java 8. Java 11 or newer required.
 - `nflow-engine`
   - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
     - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions.
