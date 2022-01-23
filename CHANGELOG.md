@@ -19,12 +19,12 @@
     - cxf 3.5.0
     - commons.lang3 3.12.0
     - guice 5.0.1
-    - hibernate validator 6.2.0
+    - hibernate validator 6.2.1
     - hikaricp 4.0.3
     - jackson 2.13.1
     - javassist 3.28.0
     - jodatime 2.10.3
-    - slf4j 1.7.32
+    - slf4j 1.7.33
 - `nflow-rest-api`
   - Dependency updates
     - swagger 1.6.4
@@ -34,17 +34,17 @@
     - reflections 0.10.2
 - `nflow-netty`
   - Dependency updates
-    - reactor-netty 1.0.14
+    - reactor-netty 1.0.15
 - `nflow-metrics`
   - Dependency updates
     - metrics 4.2.7
 - `nflow-tests`
   - Dependency updates
-    - h2 2.0.206
+    - h2 2.1.210
       - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
     - mssql 9.4.1
-    - mysql 8.0.27
-    - mariadb 2.7.4
+    - mysql 8.0.28
+    - mariadb 2.7.5
     - postgresql 42.3.1
 - Minimum supported Maven version for building is 3.6
 
