@@ -21,7 +21,6 @@
     var graph;
 
     var self = this;
-    self.savePng = savePng;
     self.saveSvg = saveSvg;
     self.definition = $scope.definition;
     initialize();
@@ -35,11 +34,6 @@
       var start = new Date().getTime();
       graph.drawWorkflowDefinition();
       console.debug('Rendering dagre graph took', (new Date().getTime() - start), 'ms');
-    }
-
-    function savePng() {
-      console.info('Save PNG');
-      graph.save(function() { Graph.downloadImage(svg.size(), svg.dataUrl(), self.definition.type + '.png', 'image/png'); });
     }
 
     function saveSvg() {

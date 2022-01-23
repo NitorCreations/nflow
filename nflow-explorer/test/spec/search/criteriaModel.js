@@ -19,38 +19,44 @@ describe('Service: CriteriaModel', function () {
   describe('initialize', function () {
     it('sets fields with empty input', function () {
       CriteriaModel.initialize({}, definitions);
-      expect(actualModel).toEqual({ definition: null, state: null,
-                                    parentWorkflowId: null });
+      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: null,
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
 
     it('sets definition matching to type', function () {
       CriteriaModel.initialize({ type: 'foo'}, definitions);
-      expect(actualModel).toEqual({ definition: definitions[0], state: null, parentWorkflowId: null });
+      expect(actualModel).toEqual({ definition: definitions[0], state: null, parentWorkflowId: null,
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
 
     it('sets unknown definition as null', function () {
       CriteriaModel.initialize({ type: 'not in definitions'}, definitions);
-      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: null });
+      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: null,
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
 
     it('sets known definition state', function () {
       CriteriaModel.initialize({ type: 'foo', stateId: 'bar'}, definitions);
-      expect(actualModel).toEqual({ definition: definitions[0], state: definitions[0].states[0], parentWorkflowId: null });
+      expect(actualModel).toEqual({ definition: definitions[0], state: definitions[0].states[0], parentWorkflowId: null,
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
 
     it('sets unknown state to null', function () {
       CriteriaModel.initialize({ type: 'foo', stateId: 'not in foo states'}, definitions);
-      expect(actualModel).toEqual({ definition: definitions[0], state: null, parentWorkflowId: null });
+      expect(actualModel).toEqual({ definition: definitions[0], parentWorkflowId: null, state: null,
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
 
     it('sets parentWorkflowId to parsed integer', function () {
       CriteriaModel.initialize({parentWorkflowId: '123'}, definitions);
-      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: '123' });
+      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: '123',
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
 
     it('input properties other than type, state and parentWorkflowId are ignored', function () {
       CriteriaModel.initialize({ foo: 'bar'}, definitions);
-      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: null });
+      expect(actualModel).toEqual({ definition: null, state: null, parentWorkflowId: null,
+                                    status: null, businessKey: null, externalId: null, id: null });
     });
   });
 

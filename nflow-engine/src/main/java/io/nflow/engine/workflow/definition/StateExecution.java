@@ -28,6 +28,13 @@ public interface StateExecution {
   String getBusinessKey();
 
   /**
+   * Set the business key associated to the workflow instance.
+   *
+   * @param businessKey The business key.
+   */
+  void setBusinessKey(String businessKey);
+
+  /**
    * Return the number of retry attempts in the current state.
    *
    * @return Number of retries. Zero when the state is executed for the first
@@ -177,4 +184,10 @@ public interface StateExecution {
    */
   Optional<Long> getParentId();
 
+  /**
+   * Return true if this workflow instance has unfinished child workflow instances.
+   *
+   * @return True if unfinished child workflow instances are found, false otherwise.
+   */
+  boolean hasUnfinishedChildWorkflows();
 }

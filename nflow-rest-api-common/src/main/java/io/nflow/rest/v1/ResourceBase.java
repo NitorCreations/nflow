@@ -1,6 +1,9 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toCollection;
@@ -35,7 +38,6 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -72,11 +74,11 @@ public abstract class ResourceBase {
   public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(final List<String> types,
       final WorkflowDefinitionService workflowDefinitions, final ListWorkflowDefinitionConverter converter,
       final WorkflowDefinitionDao workflowDefinitionDao) {
-    List<AbstractWorkflowDefinition<? extends WorkflowState>> definitions = workflowDefinitions.getWorkflowDefinitions();
+    List<AbstractWorkflowDefinition> definitions = workflowDefinitions.getWorkflowDefinitions();
     Set<String> reqTypes = new HashSet<>(types);
     Set<String> foundTypes = new HashSet<>();
     List<ListWorkflowDefinitionResponse> response = new ArrayList<>();
-    for (AbstractWorkflowDefinition<? extends WorkflowState> definition : definitions) {
+    for (AbstractWorkflowDefinition definition : definitions) {
       if (reqTypes.isEmpty() || reqTypes.contains(definition.getType())) {
         foundTypes.add(definition.getType());
         response.add(converter.convert(definition));
@@ -123,6 +125,12 @@ public abstract class ResourceBase {
         msg += "API updated state variables. ";
       }
     }
+    if (!isEmpty(req.businessKey)) {
+      builder.setBusinessKey(req.businessKey);
+      if (isBlank(req.actionDescription)) {
+        msg = "API changed business key to " + req.businessKey + ". ";
+      }
+    }
     if (msg.isEmpty()) {
       return true;
     }
@@ -133,27 +141,28 @@ public abstract class ResourceBase {
     return workflowInstances.updateWorkflowInstance(instance, action);
   }
 
-  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(final List<Long> ids, final List<String> types,
-      final Long parentWorkflowId, final Long parentActionId, final List<String> states,
-      final List<WorkflowInstanceStatus> statuses, final String businessKey, final String externalId, final String include,
-      final Long maxResults, final Long maxActions, final WorkflowInstanceService workflowInstances,
-      final ListWorkflowInstanceConverter listWorkflowConverter) {
+  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(List<Long> ids, List<String> types, Long parentWorkflowId,
+      Long parentActionId, List<String> states, List<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
+      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions,
+      WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder() //
-        .addIds(ids.toArray(new Long[ids.size()])) //
-        .addTypes(types.toArray(new String[types.size()])) //
-        .setParentWorkflowId(parentWorkflowId) //
-        .setParentActionId(parentActionId) //
-        .addStates(states.toArray(new String[states.size()])) //
-        .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()])) //
-        .setBusinessKey(businessKey) //
-        .setExternalId(externalId) //
-        .setIncludeCurrentStateVariables(includeStrings.contains(currentStateVariables)) //
-        .setIncludeActions(includeStrings.contains(actions)) //
-        .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables)) //
-        .setMaxResults(maxResults) //
-        .setMaxActions(maxActions) //
-        .setIncludeChildWorkflows(includeStrings.contains(childWorkflows)).build();
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
+        .addIds(ids.toArray(new Long[ids.size()]))
+        .addTypes(types.toArray(new String[types.size()]))
+        .setParentWorkflowId(parentWorkflowId)
+        .setParentActionId(parentActionId)
+        .addStates(states.toArray(new String[states.size()]))
+        .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()]))
+        .setBusinessKey(businessKey)
+        .setExternalId(externalId)
+        .setIncludeCurrentStateVariables(includeStrings.contains(currentStateVariables))
+        .setIncludeActions(includeStrings.contains(actions))
+        .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables))
+        .setMaxResults(maxResults)
+        .setMaxActions(maxActions)
+        .setIncludeChildWorkflows(includeStrings.contains(childWorkflows))
+        .setStateVariable(stateVariableKey, stateVariableValue)
+        .build();
     Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
     Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
     return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums));
@@ -176,15 +185,21 @@ public abstract class ResourceBase {
     return listWorkflowConverter.convert(instance, includes);
   }
 
+  protected int resolveExceptionHttpStatus(Throwable t) {
+    if (t instanceof IllegalArgumentException) {
+      return HTTP_BAD_REQUEST;
+    } else if (t instanceof NflowNotFoundException) {
+      return HTTP_NOT_FOUND;
+    }
+    return HTTP_INTERNAL_ERROR;
+  }
+
   protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
     try {
       return response.get();
-    } catch (IllegalArgumentException e) {
-      return error.apply(400, new ErrorResponse(e.getMessage()));
-    } catch (NflowNotFoundException e) {
-      return error.apply(404, new ErrorResponse(e.getMessage()));
     } catch (Throwable t) {
-      return error.apply(500, new ErrorResponse(t.getMessage()));
+      int code = resolveExceptionHttpStatus(t);
+      return error.apply(code, new ErrorResponse(t.getMessage()));
     }
   }
 }

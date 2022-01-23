@@ -1,64 +1,33 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.end;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.error;
-import static io.nflow.rest.v1.DummyTestWorkflow.State.start;
+import static io.nflow.rest.v1.TestState.BEGIN;
+import static io.nflow.rest.v1.TestState.DONE;
+import static io.nflow.rest.v1.TestState.ERROR;
 import static org.joda.time.Duration.millis;
 import static org.joda.time.Period.days;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class DummyTestWorkflow extends WorkflowDefinition<DummyTestWorkflow.State> {
-
-  public static enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    start(WorkflowStateType.start, "start desc"),
-    error(WorkflowStateType.manual, "error desc"),
-    end(WorkflowStateType.end, "end desc");
-
-    private WorkflowStateType type;
-    private String description;
-
-    private State(WorkflowStateType type, String description) {
-      this.type = type;
-      this.description = description;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    @Override
-    public String getDescription() {
-      return description;
-    }
-  }
+public class DummyTestWorkflow extends AbstractWorkflowDefinition {
 
   public DummyTestWorkflow() {
-    super("dummy", start, error,
+    super("dummy", BEGIN, ERROR,
         new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(300)).setMaxErrorTransitionDelay(millis(1000))
             .setShortTransitionDelay(millis(200)).setMaxRetries(10).setHistoryDeletableAfter(days(3)).build());
-    permit(start, end, error);
-    permit(start, error);
-    permit(error, end);
+    permit(BEGIN, DONE, ERROR);
+    permit(BEGIN, ERROR);
+    permit(ERROR, DONE);
   }
 
-  public NextAction start(@SuppressWarnings("unused") StateExecution execution) {
-    return moveToState(end, "Go to end state");
-  }
-
-  public void error(@SuppressWarnings("unused") StateExecution execution) {
-  }
-
-  public void end(@SuppressWarnings("unused") StateExecution execution) {
+  public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
+    return moveToState(DONE, "Go to end state");
   }
 
   @Override

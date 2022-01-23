@@ -1,25 +1,25 @@
 package io.nflow.tests;
 
 import static io.nflow.tests.demo.workflow.SlowWorkflow.SLOW_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.TestState.DONE;
+import static io.nflow.tests.demo.workflow.TestState.PROCESS;
 import static java.lang.Thread.sleep;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import io.nflow.tests.extension.NflowServerConfig;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.tests.demo.workflow.SlowWorkflow;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExecutorRecoveryTest extends AbstractNflowTest {
@@ -42,7 +42,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   public void submitSlowWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = SLOW_WORKFLOW_TYPE;
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
   }
 
@@ -51,12 +51,12 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   public void checkSlowWorkflowStarted() throws Exception {
     for (int i=0; i<5; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
-      if (wf != null && SlowWorkflow.State.process.name().equals(wf.state)) {
+      if (wf != null && PROCESS.name().equals(wf.state)) {
         return;
       }
       sleep(1000);
     }
-    fail("Workflow did not enter state " + SlowWorkflow.State.process.name());
+    fail("Workflow did not enter state " + PROCESS.name());
   }
 
   @Test
@@ -78,7 +78,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   public void checkSlowWorkflowFinishes() throws Exception {
     for (int i=0; i<30; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
-      if (wf != null && SlowWorkflow.State.done.name().equals(wf.state)) {
+      if (wf != null && DONE.name().equals(wf.state)) {
         verifyBeginAndProcessAreExecutedByDifferentExecutors(wf);
         return;
       }

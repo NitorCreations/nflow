@@ -1,4 +1,4 @@
-<img src="https://github.com/NitorCreations/nflow/blob/master/nflow-documentation/nflow-logo-no-borders.png" height="100" width="195" />
+<img src="./nflow-documentation/nflow-logo-dark.svg" height="100" width="195" />
 
 nFlow is a battle-proven solution for orchestrating business processes. Depending on where you're coming from, you can view nFlow as any of the following:
 
@@ -6,6 +6,8 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 * Guaranteed delivery computing
 * Replacement for [business process engine](https://www.techopedia.com/definition/26689/business-process-engine-bpe)
 * Persistent [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine)
+
+nFlow has been under development since 2014-01-14 and version 1.0.0 was released on 2014-09-13.
 
 **Key features**
 
@@ -28,7 +30,7 @@ Create a Maven project. Add the following to your  `pom.xml`. nFlow is available
 <dependency>
   <groupId>io.nflow</groupId>
   <artifactId>nflow-jetty</artifactId>
-  <version>7.1.0</version>
+  <version>7.4.0</version>
 </dependency>
 ```
 Create a class for starting nFlow in embedded Jetty using H2 memory database.

@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
+import javax.ws.rs.core.Response;
+
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,10 +49,11 @@ public class StatisticsResourceTest {
   public void queryStatisticsDelegatesToStatisticsService() {
     when(service.getStatistics()).thenReturn(stats);
     when(converter.convert(stats)).thenReturn(expected);
-    StatisticsResponse response = resource.queryStatistics().readEntity(StatisticsResponse.class);
-
-    verify(service).getStatistics();
-    assertThat(response, is(response));
+    try (Response response = resource.queryStatistics()) {
+      StatisticsResponse statistics = response.readEntity(StatisticsResponse.class);
+      verify(service).getStatistics();
+      assertThat(statistics, is(statistics));
+    }
   }
 
   @Test
@@ -59,10 +62,10 @@ public class StatisticsResourceTest {
     when(service.getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)).thenReturn(statsMap);
     when(converter.convert(statsMap)).thenReturn(new WorkflowDefinitionStatisticsResponse());
 
-    WorkflowDefinitionStatisticsResponse statistics = resource.getStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)
-        .readEntity(WorkflowDefinitionStatisticsResponse.class);
-
-    verify(service).getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore);
-    assertThat(statistics.stateStatistics.size(), is(0));
+    try (Response response = resource.getStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)) {
+      WorkflowDefinitionStatisticsResponse statistics = response.readEntity(WorkflowDefinitionStatisticsResponse.class);
+      verify(service).getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore);
+      assertThat(statistics.stateStatistics.size(), is(0));
+    }
   }
 }

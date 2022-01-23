@@ -28,7 +28,7 @@ public class WorkflowInstancePreProcessor {
   }
 
   public WorkflowInstance process(WorkflowInstance instance) {
-    AbstractWorkflowDefinition<?> def = workflowDefinitionService.getWorkflowDefinition(instance.type);
+    AbstractWorkflowDefinition def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {
       throw new IllegalArgumentException("No workflow definition found for type [" + instance.type + "]");
     }

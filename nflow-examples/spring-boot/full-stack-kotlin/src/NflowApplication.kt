@@ -5,12 +5,12 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory
 import io.nflow.rest.config.RestConfiguration
 import nflow.kotlin.workflow.ExampleWorkflow
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import javax.annotation.PostConstruct
+import org.springframework.context.event.EventListener;
 import javax.inject.Inject
-
 
 @Import(RestConfiguration::class)
 @Configuration
@@ -25,7 +25,7 @@ class WorkflowApplication {
     @Inject
     private lateinit var workflowInstances: WorkflowInstanceService
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     fun createExampleWorkflowInstance() {
         workflowInstances.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
                 .setType(ExampleWorkflow.TYPE)

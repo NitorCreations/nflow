@@ -89,8 +89,6 @@ create or replace trigger nflow_workflow_definition_update_modified
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 create table nflow_archive_workflow (
   id int not null primary key,
@@ -106,16 +104,16 @@ create table nflow_archive_workflow (
   next_activation timestamp(3),
   external_next_activation timestamp(3),
   executor_id int,
-  retries int not null default 0,
+  retries int not null,
   created timestamp(3) not null,
   modified timestamp(3) not null,
   started timestamp(3),
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 create table nflow_archive_workflow_action (
   id int not null primary key,

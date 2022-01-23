@@ -1,9 +1,9 @@
 package io.nflow.engine.internal.dao;
 
-import static com.nitorcreations.Matchers.containsElementsInAnyOrder;
-import static com.nitorcreations.Matchers.reflectEquals;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
@@ -12,12 +12,11 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.DummyTestWorkflow;
-import io.nflow.engine.service.DummyTestWorkflow.DummyTestState;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import org.junit.jupiter.api.Test;
 
 public class WorkflowDefinitionDaoTest extends BaseDaoTest {
 
@@ -51,14 +50,8 @@ public class WorkflowDefinitionDaoTest extends BaseDaoTest {
     assertThat(stored.type, is(convertedOriginal.type));
     assertThat(stored.onError, is(convertedOriginal.onError));
     assertThat(stored.description, is(convertedOriginal.description));
-    assertThat(stored.states.size(), is(convertedOriginal.states.size()));
-    for (int i = 0; i < convertedOriginal.states.size(); i++) {
-      assertThat(stored.states.get(i), reflectEquals(convertedOriginal.states.get(i)));
-    }
-    assertThat(stored.supportedSignals.size(), is(convertedOriginal.supportedSignals.size()));
-    for (int i = 0; i < convertedOriginal.supportedSignals.size(); i++) {
-      assertThat(stored.supportedSignals.get(i), reflectEquals(convertedOriginal.supportedSignals.get(i)));
-    }
+    assertThat(stored.states, contains(convertedOriginal.states.toArray()));
+    assertThat(stored.supportedSignals, contains(convertedOriginal.supportedSignals.toArray()));
   }
 
   @Test
@@ -70,14 +63,14 @@ public class WorkflowDefinitionDaoTest extends BaseDaoTest {
     assertThat(convertedOriginal.states.size(), is(original.getStates().size()));
     for (StoredWorkflowDefinition.State convertedState : convertedOriginal.states) {
       boolean foundMatchingState = false;
-      for (DummyTestState originalState : original.getStates()) {
+      for (WorkflowState originalState : original.getStates()) {
         if (originalState.name().equals(convertedState.id)) {
           assertThat(convertedState.description, is(originalState.getDescription()));
           WorkflowState originalFailureTransition = original.getFailureTransitions().get(originalState.name());
           assertThat(convertedState.onFailure, is(originalFailureTransition != null ? originalFailureTransition.name() : null));
           List<String> originalStateTransitions = original.getAllowedTransitions().get(originalState.name());
           if (originalStateTransitions != null) {
-            assertThat(convertedState.transitions, containsElementsInAnyOrder(originalStateTransitions));
+            assertThat(convertedState.transitions, containsInAnyOrder(originalStateTransitions.toArray()));
           } else {
             assertThat(convertedState.transitions.size(), is(0));
           }

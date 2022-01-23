@@ -61,7 +61,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
 
   }
 
-  public static class Signal {
+  public static class Signal extends ModelObject {
 
     @ApiModelProperty(value = "Signal value", required = true)
     public int value;

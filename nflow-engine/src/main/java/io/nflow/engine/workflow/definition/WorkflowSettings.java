@@ -7,12 +7,14 @@ import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.Duration.standardDays;
 import static org.joda.time.Duration.standardMinutes;
 import static org.joda.time.Duration.standardSeconds;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
@@ -20,8 +22,10 @@ import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableDuration;
 import org.joda.time.ReadablePeriod;
+import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.model.ModelObject;
 
 /**
@@ -67,6 +71,14 @@ public class WorkflowSettings extends ModelObject {
    */
   public final short defaultPriority;
 
+  private final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
+
+  private static final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> DEFAULT_EXCEPTION_ANALYZER = (state,
+      thrown) -> new StateProcessExceptionHandling.Builder()
+          .setRetryable(!thrown.getClass().isAnnotationPresent(NonRetryable.class)).build();
+
+  private static final Logger logger = getLogger(WorkflowSettings.class);
+
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay.getMillis();
     this.maxErrorTransitionDelay = builder.maxErrorTransitionDelay.getMillis();
@@ -77,12 +89,12 @@ public class WorkflowSettings extends ModelObject {
     this.historyDeletableAfter = builder.historyDeletableAfter;
     this.deleteHistoryCondition = builder.deleteHistoryCondition;
     this.defaultPriority = builder.defaultPriority;
+    this.exceptionAnalyzer = builder.exceptionAnalyzer;
   }
 
   /**
    * Builder for workflow settings.
    */
-  @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure")
   public static class Builder {
 
     ReadableDuration maxErrorTransitionDelay = standardDays(1);
@@ -94,6 +106,7 @@ public class WorkflowSettings extends ModelObject {
     ReadablePeriod historyDeletableAfter;
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
+    BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
 
     /**
      * Returns true randomly every n:th time.
@@ -103,6 +116,7 @@ public class WorkflowSettings extends ModelObject {
      *          once per 100 calls.
      * @return Producer of boolean values
      */
+    @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure here")
     public static BooleanSupplier onAverageEveryNthExecution(int n) {
       return () -> ThreadLocalRandom.current().nextInt(n) == 0;
     }
@@ -238,6 +252,18 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
+     * Set the exception analyzer function.
+     *
+     * @param exceptionAnalyzer
+     *          The exception analyzer function.
+     * @return this.
+     */
+    public Builder setExceptionAnalyzer(BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer) {
+      this.exceptionAnalyzer = exceptionAnalyzer;
+      return this;
+    }
+
+    /**
      * Create workflow settings object.
      *
      * @return Workflow settings.
@@ -317,4 +343,23 @@ public class WorkflowSettings extends ModelObject {
     return defaultPriority;
   }
 
+  /**
+   * Analyze exception thrown by a state method to determine how it should be handled.
+   *
+   * @param state
+   *          The state that failed to be processed.
+   * @param thrown
+   *          The exception to be analyzed.
+   * @return How the exception should be handled.
+   */
+  public StateProcessExceptionHandling analyzeExeption(WorkflowState state, Throwable thrown) {
+    if (exceptionAnalyzer != null) {
+      try {
+        return exceptionAnalyzer.apply(state, thrown);
+      } catch (Exception e) {
+        logger.error("Custom exception analysis failed, using default analyzer.", e);
+      }
+    }
+    return DEFAULT_EXCEPTION_ANALYZER.apply(state, thrown);
+  }
 }

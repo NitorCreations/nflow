@@ -1,9 +1,9 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.config.Profiles.MYSQL;
+import static io.nflow.tests.demo.workflow.TestState.BEGIN;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -13,7 +13,6 @@ import static org.joda.time.DateTime.now;
 
 import javax.inject.Inject;
 
-import io.nflow.tests.extension.NflowServerConfig;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -27,6 +26,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FutureWorkflowTest extends AbstractNflowTest {
@@ -59,7 +59,7 @@ public class FutureWorkflowTest extends AbstractNflowTest {
     req.type = "demo";
     req.businessKey = "1";
     req.activationTime = FUTURE;
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
   }
 
@@ -74,14 +74,14 @@ public class FutureWorkflowTest extends AbstractNflowTest {
   @Order(3)
   public void testNonUpdate() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    updateWorkflowInstance(resp.id, req);
+    updateWorkflowInstance(resp.id, req, String.class);
     verifyWorkflowNotStarted();
   }
 
   private void verifyWorkflowNotStarted() {
     ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
     assertThat(wf.started, nullValue());
-    assertThat(wf.state, is(DemoWorkflow.State.begin.name()));
+    assertThat(wf.state, is(BEGIN.name()));
     assertThat(wf.nextActivation.getMillis(), is(FUTURE.getMillis()));
   }
 
@@ -90,7 +90,7 @@ public class FutureWorkflowTest extends AbstractNflowTest {
   public void scheduleToNow() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now();
-    updateWorkflowInstance(resp.id, req);
+    updateWorkflowInstance(resp.id, req, String.class);
   }
 
   @Test
@@ -99,6 +99,6 @@ public class FutureWorkflowTest extends AbstractNflowTest {
     SECONDS.sleep(10);
     ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
     assertThat(wf.started, notNullValue());
-    assertThat(wf.state, not(is(DemoWorkflow.State.begin.name())));
+    assertThat(wf.state, not(is(BEGIN.name())));
   }
 }

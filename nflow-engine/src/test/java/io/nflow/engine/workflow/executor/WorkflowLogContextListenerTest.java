@@ -1,9 +1,9 @@
 package io.nflow.engine.workflow.executor;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -30,7 +30,7 @@ public class WorkflowLogContextListenerTest {
   private final WorkflowLogContextListener listener = new WorkflowLogContextListener(LOG_CONTEXT);
 
   @Mock
-  private AbstractWorkflowDefinition<?> definition;
+  private AbstractWorkflowDefinition definition;
 
   @Mock
   private StateExecution stateExecution;
@@ -53,7 +53,7 @@ public class WorkflowLogContextListenerTest {
     listener.beforeProcessing(context);
 
     assertThat(MDC.get(LOG_CONTEXT), is(equalTo("type:type, instanceId:1, extId:extId, businessKey:businessKey")));
-    verify(stateVariables).entrySet();
+    verify(stateVariables).size();
   }
 
   @Test

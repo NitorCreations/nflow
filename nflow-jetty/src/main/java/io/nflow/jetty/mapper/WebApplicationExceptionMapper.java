@@ -13,6 +13,8 @@ import io.nflow.rest.v1.msg.ErrorResponse;
 public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplicationException> {
   @Override
   public Response toResponse(WebApplicationException e) {
-    return status(e.getResponse().getStatus()).entity(new ErrorResponse(e.getMessage())).build();
+    try (Response response = e.getResponse()) {
+      return status(response.getStatus()).entity(new ErrorResponse(e.getMessage())).build();
+    }
   }
 }

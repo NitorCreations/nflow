@@ -38,7 +38,7 @@
       })
       .state('search', {
         parent: 'searchTab',
-        url: '/search?type&state&parentWorkflowId',
+        url: '/search?type&state&status&businessKey&externalId&id&parentWorkflowId',
         templateUrl: 'app/search/search.html',
         controller: 'SearchCtrl as ctrl',
         resolve: {

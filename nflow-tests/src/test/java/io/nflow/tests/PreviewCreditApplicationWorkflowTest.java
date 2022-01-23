@@ -1,9 +1,10 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static io.nflow.tests.demo.workflow.CreditApplicationWorkflow.PREVIEW_CREDIT_APPLICATION;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -11,7 +12,6 @@ import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
@@ -50,12 +50,12 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
   public void createCreditApplicationWorkflow() {
     req = new CreateWorkflowInstanceRequest();
     req.type = "creditApplicationProcess";
-    req.startState = CreditApplicationWorkflow.State.previewCreditApplication.toString();
-    req.businessKey = UUID.randomUUID().toString();
-    req.stateVariables.put("requestData", (new ObjectMapper()).valueToTree(
-            new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
-    req.externalId = UUID.randomUUID().toString();
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    req.startState = PREVIEW_CREDIT_APPLICATION.name();
+    req.businessKey = randomUUID().toString();
+    req.stateVariables.put("requestData",
+        (new ObjectMapper()).valueToTree(new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
+    req.externalId = randomUUID().toString();
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
   }
 
@@ -73,7 +73,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "grantLoan";
-    try (Response response = fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq)) {
+    try (Response response = updateWorkflowInstance(resp.id, ureq, Response.class)) {
       assertThat(response.getStatusInfo().getFamily(), is(Family.SUCCESSFUL));
     }
   }

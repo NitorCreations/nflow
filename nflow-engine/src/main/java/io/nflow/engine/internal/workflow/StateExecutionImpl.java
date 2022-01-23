@@ -45,6 +45,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private boolean createAction = true;
   private String[] wakeUpParentStates;
   private boolean historyCleaningForced = false;
+  private String businessKey;
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
@@ -84,6 +85,15 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   @Override
   public String getBusinessKey() {
     return instance.businessKey;
+  }
+
+  @Override
+  public void setBusinessKey(String businessKey) {
+    this.businessKey = businessKey;
+  }
+
+  public String getNewBusinessKey() {
+    return businessKey;
   }
 
   @Override
@@ -268,7 +278,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return historyCleaningForced;
   }
 
-  public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition<?> definition) {
+  public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition definition) {
     if (getRetries() >= definition.getSettings().maxRetries) {
       isRetryCountExceeded = true;
       handleFailure(definition, "Max retry count exceeded");
@@ -277,7 +287,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
   }
 
-  public void handleFailure(AbstractWorkflowDefinition<?> definition, String failureReason) {
+  public void handleFailure(AbstractWorkflowDefinition definition, String failureReason) {
     setRetry(false);
     String currentStateName = getCurrentStateName();
     WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);
@@ -299,4 +309,8 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
   }
 
+  @Override
+  public boolean hasUnfinishedChildWorkflows() {
+    return workflowInstanceService.hasUnfinishedChildWorkflows(instance.id);
+  }
 }

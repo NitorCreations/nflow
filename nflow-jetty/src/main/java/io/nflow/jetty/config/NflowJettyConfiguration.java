@@ -58,7 +58,8 @@ public class NflowJettyConfiguration {
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
       StatisticsResource statisticsResource, MaintenanceResource maintenanceResource,
-      @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
+      @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper, JAXRSBeanValidationInInterceptor validationInInterceptor,
+      JAXRSBeanValidationOutInterceptor validationOutInterceptor) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
         workflowInstanceResource,
@@ -80,9 +81,19 @@ public class NflowJettyConfiguration {
         ));
     factory.setFeatures(asList(new LoggingFeature(), swaggerFeature()));
     factory.setBus(cxf());
-    factory.setInInterceptors(singletonList(new JAXRSBeanValidationInInterceptor()));
-    factory.setOutInterceptors(singletonList(new JAXRSBeanValidationOutInterceptor()));
+    factory.setInInterceptors(singletonList(validationInInterceptor));
+    factory.setOutInterceptors(singletonList(validationOutInterceptor));
     return factory.create();
+  }
+
+  @Bean
+  public JAXRSBeanValidationInInterceptor validationInInterceptor() {
+    return new JAXRSBeanValidationInInterceptor();
+  }
+
+  @Bean
+  public JAXRSBeanValidationOutInterceptor validationOutInterceptor() {
+    return new JAXRSBeanValidationOutInterceptor();
   }
 
   private Feature swaggerFeature() {

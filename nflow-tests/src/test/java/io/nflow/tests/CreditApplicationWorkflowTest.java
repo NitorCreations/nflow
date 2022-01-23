@@ -4,8 +4,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -52,7 +51,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     req.stateVariables.put("requestData", (new ObjectMapper()).valueToTree(
             new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
     req.externalId = UUID.randomUUID().toString();
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
   }
 
@@ -68,7 +67,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "grantLoan";
-    fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq);
+    updateWorkflowInstance(resp.id, ureq, String.class);
   }
 
   @Test
@@ -77,7 +76,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     UpdateWorkflowInstanceRequest ureq = new UpdateWorkflowInstanceRequest();
     ureq.nextActivationTime = now();
     ureq.state = "invalid";
-    try (Response response = fromClient(workflowInstanceIdResource, true).path(resp.id).put(ureq)) {
+    try (Response response = updateWorkflowInstance(resp.id, ureq, Response.class)) {
       assertThat(response.getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
       assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("No state 'invalid'"));

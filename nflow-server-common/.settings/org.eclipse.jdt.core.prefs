@@ -1,4 +1,4 @@
-#Thu Apr 23 19:19:08 EEST 2020
+#Mon Sep 14 12:14:37 EEST 2020
 org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems=enabled
 org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation=ignore
 org.eclipse.jdt.core.formatter.insert_space_before_comma_in_for_inits=do not insert
@@ -216,8 +216,8 @@ org.eclipse.jdt.core.formatter.tabulation.char=space
 org.eclipse.jdt.core.formatter.insert_space_after_lambda_arrow=insert
 org.eclipse.jdt.core.formatter.insert_space_after_comma_in_allocation_expression=insert
 org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts=disabled
-org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors=disabled
 org.eclipse.jdt.core.formatter.insert_space_after_question_in_wildcard=do not insert
+org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors=disabled
 org.eclipse.jdt.core.formatter.wrap_before_binary_operator=true
 org.eclipse.jdt.core.formatter.insert_space_before_comma_in_annotation=do not insert
 org.eclipse.jdt.core.formatter.format_guardian_clause_on_one_line=false

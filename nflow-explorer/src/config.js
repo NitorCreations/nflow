@@ -71,4 +71,33 @@ var Config = function() {
     return null;
   };
 
+  // Replaces HTML page title by given string
+  this.htmlTitle = undefined;
+
+  // Replaces nFlow logo in header by image in given location
+  this.nflowLogoFile = undefined;
+
+  // When true, hides the sticky footer with copyright
+  this.hideFooter = false;
+
+  /**
+   * Customizes columns shown in workflow instance search, for example following shows workflow id and type (which are
+   * always first columns by default) followed by business key, state variable "cron" and next activation.
+   * this.searchResultColumns = [
+   *   {
+   *     field: 'businessKey',
+   *     label: 'Business key'
+   *   },
+   *   {
+   *     field: 'stateVariables.cron',
+   *     label: 'CRON'
+   *   },
+   *   {
+   *     field: 'nextActivation',
+   *     label: 'Next activation',
+   *     type: 'timestamp'
+   *   }
+   * ]
+   */
+  this.searchResultColumns = undefined;
 };

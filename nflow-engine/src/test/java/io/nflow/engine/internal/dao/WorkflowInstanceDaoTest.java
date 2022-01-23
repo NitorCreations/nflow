@@ -18,9 +18,9 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -42,7 +42,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,6 +68,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRo
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.executor.StateVariableValueTooLongException;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -109,9 +109,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void queryNonExistingWorkflowThrowsException() {
-    assertThrows(EmptyResultDataAccessException.class, () ->
-      dao.getWorkflowInstance(-42, emptySet(), null)
-    );
+    assertThrows(EmptyResultDataAccessException.class, () -> dao.getWorkflowInstance(-42, emptySet(), null));
   }
 
   @Test
@@ -175,7 +173,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     DateTime started = now();
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
         dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null)).setStatus(inProgress).setState("updateState")
-            .setStateText("update text").setStartedIfNotSet(started).build();
+            .setStateText("update text").setStartedIfNotSet(started).setBusinessKey("newBusinessKey").build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id, emptySet(), null);
     assertThat(polledInstance.status, equalTo(executing));
     final DateTime originalModifiedTime = polledInstance.modified;
@@ -195,6 +193,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getInt("executor_id") != 0, equalTo(i2.status == executing));
         assertThat(rs.getTimestamp("modified").getTime(), greaterThan(originalModifiedTime.getMillis()));
         assertThat(rs.getTimestamp("started").getTime(), is(equalTo(started.getMillis())));
+        assertThat(rs.getString("business_key"), is(equalTo(i2.businessKey)));
       }
     });
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().setBusinessKey("newKey").build();
@@ -383,6 +382,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
         assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is(instance.businessKey));
       }
     });
   }
@@ -402,6 +402,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), is("manualState"));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
         assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is(instance.businessKey));
       }
     });
   }
@@ -422,6 +423,27 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         assertThat(rs.getString("state"), is(instance.state));
         assertThat(rs.getTimestamp("next_activation").getTime(), is(tomorrow.getMillis()));
         assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is(instance.businessKey));
+      }
+    });
+  }
+
+  @Test
+  public void updateNotRunningWorkflowInstanceUpdatesBusinessKeyForNotRunningInstance() {
+    final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
+    long id = dao.insertWorkflowInstance(instance);
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setBusinessKey("modifiedKey")
+        .setStateText("modified").build();
+    boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
+    assertThat(updated, is(true));
+    jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        assertThat(rs.getString("status"), is(instance.status.name()));
+        assertThat(rs.getString("state"), is(instance.state));
+        assertThat(rs.getTimestamp("next_activation").getTime(), is(instance.nextActivation.getMillis()));
+        assertThat(rs.getString("state_text"), is("modified"));
+        assertThat(rs.getString("business_key"), is("modifiedKey"));
       }
     });
   }
@@ -526,11 +548,11 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertEquals("with wf as (update nflow_workflow set status = ?::workflow_status, state = ?, state_text = ?, "
         + "next_activation = (case when ?::timestamptz is null then null when external_next_activation is null then "
         + "?::timestamptz else least(?::timestamptz, external_next_activation) end), external_next_activation = null, "
-        + "executor_id = ?, retries = ?, started = (case when started is null then ? else started end) where id = ? "
-        + "and executor_id = 42 returning id), "
+        + "executor_id = ?, retries = ?, business_key = ?, started = (case when started is null then ? else started end) "
+        + "where id = ? and executor_id = 42 returning id), "
         + "act as (insert into nflow_workflow_action(workflow_id, executor_id, type, state, state_text, retry_no, "
         + "execution_start, execution_end) select wf.id, ?, ?::action_type, ?, ?, ?, ?, ? from wf returning id), "
-        + "ins17 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+        + "ins18 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
         + "select wf.id,act.id,?,? from wf,act) select act.id from act", sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
@@ -543,6 +565,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(i2.nextActivation.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) 42));
     assertThat(args.getAllValues().get(i++), is((Object) i2.retries));
+    assertThat(args.getAllValues().get(i++), is((Object) i2.businessKey));
     assertThat(args.getAllValues().get(i++), is((Object) new Timestamp(a1.executionStart.getMillis())));
     assertThat(args.getAllValues().get(i++), is((Object) i2.id));
     assertThat(args.getAllValues().get(i++), is((Object) 42));
@@ -566,19 +589,17 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     DateTime started = now();
     WorkflowInstance wf = new WorkflowInstance.Builder().setStatus(inProgress).setState("updateState").setStateText("update text")
-        .setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1))
-        .setRetries(3).setId(43).putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1))
-        .setStartedIfNotSet(started).setPriority((short) 10).build();
+        .setParentWorkflowId(110L).setParentActionId(421L).setNextActivation(started.plusSeconds(1)).setRetries(3).setId(43)
+        .putStateVariable("A", "B").putStateVariable("C", "D").setSignal(Optional.of(1)).setStartedIfNotSet(started)
+        .setPriority((short) 10).build();
 
     d.insertWorkflowInstance(wf);
-    assertEquals(
-        "with wf as (insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, "
-            + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
-            + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
-            + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
-            + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
-            + "select wf.id,0,?,? from wf) select wf.id from wf",
-        sql.getValue());
+    assertEquals("with wf as (insert into nflow_workflow(type, priority, parent_workflow_id, parent_action_id, business_key, "
+        + "external_id, executor_group, status, state, state_text, next_activation, workflow_signal) values "
+        + "(?, ?, ?, ?, ?, ?, ?, ?::workflow_status, ?, ?, ?, ?) returning id), ins12 as "
+        + "(insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) select wf.id,0,?,? from wf), "
+        + "ins14 as (insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value) "
+        + "select wf.id,0,?,? from wf) select wf.id from wf", sql.getValue());
     assertThat(args.getAllValues().size(), is(countMatches(sql.getValue(), "?")));
 
     int i = 0;
@@ -745,7 +766,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     String state = dao.getWorkflowInstanceState(workflowInstanceId);
 
-    assertThat(state, is("CreateLoan"));
+    assertThat(state, is(TestState.BEGIN.name()));
   }
 
   @Test
@@ -795,7 +816,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, new ArrayList<String>());
+    dao.wakeUpWorkflowExternally(parentWorkflowId, emptyList());
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId, emptySet(), null);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }
@@ -820,7 +841,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(i2.parentWorkflowId, equalTo(parentWorkflowId));
     assertThat(i2.parentActionId, equalTo(parentActionId));
 
-    dao.wakeUpWorkflowExternally(parentWorkflowId, asList("CreateLoan"));
+    dao.wakeUpWorkflowExternally(parentWorkflowId, asList(TestState.BEGIN.name()));
     WorkflowInstance wakenWorkflow = dao.getWorkflowInstance(parentWorkflowId, emptySet(), null);
     assertTrue(wakenWorkflow.nextActivation.isBefore(now.plusMinutes(1)));
   }
@@ -867,10 +888,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     String status = jdbc.queryForObject("select status from nflow_workflow where id = ?", String.class, id);
     assertThat(status, is(inProgress.name()));
 
-    List<WorkflowInstanceAction> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(sqlVariant, Collections.emptyMap()), id);
+    List<WorkflowInstanceAction.Builder> actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
+        new WorkflowInstanceActionRowMapper(sqlVariant), id);
     assertThat(actions.size(), is(1));
-    WorkflowInstanceAction workflowInstanceAction = actions.get(0);
+    WorkflowInstanceAction workflowInstanceAction = actions.get(0).build();
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
@@ -881,7 +902,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(executorId, is(nullValue()));
 
     actions = jdbc.query("select * from nflow_workflow_action where workflow_id = ?",
-        new WorkflowInstanceActionRowMapper(sqlVariant, Collections.emptyMap()), id);
+        new WorkflowInstanceActionRowMapper(sqlVariant), id);
     assertThat(actions.size(), is(1));
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));

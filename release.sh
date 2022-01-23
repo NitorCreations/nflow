@@ -1,5 +1,7 @@
 #!/bin/bash
 
+RELEASE_DIR="$PWD"
+
 prompt_continue() {
   echo
   echo "Next: $1"
@@ -136,3 +138,48 @@ EOF
 else
   echo "Github API token not found (.github_api_token -file), make Github release manually"
 fi
+
+NFLOW_WIKI_CHECKOUT_DIR="/tmp/nflow-release-tmp-$RANDOM"
+prompt_continue "cloning nFlow Wiki under $NFLOW_WIKI_CHECKOUT_DIR for version number updates"
+
+if mkdir -p "$NFLOW_WIKI_CHECKOUT_DIR" ; then
+  cd "$NFLOW_WIKI_CHECKOUT_DIR"
+  git clone git@github.com:NitorCreations/nflow.wiki.git
+  cd nflow.wiki
+  sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" Spring-Boot-guide.md
+  git add Spring-Boot-guide.md
+  git commit -m "updated version number to $RELEASE_VERSION in Spring-Boot-guide.md"
+  git push
+  cd $RELEASE_DIR
+else
+  echo "failed to update version number in nFlow Wiki pages - do it manually"
+fi
+
+prompt_continue "updating nflow-examples dependencies to new release and verifying that their build works"
+
+EXAMPLE_DEPENDENCY_FILES=("bare-minimum/maven/pom.xml" "bare-minimum/gradle/build.gradle" "full-stack/maven/pom.xml" "full-stack/gradle/build.gradle" "full-stack-kotlin/gradle.properties")
+
+cd nflow-examples
+
+for dependency_file in "${EXAMPLE_DEPENDENCY_FILES[@]}"; do
+  sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" "spring-boot/$dependency_file"
+done
+
+if ./build_examples.sh; then
+  echo "changed nflow-examples files:"
+  git --no-pager diff
+
+  for dependency_file in "${EXAMPLE_DEPENDENCY_FILES[@]}"; do
+    git add "spring-boot/$dependency_file"
+  done
+  git commit -m "updated nflow-examples for version $RELEASE_VERSION"
+
+  prompt_continue "push version nflow-example to remote git repository"
+  git push
+else
+  echo "failed to build nflow-examples - check manually what is wrong"
+fi
+
+cd "$RELEASE_DIR"
+
+echo "*** RELEASE FINISHED ***"

@@ -1,4 +1,229 @@
-## 7.2.0-SNAPSHOT (future release)
+## 8.0.0-SNAPSHOT (future release)
+
+**Highlights**
+- `nflow-engine`
+  - BREAKING CHANGE: Remove `WorkflowDefinition`, workflow definitions should extend `AbstractWorkflowDefinition` instead.
+  - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
+
+**Details**
+- `nflow-engine`
+  - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
+    - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions.
+    - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface.
+    - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
+  - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
+  - Dependency updates
+    - logback-classic update to version 1.2.10
+      - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+      - https://jira.qos.ch/browse/LOGBACK-1591
+    - cxf 3.5.0
+    - commons.lang3 3.12.0
+    - guice 5.0.1
+    - hibernate validator 6.2.0
+    - hikaricp 4.0.3
+    - jackson 2.13.1
+    - javassist 3.28.0
+    - jodatime 2.10.3
+    - slf4j 1.7.32
+- `nflow-rest-api`
+  - Dependency updates
+    - swagger 1.6.4
+- `nflow-jetty`
+  - Dependency updates
+    - jetty 9.4.44.v20210927
+    - reflections 0.10.2
+- `nflow-netty`
+  - Dependency updates
+    - reactor-netty 1.0.14
+- `nflow-metrics`
+  - Dependency updates
+    - metrics 4.2.7
+- `nflow-tests`
+  - Dependency updates
+    - h2 2.0.206
+      - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
+    - mssql 9.4.1
+    - mysql 8.0.27
+    - mariadb 2.7.4
+    - postgresql 42.3.1
+- Minimum supported Maven version for building is 3.6
+
+## 7.4.0 (2021-12-27)
+
+**Highlights**
+- `nflow-explorer`
+  - Customizable workflow search result table columns
+
+**Details**
+- `nflow-engine`
+  - logback-classic update to version 1.2.9
+    - http://mailman.qos.ch/pipermail/announce/2021/000164.html
+    - https://jira.qos.ch/browse/LOGBACK-1591
+- `nflow-explorer`
+  - Make some external urls https instead of http
+
+## 7.3.1 (2021-09-15)
+
+**Highlights**
+- `nflow-engine`
+  - Optimize fetching workflow with large action history with many modified state variables.
+
+**Details**
+- `nflow-jetty`
+  - Explicitly depend on jackson-databind so that projects including the nflow-jetty do not have to specify the version explicitly
+  - Dependency updates:
+    - jetty 9.4.41.v20210516
+- `nflow-engine`
+  - Improve SQL performance by using workflowId in the query which fetches the state of actions from `nflow_workflow_state`
+- `nflow-explorer`
+  - Disable karma tests
+
+## 7.3.0 (2021-04-05)
+
+**Highlights**
+- `nflow-explorer`
+  - Sortable workflow definitions, workflow instance search result and executors tables
+  - Persist workflow instance query parameters to URL
+  - Support wildcard characters when searching workflow instances by business key or external id
+- Database scripts
+  - Fix issues in Oracle scripts
+
+**Details**
+- `nflow-jetty`
+  - Dependency updates:
+    - jetty 9.4.38.v20210224
+- `nflow-explorer`
+  - Added missing `executing` status to workflow instance search criteria
+  - Included child workflows when auto-refreshing workflow instance actions table
+  - Added more child workflow details to workflow instance actions
+  - Dependency updates:
+    - urijs 1.19.6
+    - is-svg 4.3.1
+    - y18n 4.0.1
+- `nflow-engine`
+  - Support SQL wildcards in workflow instance queries by business key or external id
+- Database scripts:
+  - Disable cache for Oracle sequences
+  - Fix `nflow_workflow_action_insert` trigger in Oracle database scripts
+  - Fix syntax error in `create table nflow_workflow` statement in `oracle.create.ddl.sql`
+
+## 7.2.4 (2021-02-25)
+
+**Highlights**
+- Support disabling `CronWorkflow`s.
+
+**Details**
+- `nflow-engine`
+  - Add `disabled` state (type `manual`) to `CronWorkflow` to support disabling the work. By default there is no state method for the `disabled` state, but it can added in your workflow definition that extends `CronWorkflow` to execute custom logic when the workflow enters the `disabled` state.
+- `nflow-rest-api-common` and `nflow-rest-api-spring-web`
+  - Fix exception to HTTP status conversion issue when using Netty
+
+## 7.2.3 (2021-02-22)
+
+**Highlights**
+- Support updating workflow instance business key.
+- Support for searching workflow instances by state variable key and value.
+- Added optional properties for tuning parts of nFlow Explorer
+- Facelift for workflow instance properties in nFlow Explorer
+- Control retryable exception handling via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`)
+- Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`)
+- Control retrying and logging of an exception thrown by a state method via `WorkflowSettings` (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
+- Control logging and sleeping after exceptions in `WorkflowDispatcher`.
+- Control logging and sleeping after a failure to save workflow instance state.
+- Support in `CronWorkflow` to wait for created child workflow instances to finish before scheduling the next work.
+
+**Details**
+- `nflow-engine`
+  - Use `WorkflowInstanceService.updateWorkflowInstance` to update the business key of the workflow instance.
+  - Use `StateExecution.setBusinessKey` to update the business key of the workflow instance after processing a state.
+  - Use `QueryWorkflowInstances.setStateVariable` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
+  - Control retrying and logging of an exception thrown by a state method via `WorkflowSettings.Builder.setExceptionAnalyzer(...)` / `ExceptionHandling`:
+    - Control whether the exception is considered retryable or not (replaces deprecated `WorkflowState.isRetryAllowed(...)`).
+    - Control which log level is used to log the retryable exception.
+    - Control whether the stack trace of the retryable exception is logged or not.
+  - Control logging and sleeping after exceptions in `WorkflowDispatcher` by providing a `DispatcherExceptionHandler` that returns `DispatcherExceptionHandling` objects:
+    - Control whether the exception is logged or not.
+    - Control which log level is used to log the exception.
+    - Control whether the stack trace of the exception is logged or not.
+    - Control whether dispatcher should sleep after the exception or not.
+    - Control whether the sleep time should be randomized or not.
+  - Control logging after a failure to save workflow instance state by providing a `StateSaveExceptionHandler` that returns `StateSaveExceptionHandling` objects:
+    - Control which log level is used to log the exception.
+    - Control whether the stack trace of the exception is logged or not.
+    - Control how long the `WorkflowStateProcessor` should sleep before retrying.
+  - Support in `CronWorkflow` to wait for child workflow instances created in `doWork` state method to finish before scheduling the next work. Return `NextAction.moveToStateAfter(waitForWorkToFinish, ...)` with some fail-safe waiting time instead of `NextAction.moveToState(schedule, ...)` to avoid immediate re-scheduling. When child workflows finish, they will wake up the parent workflow automatically, if it is still in the waiting state. Default implementation will check if any child workflows are still running, and keep waiting until they are all finished. Override `CronWorkflow.waitForWorkToFinishImpl` for custom logic.
+  - Add `hasUnfinishedChildWorkflows` helper in `StateExecution` and `WorkflowInstanceService` to check if the workflow instance has any child workflow instances with any other status than `WorkflowInstanceStatus.finished`.
+- `nflow-rest-api-common`, `nflow-rest-api-jax-rs`, `nflow-rest-api-spring-web`
+  - `UpdateWorkflowInstanceRequest.businessKey` field was added to support updating workflow instance business key via REST API.
+  - Added support for new query parameters `stateVariableKey` and `stateVariableValue` to `GET /v1/workflow-instance` to limit search query by state variable name and key. Only the latest value of the state variable of the workflow instance is used.
+  - Fix REST API serialization of state variable values that are not valid JSON by failing the serialization on trailing tokens and resorting to string representation as expected.
+- `nflow-explorer`
+  - Added optional `config.js` properties (`htmlTitle`, `nflowLogoFile`, `hideFooter`)
+  - Facelift for workflow instance properties
+  - Dependency updates:
+    - urijs 1.19.5
+    - socket.io 2.4.1
+- Database
+  - Change `text` data types to `varchar(max)` for MS SQL Server
+
+## 7.2.2 (2020-12-25)
+
+**Highlights**
+- `nflow-engine`
+  - Handle exceptions if waking up parent workflow fails after updating workflow instance state.
+- `nflow-explorer`
+  - Remove "Save as PNG" button as it produced empty images. PR to restore functionality would be appreciated.
+
+**Details**
+- `nflow-engine`
+  - Catch and log error when waking up parent workflow fails after updating workflow instance state. Failure in waking up parent workflow should not trigger a retry for the workflow instance update, as the update has already been done. As the parent is expected to handle situations where child workflow does not explicitly wake up the parent, it is ok to just log this error and continue.
+
+## 7.2.1 (2020-12-23)
+
+**Highlights**
+- `nflow-engine`
+  - Optimize fetching workflow instance with large history with many modified state variables.
+
+- `nflow-rest-api-spring-web` and `nflow-netty`
+  - Change REST API calls to use a dedicated thread pool for all blocking database operations to avoid blocking the netty EventLoop thread.
+
+**Details**
+- `nflow-engine`
+  - Fix SQL performance / memory issue when getting single workflow instance with action state variables, when the instance has lots of actions with lots of state variables. The old code fetched all state variables of all actions of the instance, the new code only fetches the state variables for the actions that will be returned.
+  - Fix instantiation of @StateVar(instantiateIfNotExists=true) Mutable<Type> - the result was incorrectly a Mutable wrapped in Mutable.
+  - Fix potential resource leaks
+  - Dependency updates:
+    - spring 5.2.8
+    - jackson 2.12.0
+    - hikaricp 3.4.5
+    - jodatime 2.10.8
+    - mysql 8.0.20
+    - node 12.16.2
+    - netty 0.9.11
+    - apache cxf 3.4.1
+    - commons-lang3 3.11
+    - hibernate validator 6.1.7.Final
+    - mariadb 2.7.1
+    - metrics 4.1.16
+    - mssql 8.4.1.jre8
+    - mysql 8.0.22
+    - postgresql 42.2.18
+    - swagger 1.6.2
+    - jetty 9.4.35.v20201120
+    - mockito 3.6.28
+    - spotbugs 4.2.0
+- `nflow-explorer`
+  - Dependency updates:
+    - autoprefixer 9.7.6
+    - node-sass 4.14.1
+    - http-proxy 1.18.1
+    - ini 1.3.7
+    - bl 1.2.3
+- nflow-rest-api-spring-web
+  - Change deendency from spring-web to spring-webflux to be able to use Project Reactor's types.
+  - Introduce a thread pool in SchedulerService and wrap all blocking database calls in the REST API to it.
+
+## 7.2.0 (2020-04-27)
 
 **Highlights**
 - Expedited clean shutdown for workflows that run many consequtive states.
@@ -15,6 +240,11 @@
   - Make `StateVariableTooLongException` extend `IllegalArgumentException` instead of `RuntimeException`.
   - Fix SQL deadlocks in workflow instance polling for PostgreSQL with skip locked.
   - Add `EngineEnvironmentModule` and `EngineModule` for Guice support. Call `NflowController.start()` and `NflowController.stop()` to start and stop nFlow engine, as `nflow.autostart` and `nflow.autoinit` configuration options are not supported with Guice.
+  - MySQL/MariaDB: use compressed table format for archives.
+  - PostgreSQL/SQLServer: use partial (not null) indices for parent hierarchy.
+  - PostgreSQL: tune fillfactors of tables and indices.
+  - PostgreSQL: reorder table column order to minimize space lost on padding. Only affects new tables.
+  - Drop `(type, external_id, executor_group)` unique constraint from `nflow_archive_workflow` table. Allows archiving workflow instances with same values multiple times. Only one instance is allowed in production table though.
   - Dependency updates:
     - spring 5.2.5
     - jackson 2.10.3
@@ -219,7 +449,7 @@
 **Details**
 - `nflow-engine`
   - Add `priority` two byte integer to the `nflow_workflow` table. When the dispatcher chooses from many available scheduled workflow instances it primarily (unfairly) picks the workflow instances with the largest priority values, and for workflows with the same priority, the ones with oldest `next_activation` timestamp. Priority defaults to 0 and can also be negative. Default priority value for the new workflow instances can be set per workflow definition (`WorkflowSettings.Builder.setDefaultPriority`), and overridden per workflow instance (`WorkflowInstance.Builder.setPriority`). Requires database migration, see database update scripts for details.
-  - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes. 
+  - Separate workflow definition scanning from `WorkflowDefinitionService` by introducing `WorkflowDefinitionSpringBeanScanner` and `WorkflowDefinitionClassNameScanner`. This allows breaking the circular dependency when a workflow definition uses `WorkflowInstanceService` (which depends on `WorkflowDefinitionService`, which depended on all workflow definitions). This enabled using constructor injection in all nFlow classes.
   - Add `disableMariaDbDriver` to default MySQL JDBC URL so that in case there are both MySQL and MariaDB JDBC drivers in the classpath then MariaDB will not steal the MySQL URL.
   - Add support for `nflow.db.mariadb` profile.
   - Update database indices to match current workflow instance polling code.
@@ -361,8 +591,8 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
   - jetty 9.4.15.v20190215
   - h2 1.4.199
 - Fix workflow history cleanup to keep the actions that hold the latest values of state variables
-- nFlow Explorer: Custom content to workflow definition and workflow instance pages. 
-- nFlow Explorer: Executors page to use standard time formatting in tooltips 
+- nFlow Explorer: Custom content to workflow definition and workflow instance pages.
+- nFlow Explorer: Executors page to use standard time formatting in tooltips
 - nFlow netty: Add support for registering Spring ApplicationListeners
 - nFlow jetty: Replace deprecated NCSARequestLog with CustomRequestLog
 - Fix `WorkflowLifecycle.stop()` blocking forever if `nflow.autostart=false` and `WorkflowLifecycle.start()` not called
@@ -449,7 +679,7 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
 - `nflow-jetty` now serves all paths under `/nflow/*`. The new paths are as follows:
   - /nflow/api/v1           -> API v1 (was: /api/nflow/v1)
   - /nflow/api/swagger.json -> Swagger config (was: /api/swagger.json)
-  - /nflow/ui               -> nFlow statics assets 
+  - /nflow/ui               -> nFlow statics assets
   - /nflow/ui/explorer      -> nFlow UI (was: /explorer)
   - /nflow/ui/doc           -> Swagger UI (was: /doc)
   - /nflow/metrics          -> metrics and health checks (was: /metrics)
@@ -597,7 +827,7 @@ This release introduced issue #306 which may cause OutOfMemory errors while fetc
   - fixed: workflow instance recovery functionality (broken by version 2.0.0)
   - fixed: Oracle database schema
 - nflow-rest-api:
-  - **_breaking change:_** Prefixed operation paths by "/nflow" (e.g. /v1/statistics -> /nflow/v1/statistics) 
+  - **_breaking change:_** Prefixed operation paths by "/nflow" (e.g. /v1/statistics -> /nflow/v1/statistics)
   - Support for Jersey JAX-RS implementation
   - **_breaking change:_** Moved exception mappers to nflow-jetty (BadRequestExceptionMapper, CustomValidationExceptionMapper, NotFoundExceptionMapper)
   - Improved Swagger documentation

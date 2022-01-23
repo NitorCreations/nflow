@@ -26,4 +26,6 @@ public class UpdateWorkflowInstanceRequest extends ModelObject {
   @ApiModelProperty("State variables to be added or updated.")
   public Map<String, Object> stateVariables = new HashMap<>();
 
+  @ApiModelProperty("Business key related to the workflow instance.")
+  public String businessKey;
 }

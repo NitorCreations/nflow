@@ -4,15 +4,18 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
+import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -23,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,9 +43,9 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
+import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
@@ -64,7 +68,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @BeforeEach
   public void setup() {
-    WorkflowDefinition<?> dummyWorkflow = new DummyTestWorkflow();
+    AbstractWorkflowDefinition dummyWorkflow = new DummyTestWorkflow();
     lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowInstanceDao, workflowDefinitions, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
@@ -157,7 +161,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void listWorkflowInstances() {
-    List<WorkflowInstance> result  = asList(constructWorkflowInstanceBuilder().build());
+    List<WorkflowInstance> result = asList(constructWorkflowInstanceBuilder().build());
     QueryWorkflowInstances query = mock(QueryWorkflowInstances.class);
     when(workflowInstanceDao.queryWorkflowInstances(query)).thenReturn(result);
     assertEquals(result, service.listWorkflowInstances(query));
@@ -173,7 +177,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorks() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 
@@ -187,7 +191,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorksWithUnsupportedSignal() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition<?> definition = mock(AbstractWorkflowDefinition.class);
+    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 
@@ -207,4 +211,30 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     verify(workflowDefinitions, never()).getWorkflowDefinition(anyString());
   }
 
+  @Test
+  public void hasUnfinishedChildWorkflowsReturnsFalseWhenInstanceHasNoUnfinishedChildren() {
+    List<WorkflowInstance> result = emptyList();
+    when(workflowInstanceDao.queryWorkflowInstances(queryCapture.capture())).thenReturn(result);
+
+    assertFalse(service.hasUnfinishedChildWorkflows(42));
+    QueryWorkflowInstances query = queryCapture.getValue();
+    assertThat(query.parentWorkflowId, is(42L));
+    EnumSet.complementOf(EnumSet.of(WorkflowInstanceStatus.finished)).stream()
+        .forEach(status -> assertTrue(query.statuses.contains(status)));
+    assertFalse(query.statuses.contains(WorkflowInstanceStatus.finished));
+  }
+
+  @Test
+  public void hasUnfinishedChildWorkflowsReturnsTrueWhenInstanceHasUnfinishedChild() {
+    WorkflowInstance unfinished = constructWorkflowInstanceBuilder().build();
+    List<WorkflowInstance> result = asList(unfinished);
+    when(workflowInstanceDao.queryWorkflowInstances(queryCapture.capture())).thenReturn(result);
+
+    assertTrue(service.hasUnfinishedChildWorkflows(42));
+    QueryWorkflowInstances query = queryCapture.getValue();
+    assertThat(query.parentWorkflowId, is(42L));
+    EnumSet.complementOf(EnumSet.of(WorkflowInstanceStatus.finished)).stream()
+        .forEach(status -> assertTrue(query.statuses.contains(status)));
+    assertFalse(query.statuses.contains(WorkflowInstanceStatus.finished));
+  }
 }

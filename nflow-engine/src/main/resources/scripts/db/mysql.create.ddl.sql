@@ -77,8 +77,6 @@ create table if not exists nflow_workflow_definition (
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 create table if not exists nflow_archive_workflow (
   id int not null primary key,
@@ -94,16 +92,16 @@ create table if not exists nflow_archive_workflow (
   next_activation timestamp(3) null,
   external_next_activation timestamp(3) null,
   executor_id int,
-  retries int not null default 0,
-  created timestamp(3) default current_timestamp(3),
-  modified timestamp(3) default current_timestamp(3),
+  retries int not null,
+  created timestamp(3),
+  modified timestamp(3),
   started timestamp(3) null,
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
-);
+  workflow_signal int
+) ROW_FORMAT=COMPRESSED;
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 create table if not exists nflow_archive_workflow_action (
   id int not null primary key,
@@ -113,10 +111,10 @@ create table if not exists nflow_archive_workflow_action (
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,
-  execution_start timestamp(3) default current_timestamp(3),
-  execution_end timestamp(3) default current_timestamp(3),
+  execution_start timestamp(3),
+  execution_end timestamp(3),
   constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
-);
+) ROW_FORMAT=COMPRESSED;
 
 create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
 
@@ -127,4 +125,4 @@ create table if not exists nflow_archive_workflow_state (
   state_value varchar(10240) not null,
   constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
-);
+) ROW_FORMAT=COMPRESSED;

@@ -1,12 +1,18 @@
 package io.nflow.engine.internal.workflow;
 
-import static com.nitorcreations.Matchers.hasItemsOf;
+import static io.nflow.engine.workflow.definition.TestState.BEGIN;
+import static io.nflow.engine.workflow.definition.TestState.DONE;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.containsString;
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,19 +22,19 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.hamcrest.CustomMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @SuppressWarnings("unused")
 public class WorkflowDefinitionScannerTest {
@@ -58,21 +64,24 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void unknownAnnotationOnParameterIsIgnored() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(UnknownAnnotationWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 
   @Test
   public void mutableStateParamSetsMutableFlag() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(MutableParamWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, false, true));
+    assertThat(methods.get("end").params[0].nullValue, nullValue());
+    assertThat(methods.get("end").params[1], stateParam("longKey", Long.class, false, true));
+    assertThat(methods.get("end").params[1].nullValue, is(0L));
   }
 
   @Test
   public void instantiateNullFlagCausesParameterObjectToInstantiate() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(InitiateParameterWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramKey", ParamObj.class, false, false));
 
@@ -84,7 +93,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithBoolean() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(BooleanObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", boolean.class, true, false));
 
@@ -96,7 +105,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithByte() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ByteObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", byte.class, true, false));
 
@@ -108,7 +117,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithCharacter() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(CharacterObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", char.class, true, false));
 
@@ -120,7 +129,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithShort() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ShortObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", short.class, true, false));
 
@@ -132,7 +141,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithInteger() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(IntegerObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", int.class, true, false));
 
@@ -144,7 +153,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithLong() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(LongObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", long.class, true, false));
 
@@ -156,7 +165,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithFloat() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(FloatObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", float.class, true, false));
 
@@ -168,7 +177,7 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void instantiateWithDouble() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(DoubleObjectWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertNotNull(methods.get("end").params[0].nullValue);
     assertThat(methods.get("end").params[0], stateParam("paramPrimitive", double.class, true, false));
 
@@ -180,45 +189,35 @@ public class WorkflowDefinitionScannerTest {
   @Test
   public void onlyPublicMethodsWithCorrectSignatureAreReturned() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(NonStateMethodsWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end", "doesNotReturnNextState")));
+    assertThat(methods, allOf(hasKey("start"), hasKey("end"), hasKey("doesNotReturnNextState")));
     assertThat(methods.keySet().size(), is(3));
   }
 
   @Test
   public void readOnlyStateVarFlagSetsFlagInStateParameter() {
     Map<String, WorkflowStateMethod> methods = scanner.getStateMethods(ReadOnlyStateVarWorkflow.class);
-    assertThat(methods.keySet(), hasItemsOf(asList("start", "end")));
+    assertThat(methods, both(hasKey("start")).and(hasKey("end")));
     assertThat(methods.get("end").params[0], stateParam("paramKey", String.class, true, false));
   }
 
-  private CustomMatcher<StateParameter> stateParam(final String key, final Type type, final boolean readOnly, final boolean mutable) {
-    return new CustomMatcher<WorkflowStateMethod.StateParameter>("") {
+  @Test
+  public void getStaticWorkflowStatesReturnsCorrectStates() {
+    Set<String> stateNames = scanner.getStaticWorkflowStates(StaticStateFieldsWorkflow.class).stream().map(WorkflowState::name)
+        .collect(toSet());
+    assertThat(stateNames, containsInAnyOrder("staticPrivate", "staticPackageProtected", "staticProtected", "staticPublic"));
+  }
+
+  private CustomMatcher<StateParameter> stateParam(String key, Type type, boolean readOnly, boolean mutable) {
+    return new CustomMatcher<StateParameter>("") {
       @Override
       public boolean matches(Object item) {
         StateParameter p = (StateParameter) item;
-        return Objects.equals(key, p.key) && Objects.equals(type, p.type)
-            && Objects.equals(readOnly, p.readOnly) && Objects.equals(mutable, p.mutable);
-
+        return Objects.equals(key, p.key) //
+            && Objects.equals(type, p.type) //
+            && Objects.equals(readOnly, p.readOnly) //
+            && Objects.equals(mutable, p.mutable);
       }
     };
-  }
-  public static enum ScannerState implements WorkflowState{
-    start(WorkflowStateType.start),
-    end(WorkflowStateType.end);
-    private final WorkflowStateType type;
-
-    private ScannerState(WorkflowStateType type) {
-      this.type = type;
-    }
-    @Override
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    @Override
-    public String getDescription() {
-      return null;
-    }
   }
 
   @Retention(RUNTIME)
@@ -228,9 +227,9 @@ public class WorkflowDefinitionScannerTest {
 
   public static class ParamObj { }
 
-  public static class OverloadedStateMethodWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class OverloadedStateMethodWorkflow extends AbstractWorkflowDefinition {
     public OverloadedStateMethodWorkflow() {
-      super("overload", ScannerState.start, ScannerState.end);
+      super("overload", BEGIN, DONE);
     }
 
     public NextAction start(StateExecution exec) { return null; }
@@ -238,35 +237,35 @@ public class WorkflowDefinitionScannerTest {
     public NextAction end(StateExecution exec, @StateVar("foo") String param) { return null; }
   }
 
-  public static class MissingStateVarWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class MissingStateVarWorkflow extends AbstractWorkflowDefinition {
     public MissingStateVarWorkflow() {
-      super("missingStateVar", ScannerState.start, ScannerState.end);
+      super("missingStateVar", BEGIN, DONE);
     }
 
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec, String param) { return null; }
   }
 
-  public static class UnknownAnnotationWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class UnknownAnnotationWorkflow extends AbstractWorkflowDefinition {
     public UnknownAnnotationWorkflow() {
-      super("unknownAnnotation", ScannerState.start, ScannerState.end);
+      super("unknownAnnotation", BEGIN, DONE);
     }
 
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec, @Dummy @StateVar("paramKey") String param) { return null; }
   }
 
-  public static class MutableParamWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class MutableParamWorkflow extends AbstractWorkflowDefinition {
     public MutableParamWorkflow() {
-      super("mutableParam", ScannerState.start, ScannerState.end);
+      super("mutableParam", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
-    public NextAction end(StateExecution exec, @StateVar("paramKey") Mutable<String> param) { return null; }
+    public NextAction end(StateExecution exec, @StateVar("paramKey") Mutable<String> param, @StateVar(value="longKey", instantiateIfNotExists=true) Mutable<Long> param2) { return null; }
   }
 
-  public static class InitiateParameterWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class InitiateParameterWorkflow extends AbstractWorkflowDefinition {
     public InitiateParameterWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -274,9 +273,9 @@ public class WorkflowDefinitionScannerTest {
         @StateVar(value = "paramKey2", instantiateIfNotExists = true) long paramPrimitive) { return null; }
   }
 
-  public static class BooleanObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class BooleanObjectWorkflow extends AbstractWorkflowDefinition {
     public BooleanObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -284,9 +283,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Boolean paramBoxed) { return null; }
   }
 
-  public static class ByteObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class ByteObjectWorkflow extends AbstractWorkflowDefinition {
     public ByteObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -294,9 +293,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Byte paramBoxed) { return null; }
   }
 
-  public static class CharacterObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class CharacterObjectWorkflow extends AbstractWorkflowDefinition {
     public CharacterObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -304,9 +303,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Character paramBoxed) { return null; }
   }
 
-  public static class ShortObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class ShortObjectWorkflow extends AbstractWorkflowDefinition {
     public ShortObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -314,9 +313,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Short paramBoxed) { return null; }
   }
 
-  public static class IntegerObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class IntegerObjectWorkflow extends AbstractWorkflowDefinition {
     public IntegerObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -324,9 +323,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Integer paramBoxed) { return null; }
   }
 
-  public static class LongObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class LongObjectWorkflow extends AbstractWorkflowDefinition {
     public LongObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -334,9 +333,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Long paramBoxed) { return null; }
   }
 
-  public static class FloatObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class FloatObjectWorkflow extends AbstractWorkflowDefinition {
     public FloatObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -344,9 +343,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Float paramBoxed) { return null; }
   }
 
-  public static class DoubleObjectWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class DoubleObjectWorkflow extends AbstractWorkflowDefinition {
     public DoubleObjectWorkflow() {
-      super("instantiateNull", ScannerState.start, ScannerState.end);
+      super("instantiateNull", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec,
@@ -354,9 +353,9 @@ public class WorkflowDefinitionScannerTest {
                           @StateVar(value = "paramBoxed", instantiateIfNotExists = true) Double paramBoxed) { return null; }
   }
 
-  public static class NonStateMethodsWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class NonStateMethodsWorkflow extends AbstractWorkflowDefinition {
     public NonStateMethodsWorkflow() {
-      super("nonStateMethods", ScannerState.start, ScannerState.end);
+      super("nonStateMethods", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec) { return null; }
@@ -367,9 +366,9 @@ public class WorkflowDefinitionScannerTest {
     protected NextAction nonPublic(StateExecution exec) { return null; }
   }
 
-  public static class ReadOnlyStateVarWorkflow extends WorkflowDefinition<ScannerState> {
+  public static class ReadOnlyStateVarWorkflow extends AbstractWorkflowDefinition {
     public ReadOnlyStateVarWorkflow() {
-      super("readOnly", ScannerState.start, ScannerState.end);
+      super("readOnly", BEGIN, DONE);
     }
     public NextAction start(StateExecution exec) { return null; }
     public NextAction end(StateExecution exec, @StateVar(value = "paramKey", readOnly = true) String param) { return null; }

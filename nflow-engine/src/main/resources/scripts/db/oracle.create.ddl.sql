@@ -4,7 +4,7 @@ create table nflow_workflow (
   id int not null primary key,
   status varchar(32) not null,
   type varchar(64) not null,
-  priority smallint not null default 0,
+  priority smallint default 0 not null,
   parent_workflow_id int default null,
   parent_action_id int default null,
   business_key varchar(64),
@@ -31,7 +31,7 @@ create index nflow_workflow_polling on nflow_workflow(next_activation, status, e
 create index idx_workflow_parent on nflow_workflow(parent_workflow_id)
 /
 
-create sequence nflow_workflow_id_seq
+create sequence nflow_workflow_id_seq nocache
 /
 
 create or replace trigger nflow_workflow_insert
@@ -70,7 +70,7 @@ create table nflow_workflow_action (
 create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id)
 /
 
-create sequence nflow_workflow_action_id_seq
+create sequence nflow_workflow_action_id_seq nocache
 /
 
 create or replace trigger nflow_workflow_action_insert
@@ -78,7 +78,7 @@ create or replace trigger nflow_workflow_action_insert
   for each row
 declare
 begin
-  :new.id := nflow_workflow_id_seq.nextval;
+  :new.id := nflow_workflow_action_id_seq.nextval;
 end;
 /
 
@@ -104,7 +104,7 @@ create table nflow_executor (
 )
 /
 
-create sequence nflow_executor_id_seq
+create sequence nflow_executor_id_seq nocache
 /
 
 create or replace trigger nflow_executor_insert
@@ -141,8 +141,6 @@ end;
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 create table nflow_archive_workflow (
   id int not null primary key,
@@ -163,12 +161,13 @@ create table nflow_archive_workflow (
   modified timestamp not null,
   started timestamp,
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 )
 /
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id)
+/
+create index idx_workflow_archive_type on nflow_archive_workflow(type)
 /
 
 create table nflow_archive_workflow_action (

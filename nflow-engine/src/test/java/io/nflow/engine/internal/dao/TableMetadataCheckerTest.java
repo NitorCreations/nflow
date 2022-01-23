@@ -1,7 +1,7 @@
 package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.config.Profiles.H2;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

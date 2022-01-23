@@ -1,4 +1,4 @@
-#Thu Apr 23 19:18:26 EEST 2020
+#Mon Sep 14 12:13:56 EEST 2020
 org.eclipse.jdt.core.formatter.wrap_before_logical_operator=true
 org.eclipse.jdt.core.formatter.insert_space_before_comma_in_for_inits=do not insert
 org.eclipse.jdt.core.formatter.brace_position_for_block=end_of_line

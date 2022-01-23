@@ -15,6 +15,7 @@
     CREATED: 'created',
     IN_PROGRESS: 'inProgress',
     FINISHED: 'finished',
-    MANUAL: 'manual'
+    MANUAL: 'manual',
+    EXECUTING: 'executing'
   });
 })();

@@ -1,10 +1,9 @@
 package io.nflow.rest.v1.converter;
 
+import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -75,21 +75,16 @@ public class ListWorkflowInstanceConverter {
     if (isEmpty(stateVariables)) {
       return null;
     }
-    Map<String, Object> jsonStateVariables = new LinkedHashMap<>(stateVariables.size() * 2);
-    for (Entry<String, String> entry : stateVariables.entrySet()) {
-      String key = entry.getKey();
-      jsonStateVariables.put(key, stringToJson(key, entry.getValue()));
-    }
-    return jsonStateVariables;
+    return stateVariables.entrySet().stream().collect(toMap(Entry::getKey, this::stringToJson));
   }
 
-  private JsonNode stringToJson(String key, String value) {
+  private JsonNode stringToJson(Entry<String, String> entry) {
     try {
-      return nflowRestObjectMapper.readTree(value);
-    } catch (IOException e) {
-      logger.debug("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}", key,
+      return nflowRestObjectMapper.readTree(entry.getValue());
+    } catch (JsonProcessingException e) {
+      logger.debug("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}", entry.getKey(),
           e.getClass().getSimpleName(), e.getMessage());
-      return new TextNode(value);
+      return new TextNode(entry.getValue());
     }
   }
 }

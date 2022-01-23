@@ -14,12 +14,14 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import io.nflow.engine.workflow.definition.TestState;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 public class StatisticsDaoTest extends BaseDaoTest {
 
@@ -64,7 +66,7 @@ public class StatisticsDaoTest extends BaseDaoTest {
 
     Map<String, Map<String, WorkflowDefinitionStatistics>> stats = statisticsDao.getWorkflowDefinitionStatistics(i1.type, null,
         null, null, null);
-    Map<String, WorkflowDefinitionStatistics> stateStats = stats.get("CreateLoan");
+    Map<String, WorkflowDefinitionStatistics> stateStats = stats.get(TestState.BEGIN.name());
     assertThat(stateStats.get(executing.name()), is(nullValue()));
     assertThat(stateStats.get(inProgress.name()).queuedInstances, is(2L));
     assertThat(stateStats.get(inProgress.name()).allInstances, is(2L));
@@ -75,7 +77,7 @@ public class StatisticsDaoTest extends BaseDaoTest {
     instanceDao.updateNotRunningWorkflowInstance(i2);
 
     stats = statisticsDao.getWorkflowDefinitionStatistics(i1.type, null, null, null, null);
-    stateStats = stats.get("CreateLoan");
+    stateStats = stats.get(TestState.BEGIN.name());
     assertThat(stateStats.get(executing.name()), is(nullValue()));
     assertThat(stateStats.get(inProgress.name()).queuedInstances, is(2L));
     assertThat(stateStats.get(inProgress.name()).allInstances, is(2L));

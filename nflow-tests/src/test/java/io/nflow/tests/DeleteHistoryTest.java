@@ -1,7 +1,6 @@
 package io.nflow.tests;
 
 import static java.time.Duration.ofSeconds;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -17,6 +16,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.DeleteHistoryWorkflow;
+import io.nflow.tests.demo.workflow.TestState;
 import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -43,14 +43,14 @@ public class DeleteHistoryTest extends AbstractNflowTest {
   public void createWorkflowInstance() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DeleteHistoryWorkflow.TYPE;
-    resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    resp = createWorkflowInstance(req);
     assertThat(resp.id, is(notNullValue()));
   }
 
   @Test
   @Order(2)
   public void getProcessedInstance() {
-    instance = getWorkflowInstanceWithTimeout(resp.id, DeleteHistoryWorkflow.State.done.name(), ofSeconds(5));
+    instance = getWorkflowInstanceWithTimeout(resp.id, TestState.DONE.name(), ofSeconds(5));
   }
 
   @Test

@@ -26,7 +26,6 @@ import io.nflow.engine.config.db.H2DatabaseConfiguration;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
-import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -51,7 +50,7 @@ public class NflowEngineTest {
 
   @Test
   public void test() throws InterruptedException {
-    Collection<AbstractWorkflowDefinition<? extends WorkflowState>> workflowDefinitions = asList(new DummyTestWorkflow());
+    Collection<AbstractWorkflowDefinition> workflowDefinitions = asList(new DummyTestWorkflow());
     try (NflowEngine nflowEngine = new NflowEngine(dataSource(), new H2DatabaseConfiguration.H2SQLVariants(),
         workflowDefinitions)) {
       WorkflowInstance newInstance = new WorkflowInstance.Builder().setType("dummy").setNextActivation(DateTime.now().plusMillis(200)).build();

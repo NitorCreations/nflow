@@ -1,6 +1,7 @@
 package io.nflow.engine.guice;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import org.springframework.core.env.Environment;
@@ -34,8 +35,8 @@ public class EnvironmentModule extends AbstractModule {
     if (classpathPropertiesFiles != null) {
       for (String classpathPropertiesFile : classpathPropertiesFiles) {
         ClassPathResource engineProperties = new ClassPathResource(classpathPropertiesFile);
-        try {
-          p.load(engineProperties.getInputStream());
+        try (InputStream inputStream = engineProperties.getInputStream()) {
+          p.load(inputStream);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

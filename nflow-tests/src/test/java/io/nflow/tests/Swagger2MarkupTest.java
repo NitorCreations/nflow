@@ -1,6 +1,9 @@
 package io.nflow.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static java.lang.System.getProperty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,11 +27,13 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
 
   @Test
   public void convertRemoteSwaggerToAsciiDoc() throws MalformedURLException {
+    // currently parboiled 1.3.2 AsmUtils does not work on new jdks - fails with trying to call ClassLoader.findLoadedClass
+    assumeTrue("1.8".equals(getProperty("java.specification.version")));
     Swagger2MarkupConverter.from(new URL(server.getHttpAddress() + "/nflow/api/swagger.json")).build()
         .toFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
 
     // Then validate that the right number of AsciiDoc files have been created
     String[] files = SWAGGER2_MARKUP_ASCIIDOC_DIR.toFile().list();
-    assertEquals(5, files.length);
+    assertThat(files, arrayWithSize(5));
   }
 }

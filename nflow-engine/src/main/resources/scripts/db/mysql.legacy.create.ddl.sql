@@ -87,8 +87,6 @@ create trigger nflow_workflow_definition_insert before insert on `nflow_workflow
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 create table if not exists nflow_archive_workflow (
   id int not null primary key,
@@ -104,21 +102,21 @@ create table if not exists nflow_archive_workflow (
   next_activation timestamp null,
   external_next_activation timestamp null,
   executor_id int,
-  retries int not null default 0,
+  retries int not null,
   created timestamp not null,
   modified timestamp not null,
   started timestamp null,
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
 create index idx_workflow_archive_parent on nflow_archive_workflow(parent_workflow_id);
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 create table if not exists nflow_archive_workflow_action (
   id int not null primary key,
   workflow_id int not null,
-  executor_id int not null default -1,
+  executor_id int not null,
   type enum('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange') not null,
   state varchar(64) not null,
   state_text varchar(128),
@@ -138,5 +136,3 @@ create table if not exists nflow_archive_workflow_state (
   constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
-
-

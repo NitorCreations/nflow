@@ -1,5 +1,6 @@
 package io.nflow.rest.config;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
 import javax.inject.Named;
@@ -28,6 +29,7 @@ public class RestConfiguration {
   public ObjectMapper nflowRestObjectMapper(@NFlow ObjectMapper nflowObjectMapper) {
     ObjectMapper restObjectMapper = nflowObjectMapper.copy();
     restObjectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
+    restObjectMapper.enable(FAIL_ON_TRAILING_TOKENS);
     return restObjectMapper;
   }
 }

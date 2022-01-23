@@ -55,18 +55,19 @@ public class MetricsWorkflowExecutorListener implements WorkflowExecutorListener
 
   @Override
   public void afterProcessing(ListenerContext context) {
-    executionTimer(context).stop();
+    stopTimer(context);
     metricRegistry.meter(stateMetricKey(context, "success-count")).mark();
+  }
+
+  private void stopTimer(ListenerContext context) {
+    @SuppressWarnings("resource")
+    Context executionTimer = executionTimer(context);
+    executionTimer.stop();
   }
 
   @Override
   public void afterFailure(ListenerContext context, Throwable exeption) {
-    @SuppressWarnings("resource")
-    Context timer = executionTimer(context);
-    if (timer != null) {
-      timer.close();
-    }
-
+    stopTimer(context);
     metricRegistry.meter(stateMetricKey(context, "error-count")).mark();
   }
 

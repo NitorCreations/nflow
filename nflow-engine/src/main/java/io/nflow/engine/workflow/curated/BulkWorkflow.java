@@ -1,9 +1,5 @@
 package io.nflow.engine.workflow.curated;
 
-import static io.nflow.engine.workflow.curated.BulkWorkflow.State.done;
-import static io.nflow.engine.workflow.curated.BulkWorkflow.State.error;
-import static io.nflow.engine.workflow.curated.BulkWorkflow.State.splitWork;
-import static io.nflow.engine.workflow.curated.BulkWorkflow.State.waitForChildrenToFinish;
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
@@ -31,13 +27,12 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.curated.BulkWorkflow.State;
+import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
-import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
-import io.nflow.engine.workflow.definition.WorkflowStateType;
+import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
@@ -45,7 +40,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
  * Bulk child workflow executor that does not overflow the system.
  */
 @Component
-public class BulkWorkflow extends WorkflowDefinition<State> {
+public class BulkWorkflow extends AbstractWorkflowDefinition {
 
   /**
    * The type of default bulk workflow.
@@ -71,30 +66,11 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
   /**
    * Bulk workflow states.
    */
-  public enum State implements io.nflow.engine.workflow.definition.WorkflowState {
-    splitWork(start, "Create new child workflows"), //
-    waitForChildrenToFinish(wait, "Wait for all child workflows to finish, start new child workflows if possible"), //
-    done(end, "All child workflows have been processed"), //
-    error(manual, "Processing failed, waiting for manual actions");
-
-    private WorkflowStateType type;
-    private String description;
-
-    State(WorkflowStateType type, String description) {
-      this.type = type;
-      this.description = description;
-    }
-
-    @Override
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    @Override
-    public String getDescription() {
-      return description;
-    }
-  }
+  public static final WorkflowState SPLIT_WORK = new State("splitWork", start, "Create new child workflows");
+  public static final WorkflowState WAIT_FOR_CHILDREN_TO_FINISH = new State("waitForChildrenToFinish", wait,
+      "Wait for all child workflows to finish, start new child workflows if possible");
+  public static final WorkflowState DONE = new State("done", end, "All child workflows have been processed");
+  public static final WorkflowState ERROR = new State("error", manual, "Processing failed, waiting for manual actions");
 
   /**
    * Extend bulk workflow definition.
@@ -103,10 +79,10 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
    *          The type of the workflow.
    */
   protected BulkWorkflow(String type) {
-    super(type, splitWork, error, new Builder().setMaxRetries(Integer.MAX_VALUE).build());
+    super(type, SPLIT_WORK, ERROR, new Builder().setMaxRetries(Integer.MAX_VALUE).build());
     setDescription("Executes child workflows in bulk but gracefully without effecting non-bulk tasks.");
-    permit(splitWork, waitForChildrenToFinish);
-    permit(waitForChildrenToFinish, done);
+    permit(SPLIT_WORK, WAIT_FOR_CHILDREN_TO_FINISH);
+    permit(WAIT_FOR_CHILDREN_TO_FINISH, DONE);
   }
 
   /**
@@ -128,7 +104,7 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
   public NextAction splitWork(StateExecution execution, @StateVar(value = VAR_CHILD_DATA, readOnly = true) JsonNode data) {
     boolean childrenFound = splitWorkImpl(execution, data);
     if (childrenFound) {
-      return moveToState(waitForChildrenToFinish, "Running");
+      return moveToState(WAIT_FOR_CHILDREN_TO_FINISH, "Running");
     }
     return retryAfter(waitForChildrenUntil(), "Waiting for child workflows");
   }
@@ -183,7 +159,7 @@ public class BulkWorkflow extends WorkflowDefinition<State> {
       }
     }
     if (completed == childWorkflows.size()) {
-      return moveToState(done, "All children completed");
+      return moveToState(DONE, "All children completed");
     }
     long toStart = min(max(1, concurrency) - running, childWorkflows.size() - completed);
     if (toStart > 0) {

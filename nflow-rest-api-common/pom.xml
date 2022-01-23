@@ -4,15 +4,15 @@
   <packaging>jar</packaging>
   <name>nflow-rest-api-common</name>
   <description>nFlow REST API Common</description>
-  <url>http://nflow.io</url>
+  <url>https://nflow.io</url>
   <organization>
     <name>Nitor Creations</name>
-    <url>http://www.nitorcreations.com</url>
+    <url>https://www.nitor.com</url>
   </organization>
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>io.nflow</groupId>
-    <version>7.2.0-SNAPSHOT</version>
+    <version>8.0.0-SNAPSHOT</version>
   </parent>
   <properties>
     <EMPTY></EMPTY>
@@ -59,31 +59,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.nitorcreations</groupId>
-      <artifactId>matchers</artifactId>
-      <scope>test</scope>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
     </dependency>
   </dependencies>
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <version>${maven-eclipse.version}</version>
-          <configuration>
-            <additionalBuildcommands>
-              <buildCommand>
-                <name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-                <triggers>auto,full,incremental,</triggers>
-                <arguments>
-                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/mvn-process-classes.launch</LaunchConfigHandle>
-                </arguments>
-              </buildCommand>
-            </additionalBuildcommands>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 </project>

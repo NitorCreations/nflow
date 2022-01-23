@@ -36,7 +36,7 @@ if not exists (select 1 from sys.indexes where name='nflow_workflow_polling')
 create index nflow_workflow_polling on nflow_workflow(next_activation, status, executor_id, executor_group) where next_activation is not null;
 
 if not exists (select 1 from sys.indexes where name='idx_workflow_parent')
-create index idx_workflow_parent on nflow_workflow(parent_workflow_id);
+create index idx_workflow_parent on nflow_workflow(parent_workflow_id) where parent_workflow_id is not null;
 
 if not exists (select 1 from sys.tables where name='nflow_workflow_action')
 create table nflow_workflow_action (
@@ -60,7 +60,7 @@ create table nflow_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
-  state_value text not null,
+  state_value varchar(max) not null,
   constraint pk_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_state_workflow_id foreign key (workflow_id) references nflow_workflow(id)
 );
@@ -84,7 +84,7 @@ if not exists (select 1 from sys.tables where name='nflow_workflow_definition')
 create table nflow_workflow_definition (
   type varchar(64) not null,
   definition_sha1 varchar(40) not null,
-  definition text not null,
+  definition varchar(max) not null,
   created datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   modified_by int not null,
@@ -104,8 +104,6 @@ end';
 -- - no default values
 -- - no triggers
 -- - no auto increments
--- - same indexes and constraints as production tables
--- - remove recursive foreign keys
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow')
 create table nflow_archive_workflow (
@@ -122,20 +120,16 @@ create table nflow_archive_workflow (
   next_activation datetimeoffset(3),
   external_next_activation datetimeoffset(3),
   executor_id int,
-  retries int not null default 0,
+  retries int not null,
   created datetimeoffset(3) not null,
   modified datetimeoffset(3) not null,
   started datetimeoffset(3),
   executor_group varchar(64) not null,
-  workflow_signal int,
-  constraint nflow_archive_workflow_uniq unique (type, external_id, executor_group)
+  workflow_signal int
 );
 
-if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_parent')
-create index nflow_archive_workflow_parent on nflow_archive_workflow(parent_workflow_id, parent_action_id);
-
 if not exists (select 1 from sys.indexes where name='idx_workflow_archive_parent')
-create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id);
+create index idx_workflow_archive_parent on nflow_archive_workflow (parent_workflow_id) where parent_workflow_id is not null;
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow_action')
 create table nflow_archive_workflow_action (
@@ -153,13 +147,15 @@ create table nflow_archive_workflow_action (
 
 if not exists (select 1 from sys.indexes where name='nflow_archive_workflow_action_workflow')
 create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id);
+if not exists (select 1 from sys.indexes where name='idx_workflow_archive_type')
+create index idx_workflow_archive_type on nflow_archive_workflow(type);
 
 if not exists (select 1 from sys.tables where name='nflow_archive_workflow_state')
 create table nflow_archive_workflow_state (
   workflow_id int not null,
   action_id int not null,
   state_key varchar(64) not null,
-  state_value text not null,
+  state_value varchar(max) not null,
   constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key),
   constraint fk_arch_state_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 );
