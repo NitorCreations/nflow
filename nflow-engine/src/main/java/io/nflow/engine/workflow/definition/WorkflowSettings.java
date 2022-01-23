@@ -4,6 +4,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
+import static org.joda.time.Duration.millis;
 import static org.joda.time.Duration.standardDays;
 import static org.joda.time.Duration.standardMinutes;
 import static org.joda.time.Duration.standardSeconds;
@@ -42,9 +43,9 @@ public class WorkflowSettings extends ModelObject {
    */
   public final long maxErrorTransitionDelay;
   /**
-   * Length of forced delay to break execution of a step that is considered to be busy looping.
+   * Length of forced delay to break execution of a step that is considered to be busy looping. Unit is milliseconds.
    */
-  public final ReadableDuration shortTransitionDelay;
+  public final long shortTransitionDelay;
   /**
    * Maximum retry attempts.
    */
@@ -82,7 +83,7 @@ public class WorkflowSettings extends ModelObject {
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay.getMillis();
     this.maxErrorTransitionDelay = builder.maxErrorTransitionDelay.getMillis();
-    this.shortTransitionDelay = builder.shortTransitionDelay;
+    this.shortTransitionDelay = builder.shortTransitionDelay.getMillis();
     this.maxRetries = builder.maxRetries;
     this.maxSubsequentStateExecutions = builder.maxSubsequentStateExecutions;
     this.maxSubsequentStateExecutionsPerState = new HashMap<>(builder.maxSubsequentStateExecutionsPerState);
@@ -311,7 +312,7 @@ public class WorkflowSettings extends ModelObject {
    * @return The delay in milliseconds.
    */
   public DateTime getShortTransitionActivation() {
-    return now().plus(shortTransitionDelay);
+    return now().plus(millis(shortTransitionDelay));
   }
 
   /**

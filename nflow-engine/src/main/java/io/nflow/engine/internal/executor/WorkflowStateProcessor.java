@@ -397,7 +397,7 @@ class WorkflowStateProcessor implements Runnable {
     try {
       if (settings.historyDeletableAfter != null
           && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
-        DateTime olderThan = now().minus(settings.historyDeletableAfter);
+        DateTime olderThan = DateTime.now().minus(settings.historyDeletableAfter);
         logger.debug("Cleaning workflow instance {} history older than {}", instanceId, olderThan);
         maintenanceDao.deleteActionAndStateHistory(instanceId, olderThan);
       }

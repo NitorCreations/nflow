@@ -4,11 +4,11 @@ import static io.nflow.rest.v1.TestState.BEGIN;
 import static io.nflow.rest.v1.TestState.DONE;
 import static io.nflow.rest.v1.TestState.ERROR;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,12 +42,12 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.description, is(def.getDescription()));
     assertThat(resp.onError, is(def.getErrorState().name()));
     assertThat(resp.states, arrayContainingInAnyOrder(
-        getResponseState(DONE, Collections.<String> emptyList(), null), getResponseState(ERROR, asList(DONE.name()), null),
+        getResponseState(DONE, emptyList(), null), getResponseState(ERROR, asList(DONE.name()), null),
         getResponseState(BEGIN, asList(DONE.name(), ERROR.name()), ERROR.name())));
     assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
         getSignal(1, "one"),
         getSignal(2, "two")));
-    assertThat(resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay.getMillis()));
+    assertThat(resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay));
     assertThat(resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
     assertThat(resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));
     assertThat(resp.settings.maxRetries, is(def.getSettings().maxRetries));

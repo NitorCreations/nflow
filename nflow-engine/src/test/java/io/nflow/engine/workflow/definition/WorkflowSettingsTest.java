@@ -9,6 +9,8 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Duration.standardDays;
+import static org.joda.time.Duration.standardMinutes;
 import static org.joda.time.Duration.standardSeconds;
 
 import java.util.function.BiFunction;
@@ -39,7 +41,9 @@ public class WorkflowSettingsTest {
   @Test
   public void verifyConstantDefaultValues() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
-    assertThat(s.shortTransitionDelay, is(standardSeconds(30)));
+    assertThat(s.shortTransitionDelay, is(standardSeconds(30).getMillis()));
+    assertThat(s.minErrorTransitionDelay, is(standardMinutes(1).getMillis()));
+    assertThat(s.maxErrorTransitionDelay, is(standardDays(1).getMillis()));
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));

@@ -50,7 +50,7 @@ public class ListWorkflowDefinitionConverter {
 
     WorkflowSettings workflowSettings = definition.getSettings();
     TransitionDelays transitionDelays = new TransitionDelays();
-    transitionDelays.waitShort = workflowSettings.shortTransitionDelay.getMillis();
+    transitionDelays.waitShort = workflowSettings.shortTransitionDelay;
     transitionDelays.minErrorWait = workflowSettings.minErrorTransitionDelay;
     transitionDelays.maxErrorWait = workflowSettings.maxErrorTransitionDelay;
     Settings settings = new Settings();
