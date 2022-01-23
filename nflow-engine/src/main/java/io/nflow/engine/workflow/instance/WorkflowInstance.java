@@ -149,7 +149,7 @@ public class WorkflowInstance extends ModelObject {
   public final Optional<Integer> signal;
 
   /**
-   * True if this instance is archived.
+   * True if this instance is archived. Archived instances are read-only, no modifications are allowed to them.
    */
   public final boolean isArchived;
 
@@ -570,7 +570,7 @@ public class WorkflowInstance extends ModelObject {
     }
 
     /**
-     * Set the workflow source.
+     * Set whether the workflow instance is archived or stored in main tables.
      * @param isArchived True if this workflow is archived.
      * @return this.
      */
