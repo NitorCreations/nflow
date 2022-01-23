@@ -6,7 +6,7 @@
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
   - BREAKING CHANGE: Change transition delay fields data types in `WorkflowSettings` and remove unused `immediateTransitionDelay` setting.
 - `nflow-rest-api`
-  - BREAKING CHANGE: Remove unused `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field.
+  - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow anymore.
 
 **Details**
 - `nflow-engine`
