@@ -2,7 +2,6 @@ dist: trusty
 language: java
 jdk:
   - openjdk11
-  - oraclejdk8
 env:
   global:
   - BUILD_SYSTEM=travis
