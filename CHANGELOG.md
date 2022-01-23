@@ -4,6 +4,9 @@
 - `nflow-engine`
   - BREAKING CHANGE: Remove `WorkflowDefinition`, workflow definitions should extend `AbstractWorkflowDefinition` instead.
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
+  - BREAKING CHANGE: Change transition delay fields data types in `WorkflowSettings` and remove unused `immediateTransitionDelay` setting.
+- `nflow-rest-api`
+  - BREAKING CHANGE: Remove unused `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field.
 
 **Details**
 - `nflow-engine`
@@ -12,6 +15,11 @@
     - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface.
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
+  - `WorkflowSettings`
+    - Change `WorkflowSettings.Builder.setShortTransitionDelay`, `WorkflowSettings.Builder.setMinErrorTransitionDelay` and `WorkflowSettings.Builder.setMaxErrorTransitionDelay` parameter type from `int` to `org.joda.time.Duration`.
+    - Remove `WorkflowSettings.Builder.setImmediateTransitionDelay` method.
+    - Change `WorkflowSettings.shortTransitionDelay`, `WorkflowSettings.minErrorTransitionDelay` and `WorkflowSettings.maxErrorTransitionDelay` field type from `int` to `long`.
+    - Remove `WorkflowSettings.immediateTransitionDelay` field.
   - Dependency updates
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
@@ -26,6 +34,7 @@
     - jodatime 2.10.3
     - slf4j 1.7.32
 - `nflow-rest-api`
+  - Remove unused `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field.
   - Dependency updates
     - swagger 1.6.4
 - `nflow-jetty`
