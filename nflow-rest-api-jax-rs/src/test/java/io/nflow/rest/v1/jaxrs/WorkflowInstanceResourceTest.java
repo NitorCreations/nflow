@@ -315,7 +315,7 @@ public class WorkflowInstanceResourceTest {
     WorkflowInstance instance = mock(WorkflowInstance.class);
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
+    when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, false),
         ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
@@ -329,7 +329,7 @@ public class WorkflowInstanceResourceTest {
     EnumSet<WorkflowInstanceInclude> includes = EnumSet.allOf(WorkflowInstanceInclude.class);
     when(workflowInstances.getWorkflowInstance(42, includes, 10L, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
+    when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
         () -> resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L, false),
         ListWorkflowInstanceResponse.class);

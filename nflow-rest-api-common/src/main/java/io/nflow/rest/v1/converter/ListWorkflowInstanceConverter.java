@@ -1,6 +1,5 @@
 package io.nflow.rest.v1.converter;
 
-import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -33,7 +32,8 @@ public class ListWorkflowInstanceConverter {
   @Inject
   private ObjectMapper nflowRestObjectMapper;
 
-  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<WorkflowInstanceInclude> includes) {
+  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<WorkflowInstanceInclude> includes,
+      boolean queryArchive) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
     resp.status = instance.status.name();
@@ -51,7 +51,7 @@ public class ListWorkflowInstanceConverter {
     resp.started = instance.started;
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
-    resp.isArchived = instance.isArchived ? TRUE : null;
+    resp.isArchived = queryArchive ? Boolean.valueOf(instance.isArchived) : null;
     if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {

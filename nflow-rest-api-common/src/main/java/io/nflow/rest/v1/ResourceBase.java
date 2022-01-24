@@ -169,7 +169,7 @@ public abstract class ResourceBase {
         .build();
     Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
     Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
-    return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums));
+    return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums, queryArchive));
   }
 
   private Set<WorkflowInstanceInclude> parseIncludeEnums(String include) {
@@ -181,12 +181,12 @@ public abstract class ResourceBase {
     return Stream.of(trimToEmpty(include).split(","));
   }
 
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(final long id, final String include, final Long maxActions, boolean queryArchive,
-      final WorkflowInstanceService workflowInstances,
-      final ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(long id, String include, Long maxActions, boolean queryArchive,
+      WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter)
+      throws EmptyResultDataAccessException {
     Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions, queryArchive);
-    return listWorkflowConverter.convert(instance, includes);
+    return listWorkflowConverter.convert(instance, includes, queryArchive);
   }
 
   protected int resolveExceptionHttpStatus(Throwable t) {
