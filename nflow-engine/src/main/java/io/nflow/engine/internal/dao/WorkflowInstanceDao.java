@@ -648,6 +648,10 @@ public class WorkflowInstanceDao {
     String sqlSuffix = "from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
       sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
+      conditions.add(
+          "wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
+      params.addValue("state_key", query.stateVariableKey);
+      params.addValue("state_value", query.stateVariableValue);
     }
     sqlSuffix += "where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
     long maxResults = getMaxResults(query.maxResults);
@@ -710,12 +714,6 @@ public class WorkflowInstanceDao {
     }
     conditions.add("executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
-    if (query.stateVariableKey != null) {
-      conditions.add(
-          "wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
-      params.addValue("state_key", query.stateVariableKey);
-      params.addValue("state_value", query.stateVariableValue);
-    }
   }
 
   private void fillChildWorkflowIds(final WorkflowInstance instance, boolean queryArchive) {
