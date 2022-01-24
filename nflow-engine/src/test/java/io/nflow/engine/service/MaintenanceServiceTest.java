@@ -1,8 +1,9 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.NflowTables.ARCHIVE;
-import static io.nflow.engine.internal.dao.NflowTables.MAIN;
+import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
+import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.joda.time.DateTime.now;
@@ -21,7 +22,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadablePeriod;
@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.internal.dao.NflowTable;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,8 +84,7 @@ public class MaintenanceServiceTest {
   }
 
   private void assertValidArchiveTablesAreChecked() {
-    Stream.of("workflow", "workflow_action", "workflow_state")
-        .forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(MAIN.prefix + table, ARCHIVE.prefix + table));
+    stream(NflowTable.values()).forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(table.main, table.archive));
   }
 
   @Test

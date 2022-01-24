@@ -89,7 +89,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
         try {
           getWorkflowInstance(it.next());
           SECONDS.sleep(1);
-        } catch (NotFoundException ex) {
+        } catch (@SuppressWarnings("unused") NotFoundException ex) {
           it.remove();
         }
       }

@@ -1,13 +1,13 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.NflowTables.ARCHIVE;
-import static io.nflow.engine.internal.dao.NflowTables.MAIN;
+import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
+import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

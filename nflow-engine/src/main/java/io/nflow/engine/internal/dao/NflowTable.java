@@ -4,8 +4,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public enum NflowTable {
   WORKFLOW("workflow"),
-  WORKFLOW_STATE("workflow_state"),
-  WORKFLOW_ACTION("workflow_action");
+  STATE("workflow_state"),
+  ACTION("workflow_action");
 
   public String main;
   public String archive;
@@ -15,7 +15,7 @@ public enum NflowTable {
     this.archive = TableType.ARCHIVE.prefix + table;
   }
 
-  public String get(TableType type) {
+  public String tableFor(TableType type) {
     return type == TableType.MAIN ? main : archive;
   }
 

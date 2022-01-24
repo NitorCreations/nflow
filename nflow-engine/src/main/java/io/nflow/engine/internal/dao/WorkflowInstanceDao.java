@@ -4,9 +4,9 @@ import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static io.nflow.engine.internal.dao.DaoUtil.getInt;
 import static io.nflow.engine.internal.dao.DaoUtil.getLong;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
+import static io.nflow.engine.internal.dao.NflowTable.ACTION;
+import static io.nflow.engine.internal.dao.NflowTable.STATE;
 import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
-import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW_ACTION;
-import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW_STATE;
 import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
 import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
@@ -536,7 +536,7 @@ public class WorkflowInstanceDao {
   }
 
   private void fillState(final WorkflowInstance instance) {
-    String tableName = WORKFLOW_STATE.tableFor(instance);
+    String tableName = STATE.tableFor(instance);
     jdbc.query("select outside.state_key, outside.state_value from " + tableName + " outside inner join "
         + "(select workflow_id, max(action_id) action_id, state_key from " + tableName
         + " where workflow_id = ? group by workflow_id, state_key) inside "
@@ -646,12 +646,12 @@ public class WorkflowInstanceDao {
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
-    queryOptionsToSQLAndParams(query, conditions, params);
+    queryOptionsToSqlAndParams(query, conditions, params);
 
     String whereCondition = " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
 
     if (query.stateVariableKey != null) {
-      whereCondition = "inner join " + WORKFLOW_STATE.main
+      whereCondition = "inner join " + STATE.main
           + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value " + whereCondition;
       conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
       params.addValue("state_key", query.stateVariableKey);
@@ -685,7 +685,7 @@ public class WorkflowInstanceDao {
     return ret;
   }
 
-  private void queryOptionsToSQLAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
+  private void queryOptionsToSqlAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
     if (!isEmpty(query.ids)) {
       conditions.add("id in (:ids)");
       params.addValue("ids", query.ids);
@@ -745,7 +745,7 @@ public class WorkflowInstanceDao {
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
     long maxActions = getMaxActions(requestedMaxActions);
-    String tableName = WORKFLOW_ACTION.tableFor(instance);
+    String tableName = ACTION.tableFor(instance);
     String sql = sqlVariants
         .limit("select nflow_workflow_action.* from " + tableName + " where workflow_id = ? order by id desc", maxActions);
     List<WorkflowInstanceAction.Builder> actionBuilders = jdbc.query(sql, workflowInstanceActionRowMapper,
@@ -770,8 +770,8 @@ public class WorkflowInstanceDao {
   }
 
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {
-    String stateTableName = WORKFLOW_STATE.tableFor(instance);
-    String actionTableName = WORKFLOW_ACTION.tableFor(instance);
+    String stateTableName = STATE.tableFor(instance);
+    String actionTableName = ACTION.tableFor(instance);
     if (actions < maxActions) {
       return jdbc.query("select * from " + stateTableName + " where workflow_id = ? order by action_id, state_key asc",
           new WorkflowActionStateRowMapper(), instance.id);
