@@ -69,7 +69,7 @@ public class WorkflowInstanceService {
    * @param id Workflow instance id.
    * @param includes Set of properties to be loaded.
    * @param maxActions Maximum number of actions to be loaded.
-   * @param queryArchive Query archive if not found from main tables.
+   * @param queryArchive Query archive tables if not found from main tables.
    * @return The workflow instance
    * @throws EmptyResultDataAccessException if not found
    */
