@@ -7,8 +7,7 @@ import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static io.nflow.engine.internal.dao.NflowTable.ACTION;
 import static io.nflow.engine.internal.dao.NflowTable.STATE;
 import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
-import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
-import static io.nflow.engine.internal.dao.TableType.MAIN;
+import static io.nflow.engine.internal.dao.TableType.convertMainToArchive;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
@@ -645,26 +644,20 @@ public class WorkflowInstanceDao {
   public Stream<WorkflowInstance> queryWorkflowInstancesAsStream(QueryWorkflowInstances query) {
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
-    conditions.add(executorInfo.getExecutorGroupCondition());
     queryOptionsToSqlAndParams(query, conditions, params);
-    String whereCondition = "";
+    String sqlSuffix = "as archived from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
-      whereCondition = "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
-      conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
-      params.addValue("state_key", query.stateVariableKey);
-      params.addValue("state_value", query.stateVariableValue);
+      sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
     }
-    whereCondition += " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    sqlSuffix += "where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
     long maxResults = getMaxResults(query.maxResults);
-    String sql = sqlVariants.limit("select *, 0 as archived from nflow_workflow wf " + whereCondition, maxResults);
+    String sql = sqlVariants.limit("select *, 0 " + sqlSuffix, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
     Stream<WorkflowInstance.Builder> resultStream = results.stream();
     // calculate how many results to try to search from archive
     maxResults -= results.size();
     if (query.queryArchive && maxResults > 0) {
-      sql = sqlVariants.limit(
-          "select *, 1 as archived from nflow_archive_workflow wf " + MAIN.prefix.replaceAll(whereCondition, ARCHIVE.prefix),
-          maxResults);
+      sql = sqlVariants.limit("select *, 1 " + convertMainToArchive(sqlSuffix), maxResults);
       resultStream = concat(resultStream, namedJdbc.query(sql, params, workflowInstanceRowMapper).stream());
     }
     Stream<WorkflowInstance> ret = resultStream.map(WorkflowInstance.Builder::build);
@@ -681,6 +674,7 @@ public class WorkflowInstanceDao {
   }
 
   private void queryOptionsToSqlAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
+    conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
       conditions.add("id in (:ids)");
       params.addValue("ids", query.ids);
@@ -716,6 +710,12 @@ public class WorkflowInstanceDao {
     }
     conditions.add("executor_group = :executor_group");
     params.addValue("executor_group", executorInfo.getExecutorGroup());
+    if (query.stateVariableKey != null) {
+      conditions.add(
+          "wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
+      params.addValue("state_key", query.stateVariableKey);
+      params.addValue("state_value", query.stateVariableValue);
+    }
   }
 
   private void fillChildWorkflowIds(final WorkflowInstance instance, boolean queryArchive) {

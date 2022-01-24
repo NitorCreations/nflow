@@ -8,4 +8,8 @@ public enum TableType {
   TableType(String prefix) {
     this.prefix = prefix;
   }
+
+  static String convertMainToArchive(String sql) {
+    return sql.replaceAll(MAIN.prefix, ARCHIVE.prefix);
+  }
 }
