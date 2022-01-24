@@ -648,7 +648,7 @@ public class WorkflowInstanceDao {
     conditions.add(executorInfo.getExecutorGroupCondition());
     queryOptionsToSqlAndParams(query, conditions, params);
 
-    String whereCondition = " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    String whereCondition = "";
 
     if (query.stateVariableKey != null) {
       whereCondition = "inner join " + STATE.main
@@ -657,6 +657,7 @@ public class WorkflowInstanceDao {
       params.addValue("state_key", query.stateVariableKey);
       params.addValue("state_value", query.stateVariableValue);
     }
+    whereCondition += " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
 
     long maxResults = getMaxResults(query.maxResults);
     String sql = sqlVariants.limit("select *, 0 as archived from " + WORKFLOW.main + " wf " + whereCondition, maxResults);
