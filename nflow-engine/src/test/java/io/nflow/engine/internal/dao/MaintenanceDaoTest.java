@@ -417,11 +417,11 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     maintenanceDao.deleteActionAndStateHistory(parentWorkflowId, now());
 
     parentWorkflow = workflowInstanceDao.getWorkflowInstance(parentWorkflowId, EnumSet.allOf(WorkflowInstanceInclude.class),
-        null);
+        null, false);
     assertThat(parentWorkflow.getStateVariable("requestData"), equalTo("{ \"parameter\": \"abc\" }"));
     assertThat(parentWorkflow.getStateVariable("variable"), equalTo("preservedValue"));
     assertThat(parentWorkflow.actions.size(), equalTo(2));
-    childWorkflow = workflowInstanceDao.getWorkflowInstance(childWorkflowId, emptySet(), null);
+    childWorkflow = workflowInstanceDao.getWorkflowInstance(childWorkflowId, emptySet(), null, false);
     assertThat(childWorkflow.parentWorkflowId, equalTo(parentWorkflowId));
   }
 
@@ -459,7 +459,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
   private void assertActiveWorkflowsRemoved(List<Long> workflowIds) {
     for (long id : workflowIds) {
-      assertThrows(EmptyResultDataAccessException.class, () -> workflowInstanceDao.getWorkflowInstance(id, emptySet(), null));
+      assertThrows(EmptyResultDataAccessException.class, () -> workflowInstanceDao.getWorkflowInstance(id, emptySet(), null, false));
     }
   }
 
@@ -594,7 +594,7 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     assertTrue(id > 0);
     DateTime modified = instance.modified;
     updateModified(id, modified);
-    WorkflowInstance dbInstance = workflowInstanceDao.getWorkflowInstance(id, emptySet(), null);
+    WorkflowInstance dbInstance = workflowInstanceDao.getWorkflowInstance(id, emptySet(), null, false);
     assertEquals(modified, dbInstance.modified);
     return id;
   }

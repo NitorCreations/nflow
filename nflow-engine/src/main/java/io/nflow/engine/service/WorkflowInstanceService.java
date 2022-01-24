@@ -130,7 +130,7 @@ public class WorkflowInstanceService {
         workflowInstanceDao.insertWorkflowInstanceAction(updatedInstance, updatedAction);
       } else {
         // this is to trigger EmptyResultDataAccessException if instance does not exist
-        workflowInstanceDao.getWorkflowInstance(instance.id, emptySet(), 0L);
+        workflowInstanceDao.getWorkflowInstance(instance.id, emptySet(), 0L, false);
       }
       return updated;
     } catch (EmptyResultDataAccessException e) {

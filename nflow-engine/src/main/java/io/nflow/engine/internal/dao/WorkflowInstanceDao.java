@@ -512,10 +512,6 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql.toString(), args) == 1;
   }
 
-  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions) {
-    return getWorkflowInstance(id, includes, maxActions, false);
-  }
-
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
     String sql = "select *, 0 as archived from " + MAIN.workflow + " where id = ?";
     Object[] args = new Object[]{ id };
