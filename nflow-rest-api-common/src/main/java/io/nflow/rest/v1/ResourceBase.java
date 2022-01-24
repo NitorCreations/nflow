@@ -163,7 +163,7 @@ public abstract class ResourceBase {
         .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables))
         .setMaxResults(maxResults)
         .setMaxActions(maxActions)
-        .setQueryArchive(queryArchive) //
+        .setQueryArchive(queryArchive)
         .setIncludeChildWorkflows(includeStrings.contains(childWorkflows))
         .setStateVariable(stateVariableKey, stateVariableValue)
         .build();
