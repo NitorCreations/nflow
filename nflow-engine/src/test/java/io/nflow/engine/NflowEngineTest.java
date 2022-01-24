@@ -8,9 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -24,9 +22,9 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
 import io.nflow.engine.service.DummyTestWorkflow;
-import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
+import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class NflowEngineTest {
@@ -53,30 +51,33 @@ public class NflowEngineTest {
     Collection<AbstractWorkflowDefinition> workflowDefinitions = asList(new DummyTestWorkflow());
     try (NflowEngine nflowEngine = new NflowEngine(dataSource(), new H2DatabaseConfiguration.H2SQLVariants(),
         workflowDefinitions)) {
-      WorkflowInstance newInstance = new WorkflowInstance.Builder().setType("dummy").setNextActivation(DateTime.now().plusMillis(200)).build();
+      String type = "dummy";
+      String externalId = "dummy";
+      WorkflowInstance newInstance = new WorkflowInstance.Builder().setType(type).setExternalId(externalId)
+          .setNextActivation(DateTime.now().plusMillis(200)).build();
 
       List<WorkflowExecutor> executors = nflowEngine.getWorkflowExecutorService().getWorkflowExecutors();
       assertEquals(1, executors.size());
       nflowEngine.getWorkflowInstanceService().insertWorkflowInstance(newInstance);
 
-      WorkflowInstance instance1 = getInstance(nflowEngine, 1);
+      WorkflowInstance instance1 = getInstance(nflowEngine, type, externalId);
       assertNotNull(instance1);
       assertEquals("dummy", instance1.type);
       assertNotNull(instance1.nextActivation);
 
-      while (getInstance(nflowEngine, 1).nextActivation != null) {
+      while (getInstance(nflowEngine, type, externalId).nextActivation != null) {
         Thread.sleep(100);
       }
 
       // instance is processed because nextActivation is set to null
-      WorkflowInstance instance2 = getInstance(nflowEngine, 1);
+      WorkflowInstance instance2 = getInstance(nflowEngine, type, externalId);
       assertNull(instance2.nextActivation);
     }
   }
 
-  private WorkflowInstance getInstance(NflowEngine nflowEngine, int id) {
-    Set<WorkflowInstanceInclude> includes = EnumSet.allOf(WorkflowInstanceInclude.class);
-    return nflowEngine.getWorkflowInstanceService().getWorkflowInstance(id, includes, 100L);
+  private WorkflowInstance getInstance(NflowEngine nflowEngine, String type, String externalId) {
+    QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(type).setExternalId(externalId).build();
+    return nflowEngine.getWorkflowInstanceService().listWorkflowInstances(query).iterator().next();
   }
 
   static DataSource dataSource() {

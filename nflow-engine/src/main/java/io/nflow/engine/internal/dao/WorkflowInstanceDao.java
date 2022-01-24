@@ -666,8 +666,6 @@ public class WorkflowInstanceDao {
       conditions.add("external_id like :external_id");
       params.addValue("external_id", query.externalId);
     }
-    conditions.add("executor_group = :executor_group");
-    params.addValue("executor_group", executorInfo.getExecutorGroup());
     if (query.stateVariableKey != null) {
       sqlBuilder.append("inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ");
       conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
