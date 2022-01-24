@@ -1,10 +1,10 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.NflowTables.ARCHIVE;
-import static io.nflow.engine.internal.dao.NflowTables.MAIN;
+import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
+import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
-import static java.util.function.Function.identity;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toMap;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -24,8 +24,9 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.internal.dao.NflowTable;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
-import io.nflow.engine.internal.dao.NflowTables;
+import io.nflow.engine.internal.dao.TableType;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.MaintenanceResults.Builder;
@@ -36,8 +37,8 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
 @Named
 public class MaintenanceService {
 
-  private static final Map<String, String> ARCHIVABLE_TABLES = Stream.of(MAIN.workflow, MAIN.workflow_state, MAIN.workflow_action)
-          .collect(toMap(identity(), NflowTables::asArchiveTable));
+  private static final Map<String, String> ARCHIVABLE_TABLES = stream(NflowTable.values())
+      .collect(toMap(table -> table.main, table -> table.archive));
 
   private static final Logger log = getLogger(MaintenanceService.class);
 
@@ -97,7 +98,8 @@ public class MaintenanceService {
         });
   }
 
-  private int doAction(String type, ConfigurationItem configuration, NflowTables table, Function<List<Long>, Integer> doAction) {
+  private int doAction(String type, ConfigurationItem configuration, TableType tableType,
+      Function<List<Long>, Integer> doAction) {
     DateTime olderThan = now().minus(configuration.olderThanPeriod);
     log.info("{} older than {}, in batches of {}.", type, olderThan, configuration.batchSize);
     StopWatch stopWatch = new StopWatch();
@@ -105,7 +107,7 @@ public class MaintenanceService {
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int totalWorkflows = 0;
     do {
-      List<Long> workflowIds = maintenanceDao.getOldWorkflowIds(table, olderThan, configuration.batchSize,
+      List<Long> workflowIds = maintenanceDao.getOldWorkflowIds(tableType, olderThan, configuration.batchSize,
           configuration.workflowTypes);
       if (workflowIds.isEmpty()) {
         break;

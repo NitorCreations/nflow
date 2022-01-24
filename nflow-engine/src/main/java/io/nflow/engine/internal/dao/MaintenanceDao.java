@@ -1,8 +1,9 @@
 package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
-import static io.nflow.engine.internal.dao.NflowTables.MAIN;
-import static io.nflow.engine.internal.dao.NflowTables.asArchiveTable;
+import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
+import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW_ACTION;
+import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW_STATE;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.generate;
@@ -69,8 +70,8 @@ public class MaintenanceDao {
     return stateColumns;
   }
 
-  public List<Long> getOldWorkflowIds(NflowTables table, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
-    StringBuilder sql = new StringBuilder("select id from ").append(table.workflow)
+  public List<Long> getOldWorkflowIds(TableType type, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
+    StringBuilder sql = new StringBuilder("select id from ").append(WORKFLOW.get(type))
         .append(" where next_activation is null and ").append(sqlVariants.dateLtEqDiff("modified", "?"));
     List<Object> args = new ArrayList<>();
     args.add(sqlVariants.toTimestampObject(before));
@@ -85,32 +86,32 @@ public class MaintenanceDao {
   @Transactional
   public int archiveWorkflows(Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
-    int archivedInstances = archiveTable(MAIN.workflow, "id", getWorkflowColumns(), workflowIdParams);
-    int archivedActions = archiveTable(MAIN.workflow_action, "workflow_id", getActionColumns(), workflowIdParams);
-    int archivedStates = archiveTable(MAIN.workflow_state, "workflow_id", getStateColumns(), workflowIdParams);
+    int archivedInstances = archiveTable(WORKFLOW, "id", getWorkflowColumns(), workflowIdParams);
+    int archivedActions = archiveTable(WORKFLOW_ACTION, "workflow_id", getActionColumns(), workflowIdParams);
+    int archivedStates = archiveTable(WORKFLOW_STATE, "workflow_id", getStateColumns(), workflowIdParams);
     logger.info("Archived {} workflow instances, {} actions and {} states.", archivedInstances, archivedActions, archivedStates);
-    deleteWorkflows(MAIN, workflowIdParams);
+    deleteWorkflows(TableType.MAIN, workflowIdParams);
     return archivedInstances;
   }
 
   @Transactional
-  public int deleteWorkflows(NflowTables table, Collection<Long> workflowIds) {
+  public int deleteWorkflows(TableType type, Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
-    return deleteWorkflows(table, workflowIdParams);
+    return deleteWorkflows(type, workflowIdParams);
   }
 
-  private int archiveTable(String mainTable, String workflowIdColumn, String columns, String workflowIdParams) {
-    return jdbc.update("insert into " + asArchiveTable(mainTable) + "(" + columns + ") " + "select " + columns + " from "
-        + mainTable + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams
+  private int archiveTable(NflowTable table, String workflowIdColumn, String columns, String workflowIdParams) {
+    return jdbc.update("insert into " + table.archive + "(" + columns + ") " + "select " + columns + " from " + table.main
+        + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams
         + sqlVariants.forUpdateSkipLocked());
   }
 
-  private int deleteWorkflows(NflowTables table, String workflowIdParams) {
-    int deletedStates = jdbc.update("delete from " + table.workflow_state + " where workflow_id in " + workflowIdParams);
-    int deletedActions = jdbc.update("delete from " + table.workflow_action + " where workflow_id in " + workflowIdParams);
-    int deletedInstances = jdbc.update("delete from " + table.workflow + " where id in " + workflowIdParams);
+  private int deleteWorkflows(TableType type, String workflowIdParams) {
+    int deletedStates = jdbc.update("delete from " + WORKFLOW_STATE.get(type) + " where workflow_id in " + workflowIdParams);
+    int deletedActions = jdbc.update("delete from " + WORKFLOW_ACTION.get(type) + " where workflow_id in " + workflowIdParams);
+    int deletedInstances = jdbc.update("delete from " + WORKFLOW.get(type) + " where id in " + workflowIdParams);
     logger.info("Deleted {} workflow instances, {} actions and {} states from {} tables.", deletedInstances, deletedActions,
-        deletedStates, table.name());
+        deletedStates, type.name());
     return deletedInstances;
   }
 
