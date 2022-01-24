@@ -19,4 +19,9 @@ public enum NflowTables {
   public static String asArchiveTable(String mainTable) {
     return ARCHIVE.prefix + mainTable.substring(MAIN.prefix.length());
   }
+
+  public String replaceAll(String sql, NflowTables with) {
+    // it is currently enough to change the prefix only since all tables other tables have just same suffix
+    return sql.replace(this.workflow, with.workflow);
+  }
 }
