@@ -84,7 +84,7 @@ public class MaintenanceServiceTest {
   }
 
   private void assertValidArchiveTablesAreChecked() {
-    stream(NflowTable.values()).forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(table));
+    stream(NflowTable.values()).forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(table.main, table.archive));
   }
 
   @Test
@@ -156,14 +156,14 @@ public class MaintenanceServiceTest {
 
   @Test
   public void nothingIsArchivedWhenValidArchiveTablesDoNotExist() {
-    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any());
+    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any(), any());
     assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(archiveConfig));
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void nothingIsDeletedFromArchiveTablesWhenValidArchiveTablesDoNotExist() {
-    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any());
+    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any(), any());
     assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(deleteArchiveConfig));
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }

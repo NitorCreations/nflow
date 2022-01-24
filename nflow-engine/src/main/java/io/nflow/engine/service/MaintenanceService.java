@@ -64,7 +64,7 @@ public class MaintenanceService {
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     validateConfiguration(configuration);
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
-      stream(NflowTable.values()).forEach(tableMetadataChecker::ensureCopyingPossible);
+      stream(NflowTable.values()).forEach(table -> tableMetadataChecker.ensureCopyingPossible(table.main, table.archive));
     }
     Builder builder = new MaintenanceResults.Builder();
     if (configuration.deleteArchivedWorkflows != null) {

@@ -647,32 +647,26 @@ public class WorkflowInstanceDao {
     MapSqlParameterSource params = new MapSqlParameterSource();
     conditions.add(executorInfo.getExecutorGroupCondition());
     queryOptionsToSqlAndParams(query, conditions, params);
-
     String whereCondition = "";
-
     if (query.stateVariableKey != null) {
-      whereCondition = "inner join " + STATE.main
-          + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value " + whereCondition;
+      whereCondition = "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
       conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
       params.addValue("state_key", query.stateVariableKey);
       params.addValue("state_value", query.stateVariableValue);
     }
     whereCondition += " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
-
     long maxResults = getMaxResults(query.maxResults);
-    String sql = sqlVariants.limit("select *, 0 as archived from " + WORKFLOW.main + " wf " + whereCondition, maxResults);
+    String sql = sqlVariants.limit("select *, 0 as archived from nflow_workflow wf " + whereCondition, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
     Stream<WorkflowInstance.Builder> resultStream = results.stream();
-
     // calculate how many results to try to search from archive
     maxResults -= results.size();
     if (query.queryArchive && maxResults > 0) {
       sql = sqlVariants.limit(
-          "select *, 1 as archived from " + WORKFLOW.archive + " wf " + MAIN.prefix.replaceAll(whereCondition, ARCHIVE.prefix),
+          "select *, 1 as archived from nflow_archive_workflow wf " + MAIN.prefix.replaceAll(whereCondition, ARCHIVE.prefix),
           maxResults);
       resultStream = concat(resultStream, namedJdbc.query(sql, params, workflowInstanceRowMapper).stream());
     }
-
     Stream<WorkflowInstance> ret = resultStream.map(WorkflowInstance.Builder::build);
     if (query.includeCurrentStateVariables) {
       ret = ret.peek(instance -> fillState(instance));
