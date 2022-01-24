@@ -1,7 +1,7 @@
 package io.nflow.engine.internal.dao;
 
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.NflowTables.ARCHIVE;
+import static io.nflow.engine.internal.dao.NflowTables.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
 import static java.util.Arrays.asList;

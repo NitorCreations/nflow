@@ -1,9 +1,8 @@
 package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
-import static io.nflow.engine.internal.dao.TablePrefix.asArchiveTable;
+import static io.nflow.engine.internal.dao.NflowTables.MAIN;
+import static io.nflow.engine.internal.dao.NflowTables.asArchiveTable;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.generate;
@@ -70,7 +69,7 @@ public class MaintenanceDao {
     return stateColumns;
   }
 
-  public List<Long> getOldWorkflowIds(TablePrefix table, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
+  public List<Long> getOldWorkflowIds(NflowTables table, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
     StringBuilder sql = new StringBuilder("select id from ").append(table.workflow)
         .append(" where next_activation is null and ").append(sqlVariants.dateLtEqDiff("modified", "?"));
     List<Object> args = new ArrayList<>();
@@ -95,7 +94,7 @@ public class MaintenanceDao {
   }
 
   @Transactional
-  public int deleteWorkflows(TablePrefix table, Collection<Long> workflowIds) {
+  public int deleteWorkflows(NflowTables table, Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
     return deleteWorkflows(table, workflowIdParams);
   }
@@ -106,7 +105,7 @@ public class MaintenanceDao {
         + sqlVariants.forUpdateSkipLocked());
   }
 
-  private int deleteWorkflows(TablePrefix table, String workflowIdParams) {
+  private int deleteWorkflows(NflowTables table, String workflowIdParams) {
     int deletedStates = jdbc.update("delete from " + table.workflow_state + " where workflow_id in " + workflowIdParams);
     int deletedActions = jdbc.update("delete from " + table.workflow_action + " where workflow_id in " + workflowIdParams);
     int deletedInstances = jdbc.update("delete from " + table.workflow + " where id in " + workflowIdParams);

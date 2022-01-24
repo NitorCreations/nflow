@@ -1,6 +1,6 @@
 package io.nflow.engine.internal.dao;
 
-public enum TablePrefix {
+public enum NflowTables {
   MAIN("nflow_"),
   ARCHIVE("nflow_archive_");
 
@@ -9,7 +9,7 @@ public enum TablePrefix {
   public final String workflow_action;
   public final String prefix;
 
-  TablePrefix(String prefix) {
+  NflowTables(String prefix) {
     this.prefix = prefix;
     this.workflow = prefix + "workflow";
     this.workflow_state = prefix + "workflow_state";

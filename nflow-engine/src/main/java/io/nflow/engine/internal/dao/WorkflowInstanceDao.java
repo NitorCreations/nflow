@@ -4,8 +4,8 @@ import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static io.nflow.engine.internal.dao.DaoUtil.getInt;
 import static io.nflow.engine.internal.dao.DaoUtil.getLong;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.NflowTables.ARCHIVE;
+import static io.nflow.engine.internal.dao.NflowTables.MAIN;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
@@ -536,12 +536,12 @@ public class WorkflowInstanceDao {
     return instance;
   }
 
-  private TablePrefix sourceTable(WorkflowInstance instance) {
+  private NflowTables sourceTable(WorkflowInstance instance) {
     return instance.isArchived ? ARCHIVE : MAIN;
   }
 
   private void fillState(final WorkflowInstance instance) {
-    TablePrefix tablePrefix = sourceTable(instance);
+    NflowTables tablePrefix = sourceTable(instance);
     jdbc.query("select outside.state_key, outside.state_value from " + tablePrefix.workflow_state + " outside inner join "
         + "(select workflow_id, max(action_id) action_id, state_key from " + tablePrefix.workflow_state + " where workflow_id = ? group by workflow_id, state_key) inside "
         + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
@@ -723,7 +723,7 @@ public class WorkflowInstanceDao {
   }
 
   private void fillChildWorkflowIds(final WorkflowInstance instance, boolean queryArchive) {
-    Stream<TablePrefix> tables = queryArchive ? Stream.of(MAIN, ARCHIVE) : Stream.of(MAIN);
+    Stream<NflowTables> tables = queryArchive ? Stream.of(MAIN, ARCHIVE) : Stream.of(MAIN);
     String sql = tables.map(tablePrefix -> "select parent_action_id, id from " + tablePrefix.workflow + " where parent_workflow_id = ?")
             .collect(joining(" union all "));
     Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
@@ -744,7 +744,7 @@ public class WorkflowInstanceDao {
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
     long maxActions = getMaxActions(requestedMaxActions);
-    TablePrefix tablePrefix = sourceTable(instance);
+    NflowTables tablePrefix = sourceTable(instance);
     String sql = sqlVariants
         .limit("select nflow_workflow_action.* from " + tablePrefix.workflow_action + " where workflow_id = ? order by id desc", maxActions);
     List<WorkflowInstanceAction.Builder> actionBuilders = jdbc.query(sql, workflowInstanceActionRowMapper,
@@ -769,7 +769,7 @@ public class WorkflowInstanceDao {
   }
 
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {
-    TablePrefix tablePrefix = sourceTable(instance);
+    NflowTables tablePrefix = sourceTable(instance);
     if (actions < maxActions) {
       return jdbc.query("select * from " + tablePrefix.workflow_state + " where workflow_id = ? order by action_id, state_key asc",
           new WorkflowActionStateRowMapper(), instance.id);

@@ -1,17 +1,14 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
-import static io.nflow.engine.internal.dao.TablePrefix.asArchiveTable;
+import static io.nflow.engine.internal.dao.NflowTables.ARCHIVE;
+import static io.nflow.engine.internal.dao.NflowTables.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +25,7 @@ import org.slf4j.Logger;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
-import io.nflow.engine.internal.dao.TablePrefix;
+import io.nflow.engine.internal.dao.NflowTables;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.MaintenanceResults.Builder;
@@ -40,7 +37,7 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
 public class MaintenanceService {
 
   private static final Map<String, String> ARCHIVABLE_TABLES = Stream.of(MAIN.workflow, MAIN.workflow_state, MAIN.workflow_action)
-          .collect(toMap(identity(), TablePrefix::asArchiveTable));
+          .collect(toMap(identity(), NflowTables::asArchiveTable));
 
   private static final Logger log = getLogger(MaintenanceService.class);
 
@@ -100,7 +97,7 @@ public class MaintenanceService {
         });
   }
 
-  private int doAction(String type, ConfigurationItem configuration, TablePrefix table, Function<List<Long>, Integer> doAction) {
+  private int doAction(String type, ConfigurationItem configuration, NflowTables table, Function<List<Long>, Integer> doAction) {
     DateTime olderThan = now().minus(configuration.olderThanPeriod);
     log.info("{} older than {}, in batches of {}.", type, olderThan, configuration.batchSize);
     StopWatch stopWatch = new StopWatch();
