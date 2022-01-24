@@ -27,7 +27,7 @@
     - jodatime 2.10.3
     - slf4j 1.7.33
 - `nflow-rest-api-jax-rs` and `nflow-rest-api-spring-web`
-  - Support for querying archived workflow instances when passing `queryArchive=true` query parameter if not enough matches found from main tables.
+    - Add `queryArchive=true` query parameter to query also archived workflow instances when not enough non-archived matches are found.
 - `nflow-rest-api`
   - Dependency updates
     - swagger 1.6.4
