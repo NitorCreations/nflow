@@ -6,6 +6,7 @@ import static io.nflow.tests.demo.workflow.TestState.DONE;
 import static io.nflow.tests.demo.workflow.TestState.ERROR;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
+import static org.joda.time.Duration.millis;
 
 import org.springframework.stereotype.Component;
 
@@ -30,8 +31,8 @@ public class StateWorkflow extends AbstractWorkflowDefinition {
   public static final WorkflowState STATE_5 = new State("state5", "Update variable 2");
 
   public StateWorkflow() {
-    super(STATE_WORKFLOW_TYPE, STATE_1, ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(0)
-        .setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
+    super(STATE_WORKFLOW_TYPE, STATE_1, ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(0))
+        .setMaxErrorTransitionDelay(millis(0)).setShortTransitionDelay(millis(0)).setMaxRetries(3).build());
     setDescription("Workflow for testing state variables");
     permit(STATE_1, STATE_2);
     permit(STATE_2, STATE_3);
