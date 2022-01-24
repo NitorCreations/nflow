@@ -571,7 +571,7 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set whether the workflow instance is archived or stored in main tables.
-     * @param isArchived True if this workflow is archived.
+     * @param isArchived True if this workflow is stored in archive tables.
      * @return this.
      */
     public Builder setArchived(boolean isArchived) {
