@@ -31,12 +31,12 @@ public class TableMetadataChecker {
     this.jdbc = jdbcTemplate;
   }
 
-  public void ensureCopyingPossible(String sourceTable, String destinationTable) {
-    Map<String, ColumnMetadata> sourceMetadataMap = getMetadata(sourceTable);
-    Map<String, ColumnMetadata> destMetadataMap = getMetadata(destinationTable);
+  public void ensureCopyingPossible(NflowTable table) {
+    Map<String, ColumnMetadata> sourceMetadataMap = getMetadata(table.main);
+    Map<String, ColumnMetadata> destMetadataMap = getMetadata(table.archive);
     if (destMetadataMap.size() < sourceMetadataMap.size()) {
-      throw new IllegalArgumentException(format("Source table %s has more columns than destination table %s", sourceTable,
-          destinationTable));
+      throw new IllegalArgumentException(
+          format("Source table %s has more columns than destination table %s", table.main, table.archive));
     }
     Set<String> sourceKeySet = sourceMetadataMap.keySet();
     Set<String> destKeySet = destMetadataMap.keySet();
@@ -44,19 +44,19 @@ public class TableMetadataChecker {
       Set<String> missingColumns = new LinkedHashSet<>(sourceKeySet);
       missingColumns.removeAll(destKeySet);
       throw new IllegalArgumentException(format("Destination table %s is missing columns %s that are present in source table %s",
-          destinationTable, missingColumns, sourceTable));
+          table.archive, missingColumns, table.main));
     }
     for (Entry<String, ColumnMetadata> entry : sourceMetadataMap.entrySet()) {
       ColumnMetadata sourceMetadata = entry.getValue();
       ColumnMetadata destMetadata = destMetadataMap.get(entry.getKey());
       if (!sourceMetadata.typeName.equals(destMetadata.typeName)) {
         throw new IllegalArgumentException(format(
-            "Source column %s.%s has type %s and destination column %s.%s has mismatching type %s", sourceTable,
-            sourceMetadata.columnName, sourceMetadata.typeName, destinationTable, destMetadata.columnName, destMetadata.typeName));
+            "Source column %s.%s has type %s and destination column %s.%s has mismatching type %s", table.main,
+            sourceMetadata.columnName, sourceMetadata.typeName, table.archive, destMetadata.columnName, destMetadata.typeName));
       }
       if (sourceMetadata.size > destMetadata.size) {
         throw new IllegalArgumentException(format("Source column %s.%s has size %s and destination column %s.%s smaller size %s",
-            sourceTable, sourceMetadata.columnName, sourceMetadata.size, destinationTable, destMetadata.columnName,
+            table.main, sourceMetadata.columnName, sourceMetadata.size, table.archive, destMetadata.columnName,
             destMetadata.size));
       }
     }

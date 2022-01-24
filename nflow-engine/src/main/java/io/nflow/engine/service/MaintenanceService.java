@@ -5,12 +5,10 @@ import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toMap;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -36,9 +34,6 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
  */
 @Named
 public class MaintenanceService {
-
-  private static final Map<String, String> ARCHIVABLE_TABLES = stream(NflowTable.values())
-      .collect(toMap(table -> table.main, table -> table.archive));
 
   private static final Logger log = getLogger(MaintenanceService.class);
 
@@ -69,7 +64,7 @@ public class MaintenanceService {
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     validateConfiguration(configuration);
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
-      ARCHIVABLE_TABLES.forEach(tableMetadataChecker::ensureCopyingPossible);
+      stream(NflowTable.values()).forEach(tableMetadataChecker::ensureCopyingPossible);
     }
     Builder builder = new MaintenanceResults.Builder();
     if (configuration.deleteArchivedWorkflows != null) {
