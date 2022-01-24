@@ -517,10 +517,10 @@ public class WorkflowInstanceDao {
   }
 
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
-    String sql = "select *, 0 as archived from " + MAIN.nameOf("workflow") + " where id = ?";
+    String sql = "select *, 0 as archived from " + MAIN.workflow + " where id = ?";
     Object[] args = new Object[]{ id };
     if (queryArchive) {
-      sql += " union all select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " where id = ?";
+      sql += " union all select *, 1 as archived from " + ARCHIVE.workflow + " where id = ?";
       args = new Object[]{ id, id };
     }
     WorkflowInstance instance = jdbc.queryForObject(sql, args, workflowInstanceRowMapper).build();
@@ -542,8 +542,8 @@ public class WorkflowInstanceDao {
 
   private void fillState(final WorkflowInstance instance) {
     TablePrefix tablePrefix = sourceTable(instance);
-    jdbc.query("select outside.state_key, outside.state_value from " + tablePrefix.nameOf("workflow_state") + " outside inner join "
-        + "(select workflow_id, max(action_id) action_id, state_key from " + tablePrefix.nameOf("workflow_state") + " where workflow_id = ? group by workflow_id, state_key) inside "
+    jdbc.query("select outside.state_key, outside.state_value from " + tablePrefix.workflow_state + " outside inner join "
+        + "(select workflow_id, max(action_id) action_id, state_key from " + tablePrefix.workflow_state + " where workflow_id = ? group by workflow_id, state_key) inside "
         + "on outside.workflow_id = inside.workflow_id and outside.action_id = inside.action_id and outside.state_key = inside.state_key",
         rs -> {
           instance.stateVariables.put(rs.getString(1), rs.getString(2));
@@ -689,8 +689,8 @@ public class WorkflowInstanceDao {
     String innerJoinMain = "";
     String innerJoinArchive = "";
     if (query.stateVariableKey != null) {
-      innerJoinMain = "inner join " + MAIN.nameOf("workflow_state") + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
-      innerJoinArchive = "inner join " + ARCHIVE.nameOf("workflow_state") + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
+      innerJoinMain = "inner join " + MAIN.workflow_state + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
+      innerJoinArchive = "inner join " + ARCHIVE.workflow_state + " wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
       conditions.add("wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
       params.addValue("state_key", query.stateVariableKey);
       params.addValue("state_value", query.stateVariableValue);
@@ -699,13 +699,13 @@ public class WorkflowInstanceDao {
     String whereCondition = " where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
 
     long maxResults = getMaxResults(query.maxResults);
-    String sql = sqlVariants.limit("select *, 0 as archived from " + MAIN.nameOf("workflow") + " wf " + innerJoinMain + whereCondition, maxResults);
+    String sql = sqlVariants.limit("select *, 0 as archived from " + MAIN.workflow + " wf " + innerJoinMain + whereCondition, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
     maxResults -= results.size();
     Stream<WorkflowInstance.Builder> resultStream = results.stream();
 
     if (query.queryArchive && maxResults > 0) {
-      sql = sqlVariants.limit("select *, 1 as archived from " + ARCHIVE.nameOf("workflow") + " wf " +  innerJoinArchive + whereCondition, maxResults);
+      sql = sqlVariants.limit("select *, 1 as archived from " + ARCHIVE.workflow + " wf " +  innerJoinArchive + whereCondition, maxResults);
       resultStream = concat(resultStream, namedJdbc.query(sql, params, workflowInstanceRowMapper).stream());
     }
 
@@ -724,7 +724,7 @@ public class WorkflowInstanceDao {
 
   private void fillChildWorkflowIds(final WorkflowInstance instance, boolean queryArchive) {
     Stream<TablePrefix> tables = queryArchive ? Stream.of(MAIN, ARCHIVE) : Stream.of(MAIN);
-    String sql = tables.map(tablePrefix -> "select parent_action_id, id from " + tablePrefix.nameOf("workflow") + " where parent_workflow_id = ?")
+    String sql = tables.map(tablePrefix -> "select parent_action_id, id from " + tablePrefix.workflow + " where parent_workflow_id = ?")
             .collect(joining(" union all "));
     Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
     jdbc.query(sql, args, rs -> {
@@ -746,7 +746,7 @@ public class WorkflowInstanceDao {
     long maxActions = getMaxActions(requestedMaxActions);
     TablePrefix tablePrefix = sourceTable(instance);
     String sql = sqlVariants
-        .limit("select nflow_workflow_action.* from " + tablePrefix.nameOf("workflow_action") + " where workflow_id = ? order by id desc", maxActions);
+        .limit("select nflow_workflow_action.* from " + tablePrefix.workflow_action + " where workflow_id = ? order by id desc", maxActions);
     List<WorkflowInstanceAction.Builder> actionBuilders = jdbc.query(sql, workflowInstanceActionRowMapper,
         instance.id);
     if (includeStateVariables) {
@@ -771,12 +771,12 @@ public class WorkflowInstanceDao {
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {
     TablePrefix tablePrefix = sourceTable(instance);
     if (actions < maxActions) {
-      return jdbc.query("select * from " + tablePrefix.nameOf("workflow_state") + " where workflow_id = ? order by action_id, state_key asc",
+      return jdbc.query("select * from " + tablePrefix.workflow_state + " where workflow_id = ? order by action_id, state_key asc",
           new WorkflowActionStateRowMapper(), instance.id);
     }
     return jdbc.query("select nflow_workflow_state.* from ("
-        + sqlVariants.limit("select id from " + tablePrefix.nameOf("workflow_action") + " nflow_workflow_action where workflow_id = ? order by id desc", maxActions)
-        + ") action_id inner join " + tablePrefix.nameOf("workflow_state") + " nflow_workflow_state on nflow_workflow_state.workflow_id = ? and action_id.id = nflow_workflow_state.action_id "
+        + sqlVariants.limit("select id from " + tablePrefix.workflow_action + " nflow_workflow_action where workflow_id = ? order by id desc", maxActions)
+        + ") action_id inner join " + tablePrefix.workflow_state + " nflow_workflow_state on nflow_workflow_state.workflow_id = ? and action_id.id = nflow_workflow_state.action_id "
         + "order by nflow_workflow_state.action_id, nflow_workflow_state.state_key asc", new WorkflowActionStateRowMapper(),
         instance.id, instance.id);
   }

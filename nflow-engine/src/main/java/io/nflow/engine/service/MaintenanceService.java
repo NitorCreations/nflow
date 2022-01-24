@@ -2,13 +2,18 @@ package io.nflow.engine.service;
 
 import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TablePrefix.asArchiveTable;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -34,7 +39,8 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
 @Named
 public class MaintenanceService {
 
-  private static final List<String> ARCHIVABLE_TABLES = asList("workflow", "workflow_action", "workflow_state");
+  private static final Map<String, String> ARCHIVABLE_TABLES = Stream.of(MAIN.workflow, MAIN.workflow_state, MAIN.workflow_action)
+          .collect(toMap(identity(), TablePrefix::asArchiveTable));
 
   private static final Logger log = getLogger(MaintenanceService.class);
 
@@ -65,7 +71,7 @@ public class MaintenanceService {
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     validateConfiguration(configuration);
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
-      ARCHIVABLE_TABLES.forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
+      ARCHIVABLE_TABLES.forEach(tableMetadataChecker::ensureCopyingPossible);
     }
     Builder builder = new MaintenanceResults.Builder();
     if (configuration.deleteArchivedWorkflows != null) {

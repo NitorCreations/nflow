@@ -3,6 +3,7 @@ package io.nflow.engine.internal.dao;
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
 import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TablePrefix.asArchiveTable;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.generate;
@@ -70,7 +71,7 @@ public class MaintenanceDao {
   }
 
   public List<Long> getOldWorkflowIds(TablePrefix table, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
-    StringBuilder sql = new StringBuilder("select id from ").append(table.nameOf("workflow"))
+    StringBuilder sql = new StringBuilder("select id from ").append(table.workflow)
         .append(" where next_activation is null and ").append(sqlVariants.dateLtEqDiff("modified", "?"));
     List<Object> args = new ArrayList<>();
     args.add(sqlVariants.toTimestampObject(before));
@@ -85,9 +86,9 @@ public class MaintenanceDao {
   @Transactional
   public int archiveWorkflows(Collection<Long> workflowIds) {
     String workflowIdParams = params(workflowIds);
-    int archivedInstances = archiveTable("workflow", "id", getWorkflowColumns(), workflowIdParams);
-    int archivedActions = archiveTable("workflow_action", "workflow_id", getActionColumns(), workflowIdParams);
-    int archivedStates = archiveTable("workflow_state", "workflow_id", getStateColumns(), workflowIdParams);
+    int archivedInstances = archiveTable(MAIN.workflow, "id", getWorkflowColumns(), workflowIdParams);
+    int archivedActions = archiveTable(MAIN.workflow_action, "workflow_id", getActionColumns(), workflowIdParams);
+    int archivedStates = archiveTable(MAIN.workflow_state, "workflow_id", getStateColumns(), workflowIdParams);
     logger.info("Archived {} workflow instances, {} actions and {} states.", archivedInstances, archivedActions, archivedStates);
     deleteWorkflows(MAIN, workflowIdParams);
     return archivedInstances;
@@ -99,16 +100,16 @@ public class MaintenanceDao {
     return deleteWorkflows(table, workflowIdParams);
   }
 
-  private int archiveTable(String table, String workflowIdColumn, String columns, String workflowIdParams) {
-    return jdbc.update("insert into " + ARCHIVE.nameOf(table) + "(" + columns + ") " + "select " + columns + " from "
-        + MAIN.nameOf(table) + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams
+  private int archiveTable(String mainTable, String workflowIdColumn, String columns, String workflowIdParams) {
+    return jdbc.update("insert into " + asArchiveTable(mainTable) + "(" + columns + ") " + "select " + columns + " from "
+        + mainTable + sqlVariants.withUpdateSkipLocked() + " where " + workflowIdColumn + " in " + workflowIdParams
         + sqlVariants.forUpdateSkipLocked());
   }
 
   private int deleteWorkflows(TablePrefix table, String workflowIdParams) {
-    int deletedStates = jdbc.update("delete from " + table.nameOf("workflow_state") + " where workflow_id in " + workflowIdParams);
-    int deletedActions = jdbc.update("delete from " + table.nameOf("workflow_action") + " where workflow_id in " + workflowIdParams);
-    int deletedInstances = jdbc.update("delete from " + table.nameOf("workflow") + " where id in " + workflowIdParams);
+    int deletedStates = jdbc.update("delete from " + table.workflow_state + " where workflow_id in " + workflowIdParams);
+    int deletedActions = jdbc.update("delete from " + table.workflow_action + " where workflow_id in " + workflowIdParams);
+    int deletedInstances = jdbc.update("delete from " + table.workflow + " where id in " + workflowIdParams);
     logger.info("Deleted {} workflow instances, {} actions and {} states from {} tables.", deletedInstances, deletedActions,
         deletedStates, table.name());
     return deletedInstances;

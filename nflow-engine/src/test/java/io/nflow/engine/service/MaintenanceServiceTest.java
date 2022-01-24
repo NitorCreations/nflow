@@ -84,7 +84,7 @@ public class MaintenanceServiceTest {
 
   private void assertValidArchiveTablesAreChecked() {
     Stream.of("workflow", "workflow_action", "workflow_state")
-        .forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
+        .forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(MAIN.prefix + table, ARCHIVE.prefix + table));
   }
 
   @Test
