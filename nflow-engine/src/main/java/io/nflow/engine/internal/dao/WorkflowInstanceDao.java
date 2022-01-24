@@ -645,6 +645,7 @@ public class WorkflowInstanceDao {
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     queryOptionsToSqlAndParams(query, conditions, params);
+    conditions.add(executorInfo.getExecutorGroupCondition());
     String sqlSuffix = "from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
       sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
@@ -678,7 +679,6 @@ public class WorkflowInstanceDao {
   }
 
   private void queryOptionsToSqlAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
-    conditions.add(executorInfo.getExecutorGroupCondition());
     if (!isEmpty(query.ids)) {
       conditions.add("id in (:ids)");
       params.addValue("ids", query.ids);
@@ -712,8 +712,6 @@ public class WorkflowInstanceDao {
       conditions.add("external_id like :external_id");
       params.addValue("external_id", query.externalId);
     }
-    conditions.add("executor_group = :executor_group");
-    params.addValue("executor_group", executorInfo.getExecutorGroup());
   }
 
   private void fillChildWorkflowIds(final WorkflowInstance instance, boolean queryArchive) {
