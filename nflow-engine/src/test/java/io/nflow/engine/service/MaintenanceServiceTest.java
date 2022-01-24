@@ -13,7 +13,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.joda.time.Period.months;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -84,7 +84,7 @@ public class MaintenanceServiceTest {
   }
 
   private void assertValidArchiveTablesAreChecked() {
-    stream(NflowTable.values()).forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(table.main, table.archive));
+    stream(NflowTable.values()).forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(table));
   }
 
   @Test
@@ -156,14 +156,14 @@ public class MaintenanceServiceTest {
 
   @Test
   public void nothingIsArchivedWhenValidArchiveTablesDoNotExist() {
-    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(anyString(), anyString());
+    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any());
     assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(archiveConfig));
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void nothingIsDeletedFromArchiveTablesWhenValidArchiveTablesDoNotExist() {
-    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(anyString(), anyString());
+    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any());
     assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(deleteArchiveConfig));
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
