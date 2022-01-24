@@ -38,7 +38,7 @@ var Config = function() {
   };
 
   /**
-   * Set to false to avoid skip querying the nflow archive.
+   * Change this to false to avoid querying workflow instances from the archive tables.
    */
   this.queryArchive = true
 
