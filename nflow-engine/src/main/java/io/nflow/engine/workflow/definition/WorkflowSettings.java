@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableDuration;
+import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 
@@ -104,7 +105,7 @@ public class WorkflowSettings extends ModelObject {
     int maxRetries = 17;
     int maxSubsequentStateExecutions = 100;
     Map<WorkflowState, Integer> maxSubsequentStateExecutionsPerState = new HashMap<>();
-    ReadablePeriod historyDeletableAfter;
+    ReadablePeriod historyDeletableAfter = Period.days(45);
     short defaultPriority = 0;
     BooleanSupplier deleteHistoryCondition = onAverageEveryNthExecution(100);
     BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
@@ -216,8 +217,8 @@ public class WorkflowSettings extends ModelObject {
     }
 
     /**
-     * Set the delay after which workflow history (actions, states) can be deleted from the database by nFlow. The default value
-     * (<code>null</code>) indicates that history is not deletable.
+     * Set the delay after which workflow history (actions, states) can be deleted from the database by nFlow. Setting value to
+     * <code>null</code> indicates that history is not deletable. Default is 45 days.
      *
      * @param period
      *          Delay after which history can be deleted.

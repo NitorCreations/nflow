@@ -7,6 +7,8 @@
   - BREAKING CHANGE: Change transition delay fields data types in `WorkflowSettings` and remove unused `immediateTransitionDelay` setting.
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow anymore.
+  - Enable maintenance (archiving and deleting old workflow instances) by default.
+  - Enable workflow instance history clean-up (deleting old actions and state variables) by default.
 
 **Details**
 - `nflow-engine`
@@ -19,7 +21,9 @@
     - Change `WorkflowSettings.Builder.setShortTransitionDelay`, `WorkflowSettings.Builder.setMinErrorTransitionDelay` and `WorkflowSettings.Builder.setMaxErrorTransitionDelay` parameter type from `int` to `org.joda.time.Duration`.
     - Remove `WorkflowSettings.Builder.setImmediateTransitionDelay` method.
     - Change `WorkflowSettings.shortTransitionDelay`, `WorkflowSettings.minErrorTransitionDelay` and `WorkflowSettings.maxErrorTransitionDelay` field type from `int` to `long`.
-    - Remove `WorkflowSettings.immediateTransitionDelay` field.
+    - Remove `WorkflowSettings.immediateTransitionDelay` field. It is not used by nFlow.
+  - Maintenance workflow instance is added to nFlow database by default in startup. Instances that have been in final state longer than 45 days are archived. Archived instances that have been in final state longer than one year are deleted. Maintenance is run every night. Use `nflow.maintenance` configuration options to change the defaults before startup, or update the maintenance workflow instance state variables after the instance has been created.
+  - Workflow instance actions and state variables that are older than 45 days are automatically cleaned up occasionally when the instance is processed. Use workflow settings to change the default time period (`setHistoryDeletableAfter`) and condition (`setDeleteHistoryCondition`) of the clean-up.
   - Dependency updates
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
@@ -27,14 +31,14 @@
     - cxf 3.5.0
     - commons.lang3 3.12.0
     - guice 5.0.1
-    - hibernate validator 6.2.0
+    - hibernate validator 6.2.1
     - hikaricp 4.0.3
     - jackson 2.13.1
     - javassist 3.28.0
     - jodatime 2.10.3
-    - slf4j 1.7.32
+    - slf4j 1.7.33
 - `nflow-rest-api`
-  - Remove unused `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field.
+  - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
   - Dependency updates
     - swagger 1.6.4
 - `nflow-jetty`
@@ -43,17 +47,24 @@
     - reflections 0.10.2
 - `nflow-netty`
   - Dependency updates
-    - reactor-netty 1.0.14
+    - reactor-netty 1.0.15
 - `nflow-metrics`
   - Dependency updates
     - metrics 4.2.7
+- `nflow-explorer`
+  - Dependency updates
+    - nodejs 16.13.2
+    - npm 8.1.2
+    - lodash 4.17.21
+    - momentjs 2.29.1
+    - removed IE browser support
 - `nflow-tests`
   - Dependency updates
-    - h2 2.0.206
+    - h2 2.1.210
       - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
     - mssql 9.4.1
-    - mysql 8.0.27
-    - mariadb 2.7.4
+    - mysql 8.0.28
+    - mariadb 2.7.5
     - postgresql 42.3.1
 - Minimum supported Maven version for building is 3.6
 

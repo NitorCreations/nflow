@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
@@ -18,6 +17,7 @@ import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Period;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class WorkflowSettingsTest {
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));
-    assertThat(s.historyDeletableAfter, is(nullValue()));
+    assertThat(s.historyDeletableAfter, is(Period.days(45)));
     assertThat(s.defaultPriority, is((short) 0));
   }
 
