@@ -7,6 +7,7 @@ import static io.nflow.performance.workflow.TestState.BEGIN;
 import static io.nflow.performance.workflow.TestState.DONE;
 import static io.nflow.performance.workflow.TestState.ERROR;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardSeconds;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class ConstantWorkflow extends AbstractWorkflowDefinition {
 
   public ConstantWorkflow() {
     super(ConstantWorkflow.class.getSimpleName(), BEGIN, ERROR,
-        new WorkflowSettings.Builder().setMaxErrorTransitionDelay(5000).build());
+        new WorkflowSettings.Builder().setMaxErrorTransitionDelay(standardSeconds(5)).build());
     permit(BEGIN, QUICK_STATE);
     permit(QUICK_STATE, RETRY_TWICE_STATE);
     permit(RETRY_TWICE_STATE, SCHEDULE_STATE);

@@ -5,15 +5,19 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Duration.standardDays;
+import static org.joda.time.Duration.standardMinutes;
+import static org.joda.time.Duration.standardSeconds;
 
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Period;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,26 +41,27 @@ public class WorkflowSettingsTest {
   @Test
   public void verifyConstantDefaultValues() {
     WorkflowSettings s = new WorkflowSettings.Builder().build();
-    assertThat(s.immediateTransitionDelay, is(0));
-    assertThat(s.shortTransitionDelay, is(30000));
+    assertThat(s.shortTransitionDelay, is(standardSeconds(30).getMillis()));
+    assertThat(s.minErrorTransitionDelay, is(standardMinutes(1).getMillis()));
+    assertThat(s.maxErrorTransitionDelay, is(standardDays(1).getMillis()));
     long delta = s.getShortTransitionActivation().getMillis() - currentTimeMillis() - 30000;
     assertThat(delta, greaterThanOrEqualTo(-1000L));
     assertThat(delta, lessThanOrEqualTo(0L));
-    assertThat(s.historyDeletableAfter, is(nullValue()));
+    assertThat(s.historyDeletableAfter, is(Period.days(45)));
     assertThat(s.defaultPriority, is((short) 0));
   }
 
   @Test
   public void errorTransitionDelayIsBetweenMinAndMaxDelay() {
-    int maxDelay = 1_000_000;
-    int minDelay = 1000;
+    Duration maxDelay = standardSeconds(1000);
+    Duration minDelay = standardSeconds(1);
     WorkflowSettings s = new WorkflowSettings.Builder().setMinErrorTransitionDelay(minDelay).setMaxErrorTransitionDelay(maxDelay)
         .build();
     long prevDelay = 0;
     for (int retryCount = 0; retryCount < 100; retryCount++) {
       long delay = s.getErrorTransitionActivation(retryCount).getMillis() - now.getMillis();
-      assertThat(delay, greaterThanOrEqualTo((long) minDelay));
-      assertThat(delay, lessThanOrEqualTo((long) maxDelay));
+      assertThat(delay, greaterThanOrEqualTo(minDelay.getMillis()));
+      assertThat(delay, lessThanOrEqualTo(maxDelay.getMillis()));
       assertThat(delay, greaterThanOrEqualTo(prevDelay));
       prevDelay = delay;
     }
