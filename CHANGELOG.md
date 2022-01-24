@@ -57,7 +57,7 @@
     - mariadb 2.7.5
     - postgresql 42.3.1
 - `nflow-explorer`
-  - Query and show archived workflow instances by default if not enough matches found from main tables. Configurable in `config.js`.
+  - Query and show also archived workflow instances when not enough non-archived matches are found. Querying and showing archived instances can be disabled in `config.js`.
 - Minimum supported Maven version for building is 3.6
 
 ## 7.4.0 (2021-12-27)
