@@ -645,19 +645,19 @@ public class WorkflowInstanceDao {
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     queryOptionsToSqlAndParams(query, conditions, params);
-    String sqlSuffix = "as archived from nflow_workflow wf ";
+    String sqlSuffix = "from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
       sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
     }
     sqlSuffix += "where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
     long maxResults = getMaxResults(query.maxResults);
-    String sql = sqlVariants.limit("select *, 0 " + sqlSuffix, maxResults);
+    String sql = sqlVariants.limit("select *, 0 as archived " + sqlSuffix, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
     Stream<WorkflowInstance.Builder> resultStream = results.stream();
     // calculate how many results to try to search from archive
     maxResults -= results.size();
     if (query.queryArchive && maxResults > 0) {
-      sql = sqlVariants.limit("select *, 1 " + convertMainToArchive(sqlSuffix), maxResults);
+      sql = sqlVariants.limit("select *, 1 as archived " + convertMainToArchive(sqlSuffix), maxResults);
       resultStream = concat(resultStream, namedJdbc.query(sql, params, workflowInstanceRowMapper).stream());
     }
     Stream<WorkflowInstance> ret = resultStream.map(WorkflowInstance.Builder::build);
