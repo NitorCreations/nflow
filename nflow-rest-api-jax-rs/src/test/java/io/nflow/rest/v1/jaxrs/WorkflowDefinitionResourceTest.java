@@ -19,7 +19,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -54,8 +53,6 @@ public class WorkflowDefinitionResourceTest {
   private ListWorkflowDefinitionResponse dummyResponse;
 
   private WorkflowDefinitionResource resource;
-  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<List<ListWorkflowDefinitionResponse>>() {
-    /**/};
 
   @BeforeEach
   public void setup() {
@@ -118,7 +115,7 @@ public class WorkflowDefinitionResourceTest {
 
   private List<ListWorkflowDefinitionResponse> getDefinitionListType(List<String> list) {
     try (Response r = resource.listWorkflowDefinitions(list)) {
-      return r.readEntity(definitionListType);
+      return asList(r.readEntity(ListWorkflowDefinitionResponse[].class));
     }
   }
 }
