@@ -11,6 +11,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.MaintenanceConfiguration;
@@ -43,8 +47,9 @@ public class MaintenanceResource extends JaxRsResource {
 
   @POST
   @Operation(description = "Do maintenance on old workflow instances synchronously")
-  public MaintenanceResponse cleanupWorkflows(
-      @ApiParam(value = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
+  @ApiResponse(responseCode = "200", description = "Maintenance operation status", content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
+  public Response cleanupWorkflows(
+      @RequestBody(description = "Parameters for the maintenance process") MaintenanceRequest request) {
     return handleExceptions(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
       MaintenanceResults results = maintenanceService.cleanupWorkflows(configuration);

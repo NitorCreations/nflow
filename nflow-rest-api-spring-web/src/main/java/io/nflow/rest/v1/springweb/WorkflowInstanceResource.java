@@ -90,7 +90,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @Operation(summary = "Submit new workflow instance")
   @ApiResponses({ @ApiResponse(responseCode = "201", description = "Workflow was created", content = @Content(schema = @Schema(implementation = CreateWorkflowInstanceResponse.class))),
           @ApiResponse(responseCode = "400", description = "If instance could not be created, for example when state variable value was too long") })
-  public Mono<ResponseEntity<CreateWorkflowInstanceResponse>> createWorkflowInstance(
+  public Mono<ResponseEntity<?>> createWorkflowInstance(
           @RequestBody @Parameter(description = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       WorkflowInstance instance = createWorkflowConverter.convert(req);
@@ -115,14 +115,14 @@ public class WorkflowInstanceResource extends SpringWebResource {
   }
 
   @GetMapping(path = "/id/{id}")
-  @ApiOperation(value = "Fetch a workflow instance", notes = "Fetch full state and action history of a single workflow instance.")
-  @ApiResponses({ @ApiResponse(code = 200, response = ListWorkflowInstanceResponse.class, message = "If instance was found"),
-      @ApiResponse(code = 404, message = "If instance was not found") })
+  @Operation(summary = "Fetch a workflow instance", description = "Fetch full state and action history of a single workflow instance.")
+  @ApiResponses({ @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ListWorkflowInstanceResponse.class)), description = "If instance was found"),
+      @ApiResponse(responseCode = "404", description = "If instance was not found") })
   @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
-  public Mono<ResponseEntity<ListWorkflowInstanceResponse>> fetchWorkflowInstance(
+  public Mono<ResponseEntity<?>> fetchWorkflowInstance(
           @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
           @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC/*, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true*/) String include,
-          @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter("Query also the archive if not found from main tables") boolean queryArchive,
+          @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(description = "Query also the archive if not found from main tables") boolean queryArchive,
           @RequestParam(value = "maxActions", required = false) @Parameter(description = "Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.fetchWorkflowInstance(id, include, maxActions, queryArchive, this.workflowInstances, this.listWorkflowConverter))));
@@ -130,8 +130,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
 
   @GetMapping
   @Operation(summary = "List workflow instances")
-  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
-  public Mono<ResponseEntity<Stream<ListWorkflowInstanceResponse>>> listWorkflowInstances(
+  @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
+  public Mono<ResponseEntity<?>> listWorkflowInstances(
           @RequestParam(value = "id", defaultValue = "") @Parameter(description ="Internal id of workflow instance") List<Long> ids,
           @RequestParam(value = "type", defaultValue = "") @Parameter(description ="Workflow definition type of workflow instance") List<String> types,
           @RequestParam(value = "parentWorkflowId", required = false) @Parameter(description ="Id of parent workflow instance") Long parentWorkflowId,
@@ -143,9 +143,9 @@ public class WorkflowInstanceResource extends SpringWebResource {
           @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC/*, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true*/) String include,
           @RequestParam(value = "maxResults", required = false) @Parameter(description ="Maximum number of workflow instances to be returned") Long maxResults,
           @RequestParam(value = "maxActions", required = false) @Parameter(description ="Maximum number of actions returned for each workflow instance") Long maxActions,
-      @RequestParam(value = "stateVariableKey", required = false) @Parameter("Key of state variable that must exist for workflow instance") String stateVariableKey,
-      @RequestParam(value = "stateVariableValue", required = false) @Parameter("Current value of state variable defined by stateVariableKey") String stateVariableValue,
-      @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter("Query also the archive if not enough results found from main tables") boolean queryArchive) {
+      @RequestParam(value = "stateVariableKey", required = false) @Parameter(description ="Key of state variable that must exist for workflow instance") String stateVariableKey,
+      @RequestParam(value = "stateVariableValue", required = false) @Parameter(description ="Current value of state variable defined by stateVariableKey") String stateVariableValue,
+      @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(description ="Query also the archive if not enough results found from main tables") boolean queryArchive) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses, businessKey,
             externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions, queryArchive, this.workflowInstances,
@@ -154,8 +154,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)
     @Operation(summary = "Set workflow instance signal value", description = "The service may be used for example to interrupt executing workflow instance.")
-    @ApiResponse(responseCode = "200", description = "When operation was successful")
-  public Mono<ResponseEntity<SetSignalResponse> setSignal(@Parameter(description ="Internal id for workflow instance") @PathVariable("id") long id,
+    @ApiResponse(responseCode = "200", description = "When operation was successful", content = @Content(schema = @Schema(implementation = SetSignalResponse.class)))
+  public Mono<ResponseEntity<?>> setSignal(@Parameter(description ="Internal id for workflow instance") @PathVariable("id") long id,
     @RequestBody @Valid @Parameter(description ="New signal value") SetSignalRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       SetSignalResponse response = new SetSignalResponse();
@@ -167,8 +167,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
 
   @PutMapping(path = "/{id}/wakeup", consumes = APPLICATION_JSON_VALUE)
   @Operation(description = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
-  @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted")
-  public Mono<ResponseEntity<WakeupResponse>> wakeup(@Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
+  @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted", content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
+  public Mono<ResponseEntity<?>> wakeup(@Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
                                @RequestBody @Valid @Parameter(description = "Expected states") WakeupRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       WakeupResponse response = new WakeupResponse();
@@ -176,4 +176,5 @@ public class WorkflowInstanceResource extends SpringWebResource {
       response.wakeupSuccess = workflowInstances.wakeupWorkflowInstance(id, expectedStates);
       return ok(response);
     }));
+  }
 }

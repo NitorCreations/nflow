@@ -12,6 +12,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import io.nflow.rest.v1.msg.StatisticsResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.WorkflowExecutorService;
@@ -43,7 +48,8 @@ public class WorkflowExecutorResource extends JaxRsResource {
 
   @GET
   @Operation(summary = "List workflow executors")
-  public Collection<ListWorkflowExecutorResponse> listWorkflowExecutors() {
+  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowExecutorResponse.class))))
+  public Response listWorkflowExecutors() {
     return handleExceptions(
         () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));
   }

@@ -7,6 +7,10 @@ import static org.springframework.http.ResponseEntity.ok;
 
 import javax.inject.Inject;
 
+import io.nflow.rest.v1.msg.StatisticsResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +51,8 @@ public class MaintenanceResource extends SpringWebResource {
 
   @PostMapping(consumes = APPLICATION_JSON_VALUE)
   @Operation(description = "Do maintenance on old workflow instances synchronously")
-  public MaintenanceResponse cleanupWorkflows(
+  @ApiResponse(responseCode = "200", description = "Maintenance operation status", content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
+  public Mono<ResponseEntity<?>> cleanupWorkflows(
           @RequestBody @Parameter(description = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
     return handleExceptions(() -> wrapBlocking(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);

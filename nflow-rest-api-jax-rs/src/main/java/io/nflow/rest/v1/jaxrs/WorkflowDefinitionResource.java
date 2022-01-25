@@ -14,6 +14,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
@@ -52,7 +56,8 @@ public class WorkflowDefinitionResource extends JaxRsResource {
   @Operation(summary = "List workflow definitions",
           description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
                   + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
-  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(@QueryParam("type") @ApiParam(value = "Included workflow types") List<String> types) {
+  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowDefinitionResponse.class))))
+  public Response listWorkflowDefinitions(@QueryParam("type") @Parameter(description = "Included workflow types") List<String> types) {
     return handleExceptions(
         () -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao)));
   }

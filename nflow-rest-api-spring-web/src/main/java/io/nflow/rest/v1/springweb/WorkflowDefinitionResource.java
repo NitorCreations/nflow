@@ -7,17 +7,13 @@ import static org.springframework.http.ResponseEntity.ok;
 
 import java.util.List;
 
-<<<<<<< HEAD
 import javax.inject.Inject;
 
 import org.springframework.http.ResponseEntity;
-=======
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> 62858363 (switch from swagger 1.x to openapi 3.0)
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,7 +57,7 @@ public class WorkflowDefinitionResource extends SpringWebResource {
           description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
                   + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowDefinitionResponse.class))))
-  public Mono<ResponseEntity<ListWorkflowDefinitionResponse>> listWorkflowDefinitions(
+  public Mono<ResponseEntity<?>> listWorkflowDefinitions(
           @RequestParam(value = "type", defaultValue = "") @Parameter(description = "Included workflow types") List<String> types) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao))));
