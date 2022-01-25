@@ -58,9 +58,9 @@ public class ActionStateVariablesTest extends AbstractNflowTest {
       ListWorkflowInstanceResponse wf = null;
       do {
         sleep(200);
-        wf = getInstanceIdResource(createResponse.id) //
-            .query("include", "actions,actionStateVariables") //
-            .query("maxActions", maxActions) //
+        wf = getInstanceIdResource(createResponse.id)
+            .query("include", "actions,actionStateVariables")
+            .query("maxActions", maxActions)
             .get(ListWorkflowInstanceResponse.class);
       } while (wf == null || !"done".equals(wf.state));
       return wf;

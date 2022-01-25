@@ -67,11 +67,11 @@ public class DemoServer {
         .build();
     workflowInstanceService.insertWorkflowInstance(instance);
     // insert demo bulk workflow with couple of children
-    instance = workflowInstanceFactory.newWorkflowInstanceBuilder() //
-        .setType(DEMO_BULK_WORKFLOW_TYPE) //
-        .setState(SPLIT_WORK.name()) //
-        .putStateVariable(VAR_CONCURRENCY, 2) //
-        .putStateVariable(VAR_CHILD_DATA, asList(1, 2, 3, 4, 5)) //
+    instance = workflowInstanceFactory.newWorkflowInstanceBuilder()
+        .setType(DEMO_BULK_WORKFLOW_TYPE)
+        .setState(SPLIT_WORK.name())
+        .putStateVariable(VAR_CONCURRENCY, 2)
+        .putStateVariable(VAR_CHILD_DATA, asList(1, 2, 3, 4, 5))
         .build();
     workflowInstanceService.insertWorkflowInstance(instance);
     instance = new WorkflowInstance.Builder().setType(FOREVER_WAITING_WORKFLOW_TYPE).build();

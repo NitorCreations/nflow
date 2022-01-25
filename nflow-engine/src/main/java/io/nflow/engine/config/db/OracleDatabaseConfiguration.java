@@ -109,9 +109,9 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
      */
     @Override
     public String nextActivationUpdate() {
-      return "(case " //
-          + "when ? is null then null " //
-          + "when external_next_activation is null then ? " //
+      return "(case "
+          + "when ? is null then null "
+          + "when external_next_activation is null then ? "
           + "else least(?, external_next_activation) end)";
     }
 

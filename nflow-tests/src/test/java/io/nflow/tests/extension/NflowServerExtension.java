@@ -29,9 +29,9 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
     testClass = context.getRequiredTestClass();
-    List<Field> fields = stream(testClass.getFields()) //
-        .filter(field -> field.getType() == NflowServerConfig.class) //
-        .filter(field -> isStatic(field.getModifiers())) //
+    List<Field> fields = stream(testClass.getFields())
+        .filter(field -> field.getType() == NflowServerConfig.class)
+        .filter(field -> isStatic(field.getModifiers()))
         .collect(toList());
 
     if (fields.size() != 1) {
@@ -58,8 +58,8 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
   }
 
   private void invokeBeforeServerStop() {
-    stream(testClass.getMethods()) //
-        .filter(field -> field.getAnnotation(BeforeServerStop.class) != null) //
+    stream(testClass.getMethods())
+        .filter(field -> field.getAnnotation(BeforeServerStop.class) != null)
         .forEach(this::invokeTestInstanceMethod);
   }
 

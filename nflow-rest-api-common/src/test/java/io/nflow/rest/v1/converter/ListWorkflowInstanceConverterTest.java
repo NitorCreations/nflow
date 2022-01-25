@@ -241,7 +241,7 @@ public class ListWorkflowInstanceConverterTest {
   @Test
   public void convertWithMalformedStateVariablesWorks() throws JsonProcessingException, IOException {
     DateTime now = now();
-    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder() //
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder()
         .setId(929).setType(stateExecution).setState("oStDateTimeate").setStateText("oState desc").setRetryNo(1)
         .setExecutionStart(now.minusDays(1)).setExecutionEnd(now.plusDays(1)).build();
     Map<String, String> stateVariables = new LinkedHashMap<>();
@@ -250,8 +250,8 @@ public class ListWorkflowInstanceConverterTest {
     stateVariables.put("foo", value1);
     stateVariables.put("bar", value2);
 
-    WorkflowInstance i = new WorkflowInstance.Builder() //
-        .setId(1) //
+    WorkflowInstance i = new WorkflowInstance.Builder()
+        .setId(1)
         .setStatus(inProgress).setType("dummy").setBusinessKey("businessKey").setExternalId("externalId").setState("cState")
         .setStateText("cState desc").setNextActivation(now).setActions(asList(a)).setStateVariables(stateVariables).build();
 

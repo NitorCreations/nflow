@@ -44,10 +44,10 @@ public class MaintenanceResourceTest {
     ReadablePeriod period1 = months(1);
     ReadablePeriod period2 = months(2);
     ReadablePeriod period3 = months(3);
-    MaintenanceResults maintenanceResults = new MaintenanceResults.Builder() //
-        .setArchivedWorkflows(batchSize) //
-        .setDeletedArchivedWorkflows(batchSize * 2) //
-        .setDeletedWorkflows(batchSize * 3) //
+    MaintenanceResults maintenanceResults = new MaintenanceResults.Builder()
+        .setArchivedWorkflows(batchSize)
+        .setDeletedArchivedWorkflows(batchSize * 2)
+        .setDeletedWorkflows(batchSize * 3)
         .build();
     when(service.cleanupWorkflows(any(MaintenanceConfiguration.class))).thenReturn(maintenanceResults);
 

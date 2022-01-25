@@ -47,9 +47,9 @@ public class MaintenanceWorkflowStarter {
   }
 
   private void apply(Environment env, String property, Supplier<ConfigurationItem.Builder> builderSupplier) {
-    ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan")) //
-        .map(StringUtils::trimToNull) //
-        .map(Period::parse) //
+    ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan"))
+        .map(StringUtils::trimToNull)
+        .map(Period::parse)
         .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period).done());
   }
 
@@ -60,11 +60,11 @@ public class MaintenanceWorkflowStarter {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(MAINTENANCE_WORKFLOW_TYPE)
           .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID).build();
       if (instanceService.listWorkflowInstances(query).isEmpty()) {
-        instanceService.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder() //
-            .setType(MAINTENANCE_WORKFLOW_TYPE) //
-            .putStateVariable(VAR_SCHEDULE, initialCronSchedule) //
-            .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, initialConfiguration) //
-            .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
+        instanceService.insertWorkflowInstance(workflowInstanceFactory.newWorkflowInstanceBuilder()
+            .setType(MAINTENANCE_WORKFLOW_TYPE)
+            .putStateVariable(VAR_SCHEDULE, initialCronSchedule)
+            .putStateVariable(VAR_MAINTENANCE_CONFIGURATION, initialConfiguration)
+            .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
             .build());
       }
     }

@@ -26,10 +26,10 @@ public class MaintenanceConverter {
   }
 
   private void apply(MaintenanceRequestItem requestItem, Supplier<ConfigurationItem.Builder> builderSupplier) {
-    ofNullable(requestItem).ifPresent(item -> builderSupplier.get() //
-        .setOlderThanPeriod(item.olderThanPeriod) //
-        .setBatchSize(item.batchSize) //
-        .setWorkflowTypes(ofNullable(item.workflowTypes).orElse(emptySet())) //
+    ofNullable(requestItem).ifPresent(item -> builderSupplier.get()
+        .setOlderThanPeriod(item.olderThanPeriod)
+        .setBatchSize(item.batchSize)
+        .setWorkflowTypes(ofNullable(item.workflowTypes).orElse(emptySet()))
         .done());
   }
 

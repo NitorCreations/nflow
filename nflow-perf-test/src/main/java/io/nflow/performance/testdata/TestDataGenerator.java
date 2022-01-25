@@ -72,21 +72,21 @@ public class TestDataGenerator {
     List<WorkflowInstanceAction> actions = generateWorkflowInstanceActions(definition, state,
         nextActivation);
 
-    return new WorkflowInstance.Builder() //
-        .setId(nextWorkflowId++) //
-        .setType(definition.getType()) //
-        .setBusinessKey(randomUUID().toString()) //
-        .setExecutorGroup(executors.getExecutorGroup()) //
-        .setExecutorId(executing == status ? executors.getExecutorId() : null) //
-        .setExternalId(randomUUID().toString()) //
-        .setCreated(nextActivation.minusMinutes(5 + random.nextInt(10))) //
-        .setModified(nextActivation.minusMinutes(random.nextInt(5))) //
-        .setNextActivation(asList(created, executing, inProgress).contains(status) ? nextActivation : null) //
-        .setStartedIfNotSet(nextActivation.minusMinutes(random.nextInt(10))) //
-        .setState(state.name()) //
-        .setActions(actions) //
-        .setStateText(randomUUID().toString()) //
-        .setStatus(status) //
+    return new WorkflowInstance.Builder()
+        .setId(nextWorkflowId++)
+        .setType(definition.getType())
+        .setBusinessKey(randomUUID().toString())
+        .setExecutorGroup(executors.getExecutorGroup())
+        .setExecutorId(executing == status ? executors.getExecutorId() : null)
+        .setExternalId(randomUUID().toString())
+        .setCreated(nextActivation.minusMinutes(5 + random.nextInt(10)))
+        .setModified(nextActivation.minusMinutes(random.nextInt(5)))
+        .setNextActivation(asList(created, executing, inProgress).contains(status) ? nextActivation : null)
+        .setStartedIfNotSet(nextActivation.minusMinutes(random.nextInt(10)))
+        .setState(state.name())
+        .setActions(actions)
+        .setStateText(randomUUID().toString())
+        .setStatus(status)
         .build();
   }
 
@@ -144,15 +144,15 @@ public class TestDataGenerator {
       int retryNo = isFailureTransition ? definition.getSettings().maxRetries : 0;
       while (retryNo > -1) {
         index++;
-        result.add(new WorkflowInstanceAction.Builder() //
-            .setWorkflowInstanceId(nextWorkflowId) //
-            .setExecutionStart(nextActivation.minusSeconds(index * 10).minusSeconds(random.nextInt(10))) //
-            .setExecutionEnd(nextActivation.minusSeconds(index * 10)) //
-            .setExecutorId(executors.getExecutorId()) //
-            .setRetryNo(retryNo--) //
-            .setState(previousState.name()) //
-            .setStateText(UUID.randomUUID().toString()) //
-            .setType(isFailureTransition ? stateExecutionFailed : stateExecution) //
+        result.add(new WorkflowInstanceAction.Builder()
+            .setWorkflowInstanceId(nextWorkflowId)
+            .setExecutionStart(nextActivation.minusSeconds(index * 10).minusSeconds(random.nextInt(10)))
+            .setExecutionEnd(nextActivation.minusSeconds(index * 10))
+            .setExecutorId(executors.getExecutorId())
+            .setRetryNo(retryNo--)
+            .setState(previousState.name())
+            .setStateText(UUID.randomUUID().toString())
+            .setType(isFailureTransition ? stateExecutionFailed : stateExecution)
             .build());
       }
       currentState = previousState;

@@ -18,15 +18,15 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -129,22 +129,22 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     dao.insertWorkflowInstanceAction(constructActionBuilder(childId).build());
     dao.insertWorkflowInstanceAction(constructActionBuilder(childId).build());
 
-    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder() //
-        .addIds(childId) //
-        .addTypes(child.type) //
-        .addStates(child.state) //
-        .addStatuses(i1.status) //
-        .setParentWorkflowId(workflowId) //
-        .setParentActionId(actionId) //
-        .setBusinessKey(child.businessKey) //
-        .setExternalId(child.externalId) //
-        .setIncludeActions(true) //
-        .setIncludeActionStateVariables(true) //
-        .setIncludeCurrentStateVariables(true) //
-        .setIncludeChildWorkflows(true) //
-        .setMaxResults(1L) //
-        .setMaxActions(1L) //
-        .setQueryArchive(true) //
+    QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
+        .addIds(childId)
+        .addTypes(child.type)
+        .addStates(child.state)
+        .addStatuses(i1.status)
+        .setParentWorkflowId(workflowId)
+        .setParentActionId(actionId)
+        .setBusinessKey(child.businessKey)
+        .setExternalId(child.externalId)
+        .setIncludeActions(true)
+        .setIncludeActionStateVariables(true)
+        .setIncludeCurrentStateVariables(true)
+        .setIncludeChildWorkflows(true)
+        .setMaxResults(1L)
+        .setMaxActions(1L)
+        .setQueryArchive(true)
         .build();
     List<WorkflowInstance> l = dao.queryWorkflowInstances(q);
     assertThat(l.size(), is(1));
@@ -263,15 +263,15 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setBusinessKey("updatedKey").build();
     long id = dao.insertWorkflowInstance(instance);
     return new WorkflowInstance.Builder(
-        dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false)) //
-            .setStatus(inProgress) //
-            .setState("updateState") //
+        dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false))
+            .setStatus(inProgress)
+            .setState("updateState")
             .setStateText("update text");
   }
 
   private WorkflowInstance updatedInstance() {
-    QueryWorkflowInstances query = new QueryWorkflowInstances.Builder() //
-        .setBusinessKey("updatedKey") //
+    QueryWorkflowInstances query = new QueryWorkflowInstances.Builder()
+        .setBusinessKey("updatedKey")
         .setIncludeActions(true).build();
     List<WorkflowInstance> instances = dao.queryWorkflowInstances(query);
     assertThat(instances.size(), is(1));
@@ -283,28 +283,28 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
     WorkflowInstance i2 = new WorkflowInstance.Builder(
-        dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false)) //
-            .setStatus(inProgress) //
-            .setState("updateState") //
+        dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false))
+            .setStatus(inProgress)
+            .setState("updateState")
             .setStateText("update text").build();
     DateTime started = now();
-    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder() //
-        .setExecutionStart(started) //
-        .setExecutorId(42) //
-        .setExecutionEnd(started.plusMillis(100)) //
-        .setRetryNo(1) //
-        .setState("test") //
-        .setStateText("state text") //
-        .setWorkflowInstanceId(id) //
+    WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder()
+        .setExecutionStart(started)
+        .setExecutorId(42)
+        .setExecutionEnd(started.plusMillis(100))
+        .setRetryNo(1)
+        .setState("test")
+        .setStateText("state text")
+        .setWorkflowInstanceId(id)
         .setType(stateExecution).build();
-    WorkflowInstance childWorkflow1 = constructWorkflowInstanceBuilder() //
-        .setBusinessKey("childKey") //
-        .setExternalId("extId") //
+    WorkflowInstance childWorkflow1 = constructWorkflowInstanceBuilder()
+        .setBusinessKey("childKey")
+        .setExternalId("extId")
         .putStateVariable("key", "value").build();
-    WorkflowInstance childWorkflow2 = constructWorkflowInstanceBuilder() //
-        .setBusinessKey("childKey") //
-        .setExternalId("extId") //
-        .putStateVariable("key", "newValue") //
+    WorkflowInstance childWorkflow2 = constructWorkflowInstanceBuilder()
+        .setBusinessKey("childKey")
+        .setExternalId("extId")
+        .putStateVariable("key", "newValue")
         .putStateVariable("newKey", "value").build();
 
     dao.updateWorkflowInstanceAfterExecution(i2, a1, asList(childWorkflow1, childWorkflow2), emptyWorkflows, false);

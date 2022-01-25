@@ -40,10 +40,10 @@ import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MaintenanceWorkflowTest extends AbstractNflowTest {
-  public static NflowServerConfig server = new NflowServerConfig.Builder() //
-      .prop("nflow.maintenance.insertWorkflowIfMissing", true) //
-      .prop("nflow.maintenance.initial.cron", "* * * * * *") //
-      .prop("nflow.maintenance.initial.delete.olderThan", seconds(1).toString()) //
+  public static NflowServerConfig server = new NflowServerConfig.Builder()
+      .prop("nflow.maintenance.insertWorkflowIfMissing", true)
+      .prop("nflow.maintenance.initial.cron", "* * * * * *")
+      .prop("nflow.maintenance.initial.delete.olderThan", seconds(1).toString())
       .build();
 
   private static List<Long> ids;
@@ -63,10 +63,10 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
   @Order(2)
   public void verifyThatMaintenanceWorkflowIsRunning() throws InterruptedException {
     SECONDS.sleep(1);
-    ListWorkflowInstanceResponse[] instances = getInstanceResource() //
-        .query("type", MAINTENANCE_WORKFLOW_TYPE) //
-        .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
-        .query("include", "currentStateVariables") //
+    ListWorkflowInstanceResponse[] instances = getInstanceResource()
+        .query("type", MAINTENANCE_WORKFLOW_TYPE)
+        .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
+        .query("include", "currentStateVariables")
         .get(ListWorkflowInstanceResponse[].class);
     assertThat(asList(instances), hasSize(1));
     assertThat(instances[0].stateVariables, hasEntry("cron", "* * * * * *"));

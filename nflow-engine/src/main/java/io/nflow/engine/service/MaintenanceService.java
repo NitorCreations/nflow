@@ -83,11 +83,11 @@ public class MaintenanceService {
   }
 
   private void validateConfiguration(MaintenanceConfiguration configuration) {
-    Stream.of(configuration.archiveWorkflows, configuration.deleteArchivedWorkflows, configuration.deleteWorkflows) //
-        .filter(Objects::nonNull) //
-        .flatMap(configItem -> configItem.workflowTypes.stream()) //
-        .filter(workflowType -> workflowDefinitionService.getWorkflowDefinition(workflowType) == null) //
-        .findAny() //
+    Stream.of(configuration.archiveWorkflows, configuration.deleteArchivedWorkflows, configuration.deleteWorkflows)
+        .filter(Objects::nonNull)
+        .flatMap(configItem -> configItem.workflowTypes.stream())
+        .filter(workflowType -> workflowDefinitionService.getWorkflowDefinition(workflowType) == null)
+        .findAny()
         .ifPresent(workflowType -> {
           throw new IllegalArgumentException("Workflow type " + workflowType + " is not valid");
         });

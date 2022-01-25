@@ -822,26 +822,26 @@ public class WorkflowInstanceDao {
 
     @Override
     public WorkflowInstance.Builder mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return workflowInstanceFactory.newWorkflowInstanceBuilder() //
-          .setId(rs.getLong("id")) //
-          .setExecutorId(getInt(rs, "executor_id")) //
-          .setParentWorkflowId(getLong(rs, "parent_workflow_id")) //
-          .setParentActionId(getLong(rs, "parent_action_id")) //
-          .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status"))) //
-          .setType(rs.getString("type")) //
-          .setPriority(rs.getShort("priority")) //
-          .setBusinessKey(rs.getString("business_key")) //
-          .setExternalId(rs.getString("external_id")) //
-          .setState(rs.getString("state")) //
-          .setStateText(rs.getString("state_text")) //
-          .setActions(new ArrayList<WorkflowInstanceAction>()) //
-          .setNextActivation(sqlVariants.getDateTime(rs, "next_activation")) //
-          .setRetries(rs.getInt("retries")) //
-          .setCreated(sqlVariants.getDateTime(rs, "created")) //
-          .setModified(sqlVariants.getDateTime(rs, "modified")) //
-          .setStartedIfNotSet(sqlVariants.getDateTime(rs, "started")) //
-          .setExecutorGroup(rs.getString("executor_group")) //
-          .setSignal(ofNullable(getInt(rs, "workflow_signal"))) //
+      return workflowInstanceFactory.newWorkflowInstanceBuilder()
+          .setId(rs.getLong("id"))
+          .setExecutorId(getInt(rs, "executor_id"))
+          .setParentWorkflowId(getLong(rs, "parent_workflow_id"))
+          .setParentActionId(getLong(rs, "parent_action_id"))
+          .setStatus(WorkflowInstanceStatus.valueOf(rs.getString("status")))
+          .setType(rs.getString("type"))
+          .setPriority(rs.getShort("priority"))
+          .setBusinessKey(rs.getString("business_key"))
+          .setExternalId(rs.getString("external_id"))
+          .setState(rs.getString("state"))
+          .setStateText(rs.getString("state_text"))
+          .setActions(new ArrayList<WorkflowInstanceAction>())
+          .setNextActivation(sqlVariants.getDateTime(rs, "next_activation"))
+          .setRetries(rs.getInt("retries"))
+          .setCreated(sqlVariants.getDateTime(rs, "created"))
+          .setModified(sqlVariants.getDateTime(rs, "modified"))
+          .setStartedIfNotSet(sqlVariants.getDateTime(rs, "started"))
+          .setExecutorGroup(rs.getString("executor_group"))
+          .setSignal(ofNullable(getInt(rs, "workflow_signal")))
           .setArchived(rs.getBoolean("archived"));
     }
   }
@@ -855,15 +855,15 @@ public class WorkflowInstanceDao {
 
     @Override
     public WorkflowInstanceAction.Builder mapRow(ResultSet rs, int rowNum) throws SQLException {
-      return new WorkflowInstanceAction.Builder() //
-          .setId(rs.getLong("id")) //
-          .setWorkflowInstanceId(rs.getLong("workflow_id")) //
-          .setExecutorId(rs.getInt("executor_id")) //
-          .setType(WorkflowActionType.valueOf(rs.getString("type"))) //
-          .setState(rs.getString("state")) //
-          .setStateText(rs.getString("state_text")) //
-          .setRetryNo(rs.getInt("retry_no")) //
-          .setExecutionStart(sqlVariants.getDateTime(rs, "execution_start")) //
+      return new WorkflowInstanceAction.Builder()
+          .setId(rs.getLong("id"))
+          .setWorkflowInstanceId(rs.getLong("workflow_id"))
+          .setExecutorId(rs.getInt("executor_id"))
+          .setType(WorkflowActionType.valueOf(rs.getString("type")))
+          .setState(rs.getString("state"))
+          .setStateText(rs.getString("state_text"))
+          .setRetryNo(rs.getInt("retry_no"))
+          .setExecutionStart(sqlVariants.getDateTime(rs, "execution_start"))
           .setExecutionEnd(sqlVariants.getDateTime(rs, "execution_end"));
     }
   }
@@ -894,12 +894,12 @@ public class WorkflowInstanceDao {
         workflowInstanceId) > 0;
     if (updated) {
       DateTime now = DateTime.now();
-      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder() //
-          .setWorkflowInstanceId(workflowInstanceId) //
-          .setExecutionStart(now) //
-          .setExecutionEnd(now) //
-          .setState(getWorkflowInstanceState(workflowInstanceId)) //
-          .setStateText(reason) //
+      WorkflowInstanceAction action = new WorkflowInstanceAction.Builder()
+          .setWorkflowInstanceId(workflowInstanceId)
+          .setExecutionStart(now)
+          .setExecutionEnd(now)
+          .setState(getWorkflowInstanceState(workflowInstanceId))
+          .setStateText(reason)
           .setType(actionType).build();
       insertWorkflowInstanceAction(action);
     }

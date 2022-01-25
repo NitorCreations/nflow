@@ -212,9 +212,9 @@ public class WorkflowDefinitionScannerTest {
       @Override
       public boolean matches(Object item) {
         StateParameter p = (StateParameter) item;
-        return Objects.equals(key, p.key) //
-            && Objects.equals(type, p.type) //
-            && Objects.equals(readOnly, p.readOnly) //
+        return Objects.equals(key, p.key)
+            && Objects.equals(type, p.type)
+            && Objects.equals(readOnly, p.readOnly)
             && Objects.equals(mutable, p.mutable);
       }
     };
