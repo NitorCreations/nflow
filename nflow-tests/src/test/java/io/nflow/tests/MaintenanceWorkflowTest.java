@@ -5,6 +5,7 @@ import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
+import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
@@ -15,8 +16,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.Period.seconds;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.NotFoundException;
 
@@ -76,8 +81,19 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(4)
-  public void waitForCleanup() throws InterruptedException {
-    SECONDS.sleep(6);
+  public void waitForCleanup() {
+    Set<Long> waiting = new HashSet<>(ids);
+    assertTimeoutPreemptively(ofSeconds(30), () -> {
+      while (!waiting.isEmpty()) {
+        Iterator<Long> it = waiting.iterator();
+        try {
+          getWorkflowInstance(it.next());
+          SECONDS.sleep(1);
+        } catch (@SuppressWarnings("unused") NotFoundException ex) {
+          it.remove();
+        }
+      }
+    });
   }
 
   @Test

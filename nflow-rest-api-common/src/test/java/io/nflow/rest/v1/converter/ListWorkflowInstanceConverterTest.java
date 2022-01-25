@@ -6,9 +6,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.joda.time.DateTime.now;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -73,7 +73,7 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("bar", nodeQuux);
 
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES));
+        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), false);
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -93,6 +93,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(i.signal.get()));
+    assertThat(resp.isArchived, nullValue());
     assertThat(resp.actions, containsInAnyOrder(
         new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo, a.executionStart, a.executionEnd, a.executorId)));
   }
@@ -111,7 +112,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setParentWorkflowId(942L).setParentActionId(842L).setExternalId("externalId")
         .setState("cState").setStateText("cState desc").setNextActivation(now()).setActions(asList(a))
         .setCreated(now().minusMinutes(1)).setCreated(now().minusHours(2)).setModified(now().minusHours(1)).setRetries(42)
-        .setSignal(Optional.empty()).build();
+        .setSignal(Optional.empty()).setArchived(true).build();
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
@@ -123,7 +124,7 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("bar", nodeQuux);
 
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES));
+        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES), true);
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");
@@ -142,6 +143,7 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.started, is(i.started));
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(nullValue()));
+    assertThat(resp.isArchived, is(true));
     assertThat(resp.actions, containsInAnyOrder(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
         a.executionStart, a.executionEnd, a.executorId, expectedStateVariables)));
   }
@@ -155,7 +157,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(asList(a)).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet());
+    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet(), false);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -179,7 +181,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(Arrays.asList(a)).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet());
+    ListWorkflowInstanceResponse resp = converter.convert(i, emptySet(), false);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.stateVariables, is((Map<String, Object>) null));
@@ -201,7 +203,7 @@ public class ListWorkflowInstanceConverterTest {
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
         .setNextActivation(now()).setActions(Arrays.asList(a)).setStateVariables(new LinkedHashMap<String, String>()).build();
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES));
+    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), false);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -222,7 +224,7 @@ public class ListWorkflowInstanceConverterTest {
         .setNextActivation(now()).build();
 
     ListWorkflowInstanceResponse resp = converter.convert(i,
-        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES));
+        EnumSet.of(WorkflowInstanceInclude.ACTIONS, WorkflowInstanceInclude.ACTION_STATE_VARIABLES), false);
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
@@ -256,7 +258,7 @@ public class ListWorkflowInstanceConverterTest {
     when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException(null, "bad data"));
     when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException(null, "bad data"));
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES));
+    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), false);
 
     verify(nflowObjectMapper).readTree(value1);
     verify(nflowObjectMapper).readTree(value2);

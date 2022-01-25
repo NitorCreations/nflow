@@ -9,6 +9,7 @@
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow anymore.
   - Enable maintenance (archiving and deleting old workflow instances) by default.
   - Enable workflow instance history clean-up (deleting old actions and state variables) by default.
+  - Add support to query also archived workflow instances.
 
 **Details**
 - `nflow-engine`
@@ -24,6 +25,7 @@
     - Remove `WorkflowSettings.immediateTransitionDelay` field. It is not used by nFlow.
   - Maintenance workflow instance is added to nFlow database by default in startup. Instances that have been in final state longer than 45 days are archived. Archived instances that have been in final state longer than one year are deleted. Maintenance is run every night. Use `nflow.maintenance` configuration options to change the defaults before startup, or update the maintenance workflow instance state variables after the instance has been created.
   - Workflow instance actions and state variables that are older than 45 days are automatically cleaned up occasionally when the instance is processed. Use workflow settings to change the default time period (`setHistoryDeletableAfter`) and condition (`setDeleteHistoryCondition`) of the clean-up.
+  - Add support to query also archived workflow instances when not enough non-archived matches are found.
   - Dependency updates
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
@@ -39,6 +41,7 @@
     - slf4j 1.7.33
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
+  - Add `queryArchive=true` query parameter to query also archived workflow instances when not enough non-archived matches are found.
   - Dependency updates
     - swagger 1.6.4
 - `nflow-jetty`
@@ -52,6 +55,7 @@
   - Dependency updates
     - metrics 4.2.7
 - `nflow-explorer`
+  - Query and show also archived workflow instances when not enough non-archived matches are found. Querying and showing archived instances can be disabled in `config.js`.
   - Dependency updates
     - nodejs 16.13.2
     - npm 8.1.2

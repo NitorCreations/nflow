@@ -71,7 +71,7 @@ describe('Directive: searchForm', function () {
         $httpBackend = _$httpBackend_;
 
         CriteriaModel.model = { foo: 'bar' };
-        url = config.nflowUrl + '/v1/workflow-instance?foo=bar';
+        url = config.nflowUrl + '/v1/workflow-instance?foo=bar&queryArchive=true';
       }));
 
       afterEach(function() {

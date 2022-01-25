@@ -84,7 +84,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
     @SuppressWarnings("unchecked")
     Set<WorkflowInstanceInclude> includes = Mockito.mock(Set.class);
-    when(workflowInstanceDao.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
+    when(workflowInstanceDao.getWorkflowInstance(42, includes, 10L, false)).thenReturn(instance);
     assertEquals(instance, service.getWorkflowInstance(42, includes, 10L));
   }
 

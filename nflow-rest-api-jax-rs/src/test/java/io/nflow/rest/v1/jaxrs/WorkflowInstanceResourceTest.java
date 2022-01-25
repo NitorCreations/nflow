@@ -249,7 +249,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, "", null, null));
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, "", null, null, true));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -269,13 +269,14 @@ public class WorkflowInstanceResourceTest {
     assertThat(query.includeChildWorkflows, is(false));
     assertThat(query.maxResults, is(nullValue()));
     assertThat(query.maxActions, is(nullValue()));
+    assertThat(query.queryArchive, is(true));
   }
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId",
-        "stateVarKey", "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 2L));
+        "stateVarKey", "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 2L, false));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -295,13 +296,14 @@ public class WorkflowInstanceResourceTest {
     assertThat(query.includeChildWorkflows, is(true));
     assertThat(query.maxResults, is(1L));
     assertThat(query.maxActions, is(2L));
+    assertThat(query.queryArchive, is(false));
   }
 
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null))
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null, true))
     .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
-    try (Response response = resource.fetchWorkflowInstance(42, null, null)) {
+    try (Response response = resource.fetchWorkflowInstance(42, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
     }
@@ -311,12 +313,12 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingExistingWorkflowWorks() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
-    when(workflowInstances.getWorkflowInstance(42, emptySet(), null)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, emptySet(), null, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null),
+    when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
+    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, false),
         ListWorkflowInstanceResponse.class);
-    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null);
+    verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
   }
 
@@ -325,13 +327,13 @@ public class WorkflowInstanceResourceTest {
   public void fetchingExistingWorkflowWorksWithAllIncludes() {
     WorkflowInstance instance = mock(WorkflowInstance.class);
     EnumSet<WorkflowInstanceInclude> includes = EnumSet.allOf(WorkflowInstanceInclude.class);
-    when(workflowInstances.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
+    when(workflowInstances.getWorkflowInstance(42, includes, 10L, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
-    when(listWorkflowConverter.convert(eq(instance), any(Set.class))).thenReturn(resp);
+    when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
-        () -> resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L),
+        () -> resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L, false),
         ListWorkflowInstanceResponse.class);
-    verify(workflowInstances).getWorkflowInstance(42, includes, 10L);
+    verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
   }
 

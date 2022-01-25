@@ -38,6 +38,11 @@ var Config = function() {
   };
 
   /**
+   * Change this to false to avoid querying workflow instances from the archive tables.
+   */
+  this.queryArchive = true
+
+  /**
    * Generate custom content for workflow definition details page.
    * Optional function that returns either a string or a Promise
    * that resolves to a string. The string is added to the page DOM.

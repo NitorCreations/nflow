@@ -1,10 +1,10 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
+import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static java.lang.Math.max;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -22,8 +22,9 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.internal.dao.NflowTable;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
-import io.nflow.engine.internal.dao.TablePrefix;
+import io.nflow.engine.internal.dao.TableType;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.MaintenanceResults.Builder;
@@ -33,8 +34,6 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
  */
 @Named
 public class MaintenanceService {
-
-  private static final List<String> ARCHIVABLE_TABLES = asList("workflow", "workflow_action", "workflow_state");
 
   private static final Logger log = getLogger(MaintenanceService.class);
 
@@ -65,7 +64,7 @@ public class MaintenanceService {
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     validateConfiguration(configuration);
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
-      ARCHIVABLE_TABLES.forEach(table -> tableMetadataChecker.ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
+      stream(NflowTable.values()).forEach(table -> tableMetadataChecker.ensureCopyingPossible(table.main, table.archive));
     }
     Builder builder = new MaintenanceResults.Builder();
     if (configuration.deleteArchivedWorkflows != null) {
@@ -94,7 +93,8 @@ public class MaintenanceService {
         });
   }
 
-  private int doAction(String type, ConfigurationItem configuration, TablePrefix table, Function<List<Long>, Integer> doAction) {
+  private int doAction(String type, ConfigurationItem configuration, TableType tableType,
+      Function<List<Long>, Integer> doAction) {
     DateTime olderThan = now().minus(configuration.olderThanPeriod);
     log.info("{} older than {}, in batches of {}.", type, olderThan, configuration.batchSize);
     StopWatch stopWatch = new StopWatch();
@@ -102,7 +102,7 @@ public class MaintenanceService {
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int totalWorkflows = 0;
     do {
-      List<Long> workflowIds = maintenanceDao.getOldWorkflowIds(table, olderThan, configuration.batchSize,
+      List<Long> workflowIds = maintenanceDao.getOldWorkflowIds(tableType, olderThan, configuration.batchSize,
           configuration.workflowTypes);
       if (workflowIds.isEmpty()) {
         break;

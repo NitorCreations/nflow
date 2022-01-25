@@ -1,6 +1,7 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static java.lang.Boolean.parseBoolean;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -70,6 +71,8 @@ public abstract class ResourceBase {
           new SimpleEntry<>(actionStateVariables, WorkflowInstanceInclude.ACTION_STATE_VARIABLES),
           new SimpleEntry<>(childWorkflows, WorkflowInstanceInclude.CHILD_WORKFLOW_IDS))
       .collect(toMap(Entry::getKey, Entry::getValue)));
+  protected static final String QUERY_ARCHIVED_DEFAULT_STR = "false";
+  protected static final boolean QUERY_ARCHIVED_DEFAULT = parseBoolean(QUERY_ARCHIVED_DEFAULT_STR);
 
   public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(final List<String> types,
       final WorkflowDefinitionService workflowDefinitions, final ListWorkflowDefinitionConverter converter,
@@ -143,7 +146,7 @@ public abstract class ResourceBase {
 
   public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(List<Long> ids, List<String> types, Long parentWorkflowId,
       Long parentActionId, List<String> states, List<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
-      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions,
+      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions, boolean queryArchive,
       WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
@@ -160,12 +163,13 @@ public abstract class ResourceBase {
         .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables))
         .setMaxResults(maxResults)
         .setMaxActions(maxActions)
+        .setQueryArchive(queryArchive)
         .setIncludeChildWorkflows(includeStrings.contains(childWorkflows))
         .setStateVariable(stateVariableKey, stateVariableValue)
         .build();
     Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
     Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
-    return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums));
+    return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums, queryArchive));
   }
 
   private Set<WorkflowInstanceInclude> parseIncludeEnums(String include) {
@@ -177,12 +181,12 @@ public abstract class ResourceBase {
     return Stream.of(trimToEmpty(include).split(","));
   }
 
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(final long id, final String include, final Long maxActions,
-      final WorkflowInstanceService workflowInstances,
-      final ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(long id, String include, Long maxActions, boolean queryArchive,
+      WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter)
+      throws EmptyResultDataAccessException {
     Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
-    WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions);
-    return listWorkflowConverter.convert(instance, includes);
+    WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions, queryArchive);
+    return listWorkflowConverter.convert(instance, includes, queryArchive);
   }
 
   protected int resolveExceptionHttpStatus(Throwable t) {
