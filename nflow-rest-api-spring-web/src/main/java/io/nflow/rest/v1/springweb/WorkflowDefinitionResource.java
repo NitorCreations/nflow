@@ -10,10 +10,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,17 +21,19 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.rest.config.springweb.SchedulerService;
 import io.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import reactor.core.publisher.Mono;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_DEFINITION_PATH, produces = APPLICATION_JSON_VALUE)
-@OpenAPIDefinition(info = @Info(
-        title = "nFlow workflow definition management"
-))
+@OpenAPIDefinition(info = @Info(title = "nFlow workflow definition management"))
 @Component
 public class WorkflowDefinitionResource extends SpringWebResource {
 
@@ -53,12 +51,11 @@ public class WorkflowDefinitionResource extends SpringWebResource {
   }
 
   @GetMapping
-  @Operation(summary = "List workflow definitions",
-          description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
-                  + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
+  @Operation(summary = "List workflow definitions", description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
+      + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowDefinitionResponse.class))))
   public Mono<ResponseEntity<?>> listWorkflowDefinitions(
-          @RequestParam(value = "type", defaultValue = "") @Parameter(description = "Included workflow types") List<String> types) {
+      @RequestParam(value = "type", defaultValue = "") @Parameter(description = "Included workflow types") List<String> types) {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(super.listWorkflowDefinitions(types, workflowDefinitions, converter, workflowDefinitionDao))));
   }

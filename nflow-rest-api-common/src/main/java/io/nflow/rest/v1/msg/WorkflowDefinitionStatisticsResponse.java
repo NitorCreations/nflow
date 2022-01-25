@@ -8,7 +8,7 @@ import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Response for workflow definition statistics")
-@SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification="jackson reads dto fields")
+@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class WorkflowDefinitionStatisticsResponse extends ModelObject {
 
   @Schema(description = "Statistics per state", required = true)

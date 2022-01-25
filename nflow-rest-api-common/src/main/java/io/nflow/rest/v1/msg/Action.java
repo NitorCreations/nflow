@@ -2,11 +2,11 @@ package io.nflow.rest.v1.msg;
 
 import java.util.Map;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
@@ -34,13 +34,13 @@ public class Action extends ModelObject {
   public Action() {
   }
 
-  public Action(long id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
-      int executorId) {
+  public Action(long id, String type, String state, String stateText, int retryNo, DateTime executionStartTime,
+      DateTime executionEndTime, int executorId) {
     this(id, type, state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
   }
 
-  public Action(long id, String type, String state, String stateText, int retryNo, DateTime executionStartTime, DateTime executionEndTime,
-      int executorId, Map<String, Object> updatedStateVariables) {
+  public Action(long id, String type, String state, String stateText, int retryNo, DateTime executionStartTime,
+      DateTime executionEndTime, int executorId, Map<String, Object> updatedStateVariables) {
     this();
     this.id = id;
     this.type = type;

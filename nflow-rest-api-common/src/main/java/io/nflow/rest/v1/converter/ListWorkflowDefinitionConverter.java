@@ -32,8 +32,7 @@ public class ListWorkflowDefinitionConverter {
     resp.onError = definition.getErrorState().name();
     Map<String, State> states = new LinkedHashMap<>(definition.getStates().size() * 2);
     for (WorkflowState state : definition.getStates()) {
-      states.put(state.name(), new State(state.name(), state.getType().name(),
-          state.getDescription()));
+      states.put(state.name(), new State(state.name(), state.getType().name(), state.getDescription()));
     }
     for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
       State state = states.get(entry.getKey());

@@ -144,8 +144,8 @@ public class ListWorkflowInstanceConverterTest {
     assertThat(resp.retries, is(i.retries));
     assertThat(resp.signal, is(nullValue()));
     assertThat(resp.isArchived, is(true));
-    assertThat(resp.actions, containsInAnyOrder(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo,
-        a.executionStart, a.executionEnd, a.executorId, expectedStateVariables)));
+    assertThat(resp.actions, containsInAnyOrder(new Action(a.id, a.type.name(), a.state, a.stateText, a.retryNo, a.executionStart,
+        a.executionEnd, a.executorId, expectedStateVariables)));
   }
 
   @Test

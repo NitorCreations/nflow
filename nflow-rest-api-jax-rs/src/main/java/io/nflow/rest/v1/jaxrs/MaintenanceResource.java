@@ -11,10 +11,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.MaintenanceConfiguration;
@@ -27,14 +23,15 @@ import io.nflow.rest.v1.msg.MaintenanceResponse;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Path(NFLOW_MAINTENANCE_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(
-        title = "nFlow maintenance"
-))
+@OpenAPIDefinition(info = @Info(title = "nFlow maintenance"))
 @Component
 @NflowCors
 public class MaintenanceResource extends JaxRsResource {

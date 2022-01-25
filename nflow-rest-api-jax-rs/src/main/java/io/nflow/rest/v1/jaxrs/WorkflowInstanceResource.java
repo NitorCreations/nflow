@@ -62,9 +62,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @Path(NFLOW_WORKFLOW_INSTANCE_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(
-        title = "nFlow workflow instance management"
-))
+@OpenAPIDefinition(info = @Info(title = "nFlow workflow instance management"))
 @Component
 @NflowCors
 public class WorkflowInstanceResource extends JaxRsResource {
@@ -95,8 +93,9 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @PUT
   @Operation(summary = "Submit new workflow instance")
-  @ApiResponses({ @ApiResponse(responseCode = "201", description = "Workflow was created", content = @Content(schema = @Schema(implementation = CreateWorkflowInstanceResponse.class))),
-          @ApiResponse(responseCode = "400", description = "If instance could not be created, for example when state variable value was too long") })
+  @ApiResponses({
+      @ApiResponse(responseCode = "201", description = "Workflow was created", content = @Content(schema = @Schema(implementation = CreateWorkflowInstanceResponse.class))),
+      @ApiResponse(responseCode = "400", description = "If instance could not be created, for example when state variable value was too long") })
   public Response createWorkflowInstance(
       @Valid @RequestBody(description = "Submitted workflow instance information", required = true) CreateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
@@ -110,13 +109,12 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @PUT
   @Path("/id/{id}")
   @Operation(summary = "Update workflow instance", description = "The service is typically used in manual state "
-          + "transition via nFlow Explorer or a business UI.")
+      + "transition via nFlow Explorer or a business UI.")
   @ApiResponses({ @ApiResponse(responseCode = "204", description = "If update was successful"),
-          @ApiResponse(responseCode = "400", description = "If instance could not be updated, for example when state variable value was too long"),
-          @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
-  public Response updateWorkflowInstance(
-          @Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-          @Valid @RequestBody(description = "Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
+      @ApiResponse(responseCode = "400", description = "If instance could not be updated, for example when state variable value was too long"),
+      @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
+  public Response updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
+      @Valid @RequestBody(description = "Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
       return (updated ? noContent() : status(CONFLICT));
@@ -127,34 +125,41 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @Path("/id/{id}")
   @Operation(summary = "Fetch a workflow instance", description = "Fetch full state and action history of a single workflow instance.")
   @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The empty result exception contains no useful information")
-  @ApiResponses({ @ApiResponse(responseCode = "200", description = "", content = @Content(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))),
-          @ApiResponse(responseCode = "404", description = "If instance could not be created, for example when state variable value was too long") })
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "", content = @Content(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))),
+      @ApiResponse(responseCode = "404", description = "If instance could not be created, for example when state variable value was too long") })
   public Response fetchWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-          @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC/*, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true*/) String include,
-          @QueryParam("maxActions") @Parameter(description = "Maximum number of actions returned for each workflow instance") Long maxActions,
-          @QueryParam("queryArchive") @Parameter(description = "Query also the archive if not found from main tables") Boolean queryArchive) {
-    return handleExceptions(
-        () -> ok(super.fetchWorkflowInstance(id, include, maxActions, ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter)));
+      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC/*
+                                                                         * , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple
+                                                                         * = true
+                                                                         */) String include,
+      @QueryParam("maxActions") @Parameter(description = "Maximum number of actions returned for each workflow instance") Long maxActions,
+      @QueryParam("queryArchive") @Parameter(description = "Query also the archive if not found from main tables") Boolean queryArchive) {
+    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, include, maxActions,
+        ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter)));
   }
 
   @GET
   @Operation(summary = "List workflow instances")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
-    public Response listWorkflowInstances(
-            @QueryParam("id") @Parameter(description = "Internal id of workflow instance") List<Long> ids,
-            @QueryParam("type") @Parameter(description = "Workflow definition type of workflow instance") List<String> types,
-            @QueryParam("parentWorkflowId") @Parameter(description = "Id of parent workflow instance") Long parentWorkflowId,
-            @QueryParam("parentActionId") @Parameter(description = "Id of parent workflow instance action") Long parentActionId,
-            @QueryParam("state") @Parameter(description = "Current state of workflow instance") List<String> states,
-            @QueryParam("status") @Parameter(description = "Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
-            @QueryParam("businessKey") @Parameter(description = "Business key for workflow instance") String businessKey,
-            @QueryParam("externalId") @Parameter(description = "External id for workflow instance") String externalId,
-            @QueryParam("stateVariableKey") @Parameter(description = "Key of state variable that must exist for workflow instance") String stateVariableKey,
-            @QueryParam("stateVariableValue") @Parameter(description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
-            @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC/*, allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true*/) String include,
-            @QueryParam("maxResults") @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
-            @QueryParam("maxActions") @Parameter(description = "Maximum number of actions returned for each workflow instance") Long maxActions,
-            @QueryParam("queryArchive") @Parameter(description = "Query also the archive if not enough results found from main tables") Boolean queryArchive) {
+  public Response listWorkflowInstances(
+      @QueryParam("id") @Parameter(description = "Internal id of workflow instance") List<Long> ids,
+      @QueryParam("type") @Parameter(description = "Workflow definition type of workflow instance") List<String> types,
+      @QueryParam("parentWorkflowId") @Parameter(description = "Id of parent workflow instance") Long parentWorkflowId,
+      @QueryParam("parentActionId") @Parameter(description = "Id of parent workflow instance action") Long parentActionId,
+      @QueryParam("state") @Parameter(description = "Current state of workflow instance") List<String> states,
+      @QueryParam("status") @Parameter(description = "Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
+      @QueryParam("businessKey") @Parameter(description = "Business key for workflow instance") String businessKey,
+      @QueryParam("externalId") @Parameter(description = "External id for workflow instance") String externalId,
+      @QueryParam("stateVariableKey") @Parameter(description = "Key of state variable that must exist for workflow instance") String stateVariableKey,
+      @QueryParam("stateVariableValue") @Parameter(description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
+      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC/*
+                                                                         * , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple
+                                                                         * = true
+                                                                         */) String include,
+      @QueryParam("maxResults") @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
+      @QueryParam("maxActions") @Parameter(description = "Maximum number of actions returned for each workflow instance") Long maxActions,
+      @QueryParam("queryArchive") @Parameter(description = "Query also the archive if not enough results found from main tables") Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
         businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter).iterator()));
@@ -165,7 +170,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @Operation(summary = "Set workflow instance signal value", description = "The service may be used for example to interrupt executing workflow instance.")
   @ApiResponse(responseCode = "200", description = "When operation was successful", content = @Content(schema = @Schema(implementation = SetSignalResponse.class)))
   public Response setSignal(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-        @Valid @RequestBody(description = "New signal value") SetSignalRequest req) {
+      @Valid @RequestBody(description = "New signal value") SetSignalRequest req) {
     return handleExceptions(() -> {
       SetSignalResponse response = new SetSignalResponse();
       response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
@@ -176,10 +181,10 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @PUT
   @Path("/{id}/wakeup")
-        @Operation(description = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
-        @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted", content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
+  @Operation(description = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
+  @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted", content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
   public Response wakeup(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-        @Valid @RequestBody(description = "Expected states") WakeupRequest req) {
+      @Valid @RequestBody(description = "Expected states") WakeupRequest req) {
     return handleExceptions(() -> {
       WakeupResponse response = new WakeupResponse();
       List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);

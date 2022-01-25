@@ -41,12 +41,10 @@ public class ListWorkflowDefinitionConverterTest {
     assertThat(resp.name, is(def.getName()));
     assertThat(resp.description, is(def.getDescription()));
     assertThat(resp.onError, is(def.getErrorState().name()));
-    assertThat(resp.states, arrayContainingInAnyOrder(
-        getResponseState(DONE, emptyList(), null), getResponseState(ERROR, asList(DONE.name()), null),
-        getResponseState(BEGIN, asList(DONE.name(), ERROR.name()), ERROR.name())));
-    assertThat(resp.supportedSignals, arrayContainingInAnyOrder(
-        getSignal(1, "one"),
-        getSignal(2, "two")));
+    assertThat(resp.states,
+        arrayContainingInAnyOrder(getResponseState(DONE, emptyList(), null), getResponseState(ERROR, asList(DONE.name()), null),
+            getResponseState(BEGIN, asList(DONE.name(), ERROR.name()), ERROR.name())));
+    assertThat(resp.supportedSignals, arrayContainingInAnyOrder(getSignal(1, "one"), getSignal(2, "two")));
     assertThat(resp.settings.transitionDelaysInMilliseconds.waitShort, is(def.getSettings().shortTransitionDelay));
     assertThat(resp.settings.transitionDelaysInMilliseconds.minErrorWait, is(def.getSettings().minErrorTransitionDelay));
     assertThat(resp.settings.transitionDelaysInMilliseconds.maxErrorWait, is(def.getSettings().maxErrorTransitionDelay));

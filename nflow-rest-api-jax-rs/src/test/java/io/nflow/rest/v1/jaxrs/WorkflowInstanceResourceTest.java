@@ -94,7 +94,7 @@ public class WorkflowInstanceResourceTest {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory, workflowInstanceDao);
     lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
-    .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
+        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
   }
 
   @Test
@@ -275,8 +275,8 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId",
-        "stateVarKey", "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 2L, false));
+        asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId", "stateVarKey",
+        "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 2L, false));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -302,7 +302,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, true))
-    .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
+        .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
     try (Response response = resource.fetchWorkflowInstance(42, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));

@@ -29,9 +29,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_EXECUTOR_PATH, produces = APPLICATION_JSON_VALUE)
-@OpenAPIDefinition(info = @Info(
-        title = "nFlow workflow executor management"
-))
+@OpenAPIDefinition(info = @Info(title = "nFlow workflow executor management"))
 @Component
 public class WorkflowExecutorResource extends SpringWebResource {
 

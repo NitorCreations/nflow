@@ -1,10 +1,10 @@
 package io.nflow.rest.v1.msg;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.joda.time.ReadablePeriod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Basic information of workflow definition")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
@@ -16,7 +16,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
   @Schema(description = "Name of the workflow definition", required = true)
   public String name;
 
-  @Schema(description ="Description of the workflow definition")
+  @Schema(description = "Description of the workflow definition")
   public String description;
 
   @Schema(description = "Default error state", required = true)
@@ -28,7 +28,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
   @Schema(description = "Workflow settings", required = true)
   public Settings settings;
 
-  @Schema(description ="Supported signals")
+  @Schema(description = "Supported signals")
   public Signal[] supportedSignals;
 
   public static class Settings extends ModelObject {

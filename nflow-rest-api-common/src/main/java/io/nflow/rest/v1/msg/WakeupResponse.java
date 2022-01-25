@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class WakeupResponse extends ModelObject {
 
-  @Schema(description ="True if the instance was woken up, false otherwise.")
+  @Schema(description = "True if the instance was woken up, false otherwise.")
   public boolean wakeupSuccess;
 
 }

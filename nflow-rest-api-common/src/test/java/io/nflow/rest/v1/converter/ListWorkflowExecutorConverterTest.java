@@ -6,10 +6,10 @@ import static org.joda.time.DateTime.now;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ListWorkflowExecutorConverterTest {
@@ -18,8 +18,8 @@ public class ListWorkflowExecutorConverterTest {
 
   @Test
   public void convertWorks() {
-    WorkflowExecutor executor = new WorkflowExecutor(1, "host", 2, "executorGroup", now(),
-            now().plusMinutes(1), now().plusMinutes(15), now().minusSeconds(7));
+    WorkflowExecutor executor = new WorkflowExecutor(1, "host", 2, "executorGroup", now(), now().plusMinutes(1),
+        now().plusMinutes(15), now().minusSeconds(7));
 
     ListWorkflowExecutorResponse resp = converter.convert(executor);
 

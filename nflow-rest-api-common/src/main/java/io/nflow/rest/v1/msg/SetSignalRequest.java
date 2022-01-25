@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class SetSignalRequest extends ModelObject {
 
-  @Schema(description ="New signal value")
+  @Schema(description = "New signal value")
   public Integer signal;
 
-  @Schema(description ="Reason for setting the signal")
+  @Schema(description = "Reason for setting the signal")
   public String reason;
 
 }

@@ -30,9 +30,9 @@ public class State extends ModelObject {
   @Schema(description = "State description", required = true)
   public String description;
 
-  @Schema(description ="Permitted transitions from this state")
+  @Schema(description = "Permitted transitions from this state")
   public Set<String> transitions = new LinkedHashSet<>();
 
-  @Schema(description ="Failure state for the this state")
+  @Schema(description = "Failure state for the this state")
   public String onFailure;
 }

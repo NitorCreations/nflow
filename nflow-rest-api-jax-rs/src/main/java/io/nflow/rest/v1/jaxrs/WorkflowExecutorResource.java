@@ -12,11 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import io.nflow.rest.v1.msg.StatisticsResponse;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.WorkflowExecutorService;
@@ -26,13 +21,15 @@ import io.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Path(NFLOW_WORKFLOW_EXECUTOR_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(
-        title = "nFlow workflow executor management"
-))
+@OpenAPIDefinition(info = @Info(title = "nFlow workflow executor management"))
 @Component
 @NflowCors
 public class WorkflowExecutorResource extends JaxRsResource {
