@@ -15,8 +15,8 @@ public class Action extends ModelObject {
 
   @Schema(description = "Identifier of the workflow instance action", required = true)
   public long id;
-  @Schema(description = "Type of state", required = true,
-          allowableValues = {"stateExecution", "stateExecutionFailed", "externalChange", "recovery"})
+  @Schema(description = "Type of state", required = true, allowableValues = { "stateExecution", "stateExecutionFailed",
+      "externalChange", "recovery" })
   public String type;
   @Schema(description = "Name of state", required = true)
   public String state;
@@ -42,7 +42,7 @@ public class Action extends ModelObject {
   }
 
   public Action(long id, @NonNull String type, @NonNull String state, String stateText, int retryNo, DateTime executionStartTime,
-                DateTime executionEndTime, int executorId, Map<String, Object> updatedStateVariables) {
+      DateTime executionEndTime, int executorId, Map<String, Object> updatedStateVariables) {
     this();
     this.id = id;
     this.type = type;

@@ -24,7 +24,8 @@ public class MaintenanceRequest extends ModelObject {
   public MaintenanceRequestItem deleteWorkflows;
 
   public static class MaintenanceRequestItem extends ModelObject {
-    @Schema(description = "Workflow instances whose modified time is older than given period will be processed. Supports ISO-8601 format.",
+    @Schema(
+        description = "Workflow instances whose modified time is older than given period will be processed. Supports ISO-8601 format.",
         type = "string", format = "ISO8601 duration", example = "PT15D", required = true)
     public ReadablePeriod olderThanPeriod;
 

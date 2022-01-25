@@ -44,7 +44,8 @@ public class MaintenanceResource extends JaxRsResource {
 
   @POST
   @Operation(description = "Do maintenance on old workflow instances synchronously")
-  @ApiResponse(responseCode = "200", description = "Maintenance operation status", content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
+  @ApiResponse(responseCode = "200", description = "Maintenance operation status",
+      content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
   public Response cleanupWorkflows(
       @RequestBody(description = "Parameters for the maintenance process") MaintenanceRequest request) {
     return handleExceptions(() -> {

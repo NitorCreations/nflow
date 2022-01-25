@@ -48,9 +48,11 @@ public class MaintenanceResource extends SpringWebResource {
 
   @PostMapping(consumes = APPLICATION_JSON_VALUE)
   @Operation(description = "Do maintenance on old workflow instances synchronously")
-  @ApiResponse(responseCode = "200", description = "Maintenance operation status", content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
+  @ApiResponse(responseCode = "200", description = "Maintenance operation status",
+      content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
   public Mono<ResponseEntity<?>> cleanupWorkflows(
-      @RequestBody @Parameter(description = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
+      @RequestBody @Parameter(description = "Parameters for the maintenance process",
+          required = true) MaintenanceRequest request) {
     return handleExceptions(() -> wrapBlocking(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
       MaintenanceResults results = maintenanceService.cleanupWorkflows(configuration);

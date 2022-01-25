@@ -51,8 +51,9 @@ public class WorkflowDefinitionResource extends JaxRsResource {
   }
 
   @GET
-  @Operation(summary = "List workflow definitions", description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
-      + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
+  @Operation(summary = "List workflow definitions",
+      description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
+          + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowDefinitionResponse.class))))
   public Response listWorkflowDefinitions(
       @QueryParam("type") @Parameter(description = "Included workflow types") List<String> types) {

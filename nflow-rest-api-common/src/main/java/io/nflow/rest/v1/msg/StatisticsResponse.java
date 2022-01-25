@@ -11,7 +11,8 @@ public class StatisticsResponse extends ModelObject {
   @Schema(description = "Statistics for queued workflows. Workflow instances waiting for free executors.", required = true)
   public QueueStatistics queueStatistics = new QueueStatistics();
 
-  @Schema(description = "Statistics for workflows in execution. Workflow instances currently processed by an executor.", required = true)
+  @Schema(description = "Statistics for workflows in execution. Workflow instances currently processed by an executor.",
+      required = true)
   public QueueStatistics executionStatistics = new QueueStatistics();
 
 }

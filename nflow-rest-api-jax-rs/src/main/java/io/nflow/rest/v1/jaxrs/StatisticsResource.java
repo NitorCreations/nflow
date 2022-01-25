@@ -43,8 +43,10 @@ public class StatisticsResource extends JaxRsResource {
   private StatisticsConverter statisticsConverter;
 
   @GET
-  @Operation(summary = "Get executor group statistics", description = "Returns counts of queued and executing workflow instances.")
-  @ApiResponse(responseCode = "200", description = "Statistics", content = @Content(schema = @Schema(implementation = StatisticsResponse.class)))
+  @Operation(summary = "Get executor group statistics",
+      description = "Returns counts of queued and executing workflow instances.")
+  @ApiResponse(responseCode = "200", description = "Statistics",
+      content = @Content(schema = @Schema(implementation = StatisticsResponse.class)))
   public Response queryStatistics() {
     return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
   }
@@ -52,13 +54,18 @@ public class StatisticsResource extends JaxRsResource {
   @GET
   @Path("/workflow/{type}")
   @Operation(summary = "Get workflow definition statistics")
-  @ApiResponse(responseCode = "200", description = "Statistics", content = @Content(schema = @Schema(implementation = WorkflowDefinitionStatisticsResponse.class)))
+  @ApiResponse(responseCode = "200", description = "Statistics",
+      content = @Content(schema = @Schema(implementation = WorkflowDefinitionStatisticsResponse.class)))
   public Response getStatistics(
       @PathParam("type") @Parameter(description = "Workflow definition type", required = true) String type,
-      @QueryParam("createdAfter") @Parameter(description = "Include only workflow instances created after given time") DateTime createdAfter,
-      @QueryParam("createdBefore") @Parameter(description = "Include only workflow instances created before given time") DateTime createdBefore,
-      @QueryParam("modifiedAfter") @Parameter(description = "Include only workflow instances modified after given time") DateTime modifiedAfter,
-      @QueryParam("modifiedBefore") @Parameter(description = "Include only workflow instances modified before given time") DateTime modifiedBefore) {
+      @QueryParam("createdAfter") @Parameter(
+          description = "Include only workflow instances created after given time") DateTime createdAfter,
+      @QueryParam("createdBefore") @Parameter(
+          description = "Include only workflow instances created before given time") DateTime createdBefore,
+      @QueryParam("modifiedAfter") @Parameter(
+          description = "Include only workflow instances modified after given time") DateTime modifiedAfter,
+      @QueryParam("modifiedBefore") @Parameter(
+          description = "Include only workflow instances modified before given time") DateTime modifiedBefore) {
     return handleExceptions(() -> ok(statisticsConverter.convert(
         statisticsService.getWorkflowDefinitionStatistics(type, createdAfter, createdBefore, modifiedAfter, modifiedBefore))));
   }

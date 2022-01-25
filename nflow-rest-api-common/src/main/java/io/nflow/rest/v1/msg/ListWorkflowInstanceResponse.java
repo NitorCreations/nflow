@@ -20,14 +20,16 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   @Schema(description = "Identifier of the workflow instance", required = true)
   public long id;
 
-  @Schema(description = "Workflow instance status", required = true,
-          allowableValues = {"created", "executing", "inProgress", "finished", "manual"})
+  @Schema(description = "Workflow instance status", required = true, allowableValues = { "created", "executing", "inProgress",
+      "finished", "manual" })
   public String status;
 
   @Schema(description = "Workflow definition type", required = true)
   public String type;
 
-  @Schema(description = "Workflow instance priority. Larger value gets (unfair) priority in scheduling. Defaults to 0 and can be negative.", required = true)
+  @Schema(
+      description = "Workflow instance priority. Larger value gets (unfair) priority in scheduling. Defaults to 0 and can be negative.",
+      required = true)
   public Short priority;
 
   @Schema(description = "Parent workflow instance id for child workflows")
