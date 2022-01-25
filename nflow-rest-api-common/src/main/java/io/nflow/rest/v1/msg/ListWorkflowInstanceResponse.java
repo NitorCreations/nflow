@@ -20,7 +20,8 @@ public class ListWorkflowInstanceResponse extends ModelObject {
   @Schema(description = "Identifier of the workflow instance", required = true)
   public long id;
 
-  @Schema(description = "Workflow instance status (created, executing, inProgress, finished, manual)", required = true)
+  @Schema(description = "Workflow instance status", required = true,
+          allowableValues = {"created", "executing", "inProgress", "finished", "manual"})
   public String status;
 
   @Schema(description = "Workflow definition type", required = true)

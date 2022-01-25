@@ -24,7 +24,7 @@ public class State extends ModelObject {
   @Schema(description = "State identifier", required = true)
   public String id;
 
-  @Schema(description = "State type (start, normal, manual, end)", required = true)
+  @Schema(description = "State type", required = true, allowableValues = {"start", "normal", "manual", "wait", "end"})
   public String type;
 
   @Schema(description = "State description", required = true)
