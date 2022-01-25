@@ -165,10 +165,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
           description = "Key of state variable that must exist for workflow instance") String stateVariableKey,
       @QueryParam("stateVariableValue") @Parameter(
           description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
-      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC/*
-                                                                         * , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple
-                                                                         * = true
-                                                                         */) String include,
+      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC
+      /* , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true */) String include,
       @QueryParam("maxResults") @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
