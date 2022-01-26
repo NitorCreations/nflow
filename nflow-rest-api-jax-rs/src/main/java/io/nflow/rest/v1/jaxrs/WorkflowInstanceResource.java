@@ -49,6 +49,7 @@ import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WakeupRequest;
 import io.nflow.rest.v1.msg.WakeupResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -85,7 +86,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @OPTIONS
   @Path("{any: .*}")
-  @Operation(summary = "CORS preflight handling")
+  @Hidden
   @Consumes(WILDCARD)
   public Response corsPreflight() {
     return ok().build();
@@ -193,8 +194,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @PUT
   @Path("/{id}/wakeup")
-  @Operation(summary = "Wake up sleeping workflow instance.",
-      description = "If expected states are given, only wake up if the instance is in one of the expected states.")
+  @Operation(summary = "Wake up workflow instance that is waiting for next activation.",
+      description = "Sets next activation to current time. If expected states are given, only wake up if the instance is in one of the expected states.")
   @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted",
       content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
   public Response wakeup(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,

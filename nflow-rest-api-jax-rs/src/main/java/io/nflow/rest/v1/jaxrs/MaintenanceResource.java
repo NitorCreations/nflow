@@ -43,7 +43,7 @@ public class MaintenanceResource extends JaxRsResource {
   private MaintenanceConverter converter;
 
   @POST
-  @Operation(description = "Do maintenance on old workflow instances synchronously")
+  @Operation(summary = "Execute workflow instance maintenance", description = "Runs requested maintenance tasks synchronously")
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
   public Response cleanupWorkflows(
