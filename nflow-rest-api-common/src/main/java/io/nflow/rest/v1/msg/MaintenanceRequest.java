@@ -26,10 +26,10 @@ public class MaintenanceRequest extends ModelObject {
   public static class MaintenanceRequestItem extends ModelObject {
     @Schema(
         description = "Workflow instances whose modified time is older than given period will be processed. Supports ISO-8601 format.",
-        type = "string", format = "ISO8601 duration", example = "PT15D", required = true)
+        type = "string", format = "duration", example = "PT15D", required = true)
     public ReadablePeriod olderThanPeriod;
 
-    @Schema(description = "Number of workflows to process in a single transaction.", example = "1000")
+    @Schema(description = "Number of workflows to process in a single transaction.", example = "1000", defaultValue = "1000", minimum = "1")
     public int batchSize = 1000;
 
     @Schema(description = "Workflow types to process. If no types are defined, process all types.")

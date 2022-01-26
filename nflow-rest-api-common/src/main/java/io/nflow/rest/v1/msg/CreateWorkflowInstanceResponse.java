@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class CreateWorkflowInstanceResponse extends ModelObject {
 
-  @Schema(description = "Identifier of the new workflow instance", required = true)
+  @Schema(description = "Identifier of the new workflow instance", required = true, format = "int64")
   public long id;
 
   @Schema(description = "Workflow definition type", required = true)

@@ -22,7 +22,7 @@ public class Action extends ModelObject {
   public String state;
   @Schema(description = "Description of state")
   public String stateText;
-  @Schema(description = "Number of retries in this state")
+  @Schema(description = "Number of retries in this state", minimum = "0")
   public int retryNo;
   @Schema(description = "Start time for execution")
   public DateTime executionStartTime;

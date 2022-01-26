@@ -8,13 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class MaintenanceResponse extends ModelObject {
 
-  @Schema(description = "Total number of deleted archived workflows")
+  @Schema(description = "Total number of deleted archived workflows", minimum = "0")
   public int deletedArchivedWorkflows;
 
-  @Schema(description = "Total number of archived workflows")
+  @Schema(description = "Total number of archived workflows", minimum = "0")
   public int archivedWorkflows;
 
-  @Schema(description = "Total number of deleted workflows")
+  @Schema(description = "Total number of deleted workflows", minimum = "0")
   public int deletedWorkflows;
 
 }
