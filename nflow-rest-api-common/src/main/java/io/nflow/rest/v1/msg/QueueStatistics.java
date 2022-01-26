@@ -4,7 +4,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Global statistics for workflow instances.")
+@Schema(description = "Statistics for workflow instances.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class QueueStatistics extends ModelObject {
 

@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class WorkflowDefinitionStatisticsResponse extends ModelObject {
 
   @Schema(description = "Statistics per state", required = true)
-  // TODO: Swagger fails to scan StateStatistics-class because it is referenced by a Map. There's multiple Swagger issues open
-  // related to this. Follow issue: https://github.com/swagger-api/swagger-ui/issues/1248
   public Map<String, StateStatistics> stateStatistics = new LinkedHashMap<>();
 
   @Schema(description = "Statistics for a state")
