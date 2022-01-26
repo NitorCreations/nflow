@@ -193,8 +193,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
 
   @PUT
   @Path("/{id}/wakeup")
-  @Operation(
-      description = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
+  @Operation(summary = "Wake up sleeping workflow instance.",
+      description = "If expected states are given, only wake up if the instance is in one of the expected states.")
   @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted",
       content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
   public Response wakeup(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
