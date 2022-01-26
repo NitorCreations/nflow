@@ -1,6 +1,7 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_PATH;
+import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_TAG;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
@@ -44,7 +45,7 @@ public class WorkflowExecutorResource extends JaxRsResource {
   @GET
   @Operation(summary = "List workflow executors")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowExecutorResponse.class))))
-  @Tag(name = "nFlow workflow executor management")
+  @Tag(name = NFLOW_WORKFLOW_EXECUTOR_TAG)
   public Response listWorkflowExecutors() {
     return handleExceptions(
         () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));

@@ -1,6 +1,7 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_MAINTENANCE_PATH;
+import static io.nflow.rest.v1.ResourcePaths.NFLOW_MAINTENANCE_TAG;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
 
@@ -44,7 +45,7 @@ public class MaintenanceResource extends JaxRsResource {
   @Operation(description = "Do maintenance on old workflow instances synchronously")
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
-  @Tag(name = "nFlow maintenance")
+  @Tag(name = NFLOW_MAINTENANCE_TAG)
   public Response cleanupWorkflows(
       @RequestBody(description = "Parameters for the maintenance process") MaintenanceRequest request) {
     return handleExceptions(() -> {

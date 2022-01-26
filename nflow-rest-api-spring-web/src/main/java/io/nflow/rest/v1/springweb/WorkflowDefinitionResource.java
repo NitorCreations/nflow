@@ -2,6 +2,7 @@ package io.nflow.rest.v1.springweb;
 
 import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_DEFINITION_PATH;
+import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_DEFINITION_TAG;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -29,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -52,9 +54,10 @@ public class WorkflowDefinitionResource extends SpringWebResource {
 
   @GetMapping
   @Operation(summary = "List workflow definitions",
-      description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
+      description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata. "
           + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowDefinitionResponse.class))))
+  @Tag(name = NFLOW_WORKFLOW_DEFINITION_TAG)
   public Mono<ResponseEntity<?>> listWorkflowDefinitions(
       @RequestParam(value = "type", defaultValue = "") @Parameter(description = "Included workflow types") List<String> types) {
     return handleExceptions(() -> wrapBlocking(

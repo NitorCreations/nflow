@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.StatisticsService;
 import io.nflow.rest.config.jaxrs.NflowCors;
+import io.nflow.rest.v1.ResourcePaths;
 import io.nflow.rest.v1.converter.StatisticsConverter;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
@@ -45,7 +46,7 @@ public class StatisticsResource extends JaxRsResource {
       description = "Returns counts of queued and executing workflow instances.")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = StatisticsResponse.class)))
-  @Tag(name = "nFlow statistics")
+  @Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
   public Response queryStatistics() {
     return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
   }
@@ -55,7 +56,7 @@ public class StatisticsResource extends JaxRsResource {
   @Operation(summary = "Get workflow definition statistics")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = WorkflowDefinitionStatisticsResponse.class)))
-  @Tag(name = "nFlow statistics")
+  @Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
   public Response getStatistics(
       @PathParam("type") @Parameter(description = "Workflow definition type", required = true) String type,
       @QueryParam("createdAfter") @Parameter(

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.nflow.engine.service.StatisticsService;
 import io.nflow.rest.config.springweb.SchedulerService;
+import io.nflow.rest.v1.ResourcePaths;
 import io.nflow.rest.v1.converter.StatisticsConverter;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
@@ -28,6 +29,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -52,6 +54,7 @@ public class StatisticsResource extends SpringWebResource {
       description = "Returns counts of queued and executing workflow instances.")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = StatisticsResponse.class)))
+  @Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
   public Mono<ResponseEntity<?>> queryStatistics() {
     return handleExceptions(() -> wrapBlocking(() -> ok(statisticsConverter.convert(statisticsService.getStatistics()))));
   }
@@ -60,6 +63,7 @@ public class StatisticsResource extends SpringWebResource {
   @Operation(summary = "Get workflow definition statistics")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = WorkflowDefinitionStatisticsResponse.class)))
+  @Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
   public Mono<ResponseEntity<?>> getStatistics(
       @PathVariable("type") @Parameter(description = "Workflow definition type", required = true) String type,
       @RequestParam(value = "createdAfter", required = false) @Parameter(

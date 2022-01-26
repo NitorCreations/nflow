@@ -2,6 +2,7 @@ package io.nflow.rest.v1.springweb;
 
 import static io.nflow.rest.config.springweb.PathConstants.NFLOW_SPRING_WEB_PATH_PREFIX;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_MAINTENANCE_PATH;
+import static io.nflow.rest.v1.ResourcePaths.NFLOW_MAINTENANCE_TAG;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -28,6 +29,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -50,6 +52,7 @@ public class MaintenanceResource extends SpringWebResource {
   @Operation(description = "Do maintenance on old workflow instances synchronously")
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
+  @Tag(name = NFLOW_MAINTENANCE_TAG)
   public Mono<ResponseEntity<?>> cleanupWorkflows(
       @RequestBody @Parameter(description = "Parameters for the maintenance process",
           required = true) MaintenanceRequest request) {
