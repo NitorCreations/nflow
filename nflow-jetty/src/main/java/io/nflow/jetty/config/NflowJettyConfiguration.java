@@ -105,11 +105,10 @@ public class NflowJettyConfiguration {
     feature.setContactEmail("nflow-users@googlegroups.com");
     feature.setContactUrl("https://nflow.io/");
     feature.setDescription(
-        "nFlow REST API provides services for managing workflow instances and querying metadata (statistics, workflow "
-            + "definitions, etc) of nFlow Engine. The services are also used by nFlow Explorer user interface.");
+        "Manage workflow instances, definitions and executors, query statistics and run maintenance jobs. The services are also used by nFlow Explorer.");
     feature.setLicense("European Union Public Licence V. 1.1");
     feature.setLicenseUrl("https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt");
-    feature.setTitle("nflow-rest-api");
+    feature.setTitle("nFlow REST API");
     feature.setVersion("1");
     return feature;
   }
