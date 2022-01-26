@@ -39,7 +39,9 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
     @Schema(description = "Maximum retries for a state before moving to failure", required = true)
     public int maxRetries;
 
-    @Schema(description = "Delay after which workflow instance history (actions, states) can be deleted from database")
+    @Schema(
+        description = "Delay after which workflow instance history (actions, states) can be deleted from database. Supports ISO-8601 format.",
+        type = "string", format = "duration", example = "PT15D")
     public ReadablePeriod historyDeletableAfter;
 
     @Schema(description = "Default priority for new workflow instances", required = true)
