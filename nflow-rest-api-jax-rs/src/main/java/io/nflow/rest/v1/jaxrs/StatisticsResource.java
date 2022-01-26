@@ -21,18 +21,16 @@ import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.StatisticsConverter;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(NFLOW_STATISTICS_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(title = "nFlow statistics"))
 @Component
 @NflowCors
 public class StatisticsResource extends JaxRsResource {
@@ -47,6 +45,7 @@ public class StatisticsResource extends JaxRsResource {
       description = "Returns counts of queued and executing workflow instances.")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = StatisticsResponse.class)))
+  @Tag(name = "nFlow statistics")
   public Response queryStatistics() {
     return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
   }
@@ -56,6 +55,7 @@ public class StatisticsResource extends JaxRsResource {
   @Operation(summary = "Get workflow definition statistics")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = WorkflowDefinitionStatisticsResponse.class)))
+  @Tag(name = "nFlow statistics")
   public Response getStatistics(
       @PathParam("type") @Parameter(description = "Workflow definition type", required = true) String type,
       @QueryParam("createdAfter") @Parameter(

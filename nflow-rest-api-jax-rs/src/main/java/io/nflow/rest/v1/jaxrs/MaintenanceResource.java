@@ -20,18 +20,16 @@ import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(NFLOW_MAINTENANCE_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(title = "nFlow maintenance"))
 @Component
 @NflowCors
 public class MaintenanceResource extends JaxRsResource {
@@ -46,6 +44,7 @@ public class MaintenanceResource extends JaxRsResource {
   @Operation(description = "Do maintenance on old workflow instances synchronously")
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
+  @Tag(name = "nFlow maintenance")
   public Response cleanupWorkflows(
       @RequestBody(description = "Parameters for the maintenance process") MaintenanceRequest request) {
     return handleExceptions(() -> {

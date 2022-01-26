@@ -48,21 +48,19 @@ import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WakeupRequest;
 import io.nflow.rest.v1.msg.WakeupResponse;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(NFLOW_WORKFLOW_INSTANCE_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(title = "nFlow workflow instance management"))
 @Component
 @NflowCors
 public class WorkflowInstanceResource extends JaxRsResource {
@@ -87,6 +85,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @Path("{any: .*}")
   @Operation(summary = "CORS preflight handling")
   @Consumes(WILDCARD)
+  @Tag(name = "nFlow workflow instance management")
   public Response corsPreflight() {
     return ok().build();
   }
@@ -98,6 +97,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
           content = @Content(schema = @Schema(implementation = CreateWorkflowInstanceResponse.class))),
       @ApiResponse(responseCode = "400",
           description = "If instance could not be created, for example when state variable value was too long") })
+  @Tag(name = "nFlow workflow instance management")
   public Response createWorkflowInstance(
       @Valid @RequestBody(description = "Submitted workflow instance information",
           required = true) CreateWorkflowInstanceRequest req) {
@@ -117,6 +117,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @ApiResponse(responseCode = "400",
           description = "If instance could not be updated, for example when state variable value was too long"),
       @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
+  @Tag(name = "nFlow workflow instance management")
   public Response updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
       @Valid @RequestBody(description = "Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
@@ -136,6 +137,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
           content = @Content(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))),
       @ApiResponse(responseCode = "404",
           description = "If instance could not be created, for example when state variable value was too long") })
+  @Tag(name = "nFlow workflow instance management")
   public Response fetchWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC/*
                                                                          * , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple
@@ -152,6 +154,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @GET
   @Operation(summary = "List workflow instances")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
+  @Tag(name = "nFlow workflow instance management")
   public Response listWorkflowInstances(
       @QueryParam("id") @Parameter(description = "Internal id of workflow instance") List<Long> ids,
       @QueryParam("type") @Parameter(description = "Workflow definition type of workflow instance") List<String> types,
@@ -183,6 +186,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       description = "The service may be used for example to interrupt executing workflow instance.")
   @ApiResponse(responseCode = "200", description = "When operation was successful",
       content = @Content(schema = @Schema(implementation = SetSignalResponse.class)))
+  @Tag(name = "nFlow workflow instance management")
   public Response setSignal(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
       @Valid @RequestBody(description = "New signal value") SetSignalRequest req) {
     return handleExceptions(() -> {
@@ -199,6 +203,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       description = "Wake up sleeping workflow instance. If expected states are given, only wake up if the instance is in one of the expected states.")
   @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted",
       content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
+  @Tag(name = "nFlow workflow instance management")
   public Response wakeup(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
       @Valid @RequestBody(description = "Expected states") WakeupRequest req) {
     return handleExceptions(() -> {

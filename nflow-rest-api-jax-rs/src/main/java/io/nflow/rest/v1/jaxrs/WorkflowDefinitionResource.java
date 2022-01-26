@@ -21,19 +21,17 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(NFLOW_WORKFLOW_DEFINITION_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@OpenAPIDefinition(info = @Info(title = "nFlow workflow definition management"))
 @Component
 @NflowCors
 public class WorkflowDefinitionResource extends JaxRsResource {
@@ -55,6 +53,7 @@ public class WorkflowDefinitionResource extends JaxRsResource {
       description = "Returns workflow definition(s): all possible states, transitions between states and other setting metadata."
           + "The workflow definition can deployed in nFlow engine or historical workflow definition stored in the database.")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowDefinitionResponse.class))))
+  @Tag(name = "nFlow workflow definition management")
   public Response listWorkflowDefinitions(
       @QueryParam("type") @Parameter(description = "Included workflow types") List<String> types) {
     return handleExceptions(
