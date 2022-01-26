@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_WORKFLOW_EXECUTOR_PATH, produces = APPLICATION_JSON_VALUE)
 @Component
+@Tag(name = NFLOW_WORKFLOW_EXECUTOR_TAG)
 public class WorkflowExecutorResource extends SpringWebResource {
 
   private final WorkflowExecutorService workflowExecutors;
@@ -46,7 +47,6 @@ public class WorkflowExecutorResource extends SpringWebResource {
   @GetMapping
   @Operation(summary = "List workflow executors")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowExecutorResponse.class))))
-  @Tag(name = NFLOW_WORKFLOW_EXECUTOR_TAG)
   public Mono<ResponseEntity<?>> listWorkflowExecutors() {
     return handleExceptions(() -> wrapBlocking(
         () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList()))));

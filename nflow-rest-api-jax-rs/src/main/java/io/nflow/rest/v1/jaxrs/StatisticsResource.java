@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(APPLICATION_JSON)
 @Component
 @NflowCors
+@Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
 public class StatisticsResource extends JaxRsResource {
 
   @Inject
@@ -46,7 +47,6 @@ public class StatisticsResource extends JaxRsResource {
       description = "Returns counts of queued and executing workflow instances.")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = StatisticsResponse.class)))
-  @Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
   public Response queryStatistics() {
     return handleExceptions(() -> ok(statisticsConverter.convert(statisticsService.getStatistics())));
   }
@@ -56,7 +56,6 @@ public class StatisticsResource extends JaxRsResource {
   @Operation(summary = "Get workflow definition statistics")
   @ApiResponse(responseCode = "200", description = "Statistics",
       content = @Content(schema = @Schema(implementation = WorkflowDefinitionStatisticsResponse.class)))
-  @Tag(name = ResourcePaths.NFLOW_STATISTICS_TAG)
   public Response getStatistics(
       @PathParam("type") @Parameter(description = "Workflow definition type", required = true) String type,
       @QueryParam("createdAfter") @Parameter(

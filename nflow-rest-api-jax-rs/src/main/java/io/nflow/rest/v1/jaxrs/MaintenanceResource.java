@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(APPLICATION_JSON)
 @Component
 @NflowCors
+@Tag(name = NFLOW_MAINTENANCE_TAG)
 public class MaintenanceResource extends JaxRsResource {
 
   @Inject
@@ -45,7 +46,6 @@ public class MaintenanceResource extends JaxRsResource {
   @Operation(description = "Do maintenance on old workflow instances synchronously")
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
-  @Tag(name = NFLOW_MAINTENANCE_TAG)
   public Response cleanupWorkflows(
       @RequestBody(description = "Parameters for the maintenance process") MaintenanceRequest request) {
     return handleExceptions(() -> {

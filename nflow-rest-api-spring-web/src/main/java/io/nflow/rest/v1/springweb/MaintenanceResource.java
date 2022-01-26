@@ -22,10 +22,8 @@ import io.nflow.rest.config.springweb.SchedulerService;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,8 +32,8 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = NFLOW_SPRING_WEB_PATH_PREFIX + NFLOW_MAINTENANCE_PATH, produces = APPLICATION_JSON_VALUE)
-@OpenAPIDefinition(info = @Info(title = "nFlow maintenance"))
 @Component
+@Tag(name = NFLOW_MAINTENANCE_TAG)
 public class MaintenanceResource extends SpringWebResource {
 
   private final MaintenanceService maintenanceService;
@@ -52,7 +50,6 @@ public class MaintenanceResource extends SpringWebResource {
   @Operation(description = "Do maintenance on old workflow instances synchronously")
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
-  @Tag(name = NFLOW_MAINTENANCE_TAG)
   public Mono<ResponseEntity<?>> cleanupWorkflows(
       @RequestBody @Parameter(description = "Parameters for the maintenance process",
           required = true) MaintenanceRequest request) {

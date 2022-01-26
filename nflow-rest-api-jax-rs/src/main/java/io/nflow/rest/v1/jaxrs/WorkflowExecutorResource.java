@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(APPLICATION_JSON)
 @Component
 @NflowCors
+@Tag(name = NFLOW_WORKFLOW_EXECUTOR_TAG)
 public class WorkflowExecutorResource extends JaxRsResource {
 
   private final WorkflowExecutorService workflowExecutors;
@@ -45,7 +46,6 @@ public class WorkflowExecutorResource extends JaxRsResource {
   @GET
   @Operation(summary = "List workflow executors")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowExecutorResponse.class))))
-  @Tag(name = NFLOW_WORKFLOW_EXECUTOR_TAG)
   public Response listWorkflowExecutors() {
     return handleExceptions(
         () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));
