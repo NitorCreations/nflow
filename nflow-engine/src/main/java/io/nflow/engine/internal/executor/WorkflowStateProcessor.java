@@ -272,10 +272,17 @@ class WorkflowStateProcessor implements Runnable {
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
       try {
         String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
+        WorkflowDefinition parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
         String[] waitStates = parentDefinition.getStates().stream()
             .filter(state -> state.getType() == WorkflowStateType.wait)
             .map(WorkflowState::name)
             .toArray(String[]::new);
+        if (waitStates.length > 0) {
+          execution.wakeUpParentWorkflow(waitStates);
+        }
+      } catch (@SuppressWarnings("unused") EmptyResultDataAccessException e) {
+        // parent has been archived or deleted, no need to wake it up anymore
+      }
     }
     WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance)
         .setNextActivation(execution.getNextActivation())
