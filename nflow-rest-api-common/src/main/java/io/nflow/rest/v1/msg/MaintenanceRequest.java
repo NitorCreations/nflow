@@ -30,7 +30,8 @@ public class MaintenanceRequest extends ModelObject {
         type = "string", format = "duration", example = "PT15D", required = true)
     public ReadablePeriod olderThanPeriod;
 
-    @Schema(description = "Number of workflows to process in a single transaction.", example = "1000", defaultValue = "1000", minimum = "1")
+    @Schema(description = "Number of workflows to process in a single transaction.", example = "1000", defaultValue = "1000",
+        minimum = "1")
     public int batchSize = 1000;
 
     @Schema(description = "Workflow types to process. If no types are defined, process all types.")

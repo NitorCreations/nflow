@@ -29,8 +29,7 @@ public class CreateWorkflowInstanceRequest extends ModelObject {
 
   @Schema(
       description = "Start time for workflow execution. If null, defaults to now, unless activate is set to false, in which case activationTime is ignored.",
-      nullable = true
-  )
+      nullable = true)
   public DateTime activationTime;
 
   @Schema(description = "Set to false to force activationTime to null. Default is true.", defaultValue = "true")
