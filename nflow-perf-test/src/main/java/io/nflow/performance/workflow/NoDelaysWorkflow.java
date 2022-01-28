@@ -5,13 +5,13 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static io.nflow.performance.workflow.TestState.DONE;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class NoDelaysWorkflow extends AbstractWorkflowDefinition {
+public class NoDelaysWorkflow extends WorkflowDefinition {
 
   private static final WorkflowState STATE_1 = new State("state1", WorkflowStateType.start);
   private static final WorkflowState STATE_2 = new State("state2");

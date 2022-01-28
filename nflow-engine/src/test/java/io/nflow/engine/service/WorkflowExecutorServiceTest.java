@@ -10,11 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowExecutorServiceTest extends BaseNflowTest {

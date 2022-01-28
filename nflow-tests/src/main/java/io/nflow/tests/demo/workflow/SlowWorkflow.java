@@ -13,12 +13,12 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.Map;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
-public class SlowWorkflow extends AbstractWorkflowDefinition {
+public class SlowWorkflow extends WorkflowDefinition {
 
   public static final String SLOW_WORKFLOW_TYPE = "slowWorkflow";
   public static final int SIGNAL_INTERRUPT = 1;

@@ -10,12 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 @Component
-public class ForeverWaitingWorkflow extends AbstractWorkflowDefinition {
+public class ForeverWaitingWorkflow extends WorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ForeverWaitingWorkflow.class);
 
   public static final String FOREVER_WAITING_WORKFLOW_TYPE = "foreverWaiting";

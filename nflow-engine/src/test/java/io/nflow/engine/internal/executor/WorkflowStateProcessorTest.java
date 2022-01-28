@@ -998,7 +998,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   static List<Object> lastArgs;
 
-  public static class ExecuteTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class ExecuteTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String EXECUTE_TEST_TYPE = "executeTest";
 
@@ -1034,7 +1034,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class FailingTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class FailingTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String FAILING_TYPE = "failingTest";
 
@@ -1087,7 +1087,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class ForceCleaningTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class ForceCleaningTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String FORCE_CLEANING_TYPE = "forceCleaningTest";
 
@@ -1103,7 +1103,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class FailCleaningTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class FailCleaningTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String FAIL_CLEANING_TYPE = "failCleaningTest";
 
@@ -1120,7 +1120,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class LoopingTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class LoopingTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String LOOPING_TYPE = "loopingTest";
 
@@ -1136,7 +1136,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class SimpleTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class SimpleTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String SIMPLE_TYPE = "simpleTest";
     public static final WorkflowState ERROR = new State("error", WorkflowStateType.end);
@@ -1174,7 +1174,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class NotifyTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class NotifyTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String NOTIFY_TYPE = "notifyTest";
     public static final WorkflowState WAKE_PARENT = new State("wakeParent");
@@ -1195,7 +1195,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class StateVariableTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class StateVariableTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String STATE_VARIABLE_TYPE = "stateVariableTest";
 
@@ -1210,7 +1210,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class NonRetryableTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class NonRetryableTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String NON_RETRYABLE_TYPE = "nonRetryableTest";
 
@@ -1224,7 +1224,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class StuckTestWorkflow extends io.nflow.engine.workflow.definition.AbstractWorkflowDefinition {
+  public static class StuckTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
     public static final String STUCK_TYPE = "stuckTest";
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowDefinitionService;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 @Component
@@ -28,7 +28,7 @@ public class WorkflowInstancePreProcessor {
   }
 
   public WorkflowInstance process(WorkflowInstance instance) {
-    AbstractWorkflowDefinition def = workflowDefinitionService.getWorkflowDefinition(instance.type);
+    WorkflowDefinition def = workflowDefinitionService.getWorkflowDefinition(instance.type);
     if (def == null) {
       throw new IllegalArgumentException("No workflow definition found for type [" + instance.type + "]");
     }

@@ -17,8 +17,8 @@ import org.springframework.util.Assert;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -278,7 +278,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return historyCleaningForced;
   }
 
-  public void handleRetryAfter(DateTime activation, AbstractWorkflowDefinition definition) {
+  public void handleRetryAfter(DateTime activation, WorkflowDefinition definition) {
     if (getRetries() >= definition.getSettings().maxRetries) {
       isRetryCountExceeded = true;
       handleFailure(definition, "Max retry count exceeded");
@@ -287,7 +287,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
   }
 
-  public void handleFailure(AbstractWorkflowDefinition definition, String failureReason) {
+  public void handleFailure(WorkflowDefinition definition, String failureReason) {
     setRetry(false);
     String currentStateName = getCurrentStateName();
     WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);

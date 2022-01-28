@@ -9,14 +9,14 @@ import static io.nflow.tests.demo.workflow.TestState.PROCESS;
 import org.joda.time.Period;
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 @Component
-public class DeleteHistoryWorkflow extends AbstractWorkflowDefinition {
+public class DeleteHistoryWorkflow extends WorkflowDefinition {
 
   public static final String TYPE = "deleteHistory";
 

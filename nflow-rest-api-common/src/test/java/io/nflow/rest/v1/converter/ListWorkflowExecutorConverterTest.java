@@ -6,10 +6,10 @@ import static org.joda.time.DateTime.now;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
 import io.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ListWorkflowExecutorConverterTest {

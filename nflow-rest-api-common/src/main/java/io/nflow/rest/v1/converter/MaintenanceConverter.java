@@ -3,16 +3,16 @@ package io.nflow.rest.v1.converter;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
-import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
+import java.util.function.Supplier;
+
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.MaintenanceConfiguration;
+import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
 import io.nflow.engine.service.MaintenanceResults;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceRequest.MaintenanceRequestItem;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
-
-import java.util.function.Supplier;
 
 @Component
 public class MaintenanceConverter {
