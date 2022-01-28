@@ -1,11 +1,12 @@
 package io.nflow.engine.internal.dao;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.NFlow;
 
 @Named
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")

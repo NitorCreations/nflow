@@ -7,7 +7,7 @@ import static io.nflow.engine.workflow.definition.TestState.ERROR;
 
 import io.nflow.engine.workflow.curated.State;
 
-public class TestWorkflow extends AbstractWorkflowDefinition {
+public class TestWorkflow extends WorkflowDefinition {
 
   public static final WorkflowState START_WITHOUT_FAILURE = new State("startWithoutFailure", WorkflowStateType.start);
   public static final WorkflowState FAILED = new State("failed", WorkflowStateType.end);

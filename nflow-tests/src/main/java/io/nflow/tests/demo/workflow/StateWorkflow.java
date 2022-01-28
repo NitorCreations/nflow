@@ -11,15 +11,15 @@ import static org.joda.time.Duration.millis;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
-public class StateWorkflow extends AbstractWorkflowDefinition {
+public class StateWorkflow extends WorkflowDefinition {
 
   public static final String STATE_WORKFLOW_TYPE = "stateWorkflow";
   public static final String STATEVAR_QUERYTEST = "queryTest";

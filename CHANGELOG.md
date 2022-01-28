@@ -2,7 +2,7 @@
 
 **Highlights**
 - `nflow-engine`
-  - BREAKING CHANGE: Remove `WorkflowDefinition`, workflow definitions should extend `AbstractWorkflowDefinition` instead.
+  - BREAKING CHANGE: Replace old `WorkflowDefinition` and `AbstractWorkflowDefinition` with a new `WorkflowDefinition`.
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
   - BREAKING CHANGE: Change transition delay fields data types in `WorkflowSettings` and remove unused `immediateTransitionDelay` setting.
 - `nflow-rest-api`
@@ -13,10 +13,11 @@
 
 **Details**
 - `nflow-engine`
-  - Workflow definitions that used to extend `WorkflowDefinition` should now extend `AbstractWorkflowDefinition` instead.
-    - It is not necessary to define the workflow states as an enum anymore, which should make it easier to extend and reuse states across different workflow definitions.
-    - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `io.nflow.engine.workflow.definition.WorkflowState` interface.
-    - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.AbstractWorkflowDefinition`.
+  - All workflow definitions should now extend the new `WorkflowDefinition` class.
+    - Workflow state type does not need to be defined as a generic type parameter anymore. The states can now be any classes that implement `WorkflowState`.
+    - It is not recommended to define the workflow states as an enum anymore. This makes extending workflows definition classes and reusing states across different workflows easier.
+    - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `WorkflowState` interface.
+    - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.WorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
   - `WorkflowSettings`
     - Change `WorkflowSettings.Builder.setShortTransitionDelay`, `WorkflowSettings.Builder.setMinErrorTransitionDelay` and `WorkflowSettings.Builder.setMaxErrorTransitionDelay` parameter type from `int` to `org.joda.time.Duration`.

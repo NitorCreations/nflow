@@ -10,14 +10,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class WordGeneratorWorkflow extends AbstractWorkflowDefinition {
+public class WordGeneratorWorkflow extends WorkflowDefinition {
 
   private static final Logger logger = LoggerFactory.getLogger(WordGeneratorWorkflow.class);
 

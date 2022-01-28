@@ -19,8 +19,8 @@ import org.mockito.Mock;
 
 import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener.ListenerContext;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class WorkflowLogContextListenerTest {
@@ -30,7 +30,7 @@ public class WorkflowLogContextListenerTest {
   private final WorkflowLogContextListener listener = new WorkflowLogContextListener(LOG_CONTEXT);
 
   @Mock
-  private AbstractWorkflowDefinition definition;
+  private WorkflowDefinition definition;
 
   @Mock
   private StateExecution stateExecution;

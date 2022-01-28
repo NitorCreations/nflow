@@ -40,7 +40,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @ExtendWith(SpringExtension.class)
@@ -155,7 +155,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
 
   @Test
   public void springWorkflowDefinitionsAreDetected() {
-    List<AbstractWorkflowDefinition> definitions = service.getWorkflowDefinitions();
+    List<WorkflowDefinition> definitions = service.getWorkflowDefinitions();
     assertThat(definitions.size(), is(equalTo(1)));
     assertThat(definitions.get(0).getType(), is(new SpringDummyTestWorkflow().getType()));
   }
