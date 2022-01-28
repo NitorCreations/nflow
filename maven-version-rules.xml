@@ -40,12 +40,6 @@
                 <ignoreVersion type="regex">^[7-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
-        <rule groupId="com.zaxxer">
-            <ignoreVersions>
-                <!-- newer hikaricp requires Java 11 -->
-                <ignoreVersion type="regex">^[5-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
         <rule groupId="io.swagger">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*rc.*</ignoreVersion>
@@ -55,8 +49,7 @@
             <ignoreVersions>
                 <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
                 <!-- jetty 11 moves from javax.servlet-api to jakarta.servlet-api, requires spring 6.x -->
-                <!-- jetty 10 requires Java 11 -->
-                <ignoreVersion type="regex">^1[0-9].*</ignoreVersion>
+                <ignoreVersion type="regex">^1[1-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="ch.qos.logback">
