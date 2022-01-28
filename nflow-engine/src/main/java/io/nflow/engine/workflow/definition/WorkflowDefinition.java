@@ -28,7 +28,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
  * <li>Registering them using <code>registerState()</code> method</li>
  * </ul>
  */
-public abstract class AbstractWorkflowDefinition extends ModelObject {
+public abstract class WorkflowDefinition extends ModelObject {
 
   private final String type;
   private String name;
@@ -53,7 +53,7 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
    *          workflow.
    */
-  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState) {
+  protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState) {
     this(type, initialState, errorState, new WorkflowSettings.Builder().build());
   }
 
@@ -71,8 +71,7 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    * @param settings
    *          The configuration for the workflow instances of this workflow type.
    */
-  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState,
-      WorkflowSettings settings) {
+  protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings) {
     this(type, initialState, errorState, settings, null);
   }
 
@@ -92,8 +91,8 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    * @param stateMethods
    *          The state methods to be used for the states of this workflow type.
    */
-  protected AbstractWorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState,
-      WorkflowSettings settings, Map<String, WorkflowStateMethod> stateMethods) {
+  protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
+      Map<String, WorkflowStateMethod> stateMethods) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -224,7 +223,7 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    *          The target state. The state is automatically registered as one of the allowed states in this workflow.
    * @return This.
    */
-  protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState) {
+  protected WorkflowDefinition permit(WorkflowState originState, WorkflowState targetState) {
     registerState(originState);
     registerState(targetState);
     allowedTransitionsFor(originState).add(targetState.name());
@@ -242,7 +241,7 @@ public abstract class AbstractWorkflowDefinition extends ModelObject {
    *          The failure state. The state is automatically registered as one of the allowed states in this workflow.
    * @return This.
    */
-  protected AbstractWorkflowDefinition permit(WorkflowState originState, WorkflowState targetState, WorkflowState failureState) {
+  protected WorkflowDefinition permit(WorkflowState originState, WorkflowState targetState, WorkflowState failureState) {
     Assert.notNull(failureState, "Failure state can not be null");
     registerState(failureState);
     WorkflowState existingFailure = failureTransitions.put(originState.name(), failureState);

@@ -5,9 +5,9 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
@@ -42,7 +42,7 @@ import org.mockito.Mockito;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -68,7 +68,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @BeforeEach
   public void setup() {
-    AbstractWorkflowDefinition dummyWorkflow = new DummyTestWorkflow();
+    WorkflowDefinition dummyWorkflow = new DummyTestWorkflow();
     lenient().doReturn(dummyWorkflow).when(workflowDefinitions).getWorkflowDefinition("dummy");
     service = new WorkflowInstanceService(workflowInstanceDao, workflowDefinitions, workflowInstancePreProcessor);
     setCurrentMillisFixed(currentTimeMillis());
@@ -84,7 +84,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     WorkflowInstance instance = Mockito.mock(WorkflowInstance.class);
     @SuppressWarnings("unchecked")
     Set<WorkflowInstanceInclude> includes = Mockito.mock(Set.class);
-    when(workflowInstanceDao.getWorkflowInstance(42, includes, 10L)).thenReturn(instance);
+    when(workflowInstanceDao.getWorkflowInstance(42, includes, 10L, false)).thenReturn(instance);
     assertEquals(instance, service.getWorkflowInstance(42, includes, 10L));
   }
 
@@ -177,7 +177,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorks() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 
@@ -191,7 +191,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   @Test
   public void setSignalWorksWithUnsupportedSignal() {
     when(workflowInstanceDao.getWorkflowInstanceType(99)).thenReturn("type");
-    AbstractWorkflowDefinition definition = mock(AbstractWorkflowDefinition.class);
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
     doReturn(definition).when(workflowDefinitions).getWorkflowDefinition("type");
     when(definition.getSupportedSignals()).thenReturn(Collections.singletonMap(42, "supported"));
 

@@ -4,6 +4,7 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static org.joda.time.Duration.millis;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.math.BigDecimal;
@@ -12,22 +13,22 @@ import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-@SuppressFBWarnings(value="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads public fields")
-public class CreditApplicationWorkflow extends AbstractWorkflowDefinition {
+@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads public fields")
+public class CreditApplicationWorkflow extends WorkflowDefinition {
 
   private static final Logger logger = getLogger(CreditApplicationWorkflow.class);
   private static final String VAR_KEY = "info";
 
-  private static final WorkflowState CREATE_CREDIT_APPLICATION = new State("createCreditApplication",
-      WorkflowStateType.start, "Credit application is persisted to database");
+  private static final WorkflowState CREATE_CREDIT_APPLICATION = new State("createCreditApplication", WorkflowStateType.start,
+      "Credit application is persisted to database");
   public static final WorkflowState PREVIEW_CREDIT_APPLICATION = new State("previewCreditApplication", start,
       "Check if credit application would be accepted (ie. simulate)");
   private static final WorkflowState ACCEPT_CREDIT_APPLICATION = new State("acceptCreditApplication", manual,
@@ -39,8 +40,9 @@ public class CreditApplicationWorkflow extends AbstractWorkflowDefinition {
   private static final WorkflowState ERROR = new State("error", manual, "Manual processing of failed applications");
 
   public CreditApplicationWorkflow() {
-    super("creditApplicationProcess", CREATE_CREDIT_APPLICATION, ERROR, new WorkflowSettings.Builder()
-        .setMinErrorTransitionDelay(0).setMaxErrorTransitionDelay(0).setShortTransitionDelay(0).setMaxRetries(3).build());
+    super("creditApplicationProcess", CREATE_CREDIT_APPLICATION, ERROR,
+        new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(0)).setMaxErrorTransitionDelay(millis(0))
+            .setShortTransitionDelay(millis(0)).setMaxRetries(3).build());
     setDescription("Mock workflow that makes credit decision, creates loan, deposits the money and updates credit application");
     permit(CREATE_CREDIT_APPLICATION, ACCEPT_CREDIT_APPLICATION);
     permit(ACCEPT_CREDIT_APPLICATION, GRANT_LOAN);
@@ -103,7 +105,8 @@ public class CreditApplicationWorkflow extends AbstractWorkflowDefinition {
     public BigDecimal amount;
     public boolean simulation = false;
 
-    public CreditApplication() {}
+    public CreditApplication() {
+    }
 
     public CreditApplication(String customerId, BigDecimal amount) {
       this.customerId = customerId;

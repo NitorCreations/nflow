@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 /**
  * Register workflow definitions defined as Spring beans.
@@ -16,7 +16,7 @@ public class WorkflowDefinitionSpringBeanScanner {
 
   @Inject
   public WorkflowDefinitionSpringBeanScanner(WorkflowDefinitionService workflowDefinitionService,
-      Collection<AbstractWorkflowDefinition> workflowDefinitions) {
+      Collection<WorkflowDefinition> workflowDefinitions) {
     workflowDefinitions.forEach(workflowDefinitionService::addWorkflowDefinition);
   }
 }

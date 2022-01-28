@@ -1,8 +1,9 @@
 package io.nflow.engine.service;
 
-import static io.nflow.engine.internal.dao.TablePrefix.ARCHIVE;
-import static io.nflow.engine.internal.dao.TablePrefix.MAIN;
+import static io.nflow.engine.internal.dao.TableType.ARCHIVE;
+import static io.nflow.engine.internal.dao.TableType.MAIN;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.joda.time.DateTime.now;
@@ -12,7 +13,7 @@ import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
 import static org.joda.time.Period.months;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -21,7 +22,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadablePeriod;
@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.nflow.engine.internal.dao.MaintenanceDao;
+import io.nflow.engine.internal.dao.NflowTable;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,8 +84,7 @@ public class MaintenanceServiceTest {
   }
 
   private void assertValidArchiveTablesAreChecked() {
-    Stream.of("workflow", "workflow_action", "workflow_state")
-        .forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(MAIN.nameOf(table), ARCHIVE.nameOf(table)));
+    stream(NflowTable.values()).forEach(table -> verify(tableMetadataChecker).ensureCopyingPossible(table.main, table.archive));
   }
 
   @Test
@@ -156,14 +156,14 @@ public class MaintenanceServiceTest {
 
   @Test
   public void nothingIsArchivedWhenValidArchiveTablesDoNotExist() {
-    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(anyString(), anyString());
+    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any(), any());
     assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(archiveConfig));
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
   @Test
   public void nothingIsDeletedFromArchiveTablesWhenValidArchiveTablesDoNotExist() {
-    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(anyString(), anyString());
+    doThrow(IllegalArgumentException.class).when(tableMetadataChecker).ensureCopyingPossible(any(), any());
     assertThrows(IllegalArgumentException.class, () -> service.cleanupWorkflows(deleteArchiveConfig));
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }

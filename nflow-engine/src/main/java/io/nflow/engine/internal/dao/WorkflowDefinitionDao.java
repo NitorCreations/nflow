@@ -37,7 +37,7 @@ import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition.Signal;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 @Component
@@ -60,7 +60,7 @@ public class WorkflowDefinitionDao {
     this.executorInfo = executorDao;
   }
 
-  public void storeWorkflowDefinition(AbstractWorkflowDefinition definition) {
+  public void storeWorkflowDefinition(WorkflowDefinition definition) {
     StoredWorkflowDefinition storedDefinition = convert(definition);
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("type", definition.getType());
@@ -111,7 +111,7 @@ public class WorkflowDefinitionDao {
     });
   }
 
-  StoredWorkflowDefinition convert(AbstractWorkflowDefinition definition) {
+  StoredWorkflowDefinition convert(WorkflowDefinition definition) {
     StoredWorkflowDefinition resp = new StoredWorkflowDefinition();
     resp.type = definition.getType();
     resp.description = definition.getDescription();

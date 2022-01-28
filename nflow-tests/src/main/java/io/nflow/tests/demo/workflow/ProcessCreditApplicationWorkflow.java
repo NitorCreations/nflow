@@ -15,11 +15,11 @@ import static org.joda.time.DateTime.now;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.tests.demo.domain.CreateCreditApplicationRequest;
@@ -28,7 +28,7 @@ import io.nflow.tests.demo.domain.CreditDecisionData;
 import io.nflow.tests.demo.domain.QueryCreditApplicationResponse;
 
 @Component
-public class ProcessCreditApplicationWorkflow extends AbstractWorkflowDefinition {
+public class ProcessCreditApplicationWorkflow extends WorkflowDefinition {
 
   private static final String CREDIT_APPLICATION_KEY = "credit_application_key";
   private static final String LOAN_KEY = "loan_key";

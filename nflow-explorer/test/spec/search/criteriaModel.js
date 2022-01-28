@@ -63,35 +63,35 @@ describe('Service: CriteriaModel', function () {
   describe('toQuery', function () {
     it('sets definition type when available', function () {
       actualModel.definition = definitions[0];
-      expect(CriteriaModel.toQuery()).toEqual({type: 'foo'});
+      expect(CriteriaModel.toQuery()).toEqual({type: 'foo', queryArchive: true});
 
       delete actualModel.definition.type;
-      expect(CriteriaModel.toQuery()).toEqual({});
+      expect(CriteriaModel.toQuery()).toEqual({queryArchive: true});
 
       delete actualModel.definition;
-      expect(CriteriaModel.toQuery()).toEqual({});
+      expect(CriteriaModel.toQuery()).toEqual({queryArchive: true});
 
     });
 
     it('sets state id', function () {
       actualModel.state = definitions[0].states[0];
-      expect(CriteriaModel.toQuery()).toEqual({state: 'bar'});
+      expect(CriteriaModel.toQuery()).toEqual({state: 'bar', queryArchive: true});
 
       delete actualModel.state.id;
-      expect(CriteriaModel.toQuery()).toEqual({});
+      expect(CriteriaModel.toQuery()).toEqual({queryArchive: true});
 
       delete actualModel.state;
-      expect(CriteriaModel.toQuery()).toEqual({});
+      expect(CriteriaModel.toQuery()).toEqual({queryArchive: true});
     });
 
     it('null values are omitted', function () {
       actualModel.foo = null;
-      expect(CriteriaModel.toQuery()).toEqual({});
+      expect(CriteriaModel.toQuery()).toEqual({queryArchive: true});
     });
 
     it('undefined values are omitted', function () {
       actualModel.foo = undefined;
-      expect(CriteriaModel.toQuery()).toEqual({});
+      expect(CriteriaModel.toQuery()).toEqual({queryArchive: true});
     });
   });
 

@@ -16,10 +16,10 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -28,7 +28,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 /**
  * Fibonacci series generator using recursive process. Each step is handled by a new child workflow.
  */
-public class FibonacciWorkflow extends AbstractWorkflowDefinition {
+public class FibonacciWorkflow extends WorkflowDefinition {
   public static final String FIBONACCI_TYPE = "fibonacci";
   public static final String VAR_REQUEST_DATA = "requestData";
   private static final Logger logger = getLogger(FibonacciWorkflow.class);

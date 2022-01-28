@@ -7,21 +7,22 @@ import static io.nflow.performance.workflow.TestState.BEGIN;
 import static io.nflow.performance.workflow.TestState.DONE;
 import static io.nflow.performance.workflow.TestState.ERROR;
 import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardSeconds;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
  * Deterministic workflow that executes quickly.
  */
-public class ConstantWorkflow extends AbstractWorkflowDefinition {
+public class ConstantWorkflow extends WorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ConstantWorkflow.class);
   private static final String KEY = "retries";
 
@@ -33,7 +34,7 @@ public class ConstantWorkflow extends AbstractWorkflowDefinition {
 
   public ConstantWorkflow() {
     super(ConstantWorkflow.class.getSimpleName(), BEGIN, ERROR,
-        new WorkflowSettings.Builder().setMaxErrorTransitionDelay(5000).build());
+        new WorkflowSettings.Builder().setMaxErrorTransitionDelay(standardSeconds(5)).build());
     permit(BEGIN, QUICK_STATE);
     permit(QUICK_STATE, RETRY_TWICE_STATE);
     permit(RETRY_TWICE_STATE, SCHEDULE_STATE);

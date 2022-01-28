@@ -1,6 +1,8 @@
 package io.nflow.engine.service;
 
-import io.nflow.engine.internal.dao.StatisticsDao;
+import static org.joda.time.DateTime.now;
+import static org.mockito.Mockito.verify;
+
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.joda.time.DateTime.now;
-import static org.mockito.Mockito.verify;
+import io.nflow.engine.internal.dao.StatisticsDao;
 
 @ExtendWith(MockitoExtension.class)
 public class StatisticsServiceTest {

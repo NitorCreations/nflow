@@ -5,12 +5,12 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 @Component
-public class BusinessKeyWorkflow extends AbstractWorkflowDefinition {
+public class BusinessKeyWorkflow extends WorkflowDefinition {
 
   public static final String BUSINESS_KEY_WORKFLOW_TYPE = "businessKeyWorkflow";
 

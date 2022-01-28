@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
@@ -24,7 +24,7 @@ import io.nflow.rest.v1.msg.State;
 public class ListWorkflowDefinitionConverter {
 
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "cast is safe")
-  public ListWorkflowDefinitionResponse convert(AbstractWorkflowDefinition definition) {
+  public ListWorkflowDefinitionResponse convert(WorkflowDefinition definition) {
     ListWorkflowDefinitionResponse resp = new ListWorkflowDefinitionResponse();
     resp.type = definition.getType();
     resp.name = definition.getName();
@@ -37,9 +37,7 @@ public class ListWorkflowDefinitionConverter {
     }
     for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
       State state = states.get(entry.getKey());
-      for(String targetState : entry.getValue()) {
-        state.transitions.add(targetState);
-      }
+      state.transitions.addAll(entry.getValue());
     }
     for (Entry<String, WorkflowState> entry : definition.getFailureTransitions().entrySet()) {
       State state = states.get(entry.getKey());
@@ -50,7 +48,6 @@ public class ListWorkflowDefinitionConverter {
 
     WorkflowSettings workflowSettings = definition.getSettings();
     TransitionDelays transitionDelays = new TransitionDelays();
-    transitionDelays.immediate = workflowSettings.immediateTransitionDelay;
     transitionDelays.waitShort = workflowSettings.shortTransitionDelay;
     transitionDelays.minErrorWait = workflowSettings.minErrorTransitionDelay;
     transitionDelays.maxErrorWait = workflowSettings.maxErrorTransitionDelay;

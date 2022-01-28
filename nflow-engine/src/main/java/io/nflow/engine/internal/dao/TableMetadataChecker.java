@@ -35,8 +35,8 @@ public class TableMetadataChecker {
     Map<String, ColumnMetadata> sourceMetadataMap = getMetadata(sourceTable);
     Map<String, ColumnMetadata> destMetadataMap = getMetadata(destinationTable);
     if (destMetadataMap.size() < sourceMetadataMap.size()) {
-      throw new IllegalArgumentException(format("Source table %s has more columns than destination table %s", sourceTable,
-          destinationTable));
+      throw new IllegalArgumentException(
+          format("Source table %s has more columns than destination table %s", sourceTable, destinationTable));
     }
     Set<String> sourceKeySet = sourceMetadataMap.keySet();
     Set<String> destKeySet = destMetadataMap.keySet();
@@ -52,7 +52,8 @@ public class TableMetadataChecker {
       if (!sourceMetadata.typeName.equals(destMetadata.typeName)) {
         throw new IllegalArgumentException(format(
             "Source column %s.%s has type %s and destination column %s.%s has mismatching type %s", sourceTable,
-            sourceMetadata.columnName, sourceMetadata.typeName, destinationTable, destMetadata.columnName, destMetadata.typeName));
+            sourceMetadata.columnName, sourceMetadata.typeName, destinationTable, destMetadata.columnName,
+            destMetadata.typeName));
       }
       if (sourceMetadata.size > destMetadata.size) {
         throw new IllegalArgumentException(format("Source column %s.%s has size %s and destination column %s.%s smaller size %s",

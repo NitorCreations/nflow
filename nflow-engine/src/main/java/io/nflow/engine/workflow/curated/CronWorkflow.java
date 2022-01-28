@@ -14,10 +14,10 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
 import io.nflow.engine.workflow.definition.WorkflowState;
@@ -25,7 +25,7 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 /**
  * Workflow that wakes up periodically to execute a task.
  */
-public abstract class CronWorkflow extends AbstractWorkflowDefinition {
+public abstract class CronWorkflow extends WorkflowDefinition {
   private static final Logger logger = getLogger(CronWorkflow.class);
 
   /**
