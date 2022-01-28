@@ -1,6 +1,7 @@
 ## 8.0.0-SNAPSHOT (future release)
 
 **Highlights**
+- BREAKING CHANGE: Remove support for Java 8.
 - `nflow-engine`
   - BREAKING CHANGE: Replace old `WorkflowDefinition` and `AbstractWorkflowDefinition` with a new `WorkflowDefinition`.
   - BREAKING CHANGE: Remove deprecated `WorkflowState.isRetryAllowed`, set exception analyzer for workflow definition instead (if needed).
@@ -12,6 +13,7 @@
   - Add support to query also archived workflow instances.
 
 **Details**
+- Remove support for Java 8. Java 11 or newer required.
 - `nflow-engine`
   - All workflow definitions should now extend the new `WorkflowDefinition` class.
     - Workflow state type does not need to be defined as a generic type parameter anymore. The states can now be any classes that implement `WorkflowState`.

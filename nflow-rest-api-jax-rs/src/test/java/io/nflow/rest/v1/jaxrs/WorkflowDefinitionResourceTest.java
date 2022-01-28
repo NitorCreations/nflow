@@ -54,7 +54,7 @@ public class WorkflowDefinitionResourceTest {
   private ListWorkflowDefinitionResponse dummyResponse;
 
   private WorkflowDefinitionResource resource;
-  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<List<ListWorkflowDefinitionResponse>>() { /**/ };
+  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<>() { /**/ };
 
   @BeforeEach
   public void setup() {
