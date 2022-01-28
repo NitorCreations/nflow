@@ -9,12 +9,12 @@ import static io.nflow.tests.demo.workflow.TestState.PROCESS;
 
 import org.springframework.stereotype.Component;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 @Component
-public class DemoWorkflow extends AbstractWorkflowDefinition {
+public class DemoWorkflow extends WorkflowDefinition {
 
   public static final String DEMO_WORKFLOW_TYPE = "demo";
 

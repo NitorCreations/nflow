@@ -2,8 +2,8 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.ColumnNamesExtractor.columnNamesExtractor;
 import static io.nflow.engine.internal.dao.NflowTable.ACTION;
-import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
 import static io.nflow.engine.internal.dao.NflowTable.STATE;
+import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.generate;

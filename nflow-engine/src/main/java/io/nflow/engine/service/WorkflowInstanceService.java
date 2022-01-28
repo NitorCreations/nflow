@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
@@ -119,7 +119,7 @@ public class WorkflowInstanceService {
         builder.setStatus(null);
       } else {
         String type = workflowInstanceDao.getWorkflowInstanceType(instance.id);
-        AbstractWorkflowDefinition definition = workflowDefinitionService.getWorkflowDefinition(type);
+        WorkflowDefinition definition = workflowDefinitionService.getWorkflowDefinition(type);
         builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
       }
       WorkflowInstance updatedInstance = builder.build();
@@ -187,7 +187,7 @@ public class WorkflowInstanceService {
   public boolean setSignal(long workflowInstanceId, Optional<Integer> signal, String reason, WorkflowActionType actionType) {
     Assert.notNull(workflowDefinitionService, "workflowDefinitionService cannot be null");
     signal.ifPresent(signalValue -> {
-      AbstractWorkflowDefinition definition = getDefinition(workflowInstanceId);
+      WorkflowDefinition definition = getDefinition(workflowInstanceId);
       if (!definition.getSupportedSignals().containsKey(signalValue)) {
         logger.warn("Setting unsupported signal value {} to instance {}.", signalValue, workflowInstanceId);
       }
@@ -195,7 +195,7 @@ public class WorkflowInstanceService {
     return workflowInstanceDao.setSignal(workflowInstanceId, signal, reason, actionType);
   }
 
-  private AbstractWorkflowDefinition getDefinition(Long workflowInstanceId) {
+  private WorkflowDefinition getDefinition(Long workflowInstanceId) {
     return workflowDefinitionService.getWorkflowDefinition(workflowInstanceDao.getWorkflowInstanceType(workflowInstanceId));
   }
 

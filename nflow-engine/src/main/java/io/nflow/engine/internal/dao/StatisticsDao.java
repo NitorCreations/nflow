@@ -1,17 +1,7 @@
 package io.nflow.engine.internal.dao;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
-import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
-import io.nflow.engine.workflow.statistics.Statistics;
-import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
-import org.joda.time.DateTime;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.stereotype.Component;
+import static java.util.Arrays.asList;
 
-import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -20,7 +10,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
+import javax.inject.Inject;
+
+import org.joda.time.DateTime;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.stereotype.Component;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.NFlow;
+import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
+import io.nflow.engine.workflow.statistics.Statistics;
+import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is

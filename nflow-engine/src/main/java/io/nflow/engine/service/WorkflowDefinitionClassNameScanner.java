@@ -15,7 +15,7 @@ import org.springframework.core.io.AbstractResource;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.config.NFlow;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 /**
  * Register workflow definitions defined in the class name listing resource.
@@ -36,7 +36,7 @@ public class WorkflowDefinitionClassNameScanner {
         while ((row = br.readLine()) != null) {
           logger.info("Preparing workflow {}", row);
           @SuppressWarnings("unchecked")
-          Class<AbstractWorkflowDefinition> clazz = (Class<AbstractWorkflowDefinition>) Class.forName(row);
+          Class<WorkflowDefinition> clazz = (Class<WorkflowDefinition>) Class.forName(row);
           workflowDefinitionService.addWorkflowDefinition(clazz.getDeclaredConstructor().newInstance());
         }
       }

@@ -4,15 +4,15 @@ import static io.nflow.engine.workflow.definition.TestState.BEGIN;
 import static io.nflow.engine.workflow.definition.TestState.ERROR;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 @SuppressWarnings("unused")
-public class StaticStateFieldsWorkflow extends AbstractWorkflowDefinition {
+public class StaticStateFieldsWorkflow extends WorkflowDefinition {
   private static WorkflowState staticPrivateState = new State("staticPrivate", WorkflowStateType.manual);
   static WorkflowState staticPackageProtectedState = new State("staticPackageProtected", WorkflowStateType.manual);
   protected static WorkflowState staticProtectedState = new State("staticProtected", WorkflowStateType.manual);

@@ -8,15 +8,15 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.tests.demo.domain.CreditDecisionData;
 
 @Component
-public class CreditDecisionWorkflow extends AbstractWorkflowDefinition {
+public class CreditDecisionWorkflow extends WorkflowDefinition {
 
   public static final String CREDIT_DECISION_TYPE = "creditDecision";
   public static final String VAR_REQUEST_DATA = "requestData";

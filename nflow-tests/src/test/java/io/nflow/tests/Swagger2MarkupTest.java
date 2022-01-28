@@ -10,10 +10,10 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import io.nflow.tests.extension.NflowServerConfig;
+import org.junit.jupiter.api.Test;
 
 import io.github.swagger2markup.Swagger2MarkupConverter;
-import org.junit.jupiter.api.Test;
+import io.nflow.tests.extension.NflowServerConfig;
 
 public class Swagger2MarkupTest extends AbstractNflowTest {
 

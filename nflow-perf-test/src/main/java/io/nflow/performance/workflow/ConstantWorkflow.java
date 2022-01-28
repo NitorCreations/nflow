@@ -13,16 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
  * Deterministic workflow that executes quickly.
  */
-public class ConstantWorkflow extends AbstractWorkflowDefinition {
+public class ConstantWorkflow extends WorkflowDefinition {
   private static final Logger logger = LoggerFactory.getLogger(ConstantWorkflow.class);
   private static final String KEY = "retries";
 

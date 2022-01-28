@@ -27,10 +27,10 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.nflow.engine.service.WorkflowInstanceService;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -40,7 +40,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
  * Bulk child workflow executor that does not overflow the system.
  */
 @Component
-public class BulkWorkflow extends AbstractWorkflowDefinition {
+public class BulkWorkflow extends WorkflowDefinition {
 
   /**
    * The type of default bulk workflow.

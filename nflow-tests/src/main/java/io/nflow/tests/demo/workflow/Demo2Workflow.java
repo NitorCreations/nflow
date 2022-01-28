@@ -7,11 +7,11 @@ import static io.nflow.tests.demo.workflow.TestState.DONE;
 import static io.nflow.tests.demo.workflow.TestState.ERROR;
 import static io.nflow.tests.demo.workflow.TestState.PROCESS;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
-public class Demo2Workflow extends AbstractWorkflowDefinition {
+public class Demo2Workflow extends WorkflowDefinition {
 
   public static final String DEMO2_WORKFLOW_TYPE = "demo2";
 

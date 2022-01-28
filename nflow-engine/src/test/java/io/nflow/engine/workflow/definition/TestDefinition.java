@@ -4,7 +4,7 @@ import static io.nflow.engine.workflow.definition.TestState.DONE;
 
 import io.nflow.engine.workflow.curated.State;
 
-public class TestDefinition extends AbstractWorkflowDefinition {
+public class TestDefinition extends WorkflowDefinition {
 
   public static final WorkflowState START_1 = new State("start1", WorkflowStateType.start);
   public static final WorkflowState START_2 = new State("start2", WorkflowStateType.start);

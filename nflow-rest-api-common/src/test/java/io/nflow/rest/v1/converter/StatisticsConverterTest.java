@@ -8,13 +8,14 @@ import static org.hamcrest.Matchers.nullValue;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
 import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse.StateStatistics;
-import org.junit.jupiter.api.Test;
 
 
 public class StatisticsConverterTest {

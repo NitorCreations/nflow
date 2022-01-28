@@ -71,7 +71,7 @@ public class AbstractWorkflowDefinitionTest {
     }
   }
 
-  static class TestWorkflow4 extends AbstractWorkflowDefinition {
+  static class TestWorkflow4 extends WorkflowDefinition {
 
     protected TestWorkflow4() {
       super("test", TestState.BEGIN, TestState.ERROR);
@@ -156,14 +156,14 @@ public class AbstractWorkflowDefinitionTest {
 
   @Test
   public void finalStateCannotBeRegisteredWithStateMethodThatReturnsValue() {
-    AbstractWorkflowDefinition wf = new StaticStateFieldsWorkflow();
+    WorkflowDefinition wf = new StaticStateFieldsWorkflow();
     assertThrows(IllegalArgumentException.class,
         () -> wf.registerState(new State(TestState.BEGIN.name(), WorkflowStateType.end)));
   }
 
   @Test
   public void nonFinalStateCannotBeRegisteredWithStateMethodThatDoesNotReturnsNextAction() {
-    AbstractWorkflowDefinition wf = new StaticStateFieldsWorkflow();
+    WorkflowDefinition wf = new StaticStateFieldsWorkflow();
     assertThrows(IllegalArgumentException.class, () -> wf.registerState(new State("invalidReturnValue")));
     assertThrows(IllegalArgumentException.class, () -> wf.registerState(new State("invalidParameters")));
   }

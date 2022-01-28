@@ -10,12 +10,12 @@ import static org.joda.time.Period.days;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 
-public class DummyTestWorkflow extends AbstractWorkflowDefinition {
+public class DummyTestWorkflow extends WorkflowDefinition {
 
   public DummyTestWorkflow() {
     super("dummy", BEGIN, ERROR,

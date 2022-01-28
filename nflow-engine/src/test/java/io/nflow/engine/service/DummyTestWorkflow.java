@@ -7,12 +7,12 @@ import static io.nflow.engine.workflow.definition.TestState.DONE;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 
-public class DummyTestWorkflow extends AbstractWorkflowDefinition {
+public class DummyTestWorkflow extends WorkflowDefinition {
 
   public static final String DUMMY_TYPE = "dummy";
 

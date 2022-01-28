@@ -10,9 +10,9 @@ import org.joda.time.Duration;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 /**
@@ -40,7 +40,7 @@ public interface WorkflowExecutorListener {
     /**
      * The definition of the workflow.
      */
-    public final AbstractWorkflowDefinition definition;
+    public final WorkflowDefinition definition;
 
     /**
      * The name of the state of the workflow instance before processing.
@@ -70,7 +70,7 @@ public interface WorkflowExecutorListener {
      */
     public final Map<Object, Object> data = new LinkedHashMap<>();
 
-    public ListenerContext(AbstractWorkflowDefinition definition, WorkflowInstance instance, StateExecution stateExecution) {
+    public ListenerContext(WorkflowDefinition definition, WorkflowInstance instance, StateExecution stateExecution) {
       this.definition = definition;
       this.instance = instance;
       this.stateExecution = stateExecution;

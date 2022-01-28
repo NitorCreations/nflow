@@ -17,7 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 /**
  * Service for managing workflow definitions.
@@ -28,8 +28,8 @@ public class WorkflowDefinitionService {
 
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
-  private final Map<String, AbstractWorkflowDefinition> workflowDefinitions = synchronizedMap(new LinkedHashMap<>());
-  private List<AbstractWorkflowDefinition> workflowDefinitionValues = emptyList();
+  private final Map<String, WorkflowDefinition> workflowDefinitions = synchronizedMap(new LinkedHashMap<>());
+  private List<WorkflowDefinition> workflowDefinitionValues = emptyList();
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
@@ -48,7 +48,7 @@ public class WorkflowDefinitionService {
    *          Workflow definition type.
    * @return The workflow definition or null if not found.
    */
-  public AbstractWorkflowDefinition getWorkflowDefinition(String type) {
+  public WorkflowDefinition getWorkflowDefinition(String type) {
     return workflowDefinitions.get(type);
   }
 
@@ -57,7 +57,7 @@ public class WorkflowDefinitionService {
    *
    * @return List of workflow definitions.
    */
-  public List<AbstractWorkflowDefinition> getWorkflowDefinitions() {
+  public List<WorkflowDefinition> getWorkflowDefinitions() {
     return workflowDefinitionValues;
   }
 
@@ -82,8 +82,8 @@ public class WorkflowDefinitionService {
    * @throws IllegalStateException
    *           When a definition with the same type has already been added.
    */
-  public void addWorkflowDefinition(AbstractWorkflowDefinition wd) {
-    AbstractWorkflowDefinition conflict = workflowDefinitions.put(wd.getType(), wd);
+  public void addWorkflowDefinition(WorkflowDefinition wd) {
+    WorkflowDefinition conflict = workflowDefinitions.put(wd.getType(), wd);
     if (conflict != null) {
       throw new IllegalStateException("Both " + wd.getClass().getName() + " and " + conflict.getClass().getName()
           + " define same workflow type: " + wd.getType());
