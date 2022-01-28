@@ -139,8 +139,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @ApiResponse(responseCode = "404",
           description = "If instance could not be created, for example when state variable value was too long") })
   public Response fetchWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC
-      /* , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true */) String include,
+      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC) String include,
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @Parameter(

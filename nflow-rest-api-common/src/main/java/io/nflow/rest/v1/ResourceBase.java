@@ -60,8 +60,6 @@ public abstract class ResourceBase {
   protected static final String actions = "actions";
   protected static final String actionStateVariables = "actionStateVariables";
   protected static final String childWorkflows = "childWorkflows";
-  protected static final String INCLUDE_PARAM_VALUES = currentStateVariables + "," + actions + "," + actionStateVariables + ","
-      + childWorkflows;
   protected static final String INCLUDE_PARAM_DESC = "Data to include in response. " + currentStateVariables
       + " = current stateVariables for worfklow, " + actions + " = state transitions, " + actionStateVariables
       + " = state variable changes for actions, " + childWorkflows + " = map of created child workflow instance IDs by action ID";

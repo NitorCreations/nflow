@@ -159,11 +159,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
           required = false) @Parameter(description = "Business key for workflow instance") String businessKey,
       @RequestParam(value = "externalId",
           required = false) @Parameter(description = "External id for workflow instance") String externalId,
-      @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC /*
-                                                                                                      * , allowableValues =
-                                                                                                      * INCLUDE_PARAM_VALUES,
-                                                                                                      * allowMultiple = true
-                                                                                                      */) String include,
+      @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC) String include,
       @RequestParam(value = "maxResults",
           required = false) @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @Parameter(
