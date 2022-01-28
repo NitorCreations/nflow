@@ -90,7 +90,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @ApiResponse(responseCode = "400",
           description = "If instance could not be created, for example when state variable value was too long") })
   public Mono<ResponseEntity<?>> createWorkflowInstance(
-      @RequestBody @Parameter(description = "Submitted workflow instance information",
+      @RequestBody @Valid @Parameter(description = "Submitted workflow instance information",
           required = true) CreateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       WorkflowInstance instance = createWorkflowConverter.convert(req);
@@ -109,7 +109,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
   public Mono<ResponseEntity<?>> updateWorkflowInstance(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestBody @Parameter(description = "Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
+      @RequestBody @Valid @Parameter(description = "Submitted workflow instance information",
+          required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
       return (updated ? noContent() : status(CONFLICT)).build();
@@ -185,7 +186,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
       content = @Content(schema = @Schema(implementation = SetSignalResponse.class)))
   public Mono<ResponseEntity<?>> setSignal(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestBody @Valid @Parameter(description = "New signal value") SetSignalRequest req) {
+      @RequestBody @Valid @Parameter(description = "New signal value", required = true) SetSignalRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       SetSignalResponse response = new SetSignalResponse();
       response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
@@ -200,7 +201,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted",
       content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
   public Mono<ResponseEntity<?>> wakeup(@Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestBody @Valid @Parameter(description = "Expected states") WakeupRequest req) {
+      @RequestBody @Valid @Parameter(description = "Expected states", required = true) WakeupRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       WakeupResponse response = new WakeupResponse();
       List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);

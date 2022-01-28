@@ -6,6 +6,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -47,7 +48,7 @@ public class MaintenanceResource extends JaxRsResource {
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
   public Response cleanupWorkflows(
-      @RequestBody(description = "Parameters for the maintenance process") MaintenanceRequest request) {
+      @Valid @RequestBody(description = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
     return handleExceptions(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
       MaintenanceResults results = maintenanceService.cleanupWorkflows(configuration);

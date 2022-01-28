@@ -119,7 +119,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
           description = "If instance could not be updated, for example when state variable value was too long"),
       @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-      @Valid @RequestBody(description = "Submitted workflow instance information") UpdateWorkflowInstanceRequest req) {
+      @Valid @RequestBody(description = "Submitted workflow instance information",
+          required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
       return (updated ? noContent() : status(CONFLICT));
@@ -183,7 +184,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @ApiResponse(responseCode = "200", description = "When operation was successful",
       content = @Content(schema = @Schema(implementation = SetSignalResponse.class)))
   public Response setSignal(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-      @Valid @RequestBody(description = "New signal value") SetSignalRequest req) {
+      @Valid @RequestBody(description = "New signal value", required = true) SetSignalRequest req) {
     return handleExceptions(() -> {
       SetSignalResponse response = new SetSignalResponse();
       response.setSignalSuccess = workflowInstances.setSignal(id, ofNullable(req.signal), req.reason,
@@ -199,7 +200,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @ApiResponse(responseCode = "200", description = "When workflow wakeup was attempted",
       content = @Content(schema = @Schema(implementation = WakeupResponse.class)))
   public Response wakeup(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-      @Valid @RequestBody(description = "Expected states") WakeupRequest req) {
+      @Valid @RequestBody(description = "Expected states", required = true) WakeupRequest req) {
     return handleExceptions(() -> {
       WakeupResponse response = new WakeupResponse();
       List<String> expectedStates = ofNullable(req.expectedStates).orElseGet(Collections::emptyList);

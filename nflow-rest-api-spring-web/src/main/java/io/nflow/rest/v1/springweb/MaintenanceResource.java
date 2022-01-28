@@ -7,6 +7,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -51,7 +52,7 @@ public class MaintenanceResource extends SpringWebResource {
   @ApiResponse(responseCode = "200", description = "Maintenance operation status",
       content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
   public Mono<ResponseEntity<?>> cleanupWorkflows(
-      @RequestBody @Parameter(description = "Parameters for the maintenance process",
+      @RequestBody @Valid @Parameter(description = "Parameters for the maintenance process",
           required = true) MaintenanceRequest request) {
     return handleExceptions(() -> wrapBlocking(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
