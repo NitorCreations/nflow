@@ -8,6 +8,8 @@
   - BREAKING CHANGE: Change transition delay fields data types in `WorkflowSettings` and remove unused `immediateTransitionDelay` setting.
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow anymore.
+  - Deprecate `include` query parameter (fetch / list workflow instances).
+  - Add `includes` query parameter (fetch / list workflow instances).
   - Deprecate `include` query parameter when fetching one or more workflow instances. Use `includes` instead.
   - Enable maintenance (archiving and deleting old workflow instances) by default.
   - Enable workflow instance history clean-up (deleting old actions and state variables) by default.
