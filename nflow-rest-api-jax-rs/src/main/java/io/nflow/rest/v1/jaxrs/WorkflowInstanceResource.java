@@ -145,7 +145,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @Parameter(
-          description = "Query also the archive if not found from main tables") Boolean queryArchive) {
+          description = "Query also the archive if not found from main tables",
+          schema = @Schema(defaultValue = QUERY_ARCHIVED_DEFAULT_STR)) Boolean queryArchive) {
     return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, includes, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter)));
   }
@@ -171,7 +172,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @Parameter(
-          description = "Query also the archive if not enough results found from main tables") Boolean queryArchive) {
+          description = "Query also the archive if not enough results found from main tables",
+          schema = @Schema(defaultValue = QUERY_ARCHIVED_DEFAULT_STR)) Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
         businessKey, externalId, stateVariableKey, stateVariableValue, includes, maxResults, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter).iterator()));
