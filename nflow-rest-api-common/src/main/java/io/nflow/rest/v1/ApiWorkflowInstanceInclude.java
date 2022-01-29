@@ -29,7 +29,7 @@ public enum ApiWorkflowInstanceInclude {
    */
   actionStateVariables(WorkflowInstanceInclude.ACTION_STATE_VARIABLES);
 
-  private WorkflowInstanceInclude include;
+  private final WorkflowInstanceInclude include;
 
   ApiWorkflowInstanceInclude(WorkflowInstanceInclude include) {
     this.include = include;
