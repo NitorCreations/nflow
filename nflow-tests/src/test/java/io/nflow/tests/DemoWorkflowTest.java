@@ -67,7 +67,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
         sleep(200);
         ListWorkflowInstanceResponse[] instances = getInstanceResource()
             .query("type", DEMO_WORKFLOW_TYPE)
-            .query("include", actions.name())
+            .query("includes", actions.name())
             .get(ListWorkflowInstanceResponse[].class);
         assertThat(instances.length, greaterThanOrEqualTo(1));
         for (ListWorkflowInstanceResponse instance : instances) {

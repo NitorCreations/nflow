@@ -97,10 +97,10 @@ public abstract class AbstractNflowTest {
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(long instanceId) {
     return getInstanceIdResource(instanceId)
-        .query("include", currentStateVariables.name())
-        .query("include", actions.name())
-        .query("include", actionStateVariables.name())
-        .query("include", childWorkflows.name())
+        .query("includes", currentStateVariables.name())
+        .query("includes", actions.name())
+        .query("includes", actionStateVariables.name())
+        .query("includes", childWorkflows.name())
         .get(ListWorkflowInstanceResponse.class);
   }
 

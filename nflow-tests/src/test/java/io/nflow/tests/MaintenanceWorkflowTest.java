@@ -67,7 +67,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     ListWorkflowInstanceResponse[] instances = getInstanceResource()
         .query("type", MAINTENANCE_WORKFLOW_TYPE)
         .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
-        .query("include", currentStateVariables.name())
+        .query("includes", currentStateVariables.name())
         .get(ListWorkflowInstanceResponse[].class);
     assertThat(asList(instances), hasSize(1));
     assertThat(instances[0].stateVariables, hasEntry("cron", "* * * * * *"));
