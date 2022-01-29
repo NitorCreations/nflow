@@ -61,7 +61,7 @@ public abstract class ResourceBase {
       + "* actions: state transitions\n"
       + "* actionStateVariables: state variable changes for actions\n"
       + "* childWorkflows: map of created child workflow instance IDs by action ID\n";
-  protected static final String DEPRECATED_INCLUDE_PARAM_DESC = "Removed in the next major release. Data to include in workflow instance. Multiple values can be provided as comma separated string.\n"
+  protected static final String DEPRECATED_INCLUDE_PARAM_DESC = "Removed in the next major release, use `includes` instead. Data to include in workflow instance. Multiple values can be provided as comma separated string.\n"
       + "* currentStateVariables: current stateVariables for worfklow\n"
       + "* actions: state transitions\n"
       + "* actionStateVariables: state variable changes for actions\n"
