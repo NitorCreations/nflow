@@ -3,6 +3,7 @@ package io.nflow.rest.v1.jaxrs;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static java.util.EnumSet.allOf;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,6 +52,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import io.nflow.rest.v1.ApiWorkflowInstanceInclude;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -249,7 +251,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, "", null, null, true));
+        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, true));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -276,7 +278,7 @@ public class WorkflowInstanceResourceTest {
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
         asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId", "stateVarKey",
-        "stateVarValue", "actions,currentStateVariables,actionStateVariables,childWorkflows", 1L, 2L, false));
+        "stateVarValue", EnumSet.allOf(ApiWorkflowInstanceInclude.class), 1L, 2L, false));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -331,7 +333,7 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
-        () -> resource.fetchWorkflowInstance(42, "actions,currentStateVariables,actionStateVariables,childWorkflows", 10L, false),
+        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), 10L, false),
         ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);

@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -38,6 +39,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.config.springweb.SchedulerService;
+import io.nflow.rest.v1.ApiWorkflowInstanceInclude;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -129,14 +131,15 @@ public class WorkflowInstanceResource extends SpringWebResource {
       justification = "The empty result exception contains no useful information")
   public Mono<ResponseEntity<?>> fetchWorkflowInstance(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
-      @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC
-      /* , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true */) String include,
+      @RequestParam(value = "include",
+          required = false) @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
       @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
           description = "Query also the archive if not found from main tables") boolean queryArchive,
       @RequestParam(value = "maxActions", required = false) @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(() -> ok(
-        super.fetchWorkflowInstance(id, include, maxActions, queryArchive, this.workflowInstances, this.listWorkflowConverter))));
+        super.fetchWorkflowInstance(id, includes, maxActions, queryArchive, this.workflowInstances,
+            this.listWorkflowConverter))));
   }
 
   @GetMapping
@@ -159,7 +162,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
           required = false) @Parameter(description = "Business key for workflow instance") String businessKey,
       @RequestParam(value = "externalId",
           required = false) @Parameter(description = "External id for workflow instance") String externalId,
-      @RequestParam(value = "include", required = false) @Parameter(description = INCLUDE_PARAM_DESC) String include,
+      @RequestParam(value = "include",
+          required = false) @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
       @RequestParam(value = "maxResults",
           required = false) @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @Parameter(
@@ -171,7 +175,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
           description = "Query also the archive if not enough results found from main tables") boolean queryArchive) {
     return handleExceptions(() -> wrapBlocking(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId,
-        states, statuses, businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions,
+        states, statuses, businessKey, externalId, stateVariableKey, stateVariableValue, includes, maxResults, maxActions,
         queryArchive, this.workflowInstances, this.listWorkflowConverter).iterator())));
   }
 

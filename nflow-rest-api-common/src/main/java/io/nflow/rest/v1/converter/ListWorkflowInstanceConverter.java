@@ -1,5 +1,9 @@
 package io.nflow.rest.v1.converter;
 
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.childWorkflows;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -19,9 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
+import io.nflow.rest.v1.ApiWorkflowInstanceInclude;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 
@@ -32,7 +36,7 @@ public class ListWorkflowInstanceConverter {
   @Inject
   private ObjectMapper nflowRestObjectMapper;
 
-  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<WorkflowInstanceInclude> includes,
+  public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<ApiWorkflowInstanceInclude> includes,
       boolean queryArchive) {
     ListWorkflowInstanceResponse resp = new ListWorkflowInstanceResponse();
     resp.id = instance.id;
@@ -52,10 +56,10 @@ public class ListWorkflowInstanceConverter {
     resp.retries = instance.retries;
     resp.signal = instance.signal.orElse(null);
     resp.isArchived = queryArchive ? Boolean.valueOf(instance.isArchived) : null;
-    if (includes.contains(WorkflowInstanceInclude.ACTIONS)) {
+    if (includes.contains(actions)) {
       resp.actions = new ArrayList<>();
       for (WorkflowInstanceAction action : instance.actions) {
-        if (includes.contains(WorkflowInstanceInclude.ACTION_STATE_VARIABLES)) {
+        if (includes.contains(actionStateVariables)) {
           resp.actions.add(new Action(action.id, action.type.name(), action.state, action.stateText, action.retryNo,
               action.executionStart, action.executionEnd, action.executorId, stateVariablesToJson(action.updatedStateVariables)));
         } else {
@@ -64,10 +68,10 @@ public class ListWorkflowInstanceConverter {
         }
       }
     }
-    if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
+    if (includes.contains(currentStateVariables)) {
       resp.stateVariables = stateVariablesToJson(instance.stateVariables);
     }
-    if (includes.contains(WorkflowInstanceInclude.CHILD_WORKFLOW_IDS)) {
+    if (includes.contains(childWorkflows)) {
       resp.childWorkflows = instance.childWorkflows;
     }
     return resp;

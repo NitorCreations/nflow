@@ -8,6 +8,7 @@
   - BREAKING CHANGE: Change transition delay fields data types in `WorkflowSettings` and remove unused `immediateTransitionDelay` setting.
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow anymore.
+  - BREAKING CHANGE: Change the way how fetch and list workflow instances `include` query parameter assumes multiple values to be provided.
   - Enable maintenance (archiving and deleting old workflow instances) by default.
   - Enable workflow instance history clean-up (deleting old actions and state variables) by default.
   - Add support to query also archived workflow instances.
@@ -44,6 +45,7 @@
     - slf4j 1.7.33
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
+  - BREAKING CHANGE: Fetch and list workflow instances `include` query parameter now assumes multiple values to be provided in the same format as for `status`, i.e. like `include=actions&include=childWorkflows` instead of `include=actions,childWorkflows`.
   - Add `queryArchive=true` query parameter to query also archived workflow instances when not enough non-archived matches are found.
   - Dependency updates
     - swagger 1.6.4

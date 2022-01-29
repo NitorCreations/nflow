@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -39,6 +40,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 import io.nflow.rest.config.jaxrs.NflowCors;
+import io.nflow.rest.v1.ApiWorkflowInstanceInclude;
 import io.nflow.rest.v1.converter.CreateWorkflowConverter;
 import io.nflow.rest.v1.converter.ListWorkflowInstanceConverter;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -139,12 +141,12 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @ApiResponse(responseCode = "404",
           description = "If instance could not be created, for example when state variable value was too long") })
   public Response fetchWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC) String include,
+      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @Parameter(
           description = "Query also the archive if not found from main tables") Boolean queryArchive) {
-    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, include, maxActions,
+    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, includes, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter)));
   }
 
@@ -164,15 +166,14 @@ public class WorkflowInstanceResource extends JaxRsResource {
           description = "Key of state variable that must exist for workflow instance") String stateVariableKey,
       @QueryParam("stateVariableValue") @Parameter(
           description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
-      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC
-      /* , allowableValues = INCLUDE_PARAM_VALUES, allowMultiple = true */) String include,
+      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
       @QueryParam("maxResults") @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @Parameter(
           description = "Query also the archive if not enough results found from main tables") Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
-        businessKey, externalId, stateVariableKey, stateVariableValue, include, maxResults, maxActions,
+        businessKey, externalId, stateVariableKey, stateVariableValue, includes, maxResults, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter).iterator()));
   }
 
