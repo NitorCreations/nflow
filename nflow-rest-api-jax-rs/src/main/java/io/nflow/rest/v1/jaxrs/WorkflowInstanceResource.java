@@ -141,13 +141,14 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @ApiResponse(responseCode = "404",
           description = "If instance could not be created, for example when state variable value was too long") })
   public Response fetchWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
-      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
+      @QueryParam("includes") @Parameter(description = INCLUDES_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
+      @QueryParam("include") @Parameter(description = DEPRECATED_INCLUDE_PARAM_DESC, deprecated = true) String include,
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
       @QueryParam("queryArchive") @Parameter(
           description = "Query also the archive if not found from main tables",
           schema = @Schema(defaultValue = QUERY_ARCHIVED_DEFAULT_STR)) Boolean queryArchive) {
-    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, includes, maxActions,
+    return handleExceptions(() -> ok(super.fetchWorkflowInstance(id, includes, include, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter)));
   }
 
@@ -167,7 +168,8 @@ public class WorkflowInstanceResource extends JaxRsResource {
           description = "Key of state variable that must exist for workflow instance") String stateVariableKey,
       @QueryParam("stateVariableValue") @Parameter(
           description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
-      @QueryParam("include") @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
+      @QueryParam("includes") @Parameter(description = INCLUDES_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
+      @QueryParam("include") @Parameter(description = DEPRECATED_INCLUDE_PARAM_DESC, deprecated = true) String include,
       @QueryParam("maxResults") @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
       @QueryParam("maxActions") @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions,
@@ -175,7 +177,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
           description = "Query also the archive if not enough results found from main tables",
           schema = @Schema(defaultValue = QUERY_ARCHIVED_DEFAULT_STR)) Boolean queryArchive) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
-        businessKey, externalId, stateVariableKey, stateVariableValue, includes, maxResults, maxActions,
+        businessKey, externalId, stateVariableKey, stateVariableValue, includes, include, maxResults, maxActions,
         ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT), workflowInstances, listWorkflowConverter).iterator()));
   }
 

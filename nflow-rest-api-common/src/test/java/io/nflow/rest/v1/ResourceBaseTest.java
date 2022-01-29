@@ -1,6 +1,6 @@
 package io.nflow.rest.v1;
 
-import static io.nflow.rest.v1.ResourceBase.INCLUDE_PARAM_DESC;
+import static io.nflow.rest.v1.ResourceBase.INCLUDES_PARAM_DESC;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,7 +49,7 @@ public class ResourceBaseTest {
   @Test
   public void includeQueryParamDescriptionHasAllPossibleValuesDocumented() {
     stream(ApiWorkflowInstanceInclude.values())
-        .forEach(include -> assertThat(INCLUDE_PARAM_DESC, containsString("* " + include + ": ")));
+        .forEach(include -> assertThat(INCLUDES_PARAM_DESC, containsString("* " + include + ": ")));
   }
 
   private String toError(int statusCode, ErrorResponse body) {

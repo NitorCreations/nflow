@@ -131,14 +131,16 @@ public class WorkflowInstanceResource extends SpringWebResource {
       justification = "The empty result exception contains no useful information")
   public Mono<ResponseEntity<?>> fetchWorkflowInstance(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
+      @RequestParam(value = "included",
+          required = false) @Parameter(description = INCLUDES_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
       @RequestParam(value = "include",
-          required = false) @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
+          required = false) @Parameter(description = DEPRECATED_INCLUDE_PARAM_DESC, deprecated = true) String include,
       @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
           description = "Query also the archive if not found from main tables") boolean queryArchive,
       @RequestParam(value = "maxActions", required = false) @Parameter(
           description = "Maximum number of actions returned for each workflow instance") Long maxActions) {
     return handleExceptions(() -> wrapBlocking(() -> ok(
-        super.fetchWorkflowInstance(id, includes, maxActions, queryArchive, this.workflowInstances,
+        super.fetchWorkflowInstance(id, includes, include, maxActions, queryArchive, this.workflowInstances,
             this.listWorkflowConverter))));
   }
 
@@ -162,8 +164,10 @@ public class WorkflowInstanceResource extends SpringWebResource {
           required = false) @Parameter(description = "Business key for workflow instance") String businessKey,
       @RequestParam(value = "externalId",
           required = false) @Parameter(description = "External id for workflow instance") String externalId,
+      @RequestParam(value = "includes",
+          required = false) @Parameter(description = INCLUDES_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
       @RequestParam(value = "include",
-          required = false) @Parameter(description = INCLUDE_PARAM_DESC) Set<ApiWorkflowInstanceInclude> includes,
+          required = false) @Parameter(description = DEPRECATED_INCLUDE_PARAM_DESC, deprecated = true) String include,
       @RequestParam(value = "maxResults",
           required = false) @Parameter(description = "Maximum number of workflow instances to be returned") Long maxResults,
       @RequestParam(value = "maxActions", required = false) @Parameter(
@@ -175,8 +179,8 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
           description = "Query also the archive if not enough results found from main tables") boolean queryArchive) {
     return handleExceptions(() -> wrapBlocking(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId,
-        states, statuses, businessKey, externalId, stateVariableKey, stateVariableValue, includes, maxResults, maxActions,
-        queryArchive, this.workflowInstances, this.listWorkflowConverter).iterator())));
+        states, statuses, businessKey, externalId, stateVariableKey, stateVariableValue, includes, include, maxResults,
+        maxActions, queryArchive, this.workflowInstances, this.listWorkflowConverter).iterator())));
   }
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)

@@ -250,7 +250,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
-        Set.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, true));
+        Set.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, null, true));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -277,7 +277,7 @@ public class WorkflowInstanceResourceTest {
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
         Set.of(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId", "stateVarKey",
-        "stateVarValue", EnumSet.allOf(ApiWorkflowInstanceInclude.class), 1L, 2L, false));
+        "stateVarValue", EnumSet.allOf(ApiWorkflowInstanceInclude.class), null, 1L, 2L, false));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -304,7 +304,7 @@ public class WorkflowInstanceResourceTest {
   public void fetchingNonExistingWorkflowReturnsNotFound() {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, true))
         .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
-    try (Response response = resource.fetchWorkflowInstance(42, null, null, true)) {
+    try (Response response = resource.fetchWorkflowInstance(42, null, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
     }
@@ -317,7 +317,7 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, false),
+    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, null, false),
         ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
@@ -332,7 +332,7 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
-        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), 10L, false),
+        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), null, 10L, false),
         ListWorkflowInstanceResponse.class);
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
