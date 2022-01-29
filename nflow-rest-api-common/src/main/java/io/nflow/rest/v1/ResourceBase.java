@@ -9,7 +9,9 @@ import static java.lang.Boolean.parseBoolean;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.sort;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -139,6 +141,7 @@ public abstract class ResourceBase {
       String stateVariableKey, String stateVariableValue, Set<ApiWorkflowInstanceInclude> includes, Long maxResults,
       Long maxActions, boolean queryArchive, WorkflowInstanceService workflowInstances,
       ListWorkflowInstanceConverter listWorkflowConverter) {
+    Set<ApiWorkflowInstanceInclude> nullSafeIncludes = ofNullable(includes).orElse(emptySet());
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
         .addIds(ids.toArray(new Long[ids.size()]))
         .addTypes(types.toArray(new String[types.size()]))
@@ -148,25 +151,28 @@ public abstract class ResourceBase {
         .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()]))
         .setBusinessKey(businessKey)
         .setExternalId(externalId)
-        .setIncludeCurrentStateVariables(includes.contains(currentStateVariables))
-        .setIncludeActions(includes.contains(actions))
-        .setIncludeActionStateVariables(includes.contains(actionStateVariables))
+        .setIncludeCurrentStateVariables(nullSafeIncludes.contains(currentStateVariables))
+        .setIncludeActions(nullSafeIncludes.contains(actions))
+        .setIncludeActionStateVariables(nullSafeIncludes.contains(actionStateVariables))
         .setMaxResults(maxResults)
         .setMaxActions(maxActions)
         .setQueryArchive(queryArchive)
-        .setIncludeChildWorkflows(includes.contains(childWorkflows))
+        .setIncludeChildWorkflows(nullSafeIncludes.contains(childWorkflows))
         .setStateVariable(stateVariableKey, stateVariableValue)
         .build();
     Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
-    return instances.map(instance -> listWorkflowConverter.convert(instance, includes, queryArchive));
+    return instances.map(instance -> listWorkflowConverter.convert(instance, nullSafeIncludes, queryArchive));
   }
 
   public ListWorkflowInstanceResponse fetchWorkflowInstance(long id, Set<ApiWorkflowInstanceInclude> apiIncludes, Long maxActions,
       boolean queryArchive, WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter)
       throws EmptyResultDataAccessException {
-    Set<WorkflowInstanceInclude> includes = apiIncludes.stream().map(ApiWorkflowInstanceInclude::getInclude).collect(toSet());
+    Set<ApiWorkflowInstanceInclude> nullSafeIncludes = ofNullable(apiIncludes).orElse(emptySet());
+    Set<WorkflowInstanceInclude> includes = nullSafeIncludes.stream()
+        .map(ApiWorkflowInstanceInclude::getInclude)
+        .collect(toSet());
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions, queryArchive);
-    return listWorkflowConverter.convert(instance, apiIncludes, queryArchive);
+    return listWorkflowConverter.convert(instance, nullSafeIncludes, queryArchive);
   }
 
   protected int resolveExceptionHttpStatus(Throwable t) {

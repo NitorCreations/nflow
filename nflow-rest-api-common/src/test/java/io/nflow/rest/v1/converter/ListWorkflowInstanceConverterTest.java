@@ -2,6 +2,7 @@ package io.nflow.rest.v1.converter;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.util.Arrays.asList;
@@ -123,7 +124,7 @@ public class ListWorkflowInstanceConverterTest {
     expectedStateVariables.put("foo", node1);
     expectedStateVariables.put("bar", nodeQuux);
 
-    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(actions, currentStateVariables), true);
+    ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(actions, actionStateVariables), true);
 
     verify(nflowObjectMapper).readTree("1");
     verify(nflowObjectMapper).readTree("quux");

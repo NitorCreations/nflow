@@ -3,6 +3,7 @@ package io.nflow.tests;
 import static io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
 import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
 import static java.time.Duration.ofSeconds;
@@ -66,7 +67,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     ListWorkflowInstanceResponse[] instances = getInstanceResource()
         .query("type", MAINTENANCE_WORKFLOW_TYPE)
         .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
-        .query("include", "currentStateVariables")
+        .query("include", currentStateVariables.name())
         .get(ListWorkflowInstanceResponse[].class);
     assertThat(asList(instances), hasSize(1));
     assertThat(instances[0].stateVariables, hasEntry("cron", "* * * * * *"));
