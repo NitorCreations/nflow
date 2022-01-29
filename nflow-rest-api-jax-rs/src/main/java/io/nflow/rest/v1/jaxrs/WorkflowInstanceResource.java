@@ -155,12 +155,12 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @Operation(summary = "List workflow instances")
   @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
   public Response listWorkflowInstances(
-      @QueryParam("id") @Parameter(description = "Internal id of workflow instance") List<Long> ids,
-      @QueryParam("type") @Parameter(description = "Workflow definition type of workflow instance") List<String> types,
+      @QueryParam("id") @Parameter(description = "Internal id of workflow instance") Set<Long> ids,
+      @QueryParam("type") @Parameter(description = "Workflow definition type of workflow instance") Set<String> types,
       @QueryParam("parentWorkflowId") @Parameter(description = "Id of parent workflow instance") Long parentWorkflowId,
       @QueryParam("parentActionId") @Parameter(description = "Id of parent workflow instance action") Long parentActionId,
-      @QueryParam("state") @Parameter(description = "Current state of workflow instance") List<String> states,
-      @QueryParam("status") @Parameter(description = "Current status of workflow instance") List<WorkflowInstanceStatus> statuses,
+      @QueryParam("state") @Parameter(description = "Current state of workflow instance") Set<String> states,
+      @QueryParam("status") @Parameter(description = "Current status of workflow instance") Set<WorkflowInstanceStatus> statuses,
       @QueryParam("businessKey") @Parameter(description = "Business key for workflow instance") String businessKey,
       @QueryParam("externalId") @Parameter(description = "External id for workflow instance") String externalId,
       @QueryParam("stateVariableKey") @Parameter(

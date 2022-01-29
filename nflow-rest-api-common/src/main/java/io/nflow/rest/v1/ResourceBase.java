@@ -136,8 +136,8 @@ public abstract class ResourceBase {
     return workflowInstances.updateWorkflowInstance(instance, action);
   }
 
-  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(List<Long> ids, List<String> types, Long parentWorkflowId,
-      Long parentActionId, List<String> states, List<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
+  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(Set<Long> ids, Set<String> types, Long parentWorkflowId,
+      Long parentActionId, Set<String> states, Set<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
       String stateVariableKey, String stateVariableValue, Set<ApiWorkflowInstanceInclude> includes, Long maxResults,
       Long maxActions, boolean queryArchive, WorkflowInstanceService workflowInstances,
       ListWorkflowInstanceConverter listWorkflowConverter) {

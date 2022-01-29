@@ -1,7 +1,6 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.EnumSet.allOf;
 import static javax.ws.rs.core.Response.Status.CREATED;
@@ -250,8 +249,8 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void listWorkflowInstancesWorks() {
-    makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, true));
+    makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
+        Set.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, true));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -276,8 +275,8 @@ public class WorkflowInstanceResourceTest {
 
   @Test
   public void listWorkflowInstancesWorksWithAllIncludes() {
-    makeRequest(() -> resource.listWorkflowInstances(asList(42L), asList("type"), 99L, 88L, asList("state"),
-        asList(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId", "stateVarKey",
+    makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
+        Set.of(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId", "stateVarKey",
         "stateVarValue", EnumSet.allOf(ApiWorkflowInstanceInclude.class), 1L, 2L, false));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
