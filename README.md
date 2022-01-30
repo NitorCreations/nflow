@@ -50,7 +50,11 @@ Point your browser to [http://localhost:7500/nflow/ui/explorer/](http://localhos
 
 See the next sections for creating your own workflow definitions.
 
-Note! Starting from 4.0.0 release, nFlow requires Java 8 or newer. Older releases require Java 7 or newer.
+## <a name="supported-java-versions"></a>Supported Java versions
+
+* \>= 8.0.0: Java 11 or newer (tested with OpenJDK 11 and 17)
+* 4.0.0–7.x.x: Java 8 or newer (tested with OpenJDK 8 and 11)
+* < 4.0.0: Java 7 or newer
 
 ## <a name="components"></a>Ok, I'm interested!
 
