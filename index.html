@@ -299,41 +299,27 @@
 				<div class="col-lg-6 col-sm-7">
 					<div class="clearfix"></div>
 					<pre>
-public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
+public class DemoWorkflow extends WorkflowDefinition {
 
-  public static enum State implements WorkflowState {
-    begin(start), process(normal),  done(end), error(manual);
-
-    private WorkflowStateType type;
-
-    private State(WorkflowStateType type) {
-      this.type = type;
-    }
-
-    public WorkflowStateType getType() {
-      return type;
-    }
-
-    public String getDescription() {
-      return name();
-    }
-  }
+  private static final State BEGIN = new State("begin", WorkflowStateType.start);
+  private static final State PROCESS = new State("process");
+  private static final State DONE = new State("done", WorkflowStateType.end);
+  private static final State ERROR = new State("error", WorkflowStateType.manual);
 
   public DemoWorkflow() {
-    super("demo", State.begin, State.error);
-    permit(State.begin, State.process);
-    permit(State.process, State.done);
+    super("demo", BEGIN, ERROR);
+    permit(BEGIN, PROCESS);
+    permit(PROCESS, DONE);
   }
 
   public NextAction begin(StateExecution execution) {
-    return moveToState(State.process, "To process state");
+    return moveToState(PROCESS, "To process state");
   }
 
   public NextAction process(StateExecution execution) {
-    return stopInState(State.done, "To done state");
+    return stopInState(DONE, "To done state");
   }
 }
-                    
 					</pre>
 				</div>
 				<div class="col-lg-4 col-lg-offset-1 col-sm-5">
@@ -382,7 +368,7 @@ public class DemoWorkflow extends WorkflowDefinition<DemoWorkflow.State> {
 							href="https://github.com/NitorCreations/nflow/issues">Github</a>
 					</p>
 					<p class="lead">
-						For commercial support, contact <a href="mailto:sales@nitor.fi">Nitor
+						For commercial support, contact <a href="mailto:sales@nitor.com">Nitor
 							sales</a>
 					</p>
 				</div>
