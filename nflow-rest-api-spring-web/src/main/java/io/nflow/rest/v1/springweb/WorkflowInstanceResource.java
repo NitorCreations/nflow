@@ -149,16 +149,16 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @ApiResponse(responseCode = "200",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))))
   public Mono<ResponseEntity<?>> listWorkflowInstances(
-      @RequestParam(value = "id", defaultValue = "") @Parameter(description = "Internal id of workflow instance") Set<Long> ids,
+      @RequestParam(value = "id", required = false) @Parameter(description = "Internal id of workflow instance") Set<Long> ids,
       @RequestParam(value = "type",
-          defaultValue = "") @Parameter(description = "Workflow definition type of workflow instance") Set<String> types,
+          required = false) @Parameter(description = "Workflow definition type of workflow instance") Set<String> types,
       @RequestParam(value = "parentWorkflowId",
           required = false) @Parameter(description = "Id of parent workflow instance") Long parentWorkflowId,
       @RequestParam(value = "parentActionId",
           required = false) @Parameter(description = "Id of parent workflow instance action") Long parentActionId,
       @RequestParam(value = "state",
-          defaultValue = "") @Parameter(description = "Current state of workflow instance") Set<String> states,
-      @RequestParam(value = "status", defaultValue = "") @Parameter(
+          required = false) @Parameter(description = "Current state of workflow instance") Set<String> states,
+      @RequestParam(value = "status", required = false) @Parameter(
           description = "Current status of workflow instance") Set<WorkflowInstanceStatus> statuses,
       @RequestParam(value = "businessKey",
           required = false) @Parameter(description = "Business key for workflow instance") String businessKey,
