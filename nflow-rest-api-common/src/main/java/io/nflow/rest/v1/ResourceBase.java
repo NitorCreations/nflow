@@ -11,6 +11,7 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.util.Arrays.stream;
 import static java.util.Collections.sort;
+import static java.util.EnumSet.noneOf;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -171,15 +172,15 @@ public abstract class ResourceBase {
   }
 
   private Set<ApiWorkflowInstanceInclude> resolveIncludes(Set<ApiWorkflowInstanceInclude> includes, String include) {
-    Set<ApiWorkflowInstanceInclude> allIncludes = new HashSet<>();
+    Set<ApiWorkflowInstanceInclude> allIncludes = noneOf(ApiWorkflowInstanceInclude.class);
     if (includes != null) {
       allIncludes.addAll(includes);
     }
     if (isNotBlank(include)) {
-      allIncludes.addAll(stream(include.split(include))
+      stream(include.split(","))
           .map(ApiWorkflowInstanceInclude::fromValue)
           .filter(Objects::nonNull)
-          .collect(toSet()));
+          .forEach(allIncludes::add);
     }
     return allIncludes;
   }

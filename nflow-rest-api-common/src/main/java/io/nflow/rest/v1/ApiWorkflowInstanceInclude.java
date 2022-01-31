@@ -1,7 +1,5 @@
 package io.nflow.rest.v1;
 
-import static java.util.Arrays.stream;
-
 import io.nflow.engine.service.WorkflowInstanceInclude;
 
 /**
@@ -50,6 +48,10 @@ public enum ApiWorkflowInstanceInclude {
    * @return Matching enum value, or null if no match found.
    */
   public static ApiWorkflowInstanceInclude fromValue(String value) {
-    return stream(values()).filter(include -> include.name().equals(value)).findAny().orElse(null);
+    try {
+      return valueOf(value);
+    } catch (@SuppressWarnings("unused") IllegalArgumentException e) {
+      return null;
+    }
   }
 }
