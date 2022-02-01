@@ -31,7 +31,7 @@ plugins {
 
 repositories {
     mavenLocal()
-    jcenter()
+    mavenCentral()
     maven { url = uri("https://plugins.gradle.org/m2/") }
 }
 

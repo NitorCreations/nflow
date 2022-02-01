@@ -4,12 +4,12 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static org.joda.time.DateTime.now;
 
 import io.nflow.engine.workflow.curated.State;
-import io.nflow.engine.workflow.definition.AbstractWorkflowDefinition;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
-public class ExampleWorkflow extends AbstractWorkflowDefinition {
+public class ExampleWorkflow extends WorkflowDefinition {
 
   public static final String TYPE = "repeatingWorkflow";
   public static final String VAR_COUNTER = "VAR_COUNTER";
