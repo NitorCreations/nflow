@@ -250,7 +250,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
-        Set.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, null, true));
+        EnumSet.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, null, true));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
