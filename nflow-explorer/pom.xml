@@ -43,7 +43,7 @@
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
-            <phase>generate-sources</phase>
+            <phase>compile</phase>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
               <npmVersion>${npm.version}</npmVersion>
@@ -54,7 +54,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>generate-sources</phase>
+            <phase>compile</phase>
             <configuration>
               <arguments>--color ci --no-update-notifier --no-audit --no-fund</arguments>
             </configuration>
@@ -64,7 +64,7 @@
             <goals>
               <goal>bower</goal>
             </goals>
-            <phase>process-sources</phase>
+            <phase>compile</phase>
           </execution>
           <execution>
             <id>grunt test</id>
@@ -72,7 +72,7 @@
               <goal>grunt</goal>
             </goals>
             <!-- disable tests -->
-            <phase>disabled-generate-resources</phase>
+            <phase>disabled-test</phase>
             <configuration>
               <arguments>test --color</arguments>
             </configuration>
@@ -82,7 +82,7 @@
             <goals>
               <goal>grunt</goal>
             </goals>
-            <phase>generate-resources</phase>
+            <phase>package</phase>
             <configuration>
               <arguments>${grunt.target} --color</arguments>
             </configuration>
