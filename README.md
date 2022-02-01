@@ -45,10 +45,12 @@ public class App {
 }
 ```
 That's it! Running `App` in your favourite IDE will start nFlow server though without any workflow definitions. 
+
 Point your browser to [http://localhost:7500/nflow/ui/doc/](http://localhost:7500/nflow/ui/doc/) and you can use interactive online documentation for the nFlow REST API.
+
 Point your browser to [http://localhost:7500/nflow/ui/explorer/](http://localhost:7500/nflow/ui/explorer/) and you can use nFlow Explorer.
 
-See the next sections for creating your own workflow definitions.
+See [Getting started section](https://github.com/NitorCreations/nflow/wiki/Getting-Started) for instruction on creating your own workflow definitions.
 
 ## <a name="supported-java-versions"></a>Supported Java versions
 
