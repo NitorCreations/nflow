@@ -1,10 +1,12 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_MAINTENANCE_PATH;
+import static io.nflow.rest.v1.ResourcePaths.NFLOW_MAINTENANCE_TAG;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,16 +22,19 @@ import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.MaintenanceConverter;
 import io.nflow.rest.v1.msg.MaintenanceRequest;
 import io.nflow.rest.v1.msg.MaintenanceResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(NFLOW_MAINTENANCE_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("nFlow maintenance")
 @Component
 @NflowCors
+@Tag(name = NFLOW_MAINTENANCE_TAG)
 public class MaintenanceResource extends JaxRsResource {
 
   @Inject
@@ -39,9 +44,11 @@ public class MaintenanceResource extends JaxRsResource {
   private MaintenanceConverter converter;
 
   @POST
-  @ApiOperation(value = "Do maintenance on old workflow instances synchronously", response = MaintenanceResponse.class)
+  @Operation(summary = "Execute workflow instance maintenance", description = "Runs requested maintenance tasks synchronously")
+  @ApiResponse(responseCode = "200", description = "Maintenance operation status",
+      content = @Content(schema = @Schema(implementation = MaintenanceResponse.class)))
   public Response cleanupWorkflows(
-      @ApiParam(value = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
+      @Valid @RequestBody(description = "Parameters for the maintenance process", required = true) MaintenanceRequest request) {
     return handleExceptions(() -> {
       MaintenanceConfiguration configuration = converter.convert(request);
       MaintenanceResults results = maintenanceService.cleanupWorkflows(configuration);

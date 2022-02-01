@@ -26,12 +26,11 @@ public abstract class SpringWebResource extends ResourceBase {
   }
 
   protected Mono<ResponseEntity<?>> handleExceptions(Supplier<Mono<ResponseEntity<?>>> response) {
-    return Mono.just(response)
-        .flatMap(Supplier::get)
+    return Mono.just(response).flatMap(Supplier::get)
         .onErrorResume(ex -> toErrorResponse(resolveExceptionHttpStatus(ex), new ErrorResponse(ex.getMessage())));
   }
 
-  private Mono<ResponseEntity<?>> toErrorResponse(int statusCode, ErrorResponse body) {
+  private Mono<ResponseEntity<ErrorResponse>> toErrorResponse(int statusCode, ErrorResponse body) {
     return just(status(statusCode).body(body));
   }
 }

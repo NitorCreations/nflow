@@ -13,7 +13,8 @@ import org.springframework.core.env.Environment;
  * Filter to add headers to allow Cross-Origin Resource Sharing. Applied only to JAX-RS resources that are annotated with
  * {@code NflowCors} annotation.
  *
- * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS</a>
+ * @see <a href=
+ *      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS</a>
  */
 @Provider
 @NflowCors

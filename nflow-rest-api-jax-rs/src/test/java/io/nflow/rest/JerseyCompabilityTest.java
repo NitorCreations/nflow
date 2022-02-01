@@ -10,10 +10,10 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.simple.SimpleContainerFactory;
 import org.glassfish.jersey.simple.SimpleServer;
+import org.junit.jupiter.api.Test;
 
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.v1.jaxrs.MaintenanceResource;
-import org.junit.jupiter.api.Test;
 
 public class JerseyCompabilityTest {
 

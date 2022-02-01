@@ -2,20 +2,19 @@ package io.nflow.rest.v1.msg;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@ApiModel(description = "Maintenance result response")
+@Schema(description = "Maintenance result response")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class MaintenanceResponse extends ModelObject {
 
-  @ApiModelProperty("Total number of deleted archived workflows")
+  @Schema(description = "Total number of deleted archived workflows", minimum = "0")
   public int deletedArchivedWorkflows;
 
-  @ApiModelProperty("Total number of archived workflows")
+  @Schema(description = "Total number of archived workflows", minimum = "0")
   public int archivedWorkflows;
 
-  @ApiModelProperty("Total number of deleted workflows")
+  @Schema(description = "Total number of deleted workflows", minimum = "0")
   public int deletedWorkflows;
 
 }

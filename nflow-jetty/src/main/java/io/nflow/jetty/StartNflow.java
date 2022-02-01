@@ -1,6 +1,7 @@
 package io.nflow.jetty;
 
 import static io.nflow.engine.config.Profiles.JMX;
+import static io.nflow.rest.config.jaxrs.PathConstants.NFLOW_REST_JAXRS_PATH_PREFIX;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.list;
@@ -108,7 +109,7 @@ public class StartNflow
     JettyServerContainer startedServer = new JettyServerContainer(server);
     port = startedServer.getPort();
     logger.info("Successfully started Jetty on port {} in {} seconds in environment {}", port, (end - start) / 1000.0, Arrays.toString(env.getActiveProfiles()));
-    logger.info("API available at http://{}:{}/nflow/api/", host, port);
+    logger.info("API available at http://{}:{}{}", host, port, NFLOW_REST_JAXRS_PATH_PREFIX);
     logger.info("Swagger available at http://{}:{}/nflow/ui/doc/", host, port);
     logger.info("Explorer available at http://{}:{}/nflow/ui/explorer/", host, port);
     logger.info("Metrics and health checks available at http://{}:{}/nflow/metrics/", host, port);
@@ -125,8 +126,8 @@ public class StartNflow
     context.setInitParameter("contextConfigLocation", NflowJettyConfiguration.class.getName());
   }
 
-  protected void setupCxf(final ServletContextHandler context) {
-    ServletHolder servlet = context.addServlet(CXFServlet.class, "/nflow/api/*");
+  protected void setupCxf(ServletContextHandler context) {
+    ServletHolder servlet = context.addServlet(CXFServlet.class, NFLOW_REST_JAXRS_PATH_PREFIX + "/*");
     servlet.setDisplayName("nflow-cxf-services");
     servlet.setInitOrder(1);
   }

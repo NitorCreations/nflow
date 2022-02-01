@@ -3,6 +3,7 @@ package io.nflow.tests;
 import static io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
 import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
 import static java.time.Duration.ofSeconds;
@@ -40,10 +41,10 @@ import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MaintenanceWorkflowTest extends AbstractNflowTest {
-  public static NflowServerConfig server = new NflowServerConfig.Builder() //
-      .prop("nflow.maintenance.insertWorkflowIfMissing", true) //
-      .prop("nflow.maintenance.initial.cron", "* * * * * *") //
-      .prop("nflow.maintenance.initial.delete.olderThan", seconds(1).toString()) //
+  public static NflowServerConfig server = new NflowServerConfig.Builder()
+      .prop("nflow.maintenance.insertWorkflowIfMissing", true)
+      .prop("nflow.maintenance.initial.cron", "* * * * * *")
+      .prop("nflow.maintenance.initial.delete.olderThan", seconds(1).toString())
       .build();
 
   private static List<Long> ids;
@@ -63,10 +64,10 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
   @Order(2)
   public void verifyThatMaintenanceWorkflowIsRunning() throws InterruptedException {
     SECONDS.sleep(1);
-    ListWorkflowInstanceResponse[] instances = getInstanceResource() //
-        .query("type", MAINTENANCE_WORKFLOW_TYPE) //
-        .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID) //
-        .query("include", "currentStateVariables") //
+    ListWorkflowInstanceResponse[] instances = getInstanceResource()
+        .query("type", MAINTENANCE_WORKFLOW_TYPE)
+        .query("externalId", MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID)
+        .query("includes", currentStateVariables.name())
         .get(ListWorkflowInstanceResponse[].class);
     assertThat(asList(instances), hasSize(1));
     assertThat(instances[0].stateVariables, hasEntry("cron", "* * * * * *"));

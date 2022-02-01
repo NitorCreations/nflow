@@ -17,7 +17,6 @@ import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse.StateStatistics;
 
-
 public class StatisticsConverterTest {
   private final StatisticsConverter converter = new StatisticsConverter();
 
@@ -28,12 +27,12 @@ public class StatisticsConverterTest {
     Statistics stats = new Statistics(queuedStatistics, executionStatistics);
     StatisticsResponse response = converter.convert(stats);
 
-    io.nflow.rest.v1.msg.QueueStatistics restQueueStats =  response.queueStatistics;
+    io.nflow.rest.v1.msg.QueueStatistics restQueueStats = response.queueStatistics;
     assertThat(restQueueStats.count, is(2));
     assertThat(restQueueStats.maxAge, is(42l));
     assertThat(restQueueStats.minAge, is(10l));
 
-    io.nflow.rest.v1.msg.QueueStatistics restExecStats =  response.executionStatistics;
+    io.nflow.rest.v1.msg.QueueStatistics restExecStats = response.executionStatistics;
     assertThat(restExecStats.count, is(5));
     assertThat(restExecStats.maxAge, nullValue());
     assertThat(restExecStats.minAge, nullValue());

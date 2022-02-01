@@ -1,27 +1,28 @@
 package io.nflow.rest.v1;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.childWorkflows;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.lang.Boolean.parseBoolean;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.util.Arrays.stream;
 import static java.util.Collections.sort;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toMap;
+import static java.util.EnumSet.noneOf;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.isEmpty;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -56,21 +57,16 @@ import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
  */
 public abstract class ResourceBase {
 
-  protected static final String currentStateVariables = "currentStateVariables";
-  protected static final String actions = "actions";
-  protected static final String actionStateVariables = "actionStateVariables";
-  protected static final String childWorkflows = "childWorkflows";
-  protected static final String INCLUDE_PARAM_VALUES = currentStateVariables + "," + actions + "," + actionStateVariables + ","
-      + childWorkflows;
-  protected static final String INCLUDE_PARAM_DESC = "Data to include in response. " + currentStateVariables
-      + " = current stateVariables for worfklow, " + actions + " = state transitions, " + actionStateVariables
-      + " = state variable changes for actions, " + childWorkflows + " = map of created child workflow instance IDs by action ID";
-  private static final Map<String, WorkflowInstanceInclude> INCLUDE_STRING_TO_ENUM = unmodifiableMap(Stream
-      .of(new SimpleEntry<>(currentStateVariables, WorkflowInstanceInclude.CURRENT_STATE_VARIABLES),
-          new SimpleEntry<>(actions, WorkflowInstanceInclude.ACTIONS),
-          new SimpleEntry<>(actionStateVariables, WorkflowInstanceInclude.ACTION_STATE_VARIABLES),
-          new SimpleEntry<>(childWorkflows, WorkflowInstanceInclude.CHILD_WORKFLOW_IDS))
-      .collect(toMap(Entry::getKey, Entry::getValue)));
+  protected static final String INCLUDES_PARAM_DESC = "Data to include for workflow instance.\n"
+      + "* currentStateVariables: current stateVariables for worfklow\n"
+      + "* actions: state transitions\n"
+      + "* actionStateVariables: state variable changes for actions\n"
+      + "* childWorkflows: map of created child workflow instance IDs by action ID\n";
+  protected static final String DEPRECATED_INCLUDE_PARAM_DESC = "Removed in the next major release, use `includes` instead. Data to include in workflow instance. Multiple values can be provided as comma separated string.\n"
+      + "* currentStateVariables: current stateVariables for worfklow\n"
+      + "* actions: state transitions\n"
+      + "* actionStateVariables: state variable changes for actions\n"
+      + "* childWorkflows: map of created child workflow instance IDs by action ID\n";
   protected static final String QUERY_ARCHIVED_DEFAULT_STR = "false";
   protected static final boolean QUERY_ARCHIVED_DEFAULT = parseBoolean(QUERY_ARCHIVED_DEFAULT_STR);
 
@@ -100,9 +96,9 @@ public abstract class ResourceBase {
     return response;
   }
 
-  public boolean updateWorkflowInstance(final long id,
-      final UpdateWorkflowInstanceRequest req, final WorkflowInstanceFactory workflowInstanceFactory,
-      final WorkflowInstanceService workflowInstances, WorkflowInstanceDao workflowInstanceDao) {
+  public boolean updateWorkflowInstance(long id, UpdateWorkflowInstanceRequest req,
+      WorkflowInstanceFactory workflowInstanceFactory, WorkflowInstanceService workflowInstances,
+      WorkflowInstanceDao workflowInstanceDao) {
     WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
         .setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
@@ -139,16 +135,20 @@ public abstract class ResourceBase {
     }
     WorkflowInstance instance = builder.setStateText(msg).build();
     instance.getChangedStateVariables().forEach(workflowInstanceDao::checkStateVariableValueLength);
-    WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance).setType(externalChange)
-        .setStateText(trimToNull(msg)).setExecutionEnd(now()).build();
+    WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance)
+        .setType(externalChange)
+        .setStateText(trimToNull(msg))
+        .setExecutionEnd(now())
+        .build();
     return workflowInstances.updateWorkflowInstance(instance, action);
   }
 
-  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(List<Long> ids, List<String> types, Long parentWorkflowId,
-      Long parentActionId, List<String> states, List<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
-      String stateVariableKey, String stateVariableValue, String include, Long maxResults, Long maxActions, boolean queryArchive,
-      WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter) {
-    Set<String> includeStrings = parseIncludeStrings(include).collect(toSet());
+  public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(Set<Long> ids, Set<String> types, Long parentWorkflowId,
+      Long parentActionId, Set<String> states, Set<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
+      String stateVariableKey, String stateVariableValue, Set<ApiWorkflowInstanceInclude> includes, String include,
+      Long maxResults, Long maxActions, boolean queryArchive, WorkflowInstanceService workflowInstances,
+      ListWorkflowInstanceConverter listWorkflowConverter) {
+    Set<ApiWorkflowInstanceInclude> propertyIncludes = resolveIncludes(includes, include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
         .addIds(ids.toArray(new Long[ids.size()]))
         .addTypes(types.toArray(new String[types.size()]))
@@ -158,35 +158,42 @@ public abstract class ResourceBase {
         .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()]))
         .setBusinessKey(businessKey)
         .setExternalId(externalId)
-        .setIncludeCurrentStateVariables(includeStrings.contains(currentStateVariables))
-        .setIncludeActions(includeStrings.contains(actions))
-        .setIncludeActionStateVariables(includeStrings.contains(actionStateVariables))
+        .setIncludeCurrentStateVariables(propertyIncludes.contains(currentStateVariables))
+        .setIncludeActions(propertyIncludes.contains(actions))
+        .setIncludeActionStateVariables(propertyIncludes.contains(actionStateVariables))
         .setMaxResults(maxResults)
         .setMaxActions(maxActions)
         .setQueryArchive(queryArchive)
-        .setIncludeChildWorkflows(includeStrings.contains(childWorkflows))
+        .setIncludeChildWorkflows(propertyIncludes.contains(childWorkflows))
         .setStateVariable(stateVariableKey, stateVariableValue)
         .build();
     Stream<WorkflowInstance> instances = workflowInstances.listWorkflowInstancesAsStream(q);
-    Set<WorkflowInstanceInclude> parseIncludeEnums = parseIncludeEnums(include);
-    return instances.map(instance -> listWorkflowConverter.convert(instance, parseIncludeEnums, queryArchive));
+    return instances.map(instance -> listWorkflowConverter.convert(instance, propertyIncludes, queryArchive));
   }
 
-  private Set<WorkflowInstanceInclude> parseIncludeEnums(String include) {
-    return parseIncludeStrings(include).map(INCLUDE_STRING_TO_ENUM::get).filter(Objects::nonNull)
-        .collect(toCollection(HashSet::new));
+  private Set<ApiWorkflowInstanceInclude> resolveIncludes(Set<ApiWorkflowInstanceInclude> includes, String include) {
+    Set<ApiWorkflowInstanceInclude> allIncludes = noneOf(ApiWorkflowInstanceInclude.class);
+    if (includes != null) {
+      allIncludes.addAll(includes);
+    }
+    if (isNotBlank(include)) {
+      stream(include.split(","))
+          .map(ApiWorkflowInstanceInclude::fromValue)
+          .filter(Objects::nonNull)
+          .forEach(allIncludes::add);
+    }
+    return allIncludes;
   }
 
-  private Stream<String> parseIncludeStrings(String include) {
-    return Stream.of(trimToEmpty(include).split(","));
-  }
-
-  public ListWorkflowInstanceResponse fetchWorkflowInstance(long id, String include, Long maxActions, boolean queryArchive,
-      WorkflowInstanceService workflowInstances, ListWorkflowInstanceConverter listWorkflowConverter)
-      throws EmptyResultDataAccessException {
-    Set<WorkflowInstanceInclude> includes = parseIncludeEnums(include);
+  public ListWorkflowInstanceResponse fetchWorkflowInstance(long id, Set<ApiWorkflowInstanceInclude> apiIncludes, String include,
+      Long maxActions, boolean queryArchive, WorkflowInstanceService workflowInstances,
+      ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
+    Set<ApiWorkflowInstanceInclude> propertyIncludes = resolveIncludes(apiIncludes, include);
+    Set<WorkflowInstanceInclude> includes = propertyIncludes.stream()
+        .map(ApiWorkflowInstanceInclude::getInclude)
+        .collect(toSet());
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(id, includes, maxActions, queryArchive);
-    return listWorkflowConverter.convert(instance, includes, queryArchive);
+    return listWorkflowConverter.convert(instance, propertyIncludes, queryArchive);
   }
 
   protected int resolveExceptionHttpStatus(Throwable t) {

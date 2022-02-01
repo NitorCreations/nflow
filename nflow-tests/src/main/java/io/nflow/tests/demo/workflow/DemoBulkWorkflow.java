@@ -35,10 +35,10 @@ public class DemoBulkWorkflow extends BulkWorkflow {
   }
 
   private WorkflowInstance createInstance(JsonNode childData) {
-    return new WorkflowInstance.Builder() //
-        .setType(DEMO_WORKFLOW_TYPE) //
-        .setNextActivation(null) //
-        .putStateVariable("requestData", childData.asText()) //
+    return new WorkflowInstance.Builder()
+        .setType(DEMO_WORKFLOW_TYPE)
+        .setNextActivation(null)
+        .putStateVariable("requestData", childData.asText())
         .build();
   }
 

@@ -1,6 +1,7 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_PATH;
+import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_EXECUTOR_TAG;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
@@ -18,15 +19,19 @@ import io.nflow.engine.service.WorkflowExecutorService;
 import io.nflow.rest.config.jaxrs.NflowCors;
 import io.nflow.rest.v1.converter.ListWorkflowExecutorConverter;
 import io.nflow.rest.v1.msg.ListWorkflowExecutorResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(NFLOW_WORKFLOW_EXECUTOR_PATH)
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Api("nFlow workflow executor management")
 @Component
 @NflowCors
+@Tag(name = NFLOW_WORKFLOW_EXECUTOR_TAG)
 public class WorkflowExecutorResource extends JaxRsResource {
 
   private final WorkflowExecutorService workflowExecutors;
@@ -39,7 +44,8 @@ public class WorkflowExecutorResource extends JaxRsResource {
   }
 
   @GET
-  @ApiOperation(value = "List workflow executors", response = ListWorkflowExecutorResponse.class, responseContainer = "List")
+  @Operation(summary = "List workflow executors")
+  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowExecutorResponse.class))))
   public Response listWorkflowExecutors() {
     return handleExceptions(
         () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));

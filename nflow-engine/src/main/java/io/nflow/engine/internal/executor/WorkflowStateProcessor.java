@@ -273,9 +273,9 @@ class WorkflowStateProcessor implements Runnable {
       try {
         String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
         WorkflowDefinition parentDefinition = workflowDefinitions.getWorkflowDefinition(parentType);
-        String[] waitStates = parentDefinition.getStates().stream() //
-            .filter(state -> state.getType() == WorkflowStateType.wait) //
-            .map(WorkflowState::name) //
+        String[] waitStates = parentDefinition.getStates().stream()
+            .filter(state -> state.getType() == WorkflowStateType.wait)
+            .map(WorkflowState::name)
             .toArray(String[]::new);
         if (waitStates.length > 0) {
           execution.wakeUpParentWorkflow(waitStates);
@@ -284,11 +284,11 @@ class WorkflowStateProcessor implements Runnable {
         // parent has been archived or deleted, no need to wake it up anymore
       }
     }
-    WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance) //
-        .setNextActivation(execution.getNextActivation()) //
-        .setStatus(getStatus(execution, nextState)) //
-        .setStateText(getStateText(instance, execution)) //
-        .setState(execution.getNextState()) //
+    WorkflowInstance.Builder instanceBuilder = new WorkflowInstance.Builder(instance)
+        .setNextActivation(execution.getNextActivation())
+        .setStatus(getStatus(execution, nextState))
+        .setStateText(getStateText(instance, execution))
+        .setState(execution.getNextState())
         .setRetries(execution.isRetry() ? execution.getRetries() + 1 : 0);
     int saveRetryCount = 0;
     if (execution.getNewBusinessKey() != null) {

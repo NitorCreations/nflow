@@ -59,14 +59,14 @@ public class ConcurrentEnginesTest {
   @BeforeAll
   public static void start() throws Exception {
     servers.add(new NflowServerConfig.Builder()
-            .prop("nflow.executor.thread.count",2)
-            .prop("nflow.dispatcher.executor.queue.size", 5)
-            .prop("nflow.executor.group","concur")
-            .prop("nflow.dispatcher.sleep.ms", 5)
-            .prop("nflow.dispatcher.sleep.ms", 2)
-            .springContextClass(DemoConfiguration.class).build());
+        .prop("nflow.executor.thread.count", 2)
+        .prop("nflow.dispatcher.executor.queue.size", 5)
+        .prop("nflow.executor.group", "concur")
+        .prop("nflow.dispatcher.sleep.ms", 5)
+        .prop("nflow.dispatcher.sleep.ms", 2)
+        .springContextClass(DemoConfiguration.class).build());
     servers.get(0).before();
-    for (int i=1; i<ENGINES; ++i) {
+    for (int i = 1; i < ENGINES; ++i) {
       NflowServerConfig server = servers.get(0).anotherServer();
       servers.add(server);
       server.before();
@@ -92,8 +92,9 @@ public class ConcurrentEnginesTest {
     req.type = DEMO_WORKFLOW_TYPE;
     req.businessKey = UNIQUE_KEY;
     req.activationTime = now().plusSeconds(10);
-    for (int i=0; i<WORKFLOWS; ++i) {
-      CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req, CreateWorkflowInstanceResponse.class);
+    for (int i = 0; i < WORKFLOWS; ++i) {
+      CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
+          CreateWorkflowInstanceResponse.class);
       assertThat(resp.id, notNullValue());
     }
   }
@@ -105,11 +106,11 @@ public class ConcurrentEnginesTest {
       while (true) {
         sleep(500);
         ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true)
-                .query("type", DEMO_WORKFLOW_TYPE)
-                .query("maxResults", WORKFLOWS + 1)
-                .query("businessKey", UNIQUE_KEY)
-                .query("status", finished)
-                .query("include", "").get(ListWorkflowInstanceResponse[].class);
+            .query("type", DEMO_WORKFLOW_TYPE)
+            .query("maxResults", WORKFLOWS + 1)
+            .query("businessKey", UNIQUE_KEY)
+            .query("status", finished)
+            .get(ListWorkflowInstanceResponse[].class);
         if (instances.length == WORKFLOWS) {
           return instances;
         }

@@ -1,5 +1,7 @@
 package io.nflow.tests;
 
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.UUID.randomUUID;
@@ -58,9 +60,10 @@ public class ActionStateVariablesTest extends AbstractNflowTest {
       ListWorkflowInstanceResponse wf = null;
       do {
         sleep(200);
-        wf = getInstanceIdResource(createResponse.id) //
-            .query("include", "actions,actionStateVariables") //
-            .query("maxActions", maxActions) //
+        wf = getInstanceIdResource(createResponse.id)
+            .query("includes", actions.name())
+            .query("includes", actionStateVariables.name())
+            .query("maxActions", maxActions)
             .get(ListWorkflowInstanceResponse.class);
       } while (wf == null || !"done".equals(wf.state));
       return wf;

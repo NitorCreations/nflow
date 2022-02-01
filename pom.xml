@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <name>nflow</name>
   <groupId>io.nflow</groupId>
@@ -161,8 +162,8 @@
     <mssql.version>9.4.1.jre8</mssql.version>
     <mysql.version>8.0.28</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
-    <node.version>v16.13.2</node.version> <!-- https://nodejs.org/en/download/releases/ -->
-    <npm.version>8.1.2</npm.version> <!-- https://github.com/npm/cli/releases -->
+    <node.version>v16.13.2</node.version>    <!-- https://nodejs.org/en/download/releases/ -->
+    <npm.version>8.1.2</npm.version>    <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
     <postgresql.version>42.3.1</postgresql.version>
     <postgresql-embedded.version>2.10</postgresql-embedded.version>
@@ -176,7 +177,7 @@
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.5.3.0</spotbugs-maven-plugin.version>
     <spring.version>5.2.8.RELEASE</spring.version>
-    <swagger.version>1.6.4</swagger.version>
+    <swagger.version>2.1.12</swagger.version>
     <swagger2markup.version>1.3.3</swagger2markup.version>
     <validation.api.version>2.0.1.Final</validation.api.version>
     <versions-maven-plugin.version>2.9.0</versions-maven-plugin.version>
@@ -382,8 +383,12 @@
                     <exclude>commons-logging:commons-logging</exclude>
                   </excludes>
                 </bannedDependencies>
-                <requireMavenVersion><version>3.6</version></requireMavenVersion>
-                <requireJavaVersion><version>${jdk.version}</version></requireJavaVersion>
+                <requireMavenVersion>
+                  <version>3.6</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>${jdk.version}</version>
+                </requireJavaVersion>
               </rules>
             </configuration>
           </execution>
@@ -683,7 +688,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
+        <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
         <version>${apache.cxf.version}</version>
       </dependency>
       <dependency>
@@ -828,8 +833,8 @@
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-jaxrs</artifactId>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-jaxrs2</artifactId>
         <version>${swagger.version}</version>
         <exclusions>
           <exclusion>
@@ -839,7 +844,7 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>io.swagger</groupId>
+        <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-annotations</artifactId>
         <version>${swagger.version}</version>
       </dependency>

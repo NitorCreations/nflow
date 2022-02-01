@@ -1,5 +1,6 @@
 package io.nflow.tests;
 
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
@@ -64,7 +65,9 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       ListWorkflowInstanceResponse wf = null;
       do {
         sleep(200);
-        ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", DEMO_WORKFLOW_TYPE).query("include", "actions")
+        ListWorkflowInstanceResponse[] instances = getInstanceResource()
+            .query("type", DEMO_WORKFLOW_TYPE)
+            .query("includes", actions.name())
             .get(ListWorkflowInstanceResponse[].class);
         assertThat(instances.length, greaterThanOrEqualTo(1));
         for (ListWorkflowInstanceResponse instance : instances) {

@@ -54,7 +54,8 @@ public class WorkflowDefinitionResourceTest {
   private ListWorkflowDefinitionResponse dummyResponse;
 
   private WorkflowDefinitionResource resource;
-  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<>() { /**/ };
+  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<>() {
+    /**/ };
 
   @BeforeEach
   public void setup() {
@@ -92,7 +93,8 @@ public class WorkflowDefinitionResourceTest {
   public void listWorkflowDefinitionsFindsExistingAndStoredDefinitionsWithoutArguments() {
     StoredWorkflowDefinition storedDefinitionDummy = mock(StoredWorkflowDefinition.class);
     StoredWorkflowDefinition storedDefinitionNew = mock(StoredWorkflowDefinition.class);
-    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection())).thenReturn(asList(storedDefinitionDummy, storedDefinitionNew));
+    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(anyCollection()))
+        .thenReturn(asList(storedDefinitionDummy, storedDefinitionNew));
     ListWorkflowDefinitionResponse storedResponseDummy = mock(ListWorkflowDefinitionResponse.class, "dbDummy");
     ListWorkflowDefinitionResponse storedResponseNew = mock(ListWorkflowDefinitionResponse.class, "dbNew");
     storedDefinitionDummy.type = "dummy";

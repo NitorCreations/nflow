@@ -59,7 +59,8 @@ public class StatisticsResourceTest {
   @Test
   public void getWorkflowDefinitionStatisticsDelegatesToStatisticsService() {
     Map<String, Map<String, WorkflowDefinitionStatistics>> statsMap = emptyMap();
-    when(service.getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)).thenReturn(statsMap);
+    when(service.getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore))
+        .thenReturn(statsMap);
     when(converter.convert(statsMap)).thenReturn(new WorkflowDefinitionStatisticsResponse());
 
     try (Response response = resource.getStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)) {

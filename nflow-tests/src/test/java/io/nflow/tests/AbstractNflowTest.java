@@ -1,6 +1,10 @@
 package io.nflow.tests;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.childWorkflows;
+import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -92,7 +96,11 @@ public abstract class AbstractNflowTest {
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(long instanceId) {
-    return getInstanceIdResource(instanceId).query("include", "currentStateVariables,actions,actionStateVariables,childWorkflows")
+    return getInstanceIdResource(instanceId)
+        .query("includes", currentStateVariables.name())
+        .query("includes", actions.name())
+        .query("includes", actionStateVariables.name())
+        .query("includes", childWorkflows.name())
         .get(ListWorkflowInstanceResponse.class);
   }
 
@@ -160,13 +168,13 @@ public abstract class AbstractNflowTest {
     }
   }
 
-  protected WorkflowInstanceValidator actionHistoryValidator(final List<Action> actions) {
+  protected WorkflowInstanceValidator actionHistoryValidator(List<Action> actionList) {
     return new WorkflowInstanceValidator() {
       @Override
       public void validate(ListWorkflowInstanceResponse workflowInstance) {
         for (int i = 0; i < workflowInstance.actions.size(); i++) {
-          assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actions.get(i).state));
-          assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actions.get(i).retryNo));
+          assertThat("State " + i + " wrong state name", workflowInstance.actions.get(i).state, is(actionList.get(i).state));
+          assertThat("State " + i + " wrong retry no", workflowInstance.actions.get(i).retryNo, is(actionList.get(i).retryNo));
         }
       }
     };

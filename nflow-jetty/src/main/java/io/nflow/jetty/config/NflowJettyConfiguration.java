@@ -2,6 +2,7 @@ package io.nflow.jetty.config;
 
 import static io.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 
 import java.util.Arrays;
@@ -19,7 +20,7 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
-import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.springframework.context.annotation.Bean;
@@ -97,17 +98,17 @@ public class NflowJettyConfiguration {
   }
 
   private Feature swaggerFeature() {
-    Swagger2Feature feature = new Swagger2Feature();
-    feature.setBasePath("/nflow/api");
+    OpenApiFeature feature = new OpenApiFeature();
     feature.setScan(true);
-    feature.setResourcePackage(env.getProperty("nflow.swagger.packages", "io.nflow.rest"));
-    feature.setContact("nFlow community (nflow-users@googlegroups.com)");
+    feature.setResourcePackages(singleton(env.getProperty("nflow.swagger.packages", "io.nflow.rest")));
+    feature.setContactName("nFlow community");
+    feature.setContactEmail("nflow-users@googlegroups.com");
+    feature.setContactUrl("https://nflow.io/");
     feature.setDescription(
-        "nFlow REST API provides services for managing workflow instances and querying metadata (statistics, workflow "
-            + "definitions, etc) of nFlow Engine. The services are also used by nFlow Explorer user interface.");
+        "Manage workflow instances, definitions and executors, query statistics and run maintenance jobs. The services are also used by nFlow Explorer.");
     feature.setLicense("European Union Public Licence V. 1.1");
     feature.setLicenseUrl("https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt");
-    feature.setTitle("nflow-rest-api");
+    feature.setTitle("nFlow REST API");
     feature.setVersion("1");
     return feature;
   }
