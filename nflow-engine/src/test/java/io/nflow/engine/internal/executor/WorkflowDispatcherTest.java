@@ -26,6 +26,7 @@ import static org.mockito.quality.Strictness.LENIENT;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -532,6 +533,8 @@ public class WorkflowDispatcherTest {
           public void run() {
             try {
               m.invoke(test);
+            } catch (InvocationTargetException inv) {
+              test.errors.add(inv.getCause());
             } catch (Throwable t) {
               test.errors.add(t);
             }
