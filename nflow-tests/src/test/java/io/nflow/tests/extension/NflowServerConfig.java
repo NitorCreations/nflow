@@ -115,9 +115,10 @@ public class NflowServerConfig {
         stopDb();
     }
 
-    public NflowServerConfig anotherServer() {
+    public NflowServerConfig anotherServer(Map<String, Object> extraProps) {
         Builder b = new Builder();
         b.props.putAll(props);
+        b.props.putAll(extraProps);
         return new NflowServerConfig(b.env(env).profiles(profiles).springContextClass(springContextClass));
     }
 
