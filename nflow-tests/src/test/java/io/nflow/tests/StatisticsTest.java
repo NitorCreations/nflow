@@ -1,8 +1,6 @@
 package io.nflow.tests;
 
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
-import static java.lang.System.clearProperty;
-import static java.lang.System.setProperty;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -11,7 +9,6 @@ import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

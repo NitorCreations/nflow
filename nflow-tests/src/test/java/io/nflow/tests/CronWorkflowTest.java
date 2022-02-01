@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer;
@@ -73,13 +72,14 @@ public class CronWorkflowTest extends AbstractNflowTest {
     assertThat(doWorkActions, is(greaterThanOrEqualTo(1L)));
   }
 
+  @SuppressWarnings("null")
   @BeforeServerStop
   public void stopMaintenanceWorkflow() throws InterruptedException {
     UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
     request.nextActivationTime = null;
     request.state = FAILED.name();
     RuntimeException ex = null;
-    for (int i=0; i<3; ++i) {
+    for (int i = 0; i < 3; ++i) {
       try {
         updateWorkflowInstance(resp.id, request, String.class);
         return;
