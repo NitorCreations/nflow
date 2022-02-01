@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer;
@@ -73,10 +74,20 @@ public class CronWorkflowTest extends AbstractNflowTest {
   }
 
   @BeforeServerStop
-  public void stopMaintenanceWorkflow() {
+  public void stopMaintenanceWorkflow() throws InterruptedException {
     UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
     request.nextActivationTime = null;
     request.state = FAILED.name();
-    updateWorkflowInstance(resp.id, request, String.class);
+    RuntimeException ex = null;
+    for (int i=0; i<3; ++i) {
+      try {
+        updateWorkflowInstance(resp.id, request, String.class);
+        return;
+      } catch (RuntimeException e) {
+        ex = e;
+        SECONDS.sleep(1);
+      }
+    }
+    throw ex;
   }
 }
