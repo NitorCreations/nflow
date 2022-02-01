@@ -49,7 +49,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   @Override
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
-    String scriptPrefix = "mysql";
+    String scriptPrefix = "mariadb";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();

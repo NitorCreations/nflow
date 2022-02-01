@@ -102,7 +102,10 @@ public class NflowServerConfig {
         this.springContextClass = springContextClass;
     }
 
-    public void before() throws Exception {
+    public void before(String testName) throws Exception {
+        if (getInstanceName() == null) {
+            props.put("nflow.executor.group", testName);
+        }
         startDb();
         startJetty();
     }
@@ -112,9 +115,10 @@ public class NflowServerConfig {
         stopDb();
     }
 
-    public NflowServerConfig anotherServer() {
+    public NflowServerConfig anotherServer(Map<String, Object> extraProps) {
         Builder b = new Builder();
         b.props.putAll(props);
+        b.props.putAll(extraProps);
         return new NflowServerConfig(b.env(env).profiles(profiles).springContextClass(springContextClass));
     }
 

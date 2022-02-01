@@ -4,6 +4,8 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.reverse;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -12,7 +14,6 @@ import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,11 +66,11 @@ public class ConcurrentEnginesTest {
         .prop("nflow.dispatcher.sleep.ms", 5)
         .prop("nflow.dispatcher.sleep.ms", 2)
         .springContextClass(DemoConfiguration.class).build());
-    servers.get(0).before();
+    servers.get(0).before("ConcurrentEnginesTest");
     for (int i = 1; i < ENGINES; ++i) {
-      NflowServerConfig server = servers.get(0).anotherServer();
+      NflowServerConfig server = servers.get(0).anotherServer(emptyMap());
       servers.add(server);
-      server.before();
+      server.before("ConcurrentEnginesTest");
     }
   }
 
@@ -81,7 +82,7 @@ public class ConcurrentEnginesTest {
 
   @AfterAll
   public static void stop() {
-    Collections.reverse(servers);
+    reverse(servers);
     servers.forEach(NflowServerConfig::after);
   }
 

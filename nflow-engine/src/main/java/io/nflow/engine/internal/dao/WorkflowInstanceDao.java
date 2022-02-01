@@ -569,7 +569,19 @@ public class WorkflowInstanceDao {
         + sqlVariants.limit(
             "select id from nflow_workflow " + sqlVariants.withUpdateSkipLocked() + whereConditionForInstanceUpdate(), batchSize)
         + sqlVariants.forUpdateSkipLocked() + ") and executor_id is null returning id";
-    return jdbc.queryForList(sql, Long.class);
+    List<Long> ids = jdbc.queryForList(sql, Long.class);
+    if (ids.size() > batchSize) {
+      // very rare, occurs only on empty postgresql database where statistics have not yet been updated
+      // https://github.com/feikesteenbergen/demos/blob/master/bugs/update_from_correlated.adoc
+      // better just clear the executors_id a few times rather than make the original query more complex
+      logger.warn("Got too many workflow instances {} > {}", ids.size(), batchSize);
+      List<Long> extras = ids.subList(batchSize, ids.size());
+      jdbc.update("update nflow_workflow set executor_id=null, status = "
+              + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
+              " and id in (" + extras.stream().map(String::valueOf).collect(joining(",")) + ")");
+      ids = ids.subList(0, batchSize);
+    }
+    return ids;
   }
 
   private List<Long> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {

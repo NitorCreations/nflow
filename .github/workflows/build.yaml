@@ -4,17 +4,17 @@ on:
     branches-ignore:
     - 'master'
 concurrency: 
-  group: ${{ github.head_ref }}
+  group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   build:
     strategy:
       matrix:
         java: [ '11' ]
-        db: h2, mariadb
+        db: [ 'h2', 'mariadb', 'postgresql', 'mysql' ]
     runs-on: ubuntu-latest
     env:
-      SPRING_PROFILES_ACTIVE=nflow.db.${{ matrix.java }}
+      SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,6 +25,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Setup DB
-        run: ./travis/setup-db-${{ matrix.db }}.sh
-      - name: Run the Maven verify phase
-        run: mvn -B -P ${{ matrix.java }} test
+        run: ./travis/setup-db-${{ matrix.db }}.sh ${{ matrix.java }}
+      - name: Create frontend package
+        run: mvn -X -B -pl nflow-explorer install
+      - name: Run the Maven test phase
+        run: mvn -X -B -P ${{ matrix.db }} test

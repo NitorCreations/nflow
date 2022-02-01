@@ -59,7 +59,7 @@ create table if not exists nflow_executor (
   started timestamp(3) not null default current_timestamp(3),
   active timestamp(3) not null default current_timestamp(3),
   expires timestamp(3) not null default current_timestamp(3),
-  stopped timestamp(3)
+  stopped timestamp(3) null
 );
 
 create table if not exists nflow_workflow_definition (
@@ -93,8 +93,8 @@ create table if not exists nflow_archive_workflow (
   external_next_activation timestamp(3) null,
   executor_id int,
   retries int not null,
-  created timestamp(3),
-  modified timestamp(3),
+  created timestamp(3) null,
+  modified timestamp(3) null,
   started timestamp(3) null,
   executor_group varchar(64) not null,
   workflow_signal int
@@ -111,8 +111,8 @@ create table if not exists nflow_archive_workflow_action (
   state varchar(64) not null,
   state_text varchar(128),
   retry_no int not null,
-  execution_start timestamp(3),
-  execution_end timestamp(3),
+  execution_start timestamp(3) null,
+  execution_end timestamp(3) null,
   constraint fk_arch_action_wf_id foreign key (workflow_id) references nflow_archive_workflow(id)
 ) ROW_FORMAT=COMPRESSED;
 

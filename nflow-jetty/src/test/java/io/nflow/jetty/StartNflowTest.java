@@ -1,14 +1,18 @@
 package io.nflow.jetty;
 
+import static io.nflow.engine.config.Profiles.H2;
 import static io.nflow.engine.config.Profiles.JMX;
 import static io.nflow.engine.config.Profiles.MARIADB;
 import static io.nflow.engine.config.Profiles.MYSQL;
 import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static java.lang.Thread.sleep;
+import static java.util.Optional.ofNullable;
+import static java.lang.System.getenv;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -20,7 +24,8 @@ public class StartNflowTest {
 
   @Test
   public void startNflowJettyToRandomFreeLocalPort() throws Exception {
-    JettyServerContainer jetty = initJettyStart(0, JMX);
+    assumeFalse(ofNullable(getenv("SPRING_PROFILES_ACTIVE")).map(s -> s.contains("nflow.db.")).orElse(false));
+    JettyServerContainer jetty = initJettyStart(0, JMX + "," + H2);
     assertThat(jetty.getPort(), is(not(0)));
     startStop(jetty);
   }

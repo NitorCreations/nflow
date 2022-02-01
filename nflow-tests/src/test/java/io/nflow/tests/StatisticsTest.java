@@ -3,6 +3,7 @@ package io.nflow.tests;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,6 +35,7 @@ public class StatisticsTest extends AbstractNflowTest {
     .prop("nflow.executor.timeout.seconds", 1)
     .prop("nflow.executor.keepalive.seconds", 5)
     .prop("nflow.dispatcher.await.termination.seconds", 1)
+    .prop("nflow.maintenance.insertWorkflowIfMissing", false)
     .prop("nflow.db.h2.url", "jdbc:h2:mem:statisticstest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
     .build();
 
@@ -41,11 +43,6 @@ public class StatisticsTest extends AbstractNflowTest {
 
   public StatisticsTest() {
     super(server);
-  }
-
-  @AfterEach
-  public void cleanup() {
-    clearProperty("nflow.autostart");
   }
 
   @Test
@@ -88,7 +85,7 @@ public class StatisticsTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void restartServer() throws Exception {
-    setProperty("nflow.autostart", "false");
+    server = server.anotherServer(singletonMap("nflow.autostart", "false"));
     server.startServer();
   }
 
