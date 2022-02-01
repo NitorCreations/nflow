@@ -1,8 +1,6 @@
 name: PR Build
 on:
-  push:
-    branches-ignore:
-    - 'master'
+  push
 concurrency: 
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
