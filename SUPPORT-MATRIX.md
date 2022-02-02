@@ -17,7 +17,7 @@
 * MySQL
   * 8.0 (CI tested)
   * 5.7 (CI tested)
-  * other versions >= 5.7 should work too
+  * Other versions >= 5.7 should work too
 
 # Best effort supported database versions
 
