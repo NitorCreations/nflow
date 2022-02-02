@@ -432,20 +432,14 @@
   <profiles>
     <profile>
       <activation>
-        <jdk>11</jdk>
+        <jdk>17</jdk>
       </activation>
-      <id>java11</id>
+      <id>java17</id>
       <properties>
-        <jdk.version>11</jdk.version>
+        <jdk.version>17</jdk.version>
       </properties>
     </profile>
     <profile>
-      <activation>
-        <property>
-          <name>env.BUILD_SYSTEM</name>
-          <value>travis</value>
-        </property>
-      </activation>
       <id>allModules</id>
       <modules>
         <module>nflow-engine</module>
