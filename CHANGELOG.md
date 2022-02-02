@@ -1,6 +1,10 @@
+# Changes
+
 ## 8.0.0-SNAPSHOT (future release)
 
-**Highlights**
+### Highlights
+
+- Add support for Java 17.
 - BREAKING CHANGE: Remove support for Java 8.
 - `nflow-engine`
   - BREAKING CHANGE: Replace old `WorkflowDefinition` and `AbstractWorkflowDefinition` with a new `WorkflowDefinition`.
@@ -14,9 +18,11 @@
   - Enable workflow instance history clean-up (deleting old actions and state variables) by default.
   - Add support to query also archived workflow instances.
 
-**Details**
-- Run tests against Java 17. Add test matrix.
-- Remove support for Java 8. Java 11 or newer required.
+### Details
+
+- Add support for Java 17, keep support for Java 11 and remove support for Java 8.
+  - Supported Java and database engine combinations are documented in SUPPORT_MATRIX.
+- Minimum supported Maven version for building is 3.6.
 - `nflow-engine`
   - All workflow definitions should now extend the new `WorkflowDefinition` class.
     - Workflow state type does not need to be defined as a generic type parameter anymore. The states can now be any classes that implement `WorkflowState`.
@@ -36,28 +42,31 @@
     - logback-classic update to version 1.2.10
       - http://mailman.qos.ch/pipermail/announce/2021/000164.html
       - https://jira.qos.ch/browse/LOGBACK-1591
-    - cxf 3.5.0
+    - apache cxf 3.5.0
     - commons.lang3 3.12.0
-    - guice 5.0.1
+    - guice 5.1.0
     - hibernate validator 6.2.1
-    - hikaricp 4.0.3
+    - hikaricp 5.0.1
     - jackson 2.13.1
     - javassist 3.28.0
-    - jodatime 2.10.3
-    - slf4j 1.7.33
+    - jodatime 2.10.13
+    - slf4j 1.7.35
+    - spring 5.3.15
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
   - Deprecate `include` query parameter (fetch / list workflow instances) that supported multiple values provided as comma separated string, i.e. like `include=actions,childWorkflows`.
   - Add `includes` query parameter (fetch / list workflow instances) that supports multiple query parameters, i.e. like `include=actions&include=childWorkflows`.
   - Add `queryArchive` query parameter. If set to `true`, also archived workflow instances are searched when not enough non-archived matches are found. Default value is false.
   - Dependency updates
-    - swagger 1.6.4
+    - swagger 2.1.12
+    - jersey 2.35
 - `nflow-jetty`
   - Dependency updates
-    - jetty 9.4.44.v20210927
+    - jetty 10.0.7
     - reflections 0.10.2
 - `nflow-netty`
   - Dependency updates
+    - reactor-core 3.4.14
     - reactor-netty 1.0.15
 - `nflow-metrics`
   - Dependency updates
@@ -74,11 +83,10 @@
   - Dependency updates
     - h2 2.1.210
       - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
-    - mssql 9.4.1
+    - mssql 10.2.0
     - mysql 8.0.28
-    - mariadb 2.7.5
-    - postgresql 42.3.1
-- Minimum supported Maven version for building is 3.6
+    - mariadb 3.0.3
+    - postgresql 42.3.2
 
 ## 7.4.0 (2021-12-27)
 
