@@ -521,7 +521,7 @@ public class WorkflowInstanceDao {
       sql += " union all select *, 1 as archived from " + WORKFLOW.archive + " where id = ?";
       args = new Object[]{ id, id };
     }
-    WorkflowInstance instance = jdbc.queryForObject(sql, args, workflowInstanceRowMapper).build();
+    WorkflowInstance instance = jdbc.queryForObject(sql, workflowInstanceRowMapper, args).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       fillState(instance);
     }
@@ -692,12 +692,22 @@ public class WorkflowInstanceDao {
 
   private void queryOptionsToSqlAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
     if (!isEmpty(query.ids)) {
-      conditions.add("id in (:ids)");
-      params.addValue("ids", query.ids);
+      if (query.ids.size() == 1) {
+        conditions.add("id = :id");
+        params.addValue("id", query.ids.get(0));
+      } else {
+        conditions.add("id in (:ids)");
+        params.addValue("ids", query.ids);
+      }
     }
     if (!isEmpty(query.types)) {
-      conditions.add("type in (:types)");
-      params.addValue("types", query.types);
+      if (query.types.size() == 1) {
+        conditions.add("type = :type");
+        params.addValue("type", query.types.get(0));
+      } else {
+        conditions.add("type in (:types)");
+        params.addValue("types", query.types);
+      }
     }
     if (query.parentWorkflowId != null) {
       conditions.add("parent_workflow_id = :parent_workflow_id");
@@ -708,8 +718,13 @@ public class WorkflowInstanceDao {
       params.addValue("parent_action_id", query.parentActionId);
     }
     if (!isEmpty(query.states)) {
-      conditions.add("state in (:states)");
-      params.addValue("states", query.states);
+      if (query.states.size() == 1) {
+        conditions.add("state = :state");
+        params.addValue("state", query.states.get(0));
+      } else {
+        conditions.add("state in (:states)");
+        params.addValue("states", query.states);
+      }
     }
     if (!isEmpty(query.statuses)) {
       List<String> convertedStatuses = query.statuses.stream().map(WorkflowInstanceStatus::name).collect(toList());
@@ -717,11 +732,19 @@ public class WorkflowInstanceDao {
       params.addValue("statuses", convertedStatuses);
     }
     if (query.businessKey != null) {
-      conditions.add("business_key like :business_key");
+      if (query.businessKey.indexOf('%') >= 0) {
+        conditions.add("business_key " + sqlVariants.caseSensitiveLike() + " :business_key");
+      } else {
+        conditions.add("business_key = :business_key");
+      }
       params.addValue("business_key", query.businessKey);
     }
     if (query.externalId != null) {
-      conditions.add("external_id like :external_id");
+      if (query.externalId.indexOf('%') >= 0) {
+        conditions.add("external_id " + sqlVariants.caseSensitiveLike() + " :external_id");
+      } else {
+        conditions.add("external_id = :external_id");
+      }
       params.addValue("external_id", query.externalId);
     }
   }
@@ -731,12 +754,12 @@ public class WorkflowInstanceDao {
     String sql = tables.map(table -> "select parent_action_id, id from " + table + " where parent_workflow_id = ?")
         .collect(joining(" union all "));
     Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
-    jdbc.query(sql, args, rs -> {
+    jdbc.query(sql, rs -> {
       long parentActionId = rs.getLong(1);
       long childWorkflowInstanceId = rs.getLong(2);
       List<Long> children = instance.childWorkflows.computeIfAbsent(parentActionId, k -> new ArrayList<>());
       children.add(childWorkflowInstanceId);
-    });
+    }, args);
   }
 
   private long getMaxResults(Long maxResults) {

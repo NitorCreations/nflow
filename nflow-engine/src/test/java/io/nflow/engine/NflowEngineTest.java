@@ -1,13 +1,16 @@
 package io.nflow.engine;
 
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -58,10 +61,11 @@ public class NflowEngineTest {
 
       List<WorkflowExecutor> executors = nflowEngine.getWorkflowExecutorService().getWorkflowExecutors();
       assertEquals(1, executors.size());
-      nflowEngine.getWorkflowInstanceService().insertWorkflowInstance(newInstance);
+      long id = nflowEngine.getWorkflowInstanceService().insertWorkflowInstance(newInstance);
 
       WorkflowInstance instance1 = getInstance(nflowEngine, type, externalId);
       assertNotNull(instance1);
+      assertEquals(id, instance1.id);
       assertEquals("dummy", instance1.type);
       assertNotNull(instance1.nextActivation);
 
@@ -77,7 +81,9 @@ public class NflowEngineTest {
 
   private WorkflowInstance getInstance(NflowEngine nflowEngine, String type, String externalId) {
     QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(type).setExternalId(externalId).build();
-    return nflowEngine.getWorkflowInstanceService().listWorkflowInstances(query).iterator().next();
+    Iterator<WorkflowInstance> it = nflowEngine.getWorkflowInstanceService().listWorkflowInstances(query).iterator();
+    assertTrue(it.hasNext(), () -> format("No workflow exists with type '%s' and externalId '%s'", type, externalId));
+    return it.next();
   }
 
   static DataSource dataSource() {

@@ -7,6 +7,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -104,6 +105,7 @@ public class WorkflowDispatcherTest {
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     when(executorDao.isAutoCommitEnabled()).thenReturn(true);
     when(executorDao.isAutoCommitEnabled()).thenReturn(true);
+    when(executorDao.getMaxWaitUntil()).thenAnswer(mock -> now().plusSeconds(5));
     executor = new WorkflowInstanceExecutor(3, 2, 0, 10, 0, new CustomizableThreadFactory("nflow-executor-"));
     dispatcher = new WorkflowDispatcher(executor, workflowInstances, executorFactory, workflowDefinitions, executorDao,
         exceptionAnalyzer, nflowLogger, env);

@@ -3,7 +3,7 @@ package io.nflow.engine.service;
 import static java.util.Collections.emptySet;
 import static java.util.EnumSet.complementOf;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -93,7 +93,7 @@ public class WorkflowInstanceService {
     Assert.notNull(workflowInstancePreProcessor, "workflowInstancePreProcessor can not be null");
     WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);
     long id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
-    if (id == -1 && !isEmpty(instance.externalId)) {
+    if (id == -1 && hasText(instance.externalId)) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(instance.type).setExternalId(instance.externalId).build();
       id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
     }

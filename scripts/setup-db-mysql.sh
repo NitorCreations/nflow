@@ -12,7 +12,7 @@ fi
 
 
 VER=8.0
-if [[ "$1" == 8 ]]; then
+if [[ "$1" == 11 ]]; then
   VER=5.7 # supported until oct/2023
 fi
 

@@ -67,4 +67,6 @@ public interface SQLVariants {
   default String withUpdateSkipLocked() {
     return "";
   }
+
+  default String caseSensitiveLike() { return "like"; }
 }

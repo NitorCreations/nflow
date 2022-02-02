@@ -82,10 +82,18 @@ public class MySQLVariants implements SQLVariants {
   }
 
   /**
-   * Returns true as MySQL suppports batch updates.
+   * Returns true as MySQL supports batch updates.
    */
   @Override
   public boolean useBatchUpdate() {
     return true;
+  }
+
+  /**
+   * Returns "like binary" for case-sensitive comparison.
+   */
+  @Override
+  public String caseSensitiveLike() {
+    return "like binary";
   }
 }
