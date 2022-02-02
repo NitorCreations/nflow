@@ -6,13 +6,13 @@ import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowSettings.Builder.oncePerDay;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Period.days;
+import static java.time.Instant.now;
+import static org.joda.time.Days.days;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
-import org.springframework.scheduling.support.CronSequenceGenerator;
+import org.springframework.scheduling.support.CronExpression;
 
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -93,7 +93,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
   }
 
   /**
-   * Determines the next execution time for the doWork state by calling {@link getNextActivationTime}.
+   * Determines the next execution time for the doWork state by calling {@link #getNextActivationTime}}.
    *
    * @param execution
    *          The workflow execution context.
@@ -115,7 +115,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    * @return The next activation time.
    */
   protected DateTime getNextActivationTime(StateExecution execution, String cron) {
-    return new DateTime(new CronSequenceGenerator(cron).next(now().toDate()));
+    return new DateTime(CronExpression.parse(cron).next(now()));
   }
 
   /**
@@ -160,7 +160,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
   }
 
   /**
-   * Returns null to move to schedule state immediately if there are no incompleted child workflows, or current time plus 1 hour
+   * Returns null to move to schedule state immediately if there are no incomplete child workflows, or current time plus 1 hour
    * to check again later. Override for custom logic.
    *
    * @param execution
@@ -170,7 +170,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
   protected DateTime waitForWorkToFinishImpl(StateExecution execution) {
     if (execution.hasUnfinishedChildWorkflows()) {
       logger.info("Unfinished child workflow found, waiting before scheduling next work.");
-      return now().plusHours(1);
+      return DateTime.now().plusHours(1);
     }
     logger.info("No unfinished child workflows found, scheduling next work.");
     return null;

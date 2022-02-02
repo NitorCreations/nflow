@@ -1,7 +1,5 @@
 package io.nflow.engine.internal.dao;
 
-import static java.util.Arrays.asList;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -93,7 +91,8 @@ public class StatisticsDao {
       DateTime createdAfter, DateTime createdBefore, DateTime modifiedAfter, DateTime modifiedBefore) {
     String executorGroup = executorInfo.getExecutorGroup();
     List<Object> argsList = new ArrayList<>();
-    argsList.addAll(asList(executorGroup, type));
+    argsList.add(executorGroup);
+    argsList.add(type);
     StringBuilder whereBuilder = new StringBuilder();
     if (createdAfter != null) {
       whereBuilder.append(" and created >= ?");
@@ -112,28 +111,23 @@ public class StatisticsDao {
       argsList.add(modifiedBefore.toDate());
     }
     String where = whereBuilder.toString();
-    StringBuilder sqlBuilder = new StringBuilder("select state, status, count(*) all_instances,")
-        .append(" count(case when next_activation < current_timestamp then 1 else null end) queued_instances")
-        .append(" from nflow_workflow where executor_group = ? and type = ?").append(where).append(" group by state, status");
-    String query = sqlBuilder.toString();
+    String query = "select state, status, count(*) all_instances," +
+            " count(case when next_activation < current_timestamp then 1 else null end) queued_instances" +
+            " from nflow_workflow where executor_group = ? and type = ?" + where + " group by state, status";
     Object[] argsArray = argsList.toArray(new Object[argsList.size()]);
     final Map<String, Map<String, WorkflowDefinitionStatistics>> stats = new LinkedHashMap<>();
-    jdbc.query(query, argsArray, new RowCallbackHandler() {
+    jdbc.query(query, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
         String state = rs.getString("state");
-        Map<String, WorkflowDefinitionStatistics> stateStats = stats.get(state);
-        if (stateStats == null) {
-          stateStats = new LinkedHashMap<>();
-          stats.put(state, stateStats);
-        }
+        Map<String, WorkflowDefinitionStatistics> stateStats = stats.computeIfAbsent(state, k -> new LinkedHashMap<>());
         String status = rs.getString("status");
         WorkflowDefinitionStatistics statusStats = new WorkflowDefinitionStatistics();
         statusStats.allInstances = rs.getLong("all_instances");
         statusStats.queuedInstances = rs.getLong("queued_instances");
         stateStats.put(status, statusStats);
       }
-    });
+    }, argsArray);
     return stats;
   }
 

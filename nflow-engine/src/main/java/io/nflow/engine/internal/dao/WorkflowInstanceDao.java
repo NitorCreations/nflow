@@ -521,7 +521,7 @@ public class WorkflowInstanceDao {
       sql += " union all select *, 1 as archived from " + WORKFLOW.archive + " where id = ?";
       args = new Object[]{ id, id };
     }
-    WorkflowInstance instance = jdbc.queryForObject(sql, args, workflowInstanceRowMapper).build();
+    WorkflowInstance instance = jdbc.queryForObject(sql, workflowInstanceRowMapper, args).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
       fillState(instance);
     }
@@ -731,12 +731,12 @@ public class WorkflowInstanceDao {
     String sql = tables.map(table -> "select parent_action_id, id from " + table + " where parent_workflow_id = ?")
         .collect(joining(" union all "));
     Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
-    jdbc.query(sql, args, rs -> {
+    jdbc.query(sql, rs -> {
       long parentActionId = rs.getLong(1);
       long childWorkflowInstanceId = rs.getLong(2);
       List<Long> children = instance.childWorkflows.computeIfAbsent(parentActionId, k -> new ArrayList<>());
       children.add(childWorkflowInstanceId);
-    });
+    }, args);
   }
 
   private long getMaxResults(Long maxResults) {

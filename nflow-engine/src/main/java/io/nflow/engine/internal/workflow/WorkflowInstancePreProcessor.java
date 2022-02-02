@@ -2,7 +2,7 @@ package io.nflow.engine.internal.workflow;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static java.util.UUID.randomUUID;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import javax.inject.Inject;
 
@@ -40,7 +40,7 @@ public class WorkflowInstancePreProcessor {
         throw new IllegalArgumentException("Specified state [" + instance.state + "] is not a start state.");
       }
     }
-    if (isEmpty(instance.externalId)) {
+    if (hasText(instance.externalId)) {
       builder.setExternalId(randomUUID().toString());
     }
     if (instance.status == null) {
