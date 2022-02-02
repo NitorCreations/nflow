@@ -175,7 +175,7 @@ public class EngineModule extends AbstractModule {
     case "sqlserver":
       return new SqlServerDatabaseConfiguration();
     default:
-      throw new RuntimeException("Unknown database type");
+      throw new RuntimeException("Unknown database type " + dbtype);
     }
   }
 

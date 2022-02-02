@@ -14,6 +14,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.reverse;
 import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.generate;
 import static org.joda.time.DateTime.now;
 
 import java.util.ArrayList;
@@ -56,12 +58,8 @@ public class TestDataGenerator {
   }
 
   public List<WorkflowInstance> generateWorkflowInstances(int count) {
-    List<WorkflowInstance> result = new ArrayList<>();
     List<WorkflowDefinition> definitions = workflowDefinitions.getWorkflowDefinitions();
-    for (int i = 0; i < count; i++) {
-      result.add(generateWorkflowInstance(definitions));
-    }
-    return result;
+    return generate(() -> generateWorkflowInstance(definitions)).limit(count).collect(toList());
   }
 
   private WorkflowInstance generateWorkflowInstance(List<WorkflowDefinition> definitions) {

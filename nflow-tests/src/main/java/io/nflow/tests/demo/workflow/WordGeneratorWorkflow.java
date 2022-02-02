@@ -49,11 +49,13 @@ public class WordGeneratorWorkflow extends WorkflowDefinition {
     }
   }
 
+  private static final State[] STATE_VALUES = State.values();
+
   protected WordGeneratorWorkflow(String flowName, WorkflowSettings settings) {
     super(flowName, State.start, State.error, settings);
     setDescription("Generate random words");
-    for (State originState : State.values()) {
-      for (State targetState : State.values()) {
+    for (State originState : STATE_VALUES) {
+      for (State targetState : STATE_VALUES) {
         if (originState == State.end || originState == State.error || targetState == State.error) {
           continue;
         }
@@ -69,18 +71,18 @@ public class WordGeneratorWorkflow extends WorkflowDefinition {
   protected static State randState() {
     Random random = ThreadLocalRandom.current();
     double sum = 0;
-    for (State v : State.values()) {
+    for (State v : STATE_VALUES) {
       sum += v.fraction;
     }
     double rand = random.nextDouble();
     double threshold = 0;
-    for (State v : State.values()) {
+    for (State v : STATE_VALUES) {
       threshold += v.fraction / sum;
       if (threshold > rand) {
         return v;
       }
     }
-    return State.values()[State.values().length - 1];
+    return STATE_VALUES[STATE_VALUES.length - 1];
   }
 
   public NextAction start(@SuppressWarnings("unused") StateExecution execution) {

@@ -1,14 +1,15 @@
 package io.nflow.engine.workflow.instance;
 
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
 import static org.joda.time.DateTime.now;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.joda.time.DateTime;
@@ -56,7 +57,7 @@ public class WorkflowInstance extends ModelObject {
   public final Long parentWorkflowId;
 
   /**
-   * The id of the workflow action that created this sub workflow.  Is null for root workflows.
+   * The id of the workflow action that created this sub workflow. Is null for root workflows.
    */
   public final Long parentActionId;
 
@@ -71,10 +72,9 @@ public class WorkflowInstance extends ModelObject {
   public final String type;
 
   /**
-   * The priority of the workflow instance. When an executor chooses from many available scheduled
-   * workflow instances it primarily (unfairly) schedules the workflow instance with the larger
-   * priority value, and for workflows with the same priority, the one scheduled first. Priority
-   * defaults to 0 and can also be negative.
+   * The priority of the workflow instance. When an executor chooses from many available scheduled workflow instances it primarily
+   * (unfairly) schedules the workflow instance with the larger priority value, and for workflows with the same priority, the one
+   * scheduled first. Priority defaults to 0 and can also be negative.
    */
   public final Short priority;
 
@@ -134,8 +134,7 @@ public class WorkflowInstance extends ModelObject {
   public final DateTime modified;
 
   /**
-   * Time when workflow processing was started, that is, time when processing of first
-   * action started.
+   * Time when workflow processing was started, that is, time when processing of first action started.
    */
   public final DateTime started;
 
@@ -190,20 +189,20 @@ public class WorkflowInstance extends ModelObject {
 
   /**
    * Return the state variables that have been added or modified during state processing.
+   *
    * @return New and modified state variables.
    */
   public Map<String, String> getChangedStateVariables() {
     if (stateVariables == null) {
       return emptyMap();
     }
-    Map<String, String> changedVariables = new HashMap<>(stateVariables.size());
-    for (Entry<String, String> current : stateVariables.entrySet()) {
+    return stateVariables.entrySet().stream().map(current -> {
       String oldVal = originalStateVariables.get(current.getKey());
       if (oldVal == null || !oldVal.equals(current.getValue())) {
-        changedVariables.put(current.getKey(), current.getValue());
+        return current;
       }
-    }
-    return changedVariables;
+      return null;
+    }).filter(Objects::nonNull).collect(toMap(Entry::getKey, Entry::getValue));
   }
 
   public String getStateVariable(String name) {
@@ -270,7 +269,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Create a workflow instance builder with an object mapper.
-     * @param objectMapper The object mapper.
+     *
+     * @param objectMapper
+     *          The object mapper.
      */
     public Builder(ObjectStringMapper objectMapper) {
       this.mapper = objectMapper;
@@ -278,7 +279,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Create a workflow instance builder based on an existing workflow instance.
-     * @param copy The instance to be used as a basis for the new instance.
+     *
+     * @param copy
+     *          The instance to be used as a basis for the new instance.
      */
     public Builder(WorkflowInstance copy) {
       this.id = copy.id;
@@ -309,7 +312,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the workflow instance identifier.
-     * @param id The identifier.
+     *
+     * @param id
+     *          The identifier.
      * @return this.
      */
     public Builder setId(long id) {
@@ -319,7 +324,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the executor instance identifier.
-     * @param executorId The identifier.
+     *
+     * @param executorId
+     *          The identifier.
      * @return this.
      */
     public Builder setExecutorId(Integer executorId) {
@@ -329,7 +336,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the parent workflow identifier.
-     * @param parentWorkflowId The identifier.
+     *
+     * @param parentWorkflowId
+     *          The identifier.
      * @return this.
      */
     public Builder setParentWorkflowId(Long parentWorkflowId) {
@@ -339,7 +348,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the parent workflow identifier.
-     * @param parentActionId The identifier.
+     *
+     * @param parentActionId
+     *          The identifier.
      * @return this.
      */
     public Builder setParentActionId(Long parentActionId) {
@@ -349,7 +360,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the status.
-     * @param status The status.
+     *
+     * @param status
+     *          The status.
      * @return this.
      */
     public Builder setStatus(WorkflowInstanceStatus status) {
@@ -359,7 +372,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the type of the workflow definition.
-     * @param type The type.
+     *
+     * @param type
+     *          The type.
      * @return this.
      */
     public Builder setType(String type) {
@@ -368,11 +383,12 @@ public class WorkflowInstance extends ModelObject {
     }
 
     /**
-     * Set the priority of the workflow instance. When an executor chooses from many available
-     * scheduled workflow instances it primarily (unfairly) schedules the workflow instance with
-     * the larger priority value, and for workflows with the same priority, the one scheduled
-     * first. Priority defaults to 0 and can also be negative.
-     * @param priority The priority.
+     * Set the priority of the workflow instance. When an executor chooses from many available scheduled workflow instances it
+     * primarily (unfairly) schedules the workflow instance with the larger priority value, and for workflows with the same
+     * priority, the one scheduled first. Priority defaults to 0 and can also be negative.
+     *
+     * @param priority
+     *          The priority.
      * @return this.
      */
     public Builder setPriority(Short priority) {
@@ -382,7 +398,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the business key.
-     * @param businessKey The business key.
+     *
+     * @param businessKey
+     *          The business key.
      * @return this.
      */
     public Builder setBusinessKey(String businessKey) {
@@ -392,7 +410,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the external identifier.
-     * @param externalId The external identifier.
+     *
+     * @param externalId
+     *          The external identifier.
      * @return this.
      */
     public Builder setExternalId(String externalId) {
@@ -402,7 +422,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the state.
-     * @param state The name of the state.
+     *
+     * @param state
+     *          The name of the state.
      * @return this.
      */
     public Builder setState(String state) {
@@ -432,11 +454,13 @@ public class WorkflowInstance extends ModelObject {
     public Builder setStateText(String stateText) {
       this.stateText = stateText;
       return this;
-   }
+    }
 
     /**
      * Set the next activation time.
-     * @param nextActivation The next activation time.
+     *
+     * @param nextActivation
+     *          The next activation time.
      * @return this.
      */
     public Builder setNextActivation(DateTime nextActivation) {
@@ -446,7 +470,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the original state variables.
-     * @param originalStateVariables The original state variables.
+     *
+     * @param originalStateVariables
+     *          The original state variables.
      * @return this.
      */
     public Builder setOriginalStateVariables(Map<String, String> originalStateVariables) {
@@ -457,7 +483,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the state variables.
-     * @param stateVariables The state variables.
+     *
+     * @param stateVariables
+     *          The state variables.
      * @return this.
      */
     public Builder setStateVariables(Map<String, String> stateVariables) {
@@ -468,8 +496,11 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Put a state variable to the state variables map.
-     * @param key The name of the variable.
-     * @param value The string value of the variable.
+     *
+     * @param key
+     *          The name of the variable.
+     * @param value
+     *          The string value of the variable.
      * @return this.
      */
     public Builder putStateVariable(String key, String value) {
@@ -480,14 +511,18 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Put a state variable to the state variables map.
-     * @param key The name of the variable.
-     * @param value The value of the variable, serialized by object mapper.
+     *
+     * @param key
+     *          The name of the variable.
+     * @param value
+     *          The value of the variable, serialized by object mapper.
      * @return this.
      */
     @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
     public Builder putStateVariable(String key, Object value) {
       if (mapper == null) {
-        throw new IllegalStateException("WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
+        throw new IllegalStateException(
+            "WorkflowInstance.Builder must be created using WorkflowInstanceFactory.newWorkflowInstanceBuilder()");
       }
       assertNotNull(value, "State variable " + key + " value cannot be null");
       this.stateVariables.put(key, mapper.convertFromObject(key, value));
@@ -497,8 +532,11 @@ public class WorkflowInstance extends ModelObject {
     /**
      * Put a state variable to the state variables map if the optional value is present. If the optionalValue is empty, existing
      * state variable value is not changed.
-     * @param key The name of the variable.
-     * @param optionalValue The optional value of the variable, serialized by object mapper.
+     *
+     * @param key
+     *          The name of the variable.
+     * @param optionalValue
+     *          The optional value of the variable, serialized by object mapper.
      * @return this.
      */
     @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
@@ -514,7 +552,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the workflow instance actions.
-     * @param actions List of actions.
+     *
+     * @param actions
+     *          List of actions.
      * @return this.
      */
     public Builder setActions(List<WorkflowInstanceAction> actions) {
@@ -524,7 +564,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the number of retries.
-     * @param retries The number of retries.
+     *
+     * @param retries
+     *          The number of retries.
      * @return this.
      */
     public Builder setRetries(int retries) {
@@ -534,7 +576,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the creation timestamp.
-     * @param created Creation time.
+     *
+     * @param created
+     *          Creation time.
      * @return this.
      */
     public Builder setCreated(DateTime created) {
@@ -544,7 +588,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the modification timestamp.
-     * @param modified Modification time.
+     *
+     * @param modified
+     *          Modification time.
      * @return this.
      */
     public Builder setModified(DateTime modified) {
@@ -554,7 +600,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the started timestamp if it has not already been set.
-     * @param started Start time.
+     *
+     * @param started
+     *          Start time.
      * @return this.
      */
     public Builder setStartedIfNotSet(DateTime started) {
@@ -566,7 +614,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the executor group name.
-     * @param executorGroup The executor group name.
+     *
+     * @param executorGroup
+     *          The executor group name.
      * @return this.
      */
     public Builder setExecutorGroup(String executorGroup) {
@@ -576,7 +626,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set the signal value.
-     * @param signal The signal value.
+     *
+     * @param signal
+     *          The signal value.
      * @return this.
      */
     public Builder setSignal(Optional<Integer> signal) {
@@ -586,7 +638,9 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Set whether the workflow instance is stored in archive or main tables.
-     * @param isArchived True if this workflow is stored in archive tables.
+     *
+     * @param isArchived
+     *          True if this workflow is stored in archive tables.
      * @return this.
      */
     public Builder setArchived(boolean isArchived) {
@@ -596,6 +650,7 @@ public class WorkflowInstance extends ModelObject {
 
     /**
      * Create the workflow instance object.
+     *
      * @return The workflow instance.
      */
     public WorkflowInstance build() {

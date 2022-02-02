@@ -3,6 +3,7 @@ package io.nflow.engine.service;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.joda.time.ReadablePeriod;
@@ -111,7 +112,7 @@ public class MaintenanceConfiguration {
     ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod, @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
       this.olderThanPeriod = olderThanPeriod;
       this.batchSize = batchSize;
-      this.workflowTypes = ofNullable(workflowTypes).orElse(emptySet());
+      this.workflowTypes = ofNullable(workflowTypes).orElseGet(Collections::emptySet);
     }
 
     /**

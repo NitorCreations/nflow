@@ -1,7 +1,6 @@
 package io.nflow.performance.client;
 
 import static java.lang.Integer.getInteger;
-import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.LinkedList;
@@ -26,12 +25,12 @@ import io.nflow.rest.v1.msg.StatisticsResponse;
  */
 @Named
 public class LoadGenerator {
-  static final Logger logger = LoggerFactory.getLogger(LoadGenerator.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(LoadGenerator.class);
+  private static final StopWatch elapsedTime = new StopWatch();
 
   @Inject
   private PerfTestClient client;
-
-  private static final StopWatch elapsedTime = new StopWatch();
 
   private List<Long> generateSomeLoad(int threadCount, int loadCount) throws InterruptedException {
     List<Long> allInstanceIds = new LinkedList<>();
@@ -85,7 +84,7 @@ public class LoadGenerator {
       if (stats.queueStatistics.count == 0) {
         break;
       }
-      sleep(SECONDS.toMillis(1));
+      SECONDS.sleep(1);
     }
   }
 

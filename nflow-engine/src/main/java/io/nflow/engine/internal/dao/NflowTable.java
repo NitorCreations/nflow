@@ -7,8 +7,8 @@ public enum NflowTable {
   STATE("workflow_state"),
   ACTION("workflow_action");
 
-  public String main;
-  public String archive;
+  public final String main;
+  public final String archive;
 
   NflowTable(String table) {
     this.main = TableType.MAIN.prefix + table;

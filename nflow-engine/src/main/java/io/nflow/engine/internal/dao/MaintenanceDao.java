@@ -79,7 +79,7 @@ public class MaintenanceDao {
     List<Object> args = new ArrayList<>();
     args.add(sqlVariants.toTimestampObject(before));
     if (!workflowTypes.isEmpty()) {
-      sql.append(" and type in (").append(generate(() -> "?").limit(workflowTypes.size()).collect(joining(","))).append(")");
+      sql.append(" and type in (").append(generate(() -> "?").limit(workflowTypes.size()).collect(joining(","))).append(')');
       args.addAll(workflowTypes);
     }
     sql.append(" order by id asc");

@@ -35,6 +35,13 @@ import io.nflow.engine.model.ModelObject;
  */
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class WorkflowSettings extends ModelObject {
+
+  private static final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> DEFAULT_EXCEPTION_ANALYZER = (state,
+      thrown) -> new StateProcessExceptionHandling.Builder()
+          .setRetryable(!thrown.getClass().isAnnotationPresent(NonRetryable.class)).build();
+
+  private static final Logger logger = getLogger(WorkflowSettings.class);
+
   /**
    * Minimum delay on execution retry after an error. Unit is milliseconds.
    */
@@ -74,12 +81,6 @@ public class WorkflowSettings extends ModelObject {
   public final short defaultPriority;
 
   private final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> exceptionAnalyzer;
-
-  private static final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> DEFAULT_EXCEPTION_ANALYZER = (state,
-      thrown) -> new StateProcessExceptionHandling.Builder()
-          .setRetryable(!thrown.getClass().isAnnotationPresent(NonRetryable.class)).build();
-
-  private static final Logger logger = getLogger(WorkflowSettings.class);
 
   WorkflowSettings(Builder builder) {
     this.minErrorTransitionDelay = builder.minErrorTransitionDelay.getMillis();
