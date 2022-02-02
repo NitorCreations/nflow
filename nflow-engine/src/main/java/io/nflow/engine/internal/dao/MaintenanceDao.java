@@ -35,6 +35,7 @@ public class MaintenanceDao {
 
   private final SQLVariants sqlVariants;
   private final JdbcTemplate jdbc;
+  private final ExecutorDao executorDao;
   private final NamedParameterJdbcTemplate namedJdbc;
 
   private String workflowColumns;
@@ -42,10 +43,11 @@ public class MaintenanceDao {
   private String stateColumns;
 
   @Inject
-  public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate,
+  public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, ExecutorDao executorDao,
       @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
     this.sqlVariants = sqlVariants;
     this.jdbc = jdbcTemplate;
+    this.executorDao = executorDao;
     this.namedJdbc = nflowNamedParameterJdbcTemplate;
   }
 
@@ -71,8 +73,9 @@ public class MaintenanceDao {
   }
 
   public List<Long> getOldWorkflowIds(TableType type, DateTime before, int maxWorkflows, Set<String> workflowTypes) {
-    StringBuilder sql = new StringBuilder("select id from ").append(WORKFLOW.tableFor(type))
-        .append(" where next_activation is null and ").append(sqlVariants.dateLtEqDiff("modified", "?"));
+    StringBuilder sql = new StringBuilder("select id from ").append(WORKFLOW.tableFor(type)).append(" where ")
+        .append(executorDao.getExecutorGroupCondition()).append(" and next_activation is null and ")
+        .append(sqlVariants.dateLtEqDiff("modified", "?"));
     List<Object> args = new ArrayList<>();
     args.add(sqlVariants.toTimestampObject(before));
     if (!workflowTypes.isEmpty()) {
