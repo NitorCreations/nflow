@@ -10,13 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
 
-import io.nflow.engine.service.WorkflowInstanceInclude;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
