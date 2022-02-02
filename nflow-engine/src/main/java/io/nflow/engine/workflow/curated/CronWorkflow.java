@@ -115,7 +115,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    * @return The next activation time.
    */
   protected DateTime getNextActivationTime(StateExecution execution, String cron) {
-    return new DateTime(CronExpression.parse(cron).next(now()));
+    return new DateTime(CronExpression.parse(cron).next(java.time.ZonedDateTime.now()).toInstant().toEpochMilli());
   }
 
   /**
