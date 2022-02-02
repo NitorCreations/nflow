@@ -94,7 +94,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
   }
 
   /**
-   * Determines the next execution time for the doWork state by calling {@link #getNextActivationTime}}.
+   * Determines the next execution time for the doWork state by calling {@link #getNextActivationTime}.
    *
    * @param execution
    *          The workflow execution context.
