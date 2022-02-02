@@ -60,9 +60,15 @@ Discussion and questions are welcome to our forum [nflow-users](https://groups.g
 
 ## Supported Java versions
 
-* Java 11 (CI tested)
-* Java 17 (CI tested)
-* Other Java versions >= 11 should work too
+* nFlow \>= 8.0.0
+  * Java 17
+  * Java 11
+* nFlow 4.0.0–7.x.x
+  * Java 11
+  * Java 8
+* nFlow < 4.0.0
+  * Java 8
+  * Java 7
 
 ## Supported databases
 
