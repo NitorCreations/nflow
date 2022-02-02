@@ -1,8 +1,9 @@
 package io.nflow.rest.v1.converter;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,11 +31,7 @@ public class ListWorkflowDefinitionConverter {
     resp.name = definition.getName();
     resp.description = definition.getDescription();
     resp.onError = definition.getErrorState().name();
-    Map<String, State> states = new LinkedHashMap<>(definition.getStates().size() * 2);
-    for (WorkflowState state : definition.getStates()) {
-      String name = state.name();
-      states.put(name, new State(name, state.getType().name(), state.getDescription()));
-    }
+    Map<String, State> states = definition.getStates().stream().collect(toMap(WorkflowState::name, this::toState));
     for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
       State state = states.get(entry.getKey());
       state.transitions.addAll(entry.getValue());
@@ -66,6 +63,10 @@ public class ListWorkflowDefinitionConverter {
     }).toArray(size -> new Signal[size]);
 
     return resp;
+  }
+
+  private State toState(WorkflowState state) {
+    return new State(state.name(), state.getType().name(), state.getDescription());
   }
 
   public ListWorkflowDefinitionResponse convert(StoredWorkflowDefinition storedDefinition) {
