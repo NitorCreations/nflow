@@ -1,10 +1,11 @@
 package io.nflow.engine.internal.executor;
 
+import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.AlwaysCleanTestWorkflow.ALWAYS_CLEAN_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.ExecuteTestWorkflow.EXECUTE_TEST_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.FailCleaningTestWorkflow.FAIL_CLEANING_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.FailingTestWorkflow.FAILING_TYPE;
-import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.ForceCleaningTestWorkflow.FORCE_CLEANING_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.LoopingTestWorkflow.LOOPING_TYPE;
+import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.NeverCleanTestWorkflow.NEVER_CLEAN_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.NonRetryableTestWorkflow.NON_RETRYABLE_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.NotifyTestWorkflow.NOTIFY_TYPE;
 import static io.nflow.engine.internal.executor.WorkflowStateProcessorTest.NotifyTestWorkflow.WAKE_PARENT;
@@ -180,7 +181,9 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   ExecuteTestWorkflow executeWf = new ExecuteTestWorkflow();
 
-  ForceCleaningTestWorkflow forceWf = new ForceCleaningTestWorkflow();
+  NeverCleanTestWorkflow neverCleanWf = new NeverCleanTestWorkflow();
+
+  AlwaysCleanTestWorkflow alwaysCleanWf = new AlwaysCleanTestWorkflow();
 
   FailCleaningTestWorkflow failCleaningWf = new FailCleaningTestWorkflow();
 
@@ -225,7 +228,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         stateSaveExceptionAnalyzer, listener1, listener2);
     setCurrentMillisFixed(currentTimeMillis());
     lenient().doReturn(executeWf).when(workflowDefinitions).getWorkflowDefinition(EXECUTE_TEST_TYPE);
-    lenient().doReturn(forceWf).when(workflowDefinitions).getWorkflowDefinition(FORCE_CLEANING_TYPE);
+    lenient().doReturn(neverCleanWf).when(workflowDefinitions).getWorkflowDefinition(NEVER_CLEAN_TYPE);
+    lenient().doReturn(alwaysCleanWf).when(workflowDefinitions).getWorkflowDefinition(ALWAYS_CLEAN_TYPE);
     lenient().doReturn(failCleaningWf).when(workflowDefinitions).getWorkflowDefinition(FAIL_CLEANING_TYPE);
     lenient().doReturn(simpleWf).when(workflowDefinitions).getWorkflowDefinition(SIMPLE_TYPE);
     lenient().doReturn(failingWf).when(workflowDefinitions).getWorkflowDefinition(FAILING_TYPE);
@@ -900,8 +904,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   }
 
   @Test
-  public void deleteWorkflowInstanceHistoryNotExecutedWithDefaultSettings() {
-    WorkflowInstance instance = executingInstanceBuilder().setType(SIMPLE_TYPE).setState(TestState.BEGIN.name()).build();
+  public void deleteWorkflowInstanceHistoryNotExecutedWhenDisabled() {
+    WorkflowInstance instance = executingInstanceBuilder().setType(NEVER_CLEAN_TYPE).setState(TestState.BEGIN.name()).build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     runExecutorWithTimeout();
 
@@ -910,11 +914,12 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void deleteWorkflowInstanceHistoryExecutedWhenForced() {
-    WorkflowInstance instance = executingInstanceBuilder().setType(FORCE_CLEANING_TYPE).setState(TestState.BEGIN.name()).build();
+    WorkflowInstance instance = executingInstanceBuilder().setType(ALWAYS_CLEAN_TYPE).setState(TestState.BEGIN.name()).build();
     when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
     runExecutorWithTimeout();
 
-    verify(maintenanceDao).deleteActionAndStateHistory(instance.id, now().minus(forceWf.getSettings().historyDeletableAfter));
+    verify(maintenanceDao).deleteActionAndStateHistory(instance.id,
+        now().minus(alwaysCleanWf.getSettings().historyDeletableAfter));
   }
 
   @Test
@@ -1087,13 +1092,28 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     }
   }
 
-  public static class ForceCleaningTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
+  public static class NeverCleanTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
 
-    public static final String FORCE_CLEANING_TYPE = "forceCleaningTest";
+    public static final String NEVER_CLEAN_TYPE = "neverCleanTest";
 
-    protected ForceCleaningTestWorkflow() {
-      super(FORCE_CLEANING_TYPE, TestState.BEGIN, TestState.ERROR, new WorkflowSettings.Builder()
-          .setHistoryDeletableAfter(hours(2)).setDeleteHistoryCondition(FALSE::booleanValue).build());
+    protected NeverCleanTestWorkflow() {
+      super(NEVER_CLEAN_TYPE, TestState.BEGIN, TestState.ERROR,
+          new WorkflowSettings.Builder().setDeleteHistoryCondition(FALSE::booleanValue).build());
+      permit(TestState.BEGIN, TestState.DONE, TestState.ERROR);
+    }
+
+    public NextAction begin(@SuppressWarnings("unused") StateExecution execution) {
+      return moveToState(TestState.DONE, "Done.");
+    }
+  }
+
+  public static class AlwaysCleanTestWorkflow extends io.nflow.engine.workflow.definition.WorkflowDefinition {
+
+    public static final String ALWAYS_CLEAN_TYPE = "alwaysCleanTest";
+
+    protected AlwaysCleanTestWorkflow() {
+      super(ALWAYS_CLEAN_TYPE, TestState.BEGIN, TestState.ERROR,
+          new WorkflowSettings.Builder().setDeleteHistoryCondition(FALSE::booleanValue).build());
       permit(TestState.BEGIN, TestState.DONE, TestState.ERROR);
     }
 
