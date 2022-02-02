@@ -2,7 +2,7 @@
 
 VER=11.5.0.0a
 
-docker run --rm --name db2 --entrypoint /bin/sh ibmcom/db2:$VER -c "cat /opt/ibm/db2/V*/java/db2jcc4.jar" > db2jcc4.jar
+docker run --pull=always --rm --name db2 --entrypoint /bin/sh ibmcom/db2:$VER -c "cat /opt/ibm/db2/V*/java/db2jcc4.jar" > db2jcc4.jar
 
 docker run --rm --name db2 --cap-add IPC_LOCK --cap-add IPC_OWNER -e 'instance_name=root' -e 'DB2INST1_PASSWORD=nflow' -e 'LICENSE=accept' -e 'DBNAME=nflow' --publish 50000:50000 --detach ibmcom/db2:$VER db2start
 
