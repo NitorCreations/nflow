@@ -93,7 +93,7 @@ public class WorkflowInstanceService {
     Assert.notNull(workflowInstancePreProcessor, "workflowInstancePreProcessor can not be null");
     WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);
     long id = workflowInstanceDao.insertWorkflowInstance(processedInstance);
-    if (id == -1 && !hasText(instance.externalId)) {
+    if (id == -1 && hasText(instance.externalId)) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(instance.type).setExternalId(instance.externalId).build();
       id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
     }

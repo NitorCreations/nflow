@@ -18,7 +18,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -102,7 +102,7 @@ public abstract class ResourceBase {
     WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
         .setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
-    if (!isEmpty(req.state)) {
+    if (hasText(req.state)) {
       builder.setState(req.state);
       if (isBlank(req.actionDescription)) {
         msg = "API changed state to " + req.state + ". ";
@@ -124,7 +124,7 @@ public abstract class ResourceBase {
         msg += "API updated state variables. ";
       }
     }
-    if (!isEmpty(req.businessKey)) {
+    if (hasText(req.businessKey)) {
       builder.setBusinessKey(req.businessKey);
       if (isBlank(req.actionDescription)) {
         msg = "API changed business key to " + req.businessKey + ". ";

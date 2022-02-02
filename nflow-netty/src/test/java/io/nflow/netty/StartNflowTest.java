@@ -78,6 +78,7 @@ public class StartNflowTest {
     assertFalse(responseBody.isEmpty());
   }
 
+  @SuppressWarnings("deprecation")
   private ClientResponse getFromDefaultServer(String url) {
     WebClient client = WebClient.builder().baseUrl(DEFAULT_LOCALHOST_SERVER_ADDRESS).build();
     return client.get().uri(url).exchange().block();

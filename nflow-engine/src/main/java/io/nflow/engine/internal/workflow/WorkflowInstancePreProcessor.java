@@ -40,7 +40,7 @@ public class WorkflowInstancePreProcessor {
         throw new IllegalArgumentException("Specified state [" + instance.state + "] is not a start state.");
       }
     }
-    if (hasText(instance.externalId)) {
+    if (!hasText(instance.externalId)) {
       builder.setExternalId(randomUUID().toString());
     }
     if (instance.status == null) {

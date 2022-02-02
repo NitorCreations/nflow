@@ -31,8 +31,8 @@ import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
     "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" }, justification = "common jdbctemplate practice, jdbc and executorInfo are injected")
 public class StatisticsDao {
 
-  private JdbcTemplate jdbc;
-  private ExecutorDao executorInfo;
+  private final JdbcTemplate jdbc;
+  private final ExecutorDao executorInfo;
 
   @Inject
   public StatisticsDao(@NFlow JdbcTemplate jdbcTemplate, ExecutorDao executorDao) {
