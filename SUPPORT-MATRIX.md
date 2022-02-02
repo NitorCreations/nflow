@@ -22,7 +22,7 @@
 # Best effort supported database versions
 
 * SQL Server
-  * temporarily disabled in CI tests
+  * Temporarily disabled in CI tests
 
 * Oracle
   * No CI support currently
