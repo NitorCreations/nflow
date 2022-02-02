@@ -1,10 +1,12 @@
-# Supported Java versions
+# Support matrix
+
+## Supported Java versions
 
 * Java 11 (CI tested)
 * Java 17 (CI tested)
 * Other Java versions >= 11 should work too
 
-# Well supported database versions
+## Well supported database versions
 
 * PostgreSQL
   * 14 (CI tested)
@@ -19,17 +21,16 @@
   * 5.7 (CI tested)
   * Other versions >= 5.7 should work too
 
-# Best effort supported database versions
+## Best effort supported database versions
 
 * SQL Server
-  * Temporarily disabled in CI tests
+  * CI tests temporarily disabled
 
 * Oracle
-  * No CI support currently
+  * No CI tests available
 
 * Galera
-  * Known to work, but no CI
+  * Possible to get working via configuration, no CI tests available
 
 * H2
-  * Only for integration testing
-
+  * For integration testing only

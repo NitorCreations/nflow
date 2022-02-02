@@ -52,15 +52,8 @@ Point your browser to [http://localhost:7500/nflow/ui/explorer/](http://localhos
 
 See [Getting started section](https://github.com/NitorCreations/nflow/wiki/Getting-Started) for instruction on creating your own workflow definitions.
 
-## <a name="supported-java-versions"></a>Supported Java versions
-
-* \>= 8.0.0: Java 11 or newer (tested with OpenJDK 11 and 17)
-* 4.0.0–7.x.x: Java 8 or newer (tested with OpenJDK 8 and 11)
-* < 4.0.0: Java 7 or newer
-
 ## <a name="components"></a>Ok, I'm interested!
 
 For a more thorough getting started guide, configurations, license information etc. checkout the [nFlow wiki pages](https://github.com/NitorCreations/nflow/wiki)! You can also look into a short [slide deck](https://github.com/NitorCreations/nflow/raw/master/nflow-documentation/presentations/nflow_presentation.pdf).
 
 Discussion and questions are welcome to our forum [nflow-users](https://groups.google.com/forum/#!forum/nflow-users) in Google Groups.
-
