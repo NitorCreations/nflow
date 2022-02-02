@@ -9,7 +9,7 @@
 * PostgreSQL
   * 14 (CI tested)
   * 10 (CI tested)
-  * other versions >= 10 should work too
+  * Other versions >= 10 should work too
 * MariaDB
   * 10.7 (CI tested)
   * 10.2 (CI tested)
