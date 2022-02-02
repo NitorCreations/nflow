@@ -8,7 +8,7 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [ '11' ]
+        java: [ '11', '17' ]
         db: [ 'h2', 'mariadb', 'postgresql', 'mysql' ]
     runs-on: ubuntu-latest
     env:

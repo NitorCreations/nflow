@@ -5,7 +5,7 @@ if [[ -n "$TRAVIS" ]]; then
 fi
 
 VER=10.7
-if [[ "$1" == 8 ]]; then
+if [[ "$1" == 11 ]]; then
   VER=10.2 # supported until may/2022
 fi
 
