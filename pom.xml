@@ -159,8 +159,7 @@
     <maven-surefire.version>3.0.0-M5</maven-surefire.version>
     <metrics.version>4.2.7</metrics.version>
     <mockito.version>4.3.1</mockito.version>
-    <mssql.version>9.4.1.jre8</mssql.version>
-    <!-- 10.2.0.jre8 is not found from repository -->
+    <mssql.version>10.2.0.jre11</mssql.version>
     <mysql.version>8.0.28</mysql.version>
     <nexus-staging-maven.version>1.6.8</nexus-staging-maven.version>
     <node.version>v16.13.2</node.version>    <!-- https://nodejs.org/en/download/releases/ -->
