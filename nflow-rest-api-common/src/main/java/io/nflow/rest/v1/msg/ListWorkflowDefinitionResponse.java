@@ -1,6 +1,6 @@
 package io.nflow.rest.v1.msg;
 
-import org.joda.time.ReadablePeriod;
+import org.joda.time.Period;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
@@ -42,7 +42,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
     @Schema(
         description = "Delay after which workflow instance history (actions, states) can be deleted from database. Supports ISO-8601 format.",
         type = "string", format = "duration", example = "PT15D")
-    public ReadablePeriod historyDeletableAfter;
+    public Period historyDeletableAfter;
 
     @Schema(description = "Default priority for new workflow instances", required = true)
     public short defaultPriority;

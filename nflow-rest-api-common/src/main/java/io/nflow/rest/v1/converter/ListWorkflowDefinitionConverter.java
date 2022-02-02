@@ -53,7 +53,7 @@ public class ListWorkflowDefinitionConverter {
     Settings settings = new Settings();
     settings.transitionDelaysInMilliseconds = transitionDelays;
     settings.maxRetries = workflowSettings.maxRetries;
-    settings.historyDeletableAfter = workflowSettings.historyDeletableAfter;
+    settings.historyDeletableAfter = workflowSettings.historyDeletableAfter.toPeriod();
     settings.defaultPriority = workflowSettings.defaultPriority;
     resp.settings = settings;
 
