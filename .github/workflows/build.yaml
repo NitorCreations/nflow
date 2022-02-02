@@ -8,8 +8,8 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [ '11', '17' ]
-        db: [ 'h2', 'mariadb', 'postgresql', 'mysql' ]
+        java: [ '11' ]
+        db: [ 'sqlserver' ]
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
@@ -27,4 +27,4 @@ jobs:
       - name: Create frontend package
         run: mvn -X -B -pl nflow-explorer install
       - name: Run the Maven test phase
-        run: mvn -X -B -P ${{ matrix.db }} test
+        run: mvn -X -B -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt test
