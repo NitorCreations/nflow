@@ -15,6 +15,7 @@
   - Add support to query also archived workflow instances.
 
 **Details**
+- Run tests against Java 17. Add test matrix.
 - Remove support for Java 8. Java 11 or newer required.
 - `nflow-engine`
   - All workflow definitions should now extend the new `WorkflowDefinition` class.
