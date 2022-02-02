@@ -265,10 +265,10 @@ class WorkflowStateProcessor implements Runnable {
   private WorkflowInstance saveWorkflowInstanceState(StateExecutionImpl execution, WorkflowInstance instance,
       WorkflowDefinition definition, WorkflowInstanceAction.Builder actionBuilder) {
     if (definition.getMethod(execution.getNextState()) == null && execution.getNextActivation() != null) {
-      logger.debug("No handler method defined for {}, clearing next activation", execution.getNextState());
+      logger.debug("No handler method defined for {}, clearing next activation", execution.getNextState().name());
       execution.setNextActivation(null);
     }
-    WorkflowState nextState = definition.getState(execution.getNextState());
+    WorkflowState nextState = definition.getState(execution.getNextState().name());
     if (instance.parentWorkflowId != null && nextState.getType() == WorkflowStateType.end) {
       try {
         String parentType = workflowInstanceDao.getWorkflowInstanceType(instance.parentWorkflowId);
@@ -359,7 +359,7 @@ class WorkflowStateProcessor implements Runnable {
       return execution.getNextStateReason();
     }
     if (execution.getNextActivation() == null) {
-      return "Stopped in state " + execution.getNextState();
+      return "Stopped in state " + execution.getNextState().name();
     }
     return "Scheduled by previous state " + instance.state;
   }

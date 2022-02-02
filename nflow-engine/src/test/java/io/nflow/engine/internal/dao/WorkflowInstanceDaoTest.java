@@ -373,8 +373,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateNotRunningWorkflowInstanceUpdatesStatusForNotRunningInstance() {
     final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
     long id = dao.insertWorkflowInstance(instance);
-    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState(null).setNextActivation(null)
-        .setStatus(manual).setStateText("modified").build();
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setNextActivation(null).setStatus(manual)
+        .setStateText("modified").build();
     boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
     assertThat(updated, is(true));
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {
@@ -414,8 +414,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     final WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
     long id = dao.insertWorkflowInstance(instance);
     final DateTime tomorrow = now().plusDays(1);
-    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState(null)
-        .setNextActivation(tomorrow).setStatus(null).setStateText("modified").build();
+    WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setNextActivation(tomorrow)
+        .setStatus(null).setStateText("modified").build();
     boolean updated = dao.updateNotRunningWorkflowInstance(modifiedInstance);
     assertThat(updated, is(true));
     jdbc.query("select * from nflow_workflow where id = " + id, new RowCallbackHandler() {

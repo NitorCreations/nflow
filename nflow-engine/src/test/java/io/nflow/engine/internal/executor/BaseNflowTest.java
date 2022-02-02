@@ -25,7 +25,7 @@ public abstract class BaseNflowTest {
     return new WorkflowInstance.Builder()
         .setStatus(WorkflowInstanceStatus.inProgress)
         .setType(DummyTestWorkflow.DUMMY_TYPE)
-        .setState(TestState.BEGIN.name())
+        .setState(TestState.BEGIN)
         .setStateText(null)
         .setExternalId(randomUUID().toString())
         .setBusinessKey(randomUUID().toString())

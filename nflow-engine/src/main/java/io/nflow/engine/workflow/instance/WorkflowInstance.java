@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.model.ModelObject;
+import io.nflow.engine.workflow.definition.WorkflowState;
 
 /**
  * An instance of a workflow.
@@ -410,8 +411,22 @@ public class WorkflowInstance extends ModelObject {
     }
 
     /**
+     * Set the state.
+     *
+     * @param state
+     *          The state.
+     * @return this.
+     */
+    public Builder setState(WorkflowState state) {
+      this.state = state.name();
+      return this;
+    }
+
+    /**
      * Set the state text.
-     * @param stateText The state text.
+     *
+     * @param stateText
+     *          The state text.
      * @return this.
      */
     public Builder setStateText(String stateText) {
