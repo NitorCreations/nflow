@@ -13,7 +13,7 @@
 * MariaDB
   * 10.7 (CI tested)
   * 10.2 (CI tested)
-  * other versions >= 10.2 should work too
+  * Other versions >= 10.2 should work too
 * MySQL
   * 8.0 (CI tested)
   * 5.7 (CI tested)
