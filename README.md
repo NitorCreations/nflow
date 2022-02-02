@@ -20,7 +20,7 @@ nFlow has been under development since 2014-01-14 and version 1.0.0 was released
 * Multiple databases supported &mdash; PostgreSQL, MySQL, MariaDB, Oracle, Microsoft SQL Server, DB2, H2
 * Open Source under EUPL
 
-## <a name="one-minute-guide"></a>1 Minute Guide for Getting Started
+## <a name="getting-started"><a name="one-minute-guide"></a></a>1 Minute Guide for Getting Started
 
 Create a Maven project. Add the following to your `pom.xml`. nFlow is available in the [Maven Central Repository](https://search.maven.org/search?q=g:io.nflow).
 
@@ -52,7 +52,7 @@ Point your browser to [http://localhost:7500/nflow/ui/explorer/](http://localhos
 
 See [Getting started section](https://github.com/NitorCreations/nflow/wiki/Getting-Started) for instruction on creating your own workflow definitions.
 
-## <a name="components"></a>Ok, I'm interested!
+## <a name="components"></a>Ok, I'm interested
 
 For a more thorough getting started guide, configurations, license information etc. checkout the [nFlow wiki pages](https://github.com/NitorCreations/nflow/wiki)! You can also look into a short [slide deck](https://github.com/NitorCreations/nflow/raw/master/nflow-documentation/presentations/nflow_presentation.pdf).
 
