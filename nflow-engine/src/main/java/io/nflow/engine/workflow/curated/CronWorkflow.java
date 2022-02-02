@@ -6,9 +6,10 @@ import static io.nflow.engine.workflow.definition.NextAction.retryAfter;
 import static io.nflow.engine.workflow.definition.WorkflowSettings.Builder.oncePerDay;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static java.time.Instant.now;
 import static org.joda.time.Days.days;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.time.ZonedDateTime;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -115,7 +116,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    * @return The next activation time.
    */
   protected DateTime getNextActivationTime(StateExecution execution, String cron) {
-    return new DateTime(CronExpression.parse(cron).next(java.time.ZonedDateTime.now()).toInstant().toEpochMilli());
+    return new DateTime(CronExpression.parse(cron).next(ZonedDateTime.now()).toInstant().toEpochMilli());
   }
 
   /**
