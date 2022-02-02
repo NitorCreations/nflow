@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Setup DB
-        run: ./travis/setup-db-${{ matrix.db }}.sh ${{ matrix.java }}
+        run: ./scripts/setup-db-${{ matrix.db }}.sh ${{ matrix.java }}
       - name: Create frontend package
         run: mvn -X -B -pl nflow-explorer install
       - name: Run the Maven test phase
