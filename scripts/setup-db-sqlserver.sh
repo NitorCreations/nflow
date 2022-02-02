@@ -1,11 +1,16 @@
 #!/bin/bash -ev
 
-VER=2019-latest
-if [[ "$1" == 11 ]]; then
-  VER=2017-latest # supported until 2027
-fi
+DB_VERSION=${DB_VERSION:-latest}
+case $DB_VERSION in
+  old)
+    DB_VERSION=2017-latest # supported until 2027
+    ;;
+  latest)
+    DB_VERSION=2019-latest
+    ;;
+esac
 
-docker run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$VER
+docker run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
 fgrep -m1 'Recovery is complete' <(docker logs -f mssql 2>&1)
 
