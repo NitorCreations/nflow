@@ -28,9 +28,13 @@ jobs:
       - name: Create frontend package
         run: mvn -pl nflow-explorer install
       - name: Run the Maven test phase
-        run: mvn -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt test
+        run: mvn -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt test spotbugs:spotbugs
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v2
         if: always()
         with:
           report_paths: '**/target/surefire-reports/TEST-*.xml'
+      - name: Spotbugs
+        uses: jwgmeligmeyling/spotbugs-github-action@master
+        with:
+          path: '**/spotbugsXml.xml'
