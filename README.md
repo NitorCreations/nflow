@@ -9,7 +9,7 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 
 nFlow has been under development since 2014-01-14 and version 1.0.0 was released on 2014-09-13.
 
-**Key features**
+## Key Features
 
 * Non-declarative &mdash; workflows are defined as code
 * Visualization &mdash; workflows can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer)
@@ -20,11 +20,9 @@ nFlow has been under development since 2014-01-14 and version 1.0.0 was released
 * Multiple databases supported &mdash; PostgreSQL, MySQL, MariaDB, Oracle, Microsoft SQL Server, DB2, H2
 * Open Source under EUPL
 
-# <a name="getting-started"></a>Getting Started
+## <a name="one-minute-guide"></a>1 Minute Guide for Getting Started
 
-## <a name="one-minute-guide"></a>1 Minute Guide
-
-Create a Maven project. Add the following to your  `pom.xml`. nFlow is available in the [Maven Central Repository](https://search.maven.org/search?q=g:io.nflow). 
+Create a Maven project. Add the following to your `pom.xml`. nFlow is available in the [Maven Central Repository](https://search.maven.org/search?q=g:io.nflow).
 
 ```xml
 <dependency>
@@ -33,6 +31,7 @@ Create a Maven project. Add the following to your  `pom.xml`. nFlow is available
   <version>7.4.0</version>
 </dependency>
 ```
+
 Create a class for starting nFlow in embedded Jetty using H2 memory database.
 
 ```java
@@ -44,7 +43,8 @@ public class App {
   }
 }
 ```
-That's it! Running `App` in your favourite IDE will start nFlow server though without any workflow definitions. 
+
+That's it! Running `App` in your favourite IDE will start nFlow server though without any workflow definitions.
 
 Point your browser to [http://localhost:7500/nflow/ui/doc/](http://localhost:7500/nflow/ui/doc/) and you can use interactive online documentation for the nFlow REST API.
 
@@ -57,3 +57,37 @@ See [Getting started section](https://github.com/NitorCreations/nflow/wiki/Getti
 For a more thorough getting started guide, configurations, license information etc. checkout the [nFlow wiki pages](https://github.com/NitorCreations/nflow/wiki)! You can also look into a short [slide deck](https://github.com/NitorCreations/nflow/raw/master/nflow-documentation/presentations/nflow_presentation.pdf).
 
 Discussion and questions are welcome to our forum [nflow-users](https://groups.google.com/forum/#!forum/nflow-users) in Google Groups.
+
+## Supported Java versions
+
+* Java 11 (CI tested)
+* Java 17 (CI tested)
+* Other Java versions >= 11 should work too
+
+## Supported databases
+
+### Covered by CI
+
+* PostgreSQL
+  * 14 (CI tested)
+  * 10 (CI tested)
+  * Other versions >= 10 should work too
+* MariaDB
+  * 10.7 (CI tested)
+  * 10.2 (CI tested)
+  * Other versions >= 10.2 should work too
+* MySQL
+  * 8.0 (CI tested)
+  * 5.7 (CI tested)
+  * Other versions >= 5.7 should work too
+* H2
+  * For integration testing only
+
+### Not covered by CI (best effort support)
+
+* SQL Server
+  * CI tests temporarily disabled
+* Oracle
+  * No CI tests available
+* Galera
+  * Possible to get working via configuration, no CI tests available
