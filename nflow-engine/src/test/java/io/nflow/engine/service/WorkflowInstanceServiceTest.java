@@ -90,7 +90,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void insertWorkflowInstanceWorks() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(created).setExternalId("123").setState(null).build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setStatus(created).setExternalId("123").build();
     when(workflowInstancePreProcessor.process(i)).thenReturn(i);
     when(workflowInstanceDao.insertWorkflowInstance(stored.capture())).thenReturn(42L);
     assertThat(service.insertWorkflowInstance(i), is(42L));
@@ -130,7 +130,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
 
   @Test
   public void updateWorkflowInstanceWorksWhenStateIsNull() {
-    WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).setState(null).build();
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setState((String) null).setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
     when(workflowInstanceDao.getWorkflowInstanceState(i.id)).thenReturn("currentState");
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class))).thenReturn(true);

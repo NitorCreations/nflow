@@ -33,7 +33,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
   private final WorkflowInstanceService workflowInstanceService;
   private DateTime nextActivation;
-  private String nextState;
+  private WorkflowState nextState;
   private String nextStateReason;
   private boolean isRetry;
   private Throwable thrown;
@@ -60,7 +60,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return this.nextActivation;
   }
 
-  public String getNextState() {
+  public WorkflowState getNextState() {
     return this.nextState;
   }
 
@@ -143,7 +143,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   public void setNextState(WorkflowState state) {
     notNull(state, "Next state can not be null");
-    this.nextState = state.name();
+    this.nextState = state;
   }
 
   public void setNextStateReason(String reason) {

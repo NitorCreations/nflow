@@ -307,6 +307,17 @@ public abstract class WorkflowDefinition extends ModelObject {
   }
 
   /**
+   * Returns the workflow state method for the given state.
+   *
+   * @param state
+   *          The workflow state.
+   * @return The workflow state method, or null if not found.
+   */
+  public WorkflowStateMethod getMethod(WorkflowState state) {
+    return stateMethods.get(state.name());
+  }
+
+  /**
    * Returns the workflow state for the given state name.
    *
    * @param state
