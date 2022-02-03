@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -111,9 +112,9 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActionsDefault;
   private final int workflowInstanceTypeCacheSize;
   private final AtomicBoolean disableBatchUpdates = new AtomicBoolean();
-  int instanceStateTextLength;
-  int actionStateTextLength;
-  int stateVariableValueMaxLength;
+  AtomicInteger instanceStateTextLength = new AtomicInteger();
+  AtomicInteger actionStateTextLength = new AtomicInteger();
+  AtomicInteger stateVariableValueMaxLength = new AtomicInteger();
   final WorkflowInstanceRowMapper workflowInstanceRowMapper;
   final WorkflowInstanceActionRowMapper workflowInstanceActionRowMapper;
 
@@ -144,32 +145,31 @@ public class WorkflowInstanceDao {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
     workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
-    // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
-    instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
-    actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
-    stateVariableValueMaxLength = env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1);
+    instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
+    actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
+    stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
   }
 
   private int getInstanceStateTextLength() {
-    if (instanceStateTextLength == -1) {
-      instanceStateTextLength = jdbc.query("select state_text from nflow_workflow where 1 = 0", firstColumnLengthExtractor);
-    }
-    return instanceStateTextLength;
+    return getFieldLength(instanceStateTextLength, "state_text", WORKFLOW, "nflow.workflow.instance.state.text.length");
   }
 
-  int getActionStateTextLength() {
-    if (actionStateTextLength == -1) {
-      actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
-    }
-    return actionStateTextLength;
+  private int getActionStateTextLength() {
+    return getFieldLength(actionStateTextLength, "state_text", ACTION, "nflow.workflow.action.state.text.length");
   }
 
-  int getStateVariableValueMaxLength() {
-    if (stateVariableValueMaxLength == -1) {
-      stateVariableValueMaxLength = jdbc.query("select state_value from nflow_workflow_state where 1 = 0",
-          firstColumnLengthExtractor);
+  private int getStateVariableValueMaxLength() {
+    return getFieldLength(stateVariableValueMaxLength, "state_value", STATE, "nflow.workflow.state.variable.value.length");
+  }
+
+  private int getFieldLength(AtomicInteger length, String field, NflowTable table, String property) {
+    int value = length.get();
+    if (value == -1) {
+      String sql = new StringBuilder("select ").append(field).append(" from ").append(table.main).append(" where 1=0").toString();
+      length.set(ofNullable(jdbc.query(sql, firstColumnLengthExtractor)).orElseThrow(() -> new IllegalStateException(
+          "Failed to read " + table.main + "." + field + " length from database, please set " + property)));
     }
-    return stateVariableValueMaxLength;
+    return value;
   }
 
   public long insertWorkflowInstance(WorkflowInstance instance) {
