@@ -151,7 +151,7 @@ public class AbstractWorkflowDefinitionTest {
     Set<String> registeredStateNames = new StaticStateFieldsWorkflow().getStates().stream().map(WorkflowState::name)
         .collect(toSet());
     assertThat(registeredStateNames, containsInAnyOrder(TestState.BEGIN.name(), TestState.ERROR.name(), "origin", "target",
-        "failure", "register", "staticPublic"));
+        "failure", "register", "staticPublic1", "staticPublic2"));
   }
 
   @Test
