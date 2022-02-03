@@ -52,9 +52,5 @@ jobs:
           cache: 'maven'
       - name: Setup DB
         run: ./scripts/setup-db-${{ matrix.db }}.sh
-      - name: Create frontend package
-        run: mvn --no-transfer-progress --color=always -pl nflow-explorer install
-      - name: Compile code
-        run: mvn --no-transfer-progress --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -am -pl nflow-tests test-compile
       - name: Run the integration tests
-        run: mvn --no-transfer-progress --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -pl nflow-tests test
+        run: mvn --offline --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -pl nflow-tests test
