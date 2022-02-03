@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,7 +52,7 @@ public class ExecutorDao {
   private final JdbcTemplate jdbc;
   final SQLVariants sqlVariants;
   private final int keepaliveIntervalSeconds;
-  private DateTime nextUpdate = now();
+  private final AtomicReference<DateTime> nextUpdate = new AtomicReference<>(now());
   final String executorGroup;
   private final String executorGroupCondition;
   final int timeoutSeconds;
@@ -74,10 +75,10 @@ public class ExecutorDao {
   }
 
   public boolean tick() {
-    if (nextUpdate.isAfterNow()) {
+    if (nextUpdate.get().isAfterNow()) {
       return false;
     }
-    nextUpdate = now().plusSeconds(keepaliveIntervalSeconds);
+    nextUpdate.set(now().plusSeconds(keepaliveIntervalSeconds));
     updateActiveTimestamp();
     return true;
   }
@@ -106,7 +107,7 @@ public class ExecutorDao {
   }
 
   public DateTime getMaxWaitUntil() {
-    return nextUpdate;
+    return nextUpdate.get();
   }
 
   @Transactional
