@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -109,7 +110,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
   private final int workflowInstanceTypeCacheSize;
-  private boolean disableBatchUpdates;
+  private final AtomicBoolean disableBatchUpdates = new AtomicBoolean();
   int instanceStateTextLength;
   int actionStateTextLength;
   int stateVariableValueMaxLength;
@@ -138,8 +139,8 @@ public class WorkflowInstanceDao {
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
         Long.class);
-    disableBatchUpdates = env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class);
-    if (disableBatchUpdates) {
+    disableBatchUpdates.set(env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class));
+    if (disableBatchUpdates.get()) {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
     workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
@@ -209,7 +210,7 @@ public class WorkflowInstanceDao {
   }
 
   boolean useBatchUpdate() {
-    return !disableBatchUpdates && sqlVariants.useBatchUpdate();
+    return sqlVariants.useBatchUpdate() && !disableBatchUpdates.get();
   }
 
   String insertWorkflowInstanceSql() {
@@ -626,7 +627,7 @@ public class WorkflowInstanceDao {
       if (status == 1) {
         ids.add(instances.get(i).id);
       } else if (status != 0) {
-        disableBatchUpdates = true;
+        disableBatchUpdates.set(true);
         throw new PollingBatchException(
             "Database was unable to provide information about affected rows in a batch update. Disabling batch updates.");
       }
