@@ -28,7 +28,9 @@ jobs:
       - name: Create frontend package
         run: mvn -pl nflow-explorer install
       - name: Run the Maven test phase
-        run: mvn -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt test spotbugs:spotbugs
+        run: mvn -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt test
+      - name: Run Spotbugs
+        run: mvn -DskipTests=true -T1 -Dskip.npm -Dskip.bower -Dskip.grunt spotbugs:spotbugs
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v2
         if: always()
