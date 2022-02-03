@@ -5,6 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -29,9 +30,9 @@ public class WorkflowDispatcher implements Runnable {
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
-  private volatile boolean shutdownRequested;
-  private volatile boolean running;
-  private volatile boolean paused;
+  private volatile AtomicBoolean shutdownRequested = new AtomicBoolean();
+  private volatile AtomicBoolean running = new AtomicBoolean();
+  private volatile AtomicBoolean paused = new AtomicBoolean();
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;
@@ -73,14 +74,14 @@ public class WorkflowDispatcher implements Runnable {
     logger.info("Dispacther started.");
     try {
       workflowDefinitions.postProcessWorkflowDefinitions();
-      running = true;
-      while (!shutdownRequested) {
-        if (paused) {
+      running.set(true);
+      while (!shutdownRequested.get()) {
+        if (paused.get()) {
           sleep(false);
         } else {
           try {
             executor.waitUntilQueueSizeLowerThanThreshold(executorDao.getMaxWaitUntil());
-            if (!shutdownRequested) {
+            if (!shutdownRequested.get()) {
               if (executorDao.tick()) {
                 workflowInstances.recoverWorkflowInstancesFromDeadNodes();
               }
@@ -113,17 +114,16 @@ public class WorkflowDispatcher implements Runnable {
     } finally {
       shutdownPool();
       executorDao.markShutdown();
-      running = false;
+      running.set(false);
       logger.info("Shutdown completed.");
       shutdownDone.countDown();
     }
   }
 
   public void shutdown() {
-    if (running) {
-      if (!shutdownRequested) {
+    if (running.get()) {
+      if (shutdownRequested.compareAndSet(false, true)) {
         logger.info("Initiating shutdown.");
-        shutdownRequested = true;
       }
       try {
         shutdownDone.await();
@@ -136,21 +136,21 @@ public class WorkflowDispatcher implements Runnable {
   }
 
   public void pause() {
-    paused = true;
+    paused.set(true);
     logger.info("Dispatcher paused.");
   }
 
   public void resume() {
-    paused = false;
+    paused.set(false);
     logger.info("Dispatcher resumed.");
   }
 
   public boolean isPaused() {
-    return paused;
+    return paused.get();
   }
 
   public boolean isRunning() {
-    return running;
+    return running.get();
   }
 
   private void shutdownPool() {
@@ -169,7 +169,7 @@ public class WorkflowDispatcher implements Runnable {
     }
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Long instanceId : nextInstanceIds) {
-      executor.execute(stateProcessorFactory.createProcessor(instanceId, () -> shutdownRequested));
+      executor.execute(stateProcessorFactory.createProcessor(instanceId, () -> shutdownRequested.get()));
     }
   }
 
