@@ -33,7 +33,7 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
    * Creates a server for connecting to the in-memory database.
    * @param env The Spring environemnt for getting the configuration properties.
    * @return A TCP server.
-   * @throws SQLException
+   * @throws SQLException If H2 server could not start
    */
   @Bean(initMethod="start", destroyMethod="stop")
   public Server h2TcpServer(Environment env) throws SQLException {
@@ -48,7 +48,7 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
    * Creates a console server for connecting to the in-memory database.
    * @param env The Spring environemnt for getting the configuration properties.
    * @return A TCP server.
-   * @throws SQLException
+   * @throws SQLException If H2 server could not start
    */
   @Bean(initMethod="start", destroyMethod="stop")
   public Server h2ConsoleServer(Environment env) throws SQLException {
