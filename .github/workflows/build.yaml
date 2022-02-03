@@ -16,12 +16,12 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-      - name: Run the maven build, tests, javadocs and spotbugs
+      - name: Run the Maven build, tests, JavaDocs and SpotBugs
         run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true clean install spotbugs:spotbugs
       - name: Publish JUnit Test Report
         uses: scacap/action-surefire-report@v1
         if: always()
-      - name: Publish Spotbugs Report
+      - name: Publish SpotBugs Report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
           path: '**/spotbugsXml.xml'
