@@ -45,9 +45,10 @@ public enum ApiWorkflowInstanceInclude {
   /**
    * Resolve enum value from string.
    *
+   * @param value The possible enum value to resolve.
    * @return Matching enum value, or null if no match found.
    */
-  public static ApiWorkflowInstanceInclude fromValue(String value) {
+  static ApiWorkflowInstanceInclude fromValue(String value) {
     try {
       return valueOf(value);
     } catch (@SuppressWarnings("unused") IllegalArgumentException e) {
