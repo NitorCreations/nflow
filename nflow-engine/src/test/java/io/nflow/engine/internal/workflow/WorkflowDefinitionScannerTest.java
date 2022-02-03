@@ -202,7 +202,7 @@ public class WorkflowDefinitionScannerTest {
 
   @Test
   public void getStaticWorkflowStatesReturnsCorrectStates() {
-    Set<String> stateNames = scanner.getStaticWorkflowStates(StaticStateFieldsWorkflow.class).stream().map(WorkflowState::name)
+    Set<String> stateNames = scanner.getPublicStaticWorkflowStates(StaticStateFieldsWorkflow.class).stream().map(WorkflowState::name)
         .collect(toSet());
     assertThat(stateNames, containsInAnyOrder("staticPrivate", "staticPackageProtected", "staticProtected", "staticPublic"));
   }
