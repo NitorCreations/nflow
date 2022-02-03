@@ -16,8 +16,8 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-      - name: Run the Maven test phase
-        run: mvn --no-transfer-progress --color=always clean install spotbugs:spotbugs
+      - name: Run the maven build, tests, javadocs and spotbugs
+        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true clean install spotbugs:spotbugs
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v2
         if: always()
@@ -27,7 +27,7 @@ jobs:
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
           path: '**/spotbugsXml.xml'
-  matrix:
+  integration-tests:
     needs: build
     strategy:
       matrix:
