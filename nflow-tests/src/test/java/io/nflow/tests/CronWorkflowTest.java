@@ -70,7 +70,6 @@ public class CronWorkflowTest extends AbstractNflowTest {
     assertThat(doWorkActions, is(greaterThanOrEqualTo(1L)));
   }
 
-  @SuppressWarnings("null")
   @BeforeServerStop
   public void stopMaintenanceWorkflow() throws InterruptedException {
     stopCronWorkflow(resp.id);
