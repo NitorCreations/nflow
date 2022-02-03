@@ -1,10 +1,12 @@
 package io.nflow.rest.v1;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 
 /**
  * The properties that can be loaded if needed when fetching worklfow instances from the nFlow REST API.
  */
+@SuppressFBWarnings(value = "OPM_OVERLY_PERMISSIVE_METHOD", justification = "valueOf is provided by enum")
 public enum ApiWorkflowInstanceInclude {
 
   /**
