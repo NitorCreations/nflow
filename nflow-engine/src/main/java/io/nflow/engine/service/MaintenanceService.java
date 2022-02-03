@@ -99,6 +99,7 @@ public class MaintenanceService {
     log.info("{} older than {}, in batches of {}.", type, olderThan, configuration.batchSize);
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
+    @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "Scope is correct")
     PeriodicLogger periodicLogger = new PeriodicLogger(log, 60);
     int totalWorkflows = 0;
     do {

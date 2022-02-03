@@ -2,6 +2,7 @@ package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static java.net.InetAddress.getLocalHost;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.left;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.joda.time.DateTime.now;
@@ -65,7 +66,6 @@ public class ExecutorDao {
     this.executorGroupCondition = createWhereCondition(executorGroup);
     this.timeoutSeconds = env.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
     this.keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
-    // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
     this.hostMaxLength = env.getProperty("nflow.executor.host.length", Integer.class, -1);
   }
 
@@ -92,9 +92,14 @@ public class ExecutorDao {
 
   public synchronized int getExecutorId() {
     if (executorId == -1) {
-      int hostNameMaxLength = hostMaxLength == -1
-          ? jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor)
-          : hostMaxLength;
+      int hostNameMaxLength;
+      if (hostMaxLength == -1) {
+        hostNameMaxLength = ofNullable(jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor))
+            .orElseThrow(() -> new IllegalStateException(
+                "Failed to resolve host name max length from database, please set correct value to nflow.executor.host.length"));
+      } else {
+        hostNameMaxLength = hostMaxLength;
+      }
       executorId = allocateExecutorId(hostNameMaxLength);
     }
     return executorId;

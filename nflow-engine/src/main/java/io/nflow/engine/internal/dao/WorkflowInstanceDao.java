@@ -222,14 +222,15 @@ public class WorkflowInstanceDao {
     return "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value)";
   }
 
-  @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-      "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
   private long insertWorkflowInstanceWithTransaction(final WorkflowInstance instance) {
     return transaction.execute(status -> {
       KeyHolder keyHolder = new GeneratedKeyHolder();
       try {
         jdbc.update((PreparedStatementCreator) connection -> {
           int p = 1;
+          @SuppressFBWarnings(
+              value = { "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE" },
+              justification = "SQL is practically constant, JdbcTemplate handles the exceptions")
           PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
           ps.setString(p++, instance.type);
           ps.setShort(p++, instance.priority);
