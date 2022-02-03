@@ -74,7 +74,7 @@
             <!-- disable tests -->
             <phase>disabled-test</phase>
             <configuration>
-              <arguments>test --color</arguments>
+              <arguments>test --color --quiet</arguments>
             </configuration>
           </execution>
           <execution>
