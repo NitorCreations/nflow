@@ -38,6 +38,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -158,7 +159,7 @@ public class WorkflowInstanceDao {
     return getFieldLength(actionStateTextLength, "state_text", ACTION, "nflow.workflow.action.state.text.length");
   }
 
-  private int getStateVariableValueMaxLength() {
+  int getStateVariableValueMaxLength() {
     return getFieldLength(stateVariableValueMaxLength, "state_value", STATE, "nflow.workflow.state.variable.value.length");
   }
 
@@ -223,15 +224,15 @@ public class WorkflowInstanceDao {
     return "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value)";
   }
 
+  @SuppressFBWarnings(
+      value = { "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE" },
+      justification = "SQL is practically constant, JdbcTemplate handles the exceptions")
   private long insertWorkflowInstanceWithTransaction(final WorkflowInstance instance) {
     return transaction.execute(status -> {
       KeyHolder keyHolder = new GeneratedKeyHolder();
       try {
         jdbc.update((PreparedStatementCreator) connection -> {
           int p = 1;
-          @SuppressFBWarnings(
-              value = { "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE" },
-              justification = "SQL is practically constant, JdbcTemplate handles the exceptions")
           PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
           ps.setString(p++, instance.type);
           ps.setShort(p++, instance.priority);
@@ -607,7 +608,7 @@ public class WorkflowInstanceDao {
     return ids;
   }
 
-  private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances) {
+  private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(Collection<OptimisticLockKey> instances) {
     String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
     return instances.stream()
         .flatMap(instance -> jdbc.update(sql, instance.id, sqlVariants.tuneTimestampForDb(instance.modified)) == 1

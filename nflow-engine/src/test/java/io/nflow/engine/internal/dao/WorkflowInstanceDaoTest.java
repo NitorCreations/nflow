@@ -701,9 +701,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstanceDao d = new WorkflowInstanceDao(new PostgreSQLVariants(), jdbcTemplate, transactionTemplate, namedJdbc, eDao,
         workflowInstanceExecutor, workflowInstanceFactory, env);
 
-    d.instanceStateTextLength = 128;
-    d.actionStateTextLength = 128;
-    d.stateVariableValueMaxLength = 128;
+    d.instanceStateTextLength.set(128);
+    d.actionStateTextLength.set(128);
+    d.stateVariableValueMaxLength.set(128);
     return d;
   }
 
