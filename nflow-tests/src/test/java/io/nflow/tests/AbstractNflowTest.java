@@ -1,12 +1,14 @@
 package io.nflow.tests;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.childWorkflows;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -197,6 +199,23 @@ public abstract class AbstractNflowTest {
     req.deleteWorkflows.olderThanPeriod = seconds(0);
     req.deleteArchivedWorkflows = req.deleteWorkflows;
     return doMaintenance(req);
+  }
+
+  public void stopCronWorkflow(long workflowId) throws InterruptedException {
+    UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
+    request.nextActivationTime = null;
+    request.state = FAILED.name();
+    RuntimeException ex = null;
+    for (int i = 0; i < 3; ++i) {
+      try {
+        updateWorkflowInstance(workflowId, request, String.class);
+        return;
+      } catch (RuntimeException e) {
+        ex = e;
+        SECONDS.sleep(1);
+      }
+    }
+    throw ex;
   }
 
   protected MaintenanceResponse doMaintenance(MaintenanceRequest req) {

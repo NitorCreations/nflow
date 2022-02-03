@@ -1,7 +1,6 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.curated.CronWorkflow.DO_WORK;
-import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
 import static io.nflow.engine.workflow.curated.CronWorkflow.SCHEDULE;
 import static io.nflow.engine.workflow.curated.CronWorkflow.WAIT_FOR_WORK_TO_FINISH;
 import static io.nflow.tests.demo.workflow.TestCronWorkflow.TYPE;
@@ -23,7 +22,6 @@ import org.springframework.context.annotation.ComponentScan;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.TestCronWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
@@ -75,19 +73,6 @@ public class CronWorkflowTest extends AbstractNflowTest {
   @SuppressWarnings("null")
   @BeforeServerStop
   public void stopMaintenanceWorkflow() throws InterruptedException {
-    UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
-    request.nextActivationTime = null;
-    request.state = FAILED.name();
-    RuntimeException ex = null;
-    for (int i = 0; i < 3; ++i) {
-      try {
-        updateWorkflowInstance(resp.id, request, String.class);
-        return;
-      } catch (RuntimeException e) {
-        ex = e;
-        SECONDS.sleep(1);
-      }
-    }
-    throw ex;
+    stopCronWorkflow(resp.id);
   }
 }

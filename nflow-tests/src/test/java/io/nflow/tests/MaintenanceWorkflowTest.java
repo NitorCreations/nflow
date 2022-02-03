@@ -1,7 +1,6 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter.MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID;
-import static io.nflow.engine.workflow.curated.CronWorkflow.FAILED;
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_WORKFLOW_TYPE;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
@@ -34,7 +33,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
-import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
@@ -104,11 +102,8 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
   }
 
   @BeforeServerStop
-  public void stopMaintenanceWorkflow() {
-    UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
-    request.nextActivationTime = null;
-    request.state = FAILED.name();
-    updateWorkflowInstance(maintenanceWorkflowId, request, String.class);
+  public void stopMaintenanceWorkflow() throws InterruptedException {
+    stopCronWorkflow(maintenanceWorkflowId);
   }
 
   private List<Long> createWorkflows(int count) {
