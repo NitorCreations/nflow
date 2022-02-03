@@ -201,6 +201,7 @@ public abstract class AbstractNflowTest {
     return doMaintenance(req);
   }
 
+  @SuppressWarnings("null")
   public void stopCronWorkflow(long workflowId) throws InterruptedException {
     UpdateWorkflowInstanceRequest request = new UpdateWorkflowInstanceRequest();
     request.nextActivationTime = null;

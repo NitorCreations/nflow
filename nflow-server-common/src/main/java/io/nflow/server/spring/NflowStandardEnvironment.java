@@ -13,10 +13,14 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.support.ResourcePropertySource;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class NflowStandardEnvironment extends StandardEnvironment {
   @SuppressWarnings("hiding")
   private static final Logger logger = getLogger(NflowStandardEnvironment.class);
 
+  @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
+      justification = "addExternalPropertyResource and setupDbProfile are private")
   public NflowStandardEnvironment(Map<String, Object> overrideProperties) {
     getPropertySources().addFirst(new MapPropertySource("override", overrideProperties));
     addExternalPropertyResource();

@@ -165,6 +165,7 @@ public class StartNflow
   }
 
   @SuppressWarnings("resource")
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Message is ok")
   private ServletContextHandler setupServletContextHandler(String... extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
 

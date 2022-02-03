@@ -21,6 +21,7 @@ import static org.joda.time.DateTime.now;
 import static org.springframework.util.StringUtils.hasText;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -29,8 +30,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -70,9 +69,9 @@ public abstract class ResourceBase {
   protected static final String QUERY_ARCHIVED_DEFAULT_STR = "false";
   protected static final boolean QUERY_ARCHIVED_DEFAULT = parseBoolean(QUERY_ARCHIVED_DEFAULT_STR);
 
-  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(final List<String> types,
-      final WorkflowDefinitionService workflowDefinitions, final ListWorkflowDefinitionConverter converter,
-      final WorkflowDefinitionDao workflowDefinitionDao) {
+  public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(Collection<String> types,
+      WorkflowDefinitionService workflowDefinitions, ListWorkflowDefinitionConverter converter,
+      WorkflowDefinitionDao workflowDefinitionDao) {
     List<WorkflowDefinition> definitions = workflowDefinitions.getWorkflowDefinitions();
     Set<String> reqTypes = new HashSet<>(types);
     Set<String> foundTypes = new HashSet<>();
@@ -187,7 +186,7 @@ public abstract class ResourceBase {
 
   public ListWorkflowInstanceResponse fetchWorkflowInstance(long id, Set<ApiWorkflowInstanceInclude> apiIncludes, String include,
       Long maxActions, boolean queryArchive, WorkflowInstanceService workflowInstances,
-      ListWorkflowInstanceConverter listWorkflowConverter) throws EmptyResultDataAccessException {
+      ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<ApiWorkflowInstanceInclude> propertyIncludes = resolveIncludes(apiIncludes, include);
     Set<WorkflowInstanceInclude> includes = propertyIncludes.stream()
         .map(ApiWorkflowInstanceInclude::getInclude)

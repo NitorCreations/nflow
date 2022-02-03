@@ -2,7 +2,7 @@ package io.nflow.tests.demo.workflow;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 import static io.nflow.engine.workflow.definition.NextAction.stopInState;
-import static org.joda.time.Duration.millis;
+import static org.joda.time.Duration.ZERO;
 
 import org.springframework.stereotype.Component;
 
@@ -26,8 +26,8 @@ public class ActionStateVariableWorkflow extends WorkflowDefinition {
   private static final WorkflowState SET_VARIABLE = new State("setVariable", WorkflowStateType.start);
 
   public ActionStateVariableWorkflow() {
-    super(WORKFLOW_TYPE, SET_VARIABLE, TestState.ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(0))
-        .setMaxErrorTransitionDelay(millis(0)).setShortTransitionDelay(millis(0)).setMaxRetries(3).build());
+    super(WORKFLOW_TYPE, SET_VARIABLE, TestState.ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(ZERO)
+        .setMaxErrorTransitionDelay(ZERO).setShortTransitionDelay(ZERO).setMaxRetries(3).build());
     setDescription("Workflow for testing action state variables");
     permit(SET_VARIABLE, SET_VARIABLE);
     permit(SET_VARIABLE, TestState.DONE);

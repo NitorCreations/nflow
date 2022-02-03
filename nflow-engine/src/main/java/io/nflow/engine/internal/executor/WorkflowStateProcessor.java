@@ -66,7 +66,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionTy
 class WorkflowStateProcessor implements Runnable {
 
   @SuppressFBWarnings(value = "LO_NON_PRIVATE_STATIC_LOGGER", justification = "Used by inner class")
-  static final Logger logger = getLogger(WorkflowStateProcessor.class);
+  private static final Logger logger = getLogger(WorkflowStateProcessor.class);
   private static final PeriodicLogger laggingLogger = new PeriodicLogger(logger, 30);
   private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);
   private static final String MDC_KEY = "workflowInstanceId";

@@ -29,7 +29,7 @@ public class SchedulerService {
 
   @Inject
   public SchedulerService(WorkflowInstanceExecutor workflowInstanceExecutor, Environment env) {
-    int dbPoolSize = env.getProperty("nflow.db.max_pool_size", Integer.class);
+    int dbPoolSize = env.getRequiredProperty("nflow.db.max_pool_size", Integer.class);
     int dispatcherCount = workflowInstanceExecutor.getThreadCount();
     int threadPoolSize = max(dbPoolSize - dispatcherCount, 2);
     logger.info("Initializing REST API thread pool size to {}", threadPoolSize);

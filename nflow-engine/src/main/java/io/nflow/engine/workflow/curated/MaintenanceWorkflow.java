@@ -73,7 +73,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
       if (sb.length() > 0) {
         sb.append(' ');
       }
-      sb.append(type).append(":").append(count);
+      sb.append(type).append(':').append(count);
     }
   }
 }

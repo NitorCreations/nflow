@@ -60,9 +60,6 @@ public class BulkWorkflow extends WorkflowDefinition {
   private static final EnumSet<WorkflowInstanceStatus> RUNNING_STATES = complementOf(EnumSet.of(finished, created));
   private static final Logger logger = getLogger(BulkWorkflow.class);
 
-  @Inject
-  private WorkflowInstanceService instanceService;
-
   /**
    * Bulk workflow states.
    */
@@ -71,6 +68,9 @@ public class BulkWorkflow extends WorkflowDefinition {
       "Wait for all child workflows to finish, start new child workflows if possible");
   public static final WorkflowState DONE = new State("done", end, "All child workflows have been processed");
   public static final WorkflowState ERROR = new State("error", manual, "Processing failed, waiting for manual actions");
+
+  @Inject
+  private WorkflowInstanceService instanceService;
 
   /**
    * Extend bulk workflow definition.

@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.executor.WorkflowLogContextListener;
@@ -49,6 +50,8 @@ public class DemoServer {
     }
   }
 
+  @SuppressFBWarnings(value = "OI_OPTIONAL_ISSUES_PRIMITIVE_VARIANT_PREFERRED",
+      justification = "Fix would break backwards compatibility")
   private static void insertDemoWorkflows() {
     WorkflowInstanceService workflowInstanceService = applicationContext.getBean(WorkflowInstanceService.class);
     WorkflowInstanceFactory workflowInstanceFactory = applicationContext.getBean(WorkflowInstanceFactory.class);

@@ -6,6 +6,7 @@ import static io.nflow.engine.workflow.definition.NextAction.stopInState;
 import static io.nflow.performance.workflow.TestState.BEGIN;
 import static io.nflow.performance.workflow.TestState.DONE;
 import static io.nflow.performance.workflow.TestState.ERROR;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardSeconds;
 
@@ -50,7 +51,7 @@ public class ConstantWorkflow extends WorkflowDefinition {
 
   public NextAction quickState(@SuppressWarnings("unused") StateExecution execution) {
     try {
-      Thread.sleep(10);
+      MILLISECONDS.sleep(10);
     } catch (@SuppressWarnings("unused") InterruptedException e) {
       // ignore
     }
@@ -76,7 +77,7 @@ public class ConstantWorkflow extends WorkflowDefinition {
 
   public NextAction slowState(@SuppressWarnings("unused") StateExecution execution) {
     try {
-      Thread.sleep(500);
+      MILLISECONDS.sleep(500);
     } catch (@SuppressWarnings("unused") InterruptedException e) {
       // ignore
     }

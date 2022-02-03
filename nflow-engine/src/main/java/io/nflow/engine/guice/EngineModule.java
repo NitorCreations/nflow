@@ -175,11 +175,11 @@ public class EngineModule extends AbstractModule {
     case "sqlserver":
       return new SqlServerDatabaseConfiguration();
     default:
-      throw new RuntimeException("Unknown database type");
+      throw new RuntimeException("Unknown database type " + dbtype);
     }
   }
 
-  class EngineInitModule extends AbstractModule {
+  static class EngineInitModule extends AbstractModule {
     @Override
     protected void configure() {
       requestInjection(this);

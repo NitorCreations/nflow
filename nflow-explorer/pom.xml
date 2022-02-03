@@ -65,6 +65,9 @@
               <goal>bower</goal>
             </goals>
             <phase>compile</phase>
+            <configuration>
+              <arguments>--quiet install</arguments>
+            </configuration>
           </execution>
           <execution>
             <id>grunt test</id>

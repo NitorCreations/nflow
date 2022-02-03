@@ -1,8 +1,8 @@
 package io.nflow.rest.v1.converter;
 
-import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class MaintenanceConverter {
     ofNullable(requestItem).ifPresent(item -> builderSupplier.get()
         .setOlderThanPeriod(item.olderThanPeriod)
         .setBatchSize(item.batchSize)
-        .setWorkflowTypes(ofNullable(item.workflowTypes).orElse(emptySet()))
+        .setWorkflowTypes(ofNullable(item.workflowTypes).orElseGet(Collections::emptySet))
         .done());
   }
 

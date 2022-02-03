@@ -23,7 +23,7 @@ public class TestDataBatchInserter {
   }
 
   public void batchInsert(final List<WorkflowInstance> instances) {
-    List<Object[]> instancesBatch = new ArrayList<>();
+    List<Object[]> instancesBatch = new ArrayList<>(instances.size());
     List<Object[]> actionsBatch = new ArrayList<>();
     List<Object[]> statesBatch = new ArrayList<>();
     for (WorkflowInstance instance : instances) {
