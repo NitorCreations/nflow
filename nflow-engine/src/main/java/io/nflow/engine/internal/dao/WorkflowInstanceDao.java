@@ -167,8 +167,9 @@ public class WorkflowInstanceDao {
     int value = length.get();
     if (value == -1) {
       String sql = new StringBuilder("select ").append(field).append(" from ").append(table.main).append(" where 1=0").toString();
-      length.set(ofNullable(jdbc.query(sql, firstColumnLengthExtractor)).orElseThrow(() -> new IllegalStateException(
-          "Failed to read " + table.main + "." + field + " length from database, please set " + property)));
+      value = ofNullable(jdbc.query(sql, firstColumnLengthExtractor)).orElseThrow(() -> new IllegalStateException(
+          "Failed to read " + table.main + "." + field + " length from database, please set " + property));
+      length.set(value);
     }
     return value;
   }
@@ -518,12 +519,13 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql.toString(), args) == 1;
   }
 
-  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
+  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions,
+      boolean queryArchive) {
     String sql = "select *, 0 as archived from " + WORKFLOW.main + " where id = ?";
-    Object[] args = new Object[]{ id };
+    Object[] args = new Object[] { id };
     if (queryArchive) {
       sql += " union all select *, 1 as archived from " + WORKFLOW.archive + " where id = ?";
-      args = new Object[]{ id, id };
+      args = new Object[] { id, id };
     }
     WorkflowInstance instance = jdbc.queryForObject(sql, workflowInstanceRowMapper, args).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
@@ -581,8 +583,8 @@ public class WorkflowInstanceDao {
       logger.warn("Got too many workflow instances {} > {}", ids.size(), batchSize);
       List<Long> extras = ids.subList(batchSize, ids.size());
       jdbc.update("update nflow_workflow set executor_id=null, status = "
-              + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
-              " and id in (" + extras.stream().map(String::valueOf).collect(joining(",")) + ")");
+          + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
+          " and id in (" + extras.stream().map(String::valueOf).collect(joining(",")) + ")");
       ids = ids.subList(0, batchSize);
     }
     return ids;
@@ -649,7 +651,8 @@ public class WorkflowInstanceDao {
     }
 
     @Override
-    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
+    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS",
+        justification = "This class has a natural ordering that is inconsistent with equals")
     public int compareTo(OptimisticLockKey other) {
       return Long.compare(this.id, other.id);
     }
@@ -760,7 +763,7 @@ public class WorkflowInstanceDao {
     Stream<String> tables = queryArchive ? Stream.of(WORKFLOW.main, WORKFLOW.archive) : Stream.of(WORKFLOW.main);
     String sql = tables.map(table -> "select parent_action_id, id from " + table + " where parent_workflow_id = ?")
         .collect(joining(" union all "));
-    Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
+    Object[] args = queryArchive ? new Object[] { instance.id, instance.id } : new Object[] { instance.id };
     jdbc.query(sql, rs -> {
       long parentActionId = rs.getLong(1);
       long childWorkflowInstanceId = rs.getLong(2);
@@ -830,7 +833,8 @@ public class WorkflowInstanceDao {
     jdbc.update(new PreparedStatementCreator() {
       @Override
       @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+          justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
         PreparedStatement p = con.prepareStatement(
             insertWorkflowActionSql() + " values (?, ?, " + sqlVariants.actionType() + ", ?, ?, ?, ?, ?)", new String[] { "id" });
