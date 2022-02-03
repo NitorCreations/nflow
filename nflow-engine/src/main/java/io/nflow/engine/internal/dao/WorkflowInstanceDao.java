@@ -440,9 +440,10 @@ public class WorkflowInstanceDao {
   }
 
   public void checkStateVariableValueLength(String name, String value) {
-    if (length(value) > getStateVariableValueMaxLength()) {
+    int maxLength = getStateVariableValueMaxLength();
+    if (length(value) > maxLength) {
       throw new StateVariableValueTooLongException("Too long value (length = " + length(value) + ") for state variable " + name
-          + ": maximum allowed length is " + getStateVariableValueMaxLength());
+          + ": maximum allowed length is " + maxLength);
     }
   }
 
