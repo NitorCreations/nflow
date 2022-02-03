@@ -587,6 +587,7 @@ public class WorkflowInstanceDao {
     return ids;
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "PollingRaceConditionException message is ok")
   private List<Long> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
     List<OptimisticLockKey> instances = transaction.execute(
@@ -617,6 +618,7 @@ public class WorkflowInstanceDao {
         .collect(toList());
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "PollingBatchException message is ok")
   private List<Long> updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances) {
     String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
     List<Object[]> batchArgs = instances.stream()
@@ -693,6 +695,7 @@ public class WorkflowInstanceDao {
     return ret;
   }
 
+  @SuppressFBWarnings(value = "STT_STRING_PARSING_A_FIELD", justification = "businessKey and externalId are strings")
   private void queryOptionsToSqlAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
     if (!isEmpty(query.ids)) {
       if (query.ids.size() == 1) {

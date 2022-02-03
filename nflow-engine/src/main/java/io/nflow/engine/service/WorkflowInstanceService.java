@@ -73,6 +73,7 @@ public class WorkflowInstanceService {
    * @return The workflow instance
    * @throws EmptyResultDataAccessException if not found
    */
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "NflowNotFoundException message is ok")
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
     try {
       return workflowInstanceDao.getWorkflowInstance(id, includes, maxActions, queryArchive);
@@ -109,6 +110,7 @@ public class WorkflowInstanceService {
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "NflowNotFoundException message is ok")
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     Assert.notNull(instance, "Workflow instance can not be null");
     Assert.notNull(action, "Workflow instance action can not be null");
