@@ -1,4 +1,4 @@
-name: PR Build
+name: Build and test
 on:
   push
 concurrency:
@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v2
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -18,10 +18,10 @@ jobs:
           cache: 'maven'
       - name: Run the maven build, tests, javadocs and spotbugs
         run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true clean install spotbugs:spotbugs
-      - name: Publish Test Report
+      - name: Publish JUnit Test Report
         uses: scacap/action-surefire-report@v1
         if: always()
-      - name: Spotbugs
+      - name: Publish Spotbugs Report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
           path: '**/spotbugsXml.xml'
@@ -40,7 +40,7 @@ jobs:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
       DB_VERSION: ${{ matrix.java == 11 && 'old' || 'latest' }}
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v2
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -48,7 +48,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'maven'
-      - name: Setup DB
+      - name: Set up database
         run: ./scripts/setup-db-${{ matrix.db }}.sh
       - name: Run the integration tests
         run: mvn --offline --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -pl nflow-tests test
