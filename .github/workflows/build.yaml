@@ -19,10 +19,8 @@ jobs:
       - name: Run the maven build, tests, javadocs and spotbugs
         run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true clean install spotbugs:spotbugs
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v2
+        uses: scacap/action-surefire-report@v1
         if: always()
-        with:
-          report_paths: '**/target/surefire-reports/TEST-*.xml'
       - name: Spotbugs
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
