@@ -14,5 +14,11 @@
   <Match>
     <Bug pattern="AI_ANNOTATION_ISSUES_NEEDS_NULLABLE"/>
   </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
 </FindBugsFilter>
 
