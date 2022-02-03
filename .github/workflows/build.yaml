@@ -55,6 +55,6 @@ jobs:
       - name: Create frontend package
         run: mvn --no-transfer-progress --color=always -pl nflow-explorer install
       - name: Compile code
-        run: mvn --no-transfer-progress --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -am -pl nflow-test test-compile
+        run: mvn --no-transfer-progress --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -am -pl nflow-tests test-compile
       - name: Run the integration tests
-        run: mvn --no-transfer-progress --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -pl nflow-test test
+        run: mvn --no-transfer-progress --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -pl nflow-tests test
