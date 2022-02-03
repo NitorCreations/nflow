@@ -179,7 +179,7 @@ public class EngineModule extends AbstractModule {
     }
   }
 
-  class EngineInitModule extends AbstractModule {
+  static class EngineInitModule extends AbstractModule {
     @Override
     protected void configure() {
       requestInjection(this);
