@@ -85,7 +85,7 @@
             <goals>
               <goal>grunt</goal>
             </goals>
-            <phase>package</phase>
+            <phase>compile</phase>
             <configuration>
               <arguments>${grunt.target} --color</arguments>
             </configuration>

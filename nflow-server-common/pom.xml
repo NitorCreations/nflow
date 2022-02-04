@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>nflow-server-common</artifactId>
   <packaging>jar</packaging>
@@ -22,39 +23,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>io.nflow</groupId>
-                  <artifactId>nflow-explorer</artifactId>
-                  <version>${project.version}</version>
-                  <type>tar.gz</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/explorer</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>io.nflow</groupId>
-            <artifactId>nflow-explorer</artifactId>
-            <version>${project.version}</version>
-            <type>tar.gz</type>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
         <groupId>com.googlecode.maven-download-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
         <executions>
@@ -75,6 +43,23 @@
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
+          <execution>
+            <id>copy-explorer</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/explorer</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/../nflow-explorer/dist</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
           <execution>
             <id>copy-swagger-resources</id>
             <phase>process-resources</phase>
