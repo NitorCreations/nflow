@@ -51,7 +51,7 @@ public class MaintenanceWorkflowStarter {
     ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan"))
         .map(StringUtils::trimToNull)
         .map(Period::parse)
-        .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period).done());
+        .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period));
   }
 
   @EventListener(ContextRefreshedEvent.class)
