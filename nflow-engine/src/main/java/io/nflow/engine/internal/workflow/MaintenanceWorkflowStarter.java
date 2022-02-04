@@ -29,7 +29,7 @@ public class MaintenanceWorkflowStarter {
 
   protected final WorkflowInstanceFactory workflowInstanceFactory;
   protected final WorkflowInstanceService instanceService;
-  protected AtomicBoolean insertOnStartup = new AtomicBoolean();
+  protected final AtomicBoolean insertOnStartup = new AtomicBoolean();
   protected String initialCronSchedule;
   protected MaintenanceConfiguration initialConfiguration;
 

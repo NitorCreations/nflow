@@ -166,9 +166,9 @@ public class WorkflowInstanceDao {
   private int getFieldLength(AtomicInteger length, String field, NflowTable table, String property) {
     int value = length.get();
     if (value == -1) {
-      String sql = new StringBuilder("select ").append(field).append(" from ").append(table.main).append(" where 1=0").toString();
-      value = ofNullable(jdbc.query(sql, firstColumnLengthExtractor)).orElseThrow(() -> new IllegalStateException(
-          "Failed to read " + table.main + "." + field + " length from database, please set " + property));
+      value = ofNullable(jdbc.query("select " + field + " from " + table.main + " where 1=0", firstColumnLengthExtractor))
+          .orElseThrow(() -> new IllegalStateException("Failed to read " + table.main + "." + field
+              + " column length from database, please set correct value to " + property));
       length.set(value);
     }
     return value;

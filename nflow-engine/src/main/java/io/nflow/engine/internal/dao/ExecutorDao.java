@@ -93,13 +93,11 @@ public class ExecutorDao {
 
   public synchronized int getExecutorId() {
     if (executorId == -1) {
-      int hostNameMaxLength;
-      if (hostMaxLength == -1) {
+      int hostNameMaxLength = hostMaxLength;
+      if (hostNameMaxLength == -1) {
         hostNameMaxLength = ofNullable(jdbc.query("select host from nflow_executor where 1 = 0", firstColumnLengthExtractor))
             .orElseThrow(() -> new IllegalStateException(
-                "Failed to resolve host name max length from database, please set correct value to nflow.executor.host.length"));
-      } else {
-        hostNameMaxLength = hostMaxLength;
+                "Failed to read nflow_executor.host column length from database, please set correct value to nflow.executor.host.length"));
       }
       executorId = allocateExecutorId(hostNameMaxLength);
     }
