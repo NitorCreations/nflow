@@ -22,7 +22,7 @@ jobs:
         uses: scacap/action-surefire-report@v1
         if: always()
   javadoc-and-spotbugs:
-    needs: build
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -41,7 +41,7 @@ jobs:
           name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
   integration-tests:
-    needs: build
+    needs: build-and-test
     strategy:
       matrix:
         java: [ '11', '17' ]
