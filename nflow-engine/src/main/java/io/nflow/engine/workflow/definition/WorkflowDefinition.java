@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +25,9 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
  * <ul>
  * <li>Using them as initialState or errorState parameter when calling the super constructor</li>
  * <li>Using them as one of the parameters when registering allowed state transfers using <code>permit()</code> method</li>
- * <li>Defining them as static fields in the workflow definition class</li>
+ * <li>Defining them as public static fields in the workflow definition class</li>
  * <li>Registering them using <code>registerState()</code> method</li>
+ * <li>Passing them to super constructor in <code>states</code> parameter</li>
  * </ul>
  */
 public abstract class WorkflowDefinition extends ModelObject {
@@ -89,10 +91,33 @@ public abstract class WorkflowDefinition extends ModelObject {
    * @param settings
    *          The configuration for the workflow instances of this workflow type.
    * @param stateMethods
-   *          The state methods to be used for the states of this workflow type.
+   *          The state methods to be used for the states of this workflow type. If null, the methods will be scanned.
    */
   protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
       Map<String, WorkflowStateMethod> stateMethods) {
+    this(type, initialState, errorState, settings, stateMethods, null);
+  }
+
+  /**
+   * Create a workflow definition with given settings, state methods and states.
+   *
+   * @param type
+   *          The unique identifier of this workflow definition.
+   * @param initialState
+   *          The default start state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param errorState
+   *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param settings
+   *          The configuration for the workflow instances of this workflow type.
+   * @param stateMethods
+   *          The state methods to be used for the states of this workflow type. If null, the methods will be scanned.
+   * @param states
+   *          The states to be registered for the workflow. If null, the states will be scanned.
+   */
+  protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
+      Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -101,14 +126,18 @@ public abstract class WorkflowDefinition extends ModelObject {
     this.errorState = errorState;
     this.settings = settings;
     WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
-    if (stateMethods != null) {
-      this.stateMethods = stateMethods;
-    } else {
+    if (stateMethods == null) {
       this.stateMethods = scanner.getStateMethods(getClass());
+    } else {
+      this.stateMethods = stateMethods;
     }
     registerState(initialState);
     registerState(errorState);
-    scanner.getStaticWorkflowStates(getClass()).forEach(this::registerState);
+    if (states == null) {
+      scanner.getPublicStaticWorkflowStates(getClass()).forEach(this::registerState);
+    } else {
+      states.forEach(this::registerState);
+    }
   }
 
   /**

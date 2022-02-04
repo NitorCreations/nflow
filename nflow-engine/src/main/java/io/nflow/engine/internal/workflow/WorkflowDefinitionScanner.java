@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
+import org.springframework.util.ReflectionUtils.FieldFilter;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -38,6 +39,7 @@ import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
 public class WorkflowDefinitionScanner {
@@ -94,17 +96,17 @@ public class WorkflowDefinitionScanner {
     return methods;
   }
 
-  public Set<WorkflowState> getStaticWorkflowStates(Class<?> definition) {
-    final Set<WorkflowState> states = new HashSet<>();
-    doWithFields(definition, field -> {
-      try {
-        field.setAccessible(true);
-        states.add((WorkflowState) field.get(null));
-      } catch (Exception e) {
-        logger.warn("Failed to access state field {}", field, e);
-      }
-    }, field -> isStatic(field.getModifiers()) && WorkflowState.class.isAssignableFrom(field.getType()));
+  public Set<WorkflowState> getPublicStaticWorkflowStates(Class<? extends WorkflowDefinition> definition) {
+    Set<WorkflowState> states = new HashSet<>();
+    doWithFields(definition, field -> states.add((WorkflowState) field.get(null)), isPublicStaticWorkflowState());
     return states;
+  }
+
+  private FieldFilter isPublicStaticWorkflowState() {
+    return field -> {
+      var modifiers = field.getModifiers();
+      return isPublic(modifiers) && isStatic(modifiers) && WorkflowState.class.isAssignableFrom(field.getType());
+    };
   }
 
   boolean isReadOnly(Type type) {

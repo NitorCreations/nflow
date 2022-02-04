@@ -16,7 +16,8 @@ public class StaticStateFieldsWorkflow extends WorkflowDefinition {
   private static WorkflowState staticPrivateState = new State("staticPrivate", WorkflowStateType.manual);
   static WorkflowState staticPackageProtectedState = new State("staticPackageProtected", WorkflowStateType.manual);
   protected static WorkflowState staticProtectedState = new State("staticProtected", WorkflowStateType.manual);
-  public static WorkflowState staticPublicState = new State("staticPublic", WorkflowStateType.manual);
+  public static WorkflowState staticPublicState1 = new State("staticPublic1", WorkflowStateType.manual);
+  public static WorkflowState staticPublicState2 = new State("staticPublic2", WorkflowStateType.manual);
   private final WorkflowState privateState = new State("private", WorkflowStateType.manual);
   WorkflowState packageProtectedState = new State("packageProtected", WorkflowStateType.manual);
   protected WorkflowState protectedState = new State("protected", WorkflowStateType.manual);
