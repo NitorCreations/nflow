@@ -2,17 +2,19 @@ package io.nflow.engine.internal.workflow;
 
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.ClassUtils.primitiveToWrapper;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.util.ReflectionUtils.doWithFields;
 import static org.springframework.util.ReflectionUtils.doWithMethods;
 import static org.springframework.util.ReflectionUtils.findMethod;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -21,7 +23,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
-import org.springframework.util.ReflectionUtils.FieldFilter;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -97,16 +97,24 @@ public class WorkflowDefinitionScanner {
   }
 
   public Set<WorkflowState> getPublicStaticWorkflowStates(Class<? extends WorkflowDefinition> definition) {
-    Set<WorkflowState> states = new HashSet<>();
-    doWithFields(definition, field -> states.add((WorkflowState) field.get(null)), isPublicStaticWorkflowState());
-    return states;
+    return stream(definition.getClass().getFields())
+        .filter(this::isPublicStaticWorkflowStateField)
+        .map(this::getWorkflowStateFieldValue)
+        .collect(toSet());
   }
 
-  private FieldFilter isPublicStaticWorkflowState() {
-    return field -> {
+  private WorkflowState getWorkflowStateFieldValue(Field field) {
+    try {
+      return (WorkflowState) field.get(null);
+    } catch (IllegalArgumentException | IllegalAccessException e) {
+      throw new IllegalStateException("Failed to get workflow state field value for " + field.getName(), e);
+    }
+  }
+
+
+  private boolean isPublicStaticWorkflowStateField(Field field) {
       var modifiers = field.getModifiers();
       return isPublic(modifiers) && isStatic(modifiers) && WorkflowState.class.isAssignableFrom(field.getType());
-    };
   }
 
   boolean isReadOnly(Type type) {
