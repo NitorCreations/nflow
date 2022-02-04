@@ -126,17 +126,17 @@ public abstract class WorkflowDefinition extends ModelObject {
     this.errorState = errorState;
     this.settings = settings;
     WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
-    if (stateMethods != null) {
-      this.stateMethods = stateMethods;
-    } else {
+    if (stateMethods == null) {
       this.stateMethods = scanner.getStateMethods(getClass());
+    } else {
+      this.stateMethods = stateMethods;
     }
     registerState(initialState);
     registerState(errorState);
-    if (states != null) {
-      states.forEach(this::registerState);
-    } else {
+    if (states == null) {
       scanner.getPublicStaticWorkflowStates(getClass()).forEach(this::registerState);
+    } else {
+      states.forEach(this::registerState);
     }
   }
 
