@@ -5,6 +5,7 @@ import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.MAINTENANCE_W
 import static io.nflow.engine.workflow.curated.MaintenanceWorkflow.VAR_MAINTENANCE_CONFIGURATION;
 import static java.util.Optional.ofNullable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -28,7 +29,7 @@ public class MaintenanceWorkflowStarter {
 
   protected final WorkflowInstanceFactory workflowInstanceFactory;
   protected final WorkflowInstanceService instanceService;
-  protected boolean insertOnStartup;
+  protected final AtomicBoolean insertOnStartup = new AtomicBoolean();
   protected String initialCronSchedule;
   protected MaintenanceConfiguration initialConfiguration;
 
@@ -37,7 +38,7 @@ public class MaintenanceWorkflowStarter {
       WorkflowInstanceFactory workflowInstanceFactory) {
     this.workflowInstanceFactory = workflowInstanceFactory;
     this.instanceService = instanceService;
-    this.insertOnStartup = env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class);
+    this.insertOnStartup.set(env.getRequiredProperty("nflow.maintenance.insertWorkflowIfMissing", Boolean.class));
     this.initialCronSchedule = env.getRequiredProperty("nflow.maintenance.initial.cron");
     MaintenanceConfiguration.Builder builder = new MaintenanceConfiguration.Builder();
     apply(env, "archive", builder::withArchiveWorkflows);
@@ -50,13 +51,12 @@ public class MaintenanceWorkflowStarter {
     ofNullable(env.getProperty("nflow.maintenance.initial." + property + ".olderThan"))
         .map(StringUtils::trimToNull)
         .map(Period::parse)
-        .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period).done());
+        .ifPresent(period -> builderSupplier.get().setOlderThanPeriod(period));
   }
 
   @EventListener(ContextRefreshedEvent.class)
   public void start() {
-    if (insertOnStartup) {
-      insertOnStartup = false;
+    if (insertOnStartup.compareAndSet(true, false)) {
       QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().addTypes(MAINTENANCE_WORKFLOW_TYPE)
           .setExternalId(MAINTENANCE_WORKFLOW_DEFAULT_EXTERNAL_ID).build();
       if (instanceService.listWorkflowInstances(query).isEmpty()) {

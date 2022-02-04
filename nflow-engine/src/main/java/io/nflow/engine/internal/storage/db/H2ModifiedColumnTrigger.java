@@ -12,6 +12,8 @@ import java.time.ZoneId;
 
 import org.h2.tools.TriggerAdapter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class H2ModifiedColumnTrigger extends TriggerAdapter {
   @Override
   public void fire(Connection conn, ResultSet oldRow, ResultSet newRow) throws SQLException {
@@ -22,6 +24,7 @@ public class H2ModifiedColumnTrigger extends TriggerAdapter {
     }
   }
 
+  @SuppressFBWarnings(value = "ITC_INHERITANCE_TYPE_CHECKING", justification = "Not avoidable here")
   private long getMillis(Object h2Time) {
     if (h2Time instanceof Timestamp) {
       return ((Timestamp) h2Time).getTime();

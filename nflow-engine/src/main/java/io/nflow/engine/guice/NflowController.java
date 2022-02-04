@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter;
 import io.nflow.engine.service.WorkflowDefinitionService;
@@ -26,6 +27,7 @@ public class NflowController {
     this.workflows = workflowDefinitions;
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "RuntimeException message is ok")
   public void start() {
     try {
       workflows.forEach(workflowDefinitionService::addWorkflowDefinition);

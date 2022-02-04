@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.exception.DispatcherExceptionHandling.Builder;
 import io.nflow.engine.internal.dao.PollingBatchException;
 import io.nflow.engine.internal.dao.PollingRaceConditionException;
@@ -46,6 +47,7 @@ public class DispatcherExceptionAnalyzer {
     return getDefaultHandling(e);
   }
 
+  @SuppressFBWarnings(value = "ITC_INHERITANCE_TYPE_CHECKING", justification = "Not avoidable here")
   private DispatcherExceptionHandling getDefaultHandling(Exception e) {
     Builder builder = new DispatcherExceptionHandling.Builder();
     if (e instanceof PollingRaceConditionException) {

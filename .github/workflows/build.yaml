@@ -5,7 +5,7 @@ concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -16,25 +16,36 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-      - name: Run the Maven build, tests, JavaDocs and SpotBugs
-        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true clean install spotbugs:spotbugs
-      - name: Publish JUnit Test Report
+      - name: Run build and unit tests
+        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
+      - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
-      - name: Publish SpotBugs Report
+  javadoc-and-spotbugs:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Generate JavaDocs and run SpotBugs
+        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:spotbugs
+      - name: Publish SpotBugs report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
+          name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
   integration-tests:
-    needs: build
+    needs: build-and-test
     strategy:
       matrix:
         java: [ '11', '17' ]
         db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver' ]
-        exclude:
-          # java 11 + h2 was already tested in basic build
-          - java: 11
-            db: h2
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
@@ -50,5 +61,7 @@ jobs:
           cache: 'maven'
       - name: Set up database
         run: ./scripts/setup-db-${{ matrix.db }}.sh
+      - name: Build
+        run: mvn --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-explorer,nflow-tests install
       - name: Run the integration tests
-        run: mvn --offline --color=always -P ${{ matrix.db }} -Dskip.npm -Dskip.bower -Dskip.grunt -pl nflow-tests test
+        run: mvn --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test

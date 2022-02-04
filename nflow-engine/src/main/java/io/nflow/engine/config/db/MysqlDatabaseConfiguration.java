@@ -45,8 +45,9 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
    */
   @Bean
   @Override
-  @SuppressFBWarnings(value = { "CLI_CONSTANT_LIST_INDEX", "WEM_WEAK_EXCEPTION_MESSAGING" },
-      justification = "extracting major and minor version from splitted string, exception message is ok")
+  @SuppressFBWarnings(
+      value = { "WEM_WEAK_EXCEPTION_MESSAGING", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" },
+      justification = "exception message is ok, null-check in try-catch")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
     String scriptPrefix = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {

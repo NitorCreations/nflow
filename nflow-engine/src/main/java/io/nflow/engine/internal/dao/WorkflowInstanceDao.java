@@ -38,6 +38,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +48,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -109,10 +112,10 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
   private final int workflowInstanceTypeCacheSize;
-  private boolean disableBatchUpdates;
-  int instanceStateTextLength;
-  int actionStateTextLength;
-  int stateVariableValueMaxLength;
+  private final AtomicBoolean disableBatchUpdates = new AtomicBoolean();
+  AtomicInteger instanceStateTextLength = new AtomicInteger();
+  AtomicInteger actionStateTextLength = new AtomicInteger();
+  AtomicInteger stateVariableValueMaxLength = new AtomicInteger();
   final WorkflowInstanceRowMapper workflowInstanceRowMapper;
   final WorkflowInstanceActionRowMapper workflowInstanceActionRowMapper;
 
@@ -138,37 +141,37 @@ public class WorkflowInstanceDao {
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
         Long.class);
-    disableBatchUpdates = env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class);
-    if (disableBatchUpdates) {
+    disableBatchUpdates.set(env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class));
+    if (disableBatchUpdates.get()) {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
     workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
-    // In one deployment, FirstColumnLengthExtractor returned 0 column length (H2), so allow explicit length setting.
-    instanceStateTextLength = env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1);
-    actionStateTextLength = env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1);
-    stateVariableValueMaxLength = env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1);
+    instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
+    actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
+    stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
   }
 
   private int getInstanceStateTextLength() {
-    if (instanceStateTextLength == -1) {
-      instanceStateTextLength = jdbc.query("select state_text from nflow_workflow where 1 = 0", firstColumnLengthExtractor);
-    }
-    return instanceStateTextLength;
+    return getFieldLength(instanceStateTextLength, "state_text", WORKFLOW, "nflow.workflow.instance.state.text.length");
   }
 
-  int getActionStateTextLength() {
-    if (actionStateTextLength == -1) {
-      actionStateTextLength = jdbc.query("select state_text from nflow_workflow_action where 1 = 0", firstColumnLengthExtractor);
-    }
-    return actionStateTextLength;
+  private int getActionStateTextLength() {
+    return getFieldLength(actionStateTextLength, "state_text", ACTION, "nflow.workflow.action.state.text.length");
   }
 
   int getStateVariableValueMaxLength() {
-    if (stateVariableValueMaxLength == -1) {
-      stateVariableValueMaxLength = jdbc.query("select state_value from nflow_workflow_state where 1 = 0",
-          firstColumnLengthExtractor);
+    return getFieldLength(stateVariableValueMaxLength, "state_value", STATE, "nflow.workflow.state.variable.value.length");
+  }
+
+  private int getFieldLength(AtomicInteger length, String field, NflowTable table, String property) {
+    int value = length.get();
+    if (value == -1) {
+      value = ofNullable(jdbc.query("select " + field + " from " + table.main + " where 1=0", firstColumnLengthExtractor))
+          .orElseThrow(() -> new IllegalStateException("Failed to read " + table.main + "." + field
+              + " column length from database, please set correct value to " + property));
+      length.set(value);
     }
-    return stateVariableValueMaxLength;
+    return value;
   }
 
   public long insertWorkflowInstance(WorkflowInstance instance) {
@@ -209,7 +212,7 @@ public class WorkflowInstanceDao {
   }
 
   boolean useBatchUpdate() {
-    return !disableBatchUpdates && sqlVariants.useBatchUpdate();
+    return sqlVariants.useBatchUpdate() && !disableBatchUpdates.get();
   }
 
   String insertWorkflowInstanceSql() {
@@ -222,32 +225,41 @@ public class WorkflowInstanceDao {
     return "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value)";
   }
 
-  @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-      "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
   private long insertWorkflowInstanceWithTransaction(final WorkflowInstance instance) {
     return transaction.execute(status -> {
       KeyHolder keyHolder = new GeneratedKeyHolder();
       try {
-        jdbc.update((PreparedStatementCreator) connection -> {
-          int p = 1;
-          PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
-          ps.setString(p++, instance.type);
-          ps.setShort(p++, instance.priority);
-          ps.setObject(p++, instance.parentWorkflowId);
-          ps.setObject(p++, instance.parentActionId);
-          ps.setString(p++, instance.businessKey);
-          ps.setString(p++, instance.externalId);
-          ps.setString(p++, executorInfo.getExecutorGroup());
-          ps.setString(p++, instance.status.name());
-          ps.setString(p++, instance.state);
-          ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
-          sqlVariants.setDateTime(ps, p++, instance.nextActivation);
-          if (instance.signal.isPresent()) {
-            ps.setInt(p++, instance.signal.get());
-          } else {
-            ps.setNull(p++, Types.INTEGER);
+        jdbc.update(new PreparedStatementCreator() {
+          @Override
+          @SuppressFBWarnings(value = "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING",
+              justification = "SQL is practically constant")
+          public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+            int p = 1;
+            @SuppressWarnings("resource")
+            PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
+            try {
+              ps.setString(p++, instance.type);
+              ps.setShort(p++, instance.priority);
+              ps.setObject(p++, instance.parentWorkflowId);
+              ps.setObject(p++, instance.parentActionId);
+              ps.setString(p++, instance.businessKey);
+              ps.setString(p++, instance.externalId);
+              ps.setString(p++, executorInfo.getExecutorGroup());
+              ps.setString(p++, instance.status.name());
+              ps.setString(p++, instance.state);
+              ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
+              sqlVariants.setDateTime(ps, p++, instance.nextActivation);
+              if (instance.signal.isPresent()) {
+                ps.setInt(p++, instance.signal.get());
+              } else {
+                ps.setNull(p++, Types.INTEGER);
+              }
+            } catch (Exception e) {
+              ps.close();
+              throw e;
+            }
+            return ps;
           }
-          return ps;
         }, keyHolder);
       } catch (DuplicateKeyException e) {
         logger.warn("Failed to insert workflow instance", e);
@@ -437,9 +449,10 @@ public class WorkflowInstanceDao {
   }
 
   public void checkStateVariableValueLength(String name, String value) {
-    if (length(value) > getStateVariableValueMaxLength()) {
+    int maxLength = getStateVariableValueMaxLength();
+    if (length(value) > maxLength) {
       throw new StateVariableValueTooLongException("Too long value (length = " + length(value) + ") for state variable " + name
-          + ": maximum allowed length is " + getStateVariableValueMaxLength());
+          + ": maximum allowed length is " + maxLength);
     }
   }
 
@@ -514,12 +527,13 @@ public class WorkflowInstanceDao {
     return jdbc.update(sql.toString(), args) == 1;
   }
 
-  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions, boolean queryArchive) {
+  public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions,
+      boolean queryArchive) {
     String sql = "select *, 0 as archived from " + WORKFLOW.main + " where id = ?";
-    Object[] args = new Object[]{ id };
+    Object[] args = new Object[] { id };
     if (queryArchive) {
       sql += " union all select *, 1 as archived from " + WORKFLOW.archive + " where id = ?";
-      args = new Object[]{ id, id };
+      args = new Object[] { id, id };
     }
     WorkflowInstance instance = jdbc.queryForObject(sql, workflowInstanceRowMapper, args).build();
     if (includes.contains(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES)) {
@@ -577,13 +591,14 @@ public class WorkflowInstanceDao {
       logger.warn("Got too many workflow instances {} > {}", ids.size(), batchSize);
       List<Long> extras = ids.subList(batchSize, ids.size());
       jdbc.update("update nflow_workflow set executor_id=null, status = "
-              + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
-              " and id in (" + extras.stream().map(String::valueOf).collect(joining(",")) + ")");
+          + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
+          " and id in (" + extras.stream().map(String::valueOf).collect(joining(",")) + ")");
       ids = ids.subList(0, batchSize);
     }
     return ids;
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "PollingRaceConditionException message is ok")
   private List<Long> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);
     List<OptimisticLockKey> instances = transaction.execute(
@@ -605,7 +620,7 @@ public class WorkflowInstanceDao {
     return ids;
   }
 
-  private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(List<OptimisticLockKey> instances) {
+  private List<Long> updateNextWorkflowInstancesWithMultipleUpdates(Collection<OptimisticLockKey> instances) {
     String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
     return instances.stream()
         .flatMap(instance -> jdbc.update(sql, instance.id, sqlVariants.tuneTimestampForDb(instance.modified)) == 1
@@ -614,6 +629,7 @@ public class WorkflowInstanceDao {
         .collect(toList());
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "PollingBatchException message is ok")
   private List<Long> updateNextWorkflowInstancesWithBatchUpdate(List<OptimisticLockKey> instances) {
     String sql = updateInstanceForExecutionQuery() + " where id = ? and modified = ? and executor_id is null";
     List<Object[]> batchArgs = instances.stream()
@@ -625,7 +641,7 @@ public class WorkflowInstanceDao {
       if (status == 1) {
         ids.add(instances.get(i).id);
       } else if (status != 0) {
-        disableBatchUpdates = true;
+        disableBatchUpdates.set(true);
         throw new PollingBatchException(
             "Database was unable to provide information about affected rows in a batch update. Disabling batch updates.");
       }
@@ -643,7 +659,8 @@ public class WorkflowInstanceDao {
     }
 
     @Override
-    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
+    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS",
+        justification = "This class has a natural ordering that is inconsistent with equals")
     public int compareTo(OptimisticLockKey other) {
       return Long.compare(this.id, other.id);
     }
@@ -690,6 +707,7 @@ public class WorkflowInstanceDao {
     return ret;
   }
 
+  @SuppressFBWarnings(value = "STT_STRING_PARSING_A_FIELD", justification = "businessKey and externalId are strings")
   private void queryOptionsToSqlAndParams(QueryWorkflowInstances query, List<String> conditions, MapSqlParameterSource params) {
     if (!isEmpty(query.ids)) {
       if (query.ids.size() == 1) {
@@ -753,7 +771,7 @@ public class WorkflowInstanceDao {
     Stream<String> tables = queryArchive ? Stream.of(WORKFLOW.main, WORKFLOW.archive) : Stream.of(WORKFLOW.main);
     String sql = tables.map(table -> "select parent_action_id, id from " + table + " where parent_workflow_id = ?")
         .collect(joining(" union all "));
-    Object[] args = queryArchive ? new Object[]{instance.id, instance.id} : new Object[]{instance.id};
+    Object[] args = queryArchive ? new Object[] { instance.id, instance.id } : new Object[] { instance.id };
     jdbc.query(sql, rs -> {
       long parentActionId = rs.getLong(1);
       long childWorkflowInstanceId = rs.getLong(2);
@@ -823,7 +841,8 @@ public class WorkflowInstanceDao {
     jdbc.update(new PreparedStatementCreator() {
       @Override
       @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+          justification = "findbugs does not trust jdbctemplate, sql string is practically constant")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
         PreparedStatement p = con.prepareStatement(
             insertWorkflowActionSql() + " values (?, ?, " + sqlVariants.actionType() + ", ?, ?, ?, ?, ?)", new String[] { "id" });

@@ -93,6 +93,7 @@ public class MaintenanceService {
         });
   }
 
+  @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodLogger scope is correct")
   private int doAction(String type, ConfigurationItem configuration, TableType tableType,
       Function<List<Long>, Integer> doAction) {
     DateTime olderThan = now().minus(configuration.olderThanPeriod);

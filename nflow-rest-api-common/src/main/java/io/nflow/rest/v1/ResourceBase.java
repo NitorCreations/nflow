@@ -31,6 +31,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
@@ -195,6 +196,7 @@ public abstract class ResourceBase {
     return listWorkflowConverter.convert(instance, propertyIncludes, queryArchive);
   }
 
+  @SuppressFBWarnings(value = "ITC_INHERITANCE_TYPE_CHECKING", justification = "This is the way")
   protected int resolveExceptionHttpStatus(Throwable t) {
     if (t instanceof IllegalArgumentException) {
       return HTTP_BAD_REQUEST;
