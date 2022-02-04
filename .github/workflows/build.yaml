@@ -62,6 +62,6 @@ jobs:
       - name: Set up database
         run: ./scripts/setup-db-${{ matrix.db }}.sh
       - name: Build
-        run: mvn --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-tests install
+        run: mvn --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-explorer,nflow-tests install
       - name: Run the integration tests
         run: mvn --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
