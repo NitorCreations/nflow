@@ -5,7 +5,7 @@ concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -16,12 +16,12 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-      - name: Run the Maven build, tests, JavaDocs and SpotBugs
+      - name: Run build and unit tests
         run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true clean test
-      - name: Publish JUnit Test Report
+      - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
-  check-javadoc-and-spotbugs:
+  javadoc-and-spotbugs:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -33,9 +33,9 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-      - name: Run the Maven build, tests, JavaDocs and SpotBugs
+      - name: Generate JavaDocs and run SpotBugs
         run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:spotbugs
-      - name: Publish SpotBugs Report
+      - name: Publish SpotBugs report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
           path: '**/spotbugsXml.xml'
