@@ -225,33 +225,41 @@ public class WorkflowInstanceDao {
     return "insert into nflow_workflow_state(workflow_id, action_id, state_key, state_value)";
   }
 
-  @SuppressFBWarnings(
-      value = { "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE" },
-      justification = "SQL is practically constant, JdbcTemplate handles the exceptions")
   private long insertWorkflowInstanceWithTransaction(final WorkflowInstance instance) {
     return transaction.execute(status -> {
       KeyHolder keyHolder = new GeneratedKeyHolder();
       try {
-        jdbc.update((PreparedStatementCreator) connection -> {
-          int p = 1;
-          PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
-          ps.setString(p++, instance.type);
-          ps.setShort(p++, instance.priority);
-          ps.setObject(p++, instance.parentWorkflowId);
-          ps.setObject(p++, instance.parentActionId);
-          ps.setString(p++, instance.businessKey);
-          ps.setString(p++, instance.externalId);
-          ps.setString(p++, executorInfo.getExecutorGroup());
-          ps.setString(p++, instance.status.name());
-          ps.setString(p++, instance.state);
-          ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
-          sqlVariants.setDateTime(ps, p++, instance.nextActivation);
-          if (instance.signal.isPresent()) {
-            ps.setInt(p++, instance.signal.get());
-          } else {
-            ps.setNull(p++, Types.INTEGER);
+        jdbc.update(new PreparedStatementCreator() {
+          @Override
+          @SuppressFBWarnings(value = "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING",
+              justification = "SQL is practically constant")
+          public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+            int p = 1;
+            @SuppressWarnings("resource")
+            PreparedStatement ps = connection.prepareStatement(insertWorkflowInstanceSql(), new String[] { "id" });
+            try {
+              ps.setString(p++, instance.type);
+              ps.setShort(p++, instance.priority);
+              ps.setObject(p++, instance.parentWorkflowId);
+              ps.setObject(p++, instance.parentActionId);
+              ps.setString(p++, instance.businessKey);
+              ps.setString(p++, instance.externalId);
+              ps.setString(p++, executorInfo.getExecutorGroup());
+              ps.setString(p++, instance.status.name());
+              ps.setString(p++, instance.state);
+              ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
+              sqlVariants.setDateTime(ps, p++, instance.nextActivation);
+              if (instance.signal.isPresent()) {
+                ps.setInt(p++, instance.signal.get());
+              } else {
+                ps.setNull(p++, Types.INTEGER);
+              }
+            } catch (Exception e) {
+              ps.close();
+              throw e;
+            }
+            return ps;
           }
-          return ps;
         }, keyHolder);
       } catch (DuplicateKeyException e) {
         logger.warn("Failed to insert workflow instance", e);
