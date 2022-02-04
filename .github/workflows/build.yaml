@@ -38,6 +38,7 @@ jobs:
       - name: Publish SpotBugs report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
+          name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
   integration-tests:
     needs: build
