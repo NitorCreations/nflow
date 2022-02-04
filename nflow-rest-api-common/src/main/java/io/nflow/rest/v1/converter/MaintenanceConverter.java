@@ -29,8 +29,7 @@ public class MaintenanceConverter {
     ofNullable(requestItem).ifPresent(item -> builderSupplier.get()
         .setOlderThanPeriod(item.olderThanPeriod)
         .setBatchSize(item.batchSize)
-        .setWorkflowTypes(ofNullable(item.workflowTypes).orElseGet(Collections::emptySet))
-        .done());
+        .setWorkflowTypes(ofNullable(item.workflowTypes).orElseGet(Collections::emptySet)));
   }
 
   public MaintenanceResponse convert(MaintenanceResults results) {
