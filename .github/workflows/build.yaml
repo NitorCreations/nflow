@@ -34,7 +34,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Generate JavaDocs and run SpotBugs
-        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:spotbugs
+        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:check
       - name: Publish SpotBugs report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
