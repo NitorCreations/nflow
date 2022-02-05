@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run build and unit tests
-        run: mvn --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
+        run: mvn -T1C --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
@@ -38,7 +38,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Generate JavaDocs and run SpotBugs
-        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:check
+        run: mvn -T1C --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:check
       - name: Publish SpotBugs report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
@@ -65,9 +65,9 @@ jobs:
       - name: Set up database
         run: ./scripts/setup-db-${{ matrix.db }}.sh
       - name: Build
-        run: mvn --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-explorer,nflow-tests install
+        run: mvn -T1C --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-explorer,nflow-tests install
       - name: Run the integration tests
-        run: mvn --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
+        run: mvn -T1C --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
