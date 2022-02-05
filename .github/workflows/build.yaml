@@ -5,7 +5,10 @@ concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  build-and-test-java11:
+  build-and-test:
+    strategy:
+      matrix:
+        java: [ '11', '17' ]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -13,7 +16,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          java-version: 11
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'maven'
       - name: Run build and unit tests
@@ -22,25 +25,7 @@ jobs:
         uses: scacap/action-surefire-report@v1
         if: always()
         with:
-          check_name: 'Unit Test Report for Java 11'
-  build-and-test-java17:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out
-        uses: actions/checkout@v2
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Run build and unit tests
-        run: mvn --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
-      - name: Publish JUnit test report
-        uses: scacap/action-surefire-report@v1
-        if: always()
-        with:
-          check_name: 'Unit Test Report for Java 17'
+          check_name: 'Unit Test Report for Java ${{ matrix.java }}'
   javadoc-and-spotbugs:
     runs-on: ubuntu-latest
     steps:
