@@ -6,6 +6,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-and-test:
+    strategy:
+      matrix:
+        java: [ '11', '17' ]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -13,16 +16,17 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          java-version: 11
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'maven'
       - name: Run build and unit tests
-        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
+        run: mvn --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
+        with:
+          check_name: 'Unit Test Report for Java ${{ matrix.java }}'
   javadoc-and-spotbugs:
-    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -34,14 +38,13 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Generate JavaDocs and run SpotBugs
-        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:spotbugs
+        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:check
       - name: Publish SpotBugs report
         uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
           name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
   integration-tests:
-    needs: build-and-test
     strategy:
       matrix:
         java: [ '11', '17' ]
@@ -65,3 +68,8 @@ jobs:
         run: mvn --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-explorer,nflow-tests install
       - name: Run the integration tests
         run: mvn --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
+      - name: Publish JUnit test report
+        uses: scacap/action-surefire-report@v1
+        if: always()
+        with:
+          check_name: 'Integration Test Report for Java ${{ matrix.java }} and ${{ matrix.db }}'

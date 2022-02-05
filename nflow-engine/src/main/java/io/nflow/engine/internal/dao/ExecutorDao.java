@@ -113,12 +113,14 @@ public class ExecutorDao {
     return isActualTransactionActive();
   }
 
+  @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "npe is unlikely")
   public boolean isAutoCommitEnabled() {
     return jdbc.execute(Connection::getAutoCommit);
   }
 
-  @SuppressFBWarnings(value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING" },
-      justification = "localhost is used for getting host name only, exception message is fine")
+  @SuppressFBWarnings(
+      value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
+      justification = "localhost is used for getting host name only, exception message is fine, npe is unlikely")
   private int allocateExecutorId(int hostNameMaxLength) {
     final String host;
     final int pid;
@@ -133,7 +135,8 @@ public class ExecutorDao {
     jdbc.update(new PreparedStatementCreator() {
       @Override
       @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" }, justification = "findbugs does not trust jdbctemplate, sql is constant in practice")
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+          justification = "spotbugs does not trust jdbctemplate, sql is constant in practice")
       public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
         String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
             + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
