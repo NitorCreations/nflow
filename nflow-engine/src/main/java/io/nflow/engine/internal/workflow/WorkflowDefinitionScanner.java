@@ -113,7 +113,8 @@ public class WorkflowDefinitionScanner {
     return knownImmutableTypes.contains(type);
   }
 
-  @SuppressFBWarnings(value = "URV_UNRELATED_RETURN_VALUES", justification = "return values are unrelated")
+  @SuppressFBWarnings(value = { "URV_UNRELATED_RETURN_VALUES", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
+      justification = "return values are unrelated, npe is unlikely")
   Object defaultValue(StateVar stateInfo, Class<?> clazz) {
     if (clazz == char.class || clazz == Character.class) {
       return Character.valueOf((char) 0);

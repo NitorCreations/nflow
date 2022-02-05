@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.scheduling.support.CronExpression;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
@@ -115,6 +116,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    *          The cron schedule.
    * @return The next activation time.
    */
+  @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "npe is unlikely")
   protected DateTime getNextActivationTime(StateExecution execution, String cron) {
     return new DateTime(CronExpression.parse(cron).next(ZonedDateTime.now()).toInstant().toEpochMilli());
   }

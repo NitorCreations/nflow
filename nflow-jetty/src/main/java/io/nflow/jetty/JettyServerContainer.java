@@ -6,6 +6,8 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class JettyServerContainer {
   private final Server server;
 
@@ -33,6 +35,7 @@ public class JettyServerContainer {
     return getLocalPort(server.getConnectors()[0]);
   }
 
+  @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "npe is unlikely")
   private Integer getLocalPort(Connector connector) {
     return (Integer) invokeMethod(findMethod(connector.getClass(), "getLocalPort"), connector);
   }

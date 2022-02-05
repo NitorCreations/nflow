@@ -94,7 +94,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
 @Component
-@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
+@SuppressFBWarnings(value = { "SIC_INNER_SHOULD_BE_STATIC_ANON", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
+    justification = "common jdbctemplate practice, npe is unlikely")
 @Singleton
 public class WorkflowInstanceDao {
 
