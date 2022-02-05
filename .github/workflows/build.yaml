@@ -17,7 +17,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run build and unit tests
-        run: mvn --no-transfer-progress --color=always -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
+        run: mvn --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-jetty,nflow-netty,nflow-metrics test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
