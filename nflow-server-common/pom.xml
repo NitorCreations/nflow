@@ -44,23 +44,6 @@
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy-explorer</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/explorer</outputDirectory>
-              <overwrite>true</overwrite>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}/../nflow-explorer/dist</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
             <id>copy-swagger-resources</id>
             <phase>process-resources</phase>
             <goals>
@@ -91,7 +74,7 @@
               <overwrite>false</overwrite>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/explorer</directory>
+                  <directory>${project.basedir}/../nflow-explorer/dist</directory>
                   <filtering>false</filtering>
                   <excludes>
                     <exclude>config.js</exclude>
