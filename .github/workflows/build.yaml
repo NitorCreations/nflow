@@ -65,3 +65,8 @@ jobs:
         run: mvn --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-explorer,nflow-tests install
       - name: Run the integration tests
         run: mvn --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
+      - name: Publish JUnit test report
+        uses: scacap/action-surefire-report@v1
+        if: always()
+        with:
+          check_name: 'Test Report for Java ${{ matrix.java }} and ${{ matrix.db }}'
