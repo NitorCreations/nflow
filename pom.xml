@@ -403,6 +403,7 @@
           </links>
           <excludePackageNames>io.nflow.engine.internal</excludePackageNames>
           <quiet>true</quiet>
+          <failOnWarning>true</failOnWarning>
         </configuration>
         <executions>
           <execution>
