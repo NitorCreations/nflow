@@ -107,6 +107,7 @@
   <properties>
     <jdk.version>11</jdk.version>
     <jacocoArgLine></jacocoArgLine>
+    <surefire.forkcount>1C</surefire.forkcount>
     <apache.cxf.version>3.5.0</apache.cxf.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.12.0</commons.lang3.version>
@@ -212,7 +213,7 @@
             <parallel>classes</parallel>
             <perCoreThreadCount>true</perCoreThreadCount>
             <threadCount>1</threadCount>
-            <forkCount>1C</forkCount>
+            <forkCount>${surefire.forkcount}</forkCount>
           </configuration>
         </plugin>
         <plugin>
