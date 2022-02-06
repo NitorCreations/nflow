@@ -4,6 +4,7 @@ import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
@@ -35,7 +36,10 @@ import io.nflow.tests.extension.NflowServerConfig;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DemoWorkflowTest extends AbstractNflowTest {
 
-  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(DemoConfiguration.class).build();
+  public static NflowServerConfig server = new NflowServerConfig.Builder()
+      .prop("nflow.executor.group", DemoWorkflowTest.class.getSimpleName())
+      .springContextClass(DemoConfiguration.class)
+      .build();
 
   private static CreateWorkflowInstanceResponse resp;
 
@@ -113,14 +117,24 @@ public class DemoWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(6)
-  public void updateWorkflowReturnsNoContentWhenInstanceIsUpdated() {
+  @SuppressWarnings("null")
+  public void updateWorkflowReturnsNoContentWhenInstanceIsUpdated() throws InterruptedException {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now().plusDays(1);
-
-    try (Response response = updateWorkflowInstance(resp.id, req, Response.class)) {
-      assertThat(response.getStatus(), is(NO_CONTENT.getStatusCode()));
-      assertThat(response.readEntity(String.class), is(""));
+    RuntimeException ex = null;
+    for (int i = 0; i < 3; ++i) {
+      try (Response response = updateWorkflowInstance(resp.id, req, Response.class)) {
+        if (response.getStatus() != NO_CONTENT.getStatusCode()) {
+          continue;
+        }
+        assertThat(response.readEntity(String.class), is(""));
+        return;
+      } catch (RuntimeException e) {
+        ex = e;
+        SECONDS.sleep(1);
+      }
     }
+    throw ex;
   }
 
   @Test

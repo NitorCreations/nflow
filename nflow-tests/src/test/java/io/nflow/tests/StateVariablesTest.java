@@ -49,6 +49,7 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   public static NflowServerConfig server = new NflowServerConfig.Builder()
       .prop("nflow.workflow.state.variable.value.length", "8000")
+      .prop("nflow.executor.group", StateVariablesTest.class.getSimpleName())
       .springContextClass(TestConfiguration.class)
       .build();
   private static CreateWorkflowInstanceRequest createRequest;
@@ -72,7 +73,7 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest.type = STATE_WORKFLOW_TYPE;
     createRequest.externalId = randomUUID().toString();
     createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
-    createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
+    createResponse = assertTimeoutPreemptively(ofSeconds(10), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
   }
 
