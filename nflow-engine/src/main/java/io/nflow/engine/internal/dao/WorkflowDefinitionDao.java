@@ -20,27 +20,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition.Signal;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
-@Component
 public class WorkflowDefinitionDao {
 
   private static final Logger logger = getLogger(WorkflowDefinitionDao.class);
@@ -49,10 +44,9 @@ public class WorkflowDefinitionDao {
   private final ObjectMapper nflowObjectMapper;
   private final SQLVariants sqlVariants;
 
-  @Inject
   public WorkflowDefinitionDao(SQLVariants sqlVariants,
-                               @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                               @NFlow ObjectMapper nflowObjectMapper,
+                               NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+                               ObjectMapper nflowObjectMapper,
                                ExecutorDao executorDao) {
     this.sqlVariants = sqlVariants;
     this.namedJdbc = nflowNamedParameterJdbcTemplate;

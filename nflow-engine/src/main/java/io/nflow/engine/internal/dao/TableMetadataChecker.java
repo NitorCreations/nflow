@@ -12,22 +12,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
 import io.nflow.engine.model.ModelObject;
 
-@Named
 public class TableMetadataChecker {
   private final JdbcTemplate jdbc;
 
-  @Inject
-  public TableMetadataChecker(@NFlow JdbcTemplate jdbcTemplate) {
+  public TableMetadataChecker(JdbcTemplate jdbcTemplate) {
     this.jdbc = jdbcTemplate;
   }
 

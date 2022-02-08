@@ -26,7 +26,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.zaxxer.hikari.HikariDataSource;
 
-import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
@@ -39,6 +38,7 @@ import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowExecutorService;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.spring.EngineConfiguration;
 
 public class EngineModuleTest {
 

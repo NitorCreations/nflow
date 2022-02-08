@@ -18,32 +18,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
+import io.nflow.engine.config.NFlowConfiguration;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
-@Component
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
-@Singleton
 public class ExecutorDao {
 
   private static final Logger logger = getLogger(ExecutorDao.class);
@@ -58,15 +51,14 @@ public class ExecutorDao {
   private int executorId = -1;
   private final int hostMaxLength;
 
-  @Inject
-  public ExecutorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate, Environment env) {
+  public ExecutorDao(SQLVariants sqlVariants, JdbcTemplate nflowJdbcTemplate, NFlowConfiguration config) {
     this.sqlVariants = sqlVariants;
     this.jdbc = nflowJdbcTemplate;
-    this.executorGroup = trimToNull(env.getRequiredProperty("nflow.executor.group"));
+    this.executorGroup = trimToNull(config.getRequiredProperty("nflow.executor.group", String.class));
     this.executorGroupCondition = createWhereCondition(executorGroup);
-    this.timeoutSeconds = env.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
-    this.keepaliveIntervalSeconds = env.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
-    this.hostMaxLength = env.getProperty("nflow.executor.host.length", Integer.class, -1);
+    this.timeoutSeconds = config.getRequiredProperty("nflow.executor.timeout.seconds", Integer.class);
+    this.keepaliveIntervalSeconds = config.getRequiredProperty("nflow.executor.keepalive.seconds", Integer.class);
+    this.hostMaxLength = config.getProperty("nflow.executor.host.length", Integer.class, -1);
   }
 
   private static String createWhereCondition(String group) {

@@ -8,16 +8,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
@@ -26,7 +22,6 @@ import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
  * Use setter injection because constructor injection may not work when nFlow is
  * used in some legacy systems.
  */
-@Component
 @SuppressFBWarnings(value = { "SIC_INNER_SHOULD_BE_STATIC_ANON",
     "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" }, justification = "common jdbctemplate practice, jdbc and executorInfo are injected")
 public class StatisticsDao {
@@ -34,8 +29,7 @@ public class StatisticsDao {
   private final JdbcTemplate jdbc;
   private final ExecutorDao executorInfo;
 
-  @Inject
-  public StatisticsDao(@NFlow JdbcTemplate jdbcTemplate, ExecutorDao executorDao) {
+  public StatisticsDao(JdbcTemplate jdbcTemplate, ExecutorDao executorDao) {
     this.executorInfo = executorDao;
     this.jdbc = jdbcTemplate;
   }

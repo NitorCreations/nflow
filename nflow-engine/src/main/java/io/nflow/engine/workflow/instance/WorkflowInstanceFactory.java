@@ -1,15 +1,10 @@
 package io.nflow.engine.workflow.instance;
 
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
-
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 
 /**
  * Factory to create workflow instances.
  */
-@Component
 public class WorkflowInstanceFactory {
 
   private final ObjectStringMapper objectMapper;
@@ -21,7 +16,6 @@ public class WorkflowInstanceFactory {
    *          The object mapper to be used to serialize and deserialize the
    *          state variables.
    */
-  @Inject
   public WorkflowInstanceFactory(ObjectStringMapper objectMapper) {
     this.objectMapper = objectMapper;
   }

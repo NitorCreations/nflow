@@ -53,9 +53,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
@@ -69,7 +66,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -78,6 +74,7 @@ import org.springframework.util.Assert;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
+import io.nflow.engine.config.NFlowConfiguration;
 import io.nflow.engine.internal.executor.InstanceInfo;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
@@ -94,10 +91,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 /**
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
-@Component
 @SuppressFBWarnings(value = { "SIC_INNER_SHOULD_BE_STATIC_ANON", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
     justification = "common jdbctemplate practice, npe is unlikely")
-@Singleton
 public class WorkflowInstanceDao {
 
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
@@ -121,11 +116,10 @@ public class WorkflowInstanceDao {
   final WorkflowInstanceRowMapper workflowInstanceRowMapper;
   final WorkflowInstanceActionRowMapper workflowInstanceActionRowMapper;
 
-  @Inject
-  public WorkflowInstanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate,
-      @NFlow TransactionTemplate transactionTemplate, @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+  public WorkflowInstanceDao(SQLVariants sqlVariants, JdbcTemplate nflowJdbcTemplate,
+      TransactionTemplate transactionTemplate, NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
       ExecutorDao executorDao, WorkflowInstanceExecutor workflowInstanceExecutor, WorkflowInstanceFactory workflowInstanceFactory,
-      Environment env) {
+      NFlowConfiguration config) {
 
     this.sqlVariants = sqlVariants;
     this.jdbc = nflowJdbcTemplate;
@@ -137,20 +131,20 @@ public class WorkflowInstanceDao {
     this.workflowInstanceRowMapper = new WorkflowInstanceRowMapper(sqlVariants, workflowInstanceFactory);
     this.workflowInstanceActionRowMapper = new WorkflowInstanceActionRowMapper(sqlVariants);
 
-    workflowInstanceQueryMaxResults = env.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
-    workflowInstanceQueryMaxResultsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
+    workflowInstanceQueryMaxResults = config.getRequiredProperty("nflow.workflow.instance.query.max.results", Long.class);
+    workflowInstanceQueryMaxResultsDefault = config.getRequiredProperty("nflow.workflow.instance.query.max.results.default",
         Long.class);
-    workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
-    workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
+    workflowInstanceQueryMaxActions = config.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
+    workflowInstanceQueryMaxActionsDefault = config.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
         Long.class);
-    disableBatchUpdates.set(env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class));
+    disableBatchUpdates.set(config.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class));
     if (disableBatchUpdates.get()) {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
-    workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
-    instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
-    actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
-    stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
+    workflowInstanceTypeCacheSize = config.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
+    instanceStateTextLength.set(config.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
+    actionStateTextLength.set(config.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
+    stateVariableValueMaxLength.set(config.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
   }
 
   private int getInstanceStateTextLength() {

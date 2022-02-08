@@ -1,6 +1,7 @@
 package io.nflow.engine.internal.executor;
 
 import static java.lang.Math.min;
+import static java.lang.Runtime.getRuntime;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -17,6 +18,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 
+import io.nflow.engine.config.NFlowConfiguration;
+
 public class WorkflowInstanceExecutor {
   private static final Logger logger = getLogger(WorkflowInstanceExecutor.class);
 
@@ -24,6 +27,24 @@ public class WorkflowInstanceExecutor {
   private final int threadCount;
   final ThreadPoolExecutor executor;
   final ThresholdBlockingQueue<Runnable> queue;
+
+  public WorkflowInstanceExecutor(ThreadFactory threadFactory, NFlowConfiguration config) {
+    this(
+      getQueueSize(config),
+      getThreadCount(config),
+      config.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, getQueueSize(config) / 2),
+      config.getRequiredProperty("nflow.dispatcher.await.termination.seconds", Integer.class),
+      config.getRequiredProperty("nflow.dispatcher.executor.thread.keepalive.seconds", Integer.class),
+      threadFactory);
+  }
+
+  private static int getThreadCount(NFlowConfiguration config) {
+     return config.getProperty("nflow.executor.thread.count", Integer.class, 2 * getRuntime().availableProcessors());
+  }
+
+  private static int getQueueSize(NFlowConfiguration config) {
+    return config.getProperty("nflow.dispatcher.executor.queue.size", Integer.class, 2 * getThreadCount(config));
+  }
 
   public WorkflowInstanceExecutor(int maxQueueSize, int threadCount, int notifyThreshold, int awaitTerminationSeconds,
       int keepAliveSeconds, ThreadFactory threadFactory) {

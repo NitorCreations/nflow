@@ -3,18 +3,15 @@ package io.nflow.engine.exception;
 import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import javax.inject.Inject;
-
 import org.joda.time.Duration;
 import org.slf4j.Logger;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
+
+import io.nflow.engine.config.NFlowConfiguration;
 
 /**
  * State save exception analyzer analyzes exceptions thrown while trying to save workflow state and determines how the exception
  * is handled.
  */
-@Component
 public class StateSaveExceptionAnalyzer {
 
   private static final Logger logger = getLogger(StateSaveExceptionAnalyzer.class);
@@ -27,9 +24,8 @@ public class StateSaveExceptionAnalyzer {
    * @param env
    *          The Spring environment.
    */
-  @Inject
-  public StateSaveExceptionAnalyzer(Environment env) {
-    Duration retryDelay = standardSeconds(env.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Long.class));
+  public StateSaveExceptionAnalyzer(NFlowConfiguration config) {
+    Duration retryDelay = standardSeconds(config.getRequiredProperty("nflow.executor.stateSaveRetryDelay.seconds", Long.class));
     handling = new StateSaveExceptionHandling.Builder().setRetryDelay(retryDelay).build();
   }
 

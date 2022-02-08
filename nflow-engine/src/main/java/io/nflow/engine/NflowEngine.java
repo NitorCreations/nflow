@@ -13,7 +13,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.SQLVariants;
@@ -23,6 +22,7 @@ import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowExecutorService;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.spring.EngineConfiguration;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 /**

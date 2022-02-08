@@ -26,7 +26,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
-import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.DatabaseConfiguration;
 import io.nflow.engine.config.db.Db2DatabaseConfiguration;
@@ -40,6 +39,7 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.spring.EngineConfiguration;
 
 public class EngineModule extends AbstractModule {
 

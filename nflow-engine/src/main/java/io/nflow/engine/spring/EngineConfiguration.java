@@ -1,4 +1,4 @@
-package io.nflow.engine.config;
+package io.nflow.engine.spring;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Runtime.getRuntime;
@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
+import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
 /**
@@ -25,24 +26,6 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 @Configuration
 @ComponentScan("io.nflow.engine")
 public class EngineConfiguration {
-
-  /**
-   * Creates a workflow instance executor for processing workflow instances.
-   *
-   * @param nflowThreadFactory Thread factory to be used for creating instance executor threads.
-   * @param env The Spring environment.
-   * @return Workflow instance executor.
-   */
-  @Bean
-  public WorkflowInstanceExecutor nflowExecutor(@NFlow ThreadFactory nflowThreadFactory, Environment env) {
-    int threadCount = env.getProperty("nflow.executor.thread.count", Integer.class, 2 * getRuntime().availableProcessors());
-    int awaitTerminationSeconds = env.getRequiredProperty("nflow.dispatcher.await.termination.seconds", Integer.class);
-    int queueSize = env.getProperty("nflow.dispatcher.executor.queue.size", Integer.class, 2 * threadCount);
-    int notifyThreshold = env.getProperty("nflow.dispatcher.executor.queue.wait_until_threshold", Integer.class, queueSize / 2);
-    int keepAliveSeconds = env.getRequiredProperty("nflow.dispatcher.executor.thread.keepalive.seconds", Integer.class);
-    return new WorkflowInstanceExecutor(queueSize, threadCount, notifyThreshold, awaitTerminationSeconds, keepAliveSeconds,
-        nflowThreadFactory);
-  }
 
   /**
    * Creates a thread factory for creating instance executor threads.

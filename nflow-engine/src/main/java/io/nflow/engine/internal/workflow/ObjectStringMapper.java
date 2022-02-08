@@ -5,26 +5,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.StateExecution;
 
-@Component
 public class ObjectStringMapper {
   private final ObjectMapper mapper;
 
-  @Inject
-  public ObjectStringMapper(@NFlow ObjectMapper nflowObjectMapper) {
+  public ObjectStringMapper(ObjectMapper nflowObjectMapper) {
     this.mapper = nflowObjectMapper;
   }
 

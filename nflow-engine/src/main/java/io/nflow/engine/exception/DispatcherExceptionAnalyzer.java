@@ -4,7 +4,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
-import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.exception.DispatcherExceptionHandling.Builder;
@@ -15,7 +14,6 @@ import io.nflow.engine.internal.dao.PollingRaceConditionException;
  * Dispatcher exception analyzer analyzes exceptions thrown by the workflow dispatcher and determines how the exception is
  * handled.
  */
-@Component
 public class DispatcherExceptionAnalyzer {
 
   private static final Logger logger = getLogger(DispatcherExceptionAnalyzer.class);

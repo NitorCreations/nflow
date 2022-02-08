@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import io.nflow.engine.spring.EngineConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 public class EngineConfigurationTest {

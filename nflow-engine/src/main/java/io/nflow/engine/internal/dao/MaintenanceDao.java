@@ -16,9 +16,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,10 +23,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 
-@Named
 public class MaintenanceDao {
   private static final Logger logger = getLogger(MaintenanceDao.class);
 
@@ -42,9 +37,8 @@ public class MaintenanceDao {
   private String actionColumns;
   private String stateColumns;
 
-  @Inject
-  public MaintenanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, ExecutorDao executorDao,
-      @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
+  public MaintenanceDao(SQLVariants sqlVariants, JdbcTemplate jdbcTemplate, ExecutorDao executorDao,
+      NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate) {
     this.sqlVariants = sqlVariants;
     this.jdbc = jdbcTemplate;
     this.executorDao = executorDao;
