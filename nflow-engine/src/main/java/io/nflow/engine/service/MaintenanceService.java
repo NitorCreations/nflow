@@ -13,9 +13,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
 import org.joda.time.ReadablePeriod;
@@ -34,7 +31,6 @@ import io.nflow.engine.service.MaintenanceResults.Builder;
 /**
  * Service for deleting and archiving old workflow instances from nflow-tables and nflow_archive-tables.
  */
-@Named
 public class MaintenanceService {
 
   private static final Logger log = getLogger(MaintenanceService.class);
@@ -47,7 +43,6 @@ public class MaintenanceService {
 
   private final ExecutorDao executorDao;
 
-  @Inject
   public MaintenanceService(MaintenanceDao maintenanceDao, TableMetadataChecker tableMetadataChecker,
       WorkflowDefinitionService workflowDefinitionService, ExecutorDao executorDao) {
     this.maintenanceDao = maintenanceDao;

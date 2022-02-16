@@ -7,16 +7,17 @@ import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.ex
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.datasource.init.ScriptStatementFailedException;
 
+import io.nflow.engine.config.NFlowConfiguration;
+
 public class DatabaseInitializer {
   private static final Logger logger = getLogger(DatabaseInitializer.class);
 
-  public DatabaseInitializer(String dbType, DataSource ds, Environment env, String scriptSeparator) {
-    if (!env.getRequiredProperty("nflow.db.create_on_startup", Boolean.class)) {
+  public DatabaseInitializer(String dbType, DataSource ds, NFlowConfiguration conf, String scriptSeparator) {
+    if (!conf.getRequiredProperty("nflow.db.create_on_startup", Boolean.class)) {
       return;
     }
     populate(dbType, scriptSeparator, ds);

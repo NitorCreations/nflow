@@ -10,14 +10,10 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.NFlow;
+import io.nflow.engine.config.NFlowConfiguration;
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import io.nflow.engine.internal.storage.db.MySQLVariants;
 import io.nflow.engine.internal.storage.db.SQLVariants;
@@ -25,8 +21,6 @@ import io.nflow.engine.internal.storage.db.SQLVariants;
 /**
  * Configuration for MariaDB database.
  */
-@Profile(MARIADB)
-@Configuration
 public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   private static final Logger logger = getLogger(MariadbDatabaseConfiguration.class);
 
@@ -43,11 +37,10 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
    * @param env The Spring environment.
    * @return The database initializer.
    */
-  @Bean
   @Override
   @SuppressFBWarnings(value = { "WEM_WEAK_EXCEPTION_MESSAGING", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" },
       justification = "exception message is ok, null-check in try-catch")
-  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(DataSource nflowDataSource, NFlowConfiguration config) {
     String scriptPrefix = "mariadb";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
@@ -58,15 +51,14 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain MariaDB version", e);
     }
-    return new DatabaseInitializer(scriptPrefix, nflowDataSource, env, ";");
+    return new DatabaseInitializer(scriptPrefix, nflowDataSource, config, ";");
   }
 
   /**
    * {@inheritDoc}
    */
-  @Bean
   @Override
-  public SQLVariants sqlVariants(Environment env) {
+  public SQLVariants sqlVariants(NFlowConfiguration config) {
     return new MySQLVariants();
   }
 }

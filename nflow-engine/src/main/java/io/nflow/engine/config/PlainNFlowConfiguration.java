@@ -20,6 +20,7 @@ public class PlainNFlowConfiguration implements NFlowConfiguration {
     private SQLVariants sqlVariant;
     private ObjectMapper objectMapper;
     private PlatformTransactionManager transactionManager;
+    private Object metricsRegistry;
 
     public PlainNFlowConfiguration setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -38,6 +39,14 @@ public class PlainNFlowConfiguration implements NFlowConfiguration {
 
     public PlainNFlowConfiguration setTransactionManager(PlatformTransactionManager transactionManager) {
       this.transactionManager = transactionManager;
+      return this;
+    }
+
+    public PlainNFlowConfiguration setMetricsRegistry(Object metricsRegistry) {
+      if (!"com.codahale.metrics.MetricRegistry".equals(metricsRegistry.getClass().getName())) {
+        throw new IllegalArgumentException("Must be instance of com.codahale.metrics.MetricRegistry");
+      }
+      this.metricsRegistry = metricsRegistry;
       return this;
     }
 
@@ -74,5 +83,10 @@ public class PlainNFlowConfiguration implements NFlowConfiguration {
     public ThreadFactory getThreadFactory() {
       // TODO one with names isntead
       return Executors.defaultThreadFactory();
+    }
+
+    @Override
+    public Object getMetricsRegistry() {
+      return metricsRegistry;
     }
 }

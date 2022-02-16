@@ -2,18 +2,23 @@ package io.nflow.engine.guice;
 
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.executor.WorkflowLifecycle;
 import io.nflow.engine.internal.workflow.MaintenanceWorkflowStarter;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
+@Singleton
 public class NflowController {
   private final WorkflowLifecycle lifecycle;
   private final WorkflowDefinitionService workflowDefinitionService;
   private final MaintenanceWorkflowStarter maintenanceWorkflowStarter;
   private final Set<WorkflowDefinition> workflows;
 
+  @Inject
   public NflowController(WorkflowLifecycle lifecycle, WorkflowDefinitionService workflowDefinitionService,
       MaintenanceWorkflowStarter maintenanceWorkflowStarter, Set<WorkflowDefinition> workflowDefinitions) {
     this.lifecycle = lifecycle;

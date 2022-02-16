@@ -8,19 +8,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.transaction.PlatformTransactionManager;
 
-import io.nflow.engine.internal.storage.db.SQLVariants;
+import io.nflow.engine.config.db.DatabaseConfiguration;
 
 public interface NFlowConfiguration {
     
     public DataSource getDataSource();
-
-    public SQLVariants getSQLVariants();
 
     public String getProperty(String name);
 
     public ObjectMapper getObjectMapper();
 
     public PlatformTransactionManager getTransactionManager();
+
+    public Object getMetricsRegistry();
+
+    public DatabaseConfiguration getDatabaseConfiguration();
 
     public default <T> T getRequiredProperty(String name, Class<T> type) {
         T val = getProperty(name, type, null);

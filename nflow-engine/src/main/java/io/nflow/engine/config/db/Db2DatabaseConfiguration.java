@@ -21,20 +21,15 @@ import java.util.TimeZone;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
 /**
  * Configuration for DB2 database. Note: tested only using DB2 Express-C (Docker: ibmcom/db2express-c).
  */
-@Profile(DB2)
-@Configuration
 public class Db2DatabaseConfiguration extends DatabaseConfiguration {
 
   /**
@@ -47,17 +42,16 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   /**
    * {@inheritDoc}
    */
-  @Bean
   @Override
-  public SQLVariants sqlVariants(Environment env) {
-    return new Db2SQLVariants(property(env, "timezone"));
+  public SQLVariants sqlVariants(NFlowConfiguration config) {
+    return new Db2SQLVariants(property(config, "timezone"));
   }
 
   @Override
-  protected void checkDatabaseConfiguration(Environment env, DataSource dataSource) {
+  protected void checkDatabaseConfiguration(NFlowConfiguration config, DataSource dataSource) {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     Long dbTimeZoneOffsetHours = jdbc.queryForObject("select current timezone from sysibm.sysdummy1", Long.class);
-    Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(property(env, "timezone")).getOffset(currentTimeMillis()),
+    Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(property(config, "timezone")).getOffset(currentTimeMillis()),
         MILLISECONDS);
     if (!Objects.equals(dbTimeZoneOffsetHours, propsTimeZoneOffsetHours)) {
       throw new RuntimeException("Database has unexpected time zone - hour offset in DB2 is " + dbTimeZoneOffsetHours

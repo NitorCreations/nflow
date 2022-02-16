@@ -9,6 +9,8 @@ import javax.sql.DataSource;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -25,17 +27,32 @@ public class SpringNFlowConfiguration implements NFlowConfiguration {
     private final ObjectMapper objectMapper;
     private final PlatformTransactionManager transactionManager;
     private final ThreadFactory threadFactory;
+    private final BeanFactory appCtx;
 
     @Inject
     SpringNFlowConfiguration(Environment env,@NFlow DataSource dataSource,
     SQLVariants sqlVariants, @NFlow ObjectMapper objectMapper,
-    PlatformTransactionManager transactionManager, @NFlow ThreadFactory threadFactory) {
+    PlatformTransactionManager transactionManager, @NFlow ThreadFactory threadFactory,
+    BeanFactory appCtx) {
       this.env = env;
       this.dataSource = dataSource;
       this.sqlVariants = sqlVariants;
       this.objectMapper = objectMapper;
       this.transactionManager = transactionManager;
       this.threadFactory = threadFactory;
+      this.appCtx = appCtx;
+    }
+
+    @Override
+    public Object getMetricsRegistry() {
+      Object metricRegistry = null;
+      try {
+        Class<?> metricClass = Class.forName("com.codahale.metrics.MetricRegistry");
+        return appCtx.getBean(metricClass);
+      } catch (@SuppressWarnings("unused") ClassNotFoundException | NoSuchBeanDefinitionException e) {
+        // ignored - metrics is an optional dependency
+        return null;
+      }
     }
 
     @Override
