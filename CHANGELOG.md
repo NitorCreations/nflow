@@ -46,12 +46,12 @@
     - apache cxf 3.5.0
     - commons.lang3 3.12.0
     - guice 5.1.0
-    - hibernate validator 6.2.1
+    - hibernate validator 6.2.2
     - hikaricp 5.0.1
     - jackson 2.13.1
     - javassist 3.28.0
     - jodatime 2.10.13
-    - slf4j 1.7.35
+    - slf4j 1.7.36
     - spring 5.3.15
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
@@ -59,19 +59,19 @@
   - Add `includes` query parameter (fetch / list workflow instances) that supports multiple query parameters, i.e. like `include=actions&include=childWorkflows`.
   - Add `queryArchive` query parameter. If set to `true`, also archived workflow instances are searched when not enough non-archived matches are found. Default value is false.
   - Dependency updates
-    - swagger 2.1.12
+    - swagger 2.1.13
     - jersey 2.35
 - `nflow-jetty`
   - Dependency updates
-    - jetty 10.0.7
+    - jetty 10.0.8
     - reflections 0.10.2
 - `nflow-netty`
   - Dependency updates
     - reactor-core 3.4.14
-    - reactor-netty 1.0.15
+    - reactor-netty 1.0.16
 - `nflow-metrics`
   - Dependency updates
-    - metrics 4.2.7
+    - metrics 4.2.8
 - `nflow-explorer`
   - Query and show also archived workflow instances when not enough non-archived matches are found. Querying and showing archived instances can be disabled in `config.js`.
   - Dependency updates
@@ -87,7 +87,7 @@
     - mssql 10.2.0
     - mysql 8.0.28
     - mariadb 3.0.3
-    - postgresql 42.3.2
+    - postgresql 42.3.3
 
 ## 7.4.0 (2021-12-27)
 

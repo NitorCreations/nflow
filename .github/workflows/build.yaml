@@ -6,6 +6,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-and-test:
+    if: always()
     strategy:
       matrix:
         java: [ '11', '17' ]
@@ -45,6 +46,7 @@ jobs:
           name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
   integration-tests:
+    if: always()
     strategy:
       matrix:
         java: [ '11', '17' ]
