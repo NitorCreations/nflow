@@ -1,4 +1,7 @@
-<img src="./nflow-documentation/nflow-logo-dark.svg" height="100" width="195" />
+#
+
+![nFlow](./nflow-documentation/nflow_logo.svg#gh-light-mode-only)
+![nFlow](./nflow-documentation/nflow-logo-dark.svg#gh-dark-mode-only)
 
 nFlow is a battle-proven solution for orchestrating business processes. Depending on where you're coming from, you can view nFlow as any of the following:
 
