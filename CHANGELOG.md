@@ -40,19 +40,20 @@
   - Add support to query also archived workflow instances when not enough non-archived matches are found.
   - Add `WorkflowInstance.Builder.setState(WorkflowState)` convenience method.
   - Dependency updates
-    - logback-classic update to version 1.2.10
+    - logback-classic update to version 1.2.11
       - <http://mailman.qos.ch/pipermail/announce/2021/000164.html>
       - <https://jira.qos.ch/browse/LOGBACK-1591>
-    - apache cxf 3.5.0
+    - apache cxf 3.5.1
     - commons.lang3 3.12.0
     - guice 5.1.0
-    - hibernate validator 6.2.2
+    - hibernate validator 6.2.3
     - hikaricp 5.0.1
-    - jackson 2.13.1
+    - jackson 2.13.2
+    - jackson-databind 2.13.2.2
     - javassist 3.28.0
-    - jodatime 2.10.13
+    - jodatime 2.10.14
     - slf4j 1.7.36
-    - spring 5.3.15
+    - spring 5.3.18
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
   - Deprecate `include` query parameter (fetch / list workflow instances) that supported multiple values provided as comma separated string, i.e. like `include=actions,childWorkflows`.
@@ -68,10 +69,10 @@
 - `nflow-netty`
   - Dependency updates
     - reactor-core 3.4.14
-    - reactor-netty 1.0.16
+    - reactor-netty 1.0.17
 - `nflow-metrics`
   - Dependency updates
-    - metrics 4.2.8
+    - metrics 4.2.9
 - `nflow-explorer`
   - Query and show also archived workflow instances when not enough non-archived matches are found. Querying and showing archived instances can be disabled in `config.js`.
   - Dependency updates
@@ -86,7 +87,7 @@
       - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
     - mssql 10.2.0
     - mysql 8.0.28
-    - mariadb 3.0.3
+    - mariadb 3.0.4
     - postgresql 42.3.3
 
 ## 7.4.0 (2021-12-27)
