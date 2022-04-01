@@ -6,13 +6,12 @@ import static org.hamcrest.Matchers.arrayWithSize;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import io.github.swagger2markup.Swagger2MarkupConverter;
 import io.nflow.tests.extension.NflowServerConfig;
 
 public class Swagger2MarkupTest extends AbstractNflowTest {
@@ -25,12 +24,15 @@ public class Swagger2MarkupTest extends AbstractNflowTest {
     super(server);
   }
 
+  @SuppressWarnings("unused")
   @Test
+  @Disabled("Swagger2Markup is not maintained properly at the moment")
   public void convertRemoteSwaggerToAsciiDoc() throws MalformedURLException {
     // currently parboiled 1.3.2 AsmUtils does not work on new jdks - fails with trying to call ClassLoader.findLoadedClass
     assumeTrue("1.8".equals(getProperty("java.specification.version")));
-    Swagger2MarkupConverter.from(new URL(server.getHttpAddress() + "/nflow/api/swagger.json")).build()
-        .toFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
+    // Swagger2Markup is not maintained properly at the moment
+    // Swagger2MarkupConverter.from(new URL(server.getHttpAddress() + "/nflow/api/swagger.json")).build()
+    // .toFolder(SWAGGER2_MARKUP_ASCIIDOC_DIR);
 
     // Then validate that the right number of AsciiDoc files have been created
     String[] files = SWAGGER2_MARKUP_ASCIIDOC_DIR.toFile().list();
