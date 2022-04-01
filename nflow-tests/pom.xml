@@ -31,10 +31,6 @@
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
     </dependency>
-    <!--dependency>
-      <groupId>io.github.swagger2markup</groupId>
-      <artifactId>swagger2markup</artifactId>
-    </dependency-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
@@ -133,31 +129,6 @@
         <configuration>
           <skip>true</skip>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.asciidoctor</groupId>
-        <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>${maven-asciidoctor.version}</version>
-        <executions>
-          <execution>
-            <id>generate-docs</id>
-            <phase>package</phase>
-            <goals>
-              <goal>process-asciidoc</goal>
-            </goals>
-            <configuration>
-              <sourceDocumentName>swagger2markup/index.adoc</sourceDocumentName>
-              <outputDirectory>${project.build.directory}/rest-api-docs</outputDirectory>
-              <backend>html</backend>
-              <attributes>
-                <toclevels>2</toclevels>
-                <toc>left</toc>
-                <doctype>book</doctype>
-                <generated>src/main/asciidoc/swagger2markup</generated>
-              </attributes>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
