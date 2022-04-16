@@ -83,7 +83,7 @@ prompt_continue "push version $SNAPSHOT_VERSION to remote git repository"
 
 git push
 
-prompt_continue "update JavaDoc and REST API documentation ($RELEASE_VERSION) in gh-pages to local git repository"
+prompt_continue "update JavaDoc ($RELEASE_VERSION) in gh-pages to local git repository"
 
 git checkout $RELEASE_VERSION
 mvn clean install -DskipTests=true
@@ -98,12 +98,7 @@ sed -i "2s/.*/redirect_to: \/apidocs\/v$RELEASE_VERSION\//" apidocs/current/inde
 git add apidocs/current/index.html apidocs/v$RELEASE_VERSION
 git commit -m "updated javadocs for version $RELEASE_VERSION"
 
-mv nflow-tests/target/rest-api-docs rest-apidocs/v$RELEASE_VERSION
-sed -i "2s/.*/redirect_to: \/rest-apidocs\/v$RELEASE_VERSION\//" rest-apidocs/current/index.html
-git add rest-apidocs/current/index.html rest-apidocs/v$RELEASE_VERSION
-git commit -m "updated REST API documentation for version $RELEASE_VERSION"
-
-prompt_continue "push JavaDoc and REST API documentation ($RELEASE_VERSION) in gh-pages to remote git repository"
+prompt_continue "push JavaDoc ($RELEASE_VERSION) in gh-pages to remote git repository"
 
 git push
 git checkout master
