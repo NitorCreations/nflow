@@ -47,7 +47,7 @@
     - logback-classic update to version 1.2.11
       - <http://mailman.qos.ch/pipermail/announce/2021/000164.html>
       - <https://jira.qos.ch/browse/LOGBACK-1591>
-    - apache cxf 3.5.1
+    - apache cxf 3.5.2
     - commons.lang3 3.12.0
     - guice 5.1.0
     - hibernate validator 6.2.3
@@ -64,16 +64,16 @@
   - Add `includes` query parameter (fetch / list workflow instances) that supports multiple query parameters, i.e. like `include=actions&include=childWorkflows`.
   - Add `queryArchive` query parameter. If set to `true`, also archived workflow instances are searched when not enough non-archived matches are found. Default value is false.
   - Dependency updates
-    - swagger 2.1.13
+    - swagger 2.2.0
     - jersey 2.35
 - `nflow-jetty`
   - Dependency updates
-    - jetty 10.0.8
+    - jetty 10.0.9
     - reflections 0.10.2
 - `nflow-netty`
   - Dependency updates
-    - reactor-core 3.4.14
-    - reactor-netty 1.0.17
+    - reactor-core 3.4.17
+    - reactor-netty 1.0.18
 - `nflow-metrics`
   - Dependency updates
     - metrics 4.2.9
@@ -87,12 +87,12 @@
     - removed IE browser support
 - `nflow-tests`
   - Dependency updates
-    - h2 2.1.210
+    - h2 2.1.212
       - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
     - mssql 10.2.0
     - mysql 8.0.28
     - mariadb 3.0.4
-    - postgresql 42.3.3
+    - postgresql 42.3.4
 
 ## 7.4.0 (2021-12-27)
 
