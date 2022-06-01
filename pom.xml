@@ -97,6 +97,7 @@
     <module>nflow-rest-api-jax-rs</module>
     <module>nflow-rest-api-spring-web</module>
     <module>nflow-explorer</module>
+    <module>nflow-explorer-ng</module>
     <module>nflow-server-common</module>
     <module>nflow-jetty</module>
     <module>nflow-netty</module>
@@ -443,6 +444,7 @@
         <module>nflow-rest-api-jax-rs</module>
         <module>nflow-rest-api-spring-web</module>
         <module>nflow-explorer</module>
+        <module>nflow-explorer-ng</module>
         <module>nflow-server-common</module>
         <module>nflow-netty</module>
         <module>nflow-jetty</module>

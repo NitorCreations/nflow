@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>nflow-explorer-ng</artifactId>
+  <packaging>pom</packaging>
+  <name>nflow-explorer-ng</name>
+  <description>nFlow Explorer next generation</description>
+  <url>https://nflow.io</url>
+  <organization>
+    <name>Nitor Creations</name>
+    <url>https://www.nitor.com</url>
+  </organization>
+  <parent>
+    <artifactId>nflow-root</artifactId>
+    <groupId>io.nflow</groupId>
+    <version>8.0.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <properties>
+    <grunt.target>build</grunt.target>
+  </properties>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${versions-maven-plugin.version}</version>
+          <configuration>
+            <generateBackupPoms>false</generateBackupPoms>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>${frontend-maven.version}</version>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <phase>compile</phase>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <npmVersion>${npm.version}</npmVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>compile</phase>
+            <configuration>
+              <arguments>--color ci --no-update-notifier --no-audit --no-fund</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm run build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>compile</phase>
+            <configuration>
+              <arguments>--color --no-update-notifier --no-audit --no-fund run build</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${maven-assembly.version}</version>
+        <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
+          <attach>true</attach>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+          <tarLongFileMode>posix</tarLongFileMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>build-dist</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

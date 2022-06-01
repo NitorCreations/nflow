@@ -26,7 +26,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '8.0.0-SNAPSHOT', ext: 'tar.gz'
+	nflowExplorer group: 'io.nflow', name: 'nflow-explorer-ng', version: '8.0.0-SNAPSHOT', ext: 'tar.gz'
 }
 
 task resolveNflowExplorer(type: Copy) {
