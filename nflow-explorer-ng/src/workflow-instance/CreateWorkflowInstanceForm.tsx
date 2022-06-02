@@ -56,11 +56,13 @@ function CreateWorkflowInstanceForm(props: {
   const [stateVariables, setStateVariables] = useState<string>(
     queryParams.get('stateVariables') || ''
   );
-  const [stateVariablesParsed, setStateVariablesParsed] =
-    useState<{[key: string]: any}>();
+  const [stateVariablesParsed, setStateVariablesParsed] = useState<{
+    [key: string]: any;
+  }>();
 
-  const [stateVariableError, setStateVariableError] =
-    useState<string | undefined>();
+  const [stateVariableError, setStateVariableError] = useState<
+    string | undefined
+  >();
 
   const selectDefinition = (type: string) => {
     const definition = definitionFromType(type);
@@ -79,7 +81,7 @@ function CreateWorkflowInstanceForm(props: {
       setStateVariableError(undefined);
       // TODO check that the object is an object? Lists are not allowed here?
       setStateVariablesParsed(object);
-    } catch (err) {
+    } catch (err: any) {
       setStateVariableError(err.message);
       setStateVariablesParsed(undefined);
     }
