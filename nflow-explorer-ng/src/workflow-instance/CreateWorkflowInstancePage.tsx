@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Typography, Grid, Container} from '@material-ui/core';
+import {useLocation} from 'react-router-dom';
 
 import {CreateWorkflowInstanceForm} from './CreateWorkflowInstanceForm';
 import {WorkflowDefinition} from '../types';
@@ -12,9 +13,17 @@ export const SelectedDefinitionContext = React.createContext({
   setSelectedDefinition: (definition: WorkflowDefinition) => {}
 });
 
+const definitionFromType = (
+  definitions: WorkflowDefinition[],
+  type: string | null
+) => definitions.filter(d => d.type === type)[0];
+
 const ShowForm = ({definitions}: {definitions: WorkflowDefinition[]}) => {
+  const queryParams = new URLSearchParams(useLocation().search);
+  const defaultDefinition =
+    definitionFromType(definitions, queryParams.get('type')) || definitions[0];
   const [selectedDefinition, setSelectedDefinition] =
-    useState<WorkflowDefinition>();
+    useState<WorkflowDefinition>(defaultDefinition);
 
   return (
     <SelectedDefinitionContext.Provider
