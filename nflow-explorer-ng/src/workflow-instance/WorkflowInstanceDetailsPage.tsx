@@ -137,6 +137,9 @@ const InstanceSummary = ({
           </InternalLink>{' '}
           ({instance.id})
         </Typography>
+        <Typography variant="h6" color="textSecondary" gutterBottom>
+          {definition.description}
+        </Typography>
         <Grid container>
           <Grid item xs={12} lg={6}>
             <InstanceSummaryTable

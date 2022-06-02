@@ -99,7 +99,7 @@ function StateGraph(props) {
       <svg
         id="stategraph"
         className="svg-content-responsive"
-        preserveAspectRatio="xMinYMin meet"
+        preserveAspectRatio="xMidYMin meet"
       />
     </div>
   );
