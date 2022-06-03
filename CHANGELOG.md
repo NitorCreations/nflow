@@ -39,6 +39,9 @@
   - Workflow instance actions and state variables that are older than 45 days are automatically cleaned up occasionally when the instance is processed. Use workflow settings to change the default time period (`setHistoryDeletableAfter`) and condition (`setDeleteHistoryCondition`) of the clean-up.
   - Add support to query also archived workflow instances when not enough non-archived matches are found.
   - Add `WorkflowInstance.Builder.setState(WorkflowState)` convenience method.
+  - Detect state methods with duplicate @StateVar names
+  - Allow simple generics objects in Mutable state variables
+  - Support instantiating Collection,List and Map interfaces to empty in state variables
   - Dependency updates
     - logback-classic update to version 1.2.11
       - <http://mailman.qos.ch/pipermail/announce/2021/000164.html>
