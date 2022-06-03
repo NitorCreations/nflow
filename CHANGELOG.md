@@ -52,11 +52,17 @@
     - guice 5.1.0
     - hibernate validator 6.2.3
     - hikaricp 5.0.1
-    - jackson 2.13.2
-    - jackson-databind 2.13.2.2
-    - javassist 3.28.0
+    - jackson 2.13.3
+    - jackson-databind 2.13.3
+    - javassist 3.29.0
     - jodatime 2.10.14
+    - mariadb 3.0.5
+    - mssql 10.2.1
+    - mysql 8.0.29
+    - postgres 42.3.6
     - slf4j 1.7.36
+    - reactor.core 3.4.18
+    - reactore.netty 1.0.19
     - spring 5.3.18
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
