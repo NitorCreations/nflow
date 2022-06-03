@@ -41,7 +41,6 @@ const StatisticsSummaryTable = (props: {
     (total, key) => total + totalPerStatus[key].allInstances,
     0
   );
-  const hoplaa = 1;
   return (
     <TableContainer component={Paper}>
       <Table size="small" className="table-striped table-hover">
