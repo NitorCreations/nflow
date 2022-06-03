@@ -1,6 +1,17 @@
-# nFlow explorer redux
+# nFlow explorer NG
 
-The old UI is at http://bank.nflow.io/nflow/ui/explorer/#!/
+The next generation User Interface for [nFlow](https://github.com/NitorCreations/nflow).
+***
+
+## Screenshots
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer-ng/screenshots/nflow-explorer-workflow-definition-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer-ng/screenshots/nflow-explorer-workflow-definition.png" width="345" height="240">|
+|-|-|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer-ng/screenshots/nflow-explorer-workflow-instance-list.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer-ng/screenshots/nflow-explorer-workflow-instance.png" width="345" height="240">|
+|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer-ng/screenshots/nflow-explorer-workflow-instance-variables.png" width="345" height="240">|<img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer-ng/screenshots/nflow-explorer-workflow-instance-manage.png" width="345" height="240">|
+
+## Demo
+
+https://bank.nflow.io/nflow-explorer-ng/
 
 ## Development
 
@@ -23,12 +34,3 @@ Use `npm`. `yarn` has caused problems.
 ### Auto formatting
 
 This repository has code auto formatting enabled. Auto formatter runs before commit.
-
-## TODO
-
-- Testing and automated tests
-- Integrate with nflow deployment/build
-  - Requires http server support: (return index.html on 404)
-- State graph
-  - highlight
-  - Show workflow instance data
