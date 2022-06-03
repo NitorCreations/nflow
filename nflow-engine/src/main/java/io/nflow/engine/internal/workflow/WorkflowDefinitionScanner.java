@@ -20,7 +20,9 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -74,6 +76,9 @@ public class WorkflowDefinitionScanner {
             if (Mutable.class.isAssignableFrom(clazz)) {
               ParameterizedType pType = (ParameterizedType) type;
               type = pType.getActualTypeArguments()[0];
+              if (type instanceof ParameterizedType) {
+                type = ((ParameterizedType) type).getRawType();
+              }
               clazz = (Class<?>) type;
               readOnly = false;
               mutable = true;
@@ -88,12 +93,22 @@ public class WorkflowDefinitionScanner {
         throw new IllegalStateException(
             "Not all parameter names could be resolved for " + method + ". Maybe missing @StateVar annotation?");
       }
+      assertNoDuplicates(method, params);
       if (methods.containsKey(method.getName())) {
         throw new IllegalStateException("Method " + method + " was overloaded. Overloading state methods is not allowed.");
       }
       methods.put(method.getName(), new WorkflowStateMethod(method, params.toArray(new StateParameter[params.size()])));
     }, new WorkflowTransitionMethod());
     return methods;
+  }
+
+  private void assertNoDuplicates(Method method, Collection<StateParameter> params) {
+    Set<String> names = new HashSet<>(params.size(), 1);
+    for (StateParameter p : params) {
+      if (!names.add(p.key)) {
+        throw new IllegalStateException("Method " + method + " had to state variables with same name: " + p.key + ".");
+      }
+    }
   }
 
   public Set<WorkflowState> getPublicStaticWorkflowStates(Class<? extends WorkflowDefinition> definition) {
@@ -123,6 +138,13 @@ public class WorkflowDefinitionScanner {
       return invokeMethod(findMethod(primitiveToWrapper(clazz), "valueOf", String.class), null, "0");
     }
     if (stateInfo != null && stateInfo.instantiateIfNotExists()) {
+      if (clazz.isInterface()) {
+        if (Map.class.isAssignableFrom((clazz))) {
+          clazz = HashMap.class;
+        } else if (Collections.class.isAssignableFrom((clazz)) || List.class.isAssignableFrom((clazz))) {
+          clazz = ArrayList.class;
+        }
+      }
       try {
         Constructor<?> ctr = clazz.getConstructor();
         ctr.newInstance();

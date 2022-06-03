@@ -665,6 +665,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     assertThat(state.get("nullPojo"), is("{\"field\":\"magical instance\",\"test\":false}"));
     assertThat(state.get("immutablePojo"), is("{\"field\": \"unmodified\"}"));
     assertThat(state.get("mutableString"), is("mutated"));
+    assertThat(state.get("genericsMutable"), is("{\"mutated\":\"true\"}"));
     assertThat(state.get("hello"), is("[1,2,3]"));
   }
 
@@ -1023,17 +1024,19 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     public NextAction process(StateExecution execution, @StateVar("string") String s, @StateVar("int") int i,
         @StateVar("pojo") Pojo pojo, @StateVar(value = "nullPojo", instantiateIfNotExists = true) Pojo pojo2,
         @StateVar(value = "immutablePojo", readOnly = true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero,
-        @StateVar("mutableString") Mutable<String> mutableString) {
+        @StateVar("mutableString") Mutable<String> mutableString,
+        @StateVar(value="genericsMutable", instantiateIfNotExists = true) Mutable<Map<String, String>> genericsMutable) {
       assertThat(execution.getWorkflowInstanceId(), is(1L));
       assertThat(execution.getWorkflowInstanceExternalId(), is(notNullValue()));
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);
       assertThat(pojo.field, is(pojo1.field));
       assertThat(pojo.test, is(pojo1.test));
-      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero, mutableString.val);
+      lastArgs = asList(s, i, pojo, pojo2, unmodifiablePojo, zero, mutableString.val, genericsMutable.val);
       pojo.field += " modified";
       pojo2.field = "magical instance";
       unmodifiablePojo.field += " ignored";
       mutableString.val = "mutated";
+      genericsMutable.val.put("mutated", "true");
       execution.setVariable("hello", new int[] { 1, 2, 3 });
       return stopInState(TestState.DONE, "Finished");
     }
