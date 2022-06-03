@@ -1,17 +1,23 @@
 package io.nflow.engine.service;
 
+import static java.lang.Long.MAX_VALUE;
+import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -33,12 +39,17 @@ public class WorkflowDefinitionService {
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
+  /**
+   * The next time the stored definitions from database are checked for changes.
+   */
+  private long nextCheckOfStoredDefinitions;
 
   @Inject
   public WorkflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
     this.workflowDefinitionDao = workflowDefinitionDao;
     this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
     this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
+    this.nextCheckOfStoredDefinitions = env.getProperty("nflow.definition.load", Boolean.class, true) ? 0 : MAX_VALUE;
   }
 
   /**
@@ -49,7 +60,12 @@ public class WorkflowDefinitionService {
    * @return The workflow definition or null if not found.
    */
   public WorkflowDefinition getWorkflowDefinition(String type) {
-    return workflowDefinitions.get(type);
+    WorkflowDefinition ret = workflowDefinitions.get(type);
+    if (ret == null) {
+      refreshStoredDefinitions();
+      ret = workflowDefinitions.get(type);
+    }
+    return ret;
   }
 
   /**
@@ -58,6 +74,7 @@ public class WorkflowDefinitionService {
    * @return List of workflow definitions.
    */
   public List<WorkflowDefinition> getWorkflowDefinitions() {
+    refreshStoredDefinitions();
     return workflowDefinitionValues;
   }
 
@@ -95,5 +112,30 @@ public class WorkflowDefinitionService {
       workflowDefinitionValues = new ArrayList<>(workflowDefinitions.values());
     }
     logger.info("Added workflow type: {} ({})", wd.getType(), wd.getClass().getName());
+  }
+
+  /**
+   *
+   */
+  private synchronized void refreshStoredDefinitions() {
+    long now = currentTimeMillis();
+    if (nextCheckOfStoredDefinitions > now) {
+      return;
+    }
+    nextCheckOfStoredDefinitions = now + MINUTES.toMillis(1);
+    boolean changed = false;
+    for (StoredWorkflowDefinition def : workflowDefinitionDao.queryStoredWorkflowDefinitions(emptyList())) {
+      WorkflowDefinition current = workflowDefinitions.get(def.type);
+      if (current == null || current instanceof StoredWorkflowDefinitionWrapper) {
+        StoredWorkflowDefinitionWrapper wrapper = new StoredWorkflowDefinitionWrapper(def);
+        workflowDefinitions.put(def.type, wrapper);
+        changed = true;
+      }
+    }
+    if (changed) {
+      synchronized (workflowDefinitions) {
+        workflowDefinitionValues = new ArrayList<>(workflowDefinitions.values());
+      }
+    }
   }
 }

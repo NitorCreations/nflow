@@ -37,6 +37,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   private void initializeService(boolean definitionPersist, boolean autoInit) {
+    when(env.getProperty("nflow.definition.load", Boolean.class, true)).thenReturn(true);
     when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(definitionPersist);
     when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(autoInit);
     service = new WorkflowDefinitionService(workflowDefinitionDao, env);
