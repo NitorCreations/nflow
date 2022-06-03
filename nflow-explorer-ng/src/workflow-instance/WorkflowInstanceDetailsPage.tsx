@@ -22,6 +22,7 @@ import {StateVariableTable} from './StateVariableTable';
 import {ActionHistoryTable} from './ActionHistoryTable';
 import {TabPanel} from '../component/TabPanel';
 import {ManageWorkflowInstancePage} from './manage/ManageWorkflowInstancePage';
+import {UpdateWorkflowInstanceStateForm} from './manage/UpdateWorkflowInstanceStateForm';
 
 const InstanceSummaryTable = ({
   instance,
@@ -142,11 +143,22 @@ const InstanceSummary = ({
         </Typography>
         <Grid container>
           <Grid item xs={12} lg={6}>
-            <InstanceSummaryTable
-              instance={instance}
-              parentInstance={parentInstance}
-              externalContent={externalContent}
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <InstanceSummaryTable
+                  instance={instance}
+                  parentInstance={parentInstance}
+                  externalContent={externalContent}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h5">Update state</Typography>
+                <UpdateWorkflowInstanceStateForm
+                  instance={instance}
+                  definition={definition}
+                />
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item xs={6} lg={6}>
             <StateGraph definition={definition} />
