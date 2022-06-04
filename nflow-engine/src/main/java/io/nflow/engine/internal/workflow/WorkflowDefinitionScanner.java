@@ -106,7 +106,7 @@ public class WorkflowDefinitionScanner {
     Set<String> names = new HashSet<>(params.size(), 1);
     for (StateParameter p : params) {
       if (!names.add(p.key)) {
-        throw new IllegalStateException("Method " + method + " had to state variables with same name: " + p.key + ".");
+        throw new IllegalStateException("Method " + method + " had two state variables with same name: " + p.key + ".");
       }
     }
   }
