@@ -17,6 +17,7 @@
   - Enable maintenance (archiving and deleting old workflow instances) by default.
   - Enable workflow instance history clean-up (deleting old actions and state variables) by default.
   - Add support to query also archived workflow instances.
+  - Define `maven.compiler.release = 11`
 
 ### Details
 
