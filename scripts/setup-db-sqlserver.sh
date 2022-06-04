@@ -6,7 +6,7 @@ case $DB_VERSION in
     DB_VERSION=2017-latest # supported until 2027
     ;;
   latest)
-    DB_VERSION=2019-latest
+    DB_VERSION=2022-latest
     ;;
 esac
 
