@@ -131,7 +131,7 @@ const InstanceSummary = ({
   };
   return (
     <Fragment>
-      <Grid item xs={12} sm={6}>
+      <Grid item xs={12} sm={6} className={'summary-container'}>
         <Typography variant="h4">
           <InternalLink to={'/workflow-definition/' + instance.type}>
             {instance.type}
