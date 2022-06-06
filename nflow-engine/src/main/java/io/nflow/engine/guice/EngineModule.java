@@ -3,6 +3,7 @@ package io.nflow.engine.guice;
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;
 
+import java.sql.SQLException;
 import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
@@ -193,7 +194,7 @@ public class EngineModule extends AbstractModule {
     }
 
     @Inject
-    void initH2TcpServer(Environment env, DatabaseConfiguration databaseConfiguration) throws Exception {
+    void initH2TcpServer(Environment env, DatabaseConfiguration databaseConfiguration) throws SQLException {
       if (databaseConfiguration instanceof H2DatabaseConfiguration) {
         Server server = ((H2DatabaseConfiguration) databaseConfiguration).h2TcpServer(env);
         if (server != null) {
@@ -203,7 +204,7 @@ public class EngineModule extends AbstractModule {
     }
 
     @Inject
-    void initH2ConsoleServer(Environment env, DatabaseConfiguration databaseConfiguration) throws Exception {
+    void initH2ConsoleServer(Environment env, DatabaseConfiguration databaseConfiguration) throws SQLException {
       if (databaseConfiguration instanceof H2DatabaseConfiguration) {
         Server server = ((H2DatabaseConfiguration) databaseConfiguration).h2ConsoleServer(env);
         if (server != null) {

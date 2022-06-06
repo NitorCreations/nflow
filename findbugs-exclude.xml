@@ -20,5 +20,16 @@
   <Match>
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
+  <Match>
+    <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+  </Match>
+  <Match>
+    <!--
+    https://github.com/spotbugs/spotbugs/issues/2040 - the new detector has too much false positives,
+    and will be disabled in 4.8.0 by default, but might get fixed to handle lambdas that implement Callable
+    and methods that just pass through the underlying api
+    -->
+    <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+  </Match>
 </FindBugsFilter>
 
