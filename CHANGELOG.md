@@ -56,13 +56,7 @@
     - jackson-databind 2.13.3
     - javassist 3.29.0
     - jodatime 2.10.14
-    - mariadb 3.0.5
-    - mssql 10.2.1
-    - mysql 8.0.29
-    - postgres 42.3.6
     - slf4j 1.7.36
-    - reactor.core 3.4.18
-    - reactore.netty 1.0.19
     - spring 5.3.18
 - `nflow-rest-api`
   - BREAKING CHANGE: Remove `ListWorkflowDefinitionResponse.TransitionDelays.immediate` field, it is not used by nFlow.
@@ -78,16 +72,16 @@
     - reflections 0.10.2
 - `nflow-netty`
   - Dependency updates
-    - reactor-core 3.4.17
-    - reactor-netty 1.0.18
+    - reactor-core 3.4.18
+    - reactore-netty 1.0.19
 - `nflow-metrics`
   - Dependency updates
     - metrics 4.2.9
 - `nflow-explorer`
   - Query and show also archived workflow instances when not enough non-archived matches are found. Querying and showing archived instances can be disabled in `config.js`.
   - Dependency updates
-    - nodejs 16.13.2
-    - npm 8.1.2
+    - nodejs 16.15.1
+    - npm 8.11.0
     - lodash 4.17.21
     - momentjs 2.29.1
     - removed IE browser support
@@ -95,10 +89,10 @@
   - Dependency updates
     - h2 2.1.212
       - Note: If you have persisted any h2 databases you must take a backup and restore. Also the nFlow h2 schema changed to work with 2.x release of h2.
-    - mssql 10.2.0
-    - mysql 8.0.28
-    - mariadb 3.0.4
-    - postgresql 42.3.4
+    - mssql 10.2.1
+    - mysql 8.0.29
+    - mariadb 3.0.5
+    - postgresql 42.3.6
 
 ## 7.4.0 (2021-12-27)
 
