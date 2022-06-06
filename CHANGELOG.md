@@ -73,7 +73,7 @@
 - `nflow-netty`
   - Dependency updates
     - reactor-core 3.4.18
-    - reactore-netty 1.0.19
+    - reactor-netty 1.0.19
 - `nflow-metrics`
   - Dependency updates
     - metrics 4.2.9
