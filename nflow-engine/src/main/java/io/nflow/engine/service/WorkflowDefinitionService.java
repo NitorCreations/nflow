@@ -114,9 +114,6 @@ public class WorkflowDefinitionService {
     logger.info("Added workflow type: {} ({})", wd.getType(), wd.getClass().getName());
   }
 
-  /**
-   *
-   */
   private synchronized void refreshStoredDefinitions() {
     long now = currentTimeMillis();
     if (nextCheckOfStoredDefinitions > now) {
