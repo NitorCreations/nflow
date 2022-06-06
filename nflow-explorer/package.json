@@ -48,7 +48,7 @@
     "karma-sinon": "1.0.5",
     "karma-spec-reporter": "0.0.33",
     "load-grunt-tasks": "5.1.0",
-    "moment": "2.29.1",
+    "moment": "2.29.2",
     "node-sass": "7.0.1",
     "phantomjs-prebuilt": "2.1.16",
     "protractor": "7.0.0",
