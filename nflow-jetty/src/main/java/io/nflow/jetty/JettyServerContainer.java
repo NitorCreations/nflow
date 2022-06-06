@@ -1,14 +1,10 @@
 package io.nflow.jetty;
 
-import static org.springframework.util.ReflectionUtils.findMethod;
-import static org.springframework.util.ReflectionUtils.invokeMethod;
-
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.eclipse.jetty.server.ServerConnector;
 
+// TODO: remove this wrapper?
 public class JettyServerContainer {
   private final Server server;
 
