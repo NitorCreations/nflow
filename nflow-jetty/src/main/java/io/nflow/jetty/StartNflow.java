@@ -77,7 +77,7 @@ public class StartNflow
   }
 
   public JettyServerContainer startJetty(int port, String env, String profiles) throws Exception {
-    return startJetty(port, env, profiles, new LinkedHashMap<String, Object>());
+    return startJetty(port, env, profiles, new LinkedHashMap<>());
   }
 
   public JettyServerContainer startJetty(int port, String env, String profiles, Map<String, Object> properties) throws Exception {
