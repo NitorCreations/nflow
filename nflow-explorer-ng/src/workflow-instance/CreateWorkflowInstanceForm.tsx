@@ -39,14 +39,6 @@ function CreateWorkflowInstanceForm(props: {
   const definitionFromType = (type: string | null) =>
     props.definitions.filter(d => d.type === type)[0];
 
-  const defaultDefinition = () =>
-    definitionFromType(queryParams.get('type')) || props.definitions[0];
-  const [definition, setDefinition] = useState<WorkflowDefinition>(
-    defaultDefinition()
-  );
-  if (!selectedDefinitionContext.selectedDefinition) {
-    selectedDefinitionContext.setSelectedDefinition(defaultDefinition());
-  }
   const [externalId, setExternalId] = useState<string>(
     queryParams.get('externalId') || ''
   );
@@ -56,15 +48,16 @@ function CreateWorkflowInstanceForm(props: {
   const [stateVariables, setStateVariables] = useState<string>(
     queryParams.get('stateVariables') || ''
   );
-  const [stateVariablesParsed, setStateVariablesParsed] =
-    useState<{[key: string]: any}>();
+  const [stateVariablesParsed, setStateVariablesParsed] = useState<{
+    [key: string]: any;
+  }>();
 
-  const [stateVariableError, setStateVariableError] =
-    useState<string | undefined>();
+  const [stateVariableError, setStateVariableError] = useState<
+    string | undefined
+  >();
 
   const selectDefinition = (type: string) => {
     const definition = definitionFromType(type);
-    setDefinition(definitionFromType(type));
     selectedDefinitionContext.setSelectedDefinition(definition);
   };
 
@@ -79,7 +72,7 @@ function CreateWorkflowInstanceForm(props: {
       setStateVariableError(undefined);
       // TODO check that the object is an object? Lists are not allowed here?
       setStateVariablesParsed(object);
-    } catch (err) {
+    } catch (err: any) {
       setStateVariableError(err.message);
       setStateVariablesParsed(undefined);
     }
@@ -102,7 +95,7 @@ function CreateWorkflowInstanceForm(props: {
     // TODO activationTime
     // TODO startState
     const data: NewWorkflowInstance = {
-      type: definition.type,
+      type: (selectedDefinitionContext.selectedDefinition! as any).type,
       businessKey: businessKey || undefined,
       externalId: externalId || undefined,
       activationTime: undefined,
@@ -135,7 +128,7 @@ function CreateWorkflowInstanceForm(props: {
         <Selection
           label="Workflow definition"
           items={definitionNames}
-          selected={definition.type}
+          selected={(selectedDefinitionContext.selectedDefinition! as any).type}
           onChange={selectDefinition}
           getSelectionLabel={(x: any) => x}
         />
@@ -159,7 +152,7 @@ function CreateWorkflowInstanceForm(props: {
             InputLabelProps={{shrink: true}}
             placeholder="Add state variables as a JSON document"
             multiline
-            rows={10}
+            minRows={10}
             value={stateVariables}
             onChange={(e: any) => setStateVariablesStr(e.target.value)}
           />

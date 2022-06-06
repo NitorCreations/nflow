@@ -61,8 +61,12 @@ const Navigation = () => {
               }
             }}
           >
-            {config.nflowEndpoints.map(endPoint => {
-              return <MenuItem value={endPoint.id}>{endPoint.title}</MenuItem>;
+            {config.nflowEndpoints.map((endPoint, index) => {
+              return (
+                <MenuItem key={index} value={endPoint.id}>
+                  {endPoint.title}
+                </MenuItem>
+              );
             })}
           </Select>
         )}

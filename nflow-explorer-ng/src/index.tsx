@@ -4,6 +4,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {readConfig, ConfigContext} from './config';
 import {createTheme, MuiThemeProvider} from '@material-ui/core/styles';
+import {TableCell} from '@material-ui/core';
 
 // https://material-ui.com/components/typography/#general
 // https://fontsource.org/docs/getting-started
@@ -12,6 +13,18 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './index.scss';
+
+// see: https://github.com/gregnb/mui-datatables/issues/1893
+const oldRender = (TableCell as any).render;
+(TableCell as any).render = function (...args: any) {
+  const [props, ...otherArgs] = args;
+  if (typeof props === 'object' && props && 'isEmpty' in props) {
+    const {isEmpty, ...propsWithoutEmpty} = props;
+    return oldRender.apply(this, [propsWithoutEmpty, ...otherArgs]);
+  } else {
+    return oldRender.apply(this, args);
+  }
+};
 
 const theme = createTheme({
   palette: {

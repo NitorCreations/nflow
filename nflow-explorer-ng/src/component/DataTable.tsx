@@ -60,7 +60,7 @@ const Body = ({
       {rows.map((row, index) => (
         <TableRow key={index} className={rowClassRender(row)}>
           {columns.map((column, index) => (
-            <BodyCell column={column} row={row} index={index} />
+            <BodyCell key={index} column={column} row={row} index={index} />
           ))}
         </TableRow>
       ))}

@@ -52,7 +52,7 @@ const WorkflowDetails = ({
         <Container>
           <Paper className="workflow-definition-paper">
             <Typography variant="h5" gutterBottom>
-              Statistics summary
+              Instance statistics
             </Typography>
             <StatisticsSummaryTable statistics={statistics} />
           </Paper>

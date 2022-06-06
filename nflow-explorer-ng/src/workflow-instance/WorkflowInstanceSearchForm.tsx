@@ -152,7 +152,7 @@ function WorkflowInstanceSearchForm(props: {
   return (
     <form className={classes.root}>
       <Grid container alignItems="center">
-        <Grid container xs={11}>
+        <Grid item xs={11}>
           <Selection
             label="Type"
             items={types}

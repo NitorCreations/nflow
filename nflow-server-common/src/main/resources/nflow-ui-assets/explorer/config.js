@@ -1,7 +1,13 @@
 'use strict';
-var Config = function() {
-  this.nflowUrl = '../../api';
-  this.nflowApiDocs = '../doc/';
+var Config = new function() {
+  this.nflowEndpoints = [
+    {
+      id: 'default',
+      title: 'Default nFlow API',
+      apiUrl: '../../api',
+      docUrl: '../doc/'
+    }
+  ];
 
   this.radiator = {
     // poll period in seconds
