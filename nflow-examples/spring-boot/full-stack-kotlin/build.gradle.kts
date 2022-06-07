@@ -23,9 +23,9 @@ fun DependencyHandler.nflow(name: String) = create(
 
 plugins {
     base
-    kotlin("jvm") version "1.3.60"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.61"
-    id("org.springframework.boot") version "2.2.1.RELEASE"
+    kotlin("jvm") version "1.6.0"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.6.21"
+    id("org.springframework.boot") version "2.4.2"
     id("io.spring.dependency-management") version "1.0.8.RELEASE"
 }
 
@@ -46,7 +46,7 @@ dependencies {
     implementation(logback("logback-classic"))
     implementation(nflow("nflow-rest-api-spring-web"))
 
-    runtimeOnly("com.h2database:h2")
+    runtimeOnly("com.h2database:h2:2.1.212")
 
     testImplementation(kotlin("test"))
     testImplementation(springBoot("test"))

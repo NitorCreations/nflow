@@ -18,7 +18,7 @@ repositories {
 dependencies {
 	implementation 'io.nflow:nflow-engine:8.0.0-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2:2.1.212'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
