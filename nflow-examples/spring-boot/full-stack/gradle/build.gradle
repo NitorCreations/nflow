@@ -10,6 +10,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 	maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
@@ -24,7 +25,7 @@ dependencies {
 	implementation 'io.nflow:nflow-rest-api-spring-web:8.0.0-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2:2.1.212'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	nflowExplorer group: 'io.nflow', name: 'nflow-explorer-ng', version: '8.0.0-SNAPSHOT', ext: 'tar.gz'
 }

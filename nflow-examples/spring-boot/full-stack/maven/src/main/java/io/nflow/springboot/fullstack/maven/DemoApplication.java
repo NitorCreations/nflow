@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 
-import io.nflow.engine.config.EngineConfiguration;
+import io.nflow.rest.config.RestConfiguration;
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 @SpringBootApplication
-@Import(EngineConfiguration.class)
+@Import(RestConfiguration.class)
 public class DemoApplication {
 
   @Inject

@@ -1,10 +1,12 @@
-var Config = function () {
-  this.nflowUrl = 'http://localhost:8080/nflow/api';
-  this.nflowApiDocs = 'http://localhost:8080/nflow/ui/doc/';
-  this.radiator = {
-    // poll period in seconds
-    pollPeriod: 15,
-    // max number of items to keep in memory
-    maxHistorySize: 10000
-  };
+var Config = new function() {
+  this.refreshSeconds = 60;
+
+  this.nflowEndpoints = [
+    {
+      id: 'localhost',
+      title: 'local nflow instance',
+      apiUrl: '/nflow/api',
+      docUrl: '/nflow/ui/doc/'
+    },
+  ];
 };

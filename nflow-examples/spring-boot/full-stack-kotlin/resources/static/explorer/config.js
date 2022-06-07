@@ -1,14 +1,13 @@
-var Config = function () {
+var Config = new function() {
+    this.refreshSeconds = 60;
+  
     this.nflowEndpoints = [
-        {
-            id: 'Full stack example',
-            title: 'Full stack example API',
-            apiUrl: '/nflow/api'
-        }
+      {
+        id: 'localhost',
+        title: 'local nflow instance',
+        apiUrl: '/nflow/api',
+        docUrl: '/nflow/ui/doc/'
+      },
     ];
-
-    this.radiator = {
-        pollPeriod: 15,
-        maxHistorySize: 10000
-    };
-};
+  };
+  
