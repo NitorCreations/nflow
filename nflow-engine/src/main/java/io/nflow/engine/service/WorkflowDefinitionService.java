@@ -3,8 +3,9 @@ package io.nflow.engine.service;
 import static java.lang.Long.MAX_VALUE;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.synchronizedMap;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class WorkflowDefinitionService {
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
   private final Map<String, WorkflowDefinition> workflowDefinitions = synchronizedMap(new LinkedHashMap<>());
-  private List<WorkflowDefinition> workflowDefinitionValues = emptyList();
+  private List<WorkflowDefinition> workflowDefinitionValues = unmodifiableList(emptyList());
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
@@ -43,13 +44,15 @@ public class WorkflowDefinitionService {
    * The next time the stored definitions from database are checked for changes.
    */
   private long nextCheckOfStoredDefinitions;
+  private long storedDefinitionCheckInterval;
 
   @Inject
   public WorkflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
     this.workflowDefinitionDao = workflowDefinitionDao;
     this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
     this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
-    this.nextCheckOfStoredDefinitions = env.getProperty("nflow.definition.load", Boolean.class, true) ? 0 : MAX_VALUE;
+    this.storedDefinitionCheckInterval = SECONDS.toMillis(env.getProperty("nflow.definition.load.interval", Integer.class, 60));
+    this.nextCheckOfStoredDefinitions = storedDefinitionCheckInterval > 0 ? 0 : MAX_VALUE;
   }
 
   /**
@@ -109,7 +112,7 @@ public class WorkflowDefinitionService {
       workflowDefinitionDao.storeWorkflowDefinition(wd);
     }
     synchronized (workflowDefinitions) {
-      workflowDefinitionValues = new ArrayList<>(workflowDefinitions.values());
+      workflowDefinitionValues = unmodifiableList(new ArrayList<>(workflowDefinitions.values()));
     }
     logger.info("Added workflow type: {} ({})", wd.getType(), wd.getClass().getName());
   }
@@ -119,7 +122,7 @@ public class WorkflowDefinitionService {
     if (nextCheckOfStoredDefinitions > now) {
       return;
     }
-    nextCheckOfStoredDefinitions = now + MINUTES.toMillis(1);
+    nextCheckOfStoredDefinitions = now + storedDefinitionCheckInterval;
     boolean changed = false;
     for (StoredWorkflowDefinition def : workflowDefinitionDao.queryStoredWorkflowDefinitions(emptyList())) {
       WorkflowDefinition current = workflowDefinitions.get(def.type);
@@ -131,7 +134,7 @@ public class WorkflowDefinitionService {
     }
     if (changed) {
       synchronized (workflowDefinitions) {
-        workflowDefinitionValues = new ArrayList<>(workflowDefinitions.values());
+        workflowDefinitionValues = unmodifiableList(new ArrayList<>(workflowDefinitions.values()));
       }
     }
   }
