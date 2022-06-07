@@ -328,7 +328,7 @@ public class WorkflowSettings extends ModelObject {
 
   /**
    * Return true if workflow instance history should be deleted. Called by WorkflowStateProcessor after processing a state if historyDeletableAfterHours is
-   * set. With default settings, returns true roughly every tenth time. To override, set deleteHistoryCondition.
+   * set. With default settings, returns true roughly every hundredth time. To override, set deleteHistoryCondition.
    *
    * @return True if workflow instance history should be deleted.
    */
