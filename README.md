@@ -33,7 +33,7 @@ Create a Maven project. Add the following to your `pom.xml`. nFlow is available 
 <dependency>
   <groupId>io.nflow</groupId>
   <artifactId>nflow-jetty</artifactId>
-  <version>7.4.0</version>
+  <version>8.0.0</version>
 </dependency>
 ```
 
