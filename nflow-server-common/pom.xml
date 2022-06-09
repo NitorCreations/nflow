@@ -14,7 +14,7 @@
   <parent>
     <artifactId>nflow-root</artifactId>
     <groupId>io.nflow</groupId>
-    <version>8.0.0</version>
+    <version>8.0.1-SNAPSHOT</version>
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
