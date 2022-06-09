@@ -6,8 +6,6 @@
 
 ## 8.0.0 (2022-06-09)
 
-## 8.0.0-SNAPSHOT (future release)
-
 ### Highlights
 
 - Add support for Java 17.
