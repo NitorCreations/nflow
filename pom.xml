@@ -103,7 +103,6 @@
     <module>nflow-netty</module>
     <module>nflow-tests</module>
     <module>nflow-metrics</module>
-    <module>nflow-perf-test</module>
   </modules>
   <properties>
     <jdk.version>11</jdk.version>
