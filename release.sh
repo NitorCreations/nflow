@@ -55,6 +55,16 @@ if [[ -n $1 ]]; then
 fi
 shift
 
+prompt_continue "set version $RELEASE_VERSION to local git repository"
+
+mvn versions:set -DnewVersion=$RELEASE_VERSION
+sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" README.md
+git commit -am "release $RELEASE_VERSION [ci skip]"
+
+prompt_continue "push version $RELEASE_VERSION to remote git repository"
+
+git push
+
 prompt_continue "release version $RELEASE_VERSION to Maven Central"
 
 mvn -Prelease clean deploy $GPG_PASSPHRASE
