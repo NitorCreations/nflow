@@ -29,7 +29,6 @@
 ### Details
 
 - Add support for Java 17, keep support for Java 11 and remove support for Java 8.
-  - Supported Java and database engine combinations are documented in SUPPORT_MATRIX.
 - Minimum supported Maven version for building is 3.6.
 - `nflow-engine`
   - All workflow definitions should now extend the new `WorkflowDefinition` class.
