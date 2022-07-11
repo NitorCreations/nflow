@@ -3,7 +3,7 @@
 DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
-    DB_VERSION=10.2 # supported until may/2022
+    DB_VERSION=10.3 # supported until may/2023
     ;;
   latest)
     DB_VERSION=10.8
