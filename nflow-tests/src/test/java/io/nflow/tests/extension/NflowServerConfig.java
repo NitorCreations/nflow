@@ -2,7 +2,6 @@ package io.nflow.tests.extension;
 
 import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static ru.yandex.qatools.embed.postgresql.distribution.Version.V11_1;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -14,11 +13,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import io.nflow.jetty.JettyServerContainer;
 import io.nflow.jetty.StartNflow;
-import ru.yandex.qatools.embed.postgresql.PostgresExecutable;
-import ru.yandex.qatools.embed.postgresql.PostgresProcess;
-import ru.yandex.qatools.embed.postgresql.PostgresStarter;
-import ru.yandex.qatools.embed.postgresql.config.AbstractPostgresConfig;
-import ru.yandex.qatools.embed.postgresql.config.PostgresConfig;
 
 public class NflowServerConfig {
     private final Map<String, Object> props;
@@ -27,7 +21,6 @@ public class NflowServerConfig {
     private final AtomicReference<Integer> port;
     private Class<?> springContextClass;
     private JettyServerContainer nflowJetty;
-    private PostgresProcess process;
 
     NflowServerConfig(Builder b) {
         props = b.props;
@@ -106,13 +99,11 @@ public class NflowServerConfig {
         if (getInstanceName() == null) {
             props.put("nflow.executor.group", testName);
         }
-        startDb();
         startJetty();
     }
 
     public void after() {
         stopJetty();
-        stopDb();
     }
 
     public NflowServerConfig anotherServer(Map<String, Object> extraProps) {
@@ -120,24 +111,6 @@ public class NflowServerConfig {
         b.props.putAll(props);
         b.props.putAll(extraProps);
         return new NflowServerConfig(b.env(env).profiles(profiles).springContextClass(springContextClass));
-    }
-
-    private void startDb() throws IOException {
-        if (profiles.contains(POSTGRESQL) && !props.containsKey("nflow.db.postgresql.url")) {
-            PostgresStarter<PostgresExecutable, PostgresProcess> runtime = PostgresStarter.getDefaultInstance();
-            PostgresConfig config = new PostgresConfig(V11_1, new AbstractPostgresConfig.Net(),
-                    new AbstractPostgresConfig.Storage("nflow"), new AbstractPostgresConfig.Timeout(),
-                    new AbstractPostgresConfig.Credentials("nflow", "nflow"));
-            PostgresExecutable exec = runtime.prepare(config);
-            process = exec.start();
-            props.put("nflow.db.postgresql.url", "jdbc:postgresql://" + config.net().host() + ":" + config.net().port() + "/nflow");
-        }
-    }
-
-    private void stopDb() {
-        if (process != null) {
-            process.stop();
-        }
     }
 
     private void startJetty() throws Exception {

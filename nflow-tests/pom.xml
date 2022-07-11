@@ -67,10 +67,6 @@
       <artifactId>javax.servlet-api</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>ru.yandex.qatools.embed</groupId>
-      <artifactId>postgresql-embedded</artifactId>
-    </dependency>
   </dependencies>
   <repositories>
     <repository>
