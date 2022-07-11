@@ -12,7 +12,7 @@ esac
 
 docker run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
-fgrep -m1 'Recovery is complete' <(docker logs -f mssql 2>&1)
+fgrep -m1 'Recovery is complete' <(timeot 240 docker logs -f mssql 2>&1)
 
 sqlcmd="docker exec -t mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P passWord1% -e -x"
 $sqlcmd -Q "create database nflow"
