@@ -14,6 +14,6 @@ case $DB_VERSION in
     ;;
 esac
 
-$tool run --pull=always --rm --name mariadb -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=nflow -e MYSQL_USER=nflow -e MYSQL_PASSWORD=nflow --publish 3306:3306 --detach mariadb:$DB_VERSION --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+$tool run --pull=always --rm --name mariadb -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=nflow -e MYSQL_USER=nflow -e MYSQL_PASSWORD=nflow --publish 3306:3306 --detach mariadb:$DB_VERSION --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sync-binlog=0 --innodb-flush-log-at-trx-commit=2
 
 fgrep -m1 'ready for connections' <(timeout 240 $tool logs -f mariadb 2>&1)
