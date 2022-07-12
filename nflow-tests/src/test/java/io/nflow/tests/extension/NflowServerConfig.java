@@ -1,13 +1,12 @@
 package io.nflow.tests.extension;
 
-import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.nflow.metrics.NflowMetricsContext;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -21,6 +20,7 @@ public class NflowServerConfig {
     private final AtomicReference<Integer> port;
     private Class<?> springContextClass;
     private JettyServerContainer nflowJetty;
+    private boolean metrics;
 
     NflowServerConfig(Builder b) {
         props = b.props;
@@ -28,6 +28,7 @@ public class NflowServerConfig {
         profiles = b.profiles;
         port = new AtomicReference<>(b.port);
         springContextClass = b.springContextClass;
+        metrics = b.metrics;
     }
 
     public static class Builder {
@@ -35,6 +36,7 @@ public class NflowServerConfig {
         String env = "local";
         String profiles = "";
         Class<?> springContextClass;
+        boolean metrics = false;
         final Map<String, Object> props = new LinkedHashMap<>();
         {
             props.put("nflow.db.h2.tcp.port", "");
@@ -66,6 +68,10 @@ public class NflowServerConfig {
             return this;
         }
 
+        public Builder metrics(boolean enableMetrics) {
+            this.metrics = enableMetrics;
+            return this;
+        }
         public NflowServerConfig build() {
             return new NflowServerConfig(this);
         }
@@ -110,13 +116,16 @@ public class NflowServerConfig {
         Builder b = new Builder();
         b.props.putAll(props);
         b.props.putAll(extraProps);
-        return new NflowServerConfig(b.env(env).profiles(profiles).springContextClass(springContextClass));
+        return new NflowServerConfig(b.env(env).profiles(profiles).metrics(metrics).springContextClass(springContextClass));
     }
 
     private void startJetty() throws Exception {
         StartNflow startNflow = new StartNflow();
         if (springContextClass != null) {
             startNflow.registerSpringContext(springContextClass);
+        }
+        if (metrics) {
+            startNflow.registerSpringContext(NflowMetricsContext.class);
         }
         nflowJetty = startNflow.startJetty(port.get(), env, profiles, props);
         assertTrue(nflowJetty.isStarted(), "Jetty did not start");

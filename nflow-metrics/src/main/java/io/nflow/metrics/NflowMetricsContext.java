@@ -6,6 +6,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.codahale.metrics.DefaultSettableGauge;
+import com.codahale.metrics.Gauge;
+import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +39,9 @@ public class NflowMetricsContext {
   @Inject
   private HealthCheckRegistry healthCheckRegistry;
 
+  @Inject
+  private DatabaseInitializer databaseInitializer;
+
   @Bean
   public DatabaseConnectionHealthCheck databaseConnectionHealthCheck() {
     return new DatabaseConnectionHealthCheck(healthCheckService);
@@ -44,6 +50,11 @@ public class NflowMetricsContext {
   @PostConstruct
   public void registerHealthChecks() {
     healthCheckRegistry.register("nflowDatabaseConnection", databaseConnectionHealthCheck());
+  }
+
+  @PostConstruct
+  public void registerDatabaseType() {
+    metricRegistry.gauge("nflow.database.type", () -> new DefaultSettableGauge<>(databaseInitializer.dbType));
   }
 
   @Bean

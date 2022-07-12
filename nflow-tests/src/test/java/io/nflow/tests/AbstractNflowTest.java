@@ -186,7 +186,7 @@ public abstract class AbstractNflowTest {
     return fromClient(workflowInstanceResource, true).put(request, CreateWorkflowInstanceResponse.class);
   }
 
-  protected ObjectMapper nflowObjectMapper() {
+  protected static ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());

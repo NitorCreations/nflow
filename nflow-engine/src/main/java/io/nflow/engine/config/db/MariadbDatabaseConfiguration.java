@@ -50,7 +50,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   @SuppressFBWarnings(value = { "WEM_WEAK_EXCEPTION_MESSAGING", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" },
       justification = "exception message is ok, null-check in try-catch")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
-    String scriptPrefix = "mariadb";
+    String scriptPrefix = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
