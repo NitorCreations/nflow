@@ -125,21 +125,22 @@ public class ConcurrentEnginesTest {
       while (true) {
         sleep(500);
         var instances = workflowInstanceResource
+            .reset()
             .query("type", FIBONACCI_TYPE)
             .query("maxResults", WORKFLOWS + 1)
             .query("businessKey", UNIQUE_KEY)
             .query("status", finished)
             .get(ListWorkflowInstanceResponse[].class);
 
-        int count = 0;
+        int count = WORKFLOWS;
         for (var workflow : instances) {
           if (workflowIds.contains(workflow.id)) {
-            count++;
+            count--;
           } else {
             break;
           }
         }
-        if (count == WORKFLOWS) {
+        if (count == 0) {
           return instances;
         }
       }
