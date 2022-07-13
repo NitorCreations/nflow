@@ -121,7 +121,7 @@ public class ConcurrentEnginesTest {
   @Test
   @Order(2)
   public void waitWorkflowsReady() {
-    var wfr = assertTimeoutPreemptively(ofSeconds(60), () -> {
+    var wfr = assertTimeoutPreemptively(ofSeconds(120), () -> {
       while (true) {
         sleep(500);
         var instances = workflowInstanceResource
