@@ -112,7 +112,7 @@ public class ConcurrentEnginesTest {
     req.stateVariables.put(VAR_REQUEST_DATA, nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
 
     for (int i = 0; i < WORKFLOWS; ++i) {
-      var resp = workflowInstanceResource.put(req, CreateWorkflowInstanceResponse.class);
+      var resp = workflowInstanceResource.reset().put(req, CreateWorkflowInstanceResponse.class);
       assertThat(resp.id, notNullValue());
       workflowIds.add(resp.id);
     }
