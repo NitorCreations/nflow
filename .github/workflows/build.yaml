@@ -80,5 +80,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: integrationtest-results
-          path: '**/target/surefire-tests/*.xml'
+          path: '**/target/surefire-reports/*.xml'
           retention-days: 7

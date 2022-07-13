@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import io.nflow.engine.internal.storage.db.DatabaseInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -114,6 +115,10 @@ public class MetricsWorkflowExecutorListenerTest {
       return mock(HealthCheckService.class);
     }
 
+    @Bean
+    DatabaseInitializer databaseInitializer() {
+      return mock(DatabaseInitializer.class);
+    }
     @Bean
     public ExecutorDao executorDao() {
       ExecutorDao dao = mock(ExecutorDao.class);
