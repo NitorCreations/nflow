@@ -75,3 +75,10 @@ jobs:
         if: always()
         with:
           check_name: 'Integration Test Report for Java ${{ matrix.java }} and ${{ matrix.db }}'
+      - name: Upload test files as artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: integrationtest-results
+          path: '**/target/surefire-tests/*.xml'
+          retention-days: 7
