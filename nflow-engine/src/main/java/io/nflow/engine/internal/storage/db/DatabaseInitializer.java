@@ -14,10 +14,8 @@ import org.springframework.jdbc.datasource.init.ScriptStatementFailedException;
 
 public class DatabaseInitializer {
   private static final Logger logger = getLogger(DatabaseInitializer.class);
-  public final String dbType;
 
   public DatabaseInitializer(String dbType, DataSource ds, Environment env, String scriptSeparator) {
-    this.dbType = dbType;
     if (!env.getRequiredProperty("nflow.db.create_on_startup", Boolean.class)) {
       return;
     }

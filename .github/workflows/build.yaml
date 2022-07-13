@@ -79,6 +79,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: integrationtest-results
+          name: 'integrationtest-results-java${{ matrix.java }}-${{ matrix.db }}'
           path: '**/target/surefire-reports/*.xml'
           retention-days: 7

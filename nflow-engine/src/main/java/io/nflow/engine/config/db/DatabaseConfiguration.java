@@ -48,6 +48,14 @@ public abstract class DatabaseConfiguration {
   }
 
   /**
+   * Return the type of the database.
+   * @return Type of the database.
+   */
+  public String getDbType() {
+    return dbType;
+  }
+
+  /**
    * Creates the datasource bean for nFlow.
    * @param env The Spring environment for getting the configuration property values.
    * @param appCtx The application context for searching Metrics registry bean.
