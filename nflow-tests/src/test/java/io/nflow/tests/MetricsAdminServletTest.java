@@ -2,7 +2,6 @@ package io.nflow.tests;
 
 import static java.lang.System.getenv;
 import static java.util.Optional.ofNullable;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -12,9 +11,6 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -48,8 +44,11 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
   public void canFetchMetrics() {
     URI uri = URI.create("http://localhost:" + server.getPort() + "/nflow/metrics/metrics");
     var metrics = makeRequest(uri);
+    var springProfile = getenv("SPRING_PROFILES_ACTIVE");
     var dbType = metrics.get("gauges").get("nflow.database.type").get("value").asText();
-    var springProfiles = ofNullable(getenv("SPRING_PROFILES_ACTIVE")).map(s -> s.split(",")).orElse(new String[0]);
+    System.out.printf("Database type %s, profile %s%n", dbType, springProfile);
+
+    var springProfiles = ofNullable(springProfile).map(s -> s.split(",")).orElse(new String[0]);
     var profileDbType = Stream.of(springProfiles)
             .filter(p -> p.startsWith("nflow.db."))
             .map(p -> p.substring(9))
