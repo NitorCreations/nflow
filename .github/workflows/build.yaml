@@ -4,6 +4,9 @@ on:
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+permissions:
+  contents: read
+  checks: write
 jobs:
   build-and-test:
     if: always()
