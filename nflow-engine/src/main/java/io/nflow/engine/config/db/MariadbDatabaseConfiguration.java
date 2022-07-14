@@ -50,7 +50,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   @SuppressFBWarnings(value = { "WEM_WEAK_EXCEPTION_MESSAGING", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" },
       justification = "exception message is ok, null-check in try-catch")
   public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
-    String scriptPrefix = "mysql";
+    String scriptPrefix = "mariadb";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
       String databaseProductVersion = meta.getDatabaseProductVersion();
@@ -58,10 +58,6 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
       int minorVersion = meta.getDatabaseMinorVersion();
       if (databaseProductVersion.startsWith("5.5.5-")) {
         databaseProductVersion = databaseProductVersion.substring(6);
-      }
-      String[] versions = split(databaseProductVersion, ".-");
-      if (parseInt(versions[0]) <= 5 && parseInt(versions[1]) <= 5) {
-        scriptPrefix += ".legacy";
       }
       logger.info("MariaDB {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
     } catch (SQLException e) {

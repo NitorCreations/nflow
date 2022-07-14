@@ -56,9 +56,6 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
       int majorVersion = meta.getDatabaseMajorVersion();
       int minorVersion = meta.getDatabaseMinorVersion();
       logger.info("MySQL {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
-      if (majorVersion <= 5 && minorVersion <= 5) {
-        scriptPrefix += ".legacy";
-      }
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain MySQL version", e);
     }
