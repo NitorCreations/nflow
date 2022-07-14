@@ -16,9 +16,6 @@
     <version>8.0.1-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <properties>
-    <grunt.target>build</grunt.target>
-  </properties>
   <build>
     <pluginManagement>
       <plugins>
