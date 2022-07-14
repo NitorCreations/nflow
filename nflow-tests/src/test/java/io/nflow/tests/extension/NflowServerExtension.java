@@ -11,7 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class NflowServerExtension implements BeforeAllCallback, AfterEachCallback, AfterAllCallback {
   private static Logger logger = LoggerFactory.getLogger(NflowServerExtension.class);
   private Class<?> testClass;
-  private final List<NflowServerConfig> configs = new ArrayList<>();
+  private NflowServerConfig config;
   private Object testInstance;
 
   @Override
@@ -35,12 +34,16 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
         .filter(field -> isStatic(field.getModifiers()))
         .collect(toList());
 
-    for (Field configField : fields) {
-      var config = (NflowServerConfig) configField.get(null);
-      logger.debug("Initialize with {}: {}", NflowServerConfig.class.getSimpleName(), config);
-      configs.add(config);
-      config.before(testClass.getSimpleName());
+    if (fields.size() != 1) {
+      throw new IllegalArgumentException("Classes that are annotated with @NflowServerExtension "
+          + "must have exactly one static field of type NflowServerConfig\nFor example:\n"
+          + "public static NflowServerConfig server = new NflowServerConfig.Builder().build();");
     }
+
+    Field configField = fields.get(0);
+    config = (NflowServerConfig) configField.get(null);
+    logger.debug("Initialize with {}: {}", NflowServerConfig.class.getSimpleName(), config);
+    config.before(testClass.getSimpleName());
   }
 
   @Override
@@ -51,7 +54,7 @@ public class NflowServerExtension implements BeforeAllCallback, AfterEachCallbac
   @Override
   public void afterAll(ExtensionContext context) {
     invokeBeforeServerStop();
-    configs.forEach(NflowServerConfig::after);
+    config.after();
   }
 
   private void invokeBeforeServerStop() {
