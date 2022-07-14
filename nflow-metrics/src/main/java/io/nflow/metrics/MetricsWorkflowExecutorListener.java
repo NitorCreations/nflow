@@ -56,9 +56,7 @@ public class MetricsWorkflowExecutorListener implements WorkflowExecutorListener
   @Override
   public void afterProcessing(ListenerContext context) {
     stopTimer(context);
-    var meter = metricRegistry.meter(stateMetricKey(context, "success-count"));
-    meter.mark();
-    System.out.println(meter);
+    metricRegistry.meter(stateMetricKey(context, "success-count")).mark();
   }
 
   private void stopTimer(ListenerContext context) {
