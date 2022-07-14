@@ -1,24 +1,17 @@
 package io.nflow.tests.extension;
 
-import static io.nflow.engine.config.Profiles.POSTGRESQL;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static ru.yandex.qatools.embed.postgresql.distribution.Version.V11_1;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.nflow.metrics.NflowMetricsContext;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import io.nflow.jetty.JettyServerContainer;
 import io.nflow.jetty.StartNflow;
-import ru.yandex.qatools.embed.postgresql.PostgresExecutable;
-import ru.yandex.qatools.embed.postgresql.PostgresProcess;
-import ru.yandex.qatools.embed.postgresql.PostgresStarter;
-import ru.yandex.qatools.embed.postgresql.config.AbstractPostgresConfig;
-import ru.yandex.qatools.embed.postgresql.config.PostgresConfig;
 
 public class NflowServerConfig {
     private final Map<String, Object> props;
@@ -27,7 +20,7 @@ public class NflowServerConfig {
     private final AtomicReference<Integer> port;
     private Class<?> springContextClass;
     private JettyServerContainer nflowJetty;
-    private PostgresProcess process;
+    private boolean metrics;
 
     NflowServerConfig(Builder b) {
         props = b.props;
@@ -35,6 +28,7 @@ public class NflowServerConfig {
         profiles = b.profiles;
         port = new AtomicReference<>(b.port);
         springContextClass = b.springContextClass;
+        metrics = b.metrics;
     }
 
     public static class Builder {
@@ -42,6 +36,7 @@ public class NflowServerConfig {
         String env = "local";
         String profiles = "";
         Class<?> springContextClass;
+        boolean metrics = false;
         final Map<String, Object> props = new LinkedHashMap<>();
         {
             props.put("nflow.db.h2.tcp.port", "");
@@ -73,6 +68,10 @@ public class NflowServerConfig {
             return this;
         }
 
+        public Builder metrics(boolean enableMetrics) {
+            this.metrics = enableMetrics;
+            return this;
+        }
         public NflowServerConfig build() {
             return new NflowServerConfig(this);
         }
@@ -106,44 +105,27 @@ public class NflowServerConfig {
         if (getInstanceName() == null) {
             props.put("nflow.executor.group", testName);
         }
-        startDb();
         startJetty();
     }
 
     public void after() {
         stopJetty();
-        stopDb();
     }
 
     public NflowServerConfig anotherServer(Map<String, Object> extraProps) {
         Builder b = new Builder();
         b.props.putAll(props);
         b.props.putAll(extraProps);
-        return new NflowServerConfig(b.env(env).profiles(profiles).springContextClass(springContextClass));
-    }
-
-    private void startDb() throws IOException {
-        if (profiles.contains(POSTGRESQL) && !props.containsKey("nflow.db.postgresql.url")) {
-            PostgresStarter<PostgresExecutable, PostgresProcess> runtime = PostgresStarter.getDefaultInstance();
-            PostgresConfig config = new PostgresConfig(V11_1, new AbstractPostgresConfig.Net(),
-                    new AbstractPostgresConfig.Storage("nflow"), new AbstractPostgresConfig.Timeout(),
-                    new AbstractPostgresConfig.Credentials("nflow", "nflow"));
-            PostgresExecutable exec = runtime.prepare(config);
-            process = exec.start();
-            props.put("nflow.db.postgresql.url", "jdbc:postgresql://" + config.net().host() + ":" + config.net().port() + "/nflow");
-        }
-    }
-
-    private void stopDb() {
-        if (process != null) {
-            process.stop();
-        }
+        return new NflowServerConfig(b.env(env).profiles(profiles).metrics(metrics).springContextClass(springContextClass));
     }
 
     private void startJetty() throws Exception {
         StartNflow startNflow = new StartNflow();
         if (springContextClass != null) {
             startNflow.registerSpringContext(springContextClass);
+        }
+        if (metrics) {
+            startNflow.registerSpringContext(NflowMetricsContext.class);
         }
         nflowJetty = startNflow.startJetty(port.get(), env, profiles, props);
         assertTrue(nflowJetty.isStarted(), "Jetty did not start");

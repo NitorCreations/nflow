@@ -30,9 +30,9 @@ public class WorkflowDispatcher implements Runnable {
   private static final Logger logger = getLogger(WorkflowDispatcher.class);
   private static final PeriodicLogger periodicLogger = new PeriodicLogger(logger, 60);
 
-  private volatile AtomicBoolean shutdownRequested = new AtomicBoolean();
-  private volatile AtomicBoolean running = new AtomicBoolean();
-  private volatile AtomicBoolean paused = new AtomicBoolean();
+  private final AtomicBoolean shutdownRequested = new AtomicBoolean();
+  private final AtomicBoolean running = new AtomicBoolean();
+  private final AtomicBoolean paused = new AtomicBoolean();
   private final CountDownLatch shutdownDone = new CountDownLatch(1);
 
   private final WorkflowInstanceExecutor executor;

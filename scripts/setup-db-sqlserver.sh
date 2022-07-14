@@ -1,5 +1,9 @@
 #!/bin/bash -ev
 
+tool=$(command -v podman)
+[ -z "$tool" ] && tool=$(command -v docker)
+[ -z "$tool" ] && echo "podman or docker required" && exit 1
+
 DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
@@ -10,11 +14,11 @@ case $DB_VERSION in
     ;;
 esac
 
-docker run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
+$tool run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
-fgrep -m1 'Recovery is complete' <(docker logs -f mssql 2>&1)
+fgrep -m1 'Recovery is complete' <(timeout 240 $tool logs -f mssql 2>&1)
 
-sqlcmd="docker exec -t mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P passWord1% -e -x"
+sqlcmd="$tool exec -t mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P passWord1% -e -x"
 $sqlcmd -Q "create database nflow"
 $sqlcmd -d nflow -Q "create login [nflow] with password='nFlow42%', default_database=[nflow]"
 $sqlcmd -d nflow -Q "create user [nflow] for login [nflow] with default_schema=[nflow]"

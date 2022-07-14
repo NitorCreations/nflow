@@ -1,26 +1,36 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
-import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static io.nflow.tests.AbstractNflowTest.nflowObjectMapper;
+import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
+import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.reverse;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -50,7 +60,12 @@ public class ConcurrentEnginesTest {
   private static final int WORKFLOWS = 100 * ENGINES;
   private static final String UNIQUE_KEY = UUID.randomUUID().toString();
   private static final List<NflowServerConfig> servers = new ArrayList<>();
+  private static final Set<Long> workflowIds = new HashSet<>();
   private WebClient workflowInstanceResource;
+
+  @Inject
+  @Named("workflowInstance")
+  private WebClient baseClient;
 
   @ComponentScan(basePackageClasses = DemoWorkflow.class)
   static class DemoConfiguration {
@@ -65,10 +80,11 @@ public class ConcurrentEnginesTest {
         .prop("nflow.executor.group", "concur")
         .prop("nflow.dispatcher.sleep.ms", 5)
         .prop("nflow.dispatcher.sleep.ms", 2)
+        .metrics(true)
         .springContextClass(DemoConfiguration.class).build());
     servers.get(0).before("ConcurrentEnginesTest");
     for (int i = 1; i < ENGINES; ++i) {
-      NflowServerConfig server = servers.get(0).anotherServer(emptyMap());
+      var server = servers.get(0).anotherServer(emptyMap());
       servers.add(server);
       server.before("ConcurrentEnginesTest");
     }
@@ -89,30 +105,41 @@ public class ConcurrentEnginesTest {
   @Test
   @Order(1)
   public void insertWorkflows() {
-    CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.type = DEMO_WORKFLOW_TYPE;
+    var req = new CreateWorkflowInstanceRequest();
+    req.type = FIBONACCI_TYPE;
     req.businessKey = UNIQUE_KEY;
-    req.activationTime = now().plusSeconds(10);
+    req.activationTime = now().plusSeconds(5);
+    req.stateVariables.put(VAR_REQUEST_DATA, nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
+
     for (int i = 0; i < WORKFLOWS; ++i) {
-      CreateWorkflowInstanceResponse resp = fromClient(workflowInstanceResource, true).put(req,
-          CreateWorkflowInstanceResponse.class);
+      var resp = workflowInstanceResource.put(req, CreateWorkflowInstanceResponse.class);
       assertThat(resp.id, notNullValue());
+      workflowIds.add(resp.id);
     }
   }
 
   @Test
   @Order(2)
   public void waitWorkflowsReady() {
-    ListWorkflowInstanceResponse[] wfr = assertTimeoutPreemptively(ofSeconds(60), () -> {
+    var wfr = assertTimeoutPreemptively(ofSeconds(120), () -> {
       while (true) {
         sleep(500);
-        ListWorkflowInstanceResponse[] instances = fromClient(workflowInstanceResource, true)
-            .query("type", DEMO_WORKFLOW_TYPE)
+        var instances = fromClient(workflowInstanceResource, true)
+            .query("type", FIBONACCI_TYPE)
             .query("maxResults", WORKFLOWS + 1)
             .query("businessKey", UNIQUE_KEY)
             .query("status", finished)
             .get(ListWorkflowInstanceResponse[].class);
-        if (instances.length == WORKFLOWS) {
+
+        int count = WORKFLOWS;
+        for (var workflow : instances) {
+          if (workflowIds.contains(workflow.id)) {
+            count--;
+          } else {
+            break;
+          }
+        }
+        if (count == 0) {
           return instances;
         }
       }
@@ -120,4 +147,28 @@ public class ConcurrentEnginesTest {
     assertThat(wfr.length, is(WORKFLOWS));
   }
 
+  @Test
+  @Order(3)
+  public void verifyAllExecutorsExecutedWorkflows() {
+    List<Integer> polls = new ArrayList<>();
+    for (var server: servers) {
+      var uri = URI.create("http://localhost:" + server.getPort() + "/nflow/metrics/metrics");
+      var data = makeRequest(uri);
+      var meters = data.get("meters");
+      AtomicInteger count = new AtomicInteger();
+      meters.fieldNames().forEachRemaining(field -> {
+        if (field.matches("concur\\.[0-9]+\\.fibonacci\\.begin\\.success-count")) {
+          count.set(meters.get(field).get("count").asInt());
+        }
+      });
+      polls.add(count.get());
+    }
+    System.out.println(polls);
+    assertThat("Each engine has to do at least 50% of its fair share of work", polls, everyItem(greaterThan(WORKFLOWS / ENGINES / 2)));
+  }
+
+  private JsonNode makeRequest(URI uri) {
+    var client = fromClient(baseClient, true).to(uri.toString(), false);
+    return client.get(JsonNode.class);
+  }
 }

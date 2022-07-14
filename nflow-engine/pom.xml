@@ -23,7 +23,7 @@
         <version>1.5.3</version>
         <executions>
           <execution>
-            <phase>generate-sources</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>replace</goal>
             </goals>
@@ -31,11 +31,32 @@
         </executions>
         <configuration>
           <file>${project.basedir}/src/main/resources/scripts/db/mysql.create.ddl.sql</file>
-          <outputFile>${project.basedir}/target/classes/scripts/db/mariadb.create.ddl.sql</outputFile>
+          <outputFile>${project.build.directory}/generated-resources/scripts/db/mariadb.create.ddl.sql</outputFile>
           <regex>false</regex>
           <token>ROW_FORMAT=COMPRESSED</token>
           <value></value>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-resource</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>add-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/generated-resources/</directory>
+                  <targetPath></targetPath>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

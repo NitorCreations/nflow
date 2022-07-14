@@ -109,6 +109,7 @@
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
     <apache.cxf.version>3.5.2</apache.cxf.version>
+    <build-helper.version>3.3.0</build-helper.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.12.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
@@ -116,7 +117,7 @@
     <el.version>3.0.0</el.version>
     <frontend-maven.version>1.12.1</frontend-maven.version>
     <guice.version>5.1.0</guice.version>
-    <h2.version>2.1.212</h2.version>
+    <h2.version>2.1.214</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
     <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
     <hikaricp.version>5.0.1</hikaricp.version>
@@ -134,7 +135,7 @@
     <junit5.version>5.6.2</junit5.version>
     <junit-platform.version>1.8.2</junit-platform.version>
     <logback-classic.version>1.2.11</logback-classic.version>
-    <mariadb.version>3.0.5</mariadb.version>
+    <mariadb.version>3.0.6</mariadb.version>
     <maven-assembly.version>3.3.0</maven-assembly.version>
     <maven-clean.version>3.2.0</maven-clean.version>
     <maven-compiler.version>3.10.1</maven-compiler.version>
@@ -164,8 +165,7 @@
     <node.version>v16.15.1</node.version>    <!-- https://nodejs.org/en/download/releases/ -->
     <npm.version>8.11.0</npm.version>    <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
-    <postgresql.version>42.3.6</postgresql.version>
-    <postgresql-embedded.version>2.10</postgresql-embedded.version>
+    <postgresql.version>42.4.0</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <reactor.core.version>3.4.18</reactor.core.version>
@@ -208,7 +208,7 @@
             <includes>
               <include>**/*Test.java</include>
             </includes>
-            <!-- <runOrder>random</runOrder> <forkCount>0.8C</forkCount> -->
+            <!-- <runOrder>random</runOrder> -->
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <parallel>classes</parallel>
             <perCoreThreadCount>true</perCoreThreadCount>
@@ -271,6 +271,11 @@
         <plugin>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>${maven-gpg.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build-helper.version}</version>
         </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
@@ -926,11 +931,6 @@
         <artifactId>mockito-inline</artifactId>
         <version>${mockito.version}</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>ru.yandex.qatools.embed</groupId>
-        <artifactId>postgresql-embedded</artifactId>
-        <version>${postgresql-embedded.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

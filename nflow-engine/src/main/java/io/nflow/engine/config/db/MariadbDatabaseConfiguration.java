@@ -56,13 +56,6 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
       String databaseProductVersion = meta.getDatabaseProductVersion();
       int majorVersion = meta.getDatabaseMajorVersion();
       int minorVersion = meta.getDatabaseMinorVersion();
-      if (databaseProductVersion.startsWith("5.5.5-")) {
-        databaseProductVersion = databaseProductVersion.substring(6);
-      }
-      String[] versions = split(databaseProductVersion, ".-");
-      if (parseInt(versions[0]) <= 5 && parseInt(versions[1]) <= 5) {
-        scriptPrefix += ".legacy";
-      }
       logger.info("MariaDB {}.{}, product version {}", majorVersion, minorVersion, databaseProductVersion);
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain MariaDB version", e);
