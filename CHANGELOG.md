@@ -6,6 +6,17 @@
 
 ## 8.0.0 (2022-06-09)
 
+- `nflow-engine`
+  - remove obsolete mysql legacy ddl sql scripts
+  - include generated mariadb.create.ddl.sql in sources.jar
+- `nflow-metrics`
+  - export the nflow.database.type as a metric
+- `nflow-tests`
+  - Dependency updates
+    - h2 2.1.214
+    - mariadb 3.0.6
+    - postgresql 42.4.0
+
 ### Highlights
 
 - Add support for Java 17.
