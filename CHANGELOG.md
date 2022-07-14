@@ -9,8 +9,22 @@
 - `nflow-engine`
   - remove obsolete mysql legacy ddl sql scripts
   - include generated mariadb.create.ddl.sql in sources.jar
+  - Dependency updates
+    - apache cxf 3.5.3
+- `nflow-jetty`
+  - Dependency updates
+    - jetty 10.0.11
+- `nflow-netty`
+  - Dependency updates
+    - reactor-core 3.4.21
+    - reactor-netty 1.0.21
+- `nflow-rest-api`
+  - Dependency updates
+    - swagger 2.2.1
 - `nflow-metrics`
   - export the nflow.database.type as a metric
+  - Dependency updates
+    - metrics 4.2.10
 - `nflow-tests`
   - Dependency updates
     - h2 2.1.214
