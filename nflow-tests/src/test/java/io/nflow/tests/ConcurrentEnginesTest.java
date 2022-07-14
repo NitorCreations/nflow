@@ -124,8 +124,7 @@ public class ConcurrentEnginesTest {
     var wfr = assertTimeoutPreemptively(ofSeconds(120), () -> {
       while (true) {
         sleep(500);
-        var instances = workflowInstanceResource
-            .reset()
+        var instances = fromClient(workflowInstanceResource, true)
             .query("type", FIBONACCI_TYPE)
             .query("maxResults", WORKFLOWS + 1)
             .query("businessKey", UNIQUE_KEY)

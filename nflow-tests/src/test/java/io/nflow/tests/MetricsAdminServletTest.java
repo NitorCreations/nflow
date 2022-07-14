@@ -2,20 +2,12 @@ package io.nflow.tests;
 
 import static java.lang.System.getenv;
 import static java.util.Optional.ofNullable;
-import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.net.URI;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -23,9 +15,6 @@ import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MetricsAdminServletTest extends AbstractNflowTest {
-  @Inject
-  @Named("workflowInstance")
-  private WebClient baseClient;
 
   public static NflowServerConfig server = new NflowServerConfig.Builder()
           .prop("nflow.executor.timeout.seconds", 1)
@@ -40,10 +29,20 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
   }
 
   @Test
-  @Order(1)
   public void canFetchMetrics() {
-    URI uri = URI.create("http://localhost:" + server.getPort() + "/nflow/metrics/metrics");
-    var metrics = makeRequest(uri);
+    var metrics = getMetricsStatistics();
+    assertThat(metrics.get("gauges").get("threadStates.deadlock.count").get("value").asInt(), is(0));
+  }
+
+  @Test
+  public void canFetchHealthChecks() {
+    var health = getMetricsHealth();
+    assertThat(health.get("nflowDatabaseConnection").get("healthy").asBoolean(), is(true));
+  }
+
+  @Test
+  public void metricsHasDatabaseTypeExposed() {
+    var metrics = getMetricsStatistics();
     var springProfile = getenv("SPRING_PROFILES_ACTIVE");
     var dbType = metrics.get("gauges").get("nflow.database.type").get("value").asText();
     System.out.printf("Database type %s, profile %s%n", dbType, springProfile);
@@ -55,17 +54,5 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
             .findFirst()
             .orElse("h2");
     assertThat(dbType, is(profileDbType));
-  }
-
-  @Test
-  @Order(2)
-  public void canFetchHealthChecks() {
-    URI uri = URI.create("http://localhost:" + server.getPort() + "/nflow/metrics/healthcheck");
-    makeRequest(uri);
-  }
-
-  private JsonNode makeRequest(URI uri) {
-    var client = fromClient(baseClient, true).to(uri.toString(), false);
-    return client.get(JsonNode.class);
   }
 }

@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,6 +61,7 @@ public abstract class AbstractNflowTest {
   private WebClient workflowDefinitionResource;
   private WebClient statisticsResource;
   private WebClient maintenanceResource;
+  private WebClient metricsResource;
 
   private final NflowServerConfig server;
 
@@ -95,6 +97,12 @@ public abstract class AbstractNflowTest {
   public void setMaintenanceResource(@Named("maintenance") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.maintenanceResource = fromClient(client, true).to(newUri, false);
+  }
+
+  @Inject
+  public void setMetricsResource(@Named("metrics") WebClient client) {
+    String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
+    this.metricsResource = fromClient(client, true).to(newUri, false);
   }
 
   protected ListWorkflowInstanceResponse getWorkflowInstance(long instanceId) {
@@ -137,6 +145,14 @@ public abstract class AbstractNflowTest {
 
   public StatisticsResponse getStatistics() {
     return fromClient(statisticsResource, true).get(StatisticsResponse.class);
+  }
+
+  public JsonNode getMetricsStatistics() {
+    return fromClient(metricsResource, true).path("metrics").get(JsonNode.class);
+  }
+
+  public JsonNode getMetricsHealth() {
+    return fromClient(metricsResource, true).path("healthcheck").get(JsonNode.class);
   }
 
   public WorkflowDefinitionStatisticsResponse getDefinitionStatistics(String definitionType) {

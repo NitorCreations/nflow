@@ -84,4 +84,9 @@ public class RestClientConfiguration {
   public WebClient maintenance() {
     return baseWebClient().path("maintenance");
   }
+
+  @Bean(name = "metrics")
+  public WebClient metrics() {
+    return baseWebClient().back(true).path("nflow").path("metrics");
+  }
 }
