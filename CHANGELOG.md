@@ -14,9 +14,9 @@
 
 - `nflow-engine`
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
-    - Find only dead nodes that have not been recovered yet
-    - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered
-  - Add `recovered` timestamp to executor info (database, Java API and REST API).
+  	- Add `recovered` timestamp to executor info (database, Java API and REST API).
+    - Find only dead nodes that have not been recovered yet.
+    - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered.
   - Remove obsolete mysql legacy ddl sql scripts.
   - Include generated mariadb.create.ddl.sql in sources.jar.
   - Dependency updates
@@ -43,7 +43,7 @@
 
 ## 8.0.0 (2022-06-09)
 
-### Highlights
+**Highlights**
 
 - Add support for Java 17.
 - Add new user interface `nflow-explorer-ng` deprecating `nflow-explorer` see [migration instructions](https://github.com/NitorCreations/nflow/wiki/Migration-from-Explorer-to-Explorer-NG)
@@ -63,7 +63,7 @@
   - Add support to query also archived workflow instances.
   - Define `maven.compiler.release = 11`
 
-### Details
+**Details**
 
 - Add support for Java 17, keep support for Java 11 and remove support for Java 8.
 - Minimum supported Maven version for building is 3.6.

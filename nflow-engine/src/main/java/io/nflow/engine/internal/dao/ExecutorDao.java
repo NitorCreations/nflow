@@ -13,7 +13,6 @@ import java.lang.management.ManagementFactory;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -131,20 +129,14 @@ public class ExecutorDao {
     }
     logger.info("Joining executor group {}", executorGroup);
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new PreparedStatementCreator() {
-      @Override
-      @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-          justification = "spotbugs does not trust jdbctemplate, sql is constant in practice")
-      public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-        String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
-            + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
-        PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
-        p.setString(1, host);
-        p.setInt(2, pid);
-        p.setString(3, executorGroup);
-        return p;
-      }
+    jdbc.update(con -> {
+      String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
+          + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
+      PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
+      p.setString(1, host);
+      p.setInt(2, pid);
+      p.setString(3, executorGroup);
+      return p;
     }, keyHolder);
     int allocatedExecutorId = keyHolder.getKey().intValue();
     logger.info("Joined executor group {} as executor {} running on host {} with process id {}.", executorGroup,
@@ -202,5 +194,12 @@ public class ExecutorDao {
     } catch (DataAccessException e) {
       logger.warn("Failed to mark executor {} as recovered", recoveredExecutorId, e);
     }
+  }
+
+  public Collection<Integer> getDeadExecutorIds() {
+    return jdbc.query("select id from nflow_executor where "
+            + getExecutorGroupCondition() + " and id <> " + getExecutorId() + " and "
+            + sqlVariants.dateLtEqDiff("expires", "current_timestamp"),
+            (rs, rowNum) -> rs.getInt(1));
   }
 }
