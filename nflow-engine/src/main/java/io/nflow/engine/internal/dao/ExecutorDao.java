@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -132,20 +133,14 @@ public class ExecutorDao {
     }
     logger.info("Joining executor group {}", executorGroup);
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(new PreparedStatementCreator() {
-      @Override
-      @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
-          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-          justification = "spotbugs does not trust jdbctemplate, sql is constant in practice")
-      public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-        String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
-            + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
-        PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
-        p.setString(1, host);
-        p.setInt(2, pid);
-        p.setString(3, executorGroup);
-        return p;
-      }
+    jdbc.update(con -> {
+      String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
+          + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
+      PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
+      p.setString(1, host);
+      p.setInt(2, pid);
+      p.setString(3, executorGroup);
+      return p;
     }, keyHolder);
     int allocatedExecutorId = keyHolder.getKey().intValue();
     logger.info("Joined executor group {} as executor {} running on host {} with process id {}.", executorGroup,
@@ -164,18 +159,15 @@ public class ExecutorDao {
   }
 
   public List<WorkflowExecutor> getExecutors() {
-    return jdbc.query("select * from nflow_executor where executor_group = ? order by id asc", new RowMapper<WorkflowExecutor>() {
-      @Override
-      public WorkflowExecutor mapRow(ResultSet rs, int rowNum) throws SQLException {
-        int id = rs.getInt("id");
-        String host = rs.getString("host");
-        int pid = rs.getInt("pid");
-        DateTime started = sqlVariants.getDateTime(rs, "started");
-        DateTime active = sqlVariants.getDateTime(rs, "active");
-        DateTime expires = sqlVariants.getDateTime(rs, "expires");
-        DateTime stopped = sqlVariants.getDateTime(rs, "stopped");
-        return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires, stopped);
-      }
+    return jdbc.query("select id,host,pid,started,active,expires,stopped from nflow_executor where executor_group = ? order by id asc", (rs, rowNum) -> {
+      int id = rs.getInt("id");
+      String host = rs.getString("host");
+      int pid = rs.getInt("pid");
+      var started = sqlVariants.getDateTime(rs, "started");
+      var active = sqlVariants.getDateTime(rs, "active");
+      var expires = sqlVariants.getDateTime(rs, "expires");
+      var stopped = sqlVariants.getDateTime(rs, "stopped");
+      return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires, stopped);
     }, executorGroup);
   }
 
@@ -186,5 +178,12 @@ public class ExecutorDao {
     } catch (DataAccessException e) {
       logger.warn("Failed to mark executor as expired", e);
     }
+  }
+
+  public Collection<Integer> getDeadExecutorIds() {
+    return jdbc.query("select id from nflow_executor where "
+            + getExecutorGroupCondition() + " and id <> " + getExecutorId() + " and "
+            + sqlVariants.dateLtEqDiff("expires", "current_timestamp"),
+            (rs, rowNum) -> rs.getInt(1));
   }
 }

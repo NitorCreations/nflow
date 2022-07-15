@@ -7,8 +7,9 @@
 ## 8.0.0 (2022-06-09)
 
 - `nflow-engine`
-  - remove obsolete mysql legacy ddl sql scripts
-  - include generated mariadb.create.ddl.sql in sources.jar
+  - Optimize SQL queries used for dead node detection and workflow recovery. The periodic recovery query longer gets slower with the amount of workflow instances. 
+  - Remove obsolete mysql legacy ddl sql scripts.
+  - Include generated mariadb.create.ddl.sql in sources.jar
   - Dependency updates
     - apache cxf 3.5.3
 - `nflow-jetty`

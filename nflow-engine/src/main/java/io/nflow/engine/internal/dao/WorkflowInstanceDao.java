@@ -382,42 +382,41 @@ public class WorkflowInstanceDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
+    var deadExecutors = executorInfo.getDeadExecutorIds();
+    if (deadExecutors.isEmpty()) {
+      return;
+    }
     WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
         .setType(recovery).setStateText("Recovered");
-    for (InstanceInfo instance : getRecoverableInstances()) {
+    for (InstanceInfo instance : getRecoverableInstances(deadExecutors)) {
       WorkflowInstanceAction action = builder.setState(instance.state).setWorkflowInstanceId(instance.id).build();
-      recoverWorkflowInstance(instance.id, action);
+      recoverWorkflowInstance(instance.id, instance.executorId, action);
     }
   }
 
-  private List<InstanceInfo> getRecoverableInstances() {
-    String sql = "select id, state from nflow_workflow where executor_id in (select id from nflow_executor where "
-        + executorInfo.getExecutorGroupCondition() + " and id <> " + executorInfo.getExecutorId() + " and "
-        + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + ")";
-    return jdbc.query(sql, new RowMapper<InstanceInfo>() {
-      @Override
-      public InstanceInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-        InstanceInfo instance = new InstanceInfo();
-        instance.id = rs.getLong("id");
-        instance.state = rs.getString("state");
-        return instance;
-      }
-    });
+  private List<InstanceInfo> getRecoverableInstances(Collection<Integer> deadExecutors) {
+    StringBuilder sql = new StringBuilder(128);
+    sql.append("select id, executor_id, state from nflow_workflow where executor_id in (");
+    deadExecutors.forEach(id -> sql.append("?,"));
+    sql.setCharAt(sql.length() - 1, ')');
+    return jdbc.query(sql.toString(), (rs, rowNum) -> {
+      InstanceInfo instance = new InstanceInfo();
+      instance.id = rs.getLong(1);
+      instance.executorId = rs.getInt(2);
+      instance.state = rs.getString(3);
+      return instance;
+    }, (Object[]) deadExecutors.toArray(new Integer[0]));
   }
 
-  private void recoverWorkflowInstance(final long instanceId, final WorkflowInstanceAction action) {
-    transaction.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        int executorId = executorInfo.getExecutorId();
-        int updated = jdbc.update("update nflow_workflow set executor_id = null, status = "
-            + sqlVariants.workflowStatus(inProgress) + " where id = ? and executor_id in (select id from nflow_executor where "
-            + executorInfo.getExecutorGroupCondition() + " and id <> " + executorId + " and "
-            + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + ")", instanceId);
-        if (updated > 0) {
-          insertWorkflowInstanceAction(action);
-        }
+  private void recoverWorkflowInstance(final long instanceId, int expectedExecutorId, final WorkflowInstanceAction action) {
+    transaction.execute(status -> {
+      int updated = jdbc.update("update nflow_workflow set executor_id = null, status = "
+          + sqlVariants.workflowStatus(inProgress) + " where id = ? and executor_id = ?",
+              instanceId, expectedExecutorId);
+      if (updated > 0) {
+        insertWorkflowInstanceAction(action);
       }
+      return null;
     });
   }
 
