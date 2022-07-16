@@ -1,8 +1,6 @@
 package io.nflow.engine.config.db;
 
 import static io.nflow.engine.config.Profiles.MARIADB;
-import static java.lang.Integer.parseInt;
-import static org.apache.commons.lang3.StringUtils.split;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.sql.Connection;
