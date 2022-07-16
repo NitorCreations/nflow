@@ -145,7 +145,7 @@ public class ExecutorDao {
   }
 
   public void updateActiveTimestamp() {
-    updateWithPreparedStatement("update nflow_executor set active=current_timestamp, expires="
+    updateWithPreparedStatement("update nflow_executor set active=current_timestamp, recovered=null, expires="
         + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + " where id = " + getExecutorId());
   }
 
@@ -155,31 +155,44 @@ public class ExecutorDao {
   }
 
   public List<WorkflowExecutor> getExecutors() {
-    return jdbc.query("select id,host,pid,started,active,expires,stopped from nflow_executor where executor_group = ? order by id asc", (rs, rowNum) -> {
-      int id = rs.getInt("id");
-      String host = rs.getString("host");
-      int pid = rs.getInt("pid");
-      var started = sqlVariants.getDateTime(rs, "started");
-      var active = sqlVariants.getDateTime(rs, "active");
-      var expires = sqlVariants.getDateTime(rs, "expires");
-      var stopped = sqlVariants.getDateTime(rs, "stopped");
-      return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires, stopped);
-    }, executorGroup);
+    return jdbc.query("select id, host, pid, started, active, expires, stopped, recovered from nflow_executor where "
+        + getExecutorGroupCondition() + " order by id asc", (rs, rowNum) -> {
+          int id = rs.getInt("id");
+          String host = rs.getString("host");
+          int pid = rs.getInt("pid");
+          var started = sqlVariants.getDateTime(rs, "started");
+          var active = sqlVariants.getDateTime(rs, "active");
+          var expires = sqlVariants.getDateTime(rs, "expires");
+          var stopped = sqlVariants.getDateTime(rs, "stopped");
+          var recovered = sqlVariants.getDateTime(rs, "recovered");
+          return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires, stopped, recovered);
+        });
   }
 
   public void markShutdown() {
     try {
-      jdbc.update("update nflow_executor " + "set expires=current_timestamp, stopped=current_timestamp "
-          + "where executor_group = ? and id = ?", executorGroup, getExecutorId());
+      jdbc.update("update nflow_executor set expires=current_timestamp, stopped=current_timestamp, recovered=null where "
+          + getExecutorGroupCondition() + " and id = ?", getExecutorId());
     } catch (DataAccessException e) {
-      logger.warn("Failed to mark executor as expired", e);
+      logger.warn("Failed to mark executor as stopped", e);
     }
   }
 
-  public Collection<Integer> getDeadExecutorIds() {
-    return jdbc.query("select id from nflow_executor where "
-            + getExecutorGroupCondition() + " and id <> " + getExecutorId() + " and "
-            + sqlVariants.dateLtEqDiff("expires", "current_timestamp"),
-            (rs, rowNum) -> rs.getInt(1));
+  public Collection<Integer> getRecoverableExecutorIds() {
+    return jdbc.query(
+        "select id from nflow_executor where " + getExecutorGroupCondition() + " and id <> " + getExecutorId()
+            + " and recovered is null and " + sqlVariants.dateLtEqDiff("expires", "current_timestamp"),
+        (rs, rowNum) -> rs.getInt(1));
+  }
+
+  public void markRecovered(int recoveredExecutorId) {
+    try {
+      jdbc.update(
+          "update nflow_executor set recovered=current_timestamp where recovered is null and "
+              + sqlVariants.dateLtEqDiff("expires", "current_timestamp") + " and " + getExecutorGroupCondition() + " and id = ?",
+          recoveredExecutorId);
+    } catch (DataAccessException e) {
+      logger.warn("Failed to mark executor {} as recovered", recoveredExecutorId, e);
+    }
   }
 }

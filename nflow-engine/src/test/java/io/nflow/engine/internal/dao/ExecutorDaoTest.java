@@ -1,6 +1,7 @@
 package io.nflow.engine.internal.dao;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -50,10 +51,11 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(executor.active, is(crashedNodeStartTime.plusSeconds(1)));
     assertThat(executor.expires, is(crashedNodeStartTime.plusHours(1)));
     assertThat(executor.stopped, is(nullValue()));
+    assertThat(executor.recovered, is(nullValue()));
   }
 
   @Test
-  public void markShutdownSetsExecutorExpired() {
+  public void markShutdownSetsExecutorExpiredAndStopped() {
     jdbc.update(
         "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
         dao.getExecutorId(), "localhost", 666, dao.getExecutorGroup(), now().toDate(), now().toDate(),
@@ -65,5 +67,19 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(executor.expires.isAfterNow(), is(false));
     assertThat(executor.stopped, is(notNullValue()));
     assertThat(executor.stopped.isAfterNow(), is(false));
+  }
+
+  @Test
+  public void markRecoveredSetsExpiredExecutorRecovered() {
+    insertCrashedExecutor(2, dao.getExecutorGroup());
+    WorkflowExecutor executor = dao.getExecutors().get(0);
+    assertThat(executor.recovered, is(nullValue()));
+    assertThat(dao.getRecoverableExecutorIds(), contains(2));
+
+    dao.markRecovered(2);
+
+    executor = dao.getExecutors().get(0);
+    assertThat(executor.recovered, is(notNullValue()));
+    assertThat(dao.getRecoverableExecutorIds().isEmpty(), is(true));
   }
 }

@@ -382,22 +382,23 @@ public class WorkflowInstanceDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    var deadExecutors = executorInfo.getDeadExecutorIds();
-    if (deadExecutors.isEmpty()) {
+    var recoverableExecutorsId = executorInfo.getRecoverableExecutorIds();
+    if (recoverableExecutorsId.isEmpty()) {
       return;
     }
     WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
         .setType(recovery).setStateText("Recovered");
-    for (InstanceInfo instance : getRecoverableInstances(deadExecutors)) {
+    for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorsId)) {
       WorkflowInstanceAction action = builder.setState(instance.state).setWorkflowInstanceId(instance.id).build();
       recoverWorkflowInstance(instance.id, instance.executorId, action);
     }
+    recoverableExecutorsId.forEach(executorInfo::markRecovered);
   }
 
-  private List<InstanceInfo> getRecoverableInstances(Collection<Integer> deadExecutors) {
+  private List<InstanceInfo> getRecoverableWorkflowInstances(Collection<Integer> executorsIds) {
     StringBuilder sql = new StringBuilder(128);
     sql.append("select id, executor_id, state from nflow_workflow where executor_id in (");
-    deadExecutors.forEach(id -> sql.append("?,"));
+    executorsIds.forEach(id -> sql.append("?,"));
     sql.setCharAt(sql.length() - 1, ')');
     return jdbc.query(sql.toString(), (rs, rowNum) -> {
       InstanceInfo instance = new InstanceInfo();
@@ -405,7 +406,7 @@ public class WorkflowInstanceDao {
       instance.executorId = rs.getInt(2);
       instance.state = rs.getString(3);
       return instance;
-    }, (Object[]) deadExecutors.toArray(new Integer[0]));
+    }, (Object[]) executorsIds.toArray(new Integer[0]));
   }
 
   private void recoverWorkflowInstance(final long instanceId, int expectedExecutorId, final WorkflowInstanceAction action) {

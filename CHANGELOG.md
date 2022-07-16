@@ -2,14 +2,23 @@
 
 **Highlights**
 
+- `nflow-engine`
+  - Optimize SQL queries used for dead node detection and workflow instance recovery.
+  - Add `recovered` timestamp to executor info (database, Java API and REST API).
+  - Remove obsolete mysql legacy ddl sql scripts.
+  - Include generated mariadb.create.ddl.sql in sources.jar.
+- `nflow-metrics`
+  - export the nflow.database.type as a metric
+
 **Details**
 
-## 8.0.0 (2022-06-09)
-
 - `nflow-engine`
-  - Optimize SQL queries used for dead node detection and workflow recovery. The periodic recovery query longer gets slower with the amount of workflow instances. 
+  - Optimize SQL queries used for dead node detection and workflow instance recovery.
+    - Find only dead nodes that have not been recovered yet
+    - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered
+  - Add `recovered` timestamp to executor info (database, Java API and REST API).
   - Remove obsolete mysql legacy ddl sql scripts.
-  - Include generated mariadb.create.ddl.sql in sources.jar
+  - Include generated mariadb.create.ddl.sql in sources.jar.
   - Dependency updates
     - apache cxf 3.5.3
 - `nflow-jetty`
@@ -31,6 +40,8 @@
     - h2 2.1.214
     - mariadb 3.0.6
     - postgresql 42.4.0
+
+## 8.0.0 (2022-06-09)
 
 ### Highlights
 
