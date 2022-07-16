@@ -13,6 +13,7 @@ import java.lang.management.ManagementFactory;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -116,9 +118,8 @@ public class ExecutorDao {
   }
 
   @SuppressFBWarnings(
-      value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
-          "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-      justification = "localhost is used for getting host name only, exception message is fine, npe is unlikely, spotbugs does not trust jdbctemplate, sql is constant in practice")
+      value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
+      justification = "localhost is used for getting host name only, exception message is fine, npe is unlikely")
   private int allocateExecutorId(int hostNameMaxLength) {
     final String host;
     final int pid;
@@ -130,14 +131,20 @@ public class ExecutorDao {
     }
     logger.info("Joining executor group {}", executorGroup);
     KeyHolder keyHolder = new GeneratedKeyHolder();
-    jdbc.update(con -> {
-      String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
-          + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
-      PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
-      p.setString(1, host);
-      p.setInt(2, pid);
-      p.setString(3, executorGroup);
-      return p;
+    jdbc.update(new PreparedStatementCreator() {
+      @Override
+      @SuppressFBWarnings(value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE",
+          "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+          justification = "spotbugs does not trust jdbctemplate, sql is constant in practice")
+      public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+        String sql = "insert into nflow_executor(host, pid, executor_group, active, expires) values (?, ?, ?, current_timestamp, "
+            + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ")";
+        PreparedStatement p = con.prepareStatement(sql, new String[] { "id" });
+        p.setString(1, host);
+        p.setInt(2, pid);
+        p.setString(3, executorGroup);
+        return p;
+      }
     }, keyHolder);
     int allocatedExecutorId = keyHolder.getKey().intValue();
     logger.info("Joined executor group {} as executor {} running on host {} with process id {}.", executorGroup,
