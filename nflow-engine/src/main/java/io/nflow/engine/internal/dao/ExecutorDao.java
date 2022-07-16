@@ -116,8 +116,9 @@ public class ExecutorDao {
   }
 
   @SuppressFBWarnings(
-      value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
-      justification = "localhost is used for getting host name only, exception message is fine, npe is unlikely")
+      value = { "MDM_INETADDRESS_GETLOCALHOST", "WEM_WEAK_EXCEPTION_MESSAGING", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+          "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+      justification = "localhost is used for getting host name only, exception message is fine, npe is unlikely, spotbugs does not trust jdbctemplate, sql is constant in practice")
   private int allocateExecutorId(int hostNameMaxLength) {
     final String host;
     final int pid;
