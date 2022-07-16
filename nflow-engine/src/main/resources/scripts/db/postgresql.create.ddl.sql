@@ -77,7 +77,8 @@ create table if not exists nflow_executor (
   started timestamptz not null default current_timestamp,
   active timestamptz not null,
   expires timestamptz not null,
-  stopped timestamptz
+  stopped timestamptz,
+  recovered timestamptz
 );
 
 create table if not exists nflow_workflow_definition (

@@ -65,7 +65,8 @@ create table nflow_executor (
   started timestamp(3) not null default current_timestamp,
   active timestamp(3) not null,
   expires timestamp(3) not null,
-  stopped timestamp(3)
+  stopped timestamp(3),
+  recovered timestamp(3)
 );
 
 create table nflow_workflow_definition (

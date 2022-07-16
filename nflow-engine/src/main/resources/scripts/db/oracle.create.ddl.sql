@@ -100,7 +100,8 @@ create table nflow_executor (
   started timestamp default current_timestamp not null,
   active timestamp not null,
   expires timestamp not null,
-  stopped timestamp
+  stopped timestamp,
+  recovered timestamp
 )
 /
 
