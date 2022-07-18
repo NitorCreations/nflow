@@ -404,7 +404,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings, StateExecutionImpl execution) {
     try {
-      if (!shutdownRequested.get() && settings.historyDeletableAfter != null
+      if (settings.historyDeletableAfter != null && !shutdownRequested.get()
           && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
         DateTime olderThan = DateTime.now().minus(settings.historyDeletableAfter);
         logger.debug("Cleaning workflow instance {} history older than {}", instanceId, olderThan);
