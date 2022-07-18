@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -292,7 +293,7 @@ public class WorkflowDispatcherTest {
 
       public void threadDispatcher() {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
-        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown();
+        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown(workflows -> assertThat(workflows, empty()));
         dispatcher.run();
       }
 
@@ -303,7 +304,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(poolSpy).shutdown();
+        verify(poolSpy).shutdown(workflows -> assertThat(workflows, empty()));
       }
     }
     runOnce(new ExceptionOnPoolShutdownIsNotPropagated());

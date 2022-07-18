@@ -71,7 +71,7 @@ class WorkflowStateProcessor implements Runnable {
   private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);
   private static final String MDC_KEY = "workflowInstanceId";
 
-  private final long instanceId;
+  final long instanceId;
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;

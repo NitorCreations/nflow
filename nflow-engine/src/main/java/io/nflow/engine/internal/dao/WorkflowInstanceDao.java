@@ -591,12 +591,16 @@ public class WorkflowInstanceDao {
       // better just clear the executors_id a few times rather than make the original query more complex
       logger.warn("Got too many workflow instances {} > {}", ids.size(), batchSize);
       List<Long> extras = ids.subList(batchSize, ids.size());
-      jdbc.update("update nflow_workflow set executor_id=null, status = "
-          + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
-          " and id in (" + extras.stream().map(String::valueOf).collect(joining(",")) + ")");
+      clearExecutorId(extras);
       ids = ids.subList(0, batchSize);
     }
     return ids;
+  }
+
+  public void clearExecutorId(List<Long> workflowInstances) {
+    jdbc.update("update nflow_workflow set executor_id=null, status = "
+            + sqlVariants.workflowStatus(inProgress) + " where executor_id = " + executorInfo.getExecutorId() +
+            " and id in (" + workflowInstances.stream().map(String::valueOf).collect(joining(",")) + ")");
   }
 
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "PollingRaceConditionException message is ok")
