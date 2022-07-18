@@ -77,7 +77,8 @@ create table nflow_executor (
   started datetimeoffset(3) not null default SYSDATETIMEOFFSET(),
   active datetimeoffset(3) not null,
   expires datetimeoffset(3) not null,
-  stopped datetimeoffset(3)
+  stopped datetimeoffset(3),
+  recovered datetimeoffset(3)
 );
 
 if not exists (select 1 from sys.tables where name='nflow_workflow_definition')

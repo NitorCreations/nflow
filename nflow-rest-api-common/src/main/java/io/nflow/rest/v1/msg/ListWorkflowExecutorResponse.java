@@ -31,6 +31,9 @@ public class ListWorkflowExecutorResponse extends ModelObject {
   @Schema(description = "Time after which the executor is considered as crashed", required = true)
   public DateTime expires;
 
-  @Schema(description = "Time when the executor was stopped", required = true)
+  @Schema(description = "Time when the executor was stopped")
   public DateTime stopped;
+
+  @Schema(description = "Time when the workflow instances of a dead node were recovered")
+  public DateTime recovered;
 }

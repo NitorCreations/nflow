@@ -61,7 +61,8 @@ create table if not exists nflow_executor (
   started timestamp with time zone not null default current_timestamp,
   active timestamp with time zone not null,
   expires timestamp with time zone not null,
-  stopped timestamp with time zone
+  stopped timestamp with time zone,
+  recovered timestamp with time zone
 );
 
 create table if not exists nflow_workflow_definition (

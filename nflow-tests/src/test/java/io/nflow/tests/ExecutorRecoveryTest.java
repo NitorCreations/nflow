@@ -25,11 +25,11 @@ import io.nflow.tests.extension.NflowServerConfig;
 public class ExecutorRecoveryTest extends AbstractNflowTest {
 
   public static NflowServerConfig server = new NflowServerConfig.Builder()
-    .prop("nflow.executor.timeout.seconds", 1)
-    .prop("nflow.executor.keepalive.seconds", 5)
-    .prop("nflow.dispatcher.await.termination.seconds", 1)
-    .prop("nflow.db.h2.url", "jdbc:h2:mem:executorrecoverytest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
-    .build();
+      .prop("nflow.executor.timeout.seconds", 1)
+      .prop("nflow.executor.keepalive.seconds", 5)
+      .prop("nflow.dispatcher.await.termination.seconds", 1)
+      .prop("nflow.db.h2.url", "jdbc:h2:mem:executorrecoverytest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
+      .build();
 
   private static CreateWorkflowInstanceResponse resp;
 
@@ -49,7 +49,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   @Test
   @Order(2)
   public void checkSlowWorkflowStarted() throws Exception {
-    for (int i=0; i<5; i++) {
+    for (int i = 0; i < 5; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (wf != null && PROCESS.name().equals(wf.state)) {
         return;
@@ -76,9 +76,9 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void checkSlowWorkflowFinishes() throws Exception {
-    for (int i=0; i<30; i++) {
+    for (int i = 0; i < 30; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
-      if (wf != null && DONE.name().equals(wf.state)) {
+      if (DONE.name().equals(wf.state)) {
         verifyBeginAndProcessAreExecutedByDifferentExecutors(wf);
         return;
       }
@@ -97,7 +97,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
       if ("process".equals(action.state)) {
         processExecutor = action.executorId;
       }
-     }
+    }
     assertThat(beginExecutor, is(not(0)));
     assertThat(processExecutor, is(not(0)));
     assertThat(beginExecutor, is(not(processExecutor)));
