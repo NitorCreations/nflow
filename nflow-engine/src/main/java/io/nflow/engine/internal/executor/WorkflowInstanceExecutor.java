@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 
@@ -83,13 +84,14 @@ public class WorkflowInstanceExecutor {
       currentThread().interrupt();
     }
     // step 6: check if the executor threads were successfully terminated and executorIds of not started workflows were cleared
-    var gracefulShutdownSucceeded = executor.isTerminated() && executorIdsCleared;
+    var gracefulShutdownSucceeded = executorIdsCleared && executor.isTerminated();
     if (gracefulShutdownSucceeded) {
       logger.info("Graceful shutdown succeeded");
     }
     return gracefulShutdownSucceeded;
   }
 
+  @SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_RETURN_FALSE", justification = "Shutdown error handling only needs the boolean")
   private boolean clearExecutorIds(List<Runnable> workflows, Consumer<List<Long>> clearExecutorIds) {
     if (workflows.isEmpty()) {
       return true;
