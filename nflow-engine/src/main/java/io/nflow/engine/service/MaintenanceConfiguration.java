@@ -34,16 +34,16 @@ public class MaintenanceConfiguration {
   /**
    * Delete workflow executors that have expired [given period] ago.
    */
-  public final ReadablePeriod deleteExpiredExecutorsAfter;
+  public final ReadablePeriod deleteExpiredExecutorsOlderThan;
 
   MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
       @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
       @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows,
-      @JsonProperty("deleteExpiredAfter") ReadablePeriod deleteExpiredExecutorsAfter) {
+      @JsonProperty("deleteExpiredAfter") ReadablePeriod deleteExpiredExecutorsOlderThan) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;
-    this.deleteExpiredExecutorsAfter = deleteExpiredExecutorsAfter;
+    this.deleteExpiredExecutorsOlderThan = deleteExpiredExecutorsOlderThan;
   }
 
   /**
@@ -54,7 +54,7 @@ public class MaintenanceConfiguration {
     private ConfigurationItem.Builder deleteArchivedWorkflows;
     private ConfigurationItem.Builder archiveWorkflows;
     private ConfigurationItem.Builder deleteWorkflows;
-    private ReadablePeriod deleteExpiredExecutorsAfter;
+    private ReadablePeriod deleteExpiredExecutorsOlderThan;
 
     /**
      * Configuration for deleting old workflow instances from archive tables.
@@ -92,8 +92,8 @@ public class MaintenanceConfiguration {
      *
      * @return builder for configuration
      */
-    public Builder withDeleteExpiredExecutorsAfter(ReadablePeriod period) {
-      this.deleteExpiredExecutorsAfter = period;
+    public Builder withDeleteExpiredExecutorsOlderThan(ReadablePeriod olderThanPeriod) {
+      this.deleteExpiredExecutorsOlderThan = olderThanPeriod;
       return this;
     }
 
@@ -104,7 +104,7 @@ public class MaintenanceConfiguration {
      */
     public MaintenanceConfiguration build() {
       return new MaintenanceConfiguration(build(deleteArchivedWorkflows), build(archiveWorkflows), build(deleteWorkflows),
-          deleteExpiredExecutorsAfter);
+          deleteExpiredExecutorsOlderThan);
     }
   }
 

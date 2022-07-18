@@ -15,8 +15,8 @@
 
 - `nflow-engine`
   - Add support to `MaintenanceWorkflow` for cleaning up old workflow executors that have expired configured time ago (default 1 year).
-    - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredExecutorsAfter` configuration option and stored in the `config` state variable of the created maintenance workflow instance.
-    - If the maintenance workflow instance has already been created, cleanup can be enabled by adding `"deleteExpiredExecutorsAfter": "P1Y"` to the JSON value of the `config` state variable of the instance.
+    - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredExecutors.olderThan` configuration option and stored in the `config` state variable of the created maintenance workflow instance.
+    - If the maintenance workflow instance has already been created, cleanup can be enabled by adding `"deleteExpiredExecutorsOlderThan": "P1Y"` to the JSON value of the `config` state variable of the instance.
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
     - Find only dead nodes that have not been recovered yet.
     - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered.

@@ -127,11 +127,11 @@ public class MaintenanceService {
   /**
    * Delete workflow executors that have expired [given period] ago.
    *
-   * @param deleteExpiredExecutorsAfter
+   * @param deleteExpiredExecutorsOlderThan
    *          Time to wait before expired executors get deleted.
    * @return Number of executors deleted.
    */
-  public int cleanupExecutors(ReadablePeriod deleteExpiredExecutorsAfter) {
-    return executorDao.deleteExpiredBefore(now().minus(deleteExpiredExecutorsAfter));
+  public int cleanupExecutors(ReadablePeriod deleteExpiredExecutorsOlderThan) {
+    return executorDao.deleteExpiredBefore(now().minus(deleteExpiredExecutorsOlderThan));
   }
 }
