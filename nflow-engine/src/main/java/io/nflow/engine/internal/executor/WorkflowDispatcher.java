@@ -1,6 +1,5 @@
 package io.nflow.engine.internal.executor;
 
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -156,15 +155,7 @@ public class WorkflowDispatcher implements Runnable {
 
   private boolean shutdownPool() {
     try {
-      return executor.shutdown(queuedWorkflows -> {
-        try {
-          workflowInstances.clearExecutorId(queuedWorkflows.stream().map(w -> w.instanceId).collect(toList()));
-          // mark all queued workflows handled
-          queuedWorkflows.clear();
-        } catch (Exception e) {
-          logger.error("Failed to clear executorId of queued workflows", e);
-        }
-      });
+      return executor.shutdown(workflowInstances::clearExecutorId);
     } catch (Exception e) {
       logger.error("Error in shutting down thread pool.", e);
       return false;

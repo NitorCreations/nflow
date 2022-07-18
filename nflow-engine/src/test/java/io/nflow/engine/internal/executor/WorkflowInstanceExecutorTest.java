@@ -69,32 +69,29 @@ public class WorkflowInstanceExecutorTest {
     assertThat(t.executor.isShutdown(), is(true));
   }
 
-
   private final AtomicReference<Boolean> wasInterrupted = new AtomicReference<>();
-  private final AtomicReference<List<WorkflowStateProcessor>> wasReset = new AtomicReference<>();
+  private final AtomicReference<List<Long>> wasReset = new AtomicReference<>();
+
   @Test
-  public void testShutdownWithQueuedEntries() throws Exception {
+  public void testShutdownWithQueuedEntries() {
     WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 1, 1, 3, 4, new CustomizableThreadFactory("test"));
     var slowMock = mock(WorkflowStateProcessor.class, "SlowMock");
-    doAnswer(a -> silentSleep(5000) ).when(slowMock).run();
+    doAnswer(a -> silentSleep(5000)).when(slowMock).run();
     // 1 thread stuck running
     t.execute(slowMock);
     // another goes to queue
     t.execute(runnable);
-    assertThat(t.shutdown(workflows -> {
-      wasReset.compareAndSet(null, new ArrayList<>(workflows));
-      workflows.clear();
-    }), is(true));
+    assertThat(t.shutdown(workflows -> wasReset.compareAndSet(null, new ArrayList<>(workflows))), is(true));
     assertThat(t.executor.isShutdown(), is(true));
     assertThat(wasInterrupted.get(), is(TRUE));
-    assertThat(wasReset.get(), is(List.of(runnable)));
+    assertThat(wasReset.get(), is(List.of(runnable.instanceId)));
   }
 
   private Object silentSleep(int millis) {
     boolean interrupted = false;
     try {
       Thread.sleep(millis);
-    } catch (InterruptedException ex) {
+    } catch (@SuppressWarnings("unused") InterruptedException ex) {
       interrupted = true;
     }
     wasInterrupted.set(interrupted);
