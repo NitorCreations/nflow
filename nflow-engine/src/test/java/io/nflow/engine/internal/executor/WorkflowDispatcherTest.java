@@ -2,15 +2,16 @@ package io.nflow.engine.internal.executor;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Thread.currentThread;
+import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -49,14 +49,12 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -136,8 +134,6 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void exceptionDuringDispatcherExecutionCausesRetry() throws Throwable {
-    // TODO MultithreadedTestCase depends on junit4
-    // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc, last updated 2009
     @SuppressWarnings("unused")
     class ExceptionDuringDispatcherExecutionCausesRetry extends MultithreadedTestCase {
       public void threadDispatcher() {
@@ -254,13 +250,10 @@ public class WorkflowDispatcherTest {
     @SuppressWarnings("unused")
     class ShutdownCanBeInterrupted extends MultithreadedTestCase {
       public void threadDispatcher() {
-        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(new Answer<Object>() {
-          @Override
-          public Object answer(InvocationOnMock invocation) throws Throwable {
-            waitForTick(2);
-            getThreadByName("threadShutdown").interrupt();
-            return ids(1L);
-          }
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(invocation -> {
+          waitForTick(2);
+          getThreadByName("threadShutdown").interrupt();
+          return ids(1L);
         });
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
         when(executorFactory.createProcessor(anyLong(), any())).thenReturn(fakeWorkflowExecutor);
@@ -319,7 +312,14 @@ public class WorkflowDispatcherTest {
         dispatcher.run();
       }
 
-      public void threadShutdown() {
+      public void threadShutdown() throws InterruptedException {
+        for (int i=0;; i++) {
+          if (executor.queue.isEmpty()) {
+            break;
+          }
+          assertThat(i, lessThan(10));
+          sleep(20);
+        }
         waitForTick(1);
         dispatcher.shutdown();
       }
@@ -366,35 +366,26 @@ public class WorkflowDispatcherTest {
 
   @Test
   public void pauseAndResumeWorks() {
-    assertEquals(dispatcher.isPaused(), false);
+    assertThat(dispatcher.isPaused(), is(false));
     dispatcher.pause();
-    assertEquals(dispatcher.isPaused(), true);
+    assertThat(dispatcher.isPaused(), is(true));
     dispatcher.resume();
-    assertEquals(dispatcher.isPaused(), false);
+    assertThat(dispatcher.isPaused(), is(false));
   }
 
   void assertPoolIsShutdown(boolean isTrue) {
-    assertEquals(isTrue, executor.executor.isShutdown());
+    assertThat(executor.executor.isShutdown(), is((isTrue)));
   }
 
   Runnable noOpRunnable() {
-    return new Runnable() {
-      @Override
-      public void run() {
-      }
-    };
+    return () -> {};
   }
 
-  Runnable waitForTickRunnable(final int tick, final MultithreadedTestCase mtc) {
-    return new Runnable() {
-      @Override
-      public void run() {
-        mtc.waitForTick(tick);
-      }
-    };
+  Runnable waitForTickRunnable(int tick, MultithreadedTestCase mtc) {
+    return () -> mtc.waitForTick(tick);
   }
 
-  WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, final Runnable fakeCommand) {
+  WorkflowStateProcessor fakeWorkflowExecutor(long instanceId, Runnable fakeCommand) {
     return new WorkflowStateProcessor(instanceId, FALSE::booleanValue, null, null, null, null, null, null, env,
         new ConcurrentHashMap<>(), null, null, (WorkflowExecutorListener) null) {
       @Override
@@ -404,23 +395,16 @@ public class WorkflowDispatcherTest {
     };
   }
 
-  Answer<List<Long>> waitForTickAndAnswer(final int tick, final List<Long> answer, final MultithreadedTestCase mtc) {
+  Answer<List<Long>> waitForTickAndAnswer(int tick, List<Long> answer, MultithreadedTestCase mtc) {
     return invocation -> {
       mtc.waitForTick(tick);
       return answer;
     };
   }
 
-  @SuppressWarnings("serial")
-  static class ThreadPoolTaskExecutorWithThresholdQueue extends ThreadPoolTaskExecutor {
-    @Override
-    protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
-      return new ThresholdBlockingQueue<>(queueCapacity, 0);
-    }
-  }
-
+  // Converted from https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc (last updated 2009) to junit5
   static class MultithreadedTestCase {
-    private static final boolean debug = false;
+    private static final boolean debug = true;
     final Map<String, Thread> threads = new HashMap<>();
     private final AtomicInteger tick = new AtomicInteger();
     final List<Throwable> errors = synchronizedList(new ArrayList<>());
