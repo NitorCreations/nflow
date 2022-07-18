@@ -107,8 +107,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
     }
 
     @Override
-    public String dateLtEqDiff(String next_activation, String current_timestamp) {
-      return "datediff_big(ms, " + next_activation + ", " + current_timestamp + ") >= 0";
+    public String dateLtEqDiff(String date1, String date2) {
+      return "datediff_big(ms, " + date1 + ", " + date2 + ") >= 0";
     }
 
     @Override

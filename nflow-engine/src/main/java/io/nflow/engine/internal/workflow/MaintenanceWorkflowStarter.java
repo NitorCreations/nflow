@@ -44,6 +44,8 @@ public class MaintenanceWorkflowStarter {
     apply(env, "archive", builder::withArchiveWorkflows);
     apply(env, "delete", builder::withDeleteWorkflows);
     apply(env, "deleteArchived", builder::withDeleteArchivedWorkflows);
+    builder.withDeleteExpiredExecutorsOlderThan(
+        Period.parse(env.getRequiredProperty("nflow.maintenance.initial.deleteExpiredExecutors.olderThan")));
     this.initialConfiguration = builder.build();
   }
 

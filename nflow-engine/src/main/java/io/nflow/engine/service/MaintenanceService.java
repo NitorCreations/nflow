@@ -18,9 +18,11 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
+import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.NflowTable;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
@@ -43,12 +45,15 @@ public class MaintenanceService {
 
   private final WorkflowDefinitionService workflowDefinitionService;
 
+  private final ExecutorDao executorDao;
+
   @Inject
   public MaintenanceService(MaintenanceDao maintenanceDao, TableMetadataChecker tableMetadataChecker,
-      WorkflowDefinitionService workflowDefinitionService) {
+      WorkflowDefinitionService workflowDefinitionService, ExecutorDao executorDao) {
     this.maintenanceDao = maintenanceDao;
     this.tableMetadataChecker = tableMetadataChecker;
     this.workflowDefinitionService = workflowDefinitionService;
+    this.executorDao = executorDao;
   }
 
   /**
@@ -117,5 +122,16 @@ public class MaintenanceService {
     } while (true);
     log.info("{} finished. Operated on {} workflows in {} seconds.", type, totalWorkflows, stopWatch.getTime() / 1000);
     return totalWorkflows;
+  }
+
+  /**
+   * Delete workflow executors that have expired [given period] ago.
+   *
+   * @param deleteExpiredExecutorsOlderThan
+   *          Time to wait before expired executors get deleted.
+   * @return Number of executors deleted.
+   */
+  public int cleanupExecutors(ReadablePeriod deleteExpiredExecutorsOlderThan) {
+    return executorDao.deleteExpiredBefore(now().minus(deleteExpiredExecutorsOlderThan));
   }
 }

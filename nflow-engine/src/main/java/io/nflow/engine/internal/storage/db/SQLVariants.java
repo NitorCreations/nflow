@@ -40,8 +40,8 @@ public interface SQLVariants {
     return " for update";
   }
 
-  default String dateLtEqDiff(String next_activation, String current_timestamp) {
-    return next_activation + " <= " + current_timestamp;
+  default String dateLtEqDiff(String date1, String date2) {
+    return date1 + " <= " + date2;
   }
 
   default Object getTimestamp(ResultSet rs, String columnName) throws SQLException {

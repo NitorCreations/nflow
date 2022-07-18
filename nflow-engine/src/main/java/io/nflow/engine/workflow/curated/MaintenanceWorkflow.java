@@ -34,7 +34,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
   }
 
   /**
-   * Extend maintenance workflow definition with customer workflow settings.
+   * Extend maintenance workflow definition with custom workflow settings.
    *
    * @param type
    *          The type of the workflow definition.
@@ -62,6 +62,10 @@ public class MaintenanceWorkflow extends CronWorkflow {
     add(sb, "Archived", results.archivedWorkflows);
     add(sb, "Deleted", results.deletedWorkflows);
     add(sb, "Deleted archived", results.deletedArchivedWorkflows);
+    if (conf.deleteExpiredExecutorsOlderThan != null) {
+      int deletedExecutors = maintenanceService.cleanupExecutors(conf.deleteExpiredExecutorsOlderThan);
+      add(sb, "Deleted executors", deletedExecutors);
+    }
     if (sb.length() == 0) {
       sb.append("No actions");
     }

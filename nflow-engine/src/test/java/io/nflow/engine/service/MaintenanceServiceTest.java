@@ -6,10 +6,13 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 import static org.joda.time.DateTimeUtils.setCurrentMillisFixed;
 import static org.joda.time.DateTimeUtils.setCurrentMillisSystem;
+import static org.joda.time.Period.days;
 import static org.joda.time.Period.months;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.NflowTable;
 import io.nflow.engine.internal.dao.TableMetadataChecker;
@@ -47,6 +51,8 @@ public class MaintenanceServiceTest {
   private TableMetadataChecker tableMetadataChecker;
   @Mock
   private WorkflowDefinitionService workflowDefinitionService;
+  @Mock
+  private ExecutorDao executorDao;
   private final List<Long> emptyList = emptyList();
   private final List<Long> oldWorkdlowIds = asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
   private MaintenanceConfiguration archiveConfig;
@@ -57,7 +63,7 @@ public class MaintenanceServiceTest {
 
   @BeforeEach
   public void setup() {
-    service = new MaintenanceService(dao, tableMetadataChecker, workflowDefinitionService);
+    service = new MaintenanceService(dao, tableMetadataChecker, workflowDefinitionService, executorDao);
     setCurrentMillisFixed(currentTimeMillis());
     period = months(1);
     limit = now().minus(period);
@@ -168,4 +174,17 @@ public class MaintenanceServiceTest {
     verifyNoMoreInteractions(dao, tableMetadataChecker);
   }
 
+  @Test
+  public void cleanupExecutorsWorks() {
+    ReadablePeriod deleteExpiredExecutorsOlderThan = days(1);
+    DateTime expiryLimit = now().minus(deleteExpiredExecutorsOlderThan);
+    int DELETED = 10;
+
+    when(executorDao.deleteExpiredBefore(expiryLimit)).thenReturn(DELETED);
+
+    int deleted = service.cleanupExecutors(deleteExpiredExecutorsOlderThan);
+
+    assertThat(deleted, is(DELETED));
+    verify(executorDao).deleteExpiredBefore(expiryLimit);
+  }
 }

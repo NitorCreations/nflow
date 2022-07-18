@@ -382,17 +382,17 @@ public class WorkflowInstanceDao {
   }
 
   public void recoverWorkflowInstancesFromDeadNodes() {
-    var recoverableExecutorsId = executorInfo.getRecoverableExecutorIds();
-    if (recoverableExecutorsId.isEmpty()) {
+    var recoverableExecutorIds = executorInfo.getRecoverableExecutorIds();
+    if (recoverableExecutorIds.isEmpty()) {
       return;
     }
     WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
         .setType(recovery).setStateText("Recovered");
-    for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorsId)) {
+    for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorIds)) {
       WorkflowInstanceAction action = builder.setState(instance.state).setWorkflowInstanceId(instance.id).build();
       recoverWorkflowInstance(instance.id, instance.executorId, action);
     }
-    recoverableExecutorsId.forEach(executorInfo::markRecovered);
+    recoverableExecutorIds.forEach(executorInfo::markRecovered);
   }
 
   private List<InstanceInfo> getRecoverableWorkflowInstances(Collection<Integer> executorsIds) {

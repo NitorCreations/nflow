@@ -31,12 +31,19 @@ public class MaintenanceConfiguration {
    */
   public final ConfigurationItem deleteWorkflows;
 
+  /**
+   * Delete workflow executors that have expired [given period] ago.
+   */
+  public final ReadablePeriod deleteExpiredExecutorsOlderThan;
+
   MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
-                           @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
-                           @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows) {
+      @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
+      @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows,
+      @JsonProperty("deleteExpiredAfter") ReadablePeriod deleteExpiredExecutorsOlderThan) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;
+    this.deleteExpiredExecutorsOlderThan = deleteExpiredExecutorsOlderThan;
   }
 
   /**
@@ -47,6 +54,7 @@ public class MaintenanceConfiguration {
     private ConfigurationItem.Builder deleteArchivedWorkflows;
     private ConfigurationItem.Builder archiveWorkflows;
     private ConfigurationItem.Builder deleteWorkflows;
+    private ReadablePeriod deleteExpiredExecutorsOlderThan;
 
     /**
      * Configuration for deleting old workflow instances from archive tables.
@@ -80,12 +88,23 @@ public class MaintenanceConfiguration {
     }
 
     /**
+     * Set configuration for deleting old workflow executors.
+     *
+     * @return builder for configuration
+     */
+    public Builder withDeleteExpiredExecutorsOlderThan(ReadablePeriod olderThanPeriod) {
+      this.deleteExpiredExecutorsOlderThan = olderThanPeriod;
+      return this;
+    }
+
+    /**
      * Build MaintenanceConfiguration object.
      *
      * @return MaintenanceConfiguration object.
      */
     public MaintenanceConfiguration build() {
-      return new MaintenanceConfiguration(build(deleteArchivedWorkflows), build(archiveWorkflows), build(deleteWorkflows));
+      return new MaintenanceConfiguration(build(deleteArchivedWorkflows), build(archiveWorkflows), build(deleteWorkflows),
+          deleteExpiredExecutorsOlderThan);
     }
   }
 
@@ -109,7 +128,8 @@ public class MaintenanceConfiguration {
      */
     public final Set<String> workflowTypes;
 
-    ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod, @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
+    ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod,
+        @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
       this.olderThanPeriod = olderThanPeriod;
       this.batchSize = batchSize;
       this.workflowTypes = ofNullable(workflowTypes).orElseGet(Collections::emptySet);
