@@ -7,6 +7,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -57,13 +58,22 @@ public class WorkflowInstanceExecutor {
     var fullTimeout = SECONDS.toMillis(awaitTerminationSeconds);
     var lessGracefulTimeout = min(5000, fullTimeout / 3);
     var gracefulTimeout = fullTimeout - lessGracefulTimeout;
+    // step 1: stop accepting new jobs
     executor.shutdown();
-    boolean allProcessed = true;
+    // step 2: drain the queue that has not yet started processing and mark their executorId to null
+    //         which makes them immediately runnable by other executors
+    List<Runnable> tasksToMarkReadyForExecuting = new ArrayList<>();
+    queue.drainTo(tasksToMarkReadyForExecuting);
+    recoverQueuedWorkflows(tasksToMarkReadyForExecuting, queuedWorkflowRecovery);
+
     try {
+      // step 3: wait for graceful time for in progress to stop
       if (!executor.awaitTermination(gracefulTimeout, MILLISECONDS)) {
         logger.warn("Graceful shutdown timed out after {}s while waiting for executor queue to drain", (gracefulTimeout+999)/1000);
-        var tasksToMarkReadyForExecuting = executor.shutdownNow();
-        allProcessed = recoverQueuedWorkflows(tasksToMarkReadyForExecuting, queuedWorkflowRecovery);
+        // step 4: send thread interrupt to the in progress workflows and wait for them to stop for less graceful timeout
+        //         if any workflows were still in the queue then mark their executorId to null
+        tasksToMarkReadyForExecuting.addAll(executor.shutdownNow());
+        recoverQueuedWorkflows(tasksToMarkReadyForExecuting, queuedWorkflowRecovery);
         if (!executor.awaitTermination(lessGracefulTimeout, MILLISECONDS)) {
           logger.warn("Hard shutdown timed out after {}s while waiting running workflows to interrupt and finish", (lessGracefulTimeout+999)/1000);
         }
@@ -72,17 +82,20 @@ public class WorkflowInstanceExecutor {
       logger.warn("Interrupted while waiting for executor to terminate");
       currentThread().interrupt();
     }
-    var graceful = executor.isTerminated() && allProcessed;
+    // step 5: success if the thread pool is fully terminated and there are no tasks that have not been reset
+    var graceful = executor.isTerminated() && tasksToMarkReadyForExecuting.isEmpty();
     if (graceful) {
       logger.info("Graceful shutdown succeeded");
     }
     return graceful;
   }
 
-  private boolean recoverQueuedWorkflows(List<Runnable> threadPoolQueue, Consumer<List<WorkflowStateProcessor>> queuedWorkflowRecovery) {
+  private void recoverQueuedWorkflows(List<Runnable> queuedWorkflows, Consumer<List<WorkflowStateProcessor>> queuedWorkflowRecovery) {
+    if (queuedWorkflows.isEmpty()) {
+      return;
+    }
     @SuppressWarnings("unchecked")
-    var tasksToMarkReadyForExecuting = (List<WorkflowStateProcessor>) (Object) threadPoolQueue;
+    var tasksToMarkReadyForExecuting = (List<WorkflowStateProcessor>) (Object) queuedWorkflows;
     queuedWorkflowRecovery.accept(tasksToMarkReadyForExecuting);
-    return tasksToMarkReadyForExecuting.isEmpty();
   }
 }

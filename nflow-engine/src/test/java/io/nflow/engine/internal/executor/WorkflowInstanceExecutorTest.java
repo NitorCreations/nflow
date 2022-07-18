@@ -11,10 +11,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Exchanger;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.joda.time.DateTime;
@@ -72,6 +71,7 @@ public class WorkflowInstanceExecutorTest {
 
 
   private final AtomicReference<Boolean> wasInterrupted = new AtomicReference<>();
+  private final AtomicReference<List<WorkflowStateProcessor>> wasReset = new AtomicReference<>();
   @Test
   public void testShutdownWithQueuedEntries() throws Exception {
     WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 1, 1, 3, 4, new CustomizableThreadFactory("test"));
@@ -82,11 +82,12 @@ public class WorkflowInstanceExecutorTest {
     // another goes to queue
     t.execute(runnable);
     assertThat(t.shutdown(workflows -> {
-      assertThat(workflows, is(List.of(runnable)));
+      wasReset.compareAndSet(null, new ArrayList<>(workflows));
       workflows.clear();
     }), is(true));
     assertThat(t.executor.isShutdown(), is(true));
     assertThat(wasInterrupted.get(), is(TRUE));
+    assertThat(wasReset.get(), is(List.of(runnable)));
   }
 
   private Object silentSleep(int millis) {
