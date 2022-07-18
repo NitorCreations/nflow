@@ -354,10 +354,16 @@ public class WorkflowInstanceDao {
   public int updateWorkflowInstance(WorkflowInstance instance) {
     // using sqlVariants.nextActivationUpdate() requires that nextActivation is used 3 times
     Object nextActivation = sqlVariants.toTimestampObject(instance.nextActivation);
-    return jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
+    int updated = jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
         abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
         instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, instance.businessKey,
         toTimestamp(instance.started), instance.id);
+    if (updated == 0) {
+      logger.warn(
+          "Updating workflow instance {} did not update any rows in the database, instance may have been recovered by another executor.",
+          instance.id);
+    }
+    return updated;
   }
 
   private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action,
@@ -366,7 +372,10 @@ public class WorkflowInstanceDao {
     transaction.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
-        updateWorkflowInstance(instance);
+        int updated = updateWorkflowInstance(instance);
+        if (updated == 0) {
+          return;
+        }
         long parentActionId = insertWorkflowInstanceAction(action);
         insertVariables(action.workflowInstanceId, parentActionId, changedStateVariables);
         for (WorkflowInstance childTemplate : childWorkflows) {

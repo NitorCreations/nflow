@@ -223,6 +223,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateWorkflowInstanceCreatesActionWhenCreateActionIsTrue() {
     WorkflowInstance instance = updateInstanceBuilder().build();
     WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
+    setInstanceExecutorId(instance.id);
 
     dao.updateWorkflowInstanceAfterExecution(instance, action, noChildWorkflows, emptyWorkflows, true);
 
@@ -234,6 +235,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance instance = updateInstanceBuilder().build();
     WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
     WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().build();
+    setInstanceExecutorId(instance.id);
 
     dao.updateWorkflowInstanceAfterExecution(instance, action, asList(childWorkflow), emptyWorkflows, false);
 
@@ -245,16 +247,22 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance instance = updateInstanceBuilder().build();
     WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
     WorkflowInstance newWorkflow = constructWorkflowInstanceBuilder().build();
+    setInstanceExecutorId(instance.id);
 
     dao.updateWorkflowInstanceAfterExecution(instance, action, noChildWorkflows, asList(newWorkflow), false);
 
     assertThat(updatedInstance().actions.size(), is(1));
   }
 
+  private void setInstanceExecutorId(Long id) {
+    jdbc.update("update nflow_workflow set executor_id = ? where id = ?", executorDao.getExecutorId(), id);
+  }
+
   @Test
   public void updateWorkflowInstanceCreatesActionWhenStateVariablesAreModified() {
     WorkflowInstance instance = updateInstanceBuilder().putStateVariable("foo", "bar").build();
     WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
+    setInstanceExecutorId(instance.id);
 
     dao.updateWorkflowInstanceAfterExecution(instance, action, noChildWorkflows, emptyWorkflows, false);
 
@@ -284,6 +292,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateWorkflowInstanceWithChildWorkflowHavingExistinExternalIdWorks() {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
+    setInstanceExecutorId(id);
     WorkflowInstance i2 = new WorkflowInstance.Builder(
         dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false))
             .setStatus(inProgress)
@@ -331,6 +340,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     // create 3 level hierarchy of workflows
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
+    setInstanceExecutorId(id);
     WorkflowInstance i2 = new WorkflowInstance.Builder(
         dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false))
             .setStatus(inProgress)
@@ -359,6 +369,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
         .setWorkflowInstanceId(middleWorkflow.id).setType(stateExecution).build();
 
     WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("childKey").build();
+    setInstanceExecutorId(middleWorkflow.id);
     dao.updateWorkflowInstanceAfterExecution(middleWorkflow, middleAction, asList(childWorkflow), emptyWorkflows, false);
 
     Map<Long, List<Long>> childWorkflows = dao.getWorkflowInstance(middleWorkflowId,
@@ -457,7 +468,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updateNotRunningWorkflowInstanceDoesNotUpdateRunningInstance() {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().build();
     long id = dao.insertWorkflowInstance(instance);
-    assertThat(jdbc.update("update nflow_workflow set executor_id = ? where id = ?", executorDao.getExecutorId(), id), is(1));
+    setInstanceExecutorId(id);
     final DateTime tomorrow = now().plusDays(1);
     WorkflowInstance modifiedInstance = new WorkflowInstance.Builder(instance).setId(id).setState("manualState")
         .setNextActivation(tomorrow).setStatus(manual).build();
@@ -469,8 +480,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   public void updatingNextActivationToNullWhileExternalNextActivationIsNotNull() {
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     long workflowId = dao.insertWorkflowInstance(instance);
-    assertTrue(workflowId > -1);
-    jdbc.update("update nflow_workflow set executor_id = ? where id = ?", executorDao.getExecutorId(), workflowId);
+    setInstanceExecutorId(workflowId);
     assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?",
         new Timestamp(now().getMillis()), workflowId), is(1));
     WorkflowInstance i = dao.getWorkflowInstance(workflowId, EnumSet.of(CURRENT_STATE_VARIABLES), null, false);
@@ -489,8 +499,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(future).build();
 
-    final long workflowId = dao.insertWorkflowInstance(instance);
-    jdbc.update("update nflow_workflow set executor_id = ? where id = ?", executorDao.getExecutorId(), workflowId);
+    long workflowId = dao.insertWorkflowInstance(instance);
+    setInstanceExecutorId(workflowId);
 
     assertTrue(workflowId > -1);
     assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?", new Timestamp(now.getMillis()),
@@ -509,7 +519,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
     WorkflowInstance instance = constructWorkflowInstanceBuilder().setNextActivation(now).build();
     long workflowId = dao.insertWorkflowInstance(instance);
-    jdbc.update("update nflow_workflow set executor_id = ? where id = ?", executorDao.getExecutorId(), workflowId);
+    setInstanceExecutorId(workflowId);
 
     assertTrue(workflowId > -1);
     assertThat(jdbc.update("update nflow_workflow set external_next_activation = ? where id = ?",
