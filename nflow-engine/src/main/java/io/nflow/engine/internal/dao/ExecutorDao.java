@@ -195,11 +195,4 @@ public class ExecutorDao {
       logger.warn("Failed to mark executor {} as recovered", recoveredExecutorId, e);
     }
   }
-
-  public Collection<Integer> getDeadExecutorIds() {
-    return jdbc.query("select id from nflow_executor where "
-            + getExecutorGroupCondition() + " and id <> " + getExecutorId() + " and "
-            + sqlVariants.dateLtEqDiff("expires", "current_timestamp"),
-            (rs, rowNum) -> rs.getInt(1));
-  }
 }
