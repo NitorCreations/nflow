@@ -112,8 +112,8 @@ public class WorkflowDispatcher implements Runnable {
         }
       }
     } finally {
-      shutdownPool();
-      executorDao.markShutdown();
+      var graceful = shutdownPool();
+      executorDao.markShutdown(graceful);
       running.set(false);
       logger.info("Shutdown completed.");
       shutdownDone.countDown();
@@ -153,11 +153,12 @@ public class WorkflowDispatcher implements Runnable {
     return running.get();
   }
 
-  private void shutdownPool() {
+  private boolean shutdownPool() {
     try {
-      executor.shutdown();
+      return executor.shutdown();
     } catch (Exception e) {
       logger.error("Error in shutting down thread pool.", e);
+      return false;
     }
   }
 
@@ -169,7 +170,7 @@ public class WorkflowDispatcher implements Runnable {
     }
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
     for (Long instanceId : nextInstanceIds) {
-      executor.execute(stateProcessorFactory.createProcessor(instanceId, () -> shutdownRequested.get()));
+      executor.execute(stateProcessorFactory.createProcessor(instanceId, shutdownRequested::get));
     }
   }
 

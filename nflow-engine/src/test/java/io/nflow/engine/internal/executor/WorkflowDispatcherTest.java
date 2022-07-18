@@ -229,7 +229,7 @@ public class WorkflowDispatcherTest {
         waitForTick(1);
         dispatcher.shutdown();
         assertPoolIsShutdown(true);
-        verify(executorDao).markShutdown();
+        verify(executorDao).markShutdown(true);
       }
     }
     runOnce(new ShutdownBlocksUntilPoolShutdown());

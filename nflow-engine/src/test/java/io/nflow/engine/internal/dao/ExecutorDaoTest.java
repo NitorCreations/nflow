@@ -55,18 +55,36 @@ public class ExecutorDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void markShutdownSetsExecutorExpiredAndStopped() {
+  public void markShutdownSetsExecutorExpiredAndGracefullyStopped() {
     jdbc.update(
         "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
         dao.getExecutorId(), "localhost", 666, dao.getExecutorGroup(), now().toDate(), now().toDate(),
         now().plusHours(1).toDate());
 
-    dao.markShutdown();
+    dao.markShutdown(true);
 
     WorkflowExecutor executor = dao.getExecutors().get(0);
     assertThat(executor.expires.isAfterNow(), is(false));
     assertThat(executor.stopped, is(notNullValue()));
     assertThat(executor.stopped.isAfterNow(), is(false));
+    assertThat(executor.recovered, is(notNullValue()));
+    assertThat(executor.recovered.isAfterNow(), is(false));
+  }
+
+  @Test
+  public void markShutdownSetsExecutorExpiredAndForcefullyStopped() {
+    jdbc.update(
+            "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
+            dao.getExecutorId(), "localhost", 666, dao.getExecutorGroup(), now().toDate(), now().toDate(),
+            now().plusHours(1).toDate());
+
+    dao.markShutdown(false);
+
+    WorkflowExecutor executor = dao.getExecutors().get(0);
+    assertThat(executor.expires.isAfterNow(), is(true));
+    assertThat(executor.stopped, is(notNullValue()));
+    assertThat(executor.stopped.isAfterNow(), is(false));
+    assertThat(executor.recovered, is(nullValue()));
   }
 
   @Test

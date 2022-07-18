@@ -1,6 +1,9 @@
 package io.nflow.engine.internal.executor;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.Thread.currentThread;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -48,15 +51,28 @@ public class WorkflowInstanceExecutor {
     return queue.remainingCapacity();
   }
 
-  public void shutdown() {
+  public boolean shutdown() {
+    var lessGracefulTimeout = min(5000, SECONDS.toMillis(awaitTerminationSeconds) / 3);
     executor.shutdown();
+    boolean allProcessed = true;
     try {
-      if (!executor.awaitTermination(awaitTerminationSeconds, SECONDS)) {
-        logger.warn("Timed out while waiting for executor to terminate");
+      if (!executor.awaitTermination(awaitTerminationSeconds - lessGracefulTimeout, MILLISECONDS)) {
+        logger.warn("Graceful shutdown timed out while waiting for executor queue to drain");
+        var tasksToMarkReadyForExecuting = executor.shutdownNow();
+        allProcessed = tasksToMarkReadyForExecuting.isEmpty();
+        // TODO: loop through the tasks and mark their executor_id to null, they never started running so no action needs to be inserted
+        if (!executor.awaitTermination(lessGracefulTimeout, MILLISECONDS)) {
+          logger.warn("Hard shutdown timed out while waiting running workflows to interrupt and finish");
+        }
       }
     } catch (@SuppressWarnings("unused") InterruptedException ex) {
       logger.warn("Interrupted while waiting for executor to terminate");
       currentThread().interrupt();
     }
+    var graceful = executor.isTerminated() && allProcessed;
+    if (graceful) {
+      logger.info("Graceful shutdown succeeded");
+    }
+    return graceful;
   }
 }

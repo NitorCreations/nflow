@@ -94,7 +94,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
       if ("begin".equals(action.state)) {
         beginExecutor = action.executorId;
       }
-      if ("process".equals(action.state)) {
+      if (processExecutor == 0 && "process".equals(action.state)) {
         processExecutor = action.executorId;
       }
     }

@@ -177,10 +177,11 @@ public class ExecutorDao {
         });
   }
 
-  public void markShutdown() {
+  public void markShutdown(boolean graceful) {
     try {
-      jdbc.update("update nflow_executor set expires=current_timestamp, stopped=current_timestamp, recovered=null where "
-          + getExecutorGroupCondition() + " and id = ?", getExecutorId());
+      var sql = graceful ? "set expires=current_timestamp, stopped=current_timestamp, recovered=current_timestamp" :
+              "set expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ", stopped=current_timestamp, recovered=null";
+      jdbc.update("update nflow_executor " + sql + " where id = ?", getExecutorId());
     } catch (DataAccessException e) {
       logger.warn("Failed to mark executor as stopped", e);
     }
