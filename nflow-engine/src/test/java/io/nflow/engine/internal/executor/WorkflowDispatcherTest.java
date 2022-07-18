@@ -304,7 +304,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(poolSpy).shutdown(workflows -> assertThat(workflows, empty()));
+        verify(poolSpy).shutdown(any());
       }
     }
     runOnce(new ExceptionOnPoolShutdownIsNotPropagated());
