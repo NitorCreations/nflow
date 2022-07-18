@@ -62,6 +62,10 @@ public class MaintenanceWorkflow extends CronWorkflow {
     add(sb, "Archived", results.archivedWorkflows);
     add(sb, "Deleted", results.deletedWorkflows);
     add(sb, "Deleted archived", results.deletedArchivedWorkflows);
+    if (conf.deleteExpiredExecutorsAfter != null) {
+      int deletedExecutors = maintenanceService.cleanupExecutors(conf.deleteExpiredExecutorsAfter);
+      add(sb, "Deleted executors", deletedExecutors);
+    }
     if (sb.length() == 0) {
       sb.append("No actions");
     }

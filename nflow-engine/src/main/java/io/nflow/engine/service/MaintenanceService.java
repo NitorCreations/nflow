@@ -18,6 +18,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.joda.time.DateTime;
+import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -124,16 +125,13 @@ public class MaintenanceService {
   }
 
   /**
-   * Cleans up old executors.
+   * Delete workflow executors that have expired [given period] ago.
    *
-   * @param configuration
-   *          Cleanup parameters.
-   * @return Number of executors cleaned up.
+   * @param deleteExpiredExecutorsAfter
+   *          Time to wait before expired executors get deleted.
+   * @return Number of executors deleted.
    */
-  public int cleanupExecutors(ExecutorMaintenanceConfiguration configuration) {
-    if (configuration == null || configuration.deleteExpiredAfter == null) {
-      return 0;
-    }
-    return executorDao.deleteExpiredBefore(now().minus(configuration.deleteExpiredAfter));
+  public int cleanupExecutors(ReadablePeriod deleteExpiredExecutorsAfter) {
+    return executorDao.deleteExpiredBefore(now().minus(deleteExpiredExecutorsAfter));
   }
 }

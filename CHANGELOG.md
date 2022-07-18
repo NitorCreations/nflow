@@ -3,7 +3,7 @@
 **Highlights**
 
 - `nflow-engine`
-  - Add maintenance workflow for cleaning up old workflow executors.
+  - Clean up old workflow executors that have expired configured time ago (default 1 year).
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
   - Add `recovered` timestamp to executor info (database, Java API and REST API).
   - Remove obsolete mysql legacy ddl sql scripts.
@@ -14,10 +14,9 @@
 **Details**
 
 - `nflow-engine`
-  - Add maintenance workflow for cleaning up old workflow executors.
-    - By default, nFlow creates an instance of `ExecutorMaintenanceWorkflow`, that runs daily (at 04:04:04 by default) and deletes workflow executors that have been expired longer than configured time (default 1 year).
-    - On the first startup, cron schedule is read from `nflow.maintenance.executors.initial.cron` configuration option and stored in state variable of the created maintenance workflow instance.
-    - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredAfter` configuration option and stored in state variable of the created maintenance workflow instance.
+  - Add support to `MaintenanceWorkflow` for cleaning up old workflow executors that have expired configured time ago (default 1 year).
+    - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredExecutorsAfter` configuration option and stored in the `config` state variable of the created maintenance workflow instance.
+    - If the maintenance workflow instance has already been created, cleanup can be enabled by adding `"deleteExpiredExecutorsAfter": "P1Y"` to the JSON value of the `config` state variable of the instance.
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
     - Find only dead nodes that have not been recovered yet.
     - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered.

@@ -176,13 +176,13 @@ public class MaintenanceServiceTest {
 
   @Test
   public void cleanupExecutorsWorks() {
-    ExecutorMaintenanceConfiguration config = new ExecutorMaintenanceConfiguration(days(1));
-    DateTime expiryLimit = now().minus(config.deleteExpiredAfter);
+    ReadablePeriod deleteExpiredExecutorsAfter = days(1);
+    DateTime expiryLimit = now().minus(deleteExpiredExecutorsAfter);
     int DELETED = 10;
 
     when(executorDao.deleteExpiredBefore(expiryLimit)).thenReturn(DELETED);
 
-    int deleted = service.cleanupExecutors(config);
+    int deleted = service.cleanupExecutors(deleteExpiredExecutorsAfter);
 
     assertThat(deleted, is(DELETED));
     verify(executorDao).deleteExpiredBefore(expiryLimit);
