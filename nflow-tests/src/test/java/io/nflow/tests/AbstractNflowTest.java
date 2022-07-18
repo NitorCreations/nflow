@@ -223,13 +223,13 @@ public abstract class AbstractNflowTest {
     request.nextActivationTime = null;
     request.state = FAILED.name();
     RuntimeException ex = null;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 5; ++i) {
       try {
         updateWorkflowInstance(workflowId, request, String.class);
         return;
       } catch (RuntimeException e) {
         ex = e;
-        SECONDS.sleep(1);
+        SECONDS.sleep(i+1);
       }
     }
     throw ex;
