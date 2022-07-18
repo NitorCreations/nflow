@@ -34,7 +34,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
   }
 
   /**
-   * Extend maintenance workflow definition with customer workflow settings.
+   * Extend maintenance workflow definition with custom workflow settings.
    *
    * @param type
    *          The type of the workflow definition.

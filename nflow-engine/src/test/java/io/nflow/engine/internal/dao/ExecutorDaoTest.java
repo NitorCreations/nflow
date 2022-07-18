@@ -82,4 +82,19 @@ public class ExecutorDaoTest extends BaseDaoTest {
     assertThat(executor.recovered, is(notNullValue()));
     assertThat(dao.getRecoverableExecutorIds().isEmpty(), is(true));
   }
+
+  @Test
+  public void deleteExpiredBeforeWorks() {
+    jdbc.update(
+        "insert into nflow_executor (id, host, pid, executor_group, started, active, expires, recovered) values (?, ?, ?, ?, ?, ?, ?, ?)",
+        3, "localhost", 666, dao.getExecutorGroup(), now().toDate(), now().toDate(), now().minusDays(2).toDate(),
+        now().minusDays(1).toDate());
+    assertThat(dao.getExecutors().size(), is(1));
+
+    dao.deleteExpiredBefore(now().minusDays(3));
+    assertThat(dao.getExecutors().size(), is(1));
+
+    dao.deleteExpiredBefore(now().minusDays(1));
+    assertThat(dao.getExecutors().isEmpty(), is(true));
+  }
 }

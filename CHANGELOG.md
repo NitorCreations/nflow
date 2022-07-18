@@ -3,6 +3,7 @@
 **Highlights**
 
 - `nflow-engine`
+  - Add maintenance workflow for cleaning up old workflow executors.
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
   - Add `recovered` timestamp to executor info (database, Java API and REST API).
   - Remove obsolete mysql legacy ddl sql scripts.
@@ -13,6 +14,10 @@
 **Details**
 
 - `nflow-engine`
+  - Add maintenance workflow for cleaning up old workflow executors.
+    - By default, nFlow creates an instance of `ExecutorMaintenanceWorkflow`, that runs daily (at 04:04:04 by default) and deletes workflow executors that have been expired longer than configured time (default 1 year).
+    - On the first startup, cron schedule is read from `nflow.maintenance.executors.initial.cron` configuration option and stored in state variable of the created maintenance workflow instance.
+    - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredAfter` configuration option and stored in state variable of the created maintenance workflow instance.
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
     - Find only dead nodes that have not been recovered yet.
     - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered.
@@ -43,11 +48,7 @@
 
 ## 8.0.0 (2022-06-09)
 
-<<<<<<< HEAD
 **Highlights**
-=======
-### Highlights
->>>>>>> d4e0cf3c0 (mark executor recovered after recovering wf instances, recover only executors that are not recovered yet)
 
 - Add support for Java 17.
 - Add new user interface `nflow-explorer-ng` deprecating `nflow-explorer` see [migration instructions](https://github.com/NitorCreations/nflow/wiki/Migration-from-Explorer-to-Explorer-NG)
