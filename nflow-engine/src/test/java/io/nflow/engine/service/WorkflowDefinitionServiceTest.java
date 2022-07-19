@@ -160,6 +160,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void getWorkflowDefinitionChecksFromDaoIfNotFoundFromMemory() throws Exception {
     initializeService(true, true, 1);
 
