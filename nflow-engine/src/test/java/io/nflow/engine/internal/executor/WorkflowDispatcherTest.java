@@ -404,7 +404,7 @@ public class WorkflowDispatcherTest {
 
   // Converted from https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc (last updated 2009) to junit5
   static class MultithreadedTestCase {
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     final Map<String, Thread> threads = new HashMap<>();
     private final AtomicInteger tick = new AtomicInteger();
     final List<Throwable> errors = synchronizedList(new ArrayList<>());
