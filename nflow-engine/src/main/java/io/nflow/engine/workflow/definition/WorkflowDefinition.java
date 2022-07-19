@@ -42,6 +42,7 @@ public abstract class WorkflowDefinition extends ModelObject {
   protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
   private final Set<WorkflowState> states = new HashSet<>();
+  private boolean verifyStateMethodValidity;
 
   /**
    * Create a workflow definition with default settings and automatically scanned state methods.
@@ -95,7 +96,7 @@ public abstract class WorkflowDefinition extends ModelObject {
    */
   protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
       Map<String, WorkflowStateMethod> stateMethods) {
-    this(type, initialState, errorState, settings, stateMethods, null);
+    this(type, initialState, errorState, settings, stateMethods, null, true);
   }
 
   /**
@@ -115,9 +116,11 @@ public abstract class WorkflowDefinition extends ModelObject {
    *          The state methods to be used for the states of this workflow type. If null, the methods will be scanned.
    * @param states
    *          The states to be registered for the workflow. If null, the states will be scanned.
+   * @param verifyStateMethodValidity
+   *          True to search and verify the implementation of registered state methods to ensure they comply with expectations.
    */
   protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
-      Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
+      Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states, boolean verifyStateMethodValidity) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -125,10 +128,15 @@ public abstract class WorkflowDefinition extends ModelObject {
     this.initialState = initialState;
     this.errorState = errorState;
     this.settings = settings;
+    this.verifyStateMethodValidity = verifyStateMethodValidity;
     WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
     if (stateMethods == null) {
+      Assert.isTrue(verifyStateMethodValidity, "Must enable validation if state methods are null and thus scanned");
       this.stateMethods = scanner.getStateMethods(getClass());
     } else {
+      if (!verifyStateMethodValidity) {
+        Assert.isTrue(stateMethods.isEmpty(), "Must enable validation if state methods providing");
+      }
       this.stateMethods = stateMethods;
     }
     registerState(initialState);
@@ -300,7 +308,10 @@ public abstract class WorkflowDefinition extends ModelObject {
     return settings;
   }
 
-  protected void requireStateMethodExists(WorkflowState state) {
+  final void requireStateMethodExists(WorkflowState state) {
+    if (!verifyStateMethodValidity) {
+      return;
+    }
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
     if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(

@@ -9,17 +9,13 @@ import io.nflow.engine.workflow.definition.WorkflowStateType;
 import java.util.Collection;
 
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 
 public class StoredWorkflowDefinitionWrapper extends WorkflowDefinition {
     public StoredWorkflowDefinitionWrapper(StoredWorkflowDefinition stored) {
-        super(stored.type, getInitialState(stored), getErrorState(stored), new WorkflowSettings.Builder().build(), null, allStates(stored));
+        super(stored.type, getInitialState(stored), getErrorState(stored), new WorkflowSettings.Builder().build(), emptyMap(), allStates(stored), false);
         setDescription(stored.description);
-    }
-
-    @Override
-    protected void requireStateMethodExists(WorkflowState state) {
-
     }
 
     private static Collection<WorkflowState> allStates(StoredWorkflowDefinition stored) {
