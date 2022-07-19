@@ -133,6 +133,9 @@ public class NflowServerConfig {
     }
 
     private void stopJetty() {
+        if (nflowJetty == null) {
+            return;
+        }
         try {
             nflowJetty.setStopTimeout(10000);
             nflowJetty.stop();

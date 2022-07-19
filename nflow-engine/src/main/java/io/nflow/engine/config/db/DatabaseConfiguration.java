@@ -87,7 +87,7 @@ public abstract class DatabaseConfiguration {
     config.setPassword(property(env, "password"));
     config.setMaximumPoolSize(property(env, "max_pool_size", Integer.class));
     config.setIdleTimeout(property(env, "idle_timeout_seconds", Long.class) * 1000);
-    config.setAutoCommit(true);
+    config.setInitializationFailTimeout(property(env, "initialization_fail_timeout_seconds", Long.class) * 1000);
     if (metricRegistry != null) {
       config.setMetricRegistry(metricRegistry);
     }
