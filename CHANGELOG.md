@@ -14,6 +14,9 @@
 **Details**
 
 - `nflow-engine`
+  - Improve shutdown sequence.
+    - Workflows that have been acquired from database, but had not yet started executing, are now resumed immediately by another executor.
+    - During the last 5 seconds of shutdown timeout the workflows are interrupted so that they persist their state and can be resumed immediately.
   - Add support to `MaintenanceWorkflow` for cleaning up old workflow executors that have expired configured time ago (default 1 year).
     - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredExecutors.olderThan` configuration option and stored in the `config` state variable of the created maintenance workflow instance.
     - If the maintenance workflow instance has already been created, cleanup can be enabled by adding `"deleteExpiredExecutorsOlderThan": "P1Y"` to the JSON value of the `config` state variable of the instance.
