@@ -119,7 +119,7 @@ public class WorkflowDefinitionService {
 
   private synchronized void refreshStoredDefinitions() {
     long now = currentTimeMillis();
-    if (nextCheckOfStoredDefinitions > now) {
+    if (storedDefinitionCheckInterval <= 0 || nextCheckOfStoredDefinitions > now) {
       return;
     }
     nextCheckOfStoredDefinitions = now + storedDefinitionCheckInterval;

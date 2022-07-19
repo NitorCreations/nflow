@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -139,6 +140,14 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
     assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
     verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(anyList());
+  }
+
+  @Test
+  public void getWorkflowDefinitionReturnsDoesNotQueryDatabaseIfCheckIntervalDisabled() {
+    initializeService(true, true, 0);
+
+    assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
+    verify(workflowDefinitionDao, never()).queryStoredWorkflowDefinitions(anyList());
   }
 
   @Test
