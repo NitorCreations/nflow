@@ -1,18 +1,24 @@
 package io.nflow.engine.service;
 
+import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -20,6 +26,8 @@ import org.springframework.core.env.Environment;
 
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
+
+import java.util.List;
 
 public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
@@ -37,7 +45,11 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   private void initializeService(boolean definitionPersist, boolean autoInit) {
-    when(env.getProperty("nflow.definition.load", Boolean.class, true)).thenReturn(true);
+    initializeService(definitionPersist, autoInit, 60);
+  }
+
+  private void initializeService(boolean definitionPersist, boolean autoInit, int reloadInterval) {
+    when(env.getRequiredProperty("nflow.definition.load.interval.seconds", Integer.class)).thenReturn(reloadInterval);
     when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(definitionPersist);
     when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(autoInit);
     service = new WorkflowDefinitionService(workflowDefinitionDao, env);
@@ -108,7 +120,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   @Test
-  public void addingDuplicatDefinitionThrowsException() {
+  public void addingDuplicateDefinitionThrowsException() {
     initializeService(true, true);
     service.addWorkflowDefinition(workflowDefinition);
 
@@ -126,6 +138,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     initializeService(true, true);
 
     assertThat(service.getWorkflowDefinition("notFound"), is(nullValue()));
+    verify(workflowDefinitionDao).queryStoredWorkflowDefinitions(anyList());
   }
 
   @Test
@@ -135,6 +148,34 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     service.addWorkflowDefinition(workflowDefinition);
 
     assertThat(service.getWorkflowDefinition("dummy"), is(instanceOf(DummyTestWorkflow.class)));
+  }
+
+  @Test
+  public void getWorkflowDefinitionChecksFromDaoIfNotFoundFromMemory() throws Exception {
+    initializeService(true, true, 1);
+
+    var w1 = new StoredWorkflowDefinition();
+    w1.type = "w1";
+    w1.states = List.of(new StoredWorkflowDefinition.State("start", "start", "start"));
+    w1.onError = "start";
+
+    var w2 = new StoredWorkflowDefinition();
+    w2.type = "w2";
+    w2.states = w1.states;
+    w2.onError = "start";
+
+    when(workflowDefinitionDao.queryStoredWorkflowDefinitions(emptyList())).thenReturn(List.of(w1), List.of(w1, w2));
+    assertThat(service.getWorkflowDefinition("w1"), is(notNullValue()));
+    verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
+    assertThat(service.getWorkflowDefinition("w2"), is(nullValue()));
+    verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
+
+    SECONDS.sleep(2);
+
+    assertThat(service.getWorkflowDefinition("w1"), is(notNullValue()));
+    verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
+    assertThat(service.getWorkflowDefinition("w2"), is(notNullValue()));
+    verify(workflowDefinitionDao, times(2)).queryStoredWorkflowDefinitions(emptyList());
   }
 
 }

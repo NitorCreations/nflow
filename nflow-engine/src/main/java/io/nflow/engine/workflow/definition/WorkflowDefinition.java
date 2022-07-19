@@ -300,7 +300,7 @@ public abstract class WorkflowDefinition extends ModelObject {
     return settings;
   }
 
-  final void requireStateMethodExists(WorkflowState state) {
+  protected void requireStateMethodExists(WorkflowState state) {
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
     if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(
@@ -405,5 +405,4 @@ public abstract class WorkflowDefinition extends ModelObject {
   public Map<Integer, String> getSupportedSignals() {
     return emptyMap();
   }
-
 }

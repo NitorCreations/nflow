@@ -52,5 +52,4 @@ public class StoredWorkflowDefinition extends ModelObject {
       return value.compareTo(o.value);
     }
   }
-
 }

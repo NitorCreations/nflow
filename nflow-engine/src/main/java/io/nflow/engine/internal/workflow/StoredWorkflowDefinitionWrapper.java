@@ -7,8 +7,6 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 import static java.util.stream.Collectors.toList;
@@ -17,6 +15,11 @@ public class StoredWorkflowDefinitionWrapper extends WorkflowDefinition {
     public StoredWorkflowDefinitionWrapper(StoredWorkflowDefinition stored) {
         super(stored.type, getInitialState(stored), getErrorState(stored), new WorkflowSettings.Builder().build(), null, allStates(stored));
         setDescription(stored.description);
+    }
+
+    @Override
+    protected void requireStateMethodExists(WorkflowState state) {
+
     }
 
     private static Collection<WorkflowState> allStates(StoredWorkflowDefinition stored) {
