@@ -116,6 +116,29 @@ public abstract class WorkflowDefinition extends ModelObject {
    *          The state methods to be used for the states of this workflow type. If null, the methods will be scanned.
    * @param states
    *          The states to be registered for the workflow. If null, the states will be scanned.
+   */
+  protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
+                               Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
+    this(type, initialState, errorState, settings, stateMethods, states, true);
+  }
+
+  /**
+   * Create a workflow definition with given settings, state methods and states.
+   *
+   * @param type
+   *          The unique identifier of this workflow definition.
+   * @param initialState
+   *          The default start state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param errorState
+   *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param settings
+   *          The configuration for the workflow instances of this workflow type.
+   * @param stateMethods
+   *          The state methods to be used for the states of this workflow type. If null, the methods will be scanned.
+   * @param states
+   *          The states to be registered for the workflow. If null, the states will be scanned.
    * @param verifyStateMethodValidity
    *          True to search and verify the implementation of registered state methods to ensure they comply with expectations.
    */
@@ -135,7 +158,7 @@ public abstract class WorkflowDefinition extends ModelObject {
       this.stateMethods = scanner.getStateMethods(getClass());
     } else {
       if (!verifyStateMethodValidity) {
-        Assert.isTrue(stateMethods.isEmpty(), "Must enable validation if state methods providing");
+        Assert.isTrue(stateMethods.isEmpty(), "Must enable validation if state methods provided");
       }
       this.stateMethods = stateMethods;
     }
