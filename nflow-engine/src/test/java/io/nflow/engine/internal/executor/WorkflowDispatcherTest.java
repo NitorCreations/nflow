@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -286,7 +287,7 @@ public class WorkflowDispatcherTest {
 
       public void threadDispatcher() {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
-        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown(workflows -> assertThat(workflows, empty()), false);
+        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown(workflows -> assertThat(workflows, empty()), true);
         dispatcher.run();
       }
 
@@ -297,7 +298,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(poolSpy).shutdown(any(), false);
+        verify(poolSpy).shutdown(any(), anyBoolean());
       }
     }
     runOnce(new ExceptionOnPoolShutdownIsNotPropagated());
