@@ -65,7 +65,7 @@ public class WorkflowInstanceExecutorTest {
   @Test
   public void testShutdown() {
     WorkflowInstanceExecutor t = new WorkflowInstanceExecutor(3, 2, 1, 3, 4, new CustomizableThreadFactory("test"));
-    assertThat(t.shutdown(workflows -> assertThat(workflows, empty())), is(true));
+    assertThat(t.shutdown(workflows -> assertThat(workflows, empty()), true), is(true));
     assertThat(t.executor.isShutdown(), is(true));
   }
 
@@ -81,7 +81,7 @@ public class WorkflowInstanceExecutorTest {
     t.execute(slowMock);
     // another goes to queue
     t.execute(runnable);
-    assertThat(t.shutdown(workflows -> wasReset.compareAndSet(null, new ArrayList<>(workflows))), is(true));
+    assertThat(t.shutdown(workflows -> wasReset.compareAndSet(null, new ArrayList<>(workflows)), true), is(true));
     assertThat(t.executor.isShutdown(), is(true));
     assertThat(wasInterrupted.get(), is(TRUE));
     assertThat(wasReset.get(), is(List.of(runnable.instanceId)));

@@ -286,7 +286,7 @@ public class WorkflowDispatcherTest {
 
       public void threadDispatcher() {
         when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(), this));
-        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown(workflows -> assertThat(workflows, empty()));
+        doThrow(new RuntimeException("Expected: exception on pool shutdown")).when(poolSpy).shutdown(workflows -> assertThat(workflows, empty()), false);
         dispatcher.run();
       }
 
@@ -297,7 +297,7 @@ public class WorkflowDispatcherTest {
 
       @Override
       public void finish() {
-        verify(poolSpy).shutdown(any());
+        verify(poolSpy).shutdown(any(), false);
       }
     }
     runOnce(new ExceptionOnPoolShutdownIsNotPropagated());

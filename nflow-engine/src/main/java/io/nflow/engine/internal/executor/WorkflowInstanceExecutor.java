@@ -54,10 +54,10 @@ public class WorkflowInstanceExecutor {
     return queue.remainingCapacity();
   }
 
-  public boolean shutdown(Consumer<List<Long>> clearExecutorIds) {
+  public boolean shutdown(Consumer<List<Long>> clearExecutorIds, boolean allowInterrupt) {
     // Hard timeout is 1/3 of configured total timeout, but never more than 5 seconds
     var totalTimeoutMs = SECONDS.toMillis(awaitTerminationSeconds);
-    var hardTimeoutMs = min(5000, totalTimeoutMs / 3);
+    var hardTimeoutMs = allowInterrupt ? min(5000, totalTimeoutMs / 3) : 0;
     var gracefulTimeoutMs = totalTimeoutMs - hardTimeoutMs;
     // step 1: stop accepting new jobs
     executor.shutdown();
@@ -72,11 +72,13 @@ public class WorkflowInstanceExecutor {
         logger.warn("Graceful shutdown timed out after {} ms while waiting for workflow processing to complete normally",
             gracefulTimeoutMs);
         // step 4: interrupt workflows that are still executing
-        executor.shutdownNow();
-        // step 5: wait for interrupted workflow processing to complete
-        if (!executor.awaitTermination(hardTimeoutMs, MILLISECONDS)) {
-          logger.warn("Hard shutdown timed out after {} ms while waiting for interrupted workflow processing to complete",
-              hardTimeoutMs);
+        if (allowInterrupt) {
+          executor.shutdownNow();
+          // step 5: wait for interrupted workflow processing to complete
+          if (!executor.awaitTermination(hardTimeoutMs, MILLISECONDS)) {
+            logger.warn("Hard shutdown timed out after {} ms while waiting for interrupted workflow processing to complete",
+                    hardTimeoutMs);
+          }
         }
       }
     } catch (@SuppressWarnings("unused") InterruptedException ex) {

@@ -45,6 +45,7 @@ public class WorkflowDispatcher implements Runnable {
   private final long sleepTimeMillis;
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
+  private final boolean allowInterrupt;
 
   @Inject
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
@@ -60,6 +61,7 @@ public class WorkflowDispatcher implements Runnable {
     this.nflowLogger = nflowLogger;
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
+    this.allowInterrupt = env.getProperty("nflow.executor.interrupt", Boolean.class, true);
 
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
@@ -155,7 +157,7 @@ public class WorkflowDispatcher implements Runnable {
 
   private boolean shutdownPool() {
     try {
-      return executor.shutdown(workflowInstances::clearExecutorId);
+      return executor.shutdown(workflowInstances::clearExecutorId, allowInterrupt);
     } catch (Exception e) {
       logger.error("Error in shutting down thread pool.", e);
       return false;
