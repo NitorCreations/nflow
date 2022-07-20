@@ -181,7 +181,7 @@ public class ExecutorDao {
     try {
       var sql = graceful ? "set expires=current_timestamp, stopped=current_timestamp, recovered=current_timestamp" :
               "set expires=" + sqlVariants.currentTimePlusSeconds(timeoutSeconds) + ", stopped=current_timestamp, recovered=null";
-      jdbc.update("update nflow_executor " + sql + " where id = ?", getExecutorId());
+      jdbc.update("update nflow_executor " + sql + " where id = " + getExecutorId());
     } catch (DataAccessException e) {
       logger.warn("Failed to mark executor as stopped", e);
     }
