@@ -1,11 +1,11 @@
 package io.nflow.tests;
 
-import io.nflow.tests.extension.NflowServerConfig;
+import static java.util.Collections.singletonMap;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
+import io.nflow.tests.extension.NflowServerConfig;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AbruptExecutorRecoveryTest extends AbstractExecutorRecoveryTest {
