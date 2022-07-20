@@ -1,5 +1,6 @@
 package io.nflow.engine.internal.executor;
 
+import static java.lang.Boolean.TRUE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -61,7 +62,7 @@ public class WorkflowDispatcher implements Runnable {
     this.nflowLogger = nflowLogger;
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
-    this.allowInterrupt = env.getProperty("nflow.executor.interrupt", Boolean.class, true);
+    this.allowInterrupt = env.getProperty("nflow.executor.interrupt", Boolean.class, TRUE);
 
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
