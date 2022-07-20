@@ -50,7 +50,6 @@ public class WorkflowDispatcher implements Runnable {
   private final boolean autoStart;
 
   @Inject
-  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
   public WorkflowDispatcher(WorkflowInstanceExecutor executor, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, WorkflowDefinitionService workflowDefinitions, ExecutorDao executorDao,
       DispatcherExceptionAnalyzer exceptionAnalyzer, NflowLogger nflowLogger, Environment env) {
@@ -70,6 +69,7 @@ public class WorkflowDispatcher implements Runnable {
     }
   }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
   private void verifyDatabaseSetup() {
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
