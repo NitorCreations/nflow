@@ -1,12 +1,18 @@
 name: Build and test
 on:
-  push
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - '**/*.md'
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
   checks: write
+  security-events: write
 jobs:
   build-and-test:
     if: always()
@@ -30,7 +36,7 @@ jobs:
         if: always()
         with:
           check_name: 'Unit Test Report for Java ${{ matrix.java }}'
-  javadoc-and-spotbugs:
+  javadoc-spotbugs-codeql:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -41,6 +47,11 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java, javascript
+          config-file: ./.github/codeql-config.yaml
       - name: Generate JavaDocs and run SpotBugs
         run: mvn -T1C --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:check
       - name: Publish SpotBugs report
@@ -48,6 +59,8 @@ jobs:
         with:
           name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
   integration-tests:
     if: always()
     strategy:
