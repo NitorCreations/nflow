@@ -20,6 +20,8 @@ public class SkipAutoStartTest extends AbstractNflowTest {
       .prop("nflow.maintenance.insertWorkflowIfMissing", "false")
       .prop("nflow.db.initialization_fail_timeout_seconds", "-1")
       .prop("nflow.db.url", "jdbc:h2:/invalid/path/that/does/not/exist")
+      .clearProfiles()
+      .profiles("nflow.db.h2")
       .build();
 
   public SkipAutoStartTest() {

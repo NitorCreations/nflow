@@ -29,6 +29,9 @@ public class NflowServerConfig {
         port = new AtomicReference<>(b.port);
         springContextClass = b.springContextClass;
         metrics = b.metrics;
+        if (b.clearProfiles) {
+            props.put("clearProfiles", true);
+        }
     }
 
     public static class Builder {
@@ -38,6 +41,8 @@ public class NflowServerConfig {
         Class<?> springContextClass;
         boolean metrics = false;
         final Map<String, Object> props = new LinkedHashMap<>();
+        boolean clearProfiles;
+
         {
             props.put("nflow.db.h2.tcp.port", "");
             props.put("nflow.db.h2.console.port", "");
@@ -72,6 +77,12 @@ public class NflowServerConfig {
             this.metrics = enableMetrics;
             return this;
         }
+
+        public Builder clearProfiles() {
+            this.clearProfiles = true;
+            return this;
+        }
+
         public NflowServerConfig build() {
             return new NflowServerConfig(this);
         }
