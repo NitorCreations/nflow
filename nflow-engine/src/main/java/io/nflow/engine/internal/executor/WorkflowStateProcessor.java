@@ -71,7 +71,7 @@ class WorkflowStateProcessor implements Runnable {
   private static final PeriodicLogger threadStuckLogger = new PeriodicLogger(logger, 60);
   private static final String MDC_KEY = "workflowInstanceId";
 
-  private final long instanceId;
+  final long instanceId;
   private final WorkflowDefinitionService workflowDefinitions;
   private final WorkflowInstanceService workflowInstances;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
@@ -183,8 +183,17 @@ class WorkflowStateProcessor implements Runnable {
           logRetryableException(exceptionHandling, state.name(), thrown);
           execution.setRetry(true);
           execution.setNextState(state);
-          execution.setNextStateReason(getStackTrace(thrown));
-          execution.handleRetryAfter(definition.getSettings().getErrorTransitionActivation(execution.getRetries()), definition);
+          var reason = getStackTrace(thrown);
+          var retryAfter = definition.getSettings().getErrorTransitionActivation(execution.getRetries());
+          if (shutdownRequested.get()) {
+            if (thrown instanceof InterruptedException) {
+              reason = "Shutdown: " + reason;
+              // if we're shutting down there is no reason to delay the next attempt at much later time
+              retryAfter = now();
+            }
+          }
+          execution.setNextStateReason(reason);
+          execution.handleRetryAfter(retryAfter, definition);
         } else {
           logger.error("Handler threw an exception and retrying is not allowed, going to failure state.", thrown);
           execution.handleFailure(definition, "Handler threw an exception and retrying is not allowed");
@@ -365,7 +374,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private WorkflowInstanceStatus getStatus(StateExecutionImpl execution, WorkflowState nextState) {
-    if (isNextActivationImmediately(execution)) {
+    if (!shutdownRequested.get() && isNextActivationImmediately(execution)) {
       return executing;
     }
     return nextState.getType().getStatus(execution.getNextActivation());
@@ -395,7 +404,7 @@ class WorkflowStateProcessor implements Runnable {
 
   private void optionallyCleanupWorkflowInstanceHistory(WorkflowSettings settings, StateExecutionImpl execution) {
     try {
-      if (settings.historyDeletableAfter != null
+      if (settings.historyDeletableAfter != null && !shutdownRequested.get()
           && (execution.isHistoryCleaningForced() || settings.deleteWorkflowInstanceHistory())) {
         DateTime olderThan = DateTime.now().minus(settings.historyDeletableAfter);
         logger.debug("Cleaning workflow instance {} history older than {}", instanceId, olderThan);
@@ -456,7 +465,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    protected NextAction getNextAction(WorkflowStateMethod method, Object... args) {
+    protected NextAction processStepToGetNextAction(WorkflowStateMethod method, Object... args) {
       execution.setStateProcessInvoked(true);
       return (NextAction) invokeMethod(method.method, definition, args);
     }
@@ -472,7 +481,7 @@ class WorkflowStateProcessor implements Runnable {
     }
 
     @Override
-    protected NextAction getNextAction(WorkflowStateMethod method, Object... args) {
+    protected NextAction processStepToGetNextAction(WorkflowStateMethod method, Object... args) {
       return nextAction;
     }
   }
@@ -491,7 +500,7 @@ class WorkflowStateProcessor implements Runnable {
       this.currentState = currentState;
     }
 
-    protected abstract NextAction getNextAction(WorkflowStateMethod method, Object... args);
+    protected abstract NextAction processStepToGetNextAction(WorkflowStateMethod method, Object... args);
 
     public NextAction processState() {
       WorkflowStateMethod method = definition.getMethod(instance.state);
@@ -502,12 +511,12 @@ class WorkflowStateProcessor implements Runnable {
       NextAction nextAction;
       Object[] args = objectMapper.createArguments(execution, method);
       if (currentState.getType().isFinal()) {
-        getNextAction(method, args);
+        processStepToGetNextAction(method, args);
         nextAction = stopInState(currentState, "Stopped in final state");
       } else {
         WorkflowState errorState = definition.getErrorState();
         try {
-          nextAction = getNextAction(method, args);
+          nextAction = processStepToGetNextAction(method, args);
           if (nextAction == null) {
             logger.error("State '{}' handler method returned null, proceeding to error state '{}'", instance.state, errorState);
             nextAction = moveToState(errorState, "State handler method returned null");

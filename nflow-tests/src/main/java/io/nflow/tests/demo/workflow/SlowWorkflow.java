@@ -15,6 +15,7 @@ import java.util.Map;
 import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
+import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 
@@ -37,9 +38,15 @@ public class SlowWorkflow extends WorkflowDefinition {
     return moveToState(PROCESS, "Go to process state");
   }
 
-  public NextAction process(StateExecution execution) throws InterruptedException {
+  public NextAction process(StateExecution execution, @StateVar("ignoreThreadInterrupt") boolean ignoreThreadInterrupt) throws InterruptedException {
     for (int i = 0; i < 50; i++) {
-      MILLISECONDS.sleep(200);
+      try {
+        MILLISECONDS.sleep(200);
+      } catch (InterruptedException ex) {
+        if (!ignoreThreadInterrupt) {
+          throw ex;
+        }
+      }
       if (execution.getSignal().isPresent()) {
         Integer signal = execution.getSignal().get();
         execution.setSignal(empty(), "Clearing signal from process state");

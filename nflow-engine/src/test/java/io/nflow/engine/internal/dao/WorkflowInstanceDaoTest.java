@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
 
@@ -174,7 +175,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(ids, contains(id));
     DateTime started = now();
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
-        dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null, false)).setStatus(inProgress).setState("updateState")
+        dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null, false)).setStatus(inProgress)
+            .setState("updateState")
             .setStateText("update text").setStartedIfNotSet(started).setBusinessKey("newBusinessKey").build();
     final WorkflowInstance polledInstance = dao.getWorkflowInstance(id, emptySet(), null, false);
     assertThat(polledInstance.status, equalTo(executing));
@@ -330,7 +332,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setStatus(created).build();
     long id = dao.insertWorkflowInstance(i1);
     WorkflowInstance i2 = new WorkflowInstance.Builder(
-        dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false)).setStatus(inProgress)
+        dao.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.CURRENT_STATE_VARIABLES), null, false))
+            .setStatus(inProgress)
             .setState("updateState").setStateText("update text").build();
     DateTime started = now();
     WorkflowInstanceAction a1 = new WorkflowInstanceAction.Builder().setExecutionStart(started).setExecutorId(42)
@@ -523,7 +526,8 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     List<Long> ids = dao.pollNextWorkflowInstanceIds(1);
     assertThat(ids, contains(id));
     final WorkflowInstance i2 = new WorkflowInstance.Builder(
-        dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null, false)).setStatus(inProgress).setState("updateState")
+        dao.getWorkflowInstance(id, EnumSet.of(CURRENT_STATE_VARIABLES), null, false)).setStatus(inProgress)
+            .setState("updateState")
             .setStateText("update text").build();
     sleep(1);
     assertThrows(IllegalArgumentException.class,
@@ -717,7 +721,9 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     }
     Poller[] pollers = new Poller[] { new Poller(dao, batchSize), new Poller(dao, batchSize) };
     for (int i = 0; i < 10; ++i) {
-      Thread[] threads = new Thread[] { new Thread(pollers[0]), new Thread(pollers[1]) };
+      CountDownLatch startSync = new CountDownLatch(2);
+      Thread[] threads = new Thread[] { new ConcurrentlyStartingThreads(startSync, pollers[0]),
+          new ConcurrentlyStartingThreads(startSync, pollers[1]) };
       threads[0].start();
       threads[1].start();
       threads[0].join();
@@ -729,6 +735,21 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
       }
     }
     fail("Race condition should happen");
+  }
+
+  static class ConcurrentlyStartingThreads extends Thread {
+    private final CountDownLatch waiter;
+
+    ConcurrentlyStartingThreads(CountDownLatch waiter, Runnable runnable) {
+      super(runnable);
+      this.waiter = waiter;
+    }
+
+    @Override
+    public void run() {
+      waiter.countDown();
+      super.run();
+    }
   }
 
   @Test

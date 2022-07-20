@@ -90,6 +90,8 @@ public class MaintenanceConfiguration {
     /**
      * Set configuration for deleting old workflow executors.
      *
+     * @param olderThanPeriod
+     *          Time limit
      * @return builder for configuration
      */
     public Builder withDeleteExpiredExecutorsOlderThan(ReadablePeriod olderThanPeriod) {

@@ -21,20 +21,24 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.extension.NflowServerConfig;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ExecutorRecoveryTest extends AbstractNflowTest {
+public abstract class AbstractExecutorRecoveryTest extends AbstractNflowTest {
 
-  public static NflowServerConfig server = new NflowServerConfig.Builder()
-      .prop("nflow.executor.timeout.seconds", 1)
-      .prop("nflow.executor.keepalive.seconds", 5)
-      .prop("nflow.dispatcher.await.termination.seconds", 1)
-      .prop("nflow.db.h2.url", "jdbc:h2:mem:executorrecoverytest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
-      .build();
+  private final NflowServerConfig server;
+  private final Map<String, Object> stateVariables;
+  private static final Map<Class<? extends AbstractExecutorRecoveryTest>, CreateWorkflowInstanceResponse> response = new IdentityHashMap<>();
+  private final int expectedRecoveryCount;
+  private final int expectedFailureCount;
 
-  private static CreateWorkflowInstanceResponse resp;
-
-  public ExecutorRecoveryTest() {
+  protected AbstractExecutorRecoveryTest(NflowServerConfig server, Map<String, Object> stateVariables, int expectedRecoveryCount, int expectedFailureCount) {
     super(server);
+    this.server = server;
+    this.stateVariables = stateVariables;
+    this.expectedRecoveryCount = expectedRecoveryCount;
+    this.expectedFailureCount = expectedFailureCount;
   }
 
   @Test
@@ -42,13 +46,16 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   public void submitSlowWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = SLOW_WORKFLOW_TYPE;
-    resp = createWorkflowInstance(req);
+    req.stateVariables = stateVariables;
+    var resp = createWorkflowInstance(req);
+    response.put(getClass(), resp);
     assertThat(resp.id, notNullValue());
   }
 
   @Test
   @Order(2)
   public void checkSlowWorkflowStarted() throws Exception {
+    var resp = response.get(getClass());
     for (int i = 0; i < 5; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (wf != null && PROCESS.name().equals(wf.state)) {
@@ -76,6 +83,7 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void checkSlowWorkflowFinishes() throws Exception {
+    var resp = response.get(getClass());
     for (int i = 0; i < 30; i++) {
       ListWorkflowInstanceResponse wf = getWorkflowInstance(resp.id);
       if (DONE.name().equals(wf.state)) {
@@ -90,16 +98,27 @@ public class ExecutorRecoveryTest extends AbstractNflowTest {
   private void verifyBeginAndProcessAreExecutedByDifferentExecutors(ListWorkflowInstanceResponse wf) {
     int beginExecutor = 0;
     int processExecutor = 0;
+    int processStepCount = 0;
+    int recoveryCount = 0;
+    int failureCount = 0;
     for (Action action : wf.actions) {
       if ("begin".equals(action.state)) {
         beginExecutor = action.executorId;
       }
       if ("process".equals(action.state)) {
-        processExecutor = action.executorId;
+        processStepCount++;
+        if (processExecutor == 0) {
+          processExecutor = action.executorId;
+        }
+        recoveryCount += "recovery".equals(action.type) ? 1 : 0;
+        failureCount += "stateExecutionFailed".equals(action.type) ? 1 : 0;
       }
     }
     assertThat(beginExecutor, is(not(0)));
     assertThat(processExecutor, is(not(0)));
     assertThat(beginExecutor, is(not(processExecutor)));
+    assertThat(processStepCount, is(2));
+    assertThat(recoveryCount, is(expectedRecoveryCount));
+    assertThat(failureCount, is(expectedFailureCount));
   }
 }
