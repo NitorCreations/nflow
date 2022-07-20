@@ -37,7 +37,7 @@
     - reactor-netty 1.0.21
 - `nflow-rest-api`
   - Dependency updates
-    - swagger 2.2.1
+    - swagger 2.2.2
 - `nflow-metrics`
   - export the nflow.database.type as a metric
   - Dependency updates
