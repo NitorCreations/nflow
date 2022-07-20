@@ -455,7 +455,11 @@ public class WorkflowInstanceDao {
       args[pos++] = variable.getValue();
     }
     sqlb.append(" select act.id from act");
-    jdbc.queryForObject(sqlb.toString(), Long.class, args);
+    var result = jdbc.queryForObject(sqlb.toString(), Long.class, args);
+    if (result == null) {
+      logger.warn("Updating workflow instance {} returned null, instance may have been recovered by another executor.",
+          instance.id);
+    }
   }
 
   public void checkStateVariableValueLength(String name, String value) {
