@@ -210,6 +210,33 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
+  public void updateWorkflowInstanceAfterExecutionDoesNothingWhenInstanceWasRecoveredByAnotherNode() {
+    WorkflowInstance instance = constructWorkflowInstanceBuilder().setStatus(created).setState("begin").build();
+    long id = dao.insertWorkflowInstance(instance);
+    jdbc.update("update nflow_workflow set executor_id = ? where id = ?", 42, id);
+    WorkflowInstance updatedInstance = new WorkflowInstance.Builder(instance).setStatus(inProgress).setState("done")
+        .setStateVariables(Map.of("foo", "bar")).build();
+    WorkflowInstanceAction action = constructActionBuilder(id).build();
+    WorkflowInstance newWorkflow = constructWorkflowInstanceBuilder().setBusinessKey("newWorkflow").build();
+    WorkflowInstance childWorkflow = constructWorkflowInstanceBuilder()
+        .setBusinessKey("childKey")
+        .setExternalId("extId")
+        .putStateVariable("key", "value").build();
+
+    dao.updateWorkflowInstanceAfterExecution(updatedInstance, action, asList(childWorkflow), asList(newWorkflow), true);
+
+    WorkflowInstance after = dao.getWorkflowInstance(id, EnumSet.allOf(WorkflowInstanceInclude.class), 10L, false);
+    assertThat(after.status, equalTo(instance.status));
+    assertThat(after.state, equalTo(instance.state));
+    assertThat(after.executorId, equalTo(42));
+    assertThat(after.stateVariables.get("foo"), is(nullValue()));
+    assertThat(after.actions.isEmpty(), is(true));
+    assertThat(after.childWorkflows.isEmpty(), is(true));
+    QueryWorkflowInstances query = new QueryWorkflowInstances.Builder().setBusinessKey(newWorkflow.businessKey).build();
+    assertThat(dao.queryWorkflowInstances(query).isEmpty(), is(true));
+  }
+
+  @Test
   public void updateWorkflowInstanceDoesNotCreateActionWhenCreateActionIsFalse() {
     WorkflowInstance instance = updateInstanceBuilder().build();
     WorkflowInstanceAction action = constructActionBuilder(instance.id).build();
