@@ -8,7 +8,7 @@ import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.childWorkflows;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -223,13 +223,13 @@ public abstract class AbstractNflowTest {
     request.nextActivationTime = null;
     request.state = FAILED.name();
     RuntimeException ex = null;
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 1; i <= 20; ++i) {
       try {
         updateWorkflowInstance(workflowId, request, String.class);
         return;
       } catch (RuntimeException e) {
         ex = e;
-        SECONDS.sleep(i+1);
+        MILLISECONDS.sleep(30 + (long) (Math.random() * 1000));
       }
     }
     throw ex;

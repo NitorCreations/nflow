@@ -139,18 +139,18 @@
     <maven-assembly.version>3.3.0</maven-assembly.version>
     <maven-clean.version>3.2.0</maven-clean.version>
     <maven-compiler.version>3.10.1</maven-compiler.version>
-    <maven-deploy.version>3.0.0-M2</maven-deploy.version>
+    <maven-deploy.version>3.0.0</maven-deploy.version>
     <maven-download.version>1.6.8</maven-download.version>
     <maven-eclipse.version>2.10</maven-eclipse.version>
     <maven-enforcer.version>3.1.0</maven-enforcer.version>
     <maven-gpg.version>3.0.1</maven-gpg.version>
-    <maven-install.version>3.0.0-M1</maven-install.version>
+    <maven-install.version>3.0.0</maven-install.version>
     <maven-jacoco.version>0.8.8</maven-jacoco.version>
     <maven-jar.version>3.2.2</maven-jar.version>
     <maven-javadoc.version>3.4.0</maven-javadoc.version>
     <maven-jxr.version>3.2.0</maven-jxr.version>
     <maven-pmd.version>3.17.0</maven-pmd.version>
-    <maven-project-info.version>3.3.0</maven-project-info.version>
+    <maven-project-info.version>3.4.0</maven-project-info.version>
     <maven-release.version>3.0.0-M6</maven-release.version>
     <maven-resources.version>3.2.0</maven-resources.version>
     <maven-shade.version>3.3.0</maven-shade.version>
@@ -176,7 +176,7 @@
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.7.1.0</spotbugs-maven-plugin.version>
     <spring.version>5.3.18</spring.version>
-    <swagger.version>2.2.1</swagger.version>
+    <swagger.version>2.2.2</swagger.version>
     <validation.api.version>2.0.1.Final</validation.api.version>
     <versions-maven-plugin.version>2.11.0</versions-maven-plugin.version>
   </properties>
@@ -750,6 +750,12 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>${mysql.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>m.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.mariadb.jdbc</groupId>
