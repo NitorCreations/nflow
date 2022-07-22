@@ -9,6 +9,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class WorkflowDefinitionService {
   private static final Logger logger = getLogger(WorkflowDefinitionService.class);
 
   private final Map<String, WorkflowDefinition> workflowDefinitions = synchronizedMap(new LinkedHashMap<>());
-  private List<WorkflowDefinition> workflowDefinitionValues = unmodifiableList(emptyList());
+  private List<WorkflowDefinition> workflowDefinitionValues = emptyList();
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
@@ -44,7 +45,7 @@ public class WorkflowDefinitionService {
    * The next time the stored definitions from database are checked for changes.
    */
   private long nextCheckOfStoredDefinitions;
-  private long storedDefinitionCheckInterval;
+  private final long storedDefinitionCheckInterval;
 
   @Inject
   public WorkflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
@@ -64,6 +65,11 @@ public class WorkflowDefinitionService {
    */
   public WorkflowDefinition getWorkflowDefinition(String type) {
     WorkflowDefinition ret = workflowDefinitions.get(type);
+    if (ret instanceof StoredWorkflowDefinitionWrapper) {
+      if (needsWorkflowDefinitionRefresh() > 0) {
+        ret = null;
+      }
+    }
     if (ret == null) {
       refreshStoredDefinitions();
       ret = workflowDefinitions.get(type);
@@ -111,15 +117,32 @@ public class WorkflowDefinitionService {
     if (autoInit && persistWorkflowDefinitions) {
       workflowDefinitionDao.storeWorkflowDefinition(wd);
     }
-    synchronized (workflowDefinitions) {
-      workflowDefinitionValues = unmodifiableList(new ArrayList<>(workflowDefinitions.values()));
-    }
+    setWorkflowDefinitions(workflowDefinitions.values());
     logger.info("Added workflow type: {} ({})", wd.getType(), wd.getClass().getName());
   }
 
-  private synchronized void refreshStoredDefinitions() {
+  private void setWorkflowDefinitions(Collection<WorkflowDefinition> newDefinitions) {
+    synchronized (workflowDefinitions) {
+      workflowDefinitionValues = unmodifiableList(new ArrayList<>(newDefinitions));
+    }
+  }
+
+  private long needsWorkflowDefinitionRefresh() {
+    if (storedDefinitionCheckInterval <= 0) {
+      return -1;
+    }
     long now = currentTimeMillis();
-    if (storedDefinitionCheckInterval <= 0 || nextCheckOfStoredDefinitions > now) {
+    synchronized (this) {
+      if (nextCheckOfStoredDefinitions <= now) {
+        return now;
+      }
+    }
+    return -1;
+  }
+
+  private synchronized void refreshStoredDefinitions() {
+    long now = needsWorkflowDefinitionRefresh();
+    if (now <= -1) {
       return;
     }
     nextCheckOfStoredDefinitions = now + storedDefinitionCheckInterval;
@@ -133,9 +156,7 @@ public class WorkflowDefinitionService {
       }
     }
     if (changed) {
-      synchronized (workflowDefinitions) {
-        workflowDefinitionValues = unmodifiableList(new ArrayList<>(workflowDefinitions.values()));
-      }
+      setWorkflowDefinitions(workflowDefinitions.values());
     }
   }
 }

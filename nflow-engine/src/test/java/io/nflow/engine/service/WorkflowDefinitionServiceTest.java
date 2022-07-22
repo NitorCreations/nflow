@@ -163,6 +163,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   @SuppressWarnings("unchecked")
   public void getWorkflowDefinitionChecksFromDaoIfNotFoundFromMemory() throws Exception {
     initializeService(true, true, 1);
+    service.addWorkflowDefinition(workflowDefinition);
 
     var w1 = new StoredWorkflowDefinition();
     w1.type = "w1";
@@ -175,16 +176,27 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     w2.onError = "start";
 
     when(workflowDefinitionDao.queryStoredWorkflowDefinitions(emptyList())).thenReturn(List.of(w1), List.of(w1, w2));
+
+    // classpath hit will not refresh
+    assertThat(service.getWorkflowDefinition("dummy"), is(notNullValue()));
+    verify(workflowDefinitionDao, never()).queryStoredWorkflowDefinitions(emptyList());
+
+    // missing definition will refresh
     assertThat(service.getWorkflowDefinition("w1"), is(notNullValue()));
     verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
+
+    // second time immediately will not refresh
+    assertThat(service.getWorkflowDefinition("w1"), is(notNullValue()));
+    verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
+
+    // fetching new type always refresh
     assertThat(service.getWorkflowDefinition("w2"), is(nullValue()));
     verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
 
     SECONDS.sleep(2);
 
+    // after timeout fetching existing will refresh
     assertThat(service.getWorkflowDefinition("w1"), is(notNullValue()));
-    verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
-    assertThat(service.getWorkflowDefinition("w2"), is(notNullValue()));
     verify(workflowDefinitionDao, times(2)).queryStoredWorkflowDefinitions(emptyList());
   }
 
