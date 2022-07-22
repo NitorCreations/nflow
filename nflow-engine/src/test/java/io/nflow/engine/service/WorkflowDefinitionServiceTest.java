@@ -50,7 +50,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   }
 
   private void initializeService(boolean definitionPersist, boolean autoInit, int reloadInterval) {
-    when(env.getRequiredProperty("nflow.definition.load.interval.seconds", Integer.class)).thenReturn(reloadInterval);
+    when(env.getRequiredProperty("nflow.definition.loadMissingFromDatabase.interval.seconds", Integer.class)).thenReturn(reloadInterval);
     when(env.getRequiredProperty("nflow.definition.persist", Boolean.class)).thenReturn(definitionPersist);
     when(env.getRequiredProperty("nflow.autoinit", Boolean.class)).thenReturn(autoInit);
     service = new WorkflowDefinitionService(workflowDefinitionDao, env);

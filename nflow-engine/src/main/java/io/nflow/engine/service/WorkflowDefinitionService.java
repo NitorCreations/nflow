@@ -51,7 +51,7 @@ public class WorkflowDefinitionService {
     this.workflowDefinitionDao = workflowDefinitionDao;
     this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
     this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
-    this.storedDefinitionCheckInterval = SECONDS.toMillis(env.getRequiredProperty("nflow.definition.load.interval.seconds", Integer.class));
+    this.storedDefinitionCheckInterval = SECONDS.toMillis(env.getRequiredProperty("nflow.definition.loadMissingFromDatabase.interval.seconds", Integer.class));
     this.nextCheckOfStoredDefinitions = storedDefinitionCheckInterval > 0 ? 0 : MAX_VALUE;
   }
 

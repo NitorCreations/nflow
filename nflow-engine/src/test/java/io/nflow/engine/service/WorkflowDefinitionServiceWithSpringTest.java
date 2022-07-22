@@ -58,7 +58,7 @@ public class WorkflowDefinitionServiceWithSpringTest {
     public Environment env() {
       return new MockEnvironment()
               .withProperty("nflow.definition.persist", "true")
-              .withProperty("nflow.definition.load.interval.seconds", "60")
+              .withProperty("nflow.definition.loadMissingFromDatabase.interval.seconds", "60")
               .withProperty("nflow.autoinit", "true");
     }
 
