@@ -3,6 +3,9 @@
 **Highlights**
 
 - `nflow-engine`
+  - Supports most functionality (insert/query) without workflow implementation code in classpath. Only executing requires the actual code.
+    - You can thus embed the engine in another JVM that just inserts the workflows.
+    - Or expose a generic nflow REST service that does not need to be updated whenever workflow implementations change.
   - Clean up old workflow executors that have expired configured time ago (default 1 year).
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
   - Add `recovered` timestamp to executor info (database, Java API and REST API).
@@ -14,6 +17,7 @@
 **Details**
 
 - `nflow-engine`
+  - Supports load missing workflow definitions on-demand from database if one cannot be found locally from classpath. This allows insert/query/update of workflow instances, but not executing them. This maximum frequency of database scan can be controlled with `nflow.definition.loadMissingFromDatabaseSeconds`, which has default value of 60.
   - Improve shutdown sequence.
     - Workflows that were acquired from the database but have not started executing can now be resumed immediately by another executor.
     - Executing workflows are interrupted 5 seconds before shutdown timeout so that they get a chance to persist their state to the database. This also allows other executors to immediately resume the processing of the successfully interrupted workflows. The interrupting can be disabled by setting `nflow.executor.interrupt` to false.
