@@ -176,5 +176,10 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
     public String clobToComparable(String column) {
       return "to_char(" + column + ")";
     }
+
+    @Override
+    public String forUpdateSkipLocked() {
+      return "";
+    }
   }
 }
