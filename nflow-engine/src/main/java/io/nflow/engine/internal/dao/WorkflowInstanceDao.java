@@ -100,6 +100,9 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 public class WorkflowInstanceDao {
 
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
+  private static final String ALL_WORKFLOW_COLUMNS = "id, executor_id, parent_workflow_id, parent_action_id, status, type, priority, business_key, external_id, " +
+          "state, state_text, next_activation, retries, created, modified, started, executor_group, workflow_signal";
+
   private final ConcurrentMap<Long, String> workflowTypeByWorkflowIdCache = new ConcurrentHashMap<>();
 
   final JdbcTemplate jdbc;
@@ -119,9 +122,6 @@ public class WorkflowInstanceDao {
   AtomicInteger stateVariableValueMaxLength = new AtomicInteger();
   final WorkflowInstanceRowMapper workflowInstanceRowMapper;
   final WorkflowInstanceActionRowMapper workflowInstanceActionRowMapper;
-
-  private static final String ALL_WORKFLOW_COLUMNS = "id, executor_id, parent_workflow_id, parent_action_id, status, type, priority, business_key, external_id, " +
-          "state, state_text, next_activation, retries, created, modified, started, executor_group, workflow_signal";
 
   @Inject
   public WorkflowInstanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate,
