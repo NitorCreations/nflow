@@ -71,6 +71,10 @@
       <groupId>com.oracle.database.jdbc</groupId>
       <artifactId>ojdbc11</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.ibm.db2</groupId>
+      <artifactId>db2jcc4</artifactId>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>
@@ -79,25 +83,6 @@
       <url>https://public.nexus.pentaho.org/content/groups/omni/</url>
     </repository>
   </repositories>
-  <profiles>
-    <profile>
-      <id>db2</id>
-      <activation>
-        <file>
-          <exists>${basedir}/../db2jcc4.jar</exists>
-        </file>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.ibm.db2</groupId>
-          <artifactId>db2jcc4</artifactId>
-          <version>4.24.92</version>
-          <scope>system</scope>
-          <systemPath>${basedir}/../db2jcc4.jar</systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
   <build>
     <plugins>
       <plugin>
