@@ -42,11 +42,11 @@ public class WorkflowDefinitionService {
   private final WorkflowDefinitionDao workflowDefinitionDao;
   private final boolean persistWorkflowDefinitions;
   private final boolean autoInit;
+  private final long storedDefinitionCheckInterval;
   /**
    * The next time the stored definitions from database are checked for changes.
    */
   private long nextCheckOfStoredDefinitions;
-  private final long storedDefinitionCheckInterval;
 
   @Inject
   public WorkflowDefinitionService(WorkflowDefinitionDao workflowDefinitionDao, Environment env) {
