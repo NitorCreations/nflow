@@ -171,5 +171,10 @@ public class OracleDatabaseConfiguration extends DatabaseConfiguration {
     public boolean useBatchUpdate() {
       return useBatchUpdate;
     }
+
+    @Override
+    public String clobToComparable(String column) {
+      return "to_char(" + column + ")";
+    }
   }
 }

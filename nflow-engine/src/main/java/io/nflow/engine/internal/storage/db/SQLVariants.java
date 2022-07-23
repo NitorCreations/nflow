@@ -69,4 +69,8 @@ public interface SQLVariants {
   }
 
   default String caseSensitiveLike() { return "like"; }
+
+  default String clobToComparable(String column) {
+    return column;
+  }
 }

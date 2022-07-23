@@ -10,6 +10,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -156,7 +157,7 @@ public class StateVariablesTest extends AbstractNflowTest {
         .query("stateVariableValue", "newValue")
         .get(ListWorkflowInstanceResponse[].class);
 
-    assertThat(instances.length, is(1));
+    assertThat(instances.length, greaterThanOrEqualTo(1));
   }
 
   @Test
