@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.slf4j.Logger;
@@ -127,6 +128,7 @@ public class WorkflowDefinitionService {
     }
   }
 
+  @SuppressFBWarnings(value="NOS_NON_OWNED_SYNCHRONIZATION", justification = "synchronize(this) is valid and needed to match the below synchronized refreshStoredDefinitions() method")
   private long needsWorkflowDefinitionRefresh() {
     if (storedDefinitionCheckInterval <= 0) {
       return -1;
