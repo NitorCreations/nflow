@@ -14,9 +14,6 @@ case $DB_VERSION in
     ;;
 esac
 
-$tool run --rm --name db2 --cap-add IPC_LOCK --cap-add IPC_OWNER -e instance_name=root -e DB2INST1_PASSWORD=nflow -e LICENSE=accept -e DBNAME=nflow -e ARCHIVE_LOGS=false --publish 50000:50000 --detach ibmcom/db2:$DB_VERSION
+$tool run --pull=always --rm --name db2 --cap-add IPC_LOCK --cap-add IPC_OWNER -e PERSISTENT_HOME=false -e DB2INST1_PASSWORD=nflow -e LICENSE=accept -e DBNAME=nflow -e ARCHIVE_LOGS=false --publish 50000:50000 --detach ibmcom/db2:$DB_VERSION
 
 fgrep -m1 'Setup has completed' <(timeout 240 $tool logs -f db2)
-
-#$tool exec -it db2 su - db2inst1 -c '/opt/ibm/db2/V*/bin/db2 -tvs "CREATE DATABASE nflow USING CODESET UTF-8 TERRITORY us;"'
-#$tool exec -it db2 su - db2inst1 -c '/opt/ibm/db2/V*/bin/db2 -tvs "ACTIVATE DATABASE nflow;"'
