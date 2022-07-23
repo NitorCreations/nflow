@@ -320,10 +320,11 @@ public class WorkflowDispatcherTest {
             break;
           }
           assertThat(i, lessThan(10));
-          sleep(20);
+          sleep(50);
         }
         waitForTick(1);
         dispatcher.shutdown();
+        waitForTick(2);
       }
 
       @Override
