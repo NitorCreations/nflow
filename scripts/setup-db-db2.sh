@@ -8,16 +8,15 @@ DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
     DB_VERSION=11.5.0.0a
-    MAJORVER=V11.5
     ;;
   latest)
     DB_VERSION=11.5.7.0a
-    MAJORVER=V11.5
     ;;
 esac
 
-$tool run --pull=always --rm --name db2 --cap-add IPC_LOCK --cap-add IPC_OWNER -e 'instance_name=root' -e 'DB2INST1_PASSWORD=nflow' -e 'LICENSE=accept' -e 'DBNAME=nflow' --publish 50000:50000 --detach ibmcom/db2:$DB_VERSION
-$tool cp db2:/opt/ibm/db2/$MAJORVER/java/db2jcc4.jar db2jcc4.jar
+$tool run --pull=always --rm --name db2 --entrypoint /bin/sh ibmcom/db2:$DB_VERSION -c "cat /opt/ibm/db2/V*/java/db2jcc4.jar" > db2jcc4.jar
+
+$tool run --rm --name db2 --cap-add IPC_LOCK --cap-add IPC_OWNER -e 'instance_name=root' -e 'DB2INST1_PASSWORD=nflow' -e 'LICENSE=accept' -e 'DBNAME=nflow' --publish 50000:50000 --detach ibmcom/db2:$DB_VERSION db2start
 
 fgrep -m1 'Setup has completed' <(timeout 240 $tool logs -f db2)
 
