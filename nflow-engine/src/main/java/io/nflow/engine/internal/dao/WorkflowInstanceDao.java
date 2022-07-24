@@ -8,6 +8,7 @@ import static io.nflow.engine.internal.dao.NflowTable.ACTION;
 import static io.nflow.engine.internal.dao.NflowTable.STATE;
 import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
 import static io.nflow.engine.internal.dao.TableType.convertMainToArchive;
+import static io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceRowMapper.ALL_WORKFLOW_COLUMNS;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
@@ -100,9 +101,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 public class WorkflowInstanceDao {
 
   private static final Logger logger = getLogger(WorkflowInstanceDao.class);
-  private static final String ALL_WORKFLOW_COLUMNS = "id, executor_id, parent_workflow_id, parent_action_id, status, type, priority, business_key, external_id, " +
-          "state, state_text, next_activation, retries, created, modified, started, executor_group, workflow_signal";
-
   private final ConcurrentMap<Long, String> workflowTypeByWorkflowIdCache = new ConcurrentHashMap<>();
 
   final JdbcTemplate jdbc;
@@ -887,6 +885,9 @@ public class WorkflowInstanceDao {
   }
 
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance.Builder> {
+    static final String ALL_WORKFLOW_COLUMNS = "id, executor_id, parent_workflow_id, parent_action_id, status, type, priority, business_key, external_id, " +
+            "state, state_text, next_activation, retries, created, modified, started, executor_group, workflow_signal";
+
     private final SQLVariants sqlVariants;
     private final WorkflowInstanceFactory workflowInstanceFactory;
 
