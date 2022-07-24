@@ -73,7 +73,7 @@
     </dependency>
     <dependency>
       <groupId>com.ibm.db2</groupId>
-      <artifactId>db2jcc4</artifactId>
+      <artifactId>jcc</artifactId>
     </dependency>
   </dependencies>
   <repositories>
