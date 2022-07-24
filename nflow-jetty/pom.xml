@@ -145,23 +145,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <profiles>
-    <profile>
-      <id>db2</id>
-      <activation>
-        <file>
-          <exists>${basedir}/../db2jcc4.jar</exists>
-        </file>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.ibm.db2</groupId>
-          <artifactId>db2jcc4</artifactId>
-          <version>4.24.92</version>
-          <scope>system</scope>
-          <systemPath>${basedir}/../db2jcc4.jar</systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 </project>
