@@ -8,6 +8,7 @@ import static io.nflow.engine.internal.dao.NflowTable.ACTION;
 import static io.nflow.engine.internal.dao.NflowTable.STATE;
 import static io.nflow.engine.internal.dao.NflowTable.WORKFLOW;
 import static io.nflow.engine.internal.dao.TableType.convertMainToArchive;
+import static io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceRowMapper.ALL_WORKFLOW_COLUMNS;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.created;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.executing;
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.inProgress;
@@ -543,10 +544,10 @@ public class WorkflowInstanceDao {
 
   public WorkflowInstance getWorkflowInstance(long id, Set<WorkflowInstanceInclude> includes, Long maxActions,
       boolean queryArchive) {
-    String sql = "select *, 0 as archived from " + WORKFLOW.main + " where id = ?";
+    String sql = "select " + ALL_WORKFLOW_COLUMNS + ", 0 as archived from " + WORKFLOW.main + " where id = ?";
     Object[] args = new Object[] { id };
     if (queryArchive) {
-      sql += " union all select *, 1 as archived from " + WORKFLOW.archive + " where id = ?";
+      sql += " union all select " + ALL_WORKFLOW_COLUMNS + ", 1 as archived from " + WORKFLOW.archive + " where id = ?";
       args = new Object[] { id, id };
     }
     WorkflowInstance instance = jdbc.queryForObject(sql, workflowInstanceRowMapper, args).build();
@@ -695,7 +696,7 @@ public class WorkflowInstanceDao {
     conditions.add(executorInfo.getExecutorGroupCondition());
     String sqlSuffix = "from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
-      sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and wfs.state_value = :state_value ";
+      sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and " + sqlVariants.clobToComparable("wfs.state_value") + " = :state_value ";
       conditions.add(
           "wfs.action_id = (select max(action_id) from nflow_workflow_state where workflow_id = wf.id and state_key = :state_key)");
       params.addValue("state_key", query.stateVariableKey);
@@ -703,13 +704,13 @@ public class WorkflowInstanceDao {
     }
     sqlSuffix += "where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
     long maxResults = getMaxResults(query.maxResults);
-    String sql = sqlVariants.limit("select *, 0 as archived " + sqlSuffix, maxResults);
+    String sql = sqlVariants.limit("select " + ALL_WORKFLOW_COLUMNS + ", 0 as archived " + sqlSuffix, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
     Stream<WorkflowInstance.Builder> resultStream = results.stream();
     // calculate how many results to try to search from archive
     maxResults -= results.size();
     if (query.queryArchive && maxResults > 0) {
-      sql = sqlVariants.limit("select *, 1 as archived " + convertMainToArchive(sqlSuffix), maxResults);
+      sql = sqlVariants.limit("select " + ALL_WORKFLOW_COLUMNS + ", 1 as archived " + convertMainToArchive(sqlSuffix), maxResults);
       resultStream = concat(resultStream, namedJdbc.query(sql, params, workflowInstanceRowMapper).stream());
     }
     Stream<WorkflowInstance> ret = resultStream.map(WorkflowInstance.Builder::build);
@@ -884,6 +885,9 @@ public class WorkflowInstanceDao {
   }
 
   static class WorkflowInstanceRowMapper implements RowMapper<WorkflowInstance.Builder> {
+    static final String ALL_WORKFLOW_COLUMNS = "id, executor_id, parent_workflow_id, parent_action_id, status, type, priority, business_key, external_id, " +
+            "state, state_text, next_activation, retries, created, modified, started, executor_group, workflow_signal";
+
     private final SQLVariants sqlVariants;
     private final WorkflowInstanceFactory workflowInstanceFactory;
 

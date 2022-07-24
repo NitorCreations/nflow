@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         java: [ '11', '17' ]
-        db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver' ]
+        db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver', 'oracle' ]
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}

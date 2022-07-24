@@ -27,6 +27,7 @@
   - Add `recovered` timestamp to executor info (database, Java API and REST API).
   - Remove obsolete mysql legacy ddl sql scripts.
   - Include generated mariadb.create.ddl.sql in sources.jar.
+  - Added tests against Oracle now that there is a working docker image of Oracle XE
   - Dependency updates
     - apache cxf 3.5.3
 - `nflow-jetty`

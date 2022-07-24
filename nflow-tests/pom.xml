@@ -67,6 +67,10 @@
       <artifactId>javax.servlet-api</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>com.oracle.database.jdbc</groupId>
+      <artifactId>ojdbc11</artifactId>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>
@@ -76,23 +80,6 @@
     </repository>
   </repositories>
   <profiles>
-    <profile>
-      <id>oracle</id>
-      <activation>
-        <file>
-          <exists>${basedir}/../ojdbc7.jar</exists>
-        </file>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc7</artifactId>
-          <version>12.1.0.2.0</version>
-          <scope>system</scope>
-          <systemPath>${basedir}/../ojdbc7.jar</systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
     <profile>
       <id>db2</id>
       <activation>
