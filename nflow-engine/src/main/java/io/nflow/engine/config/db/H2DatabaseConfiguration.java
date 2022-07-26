@@ -6,6 +6,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.h2.tools.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,11 +63,14 @@ public class H2DatabaseConfiguration extends DatabaseConfiguration {
   /**
    * {@inheritDoc}
    */
-  @Bean
   @Override
-  public SQLVariants sqlVariants(Environment env) {
+  public SQLVariants sqlVariants(NFlowConfiguration config) {
     return new H2SQLVariants();
   }
+
+  /**
+   * {@inheritDoc}
+   */
 
   /**
    * SQL variants optimized for H2.

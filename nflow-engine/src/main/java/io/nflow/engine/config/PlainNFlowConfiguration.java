@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.engine.config.db.DatabaseConfiguration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import io.nflow.engine.internal.storage.db.SQLVariants;
@@ -61,11 +62,6 @@ public class PlainNFlowConfiguration implements NFlowConfiguration {
     }
 
     @Override
-    public SQLVariants getSQLVariants() {
-      return sqlVariant;
-    }
-
-    @Override
     public ObjectMapper getObjectMapper() {
       return objectMapper;
     }
@@ -81,12 +77,17 @@ public class PlainNFlowConfiguration implements NFlowConfiguration {
 
     @Override
     public ThreadFactory getThreadFactory() {
-      // TODO one with names isntead
+      // TODO one with names instead
       return Executors.defaultThreadFactory();
     }
 
     @Override
     public Object getMetricsRegistry() {
       return metricsRegistry;
+    }
+
+    @Override
+    public DatabaseConfiguration getDatabaseConfiguration() {
+        return null;
     }
 }

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.env.MockEnvironment;
@@ -44,7 +45,7 @@ public class DatabaseInitializerTest {
     assertThat(thrown.getMessage(), containsString("No ddl script found"));
   }
 
-  private MockEnvironment environmentCreateOnStartup(String value) {
-    return new MockEnvironment().withProperty("nflow.db.create_on_startup", value);
+  private NFlowConfiguration environmentCreateOnStartup(String value) {
+    return null; // TODO new MockEnvironment().withProperty("nflow.db.create_on_startup", value);
   }
 }

@@ -52,6 +52,7 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -92,7 +93,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   @Inject
   SQLVariants sqlVariant;
   @Inject
-  Environment env;
+  NFlowConfiguration config;
   List<WorkflowInstance> noChildWorkflows = emptyList();
   List<WorkflowInstance> emptyWorkflows = emptyList();
 
@@ -740,7 +741,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     NamedParameterJdbcTemplate namedJdbc = mock(NamedParameterJdbcTemplate.class);
     TransactionTemplate transactionTemplate = mock(TransactionTemplate.class);
     WorkflowInstanceDao d = new WorkflowInstanceDao(new PostgreSQLVariants(), jdbcTemplate, transactionTemplate, namedJdbc, eDao,
-        workflowInstanceExecutor, workflowInstanceFactory, env);
+        workflowInstanceExecutor, workflowInstanceFactory, config);
 
     d.instanceStateTextLength.set(128);
     d.actionStateTextLength.set(128);

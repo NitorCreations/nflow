@@ -8,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nflow.engine.config.NFlowConfiguration;
+import io.nflow.engine.config.db.DatabaseConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +21,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.nflow.engine.internal.storage.db.DatabaseInitializer;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import java.util.concurrent.ThreadFactory;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { DaoTestConfiguration.class })
@@ -85,7 +91,7 @@ public class TableMetadataCheckerTest {
     assertThat(thrown.getMessage(), containsString("Source column base.TEXT2 has size 30 and destination column smaller_size.TEXT2 smaller size 25"));
   }
 
-  private MockEnvironment environmentCreateOnStartup(String value) {
-    return new MockEnvironment().withProperty("nflow.db.create_on_startup", value);
+  private NFlowConfiguration environmentCreateOnStartup(String value) {
+    return null; // TODO new MockEnvironment().withProperty("nflow.db.create_on_startup", value);
   }
 }

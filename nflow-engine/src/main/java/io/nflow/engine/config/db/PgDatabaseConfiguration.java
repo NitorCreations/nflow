@@ -4,6 +4,7 @@ import static io.nflow.engine.config.Profiles.POSTGRESQL;
 
 import java.sql.Types;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -29,9 +30,8 @@ public class PgDatabaseConfiguration extends DatabaseConfiguration {
   /**
    * {@inheritDoc}
    */
-  @Bean
   @Override
-  public SQLVariants sqlVariants(Environment env) {
+  public SQLVariants sqlVariants(NFlowConfiguration config) {
     return new PostgreSQLVariants();
   }
 

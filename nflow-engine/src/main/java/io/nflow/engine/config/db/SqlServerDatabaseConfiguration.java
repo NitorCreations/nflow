@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,9 +40,8 @@ public class SqlServerDatabaseConfiguration extends DatabaseConfiguration {
   /**
    * {@inheritDoc}
    */
-  @Bean
   @Override
-  public SQLVariants sqlVariants(Environment env) {
+  public SQLVariants sqlVariants(NFlowConfiguration config) {
     return new SQLServerVariants();
   }
 

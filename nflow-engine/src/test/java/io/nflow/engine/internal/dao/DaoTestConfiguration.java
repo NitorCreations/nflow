@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 import javax.sql.DataSource;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -39,7 +40,7 @@ public class DaoTestConfiguration {
                                                  ExecutorDao executorDao,
                                                  WorkflowInstanceExecutor workflowInstanceExecutor,
                                                  WorkflowInstanceFactory workflowInstanceFactory,
-                                                 Environment env) {
+                                                 NFlowConfiguration config) {
     return new WorkflowInstanceDao(sqlVariants,
             nflowJdbcTemplate,
             transactionTemplate,
@@ -47,7 +48,7 @@ public class DaoTestConfiguration {
             executorDao,
             workflowInstanceExecutor,
             workflowInstanceFactory,
-            env);
+            config);
   }
 
   @Bean
@@ -62,8 +63,8 @@ public class DaoTestConfiguration {
   }
 
   @Bean
-  public ExecutorDao executorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, Environment env) {
-    return new ExecutorDao(sqlVariants, jdbcTemplate, env);
+  public ExecutorDao executorDao(SQLVariants sqlVariants, @NFlow JdbcTemplate jdbcTemplate, NFlowConfiguration config) {
+    return new ExecutorDao(sqlVariants, jdbcTemplate, config);
   }
 
   @Bean

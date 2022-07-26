@@ -1,11 +1,16 @@
 package io.nflow.engine.internal;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nflow.engine.guice.NflowController;
+import io.nflow.engine.internal.di.DI;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -29,63 +34,35 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 
 public class NFlowContext {
     private final NFlowConfiguration config;
-    private JdbcTemplate jdbcTemplate;
-    private HealthCheckService healthCheckService;
-    private MaintenanceService maintenanceService;
+
+    private final DI di = new DI();
 
     public NFlowContext(NFlowConfiguration configuration) {
-       this.config = configuration;
+       this.config = di.store(NFlowConfiguration.class, configuration);
     }
 
     public void configure() {
-       DataSource dataSource = config.getDataSource();
-       jdbcTemplate = new JdbcTemplate(dataSource, true);
+       var dataSource = di.store(DataSource.class, config.getDataSource());
+       var jdbcTemplate = di.store(new JdbcTemplate(dataSource, true));
+       var objectMapper = di.store(ObjectMapper.class, config.getObjectMapper());
+       di.store(new NamedParameterJdbcTemplate(dataSource));
+       di.store(ThreadFactory.class, config.getThreadFactory());
+       di.store(TransactionTemplate.class, new TransactionTemplate(config.getTransactionManager()));
 
-       DatabaseConfiguration databaseConfiguration = config.getDatabaseConfiguration();
-       SQLVariants sqlVariant = databaseConfiguration.sqlVariants(config);
+       var databaseConfiguration = di.store(DatabaseConfiguration.class, config.getDatabaseConfiguration());
+       di.store(SQLVariants.class, databaseConfiguration.sqlVariants(config));
        databaseConfiguration.nflowDatabaseInitializer(dataSource, config);
-
-       ExecutorDao executorDao = new ExecutorDao(sqlVariant, jdbcTemplate, config);
-       new StatisticsDao(jdbcTemplate, executorDao);
-
-       NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-       new MaintenanceDao(sqlVariant, jdbcTemplate, executorDao, namedParameterJdbcTemplate);
-
-       ObjectMapper objectMapper = config.getObjectMapper();
-       new WorkflowDefinitionDao(sqlVariant, namedParameterJdbcTemplate, objectMapper, executorDao);
-
-       ThreadFactory threadFactory = config.getThreadFactory();
-       WorkflowInstanceExecutor workflowInstanceExecutor = new WorkflowInstanceExecutor(threadFactory, config);
-
-       ObjectStringMapper objectStringMapper = new ObjectStringMapper(objectMapper);
-       WorkflowInstanceFactory workflowInstanceFactory = new WorkflowInstanceFactory(objectStringMapper);
-
-       TransactionTemplate transactionTemplate = new TransactionTemplate(config.getTransactionManager());
-       new WorkflowInstanceDao(sqlVariant, jdbcTemplate, transactionTemplate, namedParameterJdbcTemplate, executorDao, workflowInstanceExecutor, workflowInstanceFactory, config);
     }
 
-    public synchronized HealthCheckService getHealthCheckService() {
-        if (healthCheckService == null) {
-            healthCheckService = new HealthCheckService(new HealthCheckDao(jdbcTemplate));
-        }
-        return healthCheckService;
+    public HealthCheckService getHealthCheckService() {
+        return di.getOrCreate(HealthCheckService.class);
     }
 
     public synchronized MaintenanceService getMaintenanceService() {
-        if (maintenanceService == null) {
-            MaintenanceDao maintenanceDao = new MaintenanceDao(sqlVariants, jdbcTemplate, executorDao, nflowNamedParameterJdbcTemplate);
-            TableMetadataChecker tableMetadataChecker = new TableMetadataChecker(jdbcTemplate);
-            maintenanceService = new MaintenanceService(maintenanceDao, tableMetadataChecker, null);
-        }
-        return maintenanceService;
+        return di.getOrCreate(MaintenanceService.class);
     }
 
-
     public synchronized NflowController getNflowController() {
-        if (nflowController == null) {
-            nflowController = new NflowController(WorkflowLifecycle lifecycle, WorkflowDefinitionService workflowDefinitionService,
-        MaintenanceWorkflowStarter maintenanceWorkflowStarter, Set<WorkflowDefinition> workflowDefinitions) {
-        }
-        return nflowController;
+        return di.getOrCreate(NflowController.class);
     }
 }

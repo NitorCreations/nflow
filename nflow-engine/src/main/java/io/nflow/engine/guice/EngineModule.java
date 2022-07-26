@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadFactory;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.h2.tools.Server;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.AbstractResource;
@@ -89,7 +90,7 @@ public class EngineModule extends AbstractModule {
   @Inject
   @Singleton
   public WorkflowInstanceExecutor nflowExecutor(@NFlow ThreadFactory factory, Environment env) {
-    return engineConfiguration.nflowExecutor(factory, env);
+    return null; // TODO engineConfiguration.nflowExecutor(factory, env);
   }
 
   @Provides
@@ -102,17 +103,17 @@ public class EngineModule extends AbstractModule {
   @Provides
   @NFlow
   @Singleton
-  public DataSource nflowDataSource(Environment env, DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.nflowDatasource(env, metricRegistry);
+  public DataSource nflowDataSource(NFlowConfiguration config, DatabaseConfiguration databaseConfiguration) {
+    return databaseConfiguration.nflowDatasource(config, metricRegistry);
   }
 
   @Provides
   @NFlow
   @Singleton
   @Inject
-  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, Environment env,
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource dataSource, NFlowConfiguration config,
       DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.nflowDatabaseInitializer(dataSource, env);
+    return databaseConfiguration.nflowDatabaseInitializer(dataSource, config);
   }
 
   @Provides
@@ -120,7 +121,7 @@ public class EngineModule extends AbstractModule {
   @Singleton
   @Inject
   public JdbcTemplate nflowJdbcTemplate(@NFlow DataSource dataSource, DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.nflowJdbcTemplate(dataSource);
+    return null; // TODO databaseConfiguration.nflowJdbcTemplate(dataSource);
   }
 
   @Provides
@@ -129,7 +130,7 @@ public class EngineModule extends AbstractModule {
   @Inject
   public NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate(@NFlow DataSource dataSource,
       DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.nflowNamedParameterJdbcTemplate(dataSource);
+    return null; // TODO databaseConfiguration.nflowNamedParameterJdbcTemplate(dataSource);
   }
 
   @Provides
@@ -138,7 +139,7 @@ public class EngineModule extends AbstractModule {
   @Inject
   public TransactionTemplate nflowTransactionTemplate(@NFlow DataSourceTransactionManager txManager,
       DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.nflowTransactionTemplate(txManager);
+    return null; // TODO databaseConfiguration.nflowTransactionTemplate(txManager);
   }
 
   @Provides
@@ -151,8 +152,8 @@ public class EngineModule extends AbstractModule {
   @Provides
   @Singleton
   @Inject
-  public SQLVariants nflowSQLVariants(Environment env, DatabaseConfiguration databaseConfiguration) {
-    return databaseConfiguration.sqlVariants(env);
+  public SQLVariants nflowSQLVariants(NFlowConfiguration config, DatabaseConfiguration databaseConfiguration) {
+    return databaseConfiguration.sqlVariants(config);
   }
 
   @Provides

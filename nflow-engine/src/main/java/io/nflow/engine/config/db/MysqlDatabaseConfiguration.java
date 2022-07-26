@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import io.nflow.engine.config.NFlowConfiguration;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,12 +44,11 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
    * @param env The Spring environment.
    * @return The database initializer.
    */
-  @Bean
   @Override
   @SuppressFBWarnings(
       value = { "WEM_WEAK_EXCEPTION_MESSAGING", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" },
       justification = "exception message is ok, null-check in try-catch")
-  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, Environment env) {
+  public DatabaseInitializer nflowDatabaseInitializer(@NFlow DataSource nflowDataSource, NFlowConfiguration config) {
     String scriptPrefix = "mysql";
     try (Connection c = DataSourceUtils.getConnection(nflowDataSource)) {
       DatabaseMetaData meta = c.getMetaData();
@@ -59,15 +59,14 @@ public class MysqlDatabaseConfiguration extends DatabaseConfiguration {
     } catch (SQLException e) {
       throw new RuntimeException("Failed to obtain MySQL version", e);
     }
-    return new DatabaseInitializer(scriptPrefix, nflowDataSource, env, ";");
+    return new DatabaseInitializer(scriptPrefix, nflowDataSource, config, ";");
   }
 
   /**
    * {@inheritDoc}
    */
-  @Bean
   @Override
-  public SQLVariants sqlVariants(Environment env) {
+  public SQLVariants sqlVariants(NFlowConfiguration config) {
     return new MySQLVariants();
   }
 
