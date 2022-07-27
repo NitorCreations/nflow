@@ -3,8 +3,8 @@ package io.nflow.engine.service;
 import static java.lang.Long.MAX_VALUE;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.synchronizedMap;
+import static java.util.Collections.unmodifiableList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -13,19 +13,18 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
-import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 
 /**
@@ -53,7 +52,9 @@ public class WorkflowDefinitionService {
     this.workflowDefinitionDao = workflowDefinitionDao;
     this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
     this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
-    this.storedDefinitionCheckInterval = SECONDS.toMillis(env.getRequiredProperty("nflow.definition.loadMissingFromDatabaseSeconds.interval.seconds", Integer.class));
+    // TODO: config property name? also in CHANGES.md
+    this.storedDefinitionCheckInterval = SECONDS
+        .toMillis(env.getRequiredProperty("nflow.definition.loadMissingFromDatabaseSeconds.interval.seconds", Integer.class));
     this.nextCheckOfStoredDefinitions = storedDefinitionCheckInterval > 0 ? 0 : MAX_VALUE;
   }
 
@@ -65,17 +66,14 @@ public class WorkflowDefinitionService {
    * @return The workflow definition or null if not found.
    */
   public WorkflowDefinition getWorkflowDefinition(String type) {
-    WorkflowDefinition ret = workflowDefinitions.get(type);
-    if (ret instanceof StoredWorkflowDefinitionWrapper) {
-      if (needsWorkflowDefinitionRefresh() > 0) {
-        ret = null;
-      }
+    WorkflowDefinition definition = workflowDefinitions.get(type);
+    if (definition instanceof StoredWorkflowDefinitionWrapper && getWorkflowDefinitionRefreshTime() > 0) {
+      definition = null;
     }
-    if (ret == null) {
-      refreshStoredDefinitions();
-      ret = workflowDefinitions.get(type);
+    if (definition == null && refreshStoredDefinitions()) {
+      definition = workflowDefinitions.get(type);
     }
-    return ret;
+    return definition;
   }
 
   /**
@@ -128,8 +126,9 @@ public class WorkflowDefinitionService {
     }
   }
 
-  @SuppressFBWarnings(value="NOS_NON_OWNED_SYNCHRONIZATION", justification = "synchronize(this) is valid and needed to match the below synchronized refreshStoredDefinitions() method")
-  private long needsWorkflowDefinitionRefresh() {
+  @SuppressFBWarnings(value = "NOS_NON_OWNED_SYNCHRONIZATION",
+      justification = "synchronize(this) is valid and needed to match the below synchronized refreshStoredDefinitions() method")
+  private long getWorkflowDefinitionRefreshTime() {
     if (storedDefinitionCheckInterval <= 0) {
       return -1;
     }
@@ -142,10 +141,10 @@ public class WorkflowDefinitionService {
     return -1;
   }
 
-  private synchronized void refreshStoredDefinitions() {
-    long now = needsWorkflowDefinitionRefresh();
+  private synchronized boolean refreshStoredDefinitions() {
+    long now = getWorkflowDefinitionRefreshTime();
     if (now <= -1) {
-      return;
+      return false;
     }
     nextCheckOfStoredDefinitions = now + storedDefinitionCheckInterval;
     boolean changed = false;
@@ -160,5 +159,6 @@ public class WorkflowDefinitionService {
     if (changed) {
       setWorkflowDefinitions(workflowDefinitions.values());
     }
+    return changed;
   }
 }
