@@ -19,11 +19,6 @@ import io.nflow.engine.internal.storage.db.SQLVariants;
  */
 public abstract class DatabaseConfiguration {
 
-  /**
-   * Name of the nFlow database initializer bean.
-   */
-  public static final String NFLOW_DATABASE_INITIALIZER = "nflowDatabaseInitializer";
-
   private static final Logger logger = getLogger(DatabaseConfiguration.class);
 
   private final String dbType;
@@ -109,7 +104,7 @@ public abstract class DatabaseConfiguration {
    * @param dataSource The nFlow datasource.
    */
   @SuppressFBWarnings(value = "ACEM_ABSTRACT_CLASS_EMPTY_METHODS", justification = "Most databases do not check database configuration")
-  protected void checkDatabaseConfiguration(NFlowConfiguration config, DataSource dataSource) {
+  public void checkDatabaseConfiguration(NFlowConfiguration config, DataSource dataSource) {
     // no common checks for all databases
   }
 

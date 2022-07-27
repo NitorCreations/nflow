@@ -34,7 +34,7 @@ public class MariadbDatabaseConfiguration extends DatabaseConfiguration {
   /**
    * Creates the nFlow database initializer. Selects correct database creation script based on database version.
    * @param nflowDataSource The nFlow datasource.
-   * @param env The Spring environment.
+   * @param config The NFLow configuration.
    * @return The database initializer.
    */
   @Override

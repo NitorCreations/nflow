@@ -12,19 +12,21 @@ import io.nflow.engine.config.db.DatabaseConfiguration;
 
 public interface NFlowConfiguration {
     
-    public DataSource getDataSource();
+    DataSource getDataSource();
 
-    public String getProperty(String name);
+    String getProperty(String name);
 
-    public ObjectMapper getObjectMapper();
+    ObjectMapper getObjectMapper();
 
-    public PlatformTransactionManager getTransactionManager();
+    PlatformTransactionManager getTransactionManager();
 
-    public Object getMetricsRegistry();
+    Object getMetricsRegistry();
 
-    public DatabaseConfiguration getDatabaseConfiguration();
+    DatabaseConfiguration getDatabaseConfiguration();
 
-    public default <T> T getRequiredProperty(String name, Class<T> type) {
+    ThreadFactory getThreadFactory();
+
+    default <T> T getRequiredProperty(String name, Class<T> type) {
         T val = getProperty(name, type, null);
         if (val == null) {
             throw new IllegalArgumentException("Missing required property " + name);
@@ -33,7 +35,7 @@ public interface NFlowConfiguration {
       }
 
     @SuppressWarnings("unchecked")
-    public default <T> T getProperty(String name, Class<T> type, T defaultValue) {
+    default <T> T getProperty(String name, Class<T> type, T defaultValue) {
         String val = getProperty(name);
         if (val == null) {
             return defaultValue;
@@ -49,6 +51,4 @@ public interface NFlowConfiguration {
         }
         throw new IllegalArgumentException("Unsupported property type " + type);
     }
-
-    public ThreadFactory getThreadFactory();
 }

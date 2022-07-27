@@ -48,7 +48,7 @@ public class Db2DatabaseConfiguration extends DatabaseConfiguration {
   }
 
   @Override
-  protected void checkDatabaseConfiguration(NFlowConfiguration config, DataSource dataSource) {
+  public void checkDatabaseConfiguration(NFlowConfiguration config, DataSource dataSource) {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     Long dbTimeZoneOffsetHours = jdbc.queryForObject("select current timezone from sysibm.sysdummy1", Long.class);
     Long propsTimeZoneOffsetHours = HOURS.convert(getTimeZone(property(config, "timezone")).getOffset(currentTimeMillis()),
