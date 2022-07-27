@@ -3,9 +3,7 @@
 **Highlights**
 
 - `nflow-engine`
-  - Supports most functionality (insert/query) without workflow implementation code in classpath. Only executing requires the actual code.
-    - You can thus embed the engine in another JVM that just inserts the workflows.
-    - Or expose a generic nflow REST service that does not need to be updated whenever workflow implementations change.
+  - Add support to manage workflow instances without having the workflow implementation classes in the classpath.
   - Clean up old workflow executors that have expired configured time ago (default 1 year).
   - Optimize SQL queries used for dead node detection and workflow instance recovery.
   - Add `recovered` timestamp to executor info (database, Java API and REST API).
@@ -17,7 +15,13 @@
 **Details**
 
 - `nflow-engine`
-  - Supports load missing workflow definitions on-demand from database if one cannot be found locally from classpath. This allows insert/query/update of workflow instances, but not executing them. This maximum frequency of database scan can be controlled with `nflow.definition.loadMissingFromDatabaseSeconds`, which has default value of 60.
+  - Add support to manage (create, update and read, but not execute) workflow instances without having the workflow implementation classes in the classpath.
+    - If a workflow definition is not found from the classpath, it is loaded from the database and stored in memory.
+    - Workflow definitions that are loaded from the database are refreshed at most at configured interval (`nflow.definition.loadMissingFromDatabaseSeconds`, default 60).
+    - Potential use cases:
+      - Creating workflow instances in a separate application that does not need to be updated when the workflow implementations are changed
+      - Generic nFlow REST service that does not need to be updated when the workflow implementations or definitions are changed
+      - Having a cluster of nFlow executors that just execute the workflows and have no other business logic
   - Improve shutdown sequence.
     - Workflows that were acquired from the database but have not started executing can now be resumed immediately by another executor.
     - Executing workflows are interrupted 5 seconds before shutdown timeout so that they get a chance to persist their state to the database. This also allows other executors to immediately resume the processing of the successfully interrupted workflows. The interrupting can be disabled by setting `nflow.executor.interrupt` to false.
