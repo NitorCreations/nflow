@@ -42,7 +42,7 @@ public abstract class WorkflowDefinition extends ModelObject {
   protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
   private final Set<WorkflowState> states = new HashSet<>();
-  private boolean verifyStateMethodValidity;
+  private final boolean verifyStateMethodValidity;
 
   /**
    * Create a workflow definition with default settings and automatically scanned state methods.
@@ -154,11 +154,13 @@ public abstract class WorkflowDefinition extends ModelObject {
     this.verifyStateMethodValidity = verifyStateMethodValidity;
     WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
     if (stateMethods == null) {
-      Assert.isTrue(verifyStateMethodValidity, "Must enable validation if state methods are null and thus scanned");
+      Assert.isTrue(verifyStateMethodValidity,
+          "State method validity verification must be enabled when given state methods are null (scanned from classpath)");
       this.stateMethods = scanner.getStateMethods(getClass());
     } else {
       if (!verifyStateMethodValidity) {
-        Assert.isTrue(stateMethods.isEmpty(), "Must enable validation if state methods provided");
+        Assert.isTrue(stateMethods.isEmpty(),
+            "State method validity verification must be enabled when given state methods is not empty");
       }
       this.stateMethods = stateMethods;
     }
