@@ -1,16 +1,16 @@
 package io.nflow.engine.internal.workflow;
 
-import io.nflow.engine.internal.workflow.StoredWorkflowDefinition.State;
+import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collection;
+
+import io.nflow.engine.workflow.curated.State;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
-
-import java.util.Collection;
-
-import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 
 public class StoredWorkflowDefinitionWrapper extends WorkflowDefinition {
     public StoredWorkflowDefinitionWrapper(StoredWorkflowDefinition stored) {
@@ -23,24 +23,22 @@ public class StoredWorkflowDefinitionWrapper extends WorkflowDefinition {
     }
 
     private static WorkflowState getInitialState(StoredWorkflowDefinition stored) {
-        for (State state : stored.states) {
-            if (start.name().equals(state.type)) {
-                return toState(state);
-            }
-        }
-        throw new IllegalStateException("Could not find initial state for " + stored);
+      return stored.states.stream()
+          .filter(state -> start.name().equals((state.type)))
+          .findFirst()
+          .map(StoredWorkflowDefinitionWrapper::toState)
+          .orElseThrow(() -> new IllegalStateException("Could not find initial state for " + stored));
     }
 
     private static WorkflowState toState(StoredWorkflowDefinition.State state) {
-        return new io.nflow.engine.workflow.curated.State(state.id, WorkflowStateType.valueOf(state.type), state.description);
+      return new State(state.id, WorkflowStateType.valueOf(state.type), state.description);
     }
 
     private static WorkflowState getErrorState(StoredWorkflowDefinition stored) {
-        for (State state : stored.states) {
-            if (stored.onError.equals(state.id)) {
-                return toState(state);
-            }
-        }
-        throw new IllegalStateException("Could not find error state for " + stored);
+      return stored.states.stream()
+          .filter(state -> stored.onError.equals((state.id)))
+          .findFirst()
+          .map(StoredWorkflowDefinitionWrapper::toState)
+          .orElseThrow(() -> new IllegalStateException("Could not find error state for " + stored));
     }
 }
