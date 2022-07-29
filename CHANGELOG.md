@@ -15,13 +15,15 @@
 **Details**
 
 - `nflow-engine`
-  - Add support to manage (create, update and read, but not execute) workflow instances without having the workflow implementation classes in the classpath.
+  - Add support to manage (create, update and read, but not execute) workflow instances without having the workflow implementation classes in the classpath. [#53](https://github.com/NitorCreations/nflow/pull/531)
     - If a workflow definition is not found from the classpath, it is loaded from the database and stored in memory.
-    - Workflow definitions that are loaded from the database are refreshed at most at configured interval (`nflow.definition.loadMissingFromDatabaseSeconds`, default 60).
+    - Workflow definitions that are loaded from the database are refreshed at most at configured interval (`nflow.definition.refreshStoredFromDatabase.interval.seconds`, default 60). Set to -1 to revert to previous functionality.
     - Potential use cases:
       - Creating workflow instances in a separate application that does not need to be updated when the workflow implementations are changed
       - Generic nFlow REST service that does not need to be updated when the workflow implementations or definitions are changed
       - Having a cluster of nFlow executors that just execute the workflows and have no other business logic
+    - Potential change break in functionality:
+      - If your code relied on the fact can workflows cannot be manipulated after their code is removed from classpath this change will break that guarantee, unless you disable this feature.
   - Improve shutdown sequence.
     - Workflows that were acquired from the database but have not started executing can now be resumed immediately by another executor.
     - Executing workflows are interrupted 5 seconds before shutdown timeout so that they get a chance to persist their state to the database. This also allows other executors to immediately resume the processing of the successfully interrupted workflows. The interrupting can be disabled by setting `nflow.executor.interrupt` to false.

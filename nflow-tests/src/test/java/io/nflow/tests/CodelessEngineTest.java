@@ -32,7 +32,7 @@ public class CodelessEngineTest extends AbstractNflowTest {
           .prop("nflow.autoinit", "false")
           .prop("nflow.autostart", "false")
           .prop("nflow.db.create_on_startup", "true")
-          .prop("nflow.definition.loadMissingFromDatabaseSeconds.interval.seconds", "1")
+          .prop("nflow.definition.refreshStoredFromDatabase.interval.seconds", "1")
           .prop("nflow.maintenance.insertWorkflowIfMissing", "false")
           .prop("nflow.db.h2.url", "jdbc:h2:mem:codelessenginetest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
           .build();

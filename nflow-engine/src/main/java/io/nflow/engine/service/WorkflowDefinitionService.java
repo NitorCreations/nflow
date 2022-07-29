@@ -52,9 +52,8 @@ public class WorkflowDefinitionService {
     this.workflowDefinitionDao = workflowDefinitionDao;
     this.persistWorkflowDefinitions = env.getRequiredProperty("nflow.definition.persist", Boolean.class);
     this.autoInit = env.getRequiredProperty("nflow.autoinit", Boolean.class);
-    // TODO: config property name? also in CHANGES.md
     this.storedDefinitionCheckInterval = SECONDS
-        .toMillis(env.getRequiredProperty("nflow.definition.loadMissingFromDatabaseSeconds.interval.seconds", Integer.class));
+        .toMillis(env.getRequiredProperty("nflow.definition.refreshStoredFromDatabase.interval.seconds", Integer.class));
     this.nextCheckOfStoredDefinitions = storedDefinitionCheckInterval > 0 ? 0 : MAX_VALUE;
   }
 
