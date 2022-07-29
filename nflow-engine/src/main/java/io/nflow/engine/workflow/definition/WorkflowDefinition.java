@@ -42,6 +42,7 @@ public abstract class WorkflowDefinition extends ModelObject {
   protected final Map<String, WorkflowState> failureTransitions = new LinkedHashMap<>();
   private Map<String, WorkflowStateMethod> stateMethods;
   private final Set<WorkflowState> states = new HashSet<>();
+  private final boolean verifyStateMethodValidity;
 
   /**
    * Create a workflow definition with default settings and automatically scanned state methods.
@@ -95,7 +96,7 @@ public abstract class WorkflowDefinition extends ModelObject {
    */
   protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
       Map<String, WorkflowStateMethod> stateMethods) {
-    this(type, initialState, errorState, settings, stateMethods, null);
+    this(type, initialState, errorState, settings, stateMethods, null, true);
   }
 
   /**
@@ -117,7 +118,32 @@ public abstract class WorkflowDefinition extends ModelObject {
    *          The states to be registered for the workflow. If null, the states will be scanned.
    */
   protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
-      Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
+                               Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
+    this(type, initialState, errorState, settings, stateMethods, states, true);
+  }
+
+  /**
+   * Create a workflow definition with given settings, state methods and states.
+   *
+   * @param type
+   *          The unique identifier of this workflow definition.
+   * @param initialState
+   *          The default start state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param errorState
+   *          The default error state of the workflow. The state is automatically registered as one of the allowed states in this
+   *          workflow.
+   * @param settings
+   *          The configuration for the workflow instances of this workflow type.
+   * @param stateMethods
+   *          The state methods to be used for the states of this workflow type. If null, the methods will be scanned.
+   * @param states
+   *          The states to be registered for the workflow. If null, the states will be scanned.
+   * @param verifyStateMethodValidity
+   *          True to search and verify the implementation of registered state methods to ensure they comply with expectations.
+   */
+  protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
+      Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states, boolean verifyStateMethodValidity) {
     Assert.notNull(initialState, "initialState must not be null");
     Assert.isTrue(initialState.getType() == WorkflowStateType.start, "initialState must be a start state");
     Assert.notNull(errorState, "errorState must not be null");
@@ -125,10 +151,17 @@ public abstract class WorkflowDefinition extends ModelObject {
     this.initialState = initialState;
     this.errorState = errorState;
     this.settings = settings;
+    this.verifyStateMethodValidity = verifyStateMethodValidity;
     WorkflowDefinitionScanner scanner = new WorkflowDefinitionScanner();
     if (stateMethods == null) {
+      Assert.isTrue(verifyStateMethodValidity,
+          "State method validity verification must be enabled when given state methods are null (scanned from classpath)");
       this.stateMethods = scanner.getStateMethods(getClass());
     } else {
+      if (!verifyStateMethodValidity) {
+        Assert.isTrue(stateMethods.isEmpty(),
+            "State method validity verification must be enabled when given state methods is not empty");
+      }
       this.stateMethods = stateMethods;
     }
     registerState(initialState);
@@ -301,6 +334,9 @@ public abstract class WorkflowDefinition extends ModelObject {
   }
 
   final void requireStateMethodExists(WorkflowState state) {
+    if (!verifyStateMethodValidity) {
+      return;
+    }
     WorkflowStateMethod stateMethod = stateMethods.get(state.name());
     if (stateMethod == null && !state.getType().isFinal()) {
       String msg = format(
@@ -405,5 +441,4 @@ public abstract class WorkflowDefinition extends ModelObject {
   public Map<Integer, String> getSupportedSignals() {
     return emptyMap();
   }
-
 }

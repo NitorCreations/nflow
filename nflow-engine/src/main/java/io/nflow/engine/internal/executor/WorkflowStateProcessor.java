@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -147,7 +148,7 @@ class WorkflowStateProcessor implements Runnable {
     WorkflowInstance instance = workflowInstances.getWorkflowInstance(instanceId, EnumSet.of(CURRENT_STATE_VARIABLES), null);
     logIfLagging(instance);
     WorkflowDefinition definition = workflowDefinitions.getWorkflowDefinition(instance.type);
-    if (definition == null) {
+    if (definition == null || definition instanceof StoredWorkflowDefinitionWrapper) {
       rescheduleUnknownWorkflowType(instance);
       return;
     }
@@ -217,11 +218,11 @@ class WorkflowStateProcessor implements Runnable {
   private void logRetryableException(StateProcessExceptionHandling exceptionHandling, String state, Throwable thrown) {
     if (exceptionHandling.logStackTrace) {
       nflowLogger.log(logger, exceptionHandling.logLevel, "Handling state '{}' threw a retryable exception, trying again later.",
-          new Object[] { state, thrown });
+              state, thrown);
     } else {
       nflowLogger.log(logger, exceptionHandling.logLevel,
           "Handling state '{}' threw a retryable exception, trying again later. Message: {}",
-          new Object[] { state, thrown.getMessage() });
+              state, thrown.getMessage());
     }
   }
 
@@ -317,11 +318,11 @@ class WorkflowStateProcessor implements Runnable {
         StateSaveExceptionHandling handling = stateSaveExceptionAnalyzer.analyzeSafely(ex, saveRetryCount++);
         if (handling.logStackTrace) {
           nflowLogger.log(logger, handling.logLevel, "Failed to save workflow instance {} new state, retrying after {} seconds.",
-              new Object[] { instance.id, handling.retryDelay, ex });
+                  instance.id, handling.retryDelay, ex);
         } else {
           nflowLogger.log(logger, handling.logLevel,
               "Failed to save workflow instance {} new state, retrying after {} seconds. Error: {}",
-              new Object[] { instance.id, handling.retryDelay, ex.getMessage() });
+                  instance.id, handling.retryDelay, ex.getMessage());
         }
         sleepIgnoreInterrupted(handling.retryDelay.getStandardSeconds());
       }

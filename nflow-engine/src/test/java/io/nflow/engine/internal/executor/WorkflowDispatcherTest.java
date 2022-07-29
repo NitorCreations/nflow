@@ -102,6 +102,7 @@ public class WorkflowDispatcherTest {
     env.setProperty("nflow.executor.stateSaveRetryDelay.seconds", "60");
     env.setProperty("nflow.executor.stateVariableValueTooLongRetryDelay.minutes", "60");
     env.setProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
+    env.setProperty("nflow.autostart", "true");
     when(executorDao.isTransactionSupportEnabled()).thenReturn(true);
     when(executorDao.isAutoCommitEnabled()).thenReturn(true);
     when(executorDao.isAutoCommitEnabled()).thenReturn(true);
@@ -319,10 +320,11 @@ public class WorkflowDispatcherTest {
             break;
           }
           assertThat(i, lessThan(10));
-          sleep(20);
+          sleep(50);
         }
         waitForTick(1);
         dispatcher.shutdown();
+        waitForTick(2);
       }
 
       @Override

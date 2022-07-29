@@ -79,6 +79,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -790,6 +791,19 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
     verify(workflowInstanceDao).updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, TestState.BEGIN, 0,
         is("Unsupported workflow type"), greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
+  }
+
+  @Test
+  public void instanceWithStoredInstanceTypeIsRescheduled() {
+    WorkflowInstance instance = executingInstanceBuilder().setType("unsupported").setState(TestState.BEGIN).build();
+    when(workflowInstances.getWorkflowInstance(instance.id, INCLUDES, null)).thenReturn(instance);
+    when(workflowDefinitions.getWorkflowDefinition(instance.type)).thenReturn(mock(StoredWorkflowDefinitionWrapper.class));
+    DateTime oneHourInFuture = now().plusHours(1);
+
+    runExecutorWithTimeout();
+
+    verify(workflowInstanceDao).updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, TestState.BEGIN, 0,
+            is("Unsupported workflow type"), greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test

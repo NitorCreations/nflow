@@ -1,6 +1,7 @@
 package io.nflow.server.spring;
 
 import static io.nflow.engine.config.Profiles.H2;
+import static java.lang.Boolean.FALSE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,10 +26,14 @@ public class NflowStandardEnvironment extends StandardEnvironment {
     getPropertySources().addFirst(new MapPropertySource("override", overrideProperties));
     addExternalPropertyResource();
     String env = getProperty("env", "local");
-    addActiveProfile(env);
     addPropertyResource(env);
     addPropertyResource("common");
     addPropertyResource("nflow-server");
+    var clearProfiles = getProperty("clearProfiles", Boolean.class, FALSE);
+    if (clearProfiles) {
+      setActiveProfiles("ignore-environment-profiles");
+    }
+    addActiveProfile(env);
     String profiles = getProperty("profiles", String.class, "");
     for (String profile : profiles.split(",")) {
       if (!profile.trim().isEmpty()) {

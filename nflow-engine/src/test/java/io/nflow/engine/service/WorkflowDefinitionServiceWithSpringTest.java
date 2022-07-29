@@ -56,7 +56,10 @@ public class WorkflowDefinitionServiceWithSpringTest {
     @Bean
     @Primary
     public Environment env() {
-      return new MockEnvironment().withProperty("nflow.definition.persist", "true").withProperty("nflow.autoinit", "true");
+      return new MockEnvironment()
+              .withProperty("nflow.definition.persist", "true")
+              .withProperty("nflow.definition.refreshStoredFromDatabase.interval.seconds", "60")
+              .withProperty("nflow.autoinit", "true");
     }
 
     @Bean

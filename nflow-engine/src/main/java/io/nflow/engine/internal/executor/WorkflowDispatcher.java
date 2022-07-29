@@ -47,9 +47,9 @@ public class WorkflowDispatcher implements Runnable {
   private final int stuckThreadThresholdSeconds;
   private final Random rand = new Random();
   private final boolean allowInterrupt;
+  private final boolean autoStart;
 
   @Inject
-  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
   public WorkflowDispatcher(WorkflowInstanceExecutor executor, WorkflowInstanceDao workflowInstances,
       WorkflowStateProcessorFactory stateProcessorFactory, WorkflowDefinitionService workflowDefinitions, ExecutorDao executorDao,
       DispatcherExceptionAnalyzer exceptionAnalyzer, NflowLogger nflowLogger, Environment env) {
@@ -63,7 +63,14 @@ public class WorkflowDispatcher implements Runnable {
     this.sleepTimeMillis = env.getRequiredProperty("nflow.dispatcher.sleep.ms", Long.class);
     this.stuckThreadThresholdSeconds = env.getRequiredProperty("nflow.executor.stuckThreadThreshold.seconds", Integer.class);
     this.allowInterrupt = env.getProperty("nflow.executor.interrupt", Boolean.class, TRUE);
+    this.autoStart = env.getRequiredProperty("nflow.autostart", Boolean.class);
+    if (autoStart) {
+      verifyDatabaseSetup();
+    }
+  }
 
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Transaction support exception message is fine")
+  private void verifyDatabaseSetup() {
     if (!executorDao.isTransactionSupportEnabled()) {
       throw new BeanCreationException("Transaction support must be enabled");
     }
@@ -74,9 +81,13 @@ public class WorkflowDispatcher implements Runnable {
 
   @Override
   public void run() {
-    logger.info("Dispacther started.");
     try {
+      if (!autoStart) {
+        verifyDatabaseSetup();
+      }
       workflowDefinitions.postProcessWorkflowDefinitions();
+
+      logger.info("Dispatcher started.");
       running.set(true);
       while (!shutdownRequested.get()) {
         if (paused.get()) {
