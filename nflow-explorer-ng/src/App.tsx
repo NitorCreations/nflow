@@ -27,13 +27,17 @@ function App() {
     setFeedback(feedback);
   };
 
+  const getCurrentFeedback = () => {
+    return feedback;
+  };
+
   const closeFeedback = () => {
     setFeedback(undefined);
   };
 
   return (
     <Router hashType="hashbang">
-      <FeedbackContext.Provider value={{addFeedback}}>
+      <FeedbackContext.Provider value={{addFeedback, getCurrentFeedback}}>
         <div className="App">
           <header>
             <ReturnLink />
