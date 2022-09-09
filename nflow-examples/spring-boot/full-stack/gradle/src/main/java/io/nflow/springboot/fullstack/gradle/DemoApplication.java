@@ -1,4 +1,4 @@
-package io.nflow.springboot.bareminimum.gradle;
+package io.nflow.springboot.fullstack.gradle;
 
 import javax.inject.Inject;
 

@@ -1,4 +1,4 @@
-package io.nflow.springboot.bareminimum.gradle;
+package io.nflow.springboot.fullstack.gradle;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToStateAfter;
 import static org.joda.time.DateTime.now;
