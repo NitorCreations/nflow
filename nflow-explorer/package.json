@@ -49,7 +49,7 @@
     "karma-spec-reporter": "0.0.34",
     "load-grunt-tasks": "5.1.0",
     "moment": "2.29.4",
-    "node-sass": "7.0.1",
+    "node-sass": "7.0.3",
     "phantomjs-prebuilt": "2.1.16",
     "protractor": "7.0.0",
     "protractor-http-mock": "0.10.0",
