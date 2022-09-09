@@ -90,6 +90,11 @@
       <email>chen.jing@nitor.fi</email>
       <organization>Nitor Creations</organization>
     </developer>
+    <developer>
+      <name>Toni Tapper</name>
+      <email>toni.tapper@nitor.com</email>
+      <organization>Nitor Creations</organization>
+    </developer>
   </developers>
   <modules>
     <module>nflow-engine</module>
