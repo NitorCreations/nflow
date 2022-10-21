@@ -35,6 +35,7 @@
     - Find only dead nodes that have not been recovered yet.
     - Update current timestamp to `nflow_executor.recovered` after the workflow instances of the dead node have been recovered.
   - Add `recovered` timestamp to executor info (database, Java API and REST API).
+  - Fix bug archiving when bigserial and bigint id types are used (on some databases)
   - Remove obsolete mysql legacy ddl sql scripts.
   - Include generated mariadb.create.ddl.sql in sources.jar.
   - Added tests against Oracle now that there is a working docker image of Oracle XE
