@@ -121,7 +121,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   public void updateWorkflowReturnsNoContentWhenInstanceIsUpdated() throws InterruptedException {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now().plusDays(1);
-    RuntimeException ex = null;
+    RuntimeException ex = new RuntimeException("Update did not occur fast enough");
     for (int i = 0; i < 3; ++i) {
       try (Response response = updateWorkflowInstance(resp.id, req, Response.class)) {
         if (response.getStatus() != NO_CONTENT.getStatusCode()) {
