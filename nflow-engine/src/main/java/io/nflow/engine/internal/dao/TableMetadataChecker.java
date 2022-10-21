@@ -69,7 +69,7 @@ public class TableMetadataChecker {
   }
 
   static class MetadataExtractor implements ResultSetExtractor<Map<String, ColumnMetadata>> {
-    private final Map<String, String> typeAliases = singletonMap("serial", "int4");
+    private final Map<String, String> typeAliases = Map.of("serial", "int4", "bigserial", "int8");
 
     @Override
     public Map<String, ColumnMetadata> extractData(ResultSet rs) throws SQLException {
