@@ -10,7 +10,7 @@ case $DB_VERSION in
     DB_VERSION=10.3 # supported until may/2023
     ;;
   latest)
-    DB_VERSION=10.8
+    DB_VERSION=10.9
     ;;
 esac
 
