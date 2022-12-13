@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "angular": "1.8.3",
-    "bootstrap-sass": "3.4.1",
+    "bootstrap-sass": "3.4.3",
     "angular-resource": "1.8.3",
     "angular-cookies": "1.8.3",
     "angular-sanitize": "1.8.3",
@@ -15,7 +15,7 @@
     "dygraphs": "1.1.1",
     "dagre-d3": "0.6.4",
     "angular-chart.js": "1.1.1",
-    "chart.js": "2.9.3",
+    "chart.js": "2.9.4",
     "svg-pan-zoom": "3.6.0",
     "angular-toastr": "2.1.1",
     "angular-smart-table": "2.1.11"
