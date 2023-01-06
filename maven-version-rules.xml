@@ -40,6 +40,12 @@
                 <ignoreVersion type="regex">^[7-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="org.apache.cxf">
+            <ignoreVersions>
+                <!-- apache cxf moves from javax.servlet-api to jakarta.servlet-api, requires spring 6.x -->
+                <ignoreVersion type="regex">^4.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
         <rule groupId="io.swagger">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*rc.*</ignoreVersion>
