@@ -40,26 +40,32 @@
   - Include generated mariadb.create.ddl.sql in sources.jar.
   - Added tests against Oracle now that there is a working docker image of Oracle XE
   - Dependency updates
-    - apache cxf 3.5.3
-- `nflow-jetty`
+    - apache cxf 3.5.5
+    - jackson 2.14.1
+    - javassit 3.29.2
+    - jodatime 2.12.2
+    - logback-classic 1.4.5
+    - slf4j 2.0.6
+  - `nflow-jetty`
   - Dependency updates
-    - jetty 10.0.11
+    - jetty 10.0.13
 - `nflow-netty`
   - Dependency updates
-    - reactor-core 3.4.21
-    - reactor-netty 1.0.21
+    - reactor-core 3.5.1
+    - reactor-netty 1.1.1
 - `nflow-rest-api`
   - Dependency updates
-    - swagger 2.2.2
+    - swagger 2.2.8
 - `nflow-metrics`
   - export the nflow.database.type as a metric
   - Dependency updates
-    - metrics 4.2.10
+    - metrics 4.2.15
 - `nflow-tests`
   - Dependency updates
     - h2 2.1.214
-    - mariadb 3.0.6
-    - postgresql 42.4.0
+    - mariadb 3.1.0
+    - postgresql 42.5.1
+    - mssql 11.2.2
 
 ## 8.0.0 (2022-06-09)
 
