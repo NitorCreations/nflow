@@ -163,9 +163,9 @@
     <maven-site.version>4.0.0-M4</maven-site.version>
     <maven-source.version>3.2.1</maven-source.version>
     <maven-surefire.version>3.0.0-M7</maven-surefire.version>
-    <metrics.version>4.2.13</metrics.version>
-    <mockito.version>4.9.0</mockito.version>
-    <mssql.version>11.2.1.jre8</mssql.version>
+    <metrics.version>4.2.15</metrics.version>
+    <mockito.version>4.11.0</mockito.version>
+    <mssql.version>11.2.2.jre8</mssql.version>
     <mysql.version>8.0.31</mysql.version>
     <nexus-staging-maven.version>1.6.13</nexus-staging-maven.version>
     <node.version>v18.12.1</node.version> <!-- https://nodejs.org/en/download/releases/ -->
@@ -175,15 +175,15 @@
     <postgresql.version>42.5.1</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.core.version>3.5.0</reactor.core.version>
-    <reactor.netty.version>1.1.0</reactor.netty.version>
+    <reactor.core.version>3.5.1</reactor.core.version>
+    <reactor.netty.version>1.1.1</reactor.netty.version>
     <reflections.version>0.10.2</reflections.version>
     <slf4j.version>2.0.6</slf4j.version>
     <spotbugs.version>4.7.1</spotbugs.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.7.1.0</spotbugs-maven-plugin.version>
     <spring.version>5.3.18</spring.version>
-    <swagger.version>2.2.7</swagger.version>
+    <swagger.version>2.2.8</swagger.version>
     <validation.api.version>2.0.1.Final</validation.api.version>
     <versions-maven-plugin.version>2.13.0</versions-maven-plugin.version>
   </properties>
