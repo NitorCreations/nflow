@@ -18,7 +18,7 @@ const formatTimestamp = (timestamp: string | Date | undefined) => {
   if (typeof timestamp === 'string') {
     timestamp = new Date(timestamp);
   }
-  return format(timestamp, 'yyyy-MM-dd kk:mm:ss');
+  return format(timestamp, 'yyyy-MM-dd HH:mm:ss');
 };
 
 export {formatRelativeTime, formatTimestamp};
