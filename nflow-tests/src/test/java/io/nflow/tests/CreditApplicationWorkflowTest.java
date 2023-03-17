@@ -92,7 +92,6 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(6)
   public void checkWorkflowInstanceActions() {
-    int i = 1;
     assertWorkflowInstance(resp.id, actionHistoryValidator(asList(
         new Action(0, stateExecution.name(), "error", "", 0, null, null, 0),
         new Action(0, stateExecution.name(), "grantLoan", "", 3, null, null, 0),

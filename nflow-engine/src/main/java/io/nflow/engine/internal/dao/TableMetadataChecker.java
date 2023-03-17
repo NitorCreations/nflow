@@ -1,7 +1,6 @@
 package io.nflow.engine.internal.dao;
 
 import static java.lang.String.format;
-import static java.util.Collections.singletonMap;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

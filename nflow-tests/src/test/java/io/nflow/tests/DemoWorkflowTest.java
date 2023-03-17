@@ -117,7 +117,6 @@ public class DemoWorkflowTest extends AbstractNflowTest {
 
   @Test
   @Order(6)
-  @SuppressWarnings("null")
   public void updateWorkflowReturnsNoContentWhenInstanceIsUpdated() throws InterruptedException {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = now().plusDays(1);
