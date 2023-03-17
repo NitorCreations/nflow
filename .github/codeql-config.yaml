@@ -1,5 +1,0 @@
-name: "CodeQL config"
-paths-ignore:
-  - 'nflow-server-common/target/swagger'
-  - 'nflow-server-common/target/classes/nflow-ui-assets'
-  - '*/target/site'
