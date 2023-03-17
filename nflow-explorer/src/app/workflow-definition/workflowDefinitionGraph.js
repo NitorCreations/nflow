@@ -41,7 +41,7 @@
       graph.save(function() { Graph.downloadDataUrl(svg.dataUrl(), self.definition.type + '.svg'); });
     }
 
-    function initSvg() {
+    function initSvg() {
       var selector = '#dagreSvg';
       var aspectRatio = $(selector).width() / $(selector).height();
 
@@ -101,7 +101,7 @@
     return api;
 
     function initialize(onSelectNodeFnToBind) { onSelectNodeFn = onSelectNodeFnToBind; }
-    function onSelectNode(nodeId) {
+    function onSelectNode(nodeId) {
       // TODO Graph.drawWorkflowDefinition should encapsulate handling on non-angular events, remove $timeout
       // from here when Graph has been refactored.
       $timeout(function() {
