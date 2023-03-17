@@ -55,7 +55,7 @@ jobs:
       - name: Generate JavaDocs and run SpotBugs
         run: mvn -T1C --no-transfer-progress --color=always -Dmaven.source.skip=true -Dskip.npm -Dskip.bower -Dskip.grunt compile javadoc:javadoc spotbugs:check
       - name: Publish SpotBugs report
-        uses: jwgmeligmeyling/spotbugs-github-action@master
+        uses: kpresler/spotbugs-github-action@master
         with:
           name: 'SpotBugs Report'
           path: '**/spotbugsXml.xml'
