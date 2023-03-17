@@ -127,8 +127,8 @@
     <hamcrest.version>2.2</hamcrest.version>
     <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
     <hikaricp.version>5.0.1</hikaricp.version>
-    <jackson.version>2.14.1</jackson.version>
-    <jackson-databind.version>2.14.1</jackson-databind.version>
+    <jackson.version>2.14.2</jackson.version>
+    <jackson-databind.version>2.14.2</jackson-databind.version>
     <javassist.version>3.29.2-GA</javassist.version>
     <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
@@ -136,12 +136,12 @@
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxws-api.version>2.3.1</jaxws-api.version>
     <jersey.version>2.35</jersey.version>
-    <jetty.version>10.0.13</jetty.version>
+    <jetty.version>10.0.14</jetty.version>
     <jodatime.version>2.12.2</jodatime.version>
     <junit5.version>5.6.2</junit5.version>
     <junit-platform.version>1.8.2</junit-platform.version>
-    <logback-classic.version>1.4.5</logback-classic.version>
-    <mariadb.version>3.1.0</mariadb.version>
+    <logback-classic.version>1.4.6</logback-classic.version>
+    <mariadb.version>3.1.2</mariadb.version>
     <maven-assembly.version>3.5.0</maven-assembly.version>
     <maven-clean.version>3.2.0</maven-clean.version>
     <maven-compiler.version>3.11.0</maven-compiler.version>
@@ -163,23 +163,23 @@
     <maven-site.version>4.0.0-M5</maven-site.version>
     <maven-source.version>3.2.1</maven-source.version>
     <maven-surefire.version>3.0.0</maven-surefire.version>
-    <metrics.version>4.2.15</metrics.version>
+    <metrics.version>4.2.17</metrics.version>
     <mockito.version>4.11.0</mockito.version>
-    <mssql.version>11.2.2.jre8</mssql.version>
-    <mysql.version>8.0.31</mysql.version>
+    <mssql.version>12.2.0.jre8</mssql.version>
+    <mysql.version>8.0.32</mysql.version>
     <nexus-staging-maven.version>1.6.13</nexus-staging-maven.version>
     <node.version>v18.12.1</node.version> <!-- https://nodejs.org/en/download/releases/ -->
     <npm.version>8.19.2</npm.version>     <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
-    <ojdbc.version>21.8.0.0</ojdbc.version>
-    <postgresql.version>42.5.1</postgresql.version>
+    <ojdbc.version>21.9.0.0</ojdbc.version>
+    <postgresql.version>42.5.4</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <reactor.core.version>3.5.1</reactor.core.version>
-    <reactor.netty.version>1.1.1</reactor.netty.version>
+    <reactor.netty.version>1.1.5</reactor.netty.version>
     <reflections.version>0.10.2</reflections.version>
     <slf4j.version>2.0.6</slf4j.version>
-    <spotbugs.version>4.7.1</spotbugs.version>
+    <spotbugs.version>4.7.3</spotbugs.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.7.3.2</spotbugs-maven-plugin.version>
     <spring.version>5.3.18</spring.version>
