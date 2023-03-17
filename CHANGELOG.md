@@ -67,6 +67,8 @@
     - postgresql 42.5.4
     - mssql 12.2.0
     - ojdbc 21.9.0.0
+- `nflow-explorer-ng`
+  - Improved formatting timestamps
 
 ## 8.0.0 (2022-06-09)
 
