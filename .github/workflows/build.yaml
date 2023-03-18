@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         java: [ '11', '17' ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -37,7 +37,7 @@ jobs:
         with:
           check_name: 'Unit Test Report for Java ${{ matrix.java }}'
   javadoc-spotbugs-codeql:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -67,7 +67,7 @@ jobs:
       matrix:
         java: [ '11', '17' ]
         db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver', 'db2', 'oracle' ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
       DB_VERSION: ${{ matrix.java == 11 && 'old' || 'latest' }}
