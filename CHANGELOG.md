@@ -69,6 +69,7 @@
     - ojdbc 21.9.0.0
 - `nflow-explorer-ng`
   - Improved formatting timestamps
+  - Fix retry on endpoint change
 
 ## 8.0.0 (2022-06-09)
 
