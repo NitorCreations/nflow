@@ -1,4 +1,4 @@
-## 8.0.1-SNAPSHOT (future release)
+## 9.0.0-SNAPSHOT (future release)
 
 **Highlights**
 

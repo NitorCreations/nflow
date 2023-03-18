@@ -17,7 +17,7 @@ nFlow has been under development since 2014-01-14 and version 1.0.0 was released
 ## Key Features
 
 * Non-declarative &mdash; workflows are defined as code
-* Visualization &mdash; workflows can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer)
+* Visualization &mdash; workflows can be visualized in [nFlow Explorer](https://github.com/NitorCreations/nflow/tree/master/nflow-explorer-ng)
 * Embeddable &mdash; usually embedded as a library, but a standalone server is also provided
 * High availability &mdash; the same workflows can be processed by multiple deployments
 * Fault tolerant &mdash; automatic recovery if runtime environment crashes
