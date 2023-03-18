@@ -36,6 +36,7 @@ jobs:
         if: always()
         with:
           check_name: 'Unit Test Report for Java ${{ matrix.java }}'
+
   build-and-test-nflow-explorer-ng:
     if: always()
     runs-on: ubuntu-latest
@@ -50,11 +51,7 @@ jobs:
           cache: 'maven'
       - name: Run build and unit tests
         run: mvn -T1C --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-explorer-ng test
-      - name: Publish JUnit test report
-        uses: scacap/action-surefire-report@v1
-        if: always()
-        with:
-          check_name: 'Unit Test Report for nflow-explorer-ng'
+
   javadoc-spotbugs-codeql:
     runs-on: ubuntu-latest
     steps:
@@ -80,6 +77,7 @@ jobs:
           path: '**/spotbugsXml.xml'
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+
   integration-tests:
     if: always()
     strategy:
