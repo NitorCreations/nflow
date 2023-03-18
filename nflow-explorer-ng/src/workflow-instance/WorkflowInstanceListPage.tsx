@@ -356,6 +356,10 @@ function WorkflowInstanceListPage() {
   const [instances, setInstances] = useState<Array<WorkflowInstance>>();
 
   const fetchDefinitions = useCallback(() => {
+    if (feedback.getCurrentFeedback() !== undefined) {
+      // retry only after the current snackbar error is cleared or faded
+      return;
+    }
     listWorkflowDefinitions(config)
       .then(data => setDefinitions(data))
       .catch(error => {
