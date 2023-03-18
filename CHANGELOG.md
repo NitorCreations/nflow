@@ -27,7 +27,7 @@
   - Improve shutdown sequence.
     - Workflows that were acquired from the database but have not started executing can now be resumed immediately by another executor.
     - Executing workflows are interrupted 5 seconds before shutdown timeout so that they get a chance to persist their state to the database. This also allows other executors to immediately resume the processing of the successfully interrupted workflows. The interrupting can be disabled by setting `nflow.executor.interrupt` to false.
-    - Log a warning if updating workflow instance to the database fails because the instance has been recovered by another executor. Also avoid modifying state variables, adding new workflows and adding new child workflows if the workflow instance update fails. 
+    - Log a warning if updating workflow instance to the database fails because the instance has been recovered by another executor. Also avoid modifying state variables, adding new workflows and adding new child workflows if the workflow instance update fails.
   - Add support to `MaintenanceWorkflow` for cleaning up old workflow executors that have expired configured time ago (default 1 year).
     - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredExecutors.olderThan` configuration option and stored in the `config` state variable of the created maintenance workflow instance.
     - If the maintenance workflow instance has already been created, cleanup can be enabled by adding `"deleteExpiredExecutorsOlderThan": "P1Y"` to the JSON value of the `config` state variable of the instance.
@@ -322,7 +322,7 @@
 
 - `nflow-engine`
   - Fix SQL performance / memory issue when getting single workflow instance with action state variables, when the instance has lots of actions with lots of state variables. The old code fetched all state variables of all actions of the instance, the new code only fetches the state variables for the actions that will be returned.
-  - Fix instantiation of @StateVar(instantiateIfNotExists=true) Mutable<Type> - the result was incorrectly a Mutable wrapped in Mutable.
+  - Fix instantiation of `@StateVar(instantiateIfNotExists=true) Mutable<Type>` - the result was incorrectly a Mutable wrapped in Mutable.
   - Fix potential resource leaks
   - Dependency updates:
     - spring 5.2.8
