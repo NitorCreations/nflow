@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -46,6 +45,7 @@ import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod;
 import io.nflow.engine.listener.ListenerChain;
@@ -317,12 +317,12 @@ class WorkflowStateProcessor implements Runnable {
         }
         StateSaveExceptionHandling handling = stateSaveExceptionAnalyzer.analyzeSafely(ex, saveRetryCount++);
         if (handling.logStackTrace) {
-          nflowLogger.log(logger, handling.logLevel, "Failed to save workflow instance {} new state, retrying after {} seconds.",
-                  instance.id, handling.retryDelay, ex);
+          nflowLogger.log(logger, handling.logLevel, "Failed to save workflow instance {} new state, retrying after {}.",
+              instance.id, handling.retryDelay, ex);
         } else {
           nflowLogger.log(logger, handling.logLevel,
-              "Failed to save workflow instance {} new state, retrying after {} seconds. Error: {}",
-                  instance.id, handling.retryDelay, ex.getMessage());
+              "Failed to save workflow instance {} new state, retrying after {}. Error: {}", instance.id, handling.retryDelay,
+              ex.getMessage());
         }
         sleepIgnoreInterrupted(handling.retryDelay.getStandardSeconds());
       }
