@@ -27,7 +27,7 @@
     "dagre-d3": "^0.6.4",
     "date-fns": "^2.29.3",
     "eslint-config-react-app": "^7.0.1",
-    "husky": "^8.0.2",
+    "husky": "^4.3.8",
     "lint-staged": "^13.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
