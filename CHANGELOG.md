@@ -46,7 +46,7 @@
     - jodatime 2.12.2
     - logback-classic 1.4.6
     - slf4j 2.0.6
-  - `nflow-jetty`
+- `nflow-jetty`
   - Dependency updates
     - jetty 10.0.14
 - `nflow-netty`
@@ -54,6 +54,7 @@
     - reactor-core 3.5.1
     - reactor-netty 1.1.5
 - `nflow-rest-api`
+  - Remove `@Primary` annotation from `nflowRestObjectMapper` in `RestConfiguration` to allow overriding default mapper. Spring Boot applications may need to define the mapper explicitly now.
   - Dependency updates
     - swagger 2.2.8
 - `nflow-metrics`
