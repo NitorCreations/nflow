@@ -110,7 +110,7 @@
     <module>nflow-metrics</module>
   </modules>
   <properties>
-    <jdk.version>11</jdk.version>
+    <jdk.version>17</jdk.version>
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
     <apache.cxf.version>4.0.2</apache.cxf.version>
