@@ -113,30 +113,30 @@
     <jdk.version>11</jdk.version>
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
-    <apache.cxf.version>3.5.5</apache.cxf.version>
+    <apache.cxf.version>4.0.2</apache.cxf.version>
     <build-helper.version>3.3.0</build-helper.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.12.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>4.3.0</coveralls.version>
     <db2-jcc.version>11.5.8.0</db2-jcc.version>
-    <el.version>3.0.0</el.version>
+    <el.version>4.0.2</el.version>
     <frontend-maven.version>1.12.1</frontend-maven.version>
-    <guice.version>5.1.0</guice.version>
+    <guice.version>7.0.0</guice.version>
     <h2.version>2.1.214</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
+    <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <jackson.version>2.14.2</jackson.version>
     <jackson-databind.version>2.14.2</jackson-databind.version>
     <javassist.version>3.29.2-GA</javassist.version>
-    <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
-    <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-    <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-    <jaxb-api.version>2.3.1</jaxb-api.version>
-    <jaxws-api.version>2.3.1</jaxws-api.version>
-    <jersey.version>2.35</jersey.version>
-    <jetty.version>10.0.14</jetty.version>
+    <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
+    <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+    <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
+    <jaxb-api.version>4.0.0</jaxb-api.version>
+    <jaxws-api.version>4.0.0</jaxws-api.version>
+    <jersey.version>3.1.3</jersey.version>
+    <jetty.version>11.0.15</jetty.version>
     <jodatime.version>2.12.2</jodatime.version>
     <junit5.version>5.6.2</junit5.version>
     <junit-platform.version>1.8.2</junit-platform.version>
@@ -163,7 +163,7 @@
     <maven-site.version>4.0.0-M5</maven-site.version>
     <maven-source.version>3.2.1</maven-source.version>
     <maven-surefire.version>3.0.0</maven-surefire.version>
-    <metrics.version>4.2.17</metrics.version>
+    <metrics.version>4.2.19</metrics.version>
     <mockito.version>5.2.0</mockito.version>
     <mssql.version>12.2.0.jre8</mssql.version>
     <mysql.version>8.0.32</mysql.version>
@@ -176,15 +176,15 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <reactor.core.version>3.5.1</reactor.core.version>
-    <reactor.netty.version>1.1.5</reactor.netty.version>
+    <reactor.netty.version>1.1.9</reactor.netty.version>
     <reflections.version>0.10.2</reflections.version>
     <slf4j.version>2.0.6</slf4j.version>
     <spotbugs.version>4.7.3</spotbugs.version>
     <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.7.3.2</spotbugs-maven-plugin.version>
-    <spring.version>5.3.18</spring.version>
+    <spring.version>6.0.11</spring.version>
     <swagger.version>2.2.8</swagger.version>
-    <validation.api.version>2.0.1.Final</validation.api.version>
+    <validation.api.version>3.0.2</validation.api.version>
     <versions-maven-plugin.version>2.15.0</versions-maven-plugin.version>
   </properties>
   <build>
@@ -335,8 +335,8 @@
           <version>${coveralls.version}</version>
           <dependencies>
             <dependency>
-              <groupId>javax.xml.bind</groupId>
-              <artifactId>jaxb-api</artifactId>
+              <groupId>jakarta.xml.bind</groupId>
+              <artifactId>jakarta.xml.bind-api</artifactId>
               <version>${jaxb-api.version}</version>
             </dependency>
           </dependencies>
@@ -666,9 +666,9 @@
       </dependency>
       <!-- apache cxf -->
       <dependency>
-        <groupId>javax.ws.rs</groupId>
-        <artifactId>javax.ws.rs-api</artifactId>
-        <version>${javax.ws.rs.version}</version>
+        <groupId>jakarta.ws.rs</groupId>
+        <artifactId>jakarta.ws.rs-api</artifactId>
+        <version>${jakarta.ws.rs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
@@ -696,8 +696,8 @@
         <version>${apache.cxf.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-json-provider</artifactId>
+        <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+        <artifactId>jackson-jakarta-rs-json-provider</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
@@ -728,13 +728,13 @@
       </dependency>
       <!-- validation -->
       <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
         <version>${validation.api.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish</groupId>
-        <artifactId>javax.el</artifactId>
+        <artifactId>jakarta.el</artifactId>
         <version>${el.version}</version>
       </dependency>
       <dependency>
@@ -812,7 +812,7 @@
       </dependency>
       <dependency>
         <groupId>io.dropwizard.metrics</groupId>
-        <artifactId>metrics-servlets</artifactId>
+        <artifactId>metrics-jakarta-servlets</artifactId>
         <version>${metrics.version}</version>
       </dependency>
       <!-- specify commons-lang as runtime since we do not want any new code to depend on it -->
@@ -854,12 +854,12 @@
       </dependency>
       <dependency>
         <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-jaxrs2</artifactId>
+        <artifactId>swagger-jaxrs2-jakarta</artifactId>
         <version>${swagger.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -874,9 +874,9 @@
         <version>${reflections.version}</version>
       </dependency>
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>${javax.servlet-api.version}</version>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${jakarta.servlet-api.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -892,18 +892,18 @@
         <scope>runtime</scope>
       </dependency>
       <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>${javax.annotation-api.version}</version>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>${jakarta.annotation-api.version}</version>
       </dependency>
       <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
         <version>${jaxb-api.version}</version>
       </dependency>
       <dependency>
-        <groupId>javax.xml.ws</groupId>
-        <artifactId>jaxws-api</artifactId>
+        <groupId>jakarta.xml.ws</groupId>
+        <artifactId>jakarta.xml.ws-api</artifactId>
         <version>${jaxws-api.version}</version>
       </dependency>
       <!-- testing -->

@@ -4,8 +4,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.concurrent.ThreadFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.springframework.context.SmartLifecycle;

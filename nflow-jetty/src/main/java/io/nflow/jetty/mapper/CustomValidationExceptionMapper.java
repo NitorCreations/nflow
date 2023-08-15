@@ -2,11 +2,11 @@ package io.nflow.jetty.mapper;
 
 import static java.util.stream.Collectors.joining;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 import org.apache.cxf.validation.ResponseConstraintViolationException;
 import org.slf4j.Logger;

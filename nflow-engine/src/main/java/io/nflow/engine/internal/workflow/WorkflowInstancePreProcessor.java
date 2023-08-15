@@ -4,7 +4,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanc
 import static java.util.UUID.randomUUID;
 import static org.springframework.util.StringUtils.hasText;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Component;
 

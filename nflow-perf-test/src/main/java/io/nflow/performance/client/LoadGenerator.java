@@ -6,8 +6,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;

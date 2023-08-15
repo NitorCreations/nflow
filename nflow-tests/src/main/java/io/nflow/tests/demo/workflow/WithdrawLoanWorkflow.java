@@ -5,7 +5,7 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Component;
 

@@ -7,7 +7,7 @@ import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

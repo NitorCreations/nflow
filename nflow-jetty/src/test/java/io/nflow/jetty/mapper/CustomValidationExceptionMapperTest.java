@@ -1,8 +1,8 @@
 package io.nflow.jetty.mapper;
 
 import static java.util.Arrays.asList;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -10,11 +10,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.LinkedHashSet;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
-import javax.validation.ValidationException;
-import javax.ws.rs.core.Response;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.cxf.validation.ResponseConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;

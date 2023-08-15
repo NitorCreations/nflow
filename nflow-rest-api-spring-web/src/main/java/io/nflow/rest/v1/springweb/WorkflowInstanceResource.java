@@ -17,8 +17,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

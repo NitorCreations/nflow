@@ -5,9 +5,9 @@ import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;

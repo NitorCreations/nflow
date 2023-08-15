@@ -3,7 +3,7 @@ package io.nflow.engine.exception;
 import static org.joda.time.Duration.standardSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.joda.time.Duration;
 import org.slf4j.Logger;

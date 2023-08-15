@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;

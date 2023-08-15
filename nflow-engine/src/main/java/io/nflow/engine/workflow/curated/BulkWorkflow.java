@@ -18,7 +18,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

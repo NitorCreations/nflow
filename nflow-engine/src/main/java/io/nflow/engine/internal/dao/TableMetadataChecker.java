@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;

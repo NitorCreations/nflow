@@ -2,14 +2,14 @@ package io.nflow.jetty.servlet;
 
 import static org.springframework.web.context.support.WebApplicationContextUtils.findWebApplicationContext;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import io.dropwizard.metrics.servlets.HealthCheckServlet;
+import io.dropwizard.metrics.servlets.MetricsServlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.servlets.HealthCheckServlet;
-import com.codahale.metrics.servlets.MetricsServlet;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 

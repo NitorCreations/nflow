@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.NotFoundException;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
