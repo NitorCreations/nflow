@@ -67,7 +67,7 @@ function WorkflowInstanceSearchForm(props: {
     queryParams.get('externalId') || ''
   );
   const [id, setId] = useState<string>(queryParams.get('id') || '');
-  const [parentInstanceId, setParentInstanceId] = useState<string>(
+  const [parentWorkflowId, setParentWorkflowId] = useState<string>(
     queryParams.get('parentWorkflowId') || ''
   );
 
@@ -92,7 +92,7 @@ function WorkflowInstanceSearchForm(props: {
         businessKey,
         externalId,
         id,
-        parentInstanceId
+        parentWorkflowId
       };
 
       for (let field of Object.keys(data)) {
@@ -104,7 +104,7 @@ function WorkflowInstanceSearchForm(props: {
         }
       }
       // remove empty fields, convert ids to numbers
-      for (let field of ['instanceId', 'parentInstanceId']) {
+      for (let field of ['id', 'parentWorkflowId']) {
         if (field in data) {
           data[field] = parseInt(data[field], 10) || undefined;
         }
@@ -126,7 +126,7 @@ function WorkflowInstanceSearchForm(props: {
       externalId,
       history,
       id,
-      parentInstanceId,
+      parentWorkflowId,
       props,
       state,
       status,
@@ -201,8 +201,8 @@ function WorkflowInstanceSearchForm(props: {
           <TextField
             label="Parent instance ID"
             type="number"
-            value={parentInstanceId}
-            onChange={e => setParentInstanceId(e.target.value)}
+            value={parentWorkflowId}
+            onChange={e => setParentWorkflowId(e.target.value)}
           />
         </Grid>
 
