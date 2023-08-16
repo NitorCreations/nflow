@@ -18,7 +18,7 @@ jobs:
     if: always()
     strategy:
       matrix:
-        java: [ '17' ]
+        java: [ '17', '20' ]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -82,7 +82,7 @@ jobs:
     if: always()
     strategy:
       matrix:
-        java: [ '17' ]
+        java: [ '17', '20' ]
         db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver', 'db2', 'oracle' ]
     runs-on: ubuntu-latest
     env:
