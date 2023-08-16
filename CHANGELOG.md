@@ -70,6 +70,7 @@
 - `nflow-explorer-ng`
   - Improved formatting timestamps
   - Fix retry on endpoint change
+  - Fix querying with parent instance id
 
 ## 8.0.0 (2022-06-09)
 
