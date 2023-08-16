@@ -1,3 +1,63 @@
+## 9.0.0-SNAPSHOT (future release)
+
+**Highlights**
+
+- Update to Spring Framework 6
+  - BREAKING CHANGE: Support for Java 11 is dropped
+  - BREAKING CHANGE: Migrated from `javax` namespace to `jakarta` namespace
+  - Lot of dependency updates related to `jakarta` changes
+    - Guice 7.0.0
+    - Jersey 3.1.3
+    - Jetty 11.0.15
+    - Apache CFX 4.0.2
+    - Dropwizard metrics 4.2.19 and switch to jakarta servlets
+    - Jackson jaxrs to jakarta-rs
+    - Switch swagger jaxrs2 to jaxrs2-jakarta
+    - Hibernate validator 8.0.1.Final
+    - Annotation API to jakarta version 2.1.1
+    - Servlet API to jakarta version 6.0.0
+    - Glassfish EL to jakarta version 4.0.2
+    - Inject API to jakarta version 2.0.1
+    - Jaxb API to jakarta bind-api 4.0.0
+    - WS RS API to jakarta 3.1.0
+- `nflow-netty`
+  - POTENTIALLY BREAKING CHANGE: Netty configuration might need `Jackson2ObjectMapperBuilder` to have `findModulesViaServiceLoader` enabled as joda time module is not in wellknown modules anymore
+
+*Other dependency updates*
+- Commons lang3 3.13.0
+- H2 2.2.220
+- Jackson 2.15.2
+- Joda-time 2.12.5
+- Junit5 5.10.0
+- MariaDB 3.1.2
+- MSSQL 12.4.0-jre11
+- MySQL 8.1.0
+- OJDBC 23.2.0.0
+- PostgreSQL 42.6.0
+- Reactor core 3.5.9
+- Reactor netty 1.1.10
+- SLF4J 2.0.7
+- Swagger 2.2.15
+
+*Maven build plugin updates*
+- Clean plugin 3.3.1
+- Deploy plugin 3.1.1
+- Download plugin 1.7.1
+- Enforcer plugin 3.3.0
+- GPG plugin 3.1.0
+- Install plugin 3.1.1
+- Jacoco plugin 0.8.10
+- PMD plugin 3.21.0
+- Project info plugin 3.4.5
+- Release plugin 3.0.1
+- Resources plugin 3.3.1
+- Shade plugin 3.5.0
+- Site plugin 4.0.0-M9
+- Source plugin 3.3.0
+- Surefire plugin 3.1.2
+- Spotbugs plugin 4.7.3.5
+- Versions plugin 2.16.0
+
 ## 8.0.1-SNAPSHOT (future release)
 
 **Highlights**
