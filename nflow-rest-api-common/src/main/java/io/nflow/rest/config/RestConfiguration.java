@@ -24,7 +24,6 @@ public class RestConfiguration {
   public static final String REST_OBJECT_MAPPER = "nflowRestObjectMapper";
 
   @Bean
-  @Primary // Needed to get spring-boot to find the right mapper by default for Jackson
   @Named(REST_OBJECT_MAPPER)
   public ObjectMapper nflowRestObjectMapper(@NFlow ObjectMapper nflowObjectMapper) {
     ObjectMapper restObjectMapper = nflowObjectMapper.copy();
