@@ -73,6 +73,7 @@
   - Fix retry on endpoint change
   - Fix querying with parent instance id
   - Fix loading custom instance content for child workflow
+  - Fix state variables showing false values
 
 ## 8.0.0 (2022-06-09)
 
