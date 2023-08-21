@@ -2,6 +2,24 @@
 
 **Highlights**
 
+- Update to Spring Framework 6
+  - BREAKING CHANGE: Support for Java 11 is dropped
+  - BREAKING CHANGE: Migrated from `javax` namespace to `jakarta` namespace
+  - Lot of dependency updates/changes related to `jakarta` changes
+    - Guice 7.0.0
+    - Jersey 3.1.3
+    - Jetty 11.0.15
+    - Apache CFX 4.0.2
+    - Dropwizard metrics 4.2.19 and switch to jakarta servlets
+    - Jackson jaxrs to jakarta-rs
+    - Switch swagger jaxrs2 to jaxrs2-jakarta
+    - Hibernate validator 8.0.1.Final
+    - Annotation API to jakarta version 2.1.1
+    - Servlet API to jakarta version 6.0.0
+    - Glassfish EL to jakarta version 4.0.2
+    - Inject API to jakarta version 2.0.1
+    - Jaxb API to jakarta bind-api 4.0.0
+    - WS RS API to jakarta 3.1.0
 - `nflow-engine`
   - POTENTIALLY BREAKING CHANGE: Add support to manage workflow instances without having the workflow implementation classes in the classpath.
   - Clean up old workflow executors that have expired configured time ago (default 1 year).
@@ -11,6 +29,8 @@
   - Include generated mariadb.create.ddl.sql in sources.jar.
 - `nflow-metrics`
   - export the nflow.database.type as a metric
+- `nflow-netty`
+  - POTENTIALLY BREAKING CHANGE: Netty configuration might need `Jackson2ObjectMapperBuilder` to have `findModulesViaServiceLoader` enabled as joda time module is not in wellknown modules anymore
 
 **Details**
 
@@ -27,7 +47,7 @@
   - Improve shutdown sequence.
     - Workflows that were acquired from the database but have not started executing can now be resumed immediately by another executor.
     - Executing workflows are interrupted 5 seconds before shutdown timeout so that they get a chance to persist their state to the database. This also allows other executors to immediately resume the processing of the successfully interrupted workflows. The interrupting can be disabled by setting `nflow.executor.interrupt` to false.
-    - Log a warning if updating workflow instance to the database fails because the instance has been recovered by another executor. Also avoid modifying state variables, adding new workflows and adding new child workflows if the workflow instance update fails. 
+    - Log a warning if updating workflow instance to the database fails because the instance has been recovered by another executor. Also avoid modifying state variables, adding new workflows and adding new child workflows if the workflow instance update fails.
   - Add support to `MaintenanceWorkflow` for cleaning up old workflow executors that have expired configured time ago (default 1 year).
     - On the first startup, time period is read from `nflow.maintenance.executors.initial.deleteExpiredExecutors.olderThan` configuration option and stored in the `config` state variable of the created maintenance workflow instance.
     - If the maintenance workflow instance has already been created, cleanup can be enabled by adding `"deleteExpiredExecutorsOlderThan": "P1Y"` to the JSON value of the `config` state variable of the instance.
@@ -39,37 +59,69 @@
   - Remove obsolete mysql legacy ddl sql scripts.
   - Include generated mariadb.create.ddl.sql in sources.jar.
   - Added tests against Oracle now that there is a working docker image of Oracle XE
-  - Dependency updates
-    - apache cxf 3.5.5
-    - jackson 2.14.2
-    - javassit 3.29.2
-    - jodatime 2.12.2
-    - logback-classic 1.4.6
-    - slf4j 2.0.6
-  - `nflow-jetty`
-  - Dependency updates
-    - jetty 10.0.14
-- `nflow-netty`
-  - Dependency updates
-    - reactor-core 3.5.1
-    - reactor-netty 1.1.5
 - `nflow-rest-api`
-  - Dependency updates
-    - swagger 2.2.8
+  - POTENTIALLY BREAKING CHANGE: Remove `@Primary` annotation from `nflowRestObjectMapper` in `RestConfiguration` to allow overriding default mapper. Spring Boot applications may need to define the mapper explicitly now.
 - `nflow-metrics`
   - export the nflow.database.type as a metric
-  - Dependency updates
-    - metrics 4.2.17
-- `nflow-tests`
-  - Dependency updates
-    - h2 2.1.214
-    - mariadb 3.1.2
-    - postgresql 42.5.4
-    - mssql 12.2.0
-    - ojdbc 21.9.0.0
+- `nflow-netty`
+  - POTENTIALLY BREAKING CHANGE: `Jackson2ObjectMapperBuilder` might need configuration for jodatime
+    - Spring Framework 6 doesn't have Joda time module in wellknown anymore, so might need to configure `findModulesViaServiceLoader` to enable it (or some other way)
 - `nflow-explorer-ng`
   - Improved formatting timestamps
   - Fix retry on endpoint change
+  - Fix querying with parent instance id
+  - Fix loading custom instance content for child workflow
+  - Fix state variables showing false values
+- Dependency updates
+  - Guice 7.0.0
+  - Jersey 3.1.3
+  - Jetty 11.0.15
+  - Apache CFX 4.0.2
+  - Dropwizard metrics 4.2.19
+  - Hibernate validator 8.0.1.Final
+  - Annotation API to jakarta version 2.1.1
+  - Servlet API to jakarta version 6.0.0
+  - Glassfish EL to jakarta version 4.0.2
+  - Inject API to jakarta version 2.0.1
+  - Jaxb API to jakarta bind-api 4.0.0
+  - WS RS API to jakarta 3.1.0
+  - javassit 3.29.2
+  - logback-classic 1.4.6
+  - Commons lang3 3.13.0
+  - H2 2.2.220
+  - Jackson 2.15.2
+  - Joda-time 2.12.5
+  - Junit5 5.10.0
+  - MariaDB 3.1.2
+  - Mockito 5.4.0
+  - MSSQL 12.4.0-jre11
+  - MySQL 8.1.0
+  - OJDBC 23.2.0.0
+  - PostgreSQL 42.6.0
+  - Reactor core 3.5.9
+  - Reactor netty 1.1.10
+  - SLF4J 2.0.7
+  - Swagger 2.2.15
+- Maven build plugin updates
+  - Assembly plugin 3.6.0
+  - Clean plugin 3.3.1
+  - Deploy plugin 3.1.1
+  - Download plugin 1.7.1
+  - Enforcer plugin 3.3.0
+  - Frontend plugin 1.13.4
+  - GPG plugin 3.1.0
+  - Install plugin 3.1.1
+  - Jacoco plugin 0.8.10
+  - PMD plugin 3.21.0
+  - Project info plugin 3.4.5
+  - Release plugin 3.0.1
+  - Resources plugin 3.3.1
+  - Shade plugin 3.5.0
+  - Site plugin 4.0.0-M9
+  - Source plugin 3.3.0
+  - Surefire plugin 3.1.2
+  - Spotbugs plugin 4.7.3.5
+  - Versions plugin 2.16.0
 
 ## 8.0.0 (2022-06-09)
 
@@ -100,7 +152,8 @@
 - `nflow-engine`
   - All workflow definitions should now extend the new `WorkflowDefinition` class.
     - Workflow state type does not need to be defined as a generic type parameter anymore. The states can now be any classes that implement `WorkflowState`.
-    - It is not recommended to define the workflow states as an enum anymore. This makes extending workflows definition classes and reusing states across different workflows easier.
+    - POTENTIALLY BREAKING CHANGE: It is not recommended to define the workflow states as an enum anymore. This makes extending workflows definition classes and reusing states across different workflows easier.
+      - All enum states might not be registered anymore
     - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `WorkflowState` interface.
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.WorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
@@ -323,7 +376,7 @@
 
 - `nflow-engine`
   - Fix SQL performance / memory issue when getting single workflow instance with action state variables, when the instance has lots of actions with lots of state variables. The old code fetched all state variables of all actions of the instance, the new code only fetches the state variables for the actions that will be returned.
-  - Fix instantiation of @StateVar(instantiateIfNotExists=true) Mutable<Type> - the result was incorrectly a Mutable wrapped in Mutable.
+  - Fix instantiation of `@StateVar(instantiateIfNotExists=true) Mutable<Type>` - the result was incorrectly a Mutable wrapped in Mutable.
   - Fix potential resource leaks
   - Dependency updates:
     - spring 5.2.8

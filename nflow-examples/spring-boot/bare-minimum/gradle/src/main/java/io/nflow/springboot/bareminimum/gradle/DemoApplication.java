@@ -1,6 +1,6 @@
 package io.nflow.springboot.bareminimum.gradle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

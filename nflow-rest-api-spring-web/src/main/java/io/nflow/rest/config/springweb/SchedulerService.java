@@ -8,7 +8,7 @@ import static reactor.core.scheduler.Schedulers.fromExecutor;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;

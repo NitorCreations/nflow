@@ -16,7 +16,7 @@ import static org.joda.time.DateTime.now;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;

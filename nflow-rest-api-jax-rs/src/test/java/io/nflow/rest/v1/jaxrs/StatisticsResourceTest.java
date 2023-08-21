@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ public class StatisticsResourceTest {
     when(service.getStatistics()).thenReturn(stats);
     when(converter.convert(stats)).thenReturn(expected);
     try (Response response = resource.queryStatistics()) {
-      StatisticsResponse statistics = response.readEntity(StatisticsResponse.class);
+      StatisticsResponse statistics = (StatisticsResponse) response.getEntity();
       verify(service).getStatistics();
       assertThat(statistics, is(statistics));
     }
@@ -64,7 +64,7 @@ public class StatisticsResourceTest {
     when(converter.convert(statsMap)).thenReturn(new WorkflowDefinitionStatisticsResponse());
 
     try (Response response = resource.getStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore)) {
-      WorkflowDefinitionStatisticsResponse statistics = response.readEntity(WorkflowDefinitionStatisticsResponse.class);
+      WorkflowDefinitionStatisticsResponse statistics = (WorkflowDefinitionStatisticsResponse) response.getEntity();
       verify(service).getWorkflowDefinitionStatistics("dummy", createdAfter, createdBefore, modifiedAfter, modifiedBefore);
       assertThat(statistics.stateStatistics.size(), is(0));
     }

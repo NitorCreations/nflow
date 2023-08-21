@@ -210,38 +210,28 @@ function WorkflowInstanceDetailsPage() {
       getWorkflowInstance(config, id),
       listChildWorkflowInstances(config, id)
     ]).then(([instance, childInstances]) => {
-      if (instance.parentWorkflowId) {
-        return Promise.all([
-          getWorkflowInstance(config, instance.parentWorkflowId),
-          getWorkflowDefinition(config, instance.type)
-        ]).then(([parent, definition]) => {
-          setDefinition(definition);
-          setParentInstance(parent);
-          setInstance(instance);
-          setChildInstances(childInstances);
+      return Promise.all([
+        instance.parentWorkflowId
+          ? getWorkflowInstance(config, instance.parentWorkflowId)
+          : Promise.resolve(undefined),
+        getWorkflowDefinition(config, instance.type)
+      ]).then(([parent, definition]) => {
+        setDefinition(definition);
+        setParentInstance(parent);
+        setInstance(instance);
+        setChildInstances(childInstances);
+        return Promise.resolve(
+          config.customInstanceContent &&
+            config.customInstanceContent(
+              definition,
+              instance,
+              parent,
+              childInstances
+            )
+        ).then(content => {
+          setExternalContent(content);
         });
-      }
-      return getWorkflowDefinition(config, instance.type)
-        .then(definition => {
-          setDefinition(definition);
-          setParentInstance(undefined);
-          setInstance(instance);
-          setChildInstances(childInstances);
-          return definition;
-        })
-        .then(definition =>
-          Promise.resolve(
-            config.customInstanceContent &&
-              config.customInstanceContent(
-                definition,
-                instance,
-                undefined,
-                childInstances
-              )
-          ).then(content => {
-            setExternalContent(content);
-          })
-        );
+      });
     });
   }, [config, id]);
 

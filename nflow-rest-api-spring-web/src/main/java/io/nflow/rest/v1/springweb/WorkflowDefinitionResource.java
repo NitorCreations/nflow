@@ -8,7 +8,7 @@ import static org.springframework.http.ResponseEntity.ok;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

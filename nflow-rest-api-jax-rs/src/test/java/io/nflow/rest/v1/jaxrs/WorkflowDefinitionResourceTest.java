@@ -19,8 +19,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,9 +116,10 @@ public class WorkflowDefinitionResourceTest {
     assertThat(ret, hasItems(storedResponseNew));
   }
 
+  @SuppressWarnings("unchecked")
   private List<ListWorkflowDefinitionResponse> getDefinitionListType(List<String> list) {
     try (Response r = resource.listWorkflowDefinitions(list)) {
-      return r.readEntity(definitionListType);
+      return (List<ListWorkflowDefinitionResponse>) r.getEntity();
     }
   }
 }

@@ -50,7 +50,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;

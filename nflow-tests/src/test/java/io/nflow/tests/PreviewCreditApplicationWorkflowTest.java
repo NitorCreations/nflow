@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status.Family;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;

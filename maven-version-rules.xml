@@ -18,14 +18,19 @@
                 <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
             </ignoreVersions>
         </rule>
-        <rule groupId="javax.xml.bind">
+        <rule groupId="jakarta.xml.bind">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*-b[0-9]+.*</ignoreVersion>
             </ignoreVersions>
         </rule>
-        <rule groupId="org.glassfish" artifactId="javax.el">
+        <rule groupId="jakarta.inject" artifactId="jakarta.inject-api">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*-b[0-9]+.*</ignoreVersion>
+                <ignoreVersion type="regex">.*\.(MR|RC[0-9]+).*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.glassfish" artifactId="jakarta.el">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*-M[0-9]+.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.postgresql">
@@ -36,26 +41,11 @@
         <rule groupId="org.hibernate.validator">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*(Alpha|CR).*</ignoreVersion>
-                <!-- newer hibernate work on jakarta instead of javax -->
-                <ignoreVersion type="regex">^[7-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.apache.cxf">
-            <ignoreVersions>
-                <!-- apache cxf moves from javax.servlet-api to jakarta.servlet-api, requires spring 6.x -->
-                <ignoreVersion type="regex">^4.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="io.swagger">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*rc.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <rule groupId="org.eclipse.jetty">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*(alpha|beta).*</ignoreVersion>
-                <!-- jetty 11 moves from javax.servlet-api to jakarta.servlet-api, requires spring 6.x -->
-                <ignoreVersion type="regex">^1[1-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="ch.qos.logback">

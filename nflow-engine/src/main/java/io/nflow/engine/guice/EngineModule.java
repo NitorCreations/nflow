@@ -6,7 +6,7 @@ import static com.google.inject.matcher.Matchers.any;
 import java.sql.SQLException;
 import java.util.concurrent.ThreadFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
 import org.h2.tools.Server;

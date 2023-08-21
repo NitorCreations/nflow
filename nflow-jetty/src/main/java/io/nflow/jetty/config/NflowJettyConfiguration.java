@@ -7,12 +7,13 @@ import static java.util.Collections.singletonList;
 
 import java.util.Arrays;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import javax.sql.DataSource;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.ext.RuntimeDelegate;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
@@ -33,8 +34,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-
 import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
