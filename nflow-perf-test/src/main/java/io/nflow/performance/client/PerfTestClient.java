@@ -3,8 +3,8 @@ package io.nflow.performance.client;
 import static java.util.UUID.randomUUID;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 

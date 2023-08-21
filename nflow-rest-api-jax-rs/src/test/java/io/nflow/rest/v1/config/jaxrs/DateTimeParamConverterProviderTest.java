@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ext.ParamConverter;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ext.ParamConverter;
 
 import org.hamcrest.CoreMatchers;
 import org.joda.time.DateTime;

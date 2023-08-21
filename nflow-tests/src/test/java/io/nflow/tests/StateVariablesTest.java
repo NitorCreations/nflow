@@ -6,8 +6,8 @@ import static io.nflow.tests.demo.workflow.StateWorkflow.STATE_WORKFLOW_TYPE;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static java.util.UUID.randomUUID;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;

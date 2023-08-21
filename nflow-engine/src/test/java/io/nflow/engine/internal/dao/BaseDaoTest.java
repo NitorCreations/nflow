@@ -5,7 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.joda.time.DateTime.now;
 import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;

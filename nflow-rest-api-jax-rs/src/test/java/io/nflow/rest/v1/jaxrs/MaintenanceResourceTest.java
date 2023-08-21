@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.joda.time.ReadablePeriod;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ public class MaintenanceResourceTest {
     request.deleteWorkflows.batchSize = batchSize * 3;
 
     try (Response response = resource.cleanupWorkflows(request)) {
-      MaintenanceResponse maintenanceResponse = response.readEntity(MaintenanceResponse.class);
+      MaintenanceResponse maintenanceResponse = (MaintenanceResponse) response.getEntity();
 
       verify(service).cleanupWorkflows(configCaptor.capture());
       MaintenanceConfiguration configuration = configCaptor.getValue();

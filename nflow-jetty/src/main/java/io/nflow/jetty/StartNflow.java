@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import io.dropwizard.metrics.servlets.AdminServlet;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.jmx.MBeanContainer;
@@ -51,7 +52,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.ContextLoaderListener;
 
-import com.codahale.metrics.servlets.AdminServlet;
 import com.nitorcreations.core.utils.KillProcess;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

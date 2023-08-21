@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class WorkflowExecutorResourceTest {
   @Test
   public void listWorkflowExecutorsReturnsExistingExecutors() {
     try (Response listWorkflowExecutors = resource.listWorkflowExecutors()) {
-      assertThat(listWorkflowExecutors.readEntity(List.class).size(), is(1));
+      assertThat(((List<?>) listWorkflowExecutors.getEntity()).size(), is(1));
     }
   }
 }

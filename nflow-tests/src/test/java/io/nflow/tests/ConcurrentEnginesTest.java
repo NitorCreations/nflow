@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.core.UriBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;

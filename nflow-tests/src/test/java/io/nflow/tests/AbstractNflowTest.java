@@ -9,7 +9,7 @@ import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import java.time.Duration;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.core.UriBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.cxf.jaxrs.client.WebClient;

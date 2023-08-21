@@ -3,10 +3,10 @@ package io.nflow.performance.client;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static java.util.Collections.singletonList;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.ext.logging.LoggingFeature;

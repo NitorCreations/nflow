@@ -5,7 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Component;
 

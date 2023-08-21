@@ -1,12 +1,12 @@
 package io.nflow.rest.v1.jaxrs;
 
-import static javax.ws.rs.core.Response.ok;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.ok;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ public class JaxRsResourceTest {
   public void handleExceptionsReturnsResponseWhenSuccessful() {
     try (Response response = resource.handleExceptions(() -> ok("ok"))) {
       assertThat(response.getStatus(), is(OK.getStatusCode()));
-      assertThat(response.readEntity(String.class), is("ok"));
+      assertThat(response.getEntity(), is("ok"));
     }
   }
 
@@ -30,7 +30,7 @@ public class JaxRsResourceTest {
       throw new RuntimeException("error");
     })) {
       assertThat(response.getStatus(), is(INTERNAL_SERVER_ERROR.getStatusCode()));
-      assertThat(response.readEntity(ErrorResponse.class).error, is("error"));
+      assertThat(((ErrorResponse) response.getEntity()).error, is("error"));
     }
   }
 

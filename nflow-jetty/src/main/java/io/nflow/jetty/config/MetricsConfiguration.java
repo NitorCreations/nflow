@@ -4,7 +4,7 @@ import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
 import static java.lang.management.ManagementFactory.getThreadMXBean;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

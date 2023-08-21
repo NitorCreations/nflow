@@ -3,8 +3,8 @@ package io.nflow.rest.v1.jaxrs;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
 import static java.util.Collections.emptySet;
 import static java.util.EnumSet.allOf;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.CREATED;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -306,7 +306,7 @@ public class WorkflowInstanceResourceTest {
         .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
     try (Response response = resource.fetchWorkflowInstance(42, null, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
-      assertThat(response.readEntity(ErrorResponse.class).error, is(equalTo("Workflow instance 42 not found")));
+      assertThat(((ErrorResponse) response.getEntity()).error, is(equalTo("Workflow instance 42 not found")));
     }
   }
 
@@ -317,8 +317,8 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, null, false),
-        ListWorkflowInstanceResponse.class);
+    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, null, false)
+    );
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
   }
@@ -332,8 +332,8 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
-        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), null, 10L, false),
-        ListWorkflowInstanceResponse.class);
+        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), null, 10L, false)
+    );
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
   }
@@ -345,7 +345,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange)).thenReturn(true);
 
-    SetSignalResponse response = getEntity(() -> resource.setSignal(99, req), SetSignalResponse.class);
+    SetSignalResponse response = getEntity(() -> resource.setSignal(99, req));
 
     verify(workflowInstances).setSignal(99, Optional.of(42), "testing", WorkflowActionType.externalChange);
     assertTrue(response.setSignalSuccess);
@@ -358,7 +358,7 @@ public class WorkflowInstanceResourceTest {
     req.reason = "testing";
     when(workflowInstances.setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange)).thenReturn(false);
 
-    SetSignalResponse response = getEntity(() -> resource.setSignal(99, req), SetSignalResponse.class);
+    SetSignalResponse response = getEntity(() -> resource.setSignal(99, req));
 
     verify(workflowInstances).setSignal(99, Optional.empty(), "testing", WorkflowActionType.externalChange);
     assertFalse(response.setSignalSuccess);
@@ -370,9 +370,10 @@ public class WorkflowInstanceResourceTest {
     }
   }
 
-  private <T> T getEntity(Supplier<Response> supplier, Class<T> entityClass) {
+  @SuppressWarnings("unchecked")
+  private <T> T getEntity(Supplier<Response> supplier) {
     try (Response r = supplier.get()) {
-      return r.readEntity(entityClass);
+      return (T) r.getEntity();
     }
   }
 }

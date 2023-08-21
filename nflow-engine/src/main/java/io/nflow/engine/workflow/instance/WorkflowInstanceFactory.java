@@ -1,6 +1,6 @@
 package io.nflow.engine.workflow.instance;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Component;
 

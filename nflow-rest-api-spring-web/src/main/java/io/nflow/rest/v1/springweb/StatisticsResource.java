@@ -5,7 +5,7 @@ import static io.nflow.rest.v1.ResourcePaths.NFLOW_STATISTICS_PATH;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.springframework.http.ResponseEntity;

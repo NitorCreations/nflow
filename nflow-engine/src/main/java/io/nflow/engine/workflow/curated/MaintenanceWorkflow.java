@@ -2,7 +2,7 @@ package io.nflow.engine.workflow.curated;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
