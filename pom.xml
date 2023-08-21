@@ -121,7 +121,7 @@
     <coveralls.version>4.3.0</coveralls.version>
     <db2-jcc.version>11.5.8.0</db2-jcc.version>
     <el.version>4.0.2</el.version>
-    <frontend-maven.version>1.12.1</frontend-maven.version>
+    <frontend-maven.version>1.13.4</frontend-maven.version>
     <guice.version>7.0.0</guice.version>
     <h2.version>2.2.220</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
@@ -143,7 +143,7 @@
     <junit-platform.version>1.10.0</junit-platform.version>
     <logback-classic.version>1.4.11</logback-classic.version>
     <mariadb.version>3.1.4</mariadb.version>
-    <maven-assembly.version>3.5.0</maven-assembly.version>
+    <maven-assembly.version>3.6.0</maven-assembly.version>
     <maven-clean.version>3.3.1</maven-clean.version>
     <maven-compiler.version>3.11.0</maven-compiler.version>
     <maven-deploy.version>3.1.1</maven-deploy.version>
@@ -165,7 +165,7 @@
     <maven-source.version>3.3.0</maven-source.version>
     <maven-surefire.version>3.1.2</maven-surefire.version>
     <metrics.version>4.2.19</metrics.version>
-    <mockito.version>5.2.0</mockito.version>
+    <mockito.version>5.4.0</mockito.version>
     <mssql.version>12.4.0.jre11</mssql.version>
     <mysql.version>8.1.0</mysql.version>
     <nexus-staging-maven.version>1.6.13</nexus-staging-maven.version>
