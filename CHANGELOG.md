@@ -93,6 +93,7 @@
   - Joda-time 2.12.5
   - Junit5 5.10.0
   - MariaDB 3.1.2
+  - Mockito 5.4.0
   - MSSQL 12.4.0-jre11
   - MySQL 8.1.0
   - OJDBC 23.2.0.0
@@ -102,10 +103,12 @@
   - SLF4J 2.0.7
   - Swagger 2.2.15
 - Maven build plugin updates
+  - Assembly plugin 3.6.0
   - Clean plugin 3.3.1
   - Deploy plugin 3.1.1
   - Download plugin 1.7.1
   - Enforcer plugin 3.3.0
+  - Frontend plugin 1.13.4
   - GPG plugin 3.1.0
   - Install plugin 3.1.1
   - Jacoco plugin 0.8.10
