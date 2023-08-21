@@ -74,7 +74,7 @@ function ObjectTable(props: {
         <TableBody>
           {props.columns.map(
             (column, index) =>
-              props.object[column.field] && (
+              column.field in props.object && (
                 <TableRow key={index}>
                   <TableCell>{column.headerName}</TableCell>
                   <BodyCell
