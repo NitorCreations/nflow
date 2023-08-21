@@ -60,7 +60,7 @@
   - Include generated mariadb.create.ddl.sql in sources.jar.
   - Added tests against Oracle now that there is a working docker image of Oracle XE
 - `nflow-rest-api`
-  - Remove `@Primary` annotation from `nflowRestObjectMapper` in `RestConfiguration` to allow overriding default mapper. Spring Boot applications may need to define the mapper explicitly now.
+  - POTENTIALLY BREAKING CHANGE: Remove `@Primary` annotation from `nflowRestObjectMapper` in `RestConfiguration` to allow overriding default mapper. Spring Boot applications may need to define the mapper explicitly now.
 - `nflow-metrics`
   - export the nflow.database.type as a metric
 - `nflow-netty`
@@ -149,7 +149,8 @@
 - `nflow-engine`
   - All workflow definitions should now extend the new `WorkflowDefinition` class.
     - Workflow state type does not need to be defined as a generic type parameter anymore. The states can now be any classes that implement `WorkflowState`.
-    - It is not recommended to define the workflow states as an enum anymore. This makes extending workflows definition classes and reusing states across different workflows easier.
+    - POTENTIALLY BREAKING CHANGE: It is not recommended to define the workflow states as an enum anymore. This makes extending workflows definition classes and reusing states across different workflows easier.
+      - All enum states might not be registered anymore
     - You can define the states as instances of `io.nflow.engine.workflow.curated.State` or anything else that implements the required `WorkflowState` interface.
     - The workflow definitions must now register all possible states as described in `io.nflow.engine.workflow.definition.WorkflowDefinition`.
   - `WorkflowState.isRetryAllowed` was removed. If it was overridden, you can use `new WorkflowSettings.Builder().setExceptionAnalyzer(...)` to change the behavior. The default behavior was not changed.
