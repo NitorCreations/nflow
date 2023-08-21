@@ -1,8 +1,8 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import App from "./App";
+import React from 'react';
+import {render, screen} from '@testing-library/react';
+import App from './App';
 
-test("renders navi", () => {
+test('renders navi', () => {
   render(<App />);
   const logoElement = screen.getByAltText(/nFlow-logo/i);
   expect(logoElement).toBeInTheDocument();

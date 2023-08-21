@@ -37,7 +37,7 @@ jobs:
         with:
           check_name: 'Unit Test Report for Java ${{ matrix.java }}'
 
-  build-and-test-nflow-explorer-ng:
+  build-and-test-nflow-explorer:
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +50,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run build and unit tests
-        run: mvn -T1C --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-explorer-ng test
+        run: mvn -T1C --no-transfer-progress --color=always -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-explorer test
 
   javadoc-spotbugs-codeql:
     runs-on: ubuntu-latest

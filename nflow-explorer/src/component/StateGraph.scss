@@ -1,0 +1,187 @@
+/* This sets the color for "TK" nodes to a light blue green. */
+.graph-background {
+  fill: white;
+  pointer-events: all;
+}
+
+/**
+  Node styles
+  -----------
+  Generated svg looks like this
+  
+  
+  <g class="node-normal"  transform="translate(...)">
+    <rect><!--this is background for node--></rect>
+    <g transform="translate(-100,-9.5)">
+      <text text-anchor="left">
+       <tspan dy="1em" x="1"><!-- node text goes here --></tspan>
+      </text>
+    </g>
+    <title><!-- tooltip goes here --></title>
+  </g>
+  */
+
+.node rect {
+  stroke: #333;
+  fill: white;
+  stroke-width: 1.5px;
+}
+
+/* changing font or font size may require code changes to have right size boxes */
+.node-normal,
+.node-manual,
+.node-start,
+.node-end,
+.node-error,
+.node-wait {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  fill: black;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.node-start > rect,
+.node-manual > rect,
+.node-normal > rect,
+.node-end > rect,
+.node-error > rect,
+.node-wait > rect {
+  stroke-width: 1.5px;
+  stroke: black;
+  fill: white;
+}
+
+.node-start > rect {
+  fill: LightBlue;
+}
+
+.node-manual > rect {
+  fill: yellow;
+}
+
+.node-error > rect {
+  fill: pink;
+}
+
+.node-end > rect {
+  fill: LightGreen;
+}
+
+.node-wait > rect {
+  fill: LightSkyBlue;
+}
+
+.node-normal.selected > rect,
+.node-manual.selected > rect,
+.node-error.selected > rect,
+.node-start.selected > rect,
+.node-end.selected > rect,
+.node-wait.selected > rect {
+  stroke-width: 3px;
+}
+
+.node-passive {
+  fill: gray;
+}
+
+.node-passive > rect {
+  stroke: gray;
+}
+
+/**
+  Edge styles
+  ------------
+  Basic edge types are
+  - normal: normal transition
+  - error: error transition via global error handler state
+  - failure: error transition via per state error handler state
+  - unexpected: any transition not part of workflow definition. Unexpected is always active.
+  
+  Edges may be one of:
+  - <none>: with workflow definition
+  - passive: when transition has not been used by workflow instance
+  - active: when transition has been used by workflow instance
+  
+  Edge may be also be selected.
+  
+  So error edge, that has not been used and is selected is indicated like this
+  
+  class="edge-error edge-passive selected"
+  
+  If you need new colors for arrowheads see graph.js, addArrowheadMarker()
+  */
+.edge-normal,
+.edge-error,
+.edge-failure {
+  stroke-width: 1px;
+  stroke: black;
+}
+
+.edge-unexpected {
+  stroke: red;
+}
+
+.edge-error,
+.edge-failure {
+  stroke: black;
+  stroke-dasharray: 5, 5;
+}
+
+.edge-normal.active,
+.edge-error.active,
+.edge-failure.active .edge-unexpected {
+  stroke-width: 2px;
+}
+
+.edge-normal.selected,
+.edge-error.selected,
+.edge-failure.selected,
+.edge-unexpected.selected {
+  stroke-width: 2px;
+}
+
+.edge-normal.active.selected,
+.edge-error.active.selected,
+.edge-failure.active.selected,
+.edge-unexpected.selected {
+  stroke-width: 3px;
+}
+
+.arrowhead-normal {
+  fill: black;
+}
+
+.arrowhead-unexpected {
+  fill: red;
+}
+
+/* retries */
+.retry-indicator {
+  fill: orange;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+/* */
+g.current-state > g > g > text {
+  text-decoration: underline;
+}
+
+/*
+  dagre-d3 hard-codes nodes to have class 'label', which makes style definitions from bootstrap-sass to leak to the graph.
+  Resetting the leaked styles here.
+  */
+.label {
+  font-size: 100%;
+  font-weight: normal;
+}
+
+/*****************/
+.svg-container {
+  margin: 10px;
+}
+
+.svg-content-responsive {
+  width: 100%;
+}
