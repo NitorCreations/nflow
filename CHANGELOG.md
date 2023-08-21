@@ -60,7 +60,7 @@
   - Include generated mariadb.create.ddl.sql in sources.jar.
   - Added tests against Oracle now that there is a working docker image of Oracle XE
 - `nflow-rest-api`
-  - Remove `@Primary` annotation from `nflowRestObjectMapper` in `RestConfiguration` to allow overriding default mapper. Spring Boot applications may need to define the mapper explicitly now.
+  - POTENTIALLY BREAKING CHANGE: Remove `@Primary` annotation from `nflowRestObjectMapper` in `RestConfiguration` to allow overriding default mapper. Spring Boot applications may need to define the mapper explicitly now.
 - `nflow-metrics`
   - export the nflow.database.type as a metric
 - `nflow-netty`
