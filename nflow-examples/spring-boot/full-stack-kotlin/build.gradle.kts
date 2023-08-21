@@ -46,7 +46,7 @@ dependencies {
     implementation(logback("logback-classic"))
     implementation(nflow("nflow-rest-api-spring-web"))
 
-    runtimeOnly("com.h2database:h2:2.1.212")
+    runtimeOnly("com.h2database:h2:2.2.220")
 
     testImplementation(kotlin("test"))
     testImplementation(springBoot("test"))
