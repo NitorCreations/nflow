@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 import javax.sql.DataSource;
 
+import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -53,7 +54,7 @@ public class DaoTestConfiguration {
   @Bean
   public WorkflowDefinitionDao workflowDefinitionDao(SQLVariants sqlVariants,
                                                      @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                                                     @NFlow ObjectMapper nflowObjectMapper,
+                                                     @NFlow EngineObjectMapperSupplier nflowObjectMapper,
                                                      ExecutorDao executorDao) {
     return new WorkflowDefinitionDao(sqlVariants,
             nflowNamedParameterJdbcTemplate,
@@ -94,11 +95,11 @@ public class DaoTestConfiguration {
 
   @Bean
   @NFlow
-  public ObjectMapper objectMapper() {
+  public EngineObjectMapperSupplier objectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
-    return mapper;
+    return () -> mapper;
   }
 
   @Bean

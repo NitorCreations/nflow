@@ -20,7 +20,7 @@ import io.nflow.engine.workflow.definition.StateExecution;
 @ExtendWith(MockitoExtension.class)
 class ObjectStringMapperTest {
 
-  private final ObjectStringMapper mapper = new ObjectStringMapper(new ObjectMapper());
+  private final ObjectStringMapper mapper = new ObjectStringMapper(ObjectMapper::new);
 
   @Mock
   StateExecution execution;

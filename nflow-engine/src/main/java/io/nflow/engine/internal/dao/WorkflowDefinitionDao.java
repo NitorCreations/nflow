@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
@@ -52,11 +53,11 @@ public class WorkflowDefinitionDao {
   @Inject
   public WorkflowDefinitionDao(SQLVariants sqlVariants,
                                @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                               @NFlow ObjectMapper nflowObjectMapper,
+                               @NFlow EngineObjectMapperSupplier nflowObjectMapper,
                                ExecutorDao executorDao) {
     this.sqlVariants = sqlVariants;
     this.namedJdbc = nflowNamedParameterJdbcTemplate;
-    this.nflowObjectMapper = nflowObjectMapper;
+    this.nflowObjectMapper = nflowObjectMapper.get();
     this.executorInfo = executorDao;
   }
 

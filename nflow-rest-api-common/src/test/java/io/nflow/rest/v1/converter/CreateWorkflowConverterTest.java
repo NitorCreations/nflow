@@ -27,7 +27,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 public class CreateWorkflowConverterTest {
 
   @Spy
-  private final ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
+  private final ObjectStringMapper objectMapper = new ObjectStringMapper(ObjectMapper::new);
 
   private CreateWorkflowConverter converter;
 

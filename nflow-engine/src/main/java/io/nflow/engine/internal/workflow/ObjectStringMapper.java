@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
+import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Component;
@@ -24,8 +25,8 @@ public class ObjectStringMapper {
   private final ObjectMapper mapper;
 
   @Inject
-  public ObjectStringMapper(@NFlow ObjectMapper nflowObjectMapper) {
-    this.mapper = nflowObjectMapper;
+  public ObjectStringMapper(@NFlow EngineObjectMapperSupplier nflowObjectMapper) {
+    this.mapper = nflowObjectMapper.get();
   }
 
   @SuppressWarnings("unchecked")

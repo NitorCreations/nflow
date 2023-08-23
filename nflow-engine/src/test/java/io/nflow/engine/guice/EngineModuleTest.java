@@ -27,6 +27,7 @@ import com.google.inject.Key;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.nflow.engine.config.EngineConfiguration;
+import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
@@ -62,7 +63,7 @@ public class EngineModuleTest {
     assertThat(((CustomizableThreadFactory) factory).getThreadNamePrefix(), is("nflow-executor-"));
     assertThat(((CustomizableThreadFactory) factory).getThreadGroup().getName(), is("nflow"));
 
-    ObjectMapper mapper = injector.getInstance(Key.get(ObjectMapper.class, NFlow.class));
+    ObjectMapper mapper = injector.getInstance(Key.get(EngineObjectMapperSupplier.class, NFlow.class)).get();
     assertThat(mapper.canSerialize(DateTime.class), is(true));
     assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
         is(JsonInclude.Include.NON_EMPTY));

@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Runtime.getRuntime;
 
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Supplier;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,6 +26,8 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 @Configuration
 @ComponentScan("io.nflow.engine")
 public class EngineConfiguration {
+
+  public interface EngineObjectMapperSupplier extends Supplier<ObjectMapper> {}
 
   /**
    * Creates a workflow instance executor for processing workflow instances.
@@ -62,11 +65,11 @@ public class EngineConfiguration {
    */
   @Bean
   @NFlow
-  public ObjectMapper nflowObjectMapper() {
+  public EngineObjectMapperSupplier nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
-    return mapper;
+    return () -> mapper;
   }
 
   /**

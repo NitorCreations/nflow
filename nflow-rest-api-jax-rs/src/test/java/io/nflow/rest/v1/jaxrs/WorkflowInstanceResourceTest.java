@@ -95,7 +95,7 @@ public class WorkflowInstanceResourceTest {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory, workflowInstanceDao);
     lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
-        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(new ObjectMapper())));
+        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(ObjectMapper::new)));
   }
 
   @Test
