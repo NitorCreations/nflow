@@ -176,7 +176,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Captor
   ArgumentCaptor<List<WorkflowInstance>> workflows;
 
-  ObjectStringMapper objectMapper = new ObjectStringMapper(new ObjectMapper());
+  ObjectStringMapper objectMapper = new ObjectStringMapper(ObjectMapper::new);
 
   WorkflowStateProcessor executor;
 
