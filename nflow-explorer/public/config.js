@@ -12,7 +12,7 @@ var Config = new function() {
   this.refreshSeconds = 60;
 
   /**
-   * Defines nFlow API REST API endpoints that Explorer will use. If there's more than >1 endpoints defined,
+   * Defines nFlow API REST API endpoints that Explorer will use. If there's more than one endpoint defined,
    * the navigation bar will display a dropdown for endpoint selection and the first defined endpoint
    * is selected by default.
    * 
@@ -23,12 +23,6 @@ var Config = new function() {
    * - docUrl: Swagger UI URL for nFlow REST API (optional)
    */
   this.nflowEndpoints = [
-    {
-      id: 'nbank',
-      title: 'nBank at nflow.io',
-      apiUrl: 'https://bank.nflow.io/nflow/api',
-      docUrl: 'https://bank.nflow.io/nflow/ui/doc/'
-    },
     {
       id: 'localhost',
       title: 'local nflow instance',
