@@ -31,6 +31,8 @@
   - export the nflow.database.type as a metric
 - `nflow-netty`
   - POTENTIALLY BREAKING CHANGE: Netty configuration might need `Jackson2ObjectMapperBuilder` to have `findModulesViaServiceLoader` enabled as joda time module is not in wellknown modules anymore
+- `nflow-explorer`
+  - POTENTIALLY BREAKING CHANGE: old `nflow-explorer` was removed and `nflow-explorer-ng` was renamed to `nflow-explorer`
 
 **Details**
 
@@ -66,7 +68,8 @@
 - `nflow-netty`
   - POTENTIALLY BREAKING CHANGE: `Jackson2ObjectMapperBuilder` might need configuration for jodatime
     - Spring Framework 6 doesn't have Joda time module in wellknown anymore, so might need to configure `findModulesViaServiceLoader` to enable it (or some other way)
-- `nflow-explorer-ng`
+- `nflow-explorer`
+  - POTENTIALLY BREAKING CHANGE: old `nflow-explorer` was removed and `nflow-explorer-ng` was renamed to `nflow-explorer`
   - Improved formatting timestamps
   - Fix retry on endpoint change
   - Fix querying with parent instance id

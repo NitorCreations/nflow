@@ -74,7 +74,7 @@
               <overwrite>false</overwrite>
               <resources>
                 <resource>
-                  <directory>${project.basedir}/../nflow-explorer-ng/build</directory>
+                  <directory>${project.basedir}/../nflow-explorer/build</directory>
                   <filtering>false</filtering>
                   <excludes>
                     <exclude>config.js</exclude>

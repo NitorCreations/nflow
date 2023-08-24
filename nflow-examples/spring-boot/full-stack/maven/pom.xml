@@ -64,7 +64,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>io.nflow</groupId>
-									<artifactId>nflow-explorer-ng</artifactId>
+									<artifactId>nflow-explorer</artifactId>
 									<version>9.0.0-SNAPSHOT</version>
 									<type>tar.gz</type>
 									<overWrite>true</overWrite>

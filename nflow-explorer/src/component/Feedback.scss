@@ -1,0 +1,17 @@
+.feedback {
+  padding: 8px;
+  border-width: 1px;
+  color: white;
+}
+
+.feedback.info {
+  background-color: blue;
+}
+
+.feedback.error {
+  background-color: #d11;
+}
+
+.feedback.success {
+  background-color: green;
+}
