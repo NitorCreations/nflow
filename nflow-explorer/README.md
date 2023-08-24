@@ -1,6 +1,6 @@
-# nFlow Explorer NG
+# nFlow Explorer
 
-The next generation User Interface for [nFlow](https://github.com/NitorCreations/nflow).
+The User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 
 ## Screenshots
 
