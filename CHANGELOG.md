@@ -1,4 +1,10 @@
-## 9.0.0-SNAPSHOT (future release)
+## 9.0.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 9.0.0 (2023-08-30)
 
 **Highlights**
 
