@@ -137,7 +137,7 @@
 **Highlights**
 
 - Add support for Java 17.
-- Add new user interface `nflow-explorer-ng` deprecating `nflow-explorer` see [migration instructions](https://github.com/NitorCreations/nflow/wiki/Migration-from-Explorer-to-Explorer-NG)
+- Add new user interface `nflow-explorer-ng` deprecating `nflow-explorer` see [migration instructions](https://github.com/NitorCreations/nflow/wiki/Migration-from-legacy-Explorer-to-next-generation-Explorer)
   - implemented using modern Javascript libraries (e.g. ReactJS instead of AngularJS)
   - only minor changes changes to functionality (e.g. create workflow instance added, much improved workflow instance search, removed radiator graph)
 - BREAKING CHANGE: Remove support for Java 8.
