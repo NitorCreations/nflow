@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
-      DB_VERSION: ${{ matrix.java == 11 && 'old' || 'latest' }}
+      DB_VERSION: ${{ matrix.java == 17 && 'old' || 'latest' }}
     steps:
       - name: Check out
         uses: actions/checkout@v3
