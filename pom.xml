@@ -140,7 +140,7 @@
     <jodatime.version>2.12.5</jodatime.version>
     <junit5.version>5.10.0</junit5.version>
     <junit-platform.version>1.10.0</junit-platform.version>
-    <logback-classic.version>1.4.11</logback-classic.version>
+    <logback-classic.version>1.4.12</logback-classic.version>
     <mariadb.version>3.1.4</mariadb.version>
     <maven-assembly.version>3.6.0</maven-assembly.version>
     <maven-clean.version>3.3.1</maven-clean.version>
