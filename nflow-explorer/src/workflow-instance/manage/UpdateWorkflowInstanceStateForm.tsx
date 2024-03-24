@@ -26,7 +26,10 @@ const UpdateWorkflowInstanceStateForm = function (props: {
       ),
       actionDescription: values.actionDescription
     }).then((reason: any) => {
-      if (reason.error) {
+      if (!reason.ok) {
+        setErrorMsg(`HTTP error! status: ${reason.status}`);
+        setConfirmationMsg('');
+      } else if (reason.error) {
         setErrorMsg(reason.error);
         setConfirmationMsg('');
       } else {
