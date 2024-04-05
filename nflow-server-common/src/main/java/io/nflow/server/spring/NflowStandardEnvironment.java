@@ -22,6 +22,7 @@ public class NflowStandardEnvironment extends StandardEnvironment {
 
   @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
       justification = "addExternalPropertyResource and setupDbProfile are private")
+  @SuppressWarnings("this-escape")
   public NflowStandardEnvironment(Map<String, Object> overrideProperties) {
     getPropertySources().addFirst(new MapPropertySource("override", overrideProperties));
     addExternalPropertyResource();

@@ -37,6 +37,7 @@ public class WithdrawLoanWorkflow extends WorkflowDefinition {
   private static final WorkflowState DONE = new State("done", end, "Credit application has been completed.");
 
   @Inject
+  @SuppressWarnings("this-escape")
   public WithdrawLoanWorkflow() {
     super("withdrawLoan", CREATE_LOAN, MANUAL_PROCESSING);
     setName("Withdraw loan");

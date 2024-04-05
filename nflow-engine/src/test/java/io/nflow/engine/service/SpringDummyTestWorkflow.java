@@ -15,6 +15,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 @Profile("nflow-engine-test")
 public class SpringDummyTestWorkflow extends WorkflowDefinition {
 
+  @SuppressWarnings("this-escape")
   protected SpringDummyTestWorkflow() {
     super("springdummy", BEGIN, DONE);
     permit(BEGIN, DONE);

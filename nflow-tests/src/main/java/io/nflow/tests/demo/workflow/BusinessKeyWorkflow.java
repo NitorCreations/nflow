@@ -14,6 +14,7 @@ public class BusinessKeyWorkflow extends WorkflowDefinition {
 
   public static final String BUSINESS_KEY_WORKFLOW_TYPE = "businessKeyWorkflow";
 
+  @SuppressWarnings("this-escape")
   public BusinessKeyWorkflow() {
     super(BUSINESS_KEY_WORKFLOW_TYPE, TestState.BEGIN, TestState.ERROR);
     setDescription("Workflow that updates business key");

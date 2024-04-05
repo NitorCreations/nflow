@@ -20,6 +20,7 @@ public class ForeverWaitingWorkflow extends WorkflowDefinition {
 
   public static final String FOREVER_WAITING_WORKFLOW_TYPE = "foreverWaiting";
 
+  @SuppressWarnings("this-escape")
   public ForeverWaitingWorkflow() {
     super(FOREVER_WAITING_WORKFLOW_TYPE, BEGIN, ERROR);
     setDescription("Workflow that waits for a year in 'waiting' state");

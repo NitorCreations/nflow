@@ -1,5 +1,6 @@
 package io.nflow.rest.v1.msg;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static java.util.Collections.emptySet;
 
 import java.util.Set;
@@ -28,7 +29,7 @@ public class MaintenanceRequest extends ModelObject {
   public static class MaintenanceRequestItem extends ModelObject {
     @Schema(
         description = "Workflow instances whose modified time is older than given period will be processed. Supports ISO-8601 format.",
-        type = "string", format = "duration", example = "PT15D", required = true)
+        type = "string", format = "duration", example = "PT15D", requiredMode = REQUIRED)
     public ReadablePeriod olderThanPeriod;
 
     @Schema(description = "Number of workflows to process in a single transaction.", example = "1000", defaultValue = "1000",

@@ -204,7 +204,7 @@
             <parameters>true</parameters>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
-            <failOnWarning>false</failOnWarning>
+            <failOnWarning>true</failOnWarning>
           </configuration>
         </plugin>
         <plugin>

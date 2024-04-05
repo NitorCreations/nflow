@@ -36,6 +36,7 @@ public class FibonacciWorkflow extends WorkflowDefinition {
   private static final WorkflowState N_MINUS_1 = new State("nMinus1");
   private static final WorkflowState N_MINUS_2 = new State("nMinus2");
 
+  @SuppressWarnings("this-escape")
   public FibonacciWorkflow() {
     super(FIBONACCI_TYPE, BEGIN, ERROR);
     setDescription("Fibonacci series generator using recursive process. Each step is handled by a new child workflow.");

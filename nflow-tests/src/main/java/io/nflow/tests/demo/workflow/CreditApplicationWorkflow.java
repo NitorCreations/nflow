@@ -39,6 +39,7 @@ public class CreditApplicationWorkflow extends WorkflowDefinition {
   private static final WorkflowState DONE = new State("done", end, "Credit application process finished");
   private static final WorkflowState ERROR = new State("error", manual, "Manual processing of failed applications");
 
+  @SuppressWarnings("this-escape")
   public CreditApplicationWorkflow() {
     super("creditApplicationProcess", CREATE_CREDIT_APPLICATION, ERROR,
         new WorkflowSettings.Builder().setMinErrorTransitionDelay(ZERO).setMaxErrorTransitionDelay(ZERO)

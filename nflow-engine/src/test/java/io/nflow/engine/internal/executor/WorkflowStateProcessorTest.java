@@ -131,6 +131,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 
+@SuppressWarnings("this-escape")
 public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Mock

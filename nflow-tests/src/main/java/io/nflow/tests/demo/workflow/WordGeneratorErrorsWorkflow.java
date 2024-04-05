@@ -20,6 +20,7 @@ public class WordGeneratorErrorsWorkflow extends WordGeneratorWorkflow {
       .setMinErrorTransitionDelay(millis(300)).setMaxErrorTransitionDelay(millis(1000)).setShortTransitionDelay(millis(200))
       .setMaxRetries(10).setHistoryDeletableAfter(days(2)).build();
 
+  @SuppressWarnings("this-escape")
   public WordGeneratorErrorsWorkflow() {
     super("wordGeneratorErrors", wordGeneratorErrorsWorkSettings);
     setDescription("Workflow for testing randomly failing states");

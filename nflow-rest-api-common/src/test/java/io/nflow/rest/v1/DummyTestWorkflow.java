@@ -17,6 +17,7 @@ import io.nflow.engine.workflow.definition.WorkflowSettings;
 
 public class DummyTestWorkflow extends WorkflowDefinition {
 
+  @SuppressWarnings("this-escape")
   public DummyTestWorkflow() {
     super("dummy", BEGIN, ERROR,
         new WorkflowSettings.Builder().setMinErrorTransitionDelay(millis(300)).setMaxErrorTransitionDelay(millis(1000))

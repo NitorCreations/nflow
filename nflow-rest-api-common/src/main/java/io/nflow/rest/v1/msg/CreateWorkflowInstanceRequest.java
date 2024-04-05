@@ -9,12 +9,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Request for submitting a new workflow instance. Note that if externalId is given, "
     + "type and externalId pair must be unique hence enabling retry-safety.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class CreateWorkflowInstanceRequest extends ModelObject {
 
-  @Schema(description = "Workflow definition type", required = true, nullable = false, minLength = 1, maxLength = 30)
+  @Schema(description = "Workflow definition type", requiredMode = REQUIRED, nullable = false, minLength = 1, maxLength = 30)
   public String type;
 
   @Schema(description = "Main business key or identifier for the new workflow instance", maxLength = 64)
