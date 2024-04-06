@@ -112,6 +112,7 @@
     <jdk.version>17</jdk.version>
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
+    <asm.version>9.7</asm.version>
     <apache.cxf.version>4.0.4</apache.cxf.version>
     <build-helper.version>3.5.0</build-helper.version>
     <commons.lang3.version>3.14.0</commons.lang3.version>
@@ -119,7 +120,7 @@
     <coveralls.version>4.3.0</coveralls.version>
     <db2-jcc.version>11.5.9.0</db2-jcc.version>
     <el.version>4.0.2</el.version>
-    <frontend-maven.version>1.13.4</frontend-maven.version>
+    <frontend-maven.version>1.15.0</frontend-maven.version>
     <guice.version>7.0.0</guice.version>
     <h2.version>2.2.224</h2.version>
     <hamcrest.version>2.2</hamcrest.version>
@@ -141,7 +142,7 @@
     <junit-platform.version>1.10.2</junit-platform.version>
     <logback-classic.version>1.5.3</logback-classic.version>
     <mariadb.version>3.3.3</mariadb.version>
-    <maven-assembly.version>3.6.0</maven-assembly.version>
+    <maven-assembly.version>3.7.1</maven-assembly.version>
     <maven-clean.version>3.3.2</maven-clean.version>
     <maven-compiler.version>3.13.0</maven-compiler.version>
     <maven-deploy.version>3.1.1</maven-deploy.version>
@@ -179,7 +180,7 @@
     <reflections.version>0.10.2</reflections.version>
     <slf4j.version>2.0.12</slf4j.version>
     <spotbugs.version>4.8.3</spotbugs.version>
-    <spotbugs-contrib.version>7.4.6</spotbugs-contrib.version>
+    <spotbugs-contrib.version>7.6.4</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.8.3.1</spotbugs-maven-plugin.version>
     <spring.version>6.0.11</spring.version>
     <swagger.version>2.2.21</swagger.version>
@@ -312,6 +313,31 @@
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
               <version>${spotbugs.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm</artifactId>
+              <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm-analysis</artifactId>
+              <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm-commons</artifactId>
+              <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm-tree</artifactId>
+              <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm-util</artifactId>
+              <version>${asm.version}</version>
             </dependency>
           </dependencies>
           <configuration>

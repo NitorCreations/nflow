@@ -1,5 +1,7 @@
 package io.nflow.engine.workflow.definition;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Objects;
 
 /**
@@ -12,6 +14,7 @@ public class Mutable<T> {
   /**
    * The wrapped value.
    */
+  @SuppressFBWarnings(value = "PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification = "this is just a wrapper class around the single field")
   public T val;
 
   /**
