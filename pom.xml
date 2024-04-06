@@ -114,7 +114,6 @@
     <surefire.forkcount>1C</surefire.forkcount>
     <apache.cxf.version>4.0.4</apache.cxf.version>
     <build-helper.version>3.5.0</build-helper.version>
-    <commons.lang.version>2.6</commons.lang.version>
     <commons.lang3.version>3.14.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>4.3.0</coveralls.version>
@@ -388,10 +387,11 @@
                 <bannedDependencies>
                   <excludes>
                     <exclude>commons-logging:commons-logging</exclude>
+                    <exclude>commons-lang:commons-lang</exclude>
                   </excludes>
                 </bannedDependencies>
                 <requireMavenVersion>
-                  <version>3.8</version>
+                  <version>3.9</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${jdk.version}</version>
@@ -408,8 +408,9 @@
           <links>
             <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
           </links>
-          <excludePackageNames>io.nflow.engine.internal</excludePackageNames>
+          <excludePackageNames>io.nflow.engine.internal.storage.db,io.nflow.engine.internal.*</excludePackageNames>
           <quiet>true</quiet>
+          <failOnError>true</failOnError>
           <failOnWarnings>false</failOnWarnings>
         </configuration>
         <executions>

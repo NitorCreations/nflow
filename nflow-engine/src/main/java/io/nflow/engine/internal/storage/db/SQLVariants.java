@@ -11,6 +11,9 @@ import org.joda.time.DateTime;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 
+/**
+ * Abstracts the differences of different SQL backends.
+ */
 public interface SQLVariants {
   String currentTimePlusSeconds(int seconds);
 
