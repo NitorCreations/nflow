@@ -76,13 +76,6 @@
       <artifactId>jcc</artifactId>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>pentaho-repo</id>
-      <name>pentaho-repo</name>
-      <url>https://public.nexus.pentaho.org/content/groups/omni/</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
@@ -131,6 +124,12 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
