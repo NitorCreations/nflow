@@ -509,14 +509,14 @@
             <artifactId>maven-enforcer-plugin</artifactId>
             <executions>
               <execution>
-                <id>require-java11</id>
+                <id>require-java17</id>
                 <goals>
                   <goal>enforce</goal>
                 </goals>
                 <configuration>
                   <rules>
                     <requireJavaVersion>
-                      <version>[11,)</version>
+                      <version>[17,)</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
