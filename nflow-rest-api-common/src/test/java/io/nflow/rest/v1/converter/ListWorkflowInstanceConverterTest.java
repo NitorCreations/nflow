@@ -201,7 +201,7 @@ public class ListWorkflowInstanceConverterTest {
         .build();
     WorkflowInstance i = new WorkflowInstance.Builder().setId(1).setStatus(inProgress).setType("dummy")
         .setBusinessKey("businessKey").setExternalId("externalId").setState("cState").setStateText("cState desc")
-        .setNextActivation(now()).setActions(Arrays.asList(a)).setStateVariables(new LinkedHashMap<String, String>()).build();
+        .setNextActivation(now()).setActions(Arrays.asList(a)).setStateVariables(new LinkedHashMap<>()).build();
 
     ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(currentStateVariables), false);
 

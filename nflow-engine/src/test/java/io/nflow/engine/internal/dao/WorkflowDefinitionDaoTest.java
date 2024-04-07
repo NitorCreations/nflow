@@ -10,13 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import jakarta.inject.Inject;
-
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.service.DummyTestWorkflow;
 import io.nflow.engine.workflow.definition.WorkflowState;
+import jakarta.inject.Inject;
 
 public class WorkflowDefinitionDaoTest extends BaseDaoTest {
 
@@ -32,7 +31,7 @@ public class WorkflowDefinitionDaoTest extends BaseDaoTest {
 
   @Test
   public void storeAndLoadAllDefinitionsFromDatabaseWorks() {
-    roundTrip(new ArrayList<String>());
+    roundTrip(new ArrayList<>());
   }
 
   @Test
