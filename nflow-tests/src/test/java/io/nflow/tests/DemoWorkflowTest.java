@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import jakarta.ws.rs.core.Response;
 
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -100,6 +101,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
     req.type = DEMO_WORKFLOW_TYPE;
     req.businessKey = "2";
+    req.activationTime = DateTime.now().plusSeconds(5);
     resp = createWorkflowInstance(req);
 
     ListWorkflowInstanceResponse instance = getWorkflowInstance(resp.id);
