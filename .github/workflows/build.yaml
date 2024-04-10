@@ -102,7 +102,7 @@ jobs:
       - name: Build
         run: mvn -T1C --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-tests install
       - name: Run the integration tests
-        run: mvn -T1C -Dsurefire.forkcount=1 --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
+        run: mvn -T1C -Dsurefire.forkcount=2C --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()

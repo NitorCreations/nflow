@@ -221,6 +221,8 @@
             <perCoreThreadCount>true</perCoreThreadCount>
             <threadCount>1</threadCount>
             <forkCount>${surefire.forkcount}</forkCount>
+            <!-- workaround for buggy cxf implementation on top of the "new" java async http client -->
+            <argLine>-Dorg.apache.cxf.transport.http.forceURLConnection=true</argLine>
           </configuration>
         </plugin>
         <plugin>
