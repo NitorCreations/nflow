@@ -5,18 +5,21 @@ tool=$(command -v podman)
 [ -z "$tool" ] && echo "podman or docker required" && exit 1
 
 DB_VERSION=${DB_VERSION:-latest}
-IMAGE=container-registry.oracle.com/database/free
+# could not yet get working
+#IMAGE=container-registry.oracle.com/database/free
+IMAGE=gvenzl/oracle-xe
 case $DB_VERSION in
   old)
-    DB_VERSION=18.4.0-xe
-    IMAGE=container-registry.oracle.com/database/express
+    # could not yet get working
+    #DB_VERSION=18.4.0-xe
+    #IMAGE=container-registry.oracle.com/database/express
+    DB_VERSION=18-slim
     ;;
   latest)
     # could not yet get working
     #IMAGE=container-registry.oracle.com/database/free
     #DB_VERSION=23.3.0.0
-    IMAGE=container-registry.oracle.com/database/express
-    DB_VERSION=21.3.0-xe
+    DB_VERSION=21-slim
     ;;
 esac
 
