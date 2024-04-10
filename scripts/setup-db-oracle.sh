@@ -12,8 +12,11 @@ case $DB_VERSION in
     IMAGE=container-registry.oracle.com/database/express
     ;;
   latest)
-    IMAGE=container-registry.oracle.com/database/free
-    DB_VERSION=23.3.0.0
+    # could not yet get working
+    #IMAGE=container-registry.oracle.com/database/free
+    #DB_VERSION=23.3.0.0
+    IMAGE=container-registry.oracle.com/database/express
+    DB_VERSION=21.3.0-xe
     ;;
 esac
 
