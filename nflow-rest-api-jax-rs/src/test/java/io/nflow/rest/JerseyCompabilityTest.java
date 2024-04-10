@@ -27,6 +27,7 @@ public class JerseyCompabilityTest {
   }
 
   public static class JerseyResourceConfig extends ResourceConfig {
+    @SuppressWarnings("this-escape")
     public JerseyResourceConfig() {
       packages(MaintenanceResource.class.getPackage().getName());
       register(DateTimeParamConverterProvider.class);

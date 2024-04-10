@@ -50,8 +50,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-import jakarta.inject.Inject;
-
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -76,6 +74,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import jakarta.inject.Inject;
 
 public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
@@ -796,7 +795,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     WorkflowInstance i1 = constructWorkflowInstanceBuilder().setNextActivation(null).build();
     long id = dao.insertWorkflowInstance(i1);
     assertThat(dao.getWorkflowInstance(id, emptySet(), null, false).nextActivation, nullValue());
-    dao.wakeupWorkflowInstanceIfNotExecuting(id, new ArrayList<String>());
+    dao.wakeupWorkflowInstanceIfNotExecuting(id, new ArrayList<>());
     assertThat(dao.getWorkflowInstance(id, emptySet(), null, false).nextActivation, notNullValue());
   }
 

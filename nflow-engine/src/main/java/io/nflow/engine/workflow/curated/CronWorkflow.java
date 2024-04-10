@@ -63,6 +63,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    * @param settings
    *          The workflow settings.
    */
+  @SuppressWarnings("this-escape")
   protected CronWorkflow(String type, WorkflowSettings settings) {
     super(type, SCHEDULE, HANDLE_FAILURE, settings);
     permit(SCHEDULE, DO_WORK);

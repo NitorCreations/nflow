@@ -18,7 +18,7 @@ jobs:
     if: always()
     strategy:
       matrix:
-        java: [ '17', '20' ]
+        java: [ '17', '21' ]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -82,7 +82,7 @@ jobs:
     if: always()
     strategy:
       matrix:
-        java: [ '17', '20' ]
+        java: [ '17', '21' ]
         db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver', 'db2', 'oracle' ]
     runs-on: ubuntu-latest
     env:
@@ -102,7 +102,7 @@ jobs:
       - name: Build
         run: mvn -T1C --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-tests install
       - name: Run the integration tests
-        run: mvn -T1C -Dsurefire.forkcount=2C --color=always -P ${{ matrix.db }} -rf :nflow-tests surefire:test
+        run: mvn -T1C -Dsurefire.forkcount=1 --color=always -rf :nflow-tests surefire:test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()

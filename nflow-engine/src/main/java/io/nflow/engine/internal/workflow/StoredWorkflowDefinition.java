@@ -6,12 +6,13 @@ import java.util.List;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 
+@SuppressFBWarnings(value = {"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD","UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"}, justification = "used by rest apis")
 public class StoredWorkflowDefinition extends ModelObject {
 
   public String type;
   public String description;
   public String onError;
-  public List<State> states;
+  public List<State> states = new ArrayList<>();
   public List<Signal> supportedSignals = new ArrayList<>();
 
   @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "serialized to database with object mapper")

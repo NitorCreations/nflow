@@ -25,6 +25,7 @@ public class ActionStateVariableWorkflow extends WorkflowDefinition {
 
   private static final WorkflowState SET_VARIABLE = new State("setVariable", WorkflowStateType.start);
 
+  @SuppressWarnings("this-escape")
   public ActionStateVariableWorkflow() {
     super(WORKFLOW_TYPE, SET_VARIABLE, TestState.ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(ZERO)
         .setMaxErrorTransitionDelay(ZERO).setShortTransitionDelay(ZERO).setMaxRetries(3).build());

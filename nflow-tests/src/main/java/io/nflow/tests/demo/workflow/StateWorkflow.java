@@ -30,6 +30,7 @@ public class StateWorkflow extends WorkflowDefinition {
   public static final WorkflowState STATE_4 = new State("state4", "Do nothing");
   public static final WorkflowState STATE_5 = new State("state5", "Update variable 2");
 
+  @SuppressWarnings("this-escape")
   public StateWorkflow() {
     super(STATE_WORKFLOW_TYPE, STATE_1, ERROR, new WorkflowSettings.Builder().setMinErrorTransitionDelay(ZERO)
         .setMaxErrorTransitionDelay(ZERO).setShortTransitionDelay(ZERO).setMaxRetries(3).build());

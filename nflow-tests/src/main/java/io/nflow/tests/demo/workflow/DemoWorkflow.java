@@ -18,6 +18,7 @@ public class DemoWorkflow extends WorkflowDefinition {
 
   public static final String DEMO_WORKFLOW_TYPE = "demo";
 
+  @SuppressWarnings("this-escape")
   public DemoWorkflow() {
     super(DEMO_WORKFLOW_TYPE, BEGIN, ERROR);
     setDescription("Simple demo workflow: start -> process -> end");

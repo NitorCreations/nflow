@@ -26,6 +26,7 @@ public class SlowWorkflow extends WorkflowDefinition {
 
   public static final WorkflowState INTERRUPTED = new State("interrupted", end);
 
+  @SuppressWarnings("this-escape")
   public SlowWorkflow() {
     super(SLOW_WORKFLOW_TYPE, BEGIN, ERROR);
     setDescription("Workflow for testing a state that has a long execution time");

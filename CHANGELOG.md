@@ -4,6 +4,27 @@
 
 **Details**
 
+  - Dependency updates:
+    - Jetty 11.0.20
+    - Apache CFX 4.0.4
+    - Dropwizard metrics 4.2.19
+    - logback 1.5.3
+    - jackson 2.17.0
+    - h2 2.2.224
+    - protobuf 3.25.1
+    - db2 jcc 11.5.9.0
+    - mssql-jdbc 12.6.1
+    - mysql-connector 8.3.0
+    - ojdbc11 23.3.0.23.09
+    - postgresql 42.7.3
+    - mariadb-java-client 3.3.3
+    - HikariCP 5.1.0
+    - netty 4.1.107
+    - joda-time 2.12.5
+    - commons-lang3 3.14.0
+    - slf4j 2.0.12
+
+
 ## 9.0.0 (2023-08-30)
 
 **Highlights**

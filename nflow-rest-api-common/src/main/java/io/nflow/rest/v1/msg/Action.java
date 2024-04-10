@@ -9,16 +9,18 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "State change attempt. A new instance for every retry attempt.")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class Action extends ModelObject {
 
-  @Schema(description = "Identifier of the workflow instance action", required = true)
+  @Schema(description = "Identifier of the workflow instance action", requiredMode = REQUIRED)
   public long id;
-  @Schema(description = "Type of state", required = true, allowableValues = { "stateExecution", "stateExecutionFailed",
+  @Schema(description = "Type of state", requiredMode = REQUIRED, allowableValues = { "stateExecution", "stateExecutionFailed",
       "externalChange", "recovery" })
   public String type;
-  @Schema(description = "Name of state", required = true)
+  @Schema(description = "Name of state", requiredMode = REQUIRED)
   public String state;
   @Schema(description = "Description of state")
   public String stateText;

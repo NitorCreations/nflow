@@ -50,6 +50,7 @@ public class ProcessCreditApplicationWorkflow extends WorkflowDefinition {
       "Process must be handled manually because of an unexpected situation");
   private static final WorkflowState DONE = new State("done", end, "Credit application has been completed.");
 
+  @SuppressWarnings("this-escape")
   public ProcessCreditApplicationWorkflow() {
     super("processCreditApplication", CREATE_CREDIT_APPLICATION, MANUAL_PROCESSING);
     setName("Process credit application");

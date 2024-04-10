@@ -7,6 +7,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Workflow definition states and transition to next states")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
 public class State extends ModelObject {
@@ -21,13 +23,13 @@ public class State extends ModelObject {
     this.description = description;
   }
 
-  @Schema(description = "State identifier", required = true)
+  @Schema(description = "State identifier", requiredMode = REQUIRED)
   public String id;
 
-  @Schema(description = "State type", required = true, allowableValues = { "start", "normal", "manual", "wait", "end" })
+  @Schema(description = "State type", requiredMode = REQUIRED, allowableValues = { "start", "normal", "manual", "wait", "end" })
   public String type;
 
-  @Schema(description = "State description", required = true)
+  @Schema(description = "State description", requiredMode = REQUIRED)
   public String description;
 
   @Schema(description = "Permitted transitions from this state")

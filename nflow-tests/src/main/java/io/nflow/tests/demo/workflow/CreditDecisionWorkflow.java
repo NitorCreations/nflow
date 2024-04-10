@@ -31,6 +31,7 @@ public class CreditDecisionWorkflow extends WorkflowDefinition {
   static final WorkflowState APPROVED = new State("approved", end, "Credit Decision Approved");
   static final WorkflowState REJECTED = new State("rejected", end, "Credit Decision Rejected");
 
+  @SuppressWarnings("this-escape")
   public CreditDecisionWorkflow() {
     super(CREDIT_DECISION_TYPE, INTERNAL_BLACKLIST, MANUAL_DECISION);
     setDescription("Approve or reject credit application");

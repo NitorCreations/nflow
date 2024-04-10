@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -52,7 +53,7 @@ public class EnvironmentModule extends AbstractModule {
   protected void configure() {
     bind(Environment.class).toInstance(new StandardEnvironment() {
       @Override
-      protected void customizePropertySources(MutablePropertySources propertySources) {
+      protected void customizePropertySources(@NonNull MutablePropertySources propertySources) {
         customizeEnvironment(propertySources);
       }
     });

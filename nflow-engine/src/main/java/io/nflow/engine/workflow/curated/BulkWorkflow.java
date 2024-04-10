@@ -78,6 +78,7 @@ public class BulkWorkflow extends WorkflowDefinition {
    * @param type
    *          The type of the workflow.
    */
+  @SuppressWarnings("this-escape")
   protected BulkWorkflow(String type) {
     super(type, SPLIT_WORK, ERROR, new Builder().setMaxRetries(Integer.MAX_VALUE).build());
     setDescription("Executes child workflows in bulk but gracefully without effecting non-bulk tasks.");

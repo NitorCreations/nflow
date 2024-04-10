@@ -53,9 +53,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
@@ -90,6 +87,8 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
@@ -910,7 +909,7 @@ public class WorkflowInstanceDao {
           .setExternalId(rs.getString("external_id"))
           .setState(rs.getString("state"))
           .setStateText(rs.getString("state_text"))
-          .setActions(new ArrayList<WorkflowInstanceAction>())
+          .setActions(new ArrayList<>())
           .setNextActivation(sqlVariants.getDateTime(rs, "next_activation"))
           .setRetries(rs.getInt("retries"))
           .setCreated(sqlVariants.getDateTime(rs, "created"))

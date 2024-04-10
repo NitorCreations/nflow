@@ -37,7 +37,7 @@ public class NflowStandardEnvironmentTest {
 
   @Test
   public void environmentSpecificPropertiesEffective() {
-    NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());
+    NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<>());
     assertThat(environment.getProperty("nflow.executor.group"), is("junit"));
   }
 
@@ -67,7 +67,7 @@ public class NflowStandardEnvironmentTest {
   @Test
   public void profilesPropertyEnablesSpringProfiles() {
     setProperty("profiles", "plain.test.profile,other.test.profile");
-    NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());
+    NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<>());
     assertThat(environment.acceptsProfiles(Profiles.of("plain.test.profile", "other.test.profile")), is(true));
   }
 
@@ -75,13 +75,13 @@ public class NflowStandardEnvironmentTest {
   public void multipleDatabaseProfilesPrevented() {
     setProperty("profiles", "nflow.db.profile1,nflow.db.profile2");
 
-    RuntimeException thrown = assertThrows(RuntimeException.class, () -> new NflowStandardEnvironment(new HashMap<String, Object>()));
+    RuntimeException thrown = assertThrows(RuntimeException.class, () -> new NflowStandardEnvironment(new HashMap<>()));
     assertThat(thrown.getMessage(), CoreMatchers.containsString("Multiple nflow.db profiles defined"));
   }
 
   @Test
   public void databaseProfileDefaultsToH2() {
-    NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<String, Object>());
+    NflowStandardEnvironment environment = new NflowStandardEnvironment(new HashMap<>());
     assertThat(environment.acceptsProfiles(Profiles.of(H2)), is(true));
   }
 }

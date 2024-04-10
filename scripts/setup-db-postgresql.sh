@@ -7,13 +7,13 @@ tool=$(command -v podman)
 DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
-    DB_VERSION=11 # supported until nov/2023
+    DB_VERSION=12 # supported until Nov/2024
     ;;
   latest)
-    DB_VERSION=15
+    DB_VERSION=16
     ;;
 esac
 
-$tool run --pull=always  --rm --name postgres -e POSTGRES_DB=nflow -e POSTGRES_USER=nflow -e POSTGRES_PASSWORD=nflow --publish 5432:5432 --detach postgres:$DB_VERSION -c fsync=off -c full_page_writes=off
+$tool run --pull=always  --rm --name postgres -e POSTGRES_DB=nflow -e POSTGRES_USER=nflow -e POSTGRES_PASSWORD=nflow --publish 5432:5432 --detach docker.io/library/postgres:$DB_VERSION -c fsync=off -c full_page_writes=off
 
-fgrep -m1 'listening on IPv4' <(timeout 240 $tool logs -f postgres 2>&1)
+grep -F -m1 'listening on IPv4' <(timeout 240 $tool logs -f postgres 2>&1)

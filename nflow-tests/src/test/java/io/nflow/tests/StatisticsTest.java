@@ -1,6 +1,6 @@
 package io.nflow.tests;
 
-import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.StatisticsWorkflow.STATISTICS_WORKFLOW_TYPE;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import io.nflow.tests.demo.workflow.StatisticsWorkflow;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -20,21 +21,26 @@ import io.nflow.rest.v1.msg.StatisticsResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse.StateStatistics;
-import io.nflow.tests.DemoWorkflowTest.DemoConfiguration;
 import io.nflow.tests.extension.NflowServerConfig;
+import org.springframework.context.annotation.ComponentScan;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StatisticsTest extends AbstractNflowTest {
 
   static DateTime FUTURE = now().plusYears(1);
 
-  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(DemoConfiguration.class)
+  public static NflowServerConfig server = new NflowServerConfig.Builder().springContextClass(StatisticsTestConfiguration.class)
     .prop("nflow.executor.timeout.seconds", 1)
     .prop("nflow.executor.keepalive.seconds", 5)
     .prop("nflow.dispatcher.await.termination.seconds", 1)
     .prop("nflow.maintenance.insertWorkflowIfMissing", false)
     .prop("nflow.db.h2.url", "jdbc:h2:mem:statisticstest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
     .build();
+
+  @ComponentScan(basePackageClasses = StatisticsWorkflow.class)
+  static class StatisticsTestConfiguration {
+    // for component scanning only
+  }
 
   private static CreateWorkflowInstanceResponse resp;
 
@@ -46,7 +52,7 @@ public class StatisticsTest extends AbstractNflowTest {
   @Order(1)
   public void submitWorkflow() {
     CreateWorkflowInstanceRequest req = new CreateWorkflowInstanceRequest();
-    req.type = DEMO_WORKFLOW_TYPE;
+    req.type = STATISTICS_WORKFLOW_TYPE;
     req.businessKey = "1";
     req.activationTime = FUTURE;
     resp = createWorkflowInstance(req);
@@ -64,7 +70,7 @@ public class StatisticsTest extends AbstractNflowTest {
   @Test
   @Order(3)
   public void queryDefinitionStatistics() {
-    WorkflowDefinitionStatisticsResponse statistics = getDefinitionStatistics(DEMO_WORKFLOW_TYPE);
+    WorkflowDefinitionStatisticsResponse statistics = getDefinitionStatistics(STATISTICS_WORKFLOW_TYPE);
     assertThat(statistics.stateStatistics, is(notNullValue()));
     StateStatistics stats = statistics.stateStatistics.get("begin");
     assertThat(stats.created.allInstances, is(1L));
@@ -105,7 +111,7 @@ public class StatisticsTest extends AbstractNflowTest {
   @Test
   @Order(8)
   public void queryDefinitionStatistics_again() {
-    WorkflowDefinitionStatisticsResponse statistics = getDefinitionStatistics(DEMO_WORKFLOW_TYPE);
+    WorkflowDefinitionStatisticsResponse statistics = getDefinitionStatistics(STATISTICS_WORKFLOW_TYPE);
     assertThat(statistics.stateStatistics, is(notNullValue()));
     StateStatistics stats = statistics.stateStatistics.get("begin");
     assertThat(stats.created.allInstances, is(1L));

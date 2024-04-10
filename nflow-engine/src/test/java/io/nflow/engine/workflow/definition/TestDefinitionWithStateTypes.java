@@ -11,6 +11,7 @@ public class TestDefinitionWithStateTypes extends WorkflowDefinition {
   static final WorkflowState STATE_1 = new State("state1");
   static final WorkflowState STATE_2 = new State("state2");
 
+  @SuppressWarnings("this-escape")
   public TestDefinitionWithStateTypes(String type, WorkflowState initialState) {
     super(type, initialState, ERROR);
     permit(BEGIN, DONE, ERROR);

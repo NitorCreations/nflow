@@ -1,9 +1,9 @@
-#Sat Jul 09 00:19:01 EEST 2022
+#Sun Apr 07 10:53:42 EEST 2024
 eclipse.preferences.version=1
-org.eclipse.jdt.core.compiler.codegen.targetPlatform=11
-org.eclipse.jdt.core.compiler.compliance=11
+org.eclipse.jdt.core.compiler.codegen.targetPlatform=17
+org.eclipse.jdt.core.compiler.compliance=17
 org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning
-org.eclipse.jdt.core.compiler.source=11
+org.eclipse.jdt.core.compiler.source=17
 org.eclipse.jdt.core.formatter.align_assignment_statements_on_columns=false
 org.eclipse.jdt.core.formatter.align_fields_grouping_blank_lines=2147483647
 org.eclipse.jdt.core.formatter.align_type_members_on_columns=false

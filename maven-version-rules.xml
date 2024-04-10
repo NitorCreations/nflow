@@ -23,9 +23,29 @@
                 <ignoreVersion type="regex">.*-b[0-9]+.*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="jakarta.annotation">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
         <rule groupId="jakarta.inject" artifactId="jakarta.inject-api">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*\.(MR|RC[0-9]+).*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="jakarta.servlet">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="jakarta.validation">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="jakarta.ws.rs">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.glassfish" artifactId="jakarta.el">

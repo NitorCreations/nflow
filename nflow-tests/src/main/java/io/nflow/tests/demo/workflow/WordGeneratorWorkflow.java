@@ -51,6 +51,7 @@ public class WordGeneratorWorkflow extends WorkflowDefinition {
 
   private static final State[] STATE_VALUES = State.values();
 
+  @SuppressWarnings("this-escape")
   protected WordGeneratorWorkflow(String flowName, WorkflowSettings settings) {
     super(flowName, State.start, State.error, settings);
     setDescription("Generate random words");
