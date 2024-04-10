@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Bean;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.nflow.tests.demo.workflow.Demo2Workflow.DEMO2_WORKFLOW_TYPE;
-import static io.nflow.tests.demo.workflow.TestState.DONE;
+import static io.nflow.tests.demo.workflow.RemoteWorkflow.REMOTE_WORKFLOW_TYPE;
+import static io.nflow.tests.demo.workflow.TestState.*;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -58,14 +58,17 @@ public class CodelessEngineTest extends AbstractNflowTest {
   @Order(1)
   public void codelessServerHasNoWorkflowsDefinitions() {
     ListWorkflowDefinitionResponse[] definitions = getWorkflowDefinitions();
-    assertWorkflowDefinitionExists(DEMO2_WORKFLOW_TYPE, definitions, false);
+    assertWorkflowDefinitionExists(REMOTE_WORKFLOW_TYPE, definitions, false);
   }
 
   @Test
   @Order(2)
   public void startCodeServer() throws Exception {
     server.setSpringContextClass(CodeConfiguration.class);
-    codeServer.set(server.anotherServer(Map.of("nflow.autoinit", "true", "nflow.autostart", "true")));
+    codeServer.set(server.anotherServer(Map.of(
+            "nflow.autoinit", "true",
+            "nflow.autostart", "true",
+            "nflow.non_spring_workflows_filename", "nflow-remote-workflow.txt")));
     codeServer.get().before(getClass().getSimpleName());
   }
 
@@ -74,14 +77,14 @@ public class CodelessEngineTest extends AbstractNflowTest {
   public void codelessServerSeesTheDefinition() throws Exception {
     SECONDS.sleep(1);
     ListWorkflowDefinitionResponse[] definitions = getWorkflowDefinitions();
-    assertWorkflowDefinitionExists(DEMO2_WORKFLOW_TYPE, definitions, true);
+    assertWorkflowDefinitionExists(REMOTE_WORKFLOW_TYPE, definitions, true);
   }
 
   @Test
   @Order(4)
   public void codelessCanInsertWorkflow() {
     var req = new CreateWorkflowInstanceRequest();
-    req.type = DEMO2_WORKFLOW_TYPE;
+    req.type = REMOTE_WORKFLOW_TYPE;
     req.businessKey = "1";
     req.stateVariables = singletonMap("test", 1);
     resp = createWorkflowInstance(req);

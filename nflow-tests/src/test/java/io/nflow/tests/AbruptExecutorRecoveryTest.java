@@ -13,7 +13,7 @@ public class AbruptExecutorRecoveryTest extends AbstractExecutorRecoveryTest {
   public static NflowServerConfig server = new NflowServerConfig.Builder()
       .prop("nflow.executor.timeout.seconds", 1)
       .prop("nflow.executor.keepalive.seconds", 5)
-      .prop("nflow.dispatcher.await.termination.seconds", 1)
+      .prop("nflow.dispatcher.await.termination.seconds", 3)
       .prop("nflow.db.h2.url", "jdbc:h2:mem:abruptexecutorrecoverytest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
       .build();
 

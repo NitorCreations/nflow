@@ -129,7 +129,7 @@ public class WorkflowDispatcher implements Runnable {
       var graceful = shutdownPool();
       executorDao.markShutdown(graceful);
       running.set(false);
-      logger.info("Shutdown completed.");
+      logger.info("Shutdown completed (" + (graceful?"":"not ") +"graceful).");
       shutdownDone.countDown();
     }
   }
