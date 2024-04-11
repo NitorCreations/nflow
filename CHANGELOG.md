@@ -8,7 +8,7 @@
     - Jetty 11.0.20
     - Apache CFX 4.0.4
     - Dropwizard metrics 4.2.19
-    - logback 1.5.3
+    - logback 1.5.4
     - jackson 2.17.0
     - h2 2.2.224
     - protobuf 3.25.1
@@ -23,6 +23,9 @@
     - joda-time 2.12.5
     - commons-lang3 3.14.0
     - slf4j 2.0.12
+    - spring 6.0.18
+    - reactor-netty 1.1.18
+    - reactor-core 3.6.5
 
 
 ## 9.0.0 (2023-08-30)
