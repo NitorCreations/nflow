@@ -15,7 +15,7 @@
     - db2 jcc 11.5.9.0
     - mssql-jdbc 12.6.1
     - mysql-connector 8.3.0
-    - ojdbc11 23.3.0.23.09
+    - ojdbc11 23.2.0.0
     - postgresql 42.7.3
     - mariadb-java-client 3.3.3
     - HikariCP 5.1.0
