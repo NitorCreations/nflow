@@ -129,7 +129,7 @@
     <jackson.version>2.17.0</jackson.version>
     <jackson-databind.version>2.17.0</jackson-databind.version>
     <javassist.version>3.30.2-GA</javassist.version>
-    <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
+    <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
     <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
     <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
     <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
@@ -140,13 +140,13 @@
     <jodatime.version>2.12.7</jodatime.version>
     <junit5.version>5.10.0</junit5.version>
     <junit-platform.version>1.10.2</junit-platform.version>
-    <logback-classic.version>1.5.3</logback-classic.version>
+    <logback-classic.version>1.5.4</logback-classic.version>
     <mariadb.version>3.3.3</mariadb.version>
     <maven-assembly.version>3.7.1</maven-assembly.version>
     <maven-clean.version>3.3.2</maven-clean.version>
     <maven-compiler.version>3.13.0</maven-compiler.version>
     <maven-deploy.version>3.1.1</maven-deploy.version>
-    <maven-download.version>1.8.1</maven-download.version>
+    <maven-download.version>1.9.0</maven-download.version>
     <maven-eclipse.version>2.10</maven-eclipse.version>
     <maven-enforcer.version>3.4.1</maven-enforcer.version>
     <maven-gpg.version>3.2.2</maven-gpg.version>
@@ -175,14 +175,14 @@
     <postgresql.version>42.7.3</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.core.version>3.6.4</reactor.core.version>
-    <reactor.netty.version>1.1.17</reactor.netty.version>
+    <reactor.core.version>3.6.5</reactor.core.version>
+    <reactor.netty.version>1.1.18</reactor.netty.version>
     <reflections.version>0.10.2</reflections.version>
     <slf4j.version>2.0.12</slf4j.version>
-    <spotbugs.version>4.8.3</spotbugs.version>
+    <spotbugs.version>4.8.4</spotbugs.version>
     <spotbugs-contrib.version>7.6.4</spotbugs-contrib.version>
-    <spotbugs-maven-plugin.version>4.8.3.1</spotbugs-maven-plugin.version>
-    <spring.version>6.0.11</spring.version>
+    <spotbugs-maven-plugin.version>4.8.4.0</spotbugs-maven-plugin.version>
+    <spring.version>6.0.18</spring.version>
     <swagger.version>2.2.21</swagger.version>
     <validation.api.version>3.0.2</validation.api.version>
     <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
