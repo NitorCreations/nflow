@@ -18,7 +18,7 @@ jobs:
     if: always()
     strategy:
       matrix:
-        java: [ '17', '21' ]
+        java: [ '17', '21', '22' ]
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -100,9 +100,9 @@ jobs:
       - name: Set up database
         run: ./scripts/setup-db-${{ matrix.db }}.sh
       - name: Build
-        run: mvn -T1C --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-tests install
+        run: mvn -T1C --no-transfer-progress --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true --am -pl nflow-tests install
       - name: Run the integration tests
-        run: mvn -T1C -Dsurefire.forkcount=1 --color=always -rf :nflow-tests surefire:test
+        run: mvn -T1C --no-transfer-progress -Dsurefire.forkcount=1 --color=always -rf :nflow-tests surefire:test
       - name: Publish JUnit test report
         uses: scacap/action-surefire-report@v1
         if: always()
