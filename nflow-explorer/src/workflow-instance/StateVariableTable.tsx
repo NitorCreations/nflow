@@ -11,11 +11,13 @@ function StateVariableTable(props: {instance: WorkflowInstance}) {
       </pre>
     );
   };
-  const columns = Object.keys(props.instance.stateVariables || {}).map(key => ({
-    field: key,
-    headerName: key,
-    fieldRender: renderValue
-  }));
+  const columns = Object.keys(props.instance.stateVariables || {})
+    .map(key => ({
+      field: key,
+      headerName: key,
+      fieldRender: renderValue
+    }))
+    .sort((a, b) => a.field.localeCompare(b.field));
 
   if (!props.instance.stateVariables) {
     return <Alert severity="info">No state variables</Alert>;
