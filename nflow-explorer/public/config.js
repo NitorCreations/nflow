@@ -101,4 +101,19 @@ var Config = new function() {
    * ]
    */
   this.searchResultColumns = undefined;
+
+  /**
+   * Microsoft Authentication Library for JavaScript configuration. For more details, see:
+   * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/master/lib/msal-browser/docs/configuration.md
+   * this.msalConfig = {
+   *   auth: {
+   *     authority: "https://login.microsoftonline.com/ENTER_YOUR_TENANT_ID",
+   *     clientId: "ENTER_YOUR_APPLICATION_ID"
+   *   },
+   *   cache: {
+   *     cacheLocation: "localStorage"
+   *   }
+   * };
+   */
+  this.msalConfig = undefined;
 };
