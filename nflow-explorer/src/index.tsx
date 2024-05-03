@@ -13,6 +13,12 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './index.scss';
+import {Config} from "./types";
+import {PublicClientApplication, InteractionType} from "@azure/msal-browser";
+import {
+  MsalAuthenticationTemplate,
+  MsalProvider,
+} from "@azure/msal-react";
 
 // see: https://github.com/gregnb/mui-datatables/issues/1893
 const oldRender = (TableCell as any).render;
@@ -37,13 +43,31 @@ const theme = createTheme({
   }
 });
 
+const wrapMsalIfNeeded = (app: any, config: Config): any => {
+  if (config.msalConfig) {
+    console.info('Initializing MSAL')
+    const authRequest = {
+      scopes: ["openid"]
+    };
+    config.msalClient = new PublicClientApplication(config.msalConfig);
+    return (
+      <MsalProvider instance={config.msalClient}>
+        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+          {app}
+        </MsalAuthenticationTemplate>
+      </MsalProvider>
+    )
+  }
+  return app;
+}
+
 readConfig().then(config => {
   console.info('Config read');
   ReactDOM.render(
     <React.StrictMode>
       <MuiThemeProvider theme={theme}>
         <ConfigContext.Provider value={config}>
-          <App />
+          {wrapMsalIfNeeded(<App />, config)}
         </ConfigContext.Provider>
       </MuiThemeProvider>
     </React.StrictMode>,

@@ -39,8 +39,30 @@ const convertWorkflowInstance = (instance: any) => {
   );
 };
 
+const authenticatedApiCall = (url: string, config: Config, body?: any): Promise<any> => {
+  const options: RequestInit = {
+    method: body ? "PUT" : "GET",
+    body: body
+  };
+  if (!config.msalClient) {
+    return fetch(url, options);
+  }
+  const request = {
+    scopes: ["openid"],
+  };
+  config.msalClient.setActiveAccount(config.msalClient.getAllAccounts()[0])  // required by acquireTokenSilent
+  return config.msalClient.acquireTokenSilent(request)
+    .then(tokenResponse => {
+      options["headers"] = new Headers({
+        "Authorization": "Bearer " + tokenResponse.accessToken,
+        "content-type": "application/json"
+      });
+      return fetch(url, options)
+    });
+}
+
 const listExecutors = (config: Config): Promise<Array<Executor>> => {
-  return fetch(serviceUrl(config, '/v1/workflow-executor'))
+  return authenticatedApiCall(serviceUrl(config, '/v1/workflow-executor'), config)
     .then(response => response.json())
     .then((items: any) => items.map(convertExecutor));
 };
@@ -53,7 +75,7 @@ const listWorkflowDefinitions = (
   if (cached) {
     return Promise.resolve(cached);
   }
-  return fetch(url)
+  return authenticatedApiCall(url, config)
     .then(response => response.json())
     .then((response: Array<WorkflowDefinition>) =>
       cacheWD.setAndReturn(url, response)
@@ -66,7 +88,7 @@ const getWorkflowDefinition = (
 ): Promise<WorkflowDefinition> => {
   const url = serviceUrl(config, '/v1/workflow-definition?type=' + type);
   return (
-    fetch(url)
+    authenticatedApiCall(url, config)
       .then(response => response.json())
       // TODO how to handle Not found case?
       .then(response => response[0])
@@ -79,7 +101,7 @@ const getWorkflowStatistics = (
   type: string
 ): Promise<WorkflowStatistics> => {
   const url = serviceUrl(config, '/v1/statistics/workflow/' + type);
-  return fetch(url)
+  return authenticatedApiCall(url, config)
     .then(response => response.json())
     .then(response => response.stateStatistics);
 };
@@ -146,7 +168,7 @@ const listWorkflowInstances = (
   query?: any
 ): Promise<WorkflowInstance[]> => {
   const params = new URLSearchParams(query).toString();
-  return fetch(serviceUrl(config, '/v1/workflow-instance?' + params.toString()))
+  return authenticatedApiCall(serviceUrl(config, '/v1/workflow-instance?' + params.toString()), config)
     .then(response => response.json())
     .then((items: any) => items.map(convertWorkflowInstance));
 };
@@ -159,7 +181,7 @@ const listChildWorkflowInstances = (
     config,
     '/v1/workflow-instance?parentWorkflowId=' + id
   );
-  return fetch(url)
+  return authenticatedApiCall(url, config)
     .then(response => response.json())
     .then((items: any) => items.map(convertWorkflowInstance));
 };
@@ -174,7 +196,7 @@ const getWorkflowInstance = (
       id +
       '?include=actions,currentStateVariables,actionStateVariables'
   );
-  return fetch(url)
+  return authenticatedApiCall(url, config)
     .then(response => response.json())
     .then(convertWorkflowInstance);
   // TODO how to handle Not found case?
@@ -185,11 +207,8 @@ const createWorkflowInstance = (
   data: NewWorkflowInstance
 ): Promise<NewWorkflowInstanceResponse> => {
   const url = serviceUrl(config, '/v1/workflow-instance');
-  return fetch(url, {
-    method: 'PUT',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify(data)
-  }).then(response => response.json());
+  return authenticatedApiCall(url, config, JSON.stringify(data))
+    .then(response => response.json());
 };
 
 const updateWorkflowInstance = (
@@ -198,11 +217,7 @@ const updateWorkflowInstance = (
   data: any
 ): Promise<any> => {
   const url = serviceUrl(config, '/v1/workflow-instance/id/' + workflowId);
-  return fetch(url, {
-    method: 'PUT',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify(data)
-  });
+  return authenticatedApiCall(url, config, JSON.stringify(data));
 };
 
 const sendWorkflowInstanceSignal = (
@@ -214,11 +229,7 @@ const sendWorkflowInstanceSignal = (
     config,
     '/v1/workflow-instance/' + workflowId + '/signal'
   );
-  return fetch(url, {
-    method: 'PUT',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify(data)
-  });
+  return authenticatedApiCall(url, config, JSON.stringify(data));
 };
 
 export {

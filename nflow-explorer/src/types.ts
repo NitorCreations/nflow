@@ -1,3 +1,5 @@
+import {Configuration, PublicClientApplication} from "@azure/msal-browser";
+
 interface Endpoint {
   id: string;
   title: string;
@@ -25,6 +27,8 @@ interface Config {
   nflowLogoFile?: string;
   nflowLogoTitle?: string;
   searchResultColumns?: Array<ColumnConfig>;
+  msalConfig?: Configuration;
+  msalClient?: PublicClientApplication;
 }
 
 interface Executor {
