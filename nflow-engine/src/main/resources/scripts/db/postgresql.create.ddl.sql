@@ -2,10 +2,10 @@
 
 create type workflow_status as enum ('created', 'executing', 'inProgress', 'finished', 'manual');
 create table if not exists nflow_workflow (
-  id serial primary key,
+  id bigserial primary key,
   status workflow_status not null,
-  parent_workflow_id integer default null,
-  parent_action_id integer default null,
+  parent_workflow_id bigint default null,
+  parent_action_id bigint default null,
   retries int not null default 0,
   priority smallint not null default 0,
   created timestamptz not null default current_timestamp,
@@ -44,8 +44,8 @@ create index idx_workflow_parent on nflow_workflow(parent_workflow_id) where par
 
 create type action_type as enum ('stateExecution', 'stateExecutionFailed', 'recovery', 'externalChange');
 create table if not exists nflow_workflow_action (
-  id serial not null,
-  workflow_id int not null,
+  id bigserial not null,
+  workflow_id bigint not null,
   executor_id int not null default -1,
   type action_type not null,
   execution_start timestamptz not null,
@@ -61,8 +61,8 @@ drop index if exists nflow_workflow_action_workflow;
 create index nflow_workflow_action_workflow on nflow_workflow_action(workflow_id) WITH (fillfactor=100);
 
 create table if not exists nflow_workflow_state (
-  workflow_id int not null,
-  action_id int not null,
+  workflow_id bigint not null,
+  action_id bigint not null,
   state_key varchar(64) not null,
   state_value text not null,
   constraint pk_workflow_state primary key (workflow_id, action_id, state_key) WITH (fillfactor=100),
@@ -102,10 +102,10 @@ create trigger update_nflow_definition_modified before update on nflow_workflow_
 -- - 100% fillfactor on everything
 
 create table if not exists nflow_archive_workflow (
-  id integer not null,
+  id bigint not null,
   status workflow_status not null,
-  parent_workflow_id integer,
-  parent_action_id integer,
+  parent_workflow_id bigint,
+  parent_action_id bigint,
   retries int not null,
   priority smallint not null,
   created timestamptz not null,
@@ -131,8 +131,8 @@ drop index if exists idx_workflow_archive_type;
 create index idx_workflow_archive_type on nflow_archive_workflow(type) with (fillfactor=100);
 
 create table if not exists nflow_archive_workflow_action (
-  id integer not null,
-  workflow_id int not null,
+  id bigint not null,
+  workflow_id bigint not null,
   executor_id int not null,
   type action_type not null,
   execution_start timestamptz not null,
@@ -148,8 +148,8 @@ drop index if exists nflow_archive_workflow_action_workflow;
 create index nflow_archive_workflow_action_workflow on nflow_archive_workflow_action(workflow_id) with (fillfactor=100);
 
 create table if not exists nflow_archive_workflow_state (
-  workflow_id int not null,
-  action_id int not null,
+  workflow_id bigint not null,
+  action_id bigint not null,
   state_key varchar(64) not null,
   state_value text not null,
   constraint pk_arch_workflow_state primary key (workflow_id, action_id, state_key) with (fillfactor=100),
