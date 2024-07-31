@@ -69,6 +69,10 @@ public class QueryWorkflowInstances extends ModelObject {
    * Setting this to true will make the query return also workflow actions.
    */
   public final boolean includeActions;
+  /**
+   * Setting this to true will make the query return all executor groups
+   */
+  public final boolean includeAllExecutors;
 
   /**
    * Setting this to true will make the query return also the current state variables for the workflow.
@@ -114,6 +118,7 @@ public class QueryWorkflowInstances extends ModelObject {
     this.stateVariableKey = builder.stateVariableKey;
     this.stateVariableValue = builder.stateVariableValue;
     this.includeActions = builder.includeActions;
+    this.includeAllExecutors = builder.includeAllExecutors;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
     this.includeChildWorkflows = builder.includeChildWorkflows;
@@ -137,6 +142,7 @@ public class QueryWorkflowInstances extends ModelObject {
     String stateVariableKey;
     String stateVariableValue;
     boolean includeActions;
+    boolean includeAllExecutors;
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
     boolean includeChildWorkflows;
@@ -162,6 +168,7 @@ public class QueryWorkflowInstances extends ModelObject {
       this.stateVariableKey = copy.stateVariableKey;
       this.stateVariableValue = copy.stateVariableValue;
       this.includeActions = copy.includeActions;
+      this.includeAllExecutors = copy.includeAllExecutors;
       this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
       this.includeActionStateVariables = copy.includeActionStateVariables;
       this.includeChildWorkflows = copy.includeChildWorkflows;
@@ -270,6 +277,16 @@ public class QueryWorkflowInstances extends ModelObject {
      */
     public Builder setIncludeActions(boolean includeActions) {
       this.includeActions = includeActions;
+      return this;
+    }
+
+    /**
+     * Set whether all executor groups should be included in the results. Default is `false`.
+     * @param includeAllExecutors True to include all executors, false otherwise.
+     * @return this.
+     */
+    public Builder setIncludeAllExecutors(boolean includeAllExecutors) {
+      this.includeAllExecutors = includeAllExecutors;
       return this;
     }
 

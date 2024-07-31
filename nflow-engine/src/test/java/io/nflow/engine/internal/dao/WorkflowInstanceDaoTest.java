@@ -698,6 +698,17 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(secondBatch.size(), equalTo(0));
   }
 
+  /**
+   * Test returning all executors (default being junit)
+   */
+  @Test
+public void testCreateWorkflowWithAllExecutors() {
+     dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
+            .setPriority((short)1).setExecutorGroup("test").build());
+     List<WorkflowInstance> workflows = dao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().setIncludeActions(true).setIncludeAllExecutors(true).build());
+        assertThat(workflows.size(), is(1));
+  }
+
   @Test
   public void pollNextWorkflowInstancesReturnInstancesInCorrectOrder() {
     long olderLowPrio = createInstance(2, (short) 1);

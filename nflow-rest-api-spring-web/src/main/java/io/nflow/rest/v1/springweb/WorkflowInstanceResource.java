@@ -178,10 +178,12 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "stateVariableValue", required = false) @Parameter(
           description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
       @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
-          description = "Query also the archive if not enough results found from main tables") boolean queryArchive) {
+          description = "Query also the archive if not enough results found from main tables") boolean queryArchive,
+      @RequestParam(value = "includeAllExecutors", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
+          description = "Query all executor groups, default is just the current executor's group") boolean includeAllExecutors) {
     return handleExceptions(() -> wrapBlocking(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId,
         states, statuses, businessKey, externalId, stateVariableKey, stateVariableValue, includes, include, maxResults,
-        maxActions, queryArchive, this.workflowInstances, this.listWorkflowConverter).iterator())));
+        maxActions, queryArchive, includeAllExecutors, this.workflowInstances, this.listWorkflowConverter).iterator())));
   }
 
   @PutMapping(path = "/{id}/signal", consumes = APPLICATION_JSON_VALUE)

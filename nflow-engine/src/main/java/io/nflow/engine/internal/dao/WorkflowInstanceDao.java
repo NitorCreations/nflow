@@ -193,7 +193,8 @@ public class WorkflowInstanceDao {
       StringBuilder sqlb = new StringBuilder(256);
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
       Object[] instanceValues = new Object[] { instance.type, instance.priority, instance.parentWorkflowId,
-          instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
+          instance.parentActionId, instance.businessKey, instance.externalId,
+              instance.executorGroup == null ? executorInfo.getExecutorGroup() : instance.executorGroup,
           instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
           toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
@@ -245,7 +246,11 @@ public class WorkflowInstanceDao {
               ps.setObject(p++, instance.parentActionId);
               ps.setString(p++, instance.businessKey);
               ps.setString(p++, instance.externalId);
-              ps.setString(p++, executorInfo.getExecutorGroup());
+              if (instance.executorGroup!=null) {
+                ps.setString(p++, instance.executorGroup);
+              } else {
+                ps.setString(p++, executorInfo.getExecutorGroup());
+              }
               ps.setString(p++, instance.status.name());
               ps.setString(p++, instance.state);
               ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
@@ -692,7 +697,9 @@ public class WorkflowInstanceDao {
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     queryOptionsToSqlAndParams(query, conditions, params);
-    conditions.add(executorInfo.getExecutorGroupCondition());
+    if (!query.includeAllExecutors) {
+      conditions.add(executorInfo.getExecutorGroupCondition());
+    }
     String sqlSuffix = "from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
       sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and " + sqlVariants.clobToComparable("wfs.state_value") + " = :state_value ";
@@ -701,7 +708,13 @@ public class WorkflowInstanceDao {
       params.addValue("state_key", query.stateVariableKey);
       params.addValue("state_value", query.stateVariableValue);
     }
-    sqlSuffix += "where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    String collection = collectionToDelimitedString(conditions, " and ");
+    if (collection.isEmpty()){
+      //remove the where clause when there are no conditions
+      sqlSuffix +=  " order by id desc";
+    }else {
+      sqlSuffix += "where " + collection + " order by id desc";
+    }
     long maxResults = getMaxResults(query.maxResults);
     String sql = sqlVariants.limit("select " + ALL_WORKFLOW_COLUMNS + ", 0 as archived " + sqlSuffix, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
