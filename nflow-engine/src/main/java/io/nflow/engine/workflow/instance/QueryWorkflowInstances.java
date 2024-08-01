@@ -70,9 +70,9 @@ public class QueryWorkflowInstances extends ModelObject {
    */
   public final boolean includeActions;
   /**
-   * Setting this to true will make the query return all executor groups
+   * optional filter of executor groups, if empty it does not return all but instead backwards compactability of the current api group
    */
-  public final boolean includeAllExecutors;
+  public final List<String> executorGroups;
 
   /**
    * Setting this to true will make the query return also the current state variables for the workflow.
@@ -118,7 +118,7 @@ public class QueryWorkflowInstances extends ModelObject {
     this.stateVariableKey = builder.stateVariableKey;
     this.stateVariableValue = builder.stateVariableValue;
     this.includeActions = builder.includeActions;
-    this.includeAllExecutors = builder.includeAllExecutors;
+    this.executorGroups = builder.executorGroups;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
     this.includeChildWorkflows = builder.includeChildWorkflows;
@@ -142,7 +142,7 @@ public class QueryWorkflowInstances extends ModelObject {
     String stateVariableKey;
     String stateVariableValue;
     boolean includeActions;
-    boolean includeAllExecutors;
+    List<String> executorGroups = new ArrayList<>();
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
     boolean includeChildWorkflows;
@@ -168,7 +168,7 @@ public class QueryWorkflowInstances extends ModelObject {
       this.stateVariableKey = copy.stateVariableKey;
       this.stateVariableValue = copy.stateVariableValue;
       this.includeActions = copy.includeActions;
-      this.includeAllExecutors = copy.includeAllExecutors;
+      this.executorGroups = copy.executorGroups;
       this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
       this.includeActionStateVariables = copy.includeActionStateVariables;
       this.includeChildWorkflows = copy.includeChildWorkflows;
@@ -281,12 +281,12 @@ public class QueryWorkflowInstances extends ModelObject {
     }
 
     /**
-     * Set whether all executor groups should be included in the results. Default is `false`.
-     * @param includeAllExecutors True to include all executors, false otherwise.
+     * Set whether specific executor groups should be included in the results.
+     * @param executorGroups list of executor names
      * @return this.
      */
-    public Builder setIncludeAllExecutors(boolean includeAllExecutors) {
-      this.includeAllExecutors = includeAllExecutors;
+    public Builder setExecutorGroups(String ...  executorGroups) {
+      this.executorGroups.addAll(asList(executorGroups));
       return this;
     }
 

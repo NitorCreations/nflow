@@ -250,7 +250,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void listWorkflowInstancesWorks() {
     makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
-        EnumSet.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, null, true,false));
+        EnumSet.of(WorkflowInstanceStatus.created), "businessKey", "externalId", null, null, null, null, null, null, true,null));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();
@@ -277,7 +277,7 @@ public class WorkflowInstanceResourceTest {
   public void listWorkflowInstancesWorksWithAllIncludes() {
     makeRequest(() -> resource.listWorkflowInstances(Set.of(42L), Set.of("type"), 99L, 88L, Set.of("state"),
         EnumSet.of(WorkflowInstanceStatus.created, WorkflowInstanceStatus.executing), "businessKey", "externalId", "stateVarKey",
-        "stateVarValue", EnumSet.allOf(ApiWorkflowInstanceInclude.class), null, 1L, 2L, false,false));
+        "stateVarValue", EnumSet.allOf(ApiWorkflowInstanceInclude.class), null, 1L, 2L, false,null));
 
     verify(workflowInstances).listWorkflowInstancesAsStream(queryCaptor.capture());
     QueryWorkflowInstances query = queryCaptor.getValue();

@@ -176,12 +176,11 @@ public class WorkflowInstanceResource extends JaxRsResource {
       @QueryParam("queryArchive") @Parameter(
           description = "Query also the archive if not enough results found from main tables",
           schema = @Schema(defaultValue = QUERY_ARCHIVED_DEFAULT_STR)) Boolean queryArchive,
-      @QueryParam("includeAllExecutors") @Parameter(
-          description = "Include Executors in the search",
-          schema = @Schema(defaultValue = QUERY_INCLUDE_ALL_EXECUTORS_DEFAULT_STR)) Boolean includeAllExecutors) {
+      @QueryParam("executorGroups") @Parameter(
+          description = "Include Executors in the search") Set<String> executorGroups) {
     return handleExceptions(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId, states, statuses,
         businessKey, externalId, stateVariableKey, stateVariableValue, includes, include, maxResults, maxActions,
-        ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT),ofNullable(includeAllExecutors).orElse(false), workflowInstances, listWorkflowConverter).iterator()));
+        ofNullable(queryArchive).orElse(QUERY_ARCHIVED_DEFAULT),executorGroups, workflowInstances, listWorkflowConverter).iterator()));
   }
 
   @PUT
