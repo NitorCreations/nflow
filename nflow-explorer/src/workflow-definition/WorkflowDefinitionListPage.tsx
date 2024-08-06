@@ -3,11 +3,10 @@ import {
   createTheme,
   Grid,
   Container,
-  MuiThemeProvider
-} from '@material-ui/core';
+  ThemeProvider
+} from '@mui/material';
 import MUIDataTable from 'mui-datatables';
-import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
-import Search from '@material-ui/icons/Search';
+import {AddCircleOutlineOutlined as AddCircleOutlineOutlinedIcon, Search} from '@mui/icons-material';
 
 import {useConfig} from '../config';
 import {InternalLink, Spinner} from '../component';
@@ -21,29 +20,37 @@ const DefinitionTable = ({
 }) => {
   const getMuiTheme = () =>
     createTheme({
-      overrides: {
+      components: {
         MUIDataTable: {
-          root: {},
-          paper: {
-            boxShadow: 'none'
+          styleOverrides: {
+            root: {},
+            paper: {
+              boxShadow: 'none'
+            }
           }
         },
         MUIDataTableBodyRow: {
-          root: {
-            '&:nth-child(odd)': {
-              backgroundColor: '#efefef'
+          styleOverrides: {
+            root: {
+              '&:nth-child(odd)': {
+                backgroundColor: '#efefef'
+              }
             }
           }
         },
         MUIDataTableBodyCell: {
-          root: {
-            padding: 6,
-            wordBreak: 'break-all'
+          styleOverrides: {
+            root: {
+              padding: 6,
+              wordBreak: 'break-all'
+            }
           }
         },
         MUIDataTableToolbar: {
-          root: {
-            display: 'none'
+          styleOverrides: {
+            root: {
+              display: 'none'
+            }
           }
         }
       }
@@ -87,7 +94,7 @@ const DefinitionTable = ({
   ];
 
   return (
-    <MuiThemeProvider theme={getMuiTheme()}>
+    <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
         data={definitions}
@@ -105,7 +112,7 @@ const DefinitionTable = ({
           } as any
         } // TODO: types do not support storageKey property yet
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 };
 

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './App.scss';
-import {HashRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
-import {Snackbar} from '@material-ui/core';
+import {Navigate, HashRouter as Router, Route, Routes} from 'react-router-dom';
+import {Snackbar} from '@mui/material';
 
 import {Navigation, Feedback, FeedbackContext} from './component';
 import {FeedbackMessage} from './types';
@@ -36,7 +36,7 @@ function App() {
   };
 
   return (
-    <Router hashType="hashbang">
+    <Router>
       <FeedbackContext.Provider value={{addFeedback, getCurrentFeedback}}>
         <div className="App">
           <header>
@@ -44,39 +44,35 @@ function App() {
             <Navigation />
           </header>
           <br />
-          <Switch>
-            <Route exact path="/">
-              <Redirect to="/workflow" />
+          <Routes>
+            <Route path="/" element={<Navigate to="/workflow" />} />
+            <Route path="/search" element={<Navigate to="/workflow"/>} />
+            <Route path="/workflow/create" element={ <CreateWorkflowInstancePage />}>
+
             </Route>
-            <Route path="/search">
-              <Redirect to="/workflow" />
+            <Route path="/workflow/:id" element={<WorkflowInstanceDetailsPage />}>
+
             </Route>
-            <Route path="/workflow/create">
-              <CreateWorkflowInstancePage />
+            <Route path="/workflow" element={<WorkflowInstanceListPage />}>
+
             </Route>
-            <Route path="/workflow/:id">
-              <WorkflowInstanceDetailsPage />
+            <Route path="/workflow-definition/:type" element={<WorkflowDefinitionDetailsPage />}>
+
             </Route>
-            <Route path="/workflow">
-              <WorkflowInstanceListPage />
+            <Route path="/workflow-definition" element={<WorkflowDefinitionListPage />}>
+
             </Route>
-            <Route path="/workflow-definition/:type">
-              <WorkflowDefinitionDetailsPage />
+            <Route path="/executors" element={<ExecutorListPage />}>
+
             </Route>
-            <Route path="/workflow-definition">
-              <WorkflowDefinitionListPage />
-            </Route>
-            <Route path="/executors">
-              <ExecutorListPage />
-            </Route>
-            <Route path="/about">
-              <AboutPage />
+            <Route path="/about" element={<AboutPage />}>
+
             </Route>
 
-            <Route path="*">
-              <NotFoundPage />
+            <Route path="*" element={<NotFoundPage />}>
+
             </Route>
-          </Switch>
+          </Routes>
           <Snackbar
             open={!!feedback}
             autoHideDuration={10000}

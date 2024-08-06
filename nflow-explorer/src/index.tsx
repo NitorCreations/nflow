@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {readConfig, ConfigContext} from './config';
-import {createTheme, MuiThemeProvider} from '@material-ui/core/styles';
-import {TableCell} from '@material-ui/core';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import {TableCell} from '@mui/material';
 
 // https://material-ui.com/components/typography/#general
 // https://fontsource.org/docs/getting-started
@@ -65,11 +65,11 @@ readConfig().then(config => {
   console.info('Config read');
   ReactDOM.render(
     <React.StrictMode>
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <ConfigContext.Provider value={config}>
           {wrapMsalIfNeeded(<App />, config)}
         </ConfigContext.Provider>
-      </MuiThemeProvider>
+      </ThemeProvider>
     </React.StrictMode>,
     document.getElementById('root')
   );

@@ -4,8 +4,8 @@ import {
   createTheme,
   Grid,
   Container,
-  MuiThemeProvider
-} from '@material-ui/core';
+  ThemeProvider
+} from '@mui/material';
 import MUIDataTable from 'mui-datatables';
 
 import {formatRelativeTime, formatTimestamp} from '../utils';
@@ -17,22 +17,28 @@ import {listExecutors} from '../service';
 const ExecutorTable = ({executors}: {executors: Executor[]}) => {
   const getMuiTheme = () =>
     createTheme({
-      overrides: {
+      components: {
         MUIDataTable: {
-          root: {},
-          paper: {
-            boxShadow: 'none'
+          styleOverrides: {
+            root: {},
+            paper: {
+              boxShadow: 'none'
+            }
           }
         },
         MUIDataTableBodyCell: {
-          root: {
-            padding: 6,
-            wordBreak: 'break-all'
+          styleOverrides: {
+            root: {
+              padding: 6,
+              wordBreak: 'break-all'
+            }
           }
         },
         MUIDataTableToolbar: {
-          root: {
-            display: 'none'
+          styleOverrides: {
+            root: {
+              display: 'none'
+            }
           }
         }
       }
@@ -105,7 +111,7 @@ const ExecutorTable = ({executors}: {executors: Executor[]}) => {
   };
 
   return (
-    <MuiThemeProvider theme={getMuiTheme()}>
+    <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
         data={executors}
@@ -134,7 +140,7 @@ const ExecutorTable = ({executors}: {executors: Executor[]}) => {
           } as any
         } // TODO: types do not support storageKey property yet
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 };
 

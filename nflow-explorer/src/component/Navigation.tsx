@@ -1,28 +1,10 @@
 import React, {useState} from 'react';
-import {NavLink, useHistory} from 'react-router-dom';
-import Typography from '@material-ui/core/Typography';
+import {NavLink, useNavigate} from 'react-router-dom';
 
 import './Navigation.scss';
-import {AppBar, Button, MenuItem, Select, Toolbar} from '@material-ui/core';
-import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {AppBar, Button, MenuItem, Select, Toolbar, Typography} from '@mui/material';
 import {useConfig} from '../config';
 import {Config} from '../types';
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    activeLink: {
-      background: 'white',
-      color: 'blue!important'
-    },
-    passiveLink: {
-      color: 'white',
-      fontSize: 'large'
-    },
-    endpointSelect: {
-      background: 'white'
-    }
-  })
-);
 
 const renderLogo = (config: Config) => {
   const nflowLogoTitle = config.nflowLogoTitle
@@ -36,8 +18,7 @@ const renderLogo = (config: Config) => {
 
 const Navigation = () => {
   const config = useConfig();
-  const history = useHistory();
-  const classes = useStyles();
+  const navigate = useNavigate();
   const [selectedEndpointId, setSelectedEndpointId] = useState(
     config.activeNflowEndpoint.id
   );
@@ -49,7 +30,7 @@ const Navigation = () => {
           <Select
             value={selectedEndpointId}
             variant="outlined"
-            className={classes.endpointSelect}
+            sx={{background: "white"}}
             onChange={selected => {
               const newActiveEndpoint = config.nflowEndpoints.find(
                 endpoint => endpoint.id === selected.target.value
@@ -57,7 +38,7 @@ const Navigation = () => {
               if (newActiveEndpoint) {
                 config.activeNflowEndpoint = newActiveEndpoint;
                 setSelectedEndpointId(newActiveEndpoint.id);
-                history.push('/');
+                navigate('/');
               }
             }}
           >
@@ -70,37 +51,17 @@ const Navigation = () => {
             })}
           </Select>
         )}
-        <Button
-          component={NavLink}
-          to="/workflow"
-          activeClassName={classes.activeLink}
-          className={classes.passiveLink}
-        >
-          Workflow instances
+        <Button>
+          <NavLink to="/workflow">Workflow instances</NavLink>
         </Button>
-        <Button
-          component={NavLink}
-          to="/workflow-definition"
-          activeClassName={classes.activeLink}
-          className={classes.passiveLink}
-        >
-          Workflow definitions
+        <Button>
+          <NavLink to="/workflow-definition">Workflow definitions</NavLink>
         </Button>
-        <Button
-          component={NavLink}
-          to="/executors"
-          activeClassName={classes.activeLink}
-          className={classes.passiveLink}
-        >
-          Executors
+        <Button>
+          <NavLink to="/executors">Executors</NavLink>
         </Button>
-        <Button
-          component={NavLink}
-          to="/about"
-          activeClassName={classes.activeLink}
-          className={classes.passiveLink}
-        >
-          About
+        <Button>
+          <NavLink to="/about">About</NavLink>
         </Button>
       </Toolbar>
     </AppBar>

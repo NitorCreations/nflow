@@ -2,12 +2,12 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   Grid,
   createTheme,
-  MuiThemeProvider,
+  ThemeProvider,
   TableRow,
   TableCell
-} from '@material-ui/core';
+} from '@mui/material';
 import MUIDataTable, {ExpandButton} from 'mui-datatables';
-import {Warning} from '@material-ui/icons';
+import {Warning} from '@mui/icons-material';
 
 import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
@@ -113,24 +113,30 @@ const InstanceTable = ({
 
   const getMuiTheme = () =>
     createTheme({
-      overrides: {
+      components: {
         MUIDataTable: {
-          root: {},
-          paper: {
-            boxShadow: 'none'
+          styleOverrides: {
+            root: {},
+            paper: {
+              boxShadow: 'none'
+            }
           }
         },
         MUIDataTableBodyRow: {
-          root: {
-            '&:nth-child(odd)': {
-              backgroundColor: '#efefef'
+          styleOverrides: {
+            root: {
+              '&:nth-child(odd)': {
+                backgroundColor: '#efefef'
+              }
             }
           }
         },
         MUIDataTableBodyCell: {
-          root: {
-            padding: 6,
-            wordBreak: 'break-all'
+          styleOverrides: {
+            root: {
+              padding: 6,
+              wordBreak: 'break-all'
+            }
           }
         }
       }
@@ -310,7 +316,7 @@ const InstanceTable = ({
   }
 
   return (
-    <MuiThemeProvider theme={getMuiTheme()}>
+    <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title="Search result"
         data={instances}
@@ -343,7 +349,7 @@ const InstanceTable = ({
           } as any
         } // TODO: types do not support storageKey property yet
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 };
 

@@ -7,7 +7,7 @@ import {
   Typography,
   Grid,
   Container
-} from '@material-ui/core';
+} from '@mui/material';
 
 import {StateGraph, InternalLink, ObjectTable, Spinner} from '../component';
 import {WorkflowDefinition, WorkflowInstance} from '../types';

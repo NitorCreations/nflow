@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {Typography, Grid, Container} from '@mui/material';
 import {useLocation} from 'react-router-dom';
 
 import {CreateWorkflowInstanceForm} from './CreateWorkflowInstanceForm';

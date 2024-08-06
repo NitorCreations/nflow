@@ -1,4 +1,4 @@
-import {Button, FormLabel, Grid, MenuItem} from '@material-ui/core';
+import {Button, FormLabel, Grid, MenuItem} from '@mui/material';
 import {TextField, Select} from 'mui-rff';
 import React, {useContext, useState} from 'react';
 import {Form} from 'react-final-form';
@@ -10,7 +10,7 @@ import {
   WorkflowSignal
 } from '../../types';
 import {sendWorkflowInstanceSignal} from '../../service';
-import {Alert} from '@material-ui/lab';
+import {Alert} from '@mui/material';
 
 const UpdateWorkflowInstanceSignalForm = function (props: {
   instance: WorkflowInstance;
