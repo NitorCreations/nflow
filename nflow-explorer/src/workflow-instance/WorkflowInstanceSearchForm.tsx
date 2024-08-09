@@ -5,6 +5,8 @@ import {Box, Button, Grid, TextField, createTheme} from '@mui/material';
 import {Selection} from '../component';
 import {ThemeProvider} from "@mui/material/styles";
 
+import './workflow-instance.scss';
+
 const customMuiTheme = createTheme({
   components: {
     MuiFormControl: {
@@ -158,8 +160,8 @@ function WorkflowInstanceSearchForm(props: {
   return (
     <ThemeProvider theme={customMuiTheme}>
       <form>
-        <Grid container alignItems="center">
-          <Grid item xs={11}>
+        <Grid container alignItems="center" spacing={3}>
+          <Grid item xs={12} md={11} justifyContent="space-between" className="workflow-instance-search-criteria">
             <Selection
               label="Type"
               items={types}
@@ -189,12 +191,14 @@ function WorkflowInstanceSearchForm(props: {
             <TextField
               label="Business key"
               value={businessKey}
+              variant="standard"
               onChange={e => setBusinessKey(e.target.value)}
             />
 
             <TextField
               label="External ID"
               value={externalId}
+              variant="standard"
               onChange={e => setExternalId(e.target.value)}
             />
 
@@ -202,6 +206,7 @@ function WorkflowInstanceSearchForm(props: {
               label="Instance ID"
               type="number"
               value={id}
+              variant="standard"
               onChange={e => setId(e.target.value)}
             />
 
@@ -209,11 +214,12 @@ function WorkflowInstanceSearchForm(props: {
               label="Parent instance ID"
               type="number"
               value={parentWorkflowId}
+              variant="standard"
               onChange={e => setParentWorkflowId(e.target.value)}
             />
           </Grid>
 
-          <Grid item xs={1}>
+          <Grid item xs={12} md={1}>
             <Box display="flex" flexDirection="column">
               <Button onClick={handleSubmit} variant="contained">
                 Search

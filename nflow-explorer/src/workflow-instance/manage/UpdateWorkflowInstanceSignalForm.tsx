@@ -51,7 +51,7 @@ const UpdateWorkflowInstanceSignalForm = function (props: {
               <FormLabel>Send signal</FormLabel>
             </Grid>
             <Grid item xs={8}>
-              <Select name="signal">
+              <Select name="signal" variant="standard">
                 {props.definition.supportedSignals.map(
                   (signal: WorkflowSignal) => {
                     return (
@@ -64,7 +64,7 @@ const UpdateWorkflowInstanceSignalForm = function (props: {
               </Select>
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Signal reason" name="reason" />
+              <TextField label="Signal reason" name="reason" variant="standard" />
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained" disabled={submitting}>

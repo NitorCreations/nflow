@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {debounce} from 'lodash';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {Container, Button, TextField, createTheme} from '@mui/material';
+import {Container, Button, TextField, createTheme, Grid} from '@mui/material';
 import {Selection, useFeedback} from '../component';
 import {
   NewWorkflowInstance,
@@ -132,25 +132,35 @@ function CreateWorkflowInstanceForm(props: {
   return (
     <ThemeProvider theme={customMuiTheme}>
       <form>
-        <Container className="create-workflow-container">
-          <Selection
-            label="Workflow definition"
-            items={definitionNames}
-            selected={(selectedDefinitionContext.selectedDefinition! as any).type}
-            onChange={selectDefinition}
-            getSelectionLabel={(x: any) => x}
-          />
-          <TextField
-            label="External id"
-            value={externalId}
-            onChange={(e: any) => setExternalId(e.target.value)}
-          />
-          <TextField
-            label="Business key"
-            value={businessKey}
-            onChange={(e: any) => setBusinessKey(e.target.value)}
-          />
-          <div>
+        <Grid container>
+          <Grid item xs={4}>
+            <Selection
+              label="Workflow definition"
+              items={definitionNames}
+              selected={(selectedDefinitionContext.selectedDefinition! as any).type}
+              onChange={selectDefinition}
+              getSelectionLabel={(x: any) => x}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="External id"
+              value={externalId}
+              onChange={(e: any) => setExternalId(e.target.value)}
+              variant="standard"
+              sx={{margin: "0rem"}}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="Business key"
+              value={businessKey}
+              onChange={(e: any) => setBusinessKey(e.target.value)}
+              variant="standard"
+              sx={{margin: "0rem"}}
+            />
+          </Grid>
+          <Grid item xs={12}>
             <TextField
               fullWidth
               error={!!stateVariableError}
@@ -163,9 +173,10 @@ function CreateWorkflowInstanceForm(props: {
               minRows={10}
               value={stateVariables}
               onChange={(e: any) => setStateVariablesStr(e.target.value)}
+              variant="standard"
             />
-          </div>
-          <div>
+          </Grid>
+          <Grid item xs={2}>
             <Button
               variant="contained"
               onClick={sendCreateRequest}
@@ -173,8 +184,8 @@ function CreateWorkflowInstanceForm(props: {
             >
               Create
             </Button>
-          </div>
-        </Container>
+          </Grid>
+        </Grid>
       </form>
     </ThemeProvider>
   );
