@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {Selection} from '../component';
+import {Executor} from "../types";
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -41,9 +42,13 @@ const stateNames: any = {
 const statusNames: any = {
   [allMarker]: '-- All statuses --'
 };
+const executorGroupNames: any = {
+  [allMarker]: '-- Executor Groups --'
+};
 
 function WorkflowInstanceSearchForm(props: {
   definitions: Array<any>;
+  executorGroups: Array<String>;
   onSubmit: (data: any) => any;
 }) {
   const classes = useStyles();
@@ -60,6 +65,9 @@ function WorkflowInstanceSearchForm(props: {
   const [status, setStatus] = useState<string>(
     queryParams.get('status') || allMarker
   );
+  const [executorGroup, setExecutorGroup] = useState<string>(
+      queryParams.get('executorGroup') || allMarker
+  );
   const [businessKey, setBusinessKey] = useState<string>(
     queryParams.get('businessKey') || ''
   );
@@ -72,6 +80,8 @@ function WorkflowInstanceSearchForm(props: {
   );
 
   const types = [allMarker].concat(props.definitions.map(d => d.type));
+
+  const executorGroups = [allMarker].concat(props.definitions.map(d => d.executorGroup));
 
   // TODO to lodash or not to lodash?
   const selectedWorkflow = props.definitions.filter(d => d.type === type)[0];
@@ -146,6 +156,7 @@ function WorkflowInstanceSearchForm(props: {
   const setWorkflowType = (type: string) => {
     // when type is changed, need to reset all selections that depend on type
     setType(type);
+    setExecutorGroup(executorGroup)
     setState(allMarker);
   };
 
@@ -177,6 +188,13 @@ function WorkflowInstanceSearchForm(props: {
             getSelectionLabel={(status: string) =>
               statusNames[status] || status
             }
+          />
+          <Selection
+            label="Executor Group"
+            items={executorGroups}
+            selected={executorGroup}
+            onChange={setExecutorGroup}
+            getSelectionLabel={(executorGroup: string) => executorGroupNames[executorGroup] || executorGroup}
           />
 
           <TextField

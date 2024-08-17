@@ -47,6 +47,7 @@ const InstanceSummaryTable = ({
       headerName: 'Parent workflow',
       fieldRender: parentLink
     },
+    {field: 'executorGroup', headerName: 'Executor Group'},
     {field: 'state', headerName: 'Current state'},
     {field: 'status', headerName: 'Current status'},
     {

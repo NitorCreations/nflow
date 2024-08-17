@@ -13,8 +13,8 @@ import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
 import {DataTable, InternalLink, Spinner, useFeedback} from '../component';
 import {formatRelativeTime, formatTimestamp} from '../utils';
-import {listWorkflowDefinitions, listWorkflowInstances} from '../service';
-import {WorkflowInstance} from '../types';
+import {listExecutors, listWorkflowDefinitions, listWorkflowInstances} from '../service';
+import {Executor, WorkflowInstance} from '../types';
 import './workflow-instance.scss';
 import '../index.scss';
 
@@ -354,6 +354,7 @@ function WorkflowInstanceListPage() {
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [definitions, setDefinitions] = useState<Array<any>>([]);
   const [instances, setInstances] = useState<Array<WorkflowInstance>>();
+  const [executors, setExecutors] = useState<Array<Executor>>([]);
 
   const fetchDefinitions = useCallback(() => {
     if (feedback.getCurrentFeedback() !== undefined) {
@@ -371,6 +372,17 @@ function WorkflowInstanceListPage() {
       })
       .finally(() => setInitialLoad(false));
   }, [config, feedback]);
+
+  const fetchExecutors = useCallback(() => {
+    listExecutors(config)
+        .then(data => setExecutors(data))
+        .catch(error => {
+          // TODO error handling
+          console.error('Error', error);
+        })
+        .finally(() => setInitialLoad(false));
+  }, [config]);
+
 
   useEffect(() => fetchDefinitions(), [fetchDefinitions]);
 
@@ -407,6 +419,12 @@ function WorkflowInstanceListPage() {
         ) : (
           <WorkflowInstanceSearchForm
             definitions={definitions}
+            //get the distinct list of executor group names and filter where stopped is not set
+            executorGroups={executors
+                .filter(executor => !executor.stopped)
+                .map(executor => executor.executorGroup)
+                .filter((value, index, self) => self.indexOf(value) === index)
+            }
             onSubmit={search}
           />
         )}
