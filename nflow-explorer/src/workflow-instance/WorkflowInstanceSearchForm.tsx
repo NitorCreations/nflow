@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {Selection} from '../component';
-import {Executor} from "../types";
+import {Executor} from '../types';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -43,12 +43,12 @@ const statusNames: any = {
   [allMarker]: '-- All statuses --'
 };
 const executorGroupNames: any = {
-  [allMarker]: '-- Executor Groups --'
+  [allMarker]: '-- Default --'
 };
 
 function WorkflowInstanceSearchForm(props: {
   definitions: Array<any>;
-  executorGroups: Array<String>;
+  executorGroups: Array<any>;
   onSubmit: (data: any) => any;
 }) {
   const classes = useStyles();
@@ -66,7 +66,7 @@ function WorkflowInstanceSearchForm(props: {
     queryParams.get('status') || allMarker
   );
   const [executorGroup, setExecutorGroup] = useState<string>(
-      queryParams.get('executorGroup') || allMarker
+    queryParams.get('executorGroups') || allMarker
   );
   const [businessKey, setBusinessKey] = useState<string>(
     queryParams.get('businessKey') || ''
@@ -81,7 +81,16 @@ function WorkflowInstanceSearchForm(props: {
 
   const types = [allMarker].concat(props.definitions.map(d => d.type));
 
-  const executorGroups = [allMarker].concat(props.definitions.map(d => d.executorGroup));
+  //concat the executor groups
+  // and filter where expires greater than now and not stopped
+  const executorGroups = [allMarker].concat(
+    props.executorGroups
+      // .filter((executorGroup: Executor) => !executorGroup.stopped)
+      // .filter((executorGroup: Executor) => !executorGroup.expires || new Date(executorGroup.expires) > new Date())
+      .map((executorGroup: Executor) => executorGroup.executorGroup)
+      //remove duplicates
+      .filter((value, index, self) => self.indexOf(value) === index)
+  );
 
   // TODO to lodash or not to lodash?
   const selectedWorkflow = props.definitions.filter(d => d.type === type)[0];
@@ -99,6 +108,7 @@ function WorkflowInstanceSearchForm(props: {
         type,
         state,
         status,
+        executorGroup,
         businessKey,
         externalId,
         id,
@@ -139,6 +149,7 @@ function WorkflowInstanceSearchForm(props: {
       parentWorkflowId,
       props,
       state,
+      executorGroup,
       status,
       type
     ]
@@ -156,7 +167,7 @@ function WorkflowInstanceSearchForm(props: {
   const setWorkflowType = (type: string) => {
     // when type is changed, need to reset all selections that depend on type
     setType(type);
-    setExecutorGroup(executorGroup)
+    setExecutorGroup(executorGroup);
     setState(allMarker);
   };
 
@@ -194,7 +205,9 @@ function WorkflowInstanceSearchForm(props: {
             items={executorGroups}
             selected={executorGroup}
             onChange={setExecutorGroup}
-            getSelectionLabel={(executorGroup: string) => executorGroupNames[executorGroup] || executorGroup}
+            getSelectionLabel={(executorGroup: string) =>
+              executorGroupNames[executorGroup] || executorGroup
+            }
           />
 
           <TextField

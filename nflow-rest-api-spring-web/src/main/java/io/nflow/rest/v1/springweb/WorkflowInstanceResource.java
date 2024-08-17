@@ -179,7 +179,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
           description = "Current value of state variable defined by stateVariableKey") String stateVariableValue,
       @RequestParam(value = "queryArchive", required = false, defaultValue = QUERY_ARCHIVED_DEFAULT_STR) @Parameter(
           description = "Query also the archive if not enough results found from main tables") boolean queryArchive,
-      @RequestParam(value = "executorGroups", required = false, defaultValue = "") @Parameter(
+      @RequestParam(value = "executorGroup", required = false, defaultValue = "") @Parameter(
           description = "Query executor groups, default is just the current executor's group, system property to change default") Set<String> executorGroups) {
     return handleExceptions(() -> wrapBlocking(() -> ok(super.listWorkflowInstances(ids, types, parentWorkflowId, parentActionId,
         states, statuses, businessKey, externalId, stateVariableKey, stateVariableValue, includes, include, maxResults,

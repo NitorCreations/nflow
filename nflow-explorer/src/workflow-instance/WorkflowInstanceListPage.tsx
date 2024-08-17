@@ -13,7 +13,11 @@ import WorkflowInstanceSearchForm from './WorkflowInstanceSearchForm';
 import {useConfig} from '../config';
 import {DataTable, InternalLink, Spinner, useFeedback} from '../component';
 import {formatRelativeTime, formatTimestamp} from '../utils';
-import {listExecutors, listWorkflowDefinitions, listWorkflowInstances} from '../service';
+import {
+  listAllExecutors,
+  listWorkflowDefinitions,
+  listWorkflowInstances
+} from '../service';
 import {Executor, WorkflowInstance} from '../types';
 import './workflow-instance.scss';
 import '../index.scss';
@@ -250,6 +254,14 @@ const InstanceTable = ({
       }
     },
     {
+      name: 'executorGroup',
+      label: 'Executor Group',
+      options: {
+        display: false,
+        filter: false
+      }
+    },
+    {
       name: 'started',
       label: 'Started',
       options: {
@@ -352,6 +364,7 @@ function WorkflowInstanceListPage() {
   const feedback = useFeedback();
 
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  const [executorLoad, setExecutorLoad] = useState<boolean>(true);
   const [definitions, setDefinitions] = useState<Array<any>>([]);
   const [instances, setInstances] = useState<Array<WorkflowInstance>>();
   const [executors, setExecutors] = useState<Array<Executor>>([]);
@@ -374,17 +387,17 @@ function WorkflowInstanceListPage() {
   }, [config, feedback]);
 
   const fetchExecutors = useCallback(() => {
-    listExecutors(config)
-        .then(data => setExecutors(data))
-        .catch(error => {
-          // TODO error handling
-          console.error('Error', error);
-        })
-        .finally(() => setInitialLoad(false));
+    listAllExecutors(config)
+      .then(data => setExecutors(data))
+      .catch(error => {
+        // TODO error handling
+        console.error('Error', error);
+      })
+      .finally(() => setExecutorLoad(false));
   }, [config]);
 
-
   useEffect(() => fetchDefinitions(), [fetchDefinitions]);
+  useEffect(() => fetchExecutors(), [fetchExecutors]);
 
   const searchInstances = useCallback(
     (data: any) => {
@@ -414,17 +427,13 @@ function WorkflowInstanceListPage() {
         style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10}}
         xs={12}
       >
-        {initialLoad ? (
+        {initialLoad && executorLoad ? (
           <Spinner />
         ) : (
           <WorkflowInstanceSearchForm
             definitions={definitions}
             //get the distinct list of executor group names and filter where stopped is not set
-            executorGroups={executors
-                .filter(executor => !executor.stopped)
-                .map(executor => executor.executorGroup)
-                .filter((value, index, self) => self.indexOf(value) === index)
-            }
+            executorGroups={executors}
             onSubmit={search}
           />
         )}

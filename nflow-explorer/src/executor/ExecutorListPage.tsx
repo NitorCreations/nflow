@@ -12,7 +12,7 @@ import {formatRelativeTime, formatTimestamp} from '../utils';
 import {useConfig} from '../config';
 import {Spinner} from '../component';
 import {Executor} from '../types';
-import {listExecutors} from '../service';
+import {listAllExecutors} from '../service';
 
 const ExecutorTable = ({executors}: {executors: Executor[]}) => {
   const getMuiTheme = () =>
@@ -144,7 +144,7 @@ function ExecutorListPage() {
   const config = useConfig();
 
   const fetchExecutors = useCallback(() => {
-    listExecutors(config)
+    listAllExecutors(config)
       .then(data => setExecutors(data))
       .catch(error => {
         // TODO error handling
