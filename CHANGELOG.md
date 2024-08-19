@@ -8,6 +8,7 @@
   - Support Azure AD authentication in Explorer (see nflow-explorer/src/config.js for configuration options)
   - Improve REST API error response handling
   - Sort state variables by name
+  - Update postgres db schema table id's to bigserial instead of serial
 - Dependency updates
   - Jetty 11.0.20
   - Apache CFX 4.0.4
