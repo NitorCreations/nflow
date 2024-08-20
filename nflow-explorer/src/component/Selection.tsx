@@ -25,7 +25,7 @@ function Selection(props: {
 
   let currentIndex = ++index;
   return (
-    <FormControl className={classes.root} style={{minWidth: 240}}>
+    <FormControl className={classes.root} style={{minWidth: 200}}>
       <InputLabel id={`select-label-${currentIndex}`}>{props.label}</InputLabel>
       <Select
         labelId={`select-label-${currentIndex}`}
