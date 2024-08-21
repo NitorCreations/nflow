@@ -98,7 +98,7 @@ public class WorkflowDefinitionDao {
   }
 
   public List<StoredWorkflowDefinition> queryStoredWorkflowDefinitions(Collection<String> types) {
-    String sql = "select definition from nflow_workflow_definition where " + executorInfo.getExecutorGroupCondition();
+    String sql = "select definition from nflow_workflow_definition  " ;
     MapSqlParameterSource params = new MapSqlParameterSource();
     if (!isEmpty(types)) {
       sql += " and type in (:types)";
