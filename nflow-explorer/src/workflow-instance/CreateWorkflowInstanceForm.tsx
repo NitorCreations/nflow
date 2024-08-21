@@ -5,6 +5,7 @@ import {Container, Button, TextField} from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
 import {Selection, useFeedback} from '../component';
 import {
+  Executor,
   NewWorkflowInstance,
   NewWorkflowInstanceResponse,
   WorkflowDefinition
@@ -29,6 +30,7 @@ const useStyles = makeStyles(theme => ({
 
 function CreateWorkflowInstanceForm(props: {
   definitions: WorkflowDefinition[];
+  executorGroups: Array<any>;
 }) {
   const feedback = useFeedback();
   const config = useContext(ConfigContext);
@@ -45,6 +47,9 @@ function CreateWorkflowInstanceForm(props: {
   const [businessKey, setBusinessKey] = useState<string>(
     queryParams.get('businessKey') || ''
   );
+  const [executorGroup, setExecutorGroup] = useState<string>(
+    queryParams.get('executorGroups') || ''
+  );
   const [stateVariables, setStateVariables] = useState<string>(
     queryParams.get('stateVariables') || ''
   );
@@ -55,6 +60,11 @@ function CreateWorkflowInstanceForm(props: {
   const [stateVariableError, setStateVariableError] = useState<
     string | undefined
   >();
+
+  const executorGroups = props.executorGroups
+    .map((executorGroup: Executor) => executorGroup.executorGroup)
+    //remove duplicates
+    .filter((value, index, self) => self.indexOf(value) === index);
 
   const selectDefinition = (type: string) => {
     const definition = definitionFromType(type);
@@ -87,7 +97,7 @@ function CreateWorkflowInstanceForm(props: {
   const definitionNames = props.definitions.map(definition => definition.type);
 
   const formValid = () => {
-    return !stateVariableError;
+    return !stateVariableError && executorGroup.trim() !== '';
   };
 
   // TODO belongs to Page class?
@@ -96,6 +106,7 @@ function CreateWorkflowInstanceForm(props: {
     // TODO startState
     const data: NewWorkflowInstance = {
       type: (selectedDefinitionContext.selectedDefinition! as any).type,
+      executorGroup: executorGroup,
       businessKey: businessKey || undefined,
       externalId: externalId || undefined,
       activationTime: undefined,
@@ -130,6 +141,13 @@ function CreateWorkflowInstanceForm(props: {
           items={definitionNames}
           selected={(selectedDefinitionContext.selectedDefinition! as any).type}
           onChange={selectDefinition}
+          getSelectionLabel={(x: any) => x}
+        />
+        <Selection
+          label="Executor Group"
+          items={executorGroups}
+          selected={executorGroup}
+          onChange={setExecutorGroup}
           getSelectionLabel={(x: any) => x}
         />
         <TextField

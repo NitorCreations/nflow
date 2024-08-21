@@ -85,8 +85,6 @@ function WorkflowInstanceSearchForm(props: {
   // and filter where expires greater than now and not stopped
   const executorGroups = [allMarker].concat(
     props.executorGroups
-      // .filter((executorGroup: Executor) => !executorGroup.stopped)
-      // .filter((executorGroup: Executor) => !executorGroup.expires || new Date(executorGroup.expires) > new Date())
       .map((executorGroup: Executor) => executorGroup.executorGroup)
       //remove duplicates
       .filter((value, index, self) => self.indexOf(value) === index)

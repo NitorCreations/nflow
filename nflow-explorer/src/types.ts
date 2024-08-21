@@ -1,4 +1,4 @@
-import {Configuration, PublicClientApplication} from "@azure/msal-browser";
+import {Configuration, PublicClientApplication} from '@azure/msal-browser';
 
 interface Endpoint {
   id: string;
@@ -132,6 +132,7 @@ interface WorkflowSummaryStatistics {
  */
 interface NewWorkflowInstance {
   type: string;
+  executorGroup: string;
   businessKey?: string;
   externalId?: string;
   activationTime?: Date;
