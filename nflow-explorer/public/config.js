@@ -24,10 +24,10 @@ var Config = new function() {
    */
   this.nflowEndpoints = [
     {
-      id: 'localhost',
-      title: 'local nflow instance',
-      apiUrl: 'http://localhost:7500/nflow/api',
-      docUrl: 'http://localhost:7500/nflow/ui/doc/'
+      id: 'nflow.io',
+      title: 'nflow.io demo deployment',
+      apiUrl: 'http://localhost:3000/nflow/api',
+      docUrl: 'http://localhost:3000/nflow/ui/doc/'
     },
   ];
 

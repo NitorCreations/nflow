@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
+  "proxy": "https://nflow.io",
   "dependencies": {
     "@azure/msal-browser": "^3.13.0",
     "@azure/msal-react": "^2.0.15",
@@ -50,7 +51,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "deploy-dev": "npm run build && aws s3 sync build/ s3://nflow-explorer-dev/dev/"
+    "deploy-dev": "npm run build && sed -i 's/http:\\/\\/localhost:3000/https:\\/\\/nflow.io/' build/config.js && aws s3 sync build/ s3://nflow-explorer-dev/dev/"
   },
   "eslintConfig": {
     "extends": [
