@@ -67,9 +67,11 @@ function App() {
             }}
             onClose={closeFeedback}
           >
-            {feedback && (
-              <Feedback feedback={feedback} onClose={closeFeedback} />
-            )}
+            <div>
+              {feedback && (
+                <Feedback feedback={feedback} onClose={closeFeedback} />
+              )}
+            </div>
           </Snackbar>
         </div>
       </FeedbackContext.Provider>

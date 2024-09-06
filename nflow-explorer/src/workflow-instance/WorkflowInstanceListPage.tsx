@@ -371,7 +371,7 @@ function WorkflowInstanceListPage() {
       .catch(error => {
         console.error('Error', error);
         feedback.addFeedback({
-          message: `Failed to query workflow instances from nFlow REST API`,
+          message: `Failed to query workflow definitions from nFlow REST API`,
           severity: 'error'
         });
       })
