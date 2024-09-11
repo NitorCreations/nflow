@@ -13,6 +13,7 @@
   - Improve REST API error response handling
   - Sort state variables by name
   - Use ReactJS 18.x, material UI 5.x
+  - Replace Create React App -build by Vite
 - Dependency updates
   - Jetty 11.0.20
   - Apache CFX 4.0.4
