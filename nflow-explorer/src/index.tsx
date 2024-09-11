@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {readConfig, ConfigContext} from './config';
@@ -19,6 +18,7 @@ import {
   MsalAuthenticationTemplate,
   MsalProvider,
 } from "@azure/msal-react";
+import { createRoot } from 'react-dom/client';
 
 // see: https://github.com/gregnb/mui-datatables/issues/1893
 const oldRender = (TableCell as any).render;
@@ -69,15 +69,16 @@ const wrapMsalIfNeeded = (app: any, config: Config): any => {
 
 readConfig().then(config => {
   console.info('Config read');
-  ReactDOM.render(
+  const container = document.getElementById('root');
+  const root = createRoot(container!);
+  root.render(
     <React.StrictMode>
       <ThemeProvider theme={theme}>
         <ConfigContext.Provider value={config}>
           {wrapMsalIfNeeded(<App />, config)}
         </ConfigContext.Provider>
       </ThemeProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
   );
 });
 

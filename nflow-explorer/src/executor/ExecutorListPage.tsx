@@ -137,8 +137,8 @@ const ExecutorTable = ({executors}: {executors: Executor[]}) => {
                 className: 'table table-hover'
               };
             }
-          } as any
-        } // TODO: types do not support storageKey property yet
+          }
+        }
       />
     </ThemeProvider>
   );

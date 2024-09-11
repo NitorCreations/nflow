@@ -167,7 +167,12 @@ const InstanceSummary = ({
       </Grid>
       <Grid item xs={12} sm={6}>
         <AppBar position="static" style={{background: '#7f77ee'}}>
-          <Tabs value={selectedTab} onChange={handleChange}>
+          <Tabs
+            value={selectedTab}
+            textColor="secondary"
+            indicatorColor="secondary"
+            onChange={handleChange}
+          >
             <Tab label="Action history" />
             <Tab label="State variables" />
             <Tab label="Manage" />

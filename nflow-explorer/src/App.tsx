@@ -43,7 +43,7 @@ function App() {
             <ReturnLink />
             <Navigation />
           </header>
-          <div style={{padding: "1rem"}}>
+          <div className="content-area">
             <Routes>
               <Route path="/" element={<Navigate to="/workflow" />} />
               <Route path="/search" element={<Navigate to="/workflow"/>} />

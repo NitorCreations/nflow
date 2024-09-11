@@ -30,7 +30,7 @@ const ShowForm = ({definitions}: {definitions: WorkflowDefinition[]}) => {
       value={{selectedDefinition, setSelectedDefinition} as any}
     >
       <Grid container spacing={3}>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           {selectedDefinition && (
             <Container>
               <Typography variant="h4" gutterBottom>
@@ -44,7 +44,7 @@ const ShowForm = ({definitions}: {definitions: WorkflowDefinition[]}) => {
             </Container>
           )}
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           <Container>
             <Typography variant="h4" gutterBottom>
               Create a new workflow instance

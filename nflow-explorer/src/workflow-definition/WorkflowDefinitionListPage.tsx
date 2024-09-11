@@ -109,8 +109,8 @@ const DefinitionTable = ({
                 noMatch: 'No workflow definitions found'
               }
             }
-          } as any
-        } // TODO: types do not support storageKey property yet
+          }
+        }
       />
     </ThemeProvider>
   );

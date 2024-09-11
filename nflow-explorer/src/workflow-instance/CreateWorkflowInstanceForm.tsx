@@ -19,19 +19,10 @@ const customMuiTheme = createTheme({
     MuiFormControl: {
       styleOverrides: {
         root: {
-          //margin: theme.spacing(1),
-          minWidth: 200,
-          maxWidth: 500
+          minWidth: 200
         }
       },
     },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          margin: "1rem"
-        }
-      }
-    }
   }
 });
 
@@ -132,7 +123,7 @@ function CreateWorkflowInstanceForm(props: {
   return (
     <ThemeProvider theme={customMuiTheme}>
       <form>
-        <Grid container>
+        <Grid container rowGap="1rem">
           <Grid item xs={4}>
             <Selection
               label="Workflow definition"
@@ -148,7 +139,6 @@ function CreateWorkflowInstanceForm(props: {
               value={externalId}
               onChange={(e: any) => setExternalId(e.target.value)}
               variant="standard"
-              sx={{margin: "0rem"}}
             />
           </Grid>
           <Grid item xs={4}>
@@ -157,7 +147,6 @@ function CreateWorkflowInstanceForm(props: {
               value={businessKey}
               onChange={(e: any) => setBusinessKey(e.target.value)}
               variant="standard"
-              sx={{margin: "0rem"}}
             />
           </Grid>
           <Grid item xs={12}>

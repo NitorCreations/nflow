@@ -12,19 +12,11 @@ const customMuiTheme = createTheme({
     MuiFormControl: {
       styleOverrides: {
         root: {
-          //margin: theme.spacing(1),
           minWidth: 200,
           maxWidth: 500
         }
       }
     },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          //margin: theme.spacing(1)
-        }
-      }
-    }
   }
 });
 
