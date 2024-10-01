@@ -45,6 +45,9 @@ const authenticatedApiCall = (url: string, config: Config, body?: any): Promise<
     body: body
   };
   if (!config.msalClient) {
+    options.headers = new Headers({
+      "content-type": "application/json"
+    });
     return fetch(url, options);
   }
   const request = {

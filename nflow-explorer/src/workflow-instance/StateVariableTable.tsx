@@ -1,6 +1,6 @@
 import React from 'react';
 import {ObjectTable} from '../component';
-import {Alert} from '@material-ui/lab';
+import {Alert} from '@mui/material';
 import {WorkflowInstance} from '../types';
 
 function StateVariableTable(props: {instance: WorkflowInstance}) {

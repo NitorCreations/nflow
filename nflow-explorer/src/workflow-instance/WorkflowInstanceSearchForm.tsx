@@ -1,23 +1,24 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {useLocation, useHistory} from 'react-router-dom';
-import {Box, Grid, TextField} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import {makeStyles} from '@material-ui/core/styles';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {Box, Button, Grid, TextField, createTheme} from '@mui/material';
 
 import {Selection} from '../component';
+import {ThemeProvider} from "@mui/material/styles";
 
-const useStyles = makeStyles(theme => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 200,
-    maxWidth: 500
-  },
-  root: {
-    '& .MuiTextField-root': {
-      margin: theme.spacing(1)
-    }
+import './workflow-instance.scss';
+
+const customMuiTheme = createTheme({
+  components: {
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          minWidth: 200,
+          maxWidth: 500
+        }
+      }
+    },
   }
-}));
+});
 
 const allMarker = '!-all-!';
 
@@ -46,8 +47,7 @@ function WorkflowInstanceSearchForm(props: {
   definitions: Array<any>;
   onSubmit: (data: any) => any;
 }) {
-  const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const queryParams = new URLSearchParams(useLocation().search);
 
@@ -118,13 +118,13 @@ function WorkflowInstanceSearchForm(props: {
       if (Object.values(data).every(x => !x)) {
         data.emptyCriteria = true;
       }
-      history.push(`/workflow?${new URLSearchParams(data).toString()}`);
+      navigate(`/workflow?${new URLSearchParams(data).toString()}`);
       props.onSubmit(data);
     },
     [
       businessKey,
       externalId,
-      history,
+      navigate,
       id,
       parentWorkflowId,
       props,
@@ -150,71 +150,77 @@ function WorkflowInstanceSearchForm(props: {
   };
 
   return (
-    <form className={classes.root}>
-      <Grid container alignItems="center">
-        <Grid item xs={11}>
-          <Selection
-            label="Type"
-            items={types}
-            selected={type}
-            onChange={setWorkflowType}
-            getSelectionLabel={(type: string) => typeNames[type] || type}
-          />
+    <ThemeProvider theme={customMuiTheme}>
+      <form>
+        <Grid container alignItems="center" spacing={3}>
+          <Grid item xs={12} md={11} justifyContent="space-between" className="workflow-instance-search-criteria">
+            <Selection
+              label="Type"
+              items={types}
+              selected={type}
+              onChange={setWorkflowType}
+              getSelectionLabel={(type: string) => typeNames[type] || type}
+            />
 
-          <Selection
-            label="State"
-            items={states}
-            selected={state}
-            onChange={setState}
-            getSelectionLabel={(state: string) => stateNames[state] || state}
-          />
+            <Selection
+              label="State"
+              items={states}
+              selected={state}
+              onChange={setState}
+              getSelectionLabel={(state: string) => stateNames[state] || state}
+            />
 
-          <Selection
-            label="Status"
-            items={statuses}
-            selected={status}
-            onChange={setStatus}
-            getSelectionLabel={(status: string) =>
-              statusNames[status] || status
-            }
-          />
+            <Selection
+              label="Status"
+              items={statuses}
+              selected={status}
+              onChange={setStatus}
+              getSelectionLabel={(status: string) =>
+                statusNames[status] || status
+              }
+            />
 
-          <TextField
-            label="Business key"
-            value={businessKey}
-            onChange={e => setBusinessKey(e.target.value)}
-          />
+            <TextField
+              label="Business key"
+              value={businessKey}
+              variant="standard"
+              onChange={e => setBusinessKey(e.target.value)}
+            />
 
-          <TextField
-            label="External ID"
-            value={externalId}
-            onChange={e => setExternalId(e.target.value)}
-          />
+            <TextField
+              label="External ID"
+              value={externalId}
+              variant="standard"
+              onChange={e => setExternalId(e.target.value)}
+            />
 
-          <TextField
-            label="Instance ID"
-            type="number"
-            value={id}
-            onChange={e => setId(e.target.value)}
-          />
+            <TextField
+              label="Instance ID"
+              type="number"
+              value={id}
+              variant="standard"
+              onChange={e => setId(e.target.value)}
+            />
 
-          <TextField
-            label="Parent instance ID"
-            type="number"
-            value={parentWorkflowId}
-            onChange={e => setParentWorkflowId(e.target.value)}
-          />
+            <TextField
+              label="Parent instance ID"
+              type="number"
+              value={parentWorkflowId}
+              variant="standard"
+              onChange={e => setParentWorkflowId(e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={1}>
+            <Box display="flex" flexDirection="column">
+              <Button onClick={handleSubmit} variant="contained">
+                Search
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
-
-        <Grid item xs={1}>
-          <Box display="flex" flexDirection="column">
-            <Button onClick={handleSubmit} variant="contained">
-              Search
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
-    </form>
+      </form>
+    </ThemeProvider>
   );
 }
 

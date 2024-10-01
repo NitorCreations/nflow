@@ -1,4 +1,4 @@
-import {Button, FormLabel, Grid, MenuItem} from '@material-ui/core';
+import {Button, FormLabel, Grid, MenuItem} from '@mui/material';
 import {TextField, Select} from 'mui-rff';
 import React, {useContext, useState} from 'react';
 import {Form} from 'react-final-form';
@@ -10,7 +10,7 @@ import {
   WorkflowSignal
 } from '../../types';
 import {sendWorkflowInstanceSignal} from '../../service';
-import {Alert} from '@material-ui/lab';
+import {Alert} from '@mui/material';
 
 const UpdateWorkflowInstanceSignalForm = function (props: {
   instance: WorkflowInstance;
@@ -51,7 +51,7 @@ const UpdateWorkflowInstanceSignalForm = function (props: {
               <FormLabel>Send signal</FormLabel>
             </Grid>
             <Grid item xs={8}>
-              <Select name="signal">
+              <Select name="signal" variant="standard">
                 {props.definition.supportedSignals.map(
                   (signal: WorkflowSignal) => {
                     return (
@@ -64,7 +64,7 @@ const UpdateWorkflowInstanceSignalForm = function (props: {
               </Select>
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Signal reason" name="reason" />
+              <TextField label="Signal reason" name="reason" variant="standard" />
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained" disabled={submitting}>

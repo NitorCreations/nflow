@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {Typography, Grid, Container} from '@mui/material';
 
 function NotFoundPage() {
   return (
