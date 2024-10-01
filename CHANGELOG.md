@@ -14,6 +14,8 @@
   - Sort state variables by name
   - Use ReactJS 18.x, material UI 5.x
   - Replace Create React App -build by Vite
+- `nflow-engine`
+  - Update postgres db schema table id's to bigserial instead of serial
 - Dependency updates
   - Jetty 11.0.20
   - Apache CFX 4.0.4
