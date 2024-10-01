@@ -182,7 +182,7 @@
     <spotbugs.version>4.8.4</spotbugs.version>
     <spotbugs-contrib.version>7.6.4</spotbugs-contrib.version>
     <spotbugs-maven-plugin.version>4.8.4.0</spotbugs-maven-plugin.version>
-    <spring.version>6.0.18</spring.version>
+    <spring.version>6.0.23</spring.version>
     <swagger.version>2.2.21</swagger.version>
     <validation.api.version>3.0.2</validation.api.version>
     <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
