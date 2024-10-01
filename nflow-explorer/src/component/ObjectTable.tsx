@@ -6,7 +6,7 @@ import {
   TableRow,
   TableCell,
   TableContainer
-} from '@material-ui/core';
+} from '@mui/material';
 
 // https://material-ui.com/components/tables/
 interface Column {

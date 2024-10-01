@@ -1,10 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {readConfig, ConfigContext} from './config';
-import {createTheme, MuiThemeProvider} from '@material-ui/core/styles';
-import {TableCell} from '@material-ui/core';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import {TableCell} from '@mui/material';
 
 // https://material-ui.com/components/typography/#general
 // https://fontsource.org/docs/getting-started
@@ -19,6 +18,7 @@ import {
   MsalAuthenticationTemplate,
   MsalProvider,
 } from "@azure/msal-react";
+import { createRoot } from 'react-dom/client';
 
 // see: https://github.com/gregnb/mui-datatables/issues/1893
 const oldRender = (TableCell as any).render;
@@ -39,7 +39,13 @@ const theme = createTheme({
       main: '#6056EB',
       dark: '#26273A',
       contrastText: '#ffffff'
-    }
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#FFFFFF',
+      dark: '#ba000d',
+      contrastText: '#000',
+    },
   }
 });
 
@@ -63,15 +69,16 @@ const wrapMsalIfNeeded = (app: any, config: Config): any => {
 
 readConfig().then(config => {
   console.info('Config read');
-  ReactDOM.render(
+  const container = document.getElementById('root');
+  const root = createRoot(container!);
+  root.render(
     <React.StrictMode>
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <ConfigContext.Provider value={config}>
           {wrapMsalIfNeeded(<App />, config)}
         </ConfigContext.Provider>
-      </MuiThemeProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+      </ThemeProvider>
+    </React.StrictMode>
   );
 });
 

@@ -1,4 +1,4 @@
-import {Button, FormLabel, Grid, MenuItem} from '@material-ui/core';
+import {Alert, Button, FormLabel, Grid, MenuItem} from '@mui/material';
 import {TextField, Select} from 'mui-rff';
 import React, {useContext, useState} from 'react';
 import {Form} from 'react-final-form';
@@ -7,7 +7,6 @@ import {ConfigContext} from '../../config';
 import {WorkflowDefinition, WorkflowInstance, WorkflowState} from '../../types';
 import {updateWorkflowInstance} from '../../service';
 import moment from 'moment';
-import {Alert} from '@material-ui/lab';
 
 const UpdateWorkflowInstanceStateForm = function (props: {
   instance: WorkflowInstance;
@@ -54,7 +53,7 @@ const UpdateWorkflowInstanceStateForm = function (props: {
               <FormLabel>Set state to</FormLabel>
             </Grid>
             <Grid item xs={8}>
-              <Select name="nextState">
+              <Select name="nextState" variant="standard">
                 {props.definition.states.map((state: WorkflowState) => {
                   return (
                     <MenuItem key={state.id} value={state.id}>
@@ -68,17 +67,17 @@ const UpdateWorkflowInstanceStateForm = function (props: {
               <FormLabel>Next activation in</FormLabel>
             </Grid>
             <Grid item xs={4}>
-              <TextField name="duration" type="number"></TextField>
+              <TextField name="duration" type="number" variant="standard"></TextField>
             </Grid>
             <Grid item xs={4}>
-              <Select name="timeUnit">
+              <Select name="timeUnit" variant="standard">
                 <MenuItem value="minutes">minutes</MenuItem>
                 <MenuItem value="hours">hours</MenuItem>
                 <MenuItem value="days">days</MenuItem>
               </Select>
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Action description" name="actionDescription" />
+              <TextField label="Action description" name="actionDescription" variant="standard"/>
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained" disabled={submitting}>

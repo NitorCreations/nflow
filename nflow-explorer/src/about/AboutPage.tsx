@@ -1,7 +1,7 @@
 import React from 'react';
 import {useConfig} from '../config';
-import {Typography, Grid, Container} from '@material-ui/core';
-import Link from '@material-ui/core/Link';
+import {Typography, Grid, Container} from '@mui/material';
+import Link from '@mui/material/Link';
 
 function AboutPage() {
   const config = useConfig();

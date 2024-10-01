@@ -9,8 +9,8 @@ import {
   TableCell,
   TableContainer,
   Tooltip
-} from '@material-ui/core';
-import {HourglassEmpty} from '@material-ui/icons';
+} from '@mui/material';
+import {HourglassEmpty} from '@mui/icons-material';
 
 const renderInstanceCount = (
   allInstances: number,

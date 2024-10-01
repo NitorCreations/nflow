@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ESNext",
+    "types": ["vite/client"],
     "lib": [
       "dom",
       "dom.iterable",

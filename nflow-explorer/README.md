@@ -11,6 +11,10 @@ The User Interface for [nFlow](https://github.com/NitorCreations/nflow).
 <img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-instance-variables.png" width="345" height="240">
 <img src="https://raw.githubusercontent.com/NitorCreations/nflow/master/nflow-explorer/screenshots/nflow-explorer-workflow-instance-manage.png" width="345" height="240">
 
+## Demo
+
+<https://nflow.io/nflow/ui/explorer/index.html>
+
 ## Development
 
 Installation

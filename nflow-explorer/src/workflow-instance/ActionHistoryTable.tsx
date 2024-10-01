@@ -9,7 +9,7 @@ import {
   TableRow,
   TableCell,
   TableContainer
-} from '@material-ui/core';
+} from '@mui/material';
 import {WorkflowInstance, WorkflowInstanceAction} from '../types';
 import {formatTimestamp} from '../utils';
 import {InternalLink} from '../component';

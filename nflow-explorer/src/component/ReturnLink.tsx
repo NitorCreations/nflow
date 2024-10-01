@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
+import {Grid, Link} from '@mui/material';
 import {useLocation} from 'react-router-dom';
 
 /*
