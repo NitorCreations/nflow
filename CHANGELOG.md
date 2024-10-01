@@ -35,7 +35,7 @@
   - joda-time 2.12.5
   - commons-lang3 3.14.0
   - slf4j 2.0.12
-  - spring 6.0.18
+  - spring 6.0.23
   - reactor-netty 1.1.18
   - reactor-core 3.6.5
 
