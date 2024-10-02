@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './App.scss';
-import {HashRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
-import {Snackbar} from '@material-ui/core';
+import {Navigate, HashRouter as Router, Route, Routes} from 'react-router-dom';
+import {Snackbar} from '@mui/material';
 
 import {Navigation, Feedback, FeedbackContext} from './component';
 import {FeedbackMessage} from './types';
@@ -36,47 +36,40 @@ function App() {
   };
 
   return (
-    <Router hashType="hashbang">
+    <Router>
       <FeedbackContext.Provider value={{addFeedback, getCurrentFeedback}}>
         <div className="App">
           <header>
             <ReturnLink />
             <Navigation />
           </header>
-          <br />
-          <Switch>
-            <Route exact path="/">
-              <Redirect to="/workflow" />
-            </Route>
-            <Route path="/search">
-              <Redirect to="/workflow" />
-            </Route>
-            <Route path="/workflow/create">
-              <CreateWorkflowInstancePage />
-            </Route>
-            <Route path="/workflow/:id">
-              <WorkflowInstanceDetailsPage />
-            </Route>
-            <Route path="/workflow">
-              <WorkflowInstanceListPage />
-            </Route>
-            <Route path="/workflow-definition/:type">
-              <WorkflowDefinitionDetailsPage />
-            </Route>
-            <Route path="/workflow-definition">
-              <WorkflowDefinitionListPage />
-            </Route>
-            <Route path="/executors">
-              <ExecutorListPage />
-            </Route>
-            <Route path="/about">
-              <AboutPage />
-            </Route>
+          <div className="content-area">
+            <Routes>
+              <Route path="/" element={<Navigate to="/workflow" />} />
+              <Route path="/search" element={<Navigate to="/workflow" />} />
+              <Route
+                path="/workflow/create"
+                element={<CreateWorkflowInstancePage />}
+              />
+              <Route
+                path="/workflow/:id"
+                element={<WorkflowInstanceDetailsPage />}
+              />
+              <Route path="/workflow" element={<WorkflowInstanceListPage />} />
+              <Route
+                path="/workflow-definition/:type"
+                element={<WorkflowDefinitionDetailsPage />}
+              />
+              <Route
+                path="/workflow-definition"
+                element={<WorkflowDefinitionListPage />}
+              />
+              <Route path="/executors" element={<ExecutorListPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </div>
 
-            <Route path="*">
-              <NotFoundPage />
-            </Route>
-          </Switch>
           <Snackbar
             open={!!feedback}
             autoHideDuration={10000}
@@ -86,9 +79,11 @@ function App() {
             }}
             onClose={closeFeedback}
           >
-            {feedback && (
-              <Feedback feedback={feedback} onClose={closeFeedback} />
-            )}
+            <div>
+              {feedback && (
+                <Feedback feedback={feedback} onClose={closeFeedback} />
+              )}
+            </div>
           </Snackbar>
         </div>
       </FeedbackContext.Provider>

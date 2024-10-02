@@ -1,13 +1,21 @@
 ## 9.0.1-SNAPSHOT (future release)
 
 **Highlights**
+- `nflow-explorer`
+  - POTENTIALLY BREAKING CHANGE: uses hash (`#`) instead of hashbang (`#!`) as web path prefix ([react-router no longer supports `hashType`](https://github.com/remix-run/react-router/pull/11310)) 
+  - Improved responsiveness on smaller displays
 
 **Details**
 
 - `nflow-explorer`
+  - Setup [demo deployment](https://nflow.io/nflow/ui/explorer/index.html)
   - Support Azure AD authentication in Explorer (see nflow-explorer/src/config.js for configuration options)
   - Improve REST API error response handling
   - Sort state variables by name
+  - Use ReactJS 18.x, material UI 5.x
+  - Replace Create React App -build by Vite
+- `nflow-engine`
+  - Update postgres db schema table id's to bigserial instead of serial
 - Dependency updates
   - Jetty 11.0.20
   - Apache CFX 4.0.4
@@ -27,7 +35,7 @@
   - joda-time 2.12.5
   - commons-lang3 3.14.0
   - slf4j 2.0.12
-  - spring 6.0.18
+  - spring 6.0.23
   - reactor-netty 1.1.18
   - reactor-core 3.6.5
 

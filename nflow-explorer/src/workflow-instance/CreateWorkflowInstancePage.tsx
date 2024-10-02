@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Typography, Grid, Container} from '@material-ui/core';
+import {Typography, Grid, Container} from '@mui/material';
 import {useLocation} from 'react-router-dom';
 
 import {CreateWorkflowInstanceForm} from './CreateWorkflowInstanceForm';
@@ -36,7 +36,7 @@ const ShowForm = ({
       value={{selectedDefinition, setSelectedDefinition} as any}
     >
       <Grid container spacing={3}>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           {selectedDefinition && (
             <Container>
               <Typography variant="h4" gutterBottom>
@@ -50,7 +50,7 @@ const ShowForm = ({
             </Container>
           )}
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           <Container>
             <Typography variant="h4" gutterBottom>
               Create a new workflow instance

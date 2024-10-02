@@ -1,13 +1,6 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
-import {
-  AppBar,
-  Tab,
-  Tabs,
-  Typography,
-  Grid,
-  Container
-} from '@material-ui/core';
+import {AppBar, Tab, Tabs, Typography, Grid, Container} from '@mui/material';
 
 import {StateGraph, InternalLink, ObjectTable, Spinner} from '../component';
 import {WorkflowDefinition, WorkflowInstance} from '../types';
@@ -168,7 +161,12 @@ const InstanceSummary = ({
       </Grid>
       <Grid item xs={12} sm={6}>
         <AppBar position="static" style={{background: '#7f77ee'}}>
-          <Tabs value={selectedTab} onChange={handleChange}>
+          <Tabs
+            value={selectedTab}
+            textColor="secondary"
+            indicatorColor="secondary"
+            onChange={handleChange}
+          >
             <Tab label="Action history" />
             <Tab label="State variables" />
             <Tab label="Manage" />

@@ -1,8 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {debounce} from 'lodash';
-import {useLocation, useHistory} from 'react-router-dom';
-import {Container, Button, TextField} from '@material-ui/core';
-import {makeStyles} from '@material-ui/core/styles';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {Container, Button, TextField, createTheme, Grid} from '@mui/material';
 import {Selection, useFeedback} from '../component';
 import {
   Executor,
@@ -14,19 +13,19 @@ import {createWorkflowInstance} from '../service';
 import {SelectedDefinitionContext} from './CreateWorkflowInstancePage';
 import {ConfigContext} from '../config';
 import './workflow-instance.scss';
+import {ThemeProvider} from '@mui/material/styles';
 
-const useStyles = makeStyles(theme => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 200,
-    maxWidth: 500
-  },
-  root: {
-    '& .MuiTextField-root': {
-      margin: theme.spacing(1)
+const customMuiTheme = createTheme({
+  components: {
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          minWidth: 200
+        }
+      }
     }
   }
-}));
+});
 
 function CreateWorkflowInstanceForm(props: {
   definitions: WorkflowDefinition[];
@@ -34,8 +33,7 @@ function CreateWorkflowInstanceForm(props: {
 }) {
   const feedback = useFeedback();
   const config = useContext(ConfigContext);
-  const history = useHistory();
-  const classes = useStyles();
+  const navigate = useNavigate();
   const selectedDefinitionContext = useContext(SelectedDefinitionContext);
   const queryParams = new URLSearchParams(useLocation().search);
   const definitionFromType = (type: string | null) =>
@@ -122,7 +120,7 @@ function CreateWorkflowInstanceForm(props: {
           message: `A new workflow was created`,
           severity: 'success'
         });
-        history.push('/workflow/' + response.id);
+        navigate('/workflow/' + response.id);
       })
       .catch(err => {
         console.error('Creating workflow failed', err);
@@ -134,58 +132,72 @@ function CreateWorkflowInstanceForm(props: {
   };
 
   return (
-    <form className={classes.root}>
-      <Container className="create-workflow-container">
-        <Selection
-          label="Workflow definition"
-          items={definitionNames}
-          selected={(selectedDefinitionContext.selectedDefinition! as any).type}
-          onChange={selectDefinition}
-          getSelectionLabel={(x: any) => x}
-        />
-        <Selection
-          label="Executor Group"
-          items={executorGroups}
-          selected={executorGroup}
-          onChange={setExecutorGroup}
-          getSelectionLabel={(x: any) => x}
-        />
-        <TextField
-          label="External id"
-          value={externalId}
-          onChange={(e: any) => setExternalId(e.target.value)}
-        />
-        <TextField
-          label="Business key"
-          value={businessKey}
-          onChange={(e: any) => setBusinessKey(e.target.value)}
-        />
-        <div>
-          <TextField
-            fullWidth
-            error={!!stateVariableError}
-            helperText={stateVariableError}
-            className="json-field"
-            label="State variables"
-            InputLabelProps={{shrink: true}}
-            placeholder="Add state variables as a JSON document"
-            multiline
-            minRows={10}
-            value={stateVariables}
-            onChange={(e: any) => setStateVariablesStr(e.target.value)}
-          />
-        </div>
-        <div>
-          <Button
-            variant="contained"
-            onClick={sendCreateRequest}
-            disabled={!formValid()}
-          >
-            Create
-          </Button>
-        </div>
-      </Container>
-    </form>
+    <ThemeProvider theme={customMuiTheme}>
+      <form>
+        <Grid container rowGap="1rem">
+          <Grid item xs={4}>
+            <Selection
+              label="Workflow definition"
+              items={definitionNames}
+              selected={
+                (selectedDefinitionContext.selectedDefinition! as any).type
+              }
+              onChange={selectDefinition}
+              getSelectionLabel={(x: any) => x}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Selection
+            label="Executor Group" items={executorGroups}
+            selected={executorGroup}
+            onChange={setExecutorGroup}
+            getSelectionLabel={(x: any) => x}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="External id"
+              value={externalId}
+              onChange={(e: any) => setExternalId(e.target.value)}
+              variant="standard"
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="Business key"
+              value={businessKey}
+              onChange={(e: any) => setBusinessKey(e.target.value)}
+              variant="standard"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              error={!!stateVariableError}
+              helperText={stateVariableError}
+              className="json-field"
+              label="State variables"
+              InputLabelProps={{shrink: true}}
+              placeholder="Add state variables as a JSON document"
+              multiline
+              minRows={10}
+              value={stateVariables}
+              onChange={(e: any) => setStateVariablesStr(e.target.value)}
+              variant="standard"
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <Button
+              variant="contained"
+              onClick={sendCreateRequest}
+              disabled={!formValid()}
+            >
+              Create
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </ThemeProvider>
   );
 }
 

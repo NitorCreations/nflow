@@ -1,10 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {readConfig, ConfigContext} from './config';
-import {createTheme, MuiThemeProvider} from '@material-ui/core/styles';
-import {TableCell} from '@material-ui/core';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import {TableCell} from '@mui/material';
 
 // https://material-ui.com/components/typography/#general
 // https://fontsource.org/docs/getting-started
@@ -13,12 +12,10 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './index.scss';
-import {Config} from "./types";
-import {PublicClientApplication, InteractionType} from "@azure/msal-browser";
-import {
-  MsalAuthenticationTemplate,
-  MsalProvider,
-} from "@azure/msal-react";
+import {Config} from './types';
+import {PublicClientApplication, InteractionType} from '@azure/msal-browser';
+import {MsalAuthenticationTemplate, MsalProvider} from '@azure/msal-react';
+import {createRoot} from 'react-dom/client';
 
 // see: https://github.com/gregnb/mui-datatables/issues/1893
 const oldRender = (TableCell as any).render;
@@ -39,39 +36,49 @@ const theme = createTheme({
       main: '#6056EB',
       dark: '#26273A',
       contrastText: '#ffffff'
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#FFFFFF',
+      dark: '#ba000d',
+      contrastText: '#000'
     }
   }
 });
 
 const wrapMsalIfNeeded = (app: any, config: Config): any => {
   if (config.msalConfig) {
-    console.info('Initializing MSAL')
+    console.info('Initializing MSAL');
     const authRequest = {
-      scopes: ["openid"]
+      scopes: ['openid']
     };
     config.msalClient = new PublicClientApplication(config.msalConfig);
     return (
       <MsalProvider instance={config.msalClient}>
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate
+          interactionType={InteractionType.Redirect}
+          authenticationRequest={authRequest}
+        >
           {app}
         </MsalAuthenticationTemplate>
       </MsalProvider>
-    )
+    );
   }
   return app;
-}
+};
 
 readConfig().then(config => {
   console.info('Config read');
-  ReactDOM.render(
+  const container = document.getElementById('root');
+  const root = createRoot(container!);
+  root.render(
     <React.StrictMode>
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <ConfigContext.Provider value={config}>
           {wrapMsalIfNeeded(<App />, config)}
         </ConfigContext.Provider>
-      </MuiThemeProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+      </ThemeProvider>
+    </React.StrictMode>
   );
 });
 

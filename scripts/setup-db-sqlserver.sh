@@ -8,9 +8,11 @@ DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
     DB_VERSION=2017-latest # supported until 2027
+    SQLCMD_EXEC=/opt/mssql-tools/bin/sqlcmd
     ;;
   latest)
     DB_VERSION=2022-latest
+    SQLCMD_EXEC="/opt/mssql-tools18/bin/sqlcmd -C"
     ;;
 esac
 
@@ -18,7 +20,7 @@ $tool run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSW
 
 grep -F -m1 'Recovery is complete' <(timeout 240 $tool logs -f mssql 2>&1)
 
-sqlcmd="$tool exec -t mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P passWord1% -e -x"
+sqlcmd="$tool exec -t mssql $SQLCMD_EXEC -S localhost -U sa -P passWord1% -e -x"
 $sqlcmd -Q "create database nflow"
 $sqlcmd -d nflow -Q "create login [nflow] with password='FC8%1knw', default_database=[nflow]"
 $sqlcmd -d nflow -Q "create user [nflow] for login [nflow] with default_schema=[nflow]"
