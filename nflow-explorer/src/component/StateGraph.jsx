@@ -20,22 +20,53 @@ import './StateGraph.scss';
 // - zoom and pan state graph
 
 // TODO move to service.ts?
-function createGraph(definition) {
+function createGraph(props) {
   const g = new dagreD3.graphlib.Graph().setGraph({});
-  const states = definition.states;
+  const states = props.definition.states;
   // create nodes
   for (let state of states) {
     g.setNode(state.id, {label: state.id, class: `node-${state.type}`});
     // Round the corners of the nodes
     const node = g.node(state.id);
     node.rx = node.ry = 5;
+
+    //if instance is provided, highlight with the .active
+    //
+    if (props.instance && props.instance.state === state.id) {
+      node.class += ' current-state';
+
+    }
+
+  }
+
+  function hasNavigatedState(fromState, toState, instance) {
+    //reverse iterate through the actions,
+    //when we have two actions in sequence that match the from state and the to state we return true
+    const actions = instance.actions;
+
+    for (let i = 0; i < actions.length - 1; i++) {
+      // Check if the current action state matches the toState (since it's reversed)
+      if (actions[i].state === toState && actions[i + 1].state === fromState) {
+        return true;
+      }
+    }
+    if(actions[0].state == fromState && toState == instance.state){
+      //this is the final state where there is no action showing
+        return true;
+    }
+
+    return false;
   }
 
   // create edges between nodes
   for (let state of states) {
     for (let transition of state.transitions || []) {
+      var hasNavigated = false;
+      if (props.instance) {
+        hasNavigated = hasNavigatedState(state.id, transition, props.instance);
+      }
       g.setEdge(state.id, transition, {
-        class: 'edge-normal',
+        class: 'edge-normal' + (hasNavigated ? ' active' : ''),
         curve: d3.curveBasis,
         arrowhead: 'normal'
       });
@@ -46,8 +77,8 @@ function createGraph(definition) {
         curve: d3.curveBasis,
         arrowhead: 'normal'
       });
-    } else if (definition.onError) {
-      g.setEdge(state.id, definition.onError, {
+    } else if (props.definition.onError) {
+      g.setEdge(state.id, props.definition.onError, {
         class: 'edge-error',
         curve: d3.curveBasis,
         arrowhead: 'normal'
@@ -84,8 +115,8 @@ function render(g, selector) {
 
 function StateGraph(props) {
   useEffect(() => {
-    console.info('StateGraph', props.definition);
-    const g = createGraph(props.definition);
+    console.info('StateGraph', props);
+    const g = createGraph(props);
     render(g, 'svg#stategraph');
     return () => {
       // Remove svg element which is created in render(), since it is not managed by React
