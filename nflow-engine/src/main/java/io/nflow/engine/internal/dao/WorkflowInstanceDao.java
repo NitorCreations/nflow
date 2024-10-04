@@ -809,7 +809,7 @@ public class WorkflowInstanceDao {
     long maxActions = getMaxActions(requestedMaxActions);
     String tableName = ACTION.tableFor(instance);
     String sql = sqlVariants
-        .limit("select nflow_workflow_action.* from " + tableName + " where workflow_id = ? order by id desc", maxActions);
+        .limit("select * from " + tableName + " where workflow_id = ? order by id desc", maxActions);
     List<WorkflowInstanceAction.Builder> actionBuilders = jdbc.query(sql, workflowInstanceActionRowMapper,
         instance.id);
     if (includeStateVariables) {
