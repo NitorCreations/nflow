@@ -1,4 +1,10 @@
-## 9.0.1-SNAPSHOT (future release)
+## 10.0.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 10.0.0 (2024-10-04)
 
 **Highlights**
 - `nflow-explorer`
