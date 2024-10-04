@@ -15,14 +15,6 @@ valid_version() {
   return 0
 }
 
-GIT_STATUS=$(git status --porcelain)
-if [[ $GIT_STATUS ]]; then
-  echo "Error: unversioned or uncommitted files"
-  echo "Git status:"
-  echo $GIT_STATUS
-  exit 1
-fi
-
 if [[ $# -lt 3 ]]; then
   echo "Usage: `basename $0` <previous_release_version_number> <new_release_version_number> <next_snapshot_version_number> [<gpg_passphrase>]"
   echo "Example: `basename $0` 2.0.0 2.1.0 2.1.1 mypassphrase"
@@ -54,16 +46,6 @@ if [[ -n $1 ]]; then
   GPG_PASSPHRASE="-Dgpg.passphrase=$1"
 fi
 shift
-
-prompt_continue "set version $RELEASE_VERSION to local git repository"
-
-mvn versions:set -DnewVersion=$RELEASE_VERSION
-sed -i -e "s/$PREVIOUS_VERSION/$RELEASE_VERSION/g" README.md
-git commit -am "release $RELEASE_VERSION [ci skip]"
-
-prompt_continue "push version $RELEASE_VERSION to remote git repository"
-
-git push
 
 prompt_continue "release version $RELEASE_VERSION to Maven Central"
 
