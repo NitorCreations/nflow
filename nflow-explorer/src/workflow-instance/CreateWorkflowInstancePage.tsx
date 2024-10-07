@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Typography, Grid, Container} from '@mui/material';
 import {useLocation} from 'react-router-dom';
 
 import {CreateWorkflowInstanceForm} from './CreateWorkflowInstanceForm';
-import {WorkflowDefinition} from '../types';
+import {Executor, WorkflowDefinition} from '../types';
 import {useConfig} from '../config';
 import {Spinner, StateGraph} from '../component';
-import {listWorkflowDefinitions} from '../service';
+import {listAllExecutors, listWorkflowDefinitions} from '../service';
 
 export const SelectedDefinitionContext = React.createContext({
   selectedDefinition: undefined,
@@ -18,7 +18,13 @@ const definitionFromType = (
   type: string | null
 ) => definitions.filter(d => d.type === type)[0];
 
-const ShowForm = ({definitions}: {definitions: WorkflowDefinition[]}) => {
+const ShowForm = ({
+  definitions,
+  executors
+}: {
+  definitions: WorkflowDefinition[];
+  executors: Executor[];
+}) => {
   const queryParams = new URLSearchParams(useLocation().search);
   const defaultDefinition =
     definitionFromType(definitions, queryParams.get('type')) || definitions[0];
@@ -49,7 +55,10 @@ const ShowForm = ({definitions}: {definitions: WorkflowDefinition[]}) => {
             <Typography variant="h4" gutterBottom>
               Create a new workflow instance
             </Typography>
-            <CreateWorkflowInstanceForm definitions={definitions} />
+            <CreateWorkflowInstanceForm
+              definitions={definitions}
+              executorGroups={executors}
+            />
           </Container>
         </Grid>
       </Grid>
@@ -61,13 +70,26 @@ function CreateWorkflowInstancePage() {
   const config = useConfig();
 
   const [definitions, setDefinitions] = useState<WorkflowDefinition[]>();
+  const [executors, setExecutors] = useState<Array<Executor>>([]);
+  const [executorLoad, setExecutorLoad] = useState<boolean>(true);
+
+  const fetchExecutors = useCallback(() => {
+    listAllExecutors(config)
+      .then(data => setExecutors(data))
+      .catch(error => {
+        // TODO error handling
+        console.error('Error', error);
+      })
+      .finally(() => setExecutorLoad(false));
+  }, [config]);
 
   useEffect(() => {
     listWorkflowDefinitions(config).then(setDefinitions);
+    fetchExecutors();
   }, [config]);
 
-  if (definitions) {
-    return <ShowForm definitions={definitions} />;
+  if (definitions && !executorLoad) {
+    return <ShowForm definitions={definitions} executors={executors} />;
   }
 
   return (

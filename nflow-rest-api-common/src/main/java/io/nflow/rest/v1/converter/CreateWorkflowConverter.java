@@ -36,6 +36,8 @@ public class CreateWorkflowConverter {
     builder.setParentWorkflowId(req.parentWorkflowId);
     if (isNotEmpty(req.startState)) {
       builder.setState(req.startState);
+    }if (isNotEmpty(req.executorGroup)) {
+      builder.setExecutorGroup(req.executorGroup);
     }
     for (Entry<String, Object> entry : req.stateVariables.entrySet()) {
       Object value = entry.getValue();
@@ -54,6 +56,7 @@ public class CreateWorkflowConverter {
     resp.type = instance.type;
     resp.businessKey = instance.businessKey;
     resp.externalId = instance.externalId;
+    resp.executorGroup = instance.executorGroup;
     return resp;
   }
 

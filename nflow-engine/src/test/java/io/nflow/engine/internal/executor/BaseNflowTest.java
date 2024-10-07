@@ -30,7 +30,7 @@ public abstract class BaseNflowTest {
         .setExternalId(randomUUID().toString())
         .setBusinessKey(randomUUID().toString())
         .setRetries(0)
-        .setExecutorGroup("flowInstance1")
+        .setExecutorGroup("junit")
         .setStateVariables(new LinkedHashMap<String, String>() {
           {
             put("requestData", "{ \"parameter\": \"abc\" }");

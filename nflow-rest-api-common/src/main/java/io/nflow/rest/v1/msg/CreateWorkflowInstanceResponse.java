@@ -16,6 +16,9 @@ public class CreateWorkflowInstanceResponse extends ModelObject {
   @Schema(description = "Workflow definition type", requiredMode = REQUIRED)
   public String type;
 
+  @Schema(description = "Executor Group")
+  public String executorGroup;
+
   @Schema(description = "Main business key or identifier for the workflow instance")
   public String businessKey;
 

@@ -39,33 +39,48 @@ const convertWorkflowInstance = (instance: any) => {
   );
 };
 
-const authenticatedApiCall = (url: string, config: Config, body?: any): Promise<any> => {
+const authenticatedApiCall = (
+  url: string,
+  config: Config,
+  body?: any
+): Promise<any> => {
   const options: RequestInit = {
-    method: body ? "PUT" : "GET",
+    method: body ? 'PUT' : 'GET',
     body: body
   };
   if (!config.msalClient) {
     options.headers = new Headers({
-      "content-type": "application/json"
+      'content-type': 'application/json'
     });
     return fetch(url, options);
   }
   const request = {
-    scopes: ["openid"],
+    scopes: ['openid']
   };
-  config.msalClient.setActiveAccount(config.msalClient.getAllAccounts()[0])  // required by acquireTokenSilent
-  return config.msalClient.acquireTokenSilent(request)
-    .then(tokenResponse => {
-      options["headers"] = new Headers({
-        "Authorization": "Bearer " + tokenResponse.accessToken,
-        "content-type": "application/json"
-      });
-      return fetch(url, options)
+  config.msalClient.setActiveAccount(config.msalClient.getAllAccounts()[0]); // required by acquireTokenSilent
+  return config.msalClient.acquireTokenSilent(request).then(tokenResponse => {
+    options['headers'] = new Headers({
+      Authorization: 'Bearer ' + tokenResponse.accessToken,
+      'content-type': 'application/json'
     });
-}
+    return fetch(url, options);
+  });
+};
 
 const listExecutors = (config: Config): Promise<Array<Executor>> => {
-  return authenticatedApiCall(serviceUrl(config, '/v1/workflow-executor'), config)
+  return authenticatedApiCall(
+    serviceUrl(config, '/v1/workflow-executor'),
+    config
+  )
+    .then(response => response.json())
+    .then((items: any) => items.map(convertExecutor));
+};
+
+const listAllExecutors = (config: Config): Promise<Array<Executor>> => {
+  return authenticatedApiCall(
+    serviceUrl(config, '/v1/workflow-executor/all'),
+    config
+  )
     .then(response => response.json())
     .then((items: any) => items.map(convertExecutor));
 };
@@ -171,7 +186,10 @@ const listWorkflowInstances = (
   query?: any
 ): Promise<WorkflowInstance[]> => {
   const params = new URLSearchParams(query).toString();
-  return authenticatedApiCall(serviceUrl(config, '/v1/workflow-instance?' + params.toString()), config)
+  return authenticatedApiCall(
+    serviceUrl(config, '/v1/workflow-instance?' + params.toString()),
+    config
+  )
     .then(response => response.json())
     .then((items: any) => items.map(convertWorkflowInstance));
 };
@@ -210,8 +228,9 @@ const createWorkflowInstance = (
   data: NewWorkflowInstance
 ): Promise<NewWorkflowInstanceResponse> => {
   const url = serviceUrl(config, '/v1/workflow-instance');
-  return authenticatedApiCall(url, config, JSON.stringify(data))
-    .then(response => response.json());
+  return authenticatedApiCall(url, config, JSON.stringify(data)).then(
+    response => response.json()
+  );
 };
 
 const updateWorkflowInstance = (
@@ -237,6 +256,7 @@ const sendWorkflowInstanceSignal = (
 
 export {
   listExecutors,
+  listAllExecutors,
   listWorkflowDefinitions,
   getWorkflowDefinition,
   getWorkflowStatistics,
