@@ -7,7 +7,7 @@
   <artifactId>nflow-root</artifactId>
   <packaging>pom</packaging>
   <description>nFlow Root</description>
-  <version>9.0.1-SNAPSHOT</version>
+  <version>10.0.1-SNAPSHOT</version>
   <url>https://nflow.io</url>
   <licenses>
     <license>
@@ -211,7 +211,6 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire.version}</version>
           <configuration>
-            <argLine>@{jacocoArgLine}</argLine>
             <includes>
               <include>**/*Test.java</include>
             </includes>
@@ -222,7 +221,7 @@
             <threadCount>1</threadCount>
             <forkCount>${surefire.forkcount}</forkCount>
             <!-- workaround for buggy cxf implementation on top of the "new" java async http client -->
-            <argLine>-Dorg.apache.cxf.transport.http.forceURLConnection=true</argLine>
+            <argLine>@{jacocoArgLine} -Dorg.apache.cxf.transport.http.forceURLConnection=true</argLine>
           </configuration>
         </plugin>
         <plugin>

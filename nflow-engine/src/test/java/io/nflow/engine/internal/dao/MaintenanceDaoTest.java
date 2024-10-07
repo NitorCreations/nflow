@@ -29,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceInclude;
+import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
@@ -177,6 +178,9 @@ public class MaintenanceDaoTest extends BaseDaoTest {
 
     assertEquals(actionIds.size(), getArchiveActionCount());
     assertEquals(actionCountAfter, actionCountBefore - actionIds.size());
+
+    assertWorkflowActionsThroughQuery(archivable1, 1);
+    assertWorkflowActionsThroughQuery(archivable2, 3);
   }
 
   @Test
@@ -474,6 +478,15 @@ public class MaintenanceDaoTest extends BaseDaoTest {
     for (long workflowId : workflowIds) {
       assertThrows(EmptyResultDataAccessException.class, () -> getArchivedWorkflow(workflowId));
     }
+  }
+
+  private void assertWorkflowActionsThroughQuery(Long workflowId, int expectedActions) {
+    List<WorkflowInstance> archivedWorkflow = workflowInstanceDao.queryWorkflowInstances(new QueryWorkflowInstances.Builder()
+        .setQueryArchive(true)
+        .setIncludeActions(true)
+        .addIds(workflowId)
+        .build());
+    assertEquals(archivedWorkflow.get(0).actions.size(), expectedActions);
   }
 
   private void assertActiveActionsRemoved(List<Long> actionIds) {

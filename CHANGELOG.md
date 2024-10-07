@@ -1,4 +1,10 @@
-## 9.0.1-SNAPSHOT (future release)
+## 10.0.1-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 10.0.0 (2024-10-04)
 
 **Highlights**
 - `nflow-explorer`
@@ -12,6 +18,7 @@
   - Support Azure AD authentication in Explorer (see nflow-explorer/src/config.js for configuration options)
   - Improve REST API error response handling
   - Sort state variables by name
+  - indicate workflow states used in graph and show active state in graph
   - Use ReactJS 18.x, material UI 5.x
   - Replace Create React App -build by Vite
 - `nflow-engine`

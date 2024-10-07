@@ -155,7 +155,7 @@ const InstanceSummary = ({
             </Grid>
           </Grid>
           <Grid item xs={6} lg={6}>
-            <StateGraph definition={definition} />
+            <StateGraph definition={definition} instance={instance} />
           </Grid>
         </Grid>
       </Grid>

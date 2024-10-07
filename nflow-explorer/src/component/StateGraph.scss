@@ -132,6 +132,7 @@
 .edge-error.active,
 .edge-failure.active .edge-unexpected {
   stroke-width: 2px;
+  stroke: blue;
 }
 
 .edge-normal.selected,
@@ -166,6 +167,8 @@
 /* */
 g.current-state > g > g > text {
   text-decoration: underline;
+  fill: blue;
+  font-weight: bold;
 }
 
 /*
