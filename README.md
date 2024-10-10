@@ -62,3 +62,5 @@ See [Getting started section](https://github.com/NitorCreations/nflow/wiki/Getti
 For a more thorough getting started guide, configurations, license information etc. checkout the [nFlow wiki pages](https://github.com/NitorCreations/nflow/wiki)! You can also look into a short [slide deck](https://github.com/NitorCreations/nflow/raw/master/nflow-documentation/presentations/nflow_presentation.pdf).
 
 Discussion and questions are welcome to our forum [nflow-users](https://groups.google.com/forum/#!forum/nflow-users) in Google Groups.
+
+For commercial support, contact [Nitor sales](mailto:sales@nitor.com).
