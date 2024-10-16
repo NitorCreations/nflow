@@ -698,6 +698,50 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(secondBatch.size(), equalTo(0));
   }
 
+  /**
+   * Test creating a workflow with multiple executors and querying for them
+   */
+  @Test
+public void testCreateWorkflowMultipleExecutorsAndQuery() {
+
+     dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
+            .setPriority((short)1).setExecutorGroup("junit").build());
+     dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
+            .setPriority((short)1).setExecutorGroup("test_two").build());
+
+     //will return the one that matches the executor group of the current nflow
+     List<WorkflowInstance> defaultSearch = dao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().setIncludeActions(true)
+             .build());
+        assertThat(defaultSearch.size(), is(1));
+
+     List<WorkflowInstance> workflows = dao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().setIncludeActions(true)
+             .setExecutorGroups("junit").build());
+        assertThat(workflows.size(), is(1));
+
+    List<WorkflowInstance> workflowsAll = dao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().setIncludeActions(true)
+            .setExecutorGroups("junit","test_two").build());
+
+    assertThat(workflowsAll.size(), is(2));
+
+  }
+  /**
+   * Test returning all executors (default being junit)
+   */
+  @Test
+public void testQueryWorkflowWithDefaultSetToTrue() {
+
+    dao.getDefaultQueryAllExecutors().set(true);
+
+     dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
+            .setPriority((short)1).setExecutorGroup("test").build());
+     dao.insertWorkflowInstance(constructWorkflowInstanceBuilder().setNextActivation(now().minusMinutes(1))
+            .setPriority((short)1).setExecutorGroup("test_two").build());
+     List<WorkflowInstance> workflows = dao.queryWorkflowInstances(new QueryWorkflowInstances.Builder().setIncludeActions(true)
+             .build());
+        assertThat(workflows.size(), is(2));
+
+  }
+
   @Test
   public void pollNextWorkflowInstancesReturnInstancesInCorrectOrder() {
     long olderLowPrio = createInstance(2, (short) 1);

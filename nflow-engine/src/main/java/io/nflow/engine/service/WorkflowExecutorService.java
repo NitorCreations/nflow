@@ -29,4 +29,11 @@ public class WorkflowExecutorService {
   public List<WorkflowExecutor> getWorkflowExecutors() {
     return executorDao.getExecutors();
   }
+  /**
+   * Return all workflow executors .
+   * @return The workflow executors.
+   */
+  public List<WorkflowExecutor> getAllWorkflowExecutors() {
+    return executorDao.getAllExecutors();
+  }
 }

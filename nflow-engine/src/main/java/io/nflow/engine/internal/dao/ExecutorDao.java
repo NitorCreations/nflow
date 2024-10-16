@@ -176,6 +176,21 @@ public class ExecutorDao {
           return new WorkflowExecutor(id, host, pid, executorGroup, started, active, expires, stopped, recovered);
         });
   }
+  public List<WorkflowExecutor> getAllExecutors() {
+    return jdbc.query("select id, host,executor_group, pid, started, active, expires, stopped, recovered from nflow_executor "
+        + " order by id asc", (rs, rowNum) -> {
+          int id = rs.getInt("id");
+          String host = rs.getString("host");
+          int pid = rs.getInt("pid");
+          String executorGroupName = rs.getString("executor_group");
+          var started = sqlVariants.getDateTime(rs, "started");
+          var active = sqlVariants.getDateTime(rs, "active");
+          var expires = sqlVariants.getDateTime(rs, "expires");
+          var stopped = sqlVariants.getDateTime(rs, "stopped");
+          var recovered = sqlVariants.getDateTime(rs, "recovered");
+          return new WorkflowExecutor(id, host, pid, executorGroupName, started, active, expires, stopped, recovered);
+        });
+  }
 
   public void markShutdown(boolean graceful) {
     try {

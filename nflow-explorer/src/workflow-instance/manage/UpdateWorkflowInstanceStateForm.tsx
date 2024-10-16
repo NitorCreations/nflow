@@ -67,7 +67,11 @@ const UpdateWorkflowInstanceStateForm = function (props: {
               <FormLabel>Next activation in</FormLabel>
             </Grid>
             <Grid item xs={4}>
-              <TextField name="duration" type="number" variant="standard"></TextField>
+              <TextField
+                name="duration"
+                type="number"
+                variant="standard"
+              ></TextField>
             </Grid>
             <Grid item xs={4}>
               <Select name="timeUnit" variant="standard">
@@ -77,7 +81,11 @@ const UpdateWorkflowInstanceStateForm = function (props: {
               </Select>
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Action description" name="actionDescription" variant="standard"/>
+              <TextField
+                label="Action description"
+                name="actionDescription"
+                variant="standard"
+              />
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained" disabled={submitting}>
