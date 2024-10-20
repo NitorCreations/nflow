@@ -115,12 +115,12 @@ public class MaintenanceService {
       }
       int workflows = doAction.apply(workflowIds);
       totalWorkflows += workflows;
-      double timeDiff = max(stopWatch.getTime() / 1000.0, 0.000001);
+      double timeDiff = max(stopWatch.getDuration().toMillis() / 1000.0, 0.000001);
       String status = format("%s. %s workflows, %.1f workflows / second.", type, workflows, totalWorkflows / timeDiff);
       log.debug("{} Workflow ids: {}.", status, workflowIds);
       periodicLogger.info(status);
     } while (true);
-    log.info("{} finished. Operated on {} workflows in {} seconds.", type, totalWorkflows, stopWatch.getTime() / 1000);
+    log.info("{} finished. Operated on {} workflows in {} seconds.", type, totalWorkflows, stopWatch.getDuration().toSeconds());
     return totalWorkflows;
   }
 

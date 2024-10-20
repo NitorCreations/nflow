@@ -3,6 +3,7 @@ package io.nflow.engine.config;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -69,9 +70,10 @@ public class EngineConfigurationTest {
   }
 
   @Test
-  public void nflowObjectMapperInstantiated() {
+  public void nflowObjectMapperInstantiated() throws Exception {
     ObjectMapper mapper = configuration.nflowObjectMapper().get();
-    assertThat(mapper.canSerialize(DateTime.class), is(true));
+    String nowS = mapper.writeValueAsString(DateTime.now());
+    assertThat(mapper.readerFor(DateTime.class).readValue(nowS, DateTime.class), isA(DateTime.class));
     assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
         is(JsonInclude.Include.NON_EMPTY));
   }

@@ -12,7 +12,7 @@ case $DB_VERSION in
     ;;
   latest)
     IMAGE=docker.io/gvenzl/oracle-free
-    DB_VERSION=23.3-slim
+    DB_VERSION=23.5-slim
     ;;
 esac
 

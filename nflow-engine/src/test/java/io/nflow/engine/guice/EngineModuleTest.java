@@ -3,9 +3,11 @@ package io.nflow.engine.guice;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ThreadFactory;
 
@@ -44,7 +46,7 @@ import io.nflow.engine.service.WorkflowInstanceService;
 public class EngineModuleTest {
 
   @Test
-  public void testEngineConfiguration() {
+  public void testEngineConfiguration() throws IOException {
     Properties props = new Properties();
     props.setProperty("nflow.db.type", "h2");
     props.setProperty("nflow.executor.thread.count", "1");
@@ -64,7 +66,8 @@ public class EngineModuleTest {
     assertThat(((CustomizableThreadFactory) factory).getThreadGroup().getName(), is("nflow"));
 
     ObjectMapper mapper = injector.getInstance(Key.get(EngineObjectMapperSupplier.class, NFlow.class)).get();
-    assertThat(mapper.canSerialize(DateTime.class), is(true));
+    String nowS = mapper.writeValueAsString(DateTime.now());
+    assertThat(mapper.readerFor(DateTime.class).readValue(nowS, DateTime.class), isA(DateTime.class));
     assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
         is(JsonInclude.Include.NON_EMPTY));
 
