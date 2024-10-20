@@ -5,12 +5,17 @@
         <rule groupId="com.microsoft.sqlserver">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*preview</ignoreVersion>
-                <ignoreVersion type="regex">.*jre1[0-9]</ignoreVersion>
+                <ignoreVersion type="regex">.*jre8</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="com.fasterxml.jackson">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*rc[0-9]+</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.apache.maven.plugins">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*beta.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.slf4j">
@@ -60,7 +65,7 @@
         </rule>
         <rule groupId="org.hibernate.validator">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*(Alpha|CR).*</ignoreVersion>
+                <ignoreVersion type="regex">.*(Alpha|Beta|CR).*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="io.swagger">

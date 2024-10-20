@@ -112,80 +112,80 @@
     <jdk.version>17</jdk.version>
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
-    <asm.version>9.7</asm.version>
-    <apache.cxf.version>4.0.4</apache.cxf.version>
-    <build-helper.version>3.5.0</build-helper.version>
-    <commons.lang3.version>3.14.0</commons.lang3.version>
+    <asm.version>9.7.1</asm.version>
+    <apache.cxf.version>4.0.5</apache.cxf.version>
+    <build-helper.version>3.6.0</build-helper.version>
+    <commons.lang3.version>3.17.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>4.3.0</coveralls.version>
     <db2-jcc.version>11.5.9.0</db2-jcc.version>
     <el.version>4.0.2</el.version>
     <frontend-maven.version>1.15.0</frontend-maven.version>
     <guice.version>7.0.0</guice.version>
-    <h2.version>2.2.224</h2.version>
-    <hamcrest.version>2.2</hamcrest.version>
+    <h2.version>2.3.232</h2.version>
+    <hamcrest.version>3.0</hamcrest.version>
     <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
-    <hikaricp.version>5.1.0</hikaricp.version>
-    <jackson.version>2.17.0</jackson.version>
-    <jackson-databind.version>2.17.0</jackson-databind.version>
+    <hikaricp.version>6.0.0</hikaricp.version>
+    <jackson.version>2.18.0</jackson.version>
+    <jackson-databind.version>2.18.0</jackson-databind.version>
     <javassist.version>3.30.2-GA</javassist.version>
     <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
-    <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+    <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
-    <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
+    <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
     <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
-    <jaxws-api.version>4.0.1</jaxws-api.version>
+    <jaxws-api.version>4.0.2</jaxws-api.version>
     <jersey.version>3.1.3</jersey.version>
-    <jetty.version>11.0.20</jetty.version>
-    <jodatime.version>2.12.7</jodatime.version>
-    <junit5.version>5.10.0</junit5.version>
-    <junit-platform.version>1.10.2</junit-platform.version>
-    <logback-classic.version>1.5.4</logback-classic.version>
-    <mariadb.version>3.3.3</mariadb.version>
+    <jetty.version>11.0.24</jetty.version>
+    <jodatime.version>2.13.0</jodatime.version>
+    <junit5.version>5.11.2</junit5.version>
+    <junit-platform.version>1.11.2</junit-platform.version>
+    <logback-classic.version>1.5.11</logback-classic.version>
+    <mariadb.version>3.4.1</mariadb.version>
     <maven-assembly.version>3.7.1</maven-assembly.version>
-    <maven-clean.version>3.3.2</maven-clean.version>
+    <maven-clean.version>3.4.0</maven-clean.version>
     <maven-compiler.version>3.13.0</maven-compiler.version>
-    <maven-deploy.version>3.1.1</maven-deploy.version>
-    <maven-download.version>1.9.0</maven-download.version>
+    <maven-deploy.version>3.1.3</maven-deploy.version>
+    <maven-download.version>1.11.0</maven-download.version>
     <maven-eclipse.version>2.10</maven-eclipse.version>
-    <maven-enforcer.version>3.4.1</maven-enforcer.version>
-    <maven-gpg.version>3.2.2</maven-gpg.version>
-    <maven-install.version>3.1.1</maven-install.version>
+    <maven-enforcer.version>3.5.0</maven-enforcer.version>
+    <maven-gpg.version>3.2.7</maven-gpg.version>
+    <maven-install.version>3.1.3</maven-install.version>
     <maven-jacoco.version>0.8.12</maven-jacoco.version>
-    <maven-jar.version>3.3.0</maven-jar.version>
-    <maven-javadoc.version>3.6.3</maven-javadoc.version>
-    <maven-jxr.version>3.3.2</maven-jxr.version>
-    <maven-pmd.version>3.21.2</maven-pmd.version>
-    <maven-project-info.version>3.5.0</maven-project-info.version>
-    <maven-release.version>3.0.1</maven-release.version>
+    <maven-jar.version>3.4.2</maven-jar.version>
+    <maven-javadoc.version>3.10.1</maven-javadoc.version>
+    <maven-jxr.version>3.5.0</maven-jxr.version>
+    <maven-pmd.version>3.25.0</maven-pmd.version>
+    <maven-project-info.version>3.7.0</maven-project-info.version>
+    <maven-release.version>3.1.1</maven-release.version>
     <maven-resources.version>3.3.1</maven-resources.version>
-    <maven-shade.version>3.5.2</maven-shade.version>
-    <maven-site.version>4.0.0-M13</maven-site.version>
+    <maven-shade.version>3.6.0</maven-shade.version>
+    <maven-site.version>4.0.0-M16</maven-site.version>
     <maven-source.version>3.3.1</maven-source.version>
-    <maven-surefire.version>3.2.5</maven-surefire.version>
-    <metrics.version>4.2.25</metrics.version>
-    <mockito.version>5.11.0</mockito.version>
-    <mssql.version>12.6.1.jre11</mssql.version>
-    <mysql.version>8.3.0</mysql.version>
-    <nexus-staging-maven.version>1.6.13</nexus-staging-maven.version>
+    <maven-surefire.version>3.5.1</maven-surefire.version>
+    <metrics.version>4.2.28</metrics.version>
+    <mockito.version>5.14.2</mockito.version>
+    <mssql.version>12.8.1.jre11</mssql.version>
+    <mysql.version>9.1.0</mysql.version>
+    <nexus-staging-maven.version>1.7.0</nexus-staging-maven.version>
     <node.version>v20.12.1</node.version> <!-- https://nodejs.org/en/download/releases/ -->
     <npm.version>10.5.0</npm.version>     <!-- https://github.com/npm/cli/releases -->
     <nitor-matchers.version>1.3</nitor-matchers.version>
-    <ojdbc.version>23.2.0.0</ojdbc.version>
-    <postgresql.version>42.7.3</postgresql.version>
+    <ojdbc.version>23.5.0.24.07</ojdbc.version>
+    <postgresql.version>42.7.4</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <reactor.core.version>3.6.5</reactor.core.version>
-    <reactor.netty.version>1.1.18</reactor.netty.version>
+    <reactor.core.version>3.6.11</reactor.core.version>
+    <reactor.netty.version>1.1.23</reactor.netty.version>
     <reflections.version>0.10.2</reflections.version>
-    <slf4j.version>2.0.12</slf4j.version>
-    <spotbugs.version>4.8.4</spotbugs.version>
+    <slf4j.version>2.0.16</slf4j.version>
+    <spotbugs.version>4.8.6</spotbugs.version>
     <spotbugs-contrib.version>7.6.4</spotbugs-contrib.version>
-    <spotbugs-maven-plugin.version>4.8.4.0</spotbugs-maven-plugin.version>
+    <spotbugs-maven-plugin.version>4.8.6.4</spotbugs-maven-plugin.version>
     <spring.version>6.0.23</spring.version>
-    <swagger.version>2.2.21</swagger.version>
-    <validation.api.version>3.0.2</validation.api.version>
-    <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+    <swagger.version>2.2.25</swagger.version>
+    <validation.api.version>3.1.0</validation.api.version>
+    <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
   </properties>
   <build>
     <pluginManagement>
@@ -221,7 +221,8 @@
             <threadCount>1</threadCount>
             <forkCount>${surefire.forkcount}</forkCount>
             <!-- workaround for buggy cxf implementation on top of the "new" java async http client -->
-            <argLine>@{jacocoArgLine} -Dorg.apache.cxf.transport.http.forceURLConnection=true</argLine>
+            <!-- workaround for buggy cxf implementation that does not support Java 23 -->
+            <argLine>@{jacocoArgLine} -Dorg.apache.cxf.transport.http.forceURLConnection=true -Djava.security.manager=allow</argLine>
           </configuration>
         </plugin>
         <plugin>
