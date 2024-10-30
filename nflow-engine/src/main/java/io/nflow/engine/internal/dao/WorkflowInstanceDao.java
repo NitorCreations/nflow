@@ -354,10 +354,17 @@ public class WorkflowInstanceDao {
   public int updateWorkflowInstance(WorkflowInstance instance) {
     // using sqlVariants.nextActivationUpdate() requires that nextActivation is used 3 times
     Object nextActivation = sqlVariants.toTimestampObject(instance.nextActivation);
-    int updated = jdbc.update(updateWorkflowInstanceSql(), instance.status.name(), instance.state,
-        abbreviate(instance.stateText, getInstanceStateTextLength()), nextActivation, nextActivation, nextActivation,
-        instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, instance.businessKey,
-        toTimestamp(instance.started), instance.id);
+    Object[] params = {
+      instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
+      nextActivation, nextActivation, nextActivation,
+      instance.status == executing ? executorInfo.getExecutorId() : null, instance.retries, instance.businessKey,
+      sqlVariants.toTimestampObject(instance.started), instance.id
+    };
+    int[] sqlTypes = {
+          Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP, Types.TIMESTAMP,
+          Types.INTEGER, Types.INTEGER, Types.VARCHAR, Types.TIMESTAMP, Types.INTEGER
+    };
+    int updated = jdbc.update(updateWorkflowInstanceSql(), params, sqlTypes);
     if (updated == 0) {
       logger.warn(
           "Updating workflow instance {} did not update any rows in the database, instance may have been recovered by another executor.",
