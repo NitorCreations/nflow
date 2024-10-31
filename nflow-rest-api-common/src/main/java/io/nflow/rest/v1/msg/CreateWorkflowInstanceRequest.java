@@ -19,6 +19,9 @@ public class CreateWorkflowInstanceRequest extends ModelObject {
   @Schema(description = "Workflow definition type", requiredMode = REQUIRED, nullable = false, minLength = 1, maxLength = 30)
   public String type;
 
+  @Schema(description = "Executor Group",  maxLength = 30)
+  public String executorGroup;
+
   @Schema(description = "Main business key or identifier for the new workflow instance", maxLength = 64)
   public String businessKey;
 

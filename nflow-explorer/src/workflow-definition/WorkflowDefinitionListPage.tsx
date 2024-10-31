@@ -1,12 +1,10 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {
-  createTheme,
-  Grid,
-  Container,
-  ThemeProvider
-} from '@mui/material';
+import {createTheme, Grid, Container, ThemeProvider} from '@mui/material';
 import MUIDataTable from 'mui-datatables';
-import {AddCircleOutlineOutlined as AddCircleOutlineOutlinedIcon, Search} from '@mui/icons-material';
+import {
+  AddCircleOutlineOutlined as AddCircleOutlineOutlinedIcon,
+  Search
+} from '@mui/icons-material';
 
 import {useConfig} from '../config';
 import {InternalLink, Spinner} from '../component';
@@ -99,18 +97,16 @@ const DefinitionTable = ({
         title={undefined}
         data={definitions}
         columns={columns}
-        options={
-          {
-            storageKey: 'workflowDefinitionsTableState',
-            selectableRows: 'none',
-            expandableRowsHeader: false,
-            textLabels: {
-              body: {
-                noMatch: 'No workflow definitions found'
-              }
+        options={{
+          storageKey: 'workflowDefinitionsTableState',
+          selectableRows: 'none',
+          expandableRowsHeader: false,
+          textLabels: {
+            body: {
+              noMatch: 'No workflow definitions found'
             }
           }
-        }
+        }}
       />
     </ThemeProvider>
   );
