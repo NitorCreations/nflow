@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import * as d3 from 'd3';
-import dagreD3 from 'dagre-d3';
+import * as dagreD3 from 'dagre-d3-es';
 
 import './StateGraph.scss';
 

@@ -4,6 +4,10 @@
 
 **Details**
 
+- `nflow-explorer`
+  - Remove `web-vitals` dependency
+  - Switch from obsolete `dagre-d3` to `dagre-d3-es`
+  - Maintenance library updates
 - Dependency updates
   - Jetty 11.0.24
   - Apache CFX 4.0.5
