@@ -1,7 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 import {Typography, Grid, Container, Paper} from '@mui/material';
-import {AddCircleOutlineOutlined as AddCircleOutlineOutlinedIcon, Search} from '@mui/icons-material';
+import {
+  AddCircleOutlineOutlined as AddCircleOutlineOutlinedIcon,
+  Search
+} from '@mui/icons-material';
 
 import {StateGraph, InternalLink, Spinner} from '../component';
 import {useConfig} from '../config';

@@ -1,13 +1,6 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
-import {
-  AppBar,
-  Tab,
-  Tabs,
-  Typography,
-  Grid,
-  Container
-} from '@mui/material';
+import {AppBar, Tab, Tabs, Typography, Grid, Container} from '@mui/material';
 
 import {StateGraph, InternalLink, ObjectTable, Spinner} from '../component';
 import {WorkflowDefinition, WorkflowInstance} from '../types';
@@ -47,6 +40,7 @@ const InstanceSummaryTable = ({
       headerName: 'Parent workflow',
       fieldRender: parentLink
     },
+    {field: 'executorGroup', headerName: 'Executor Group'},
     {field: 'state', headerName: 'Current state'},
     {field: 'status', headerName: 'Current status'},
     {
