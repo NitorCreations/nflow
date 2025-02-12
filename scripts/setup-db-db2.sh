@@ -11,7 +11,7 @@ case $DB_VERSION in
     DB_VERSION=11.5.5.1
     ;;
   latest)
-    DB_VERSION=11.5.9.0
+    DB_VERSION=12.1.1.0
     ;;
 esac
 
