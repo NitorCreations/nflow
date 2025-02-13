@@ -405,8 +405,8 @@ public class WorkflowInstanceDao {
     WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
         .setType(recovery).setStateText("Recovered");
     for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorIds)) {
-      WorkflowInstanceAction action = builder.setState(instance.state).setWorkflowInstanceId(instance.id).build();
-      recoverWorkflowInstance(instance.id, instance.executorId, action);
+      WorkflowInstanceAction action = builder.setState(instance.state()).setWorkflowInstanceId(instance.id()).build();
+      recoverWorkflowInstance(instance.id(), instance.executorId(), action);
     }
     recoverableExecutorIds.forEach(executorInfo::markRecovered);
   }
@@ -416,13 +416,8 @@ public class WorkflowInstanceDao {
     sql.append("select id, executor_id, state from nflow_workflow where executor_id in (");
     executorsIds.forEach(id -> sql.append("?,"));
     sql.setCharAt(sql.length() - 1, ')');
-    return jdbc.query(sql.toString(), (rs, rowNum) -> {
-      InstanceInfo instance = new InstanceInfo();
-      instance.id = rs.getLong(1);
-      instance.executorId = rs.getInt(2);
-      instance.state = rs.getString(3);
-      return instance;
-    }, (Object[]) executorsIds.toArray(new Integer[0]));
+    return jdbc.query(sql.toString(), (rs, rowNum) -> new InstanceInfo(rs.getLong(1), rs.getInt(2), rs.getString(3)),
+      (Object[]) executorsIds.toArray(new Integer[0]));
   }
 
   private void recoverWorkflowInstance(final long instanceId, int expectedExecutorId, final WorkflowInstanceAction action) {

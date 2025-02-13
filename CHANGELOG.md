@@ -10,26 +10,28 @@
   - Maintenance library updates
 - Dependency updates
   - Jetty 11.0.24
-  - Apache CFX 4.0.5
-  - logback 1.5.11
-  - jackson 2.18.0
+  - Apache CFX 4.1.0
+  - logback 1.5.12
+  - jackson 2.18.1
   - h2 2.2.224
-  - db2 jcc 11.5.9.0
+  - db2 jcc 12.1.0.0
   - mssql-jdbc 12.8.1
-  - mysql-connector 9.1.0
-  - ojdbc11 23.5.0.24.07
-  - postgresql 42.7.4
-  - HikariCP 6.0.0
-  - joda-time 2.13.0
+  - mariadb 3.5.2
+  - mysql-connector 9.2.0
+  - ojdbc11 23.6.0.24.10
+  - postgresql 42.7.5
+  - HikariCP 6.2.1
+  - joda-time 2.13.1
   - commons-lang3 3.17.0
+  - metrics 4.2.30
   - slf4j 2.0.16
-  - reactor-netty 1.1.23
-  - reactor-core 3.6.11
-  - swagger 2.2.25
+  - reactor-netty 1.2.0
+  - reactor-core 3.7.3
+  - swagger 2.2.28
   - asm 9.7.1
   - servlet-api 6.1.0
-  - metrics 4.2.28
-  - validation-api 3.1.0
+  - metrics 4.2.30
+  - validation-api 3.1.1
 
 ## 10.0.0 (2024-10-04)
 

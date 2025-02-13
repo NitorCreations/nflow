@@ -1,7 +1,4 @@
 package io.nflow.engine.internal.executor;
 
-public class InstanceInfo {
-  public long id;
-  public int executorId;
-  public String state;
+public record InstanceInfo(long id, int executorId, String state) {
 }
