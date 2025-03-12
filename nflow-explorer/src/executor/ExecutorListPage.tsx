@@ -1,18 +1,13 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {addDays, addHours} from 'date-fns';
-import {
-  createTheme,
-  Grid,
-  Container,
-  ThemeProvider
-} from '@mui/material';
+import {createTheme, Grid, Container, ThemeProvider} from '@mui/material';
 import MUIDataTable from 'mui-datatables';
 
 import {formatRelativeTime, formatTimestamp} from '../utils';
 import {useConfig} from '../config';
 import {Spinner} from '../component';
 import {Executor} from '../types';
-import {listExecutors} from '../service';
+import {listAllExecutors} from '../service';
 
 const ExecutorTable = ({executors}: {executors: Executor[]}) => {
   const getMuiTheme = () =>
@@ -116,29 +111,27 @@ const ExecutorTable = ({executors}: {executors: Executor[]}) => {
         title={undefined}
         data={executors}
         columns={columns}
-        options={
-          {
-            storageKey: 'workflowExecutorTableState',
-            selectableRows: 'none',
-            expandableRowsHeader: false,
-            textLabels: {
-              body: {
-                noMatch: 'No workflow executors found'
-              }
-            },
-            setRowProps: (_row: any, dataIndex: any, _rowIndex: any) => {
-              const rowClassName = rowClassRender(executors[dataIndex]);
-              return {
-                className: `${rowClassName}`
-              };
-            },
-            setTableProps: () => {
-              return {
-                className: 'table table-hover'
-              };
+        options={{
+          storageKey: 'workflowExecutorTableState',
+          selectableRows: 'none',
+          expandableRowsHeader: false,
+          textLabels: {
+            body: {
+              noMatch: 'No workflow executors found'
             }
+          },
+          setRowProps: (_row: any, dataIndex: any, _rowIndex: any) => {
+            const rowClassName = rowClassRender(executors[dataIndex]);
+            return {
+              className: `${rowClassName}`
+            };
+          },
+          setTableProps: () => {
+            return {
+              className: 'table table-hover'
+            };
           }
-        }
+        }}
       />
     </ThemeProvider>
   );
@@ -150,7 +143,7 @@ function ExecutorListPage() {
   const config = useConfig();
 
   const fetchExecutors = useCallback(() => {
-    listExecutors(config)
+    listAllExecutors(config)
       .then(data => setExecutors(data))
       .catch(error => {
         // TODO error handling

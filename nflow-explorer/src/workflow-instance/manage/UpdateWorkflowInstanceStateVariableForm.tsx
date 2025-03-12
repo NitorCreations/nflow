@@ -60,7 +60,11 @@ const UpdateWorkflowInstanceStateVariableForm = function (props: {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Action description" name="actionDescription" variant="standard"/>
+              <TextField
+                label="Action description"
+                name="actionDescription"
+                variant="standard"
+              />
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained" disabled={submitting}>

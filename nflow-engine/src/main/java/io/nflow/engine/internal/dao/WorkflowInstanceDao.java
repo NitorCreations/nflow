@@ -114,6 +114,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActionsDefault;
   private final int workflowInstanceTypeCacheSize;
   private final AtomicBoolean disableBatchUpdates = new AtomicBoolean();
+  private final AtomicBoolean defaultQueryAllExecutors = new AtomicBoolean(false);
   AtomicInteger instanceStateTextLength = new AtomicInteger();
   AtomicInteger actionStateTextLength = new AtomicInteger();
   AtomicInteger stateVariableValueMaxLength = new AtomicInteger();
@@ -142,6 +143,7 @@ public class WorkflowInstanceDao {
     workflowInstanceQueryMaxActions = env.getRequiredProperty("nflow.workflow.instance.query.max.actions", Long.class);
     workflowInstanceQueryMaxActionsDefault = env.getRequiredProperty("nflow.workflow.instance.query.max.actions.default",
         Long.class);
+    defaultQueryAllExecutors.set(env.getRequiredProperty("nflow.db.query_all_executors", Boolean.class));
     disableBatchUpdates.set(env.getRequiredProperty("nflow.db.disable_batch_updates", Boolean.class));
     if (disableBatchUpdates.get()) {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
@@ -150,6 +152,12 @@ public class WorkflowInstanceDao {
     instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
     actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
     stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
+
+  }
+
+  protected AtomicBoolean getDefaultQueryAllExecutors() {
+
+    return defaultQueryAllExecutors;
   }
 
   private int getInstanceStateTextLength() {
@@ -193,7 +201,8 @@ public class WorkflowInstanceDao {
       StringBuilder sqlb = new StringBuilder(256);
       sqlb.append("with wf as (").append(insertWorkflowInstanceSql()).append(" returning id)");
       Object[] instanceValues = new Object[] { instance.type, instance.priority, instance.parentWorkflowId,
-          instance.parentActionId, instance.businessKey, instance.externalId, executorInfo.getExecutorGroup(),
+          instance.parentActionId, instance.businessKey, instance.externalId,
+              instance.executorGroup == null ? executorInfo.getExecutorGroup() : instance.executorGroup,
           instance.status.name(), instance.state, abbreviate(instance.stateText, getInstanceStateTextLength()),
           toTimestamp(instance.nextActivation), instance.signal.orElse(null) };
       int pos = instanceValues.length;
@@ -245,7 +254,11 @@ public class WorkflowInstanceDao {
               ps.setObject(p++, instance.parentActionId);
               ps.setString(p++, instance.businessKey);
               ps.setString(p++, instance.externalId);
-              ps.setString(p++, executorInfo.getExecutorGroup());
+              if (instance.executorGroup!=null) {
+                ps.setString(p++, instance.executorGroup);
+              } else {
+                ps.setString(p++, executorInfo.getExecutorGroup());
+              }
               ps.setString(p++, instance.status.name());
               ps.setString(p++, instance.state);
               ps.setString(p++, abbreviate(instance.stateText, getInstanceStateTextLength()));
@@ -694,7 +707,21 @@ public class WorkflowInstanceDao {
     List<String> conditions = new ArrayList<>();
     MapSqlParameterSource params = new MapSqlParameterSource();
     queryOptionsToSqlAndParams(query, conditions, params);
-    conditions.add(executorInfo.getExecutorGroupCondition());
+
+    if (!isEmpty(query.executorGroups)) {
+      if (query.executorGroups.size() == 1) {
+        conditions.add("executor_group = :executor_group");
+        params.addValue("executor_group", query.executorGroups.get(0));
+      } else {
+        conditions.add("executor_group in (:executor_groups)");
+        params.addValue("executor_groups", query.executorGroups);
+      }
+    }
+    else if (!defaultQueryAllExecutors.get()){
+      //the old behaviour of nflow is that when you query for workflows you only get the executor group of the current instance
+      conditions.add(executorInfo.getExecutorGroupCondition());
+    }
+
     String sqlSuffix = "from nflow_workflow wf ";
     if (query.stateVariableKey != null) {
       sqlSuffix += "inner join nflow_workflow_state wfs on wf.id = wfs.workflow_id and wfs.state_key = :state_key and " + sqlVariants.clobToComparable("wfs.state_value") + " = :state_value ";
@@ -703,7 +730,13 @@ public class WorkflowInstanceDao {
       params.addValue("state_key", query.stateVariableKey);
       params.addValue("state_value", query.stateVariableValue);
     }
-    sqlSuffix += "where " + collectionToDelimitedString(conditions, " and ") + " order by id desc";
+    String collection = collectionToDelimitedString(conditions, " and ");
+    if (collection.isEmpty()){
+      //remove the where clause when there are no conditions
+      sqlSuffix +=  " order by id desc";
+    }else {
+      sqlSuffix += "where " + collection + " order by id desc";
+    }
     long maxResults = getMaxResults(query.maxResults);
     String sql = sqlVariants.limit("select " + ALL_WORKFLOW_COLUMNS + ", 0 as archived " + sqlSuffix, maxResults);
     List<WorkflowInstance.Builder> results = namedJdbc.query(sql, params, workflowInstanceRowMapper);
