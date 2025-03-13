@@ -44,6 +44,10 @@ function createGraph(props) {
     //when we have two actions in sequence that match the from state and the to state we return true
     const actions = instance.actions;
 
+    if (actions.length === 0) {
+      return false;
+    }
+
     for (let i = 0; i < actions.length - 1; i++) {
       // Check if the current action state matches the toState (since it's reversed)
       if (actions[i].state === toState && actions[i + 1].state === fromState) {
