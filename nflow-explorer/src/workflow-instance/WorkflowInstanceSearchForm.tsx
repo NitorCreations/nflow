@@ -3,7 +3,8 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {Box, Button, Grid, TextField, createTheme} from '@mui/material';
 
 import {Selection} from '../component';
-import {ThemeProvider} from "@mui/material/styles";
+import {ThemeProvider} from '@mui/material/styles';
+import {Executor} from '../types';
 
 import './workflow-instance.scss';
 
@@ -16,7 +17,7 @@ const customMuiTheme = createTheme({
           maxWidth: 500
         }
       }
-    },
+    }
   }
 });
 
@@ -42,9 +43,13 @@ const stateNames: any = {
 const statusNames: any = {
   [allMarker]: '-- All statuses --'
 };
+const executorGroupNames: any = {
+  [allMarker]: '-- Default --'
+};
 
 function WorkflowInstanceSearchForm(props: {
   definitions: Array<any>;
+  executorGroups: Array<any>;
   onSubmit: (data: any) => any;
 }) {
   const navigate = useNavigate();
@@ -60,6 +65,9 @@ function WorkflowInstanceSearchForm(props: {
   const [status, setStatus] = useState<string>(
     queryParams.get('status') || allMarker
   );
+  const [executorGroup, setExecutorGroup] = useState<string>(
+    queryParams.get('executorGroups') || allMarker
+  );
   const [businessKey, setBusinessKey] = useState<string>(
     queryParams.get('businessKey') || ''
   );
@@ -72,6 +80,15 @@ function WorkflowInstanceSearchForm(props: {
   );
 
   const types = [allMarker].concat(props.definitions.map(d => d.type));
+
+  //concat the executor groups
+  // and filter where expires greater than now and not stopped
+  const executorGroups = [allMarker].concat(
+    props.executorGroups
+      .map((executorGroup: Executor) => executorGroup.executorGroup)
+      //remove duplicates
+      .filter((value, index, self) => self.indexOf(value) === index)
+  );
 
   // TODO to lodash or not to lodash?
   const selectedWorkflow = props.definitions.filter(d => d.type === type)[0];
@@ -89,6 +106,7 @@ function WorkflowInstanceSearchForm(props: {
         type,
         state,
         status,
+        executorGroup,
         businessKey,
         externalId,
         id,
@@ -129,6 +147,7 @@ function WorkflowInstanceSearchForm(props: {
       parentWorkflowId,
       props,
       state,
+      executorGroup,
       status,
       type
     ]
@@ -146,6 +165,7 @@ function WorkflowInstanceSearchForm(props: {
   const setWorkflowType = (type: string) => {
     // when type is changed, need to reset all selections that depend on type
     setType(type);
+    setExecutorGroup(executorGroup);
     setState(allMarker);
   };
 
@@ -153,7 +173,13 @@ function WorkflowInstanceSearchForm(props: {
     <ThemeProvider theme={customMuiTheme}>
       <form>
         <Grid container alignItems="center" spacing={3}>
-          <Grid item xs={12} md={11} justifyContent="space-between" className="workflow-instance-search-criteria">
+          <Grid
+            item
+            xs={12}
+            md={11}
+            justifyContent="space-between"
+            className="workflow-instance-search-criteria"
+          >
             <Selection
               label="Type"
               items={types}
@@ -177,6 +203,15 @@ function WorkflowInstanceSearchForm(props: {
               onChange={setStatus}
               getSelectionLabel={(status: string) =>
                 statusNames[status] || status
+              }
+            />
+            <Selection
+              label="Executor Group"
+              items={executorGroups}
+              selected={executorGroup}
+              onChange={setExecutorGroup}
+              getSelectionLabel={(executorGroup: string) =>
+                executorGroupNames[executorGroup] || executorGroup
               }
             />
 

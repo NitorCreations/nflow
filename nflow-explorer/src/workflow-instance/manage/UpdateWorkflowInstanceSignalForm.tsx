@@ -64,7 +64,11 @@ const UpdateWorkflowInstanceSignalForm = function (props: {
               </Select>
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Signal reason" name="reason" variant="standard" />
+              <TextField
+                label="Signal reason"
+                name="reason"
+                variant="standard"
+              />
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained" disabled={submitting}>

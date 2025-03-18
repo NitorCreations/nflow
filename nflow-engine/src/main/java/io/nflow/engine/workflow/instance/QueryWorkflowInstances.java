@@ -69,6 +69,10 @@ public class QueryWorkflowInstances extends ModelObject {
    * Setting this to true will make the query return also workflow actions.
    */
   public final boolean includeActions;
+  /**
+   * optional filter of executor groups, if empty it does not return all but instead backwards compactability of the current api group
+   */
+  public final List<String> executorGroups;
 
   /**
    * Setting this to true will make the query return also the current state variables for the workflow.
@@ -114,6 +118,7 @@ public class QueryWorkflowInstances extends ModelObject {
     this.stateVariableKey = builder.stateVariableKey;
     this.stateVariableValue = builder.stateVariableValue;
     this.includeActions = builder.includeActions;
+    this.executorGroups = builder.executorGroups;
     this.includeCurrentStateVariables = builder.includeCurrentStateVariables;
     this.includeActionStateVariables = builder.includeActionStateVariables;
     this.includeChildWorkflows = builder.includeChildWorkflows;
@@ -137,6 +142,7 @@ public class QueryWorkflowInstances extends ModelObject {
     String stateVariableKey;
     String stateVariableValue;
     boolean includeActions;
+    List<String> executorGroups = new ArrayList<>();
     boolean includeCurrentStateVariables;
     boolean includeActionStateVariables;
     boolean includeChildWorkflows;
@@ -162,6 +168,7 @@ public class QueryWorkflowInstances extends ModelObject {
       this.stateVariableKey = copy.stateVariableKey;
       this.stateVariableValue = copy.stateVariableValue;
       this.includeActions = copy.includeActions;
+      this.executorGroups = copy.executorGroups;
       this.includeCurrentStateVariables = copy.includeCurrentStateVariables;
       this.includeActionStateVariables = copy.includeActionStateVariables;
       this.includeChildWorkflows = copy.includeChildWorkflows;
@@ -270,6 +277,16 @@ public class QueryWorkflowInstances extends ModelObject {
      */
     public Builder setIncludeActions(boolean includeActions) {
       this.includeActions = includeActions;
+      return this;
+    }
+
+    /**
+     * Set whether specific executor groups should be included in the results.
+     * @param executorGroups list of executor names
+     * @return this.
+     */
+    public Builder setExecutorGroups(String ...  executorGroups) {
+      this.executorGroups.addAll(asList(executorGroups));
       return this;
     }
 

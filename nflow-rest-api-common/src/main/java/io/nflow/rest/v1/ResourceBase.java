@@ -68,6 +68,7 @@ public abstract class ResourceBase {
       + "* actionStateVariables: state variable changes for actions\n"
       + "* childWorkflows: map of created child workflow instance IDs by action ID\n";
   protected static final String QUERY_ARCHIVED_DEFAULT_STR = "false";
+  protected static final String QUERY_INCLUDE_ALL_EXECUTORS_DEFAULT_STR = "false";
   protected static final boolean QUERY_ARCHIVED_DEFAULT = parseBoolean(QUERY_ARCHIVED_DEFAULT_STR);
 
   public List<ListWorkflowDefinitionResponse> listWorkflowDefinitions(Collection<String> types,
@@ -146,7 +147,7 @@ public abstract class ResourceBase {
   public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(Set<Long> ids, Set<String> types, Long parentWorkflowId,
       Long parentActionId, Set<String> states, Set<WorkflowInstanceStatus> statuses, String businessKey, String externalId,
       String stateVariableKey, String stateVariableValue, Set<ApiWorkflowInstanceInclude> includes, String include,
-      Long maxResults, Long maxActions, boolean queryArchive, WorkflowInstanceService workflowInstances,
+      Long maxResults, Long maxActions, boolean queryArchive, Set<String> executorGroups, WorkflowInstanceService workflowInstances,
       ListWorkflowInstanceConverter listWorkflowConverter) {
     Set<ApiWorkflowInstanceInclude> propertyIncludes = resolveIncludes(includes, include);
     QueryWorkflowInstances q = new QueryWorkflowInstances.Builder()
@@ -157,6 +158,7 @@ public abstract class ResourceBase {
         .addStates(states.toArray(new String[states.size()]))
         .addStatuses(statuses.toArray(new WorkflowInstanceStatus[statuses.size()]))
         .setBusinessKey(businessKey)
+        .setExecutorGroups(executorGroups.toArray(new String[executorGroups.size()]))
         .setExternalId(externalId)
         .setIncludeCurrentStateVariables(propertyIncludes.contains(currentStateVariables))
         .setIncludeActions(propertyIncludes.contains(actions))

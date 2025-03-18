@@ -50,4 +50,12 @@ public class WorkflowExecutorResource extends JaxRsResource {
     return handleExceptions(
         () -> ok(workflowExecutors.getWorkflowExecutors().stream().map(converter::convert).collect(toList())));
   }
+  @GET
+  @Operation(summary = "List all workflow executors")
+  @Path("/all")
+  @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListWorkflowExecutorResponse.class))))
+  public Response listAllWorkflowExecutors() {
+    return handleExceptions(
+        () -> ok(workflowExecutors.getAllWorkflowExecutors().stream().map(converter::convert).collect(toList())));
+  }
 }

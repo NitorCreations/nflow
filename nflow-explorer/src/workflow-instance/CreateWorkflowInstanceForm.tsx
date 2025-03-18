@@ -4,6 +4,7 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {Container, Button, TextField, createTheme, Grid} from '@mui/material';
 import {Selection, useFeedback} from '../component';
 import {
+  Executor,
   NewWorkflowInstance,
   NewWorkflowInstanceResponse,
   WorkflowDefinition
@@ -12,7 +13,7 @@ import {createWorkflowInstance} from '../service';
 import {SelectedDefinitionContext} from './CreateWorkflowInstancePage';
 import {ConfigContext} from '../config';
 import './workflow-instance.scss';
-import {ThemeProvider} from "@mui/material/styles";
+import {ThemeProvider} from '@mui/material/styles';
 
 const customMuiTheme = createTheme({
   components: {
@@ -21,13 +22,14 @@ const customMuiTheme = createTheme({
         root: {
           minWidth: 200
         }
-      },
-    },
+      }
+    }
   }
 });
 
 function CreateWorkflowInstanceForm(props: {
   definitions: WorkflowDefinition[];
+  executorGroups: Array<any>;
 }) {
   const feedback = useFeedback();
   const config = useContext(ConfigContext);
@@ -43,6 +45,9 @@ function CreateWorkflowInstanceForm(props: {
   const [businessKey, setBusinessKey] = useState<string>(
     queryParams.get('businessKey') || ''
   );
+  const [executorGroup, setExecutorGroup] = useState<string>(
+    queryParams.get('executorGroups') || ''
+  );
   const [stateVariables, setStateVariables] = useState<string>(
     queryParams.get('stateVariables') || ''
   );
@@ -53,6 +58,11 @@ function CreateWorkflowInstanceForm(props: {
   const [stateVariableError, setStateVariableError] = useState<
     string | undefined
   >();
+
+  const executorGroups = props.executorGroups
+    .map((executorGroup: Executor) => executorGroup.executorGroup)
+    //remove duplicates
+    .filter((value, index, self) => self.indexOf(value) === index);
 
   const selectDefinition = (type: string) => {
     const definition = definitionFromType(type);
@@ -85,7 +95,7 @@ function CreateWorkflowInstanceForm(props: {
   const definitionNames = props.definitions.map(definition => definition.type);
 
   const formValid = () => {
-    return !stateVariableError;
+    return !stateVariableError && executorGroup.trim() !== '';
   };
 
   // TODO belongs to Page class?
@@ -94,6 +104,7 @@ function CreateWorkflowInstanceForm(props: {
     // TODO startState
     const data: NewWorkflowInstance = {
       type: (selectedDefinitionContext.selectedDefinition! as any).type,
+      executorGroup: executorGroup,
       businessKey: businessKey || undefined,
       externalId: externalId || undefined,
       activationTime: undefined,
@@ -128,9 +139,19 @@ function CreateWorkflowInstanceForm(props: {
             <Selection
               label="Workflow definition"
               items={definitionNames}
-              selected={(selectedDefinitionContext.selectedDefinition! as any).type}
+              selected={
+                (selectedDefinitionContext.selectedDefinition! as any).type
+              }
               onChange={selectDefinition}
               getSelectionLabel={(x: any) => x}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Selection
+            label="Executor Group" items={executorGroups}
+            selected={executorGroup}
+            onChange={setExecutorGroup}
+            getSelectionLabel={(x: any) => x}
             />
           </Grid>
           <Grid item xs={4}>

@@ -46,12 +46,24 @@ function App() {
           <div className="content-area">
             <Routes>
               <Route path="/" element={<Navigate to="/workflow" />} />
-              <Route path="/search" element={<Navigate to="/workflow"/>} />
-              <Route path="/workflow/create" element={ <CreateWorkflowInstancePage />} />
-              <Route path="/workflow/:id" element={<WorkflowInstanceDetailsPage />} />
+              <Route path="/search" element={<Navigate to="/workflow" />} />
+              <Route
+                path="/workflow/create"
+                element={<CreateWorkflowInstancePage />}
+              />
+              <Route
+                path="/workflow/:id"
+                element={<WorkflowInstanceDetailsPage />}
+              />
               <Route path="/workflow" element={<WorkflowInstanceListPage />} />
-              <Route path="/workflow-definition/:type" element={<WorkflowDefinitionDetailsPage />} />
-              <Route path="/workflow-definition" element={<WorkflowDefinitionListPage />} />
+              <Route
+                path="/workflow-definition/:type"
+                element={<WorkflowDefinitionDetailsPage />}
+              />
+              <Route
+                path="/workflow-definition"
+                element={<WorkflowDefinitionListPage />}
+              />
               <Route path="/executors" element={<ExecutorListPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="*" element={<NotFoundPage />} />
