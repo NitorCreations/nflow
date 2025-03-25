@@ -13,6 +13,7 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 nFlow has been under development since 2014-01-14 and version 1.0.0 was released on 2014-09-13.
 
 ![Build status](https://github.com/NitorCreations/nflow/actions/workflows/build.yaml/badge.svg?event=push)
+[![libs.tech recommends](https://libs.tech/project/16453755/badge.svg)](https://libs.tech/project/16453755/nflow)
 
 ## Key Features
 
