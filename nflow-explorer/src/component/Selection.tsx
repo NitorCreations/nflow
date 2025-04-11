@@ -22,26 +22,29 @@ function Selection(props: {
 
   return (
     <FormControl style={{minWidth: 240}} variant="standard">
-            <Autocomplete
-                options={sortedItems}
-                value={props.selected}
-                onChange={(_, newValue: string | null) => props.onChange(newValue || '')}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label={props.label}
-                        variant="standard"
-                    />
-                )}
-                getOptionLabel={(option: string) => props.getSelectionLabel(option)}
-                renderOption={(itemProps, option: string) => (
-                    <li {...itemProps}>
+        <Autocomplete
+            options={sortedItems}
+            value={props.selected}
+            onChange={(_, newValue: string | null) => props.onChange(newValue || '')}
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    label={props.label}
+                    variant="standard"
+                />
+            )}
+            getOptionLabel={(option: string) => props.getSelectionLabel(option)}
+            renderOption={(itemProps, option: string) => {
+                const { key, ...rest } = itemProps;
+                return (
+                    <li key={key} {...rest}>
                         {props.getSelectionLabel(option)}
                     </li>
-                )}
-                disablePortal
-                fullWidth
-            />
+                );
+            }}
+            disablePortal
+            fullWidth
+        />
     </FormControl>
   );
 }
