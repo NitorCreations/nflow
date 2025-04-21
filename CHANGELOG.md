@@ -5,6 +5,8 @@
 **Details**
 
 - `nflow-explorer`
+  - Make the selection lists searchable and display in alphabetic order (https://github.com/NitorCreations/nflow/pull/678)
+  - Bug fix: handle empty actions list (https://github.com/NitorCreations/nflow/pull/676)
   - Remove `web-vitals` dependency
   - Switch from obsolete `dagre-d3` to `dagre-d3-es`
   - Maintenance library updates
