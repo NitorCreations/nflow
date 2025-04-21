@@ -18,6 +18,10 @@ esac
 
 $tool run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
+$tool logs mssql || true
+$tool inspect mssql || true
+$tool ps -a || true
+
 grep -F -m1 'Recovery is complete' <(timeout 240 $tool logs -f mssql 2>&1)
 
 sqlcmd="$tool exec -t mssql $SQLCMD_EXEC -S localhost -U sa -P passWord1% -e -x"
