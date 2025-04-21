@@ -5,14 +5,13 @@ tool=$(command -v podman)
 [ -z "$tool" ] && echo "podman or docker required" && exit 1
 
 DB_VERSION=${DB_VERSION:-latest}
+SQLCMD_EXEC="/opt/mssql-tools18/bin/sqlcmd -C"
 case $DB_VERSION in
   old)
     DB_VERSION=2019-latest # supported until 2030
-    SQLCMD_EXEC=/opt/mssql-tools/bin/sqlcmd
     ;;
   latest)
     DB_VERSION=2022-latest
-    SQLCMD_EXEC="/opt/mssql-tools18/bin/sqlcmd -C"
     ;;
 esac
 
@@ -24,8 +23,8 @@ $tool logs mssql || true
 $tool inspect mssql || true
 $tool ps -a || true
 
-for i in {1..60}; do
-  if $tool exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'passWord1%' -Q 'SELECT 1' > /dev/null 2>&1; then
+for i in {1..30}; do
+  if $tool exec mssql $SQLCMD_EXEC -S localhost -U sa -P 'passWord1%' -Q 'SELECT 1' > /dev/null 2>&1; then
     echo "✅ SQL Server is ready"
     break
   fi
