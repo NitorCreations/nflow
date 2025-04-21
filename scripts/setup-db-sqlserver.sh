@@ -7,7 +7,7 @@ tool=$(command -v podman)
 DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
-    DB_VERSION=2017-latest # supported until 2027
+    DB_VERSION=2019-latest # supported until 2030
     SQLCMD_EXEC=/opt/mssql-tools/bin/sqlcmd
     ;;
   latest)
