@@ -22,12 +22,12 @@ configurations {
 }
 
 dependencies {
-	implementation 'io.nflow:nflow-rest-api-spring-web:10.0.0'
+	implementation 'io.nflow:nflow-rest-api-spring-web:10.0.1'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2:2.2.220'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '10.0.0', ext: 'tar.gz'
+	nflowExplorer group: 'io.nflow', name: 'nflow-explorer', version: '10.0.1', ext: 'tar.gz'
 }
 
 task resolveNflowExplorer(type: Copy) {
