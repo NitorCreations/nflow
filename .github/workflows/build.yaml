@@ -84,7 +84,7 @@ jobs:
       matrix:
         java: [ '17', '21' ]
         db: [ 'h2', 'mariadb', 'postgresql', 'mysql', 'sqlserver', 'db2', 'oracle' ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       SPRING_PROFILES_ACTIVE: nflow.db.${{ matrix.db }}
       DB_VERSION: ${{ matrix.java == 17 && 'old' || 'latest' }}

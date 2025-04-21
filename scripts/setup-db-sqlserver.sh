@@ -5,20 +5,26 @@ tool=$(command -v podman)
 [ -z "$tool" ] && echo "podman or docker required" && exit 1
 
 DB_VERSION=${DB_VERSION:-latest}
+SQLCMD_EXEC="/opt/mssql-tools18/bin/sqlcmd -C"
 case $DB_VERSION in
   old)
-    DB_VERSION=2017-latest # supported until 2027
-    SQLCMD_EXEC=/opt/mssql-tools/bin/sqlcmd
+    DB_VERSION=2019-latest # supported until 2030
     ;;
   latest)
     DB_VERSION=2022-latest
-    SQLCMD_EXEC="/opt/mssql-tools18/bin/sqlcmd -C"
     ;;
 esac
 
-$tool run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
+$tool run --pull=always --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
-grep -F -m1 'Recovery is complete' <(timeout 240 $tool logs -f mssql 2>&1)
+for i in {1..10}; do
+  if $tool exec mssql $SQLCMD_EXEC -S localhost -U sa -P 'passWord1%' -Q 'SELECT 1' > /dev/null 2>&1; then
+    echo "✅ SQL Server is ready"
+    break
+  fi
+  echo "⏳ Waiting for SQL Server..."
+  sleep 5
+done
 
 sqlcmd="$tool exec -t mssql $SQLCMD_EXEC -S localhost -U sa -P passWord1% -e -x"
 $sqlcmd -Q "create database nflow"
