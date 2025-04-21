@@ -16,7 +16,9 @@ case $DB_VERSION in
     ;;
 esac
 
-$tool run --pull=always  --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
+$tool run --pull=always --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
+
+sleep 10
 
 $tool logs mssql || true
 $tool inspect mssql || true
@@ -30,6 +32,8 @@ for i in {1..60}; do
   echo "⏳ Waiting for SQL Server..."
   sleep 5
 done
+
+$tool logs mssql || true
 
 sqlcmd="$tool exec -t mssql $SQLCMD_EXEC -S localhost -U sa -P passWord1% -e -x"
 $sqlcmd -Q "create database nflow"
