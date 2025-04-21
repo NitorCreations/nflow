@@ -22,7 +22,7 @@ $tool logs mssql || true
 $tool inspect mssql || true
 $tool ps -a || true
 
-for i in {1..30}; do
+for i in {1..60}; do
   if $tool exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'passWord1%' -Q 'SELECT 1' > /dev/null 2>&1; then
     echo "✅ SQL Server is ready"
     break
