@@ -113,6 +113,11 @@
                 <ignoreVersion type="regex">.*BETA.*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="io.projectreactor">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M[0-9]</ignoreVersion>
+            </ignoreVersions>
+        </rule>
     </rules>
 </ruleset>
 
