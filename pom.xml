@@ -113,7 +113,7 @@
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
     <asm.version>9.8</asm.version>
-    <apache.cxf.version>4.1.1</apache.cxf.version>
+    <apache.cxf.version>4.1.2</apache.cxf.version>
     <build-helper.version>3.6.0</build-helper.version>
     <commons.lang3.version>3.17.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
@@ -219,9 +219,7 @@
             <perCoreThreadCount>true</perCoreThreadCount>
             <threadCount>1</threadCount>
             <forkCount>${surefire.forkcount}</forkCount>
-            <!-- workaround for buggy cxf implementation on top of the "new" java async http client -->
-            <!-- workaround for buggy cxf implementation that does not support Java 23 -->
-            <argLine>@{jacocoArgLine} -Dorg.apache.cxf.transport.http.forceURLConnection=true -Djava.security.manager=allow</argLine>
+            <argLine>@{jacocoArgLine}</argLine>
           </configuration>
         </plugin>
         <plugin>

@@ -18,7 +18,7 @@ jobs:
     if: always()
     strategy:
       matrix:
-        java: [ '17', '21', '23' ]
+        java: [ '17', '21', '24' ]
     runs-on: ubuntu-latest
     steps:
       - name: Check out

@@ -7,7 +7,7 @@
 - `nflow-explorer`
 - Dependency updates
   - Jetty 11.0.25
-  - Apache CFX 4.1.1
+  - Apache CFX 4.1.2
   - logback 1.5.18
   - jackson 2.19.0
   - h2 2.2.224
