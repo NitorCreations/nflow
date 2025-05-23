@@ -33,7 +33,6 @@ import io.nflow.engine.model.ModelObject;
 /**
  * Configuration for the workflow execution.
  */
-@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class WorkflowSettings extends ModelObject {
 
   private static final BiFunction<WorkflowState, Throwable, StateProcessExceptionHandling> DEFAULT_EXCEPTION_ANALYZER = (state,
@@ -119,7 +118,6 @@ public class WorkflowSettings extends ModelObject {
      *          once per 100 calls.
      * @return Producer of boolean values
      */
-    @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "Random does not need to be secure here")
     public static BooleanSupplier onAverageEveryNthExecution(int n) {
       return () -> ThreadLocalRandom.current().nextInt(n) == 0;
     }

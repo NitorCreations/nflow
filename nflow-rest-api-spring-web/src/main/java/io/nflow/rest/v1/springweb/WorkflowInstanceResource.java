@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -127,8 +126,6 @@ public class WorkflowInstanceResource extends SpringWebResource {
           content = @Content(schema = @Schema(implementation = ListWorkflowInstanceResponse.class)),
           description = "If instance was found"),
       @ApiResponse(responseCode = "404", description = "If instance was not found") })
-  @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE",
-      justification = "The empty result exception contains no useful information")
   public Mono<ResponseEntity<?>> fetchWorkflowInstance(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "included",

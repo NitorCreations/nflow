@@ -13,15 +13,12 @@ import org.springframework.core.io.ClassPathResource;
 
 import com.google.inject.AbstractModule;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 public class EnvironmentModule extends AbstractModule {
 
   private final Properties userProperties;
   private final String[] classpathPropertiesFiles;
 
-  @SuppressFBWarnings(value = "OPM_OVERLY_PERMISSIVE_METHOD", justification = "Public for Guice")
-  public EnvironmentModule(Properties userProperties, String... classpathPropertiesFiles) {
+  protected EnvironmentModule(Properties userProperties, String... classpathPropertiesFiles) {
     this.userProperties = userProperties;
     this.classpathPropertiesFiles = classpathPropertiesFiles;
   }

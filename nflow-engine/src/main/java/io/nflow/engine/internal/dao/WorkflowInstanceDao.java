@@ -679,8 +679,6 @@ public class WorkflowInstanceDao {
     }
 
     @Override
-    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS",
-        justification = "This class has a natural ordering that is inconsistent with equals")
     public int compareTo(OptimisticLockKey other) {
       return Long.compare(this.id, other.id);
     }

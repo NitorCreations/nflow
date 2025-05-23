@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +30,6 @@ import io.nflow.netty.config.NflowNettyConfiguration;
 import io.nflow.server.spring.NflowStandardEnvironment;
 import reactor.netty.http.server.HttpServer;
 
-@SuppressFBWarnings(value = "OPM_OVERLY_PERMISSIVE_METHOD", justification = "All public methods are public on purpose")
 public class StartNflow {
 
   private static final Logger logger = LoggerFactory.getLogger(StartNflow.class);
@@ -69,7 +67,7 @@ public class StartNflow {
 
   public StartNflow registerSpringClasspathPropertySource(String... springPropertiesPaths) throws IOException {
     for (String path : springPropertiesPaths) {
-      propertiesSources.add(new ResourcePropertySource(path));
+      registerSpringPropertySource(new ResourcePropertySource(path));
     }
     return this;
   }

@@ -13,10 +13,8 @@ import jakarta.inject.Inject;
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.statistics.Statistics;
@@ -27,8 +25,6 @@ import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
  * used in some legacy systems.
  */
 @Component
-@SuppressFBWarnings(value = { "SIC_INNER_SHOULD_BE_STATIC_ANON",
-    "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" }, justification = "common jdbctemplate practice, jdbc and executorInfo are injected")
 public class StatisticsDao {
 
   private final JdbcTemplate jdbc;
@@ -116,17 +112,14 @@ public class StatisticsDao {
             " from nflow_workflow where executor_group = ? and type = ?" + where + " group by state, status";
     Object[] argsArray = argsList.toArray(new Object[argsList.size()]);
     final Map<String, Map<String, WorkflowDefinitionStatistics>> stats = new LinkedHashMap<>();
-    jdbc.query(query, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        String state = rs.getString("state");
-        Map<String, WorkflowDefinitionStatistics> stateStats = stats.computeIfAbsent(state, k -> new LinkedHashMap<>());
-        String status = rs.getString("status");
-        WorkflowDefinitionStatistics statusStats = new WorkflowDefinitionStatistics();
-        statusStats.allInstances = rs.getLong("all_instances");
-        statusStats.queuedInstances = rs.getLong("queued_instances");
-        stateStats.put(status, statusStats);
-      }
+    jdbc.query(query, rs -> {
+      String state = rs.getString("state");
+      Map<String, WorkflowDefinitionStatistics> stateStats = stats.computeIfAbsent(state, k -> new LinkedHashMap<>());
+      String status = rs.getString("status");
+      WorkflowDefinitionStatistics statusStats = new WorkflowDefinitionStatistics();
+      statusStats.allInstances = rs.getLong("all_instances");
+      statusStats.queuedInstances = rs.getLong("queued_instances");
+      stateStats.put(status, statusStats);
     }, argsArray);
     return stats;
   }

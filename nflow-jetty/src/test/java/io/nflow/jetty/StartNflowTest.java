@@ -16,21 +16,35 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 public class StartNflowTest {
 
   @Test
   public void startNflowJettyToRandomFreeLocalPort() throws Exception {
-    JettyServerContainer jetty = initJettyStart(0, JMX);
+    JettyServerContainer jetty = initJettyStart(JMX);
+    assertThat(jetty.getPort(), is(not(0)));
+    startStop(jetty);
+  }
+
+  @Test
+  public void startNflowJettyToRandomFixedPort2() throws Exception {
+    JettyServerContainer jetty = new StartNflow().registerSpringContext(DummyContext.class).startJetty(0, "junit", "ignore", new HashMap<>());
+    assertThat(jetty.getPort(), is(not(0)));
+    startStop(jetty);
+  }
+
+  @Test
+  public void startNflowJettyToRandomFreeLocalPort3() throws Exception {
+    JettyServerContainer jetty = new StartNflow().registerSpringContext(DummyContext.class).startJetty(Map.of("port", 0));
     assertThat(jetty.getPort(), is(not(0)));
     startStop(jetty);
   }
 
   private JettyServerContainer initJettyStart(String profiles) throws Exception {
-    return initJettyStart(0, profiles);
-  }
-
-  private JettyServerContainer initJettyStart(int port, String profiles) throws Exception {
-    return new StartNflow().registerSpringContext(DummyContext.class).startJetty(port, "junit", profiles);
+    return new StartNflow().registerSpringContext(DummyContext.class).startJetty(0, "junit", profiles);
   }
 
   private void startStop(JettyServerContainer jetty) throws Exception {
@@ -50,32 +64,6 @@ public class StartNflowTest {
       sleep(50);
     }
     fail("Jetty did not stop gracefully in 10 seconds");
-  }
-
-  @Disabled(value = "Not used generally to avoid port conflicts")
-  @Test
-  public void startNflowJettyToPredefinedPort() throws Exception {
-    JettyServerContainer jetty = initJettyStart(7505, "");
-    assertThat(jetty.getPort(), is(7505));
-    startStop(jetty);
-  }
-
-  @Test
-  @Disabled
-  public void startNflowJettyMysql() throws Exception {
-    startStop(initJettyStart(MYSQL));
-  }
-
-  @Test
-  @Disabled
-  public void startNflowJettyMariadb() throws Exception {
-    startStop(initJettyStart(MARIADB));
-  }
-
-  @Test
-  @Disabled
-  public void startNflowJettyPostgreSQL() throws Exception {
-    startStop(initJettyStart(POSTGRESQL));
   }
 
   @Configurable

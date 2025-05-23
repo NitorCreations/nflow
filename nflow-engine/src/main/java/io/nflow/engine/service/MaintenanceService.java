@@ -21,7 +21,6 @@ import org.joda.time.DateTime;
 import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.MaintenanceDao;
 import io.nflow.engine.internal.dao.NflowTable;
@@ -65,7 +64,6 @@ public class MaintenanceService {
    *          Cleanup actions to be executed and parameters for the actions.
    * @return Object describing the number of workflows acted on.
    */
-  @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodicLogger is defined in correct scope")
   public MaintenanceResults cleanupWorkflows(MaintenanceConfiguration configuration) {
     validateConfiguration(configuration);
     if (configuration.archiveWorkflows != null || configuration.deleteArchivedWorkflows != null) {
@@ -98,7 +96,6 @@ public class MaintenanceService {
         });
   }
 
-  @SuppressFBWarnings(value = "BAS_BLOATED_ASSIGNMENT_SCOPE", justification = "periodLogger scope is correct")
   private int doAction(String type, ConfigurationItem configuration, TableType tableType,
       Function<List<Long>, Integer> doAction) {
     DateTime olderThan = now().minus(configuration.olderThanPeriod);

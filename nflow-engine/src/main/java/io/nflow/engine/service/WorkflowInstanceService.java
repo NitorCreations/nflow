@@ -89,7 +89,6 @@ public class WorkflowInstanceService {
    * @param instance The workflow instance to be inserted.
    * @return The id of the inserted or existing workflow instance.
    */
-  @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "getInitialState().toString() has no cast")
   public long insertWorkflowInstance(WorkflowInstance instance) {
     Assert.notNull(workflowInstancePreProcessor, "workflowInstancePreProcessor can not be null");
     WorkflowInstance processedInstance = workflowInstancePreProcessor.process(instance);

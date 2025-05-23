@@ -26,7 +26,7 @@ public class StartNflowTest {
   private static final String DEFAULT_LOCALHOST_SERVER_PORT = "7500";
   private static final String DEFAULT_LOCALHOST_SERVER_ADDRESS = "http://localhost:" + DEFAULT_LOCALHOST_SERVER_PORT;
 
-  public class TestApplicationListener implements ApplicationListener<ApplicationContextEvent> {
+  public static class TestApplicationListener implements ApplicationListener<ApplicationContextEvent> {
     public ApplicationContextEvent applicationContextEvent;
 
     @Override
