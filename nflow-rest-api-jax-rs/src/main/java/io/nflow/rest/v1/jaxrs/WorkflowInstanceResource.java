@@ -31,7 +31,6 @@ import jakarta.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -133,8 +132,6 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @Path("/id/{id}")
   @Operation(summary = "Fetch a workflow instance",
       description = "Fetch full state and action history of a single workflow instance.")
-  @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE",
-      justification = "The empty result exception contains no useful information")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "",
           content = @Content(schema = @Schema(implementation = ListWorkflowInstanceResponse.class))),

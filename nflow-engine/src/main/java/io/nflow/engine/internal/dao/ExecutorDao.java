@@ -42,7 +42,6 @@ import io.nflow.engine.workflow.executor.WorkflowExecutor;
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
 @Component
-@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 @Singleton
 public class ExecutorDao {
 
@@ -205,9 +204,6 @@ public class ExecutorDao {
     }
   }
 
-  @SuppressFBWarnings(
-      value = { "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-      justification = "spotbugs does not trust jdbctemplate, sql is constant in practice")
   public int deleteExpiredBefore(DateTime expiredBefore) {
     try {
       return jdbc.update("delete from nflow_executor where recovered is not null and " + sqlVariants.dateLtEqDiff("expires", "?")

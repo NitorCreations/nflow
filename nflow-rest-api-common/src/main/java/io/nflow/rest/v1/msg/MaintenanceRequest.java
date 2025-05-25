@@ -12,8 +12,7 @@ import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Request to start maintenance process")
-@SuppressFBWarnings(value = { "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD" },
-    justification = "jackson reads dto fields")
+@SuppressFBWarnings(value = "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson writes dto fields")
 public class MaintenanceRequest extends ModelObject {
 
   // Delete archived workflows

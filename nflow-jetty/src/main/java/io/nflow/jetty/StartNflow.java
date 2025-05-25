@@ -60,7 +60,6 @@ import io.nflow.jetty.servlet.MetricsServletContextListener;
 import io.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
 import io.nflow.server.spring.NflowStandardEnvironment;
 
-@SuppressFBWarnings(value = { "UPM_UNCALLED_PRIVATE_METHOD", "UUF_UNUSED_FIELD" }, justification = "FindBugs bug")
 public class StartNflow
 {
   private static final Logger logger = LoggerFactory.getLogger(StartNflow.class);

@@ -22,7 +22,6 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 /**
  * An instance of a workflow.
  */
-@SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "used by nflow-rest")
 public class WorkflowInstance extends ModelObject {
 
   /**
@@ -539,7 +538,6 @@ public class WorkflowInstance extends ModelObject {
      *          The optional value of the variable, serialized by object mapper.
      * @return this.
      */
-    @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
     public Builder putStateVariable(String key, Optional<?> optionalValue) {
       return optionalValue.map(value -> putStateVariable(key, value)).orElse(this);
     }

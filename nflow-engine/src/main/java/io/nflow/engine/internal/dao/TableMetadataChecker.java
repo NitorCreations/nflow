@@ -17,7 +17,6 @@ import jakarta.inject.Named;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.model.ModelObject;
 
@@ -62,7 +61,6 @@ public class TableMetadataChecker {
     }
   }
 
-  @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "jdbc is injected")
   private Map<String, ColumnMetadata> getMetadata(String tableName) {
     return jdbc.query("select * from " + tableName + " where 1 = 0", new MetadataExtractor());
   }

@@ -15,7 +15,6 @@ public class StoredWorkflowDefinition extends ModelObject {
   public List<State> states = new ArrayList<>();
   public List<Signal> supportedSignals = new ArrayList<>();
 
-  @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "serialized to database with object mapper")
   public static class State extends ModelObject implements Comparable<State> {
 
     public State() {
@@ -35,20 +34,16 @@ public class StoredWorkflowDefinition extends ModelObject {
     public String onFailure;
 
     @Override
-    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "This class has a natural ordering that is inconsistent with equals")
     public int compareTo(State state) {
       return type.compareTo(state.type);
     }
   }
 
-  @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "serialized to database with object mapper")
   public static class Signal extends ModelObject implements Comparable<Signal> {
     public Integer value;
     public String description;
 
     @Override
-    @SuppressFBWarnings(value = { "EQ_COMPARETO_USE_OBJECT_EQUALS",
-        "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" }, justification = "This class has a natural ordering that is inconsistent with equals, signal value should never be null")
     public int compareTo(Signal o) {
       return value.compareTo(o.value);
     }

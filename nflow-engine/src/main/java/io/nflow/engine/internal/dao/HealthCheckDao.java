@@ -5,11 +5,9 @@ import jakarta.inject.Named;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
 
 @Named
-@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification = "common jdbctemplate practice")
 public class HealthCheckDao {
   private final JdbcTemplate jdbc;
 
@@ -18,7 +16,6 @@ public class HealthCheckDao {
     this.jdbc = jdbcTemplate;
   }
 
-  @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "jdbc is injected")
   public void checkDatabaseConnection() {
     jdbc.query("select status, type from nflow_workflow where id = 0", resultSet -> null);
   }

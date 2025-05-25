@@ -12,6 +12,9 @@
     <Bug pattern="IMC_IMMATURE_CLASS_NO_EQUALS" />
   </Match>
   <Match>
+    <Bug pattern="OPM_OVERLY_PERMISSIVE_METHOD" /> <!-- This is buggy in spotbugs 5.9 -->
+  </Match>
+  <Match>
     <Bug pattern="AI_ANNOTATION_ISSUES_NEEDS_NULLABLE"/>
   </Match>
   <Match>
