@@ -797,7 +797,7 @@ public class WorkflowInstanceDao {
   }
 
   private long getMaxResults(Long maxResults) {
-    return java.util.Optional.ofNullable(maxResults)
+    return Optional.ofNullable(maxResults)
         .map(m -> min(m, workflowInstanceQueryMaxResults))
         .orElse(workflowInstanceQueryMaxResultsDefault);
   }
@@ -813,14 +813,14 @@ public class WorkflowInstanceDao {
       Map<Long, Map<String, String>> actionStates = fetchActionStateVariables(instance, actionBuilders.size(), maxActions);
       actionBuilders.forEach(builder -> {
           Map<String, String> actionState = actionStates.get(builder.getId());
-          java.util.Optional.ofNullable(actionState).ifPresent(builder::setUpdatedStateVariables);
+          Optional.ofNullable(actionState).ifPresent(builder::setUpdatedStateVariables);
       });
     }
     actionBuilders.stream().map(WorkflowInstanceAction.Builder::build).forEach(instance.actions::add);
   }
 
   private long getMaxActions(Long maxActions) {
-    return java.util.Optional.ofNullable(maxActions)
+    return Optional.ofNullable(maxActions)
         .map(m -> min(m, workflowInstanceQueryMaxActions))
         .orElse(workflowInstanceQueryMaxActionsDefault);
   }
