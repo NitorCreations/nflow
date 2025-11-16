@@ -2,11 +2,8 @@ package io.nflow.rest.v1.converter;
 
 import static java.util.stream.Collectors.toMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -31,9 +28,9 @@ public class ListWorkflowDefinitionConverter {
     resp.onError = definition.getErrorState().name();
     Map<String, State> states = definition.getStates().stream().collect(toMap(WorkflowState::name, this::toState));
     definition.getAllowedTransitions().forEach((key, targets) ->
-        java.util.Optional.ofNullable(states.get(key)).ifPresent(s -> s.transitions.addAll(targets)));
+        Optional.ofNullable(states.get(key)).ifPresent(s -> s.transitions.addAll(targets)));
     definition.getFailureTransitions().forEach((key, wfState) ->
-        java.util.Optional.ofNullable(states.get(key)).ifPresent(s -> s.onFailure = wfState.name()));
+        Optional.ofNullable(states.get(key)).ifPresent(s -> s.onFailure = wfState.name()));
     resp.states = states.values().toArray(new State[0]);
 
     WorkflowSettings workflowSettings = definition.getSettings();

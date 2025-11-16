@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import jakarta.inject.Inject;
@@ -81,7 +82,7 @@ public class ObjectStringMapper {
         continue;
       }
       Object value = args[i + 1];
-      java.util.Optional.ofNullable(value).ifPresent(v -> {
+      Optional.ofNullable(value).ifPresent(v -> {
         Object actual = v;
         if (param.mutable) {
           actual = ((Mutable<Object>) actual).val;

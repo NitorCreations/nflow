@@ -9,6 +9,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
@@ -24,7 +25,9 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -602,7 +605,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private StringBuilder getStackTraceAsString() {
-    String stack = java.util.Arrays.stream(thread.getStackTrace()).map(Object::toString).collect(java.util.stream.Collectors.joining("\n"));
+    String stack = stream(thread.getStackTrace()).map(Object::toString).collect(Collectors.joining("\n"));
     StringBuilder sb = new StringBuilder(stack.length() + 2);
     if (!stack.isEmpty()) {
       sb.append(stack).append('\n');
@@ -611,7 +614,7 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   public void handlePotentiallyStuck(Duration processingTime) {
-    java.util.concurrent.atomic.AtomicBoolean interrupt = new java.util.concurrent.atomic.AtomicBoolean(false);
+    AtomicBoolean interrupt = new AtomicBoolean(false);
     executorListeners.forEach(listener -> {
       try {
         if (listener.handlePotentiallyStuck(listenerContext, processingTime)) {
