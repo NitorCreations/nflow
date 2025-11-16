@@ -563,33 +563,33 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void processBeforeListeners() {
-    for (WorkflowExecutorListener listener : executorListeners) {
+    executorListeners.forEach(listener -> {
       try {
         listener.beforeProcessing(listenerContext);
       } catch (Throwable t) {
         logger.error("Error in {}.beforeProcessing ({})", listener.getClass().getName(), t.getMessage(), t);
       }
-    }
+    });
   }
 
   private void processAfterListeners() {
-    for (WorkflowExecutorListener listener : executorListeners) {
+    executorListeners.forEach(listener -> {
       try {
         listener.afterProcessing(listenerContext);
       } catch (Throwable t) {
         logger.error("Error in {}.afterProcessing ({})", listener.getClass().getName(), t.getMessage(), t);
       }
-    }
+    });
   }
 
   private void processAfterFailureListeners(Throwable ex) {
-    for (WorkflowExecutorListener listener : executorListeners) {
+    executorListeners.forEach(listener -> {
       try {
         listener.afterFailure(listenerContext, ex);
       } catch (Throwable t) {
         logger.error("Error in {}.afterFailure ({})", listener.getClass().getName(), t.getMessage(), t);
       }
-    }
+    });
   }
 
   public DateTime getStartTime() {
@@ -602,25 +602,26 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private StringBuilder getStackTraceAsString() {
-    StringBuilder sb = new StringBuilder(2000);
-    for (StackTraceElement element : thread.getStackTrace()) {
-      sb.append(element).append('\n');
+    String stack = java.util.Arrays.stream(thread.getStackTrace()).map(Object::toString).collect(java.util.stream.Collectors.joining("\n"));
+    StringBuilder sb = new StringBuilder(stack.length() + 2);
+    if (!stack.isEmpty()) {
+      sb.append(stack).append('\n');
     }
     return sb;
   }
 
   public void handlePotentiallyStuck(Duration processingTime) {
-    boolean interrupt = false;
-    for (WorkflowExecutorListener listener : executorListeners) {
+    java.util.concurrent.atomic.AtomicBoolean interrupt = new java.util.concurrent.atomic.AtomicBoolean(false);
+    executorListeners.forEach(listener -> {
       try {
         if (listener.handlePotentiallyStuck(listenerContext, processingTime)) {
-          interrupt = true;
+          interrupt.set(true);
         }
       } catch (Throwable t) {
         logger.error("Error in " + listener.getClass().getName() + ".handleStuck (" + t.getMessage() + ")", t);
       }
-    }
-    if (interrupt) {
+    });
+    if (interrupt.get()) {
       thread.interrupt();
     }
   }

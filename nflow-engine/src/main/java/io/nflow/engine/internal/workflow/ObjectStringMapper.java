@@ -81,22 +81,22 @@ public class ObjectStringMapper {
         continue;
       }
       Object value = args[i + 1];
-      if (value == null) {
-        continue;
-      }
-      String sVal;
-      if (param.mutable) {
-        value = ((Mutable<Object>) value).val;
-        if (value == null) {
-          continue;
+      java.util.Optional.ofNullable(value).ifPresent(v -> {
+        Object actual = v;
+        if (param.mutable) {
+          actual = ((Mutable<Object>) actual).val;
+          if (actual == null) {
+            return;
+          }
         }
-      }
-      if (String.class.equals(param.type)) {
-        sVal = (String) value;
-      } else {
-        sVal = convertFromObject(param.key, value);
-      }
-      execution.setVariable(param.key, sVal);
+        String sVal;
+        if (String.class.equals(param.type)) {
+          sVal = (String) actual;
+        } else {
+          sVal = convertFromObject(param.key, actual);
+        }
+        execution.setVariable(param.key, sVal);
+      });
     }
   }
 

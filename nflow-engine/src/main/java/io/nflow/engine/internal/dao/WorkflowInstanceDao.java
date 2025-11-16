@@ -284,13 +284,12 @@ public class WorkflowInstanceDao {
   }
 
   private void insertVariablesWithMultipleUpdates(final long id, final long actionId, Map<String, String> changedStateVariables) {
-    for (Entry<String, String> entry : changedStateVariables.entrySet()) {
-      int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, entry.getKey(),
-          entry.getValue());
+    changedStateVariables.forEach((key, value) -> {
+      int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, key, value);
       if (updated != 1) {
-        throw new IllegalStateException("Failed to insert state variable " + entry.getKey());
+        throw new IllegalStateException("Failed to insert state variable " + key);
       }
-    }
+    });
   }
 
   private void insertVariablesWithBatchUpdate(final long id, final long actionId, Map<String, String> changedStateVariables) {
@@ -310,8 +309,8 @@ public class WorkflowInstanceDao {
             return true;
           }
         });
-    int updatedRows = 0;
     boolean unknownResults = false;
+    AtomicInteger updatedRows = new AtomicInteger(0);
     for (int i = 0; i < updateStatus.length; ++i) {
       if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
         unknownResults = true;
@@ -320,12 +319,13 @@ public class WorkflowInstanceDao {
       if (updateStatus[i] == Statement.EXECUTE_FAILED) {
         throw new IllegalStateException("Failed to insert/update state variable at index " + i + " (" + updateStatus[i] + ")");
       }
-      updatedRows += updateStatus[i];
+      updatedRows.addAndGet(updateStatus[i]);
     }
+    int updatedRowsCount = updatedRows.get();
     int changedVariables = changedStateVariables.size();
-    if (!unknownResults && updatedRows != changedVariables) {
+    if (!unknownResults && updatedRowsCount != changedVariables) {
       throw new IllegalStateException(
-          "Failed to insert/update state variables, expected update count " + changedVariables + ", actual " + updatedRows);
+          "Failed to insert/update state variables, expected update count " + changedVariables + ", actual " + updatedRowsCount);
     }
   }
 
@@ -385,14 +385,12 @@ public class WorkflowInstanceDao {
         }
         long parentActionId = insertWorkflowInstanceAction(action);
         insertVariables(action.workflowInstanceId, parentActionId, changedStateVariables);
-        for (WorkflowInstance childTemplate : childWorkflows) {
+        childWorkflows.forEach(childTemplate -> {
           WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
               .setParentActionId(parentActionId).build();
           insertWorkflowInstance(childWorkflow);
-        }
-        for (WorkflowInstance workflow : workflows) {
-          insertWorkflowInstance(workflow);
-        }
+        });
+        workflows.forEach(workflow -> insertWorkflowInstance(workflow));
       }
     });
   }
@@ -655,18 +653,18 @@ public class WorkflowInstanceDao {
     List<Object[]> batchArgs = instances.stream()
         .map(instance -> new Object[] { instance.id, sqlVariants.tuneTimestampForDb(instance.modified) }).collect(toList());
     int[] updateStatuses = jdbc.batchUpdate(sql, batchArgs);
-    List<Long> ids = new ArrayList<>(instances.size());
-    for (int i = 0; i < updateStatuses.length; ++i) {
-      int status = updateStatuses[i];
-      if (status == 1) {
-        ids.add(instances.get(i).id);
-      } else if (status != 0) {
-        disableBatchUpdates.set(true);
-        throw new PollingBatchException(
-            "Database was unable to provide information about affected rows in a batch update. Disabling batch updates.");
-      }
-    }
-    return ids;
+    return Stream.iterate(0, i -> i < updateStatuses.length, i -> i + 1)
+        .peek(i -> {
+          int status = updateStatuses[i];
+          if (status != 1 && status != 0) {
+            disableBatchUpdates.set(true);
+            throw new PollingBatchException(
+                "Database was unable to provide information about affected rows in a batch update. Disabling batch updates.");
+          }
+        })
+        .filter(i -> updateStatuses[i] == 1)
+        .map(i -> instances.get(i).id)
+        .collect(toList());
   }
 
   private static class OptimisticLockKey extends ModelObject implements Comparable<OptimisticLockKey> {
@@ -799,10 +797,9 @@ public class WorkflowInstanceDao {
   }
 
   private long getMaxResults(Long maxResults) {
-    if (maxResults == null) {
-      return workflowInstanceQueryMaxResultsDefault;
-    }
-    return min(maxResults, workflowInstanceQueryMaxResults);
+    return java.util.Optional.ofNullable(maxResults)
+        .map(m -> min(m, workflowInstanceQueryMaxResults))
+        .orElse(workflowInstanceQueryMaxResultsDefault);
   }
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
@@ -815,20 +812,17 @@ public class WorkflowInstanceDao {
     if (includeStateVariables) {
       Map<Long, Map<String, String>> actionStates = fetchActionStateVariables(instance, actionBuilders.size(), maxActions);
       actionBuilders.forEach(builder -> {
-        Map<String, String> actionState = actionStates.get(builder.getId());
-        if (actionState != null) {
-          builder.setUpdatedStateVariables(actionState);
-        }
+          Map<String, String> actionState = actionStates.get(builder.getId());
+          java.util.Optional.ofNullable(actionState).ifPresent(builder::setUpdatedStateVariables);
       });
     }
     actionBuilders.stream().map(WorkflowInstanceAction.Builder::build).forEach(instance.actions::add);
   }
 
   private long getMaxActions(Long maxActions) {
-    if (maxActions == null) {
-      return workflowInstanceQueryMaxActionsDefault;
-    }
-    return min(maxActions, workflowInstanceQueryMaxActions);
+    return java.util.Optional.ofNullable(maxActions)
+        .map(m -> min(m, workflowInstanceQueryMaxActions))
+        .orElse(workflowInstanceQueryMaxActionsDefault);
   }
 
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {

@@ -1,6 +1,7 @@
 package io.nflow.rest.v1.converter;
 
 import static java.lang.Boolean.FALSE;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.util.Map.Entry;
@@ -27,9 +28,7 @@ public class CreateWorkflowConverter {
     WorkflowInstance.Builder builder = factory.newWorkflowInstanceBuilder().setType(req.type).setBusinessKey(req.businessKey)
         .setExternalId(req.externalId);
     if (!FALSE.equals(req.activate)) {
-      if (req.activationTime != null) {
-        builder.setNextActivation(req.activationTime);
-      }
+      ofNullable(req.activationTime).ifPresent(builder::setNextActivation);
     } else {
       builder.setNextActivation(null);
     }
@@ -37,14 +36,14 @@ public class CreateWorkflowConverter {
     if (isNotEmpty(req.startState)) {
       builder.setState(req.startState);
     }
-    for (Entry<String, Object> entry : req.stateVariables.entrySet()) {
+    req.stateVariables.entrySet().forEach(entry -> {
       Object value = entry.getValue();
       if (value instanceof String) {
         builder.putStateVariable(entry.getKey(), (String) value);
       } else {
         builder.putStateVariable(entry.getKey(), value);
       }
-    }
+    });
     return builder.build();
   }
 

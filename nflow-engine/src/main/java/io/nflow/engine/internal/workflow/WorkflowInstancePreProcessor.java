@@ -28,10 +28,8 @@ public class WorkflowInstancePreProcessor {
   }
 
   public WorkflowInstance process(WorkflowInstance instance) {
-    WorkflowDefinition def = workflowDefinitionService.getWorkflowDefinition(instance.type);
-    if (def == null) {
-      throw new IllegalArgumentException("No workflow definition found for type [" + instance.type + "]");
-    }
+    WorkflowDefinition def = java.util.Optional.ofNullable(workflowDefinitionService.getWorkflowDefinition(instance.type))
+        .orElseThrow(() -> new IllegalArgumentException("No workflow definition found for type [" + instance.type + "]"));
     WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
     if (instance.state == null) {
       builder.setState(def.getInitialState());
