@@ -204,7 +204,7 @@ public abstract class AbstractNflowTest {
 
   protected static ObjectMapper nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.setDefaultPropertyInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
     return mapper;
   }

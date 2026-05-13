@@ -97,7 +97,7 @@ public class DaoTestConfiguration {
   @NFlow
   public EngineObjectMapperSupplier objectMapper() {
     ObjectMapper mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.setDefaultPropertyInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
     return () -> mapper;
   }
