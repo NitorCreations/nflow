@@ -17,7 +17,7 @@
     </license>
   </licenses>
   <organization>
-    <name>Nitor Creations</name>
+    <name>Nitor</name>
     <url>https://www.nitor.com</url>
   </organization>
   <inceptionYear>2014</inceptionYear>
@@ -27,20 +27,15 @@
     <url>https://github.com/NitorCreations/nflow</url>
     <tag>HEAD</tag>
   </scm>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
   <issueManagement>
     <system>Github</system>
     <url>https://github.com/NitorCreations/nflow/issues</url>
   </issueManagement>
   <repositories>
     <repository>
-      <id>snapshots-repo</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <name>Central Portal Snapshots</name>
+      <id>central-portal-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -115,6 +110,7 @@
     <asm.version>9.10</asm.version>
     <apache.cxf.version>4.2.0</apache.cxf.version>
     <build-helper.version>3.6.1</build-helper.version>
+    <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
     <commons.lang3.version>3.20.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>4.3.0</coveralls.version>
@@ -373,11 +369,6 @@
           <version>${maven-download.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${nexus-staging-maven.version}</version>
-        </plugin>
-        <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
           <version>${versions-maven-plugin.version}</version>
@@ -385,6 +376,11 @@
             <generateBackupPoms>false</generateBackupPoms>
             <rulesUri>file:///${session.executionRootDirectory}/maven-version-rules.xml</rulesUri>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${central-publishing-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -455,13 +451,14 @@
         <artifactId>coveralls-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
+          <waitUntil>published</waitUntil>
+          <excludeArtifacts>nflow-tests</excludeArtifacts>
         </configuration>
       </plugin>
     </plugins>
