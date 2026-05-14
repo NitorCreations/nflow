@@ -10,7 +10,7 @@
         </rule>
         <rule groupId="com.fasterxml.jackson">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*rc[0-9]+</ignoreVersion>
+                <ignoreVersion type="regex">.*rc.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.apache.maven.plugins">
@@ -25,27 +25,27 @@
         </rule>
         <rule groupId="jakarta.xml.bind">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*-b[0-9]+.*</ignoreVersion>
+                <ignoreVersion type="regex">.*-b.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="jakarta.annotation">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="jakarta.inject" artifactId="jakarta.inject-api">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*\.(MR|RC[0-9]+).*</ignoreVersion>
+                <ignoreVersion type="regex">.*\.(MR|RC).*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="jakarta.servlet">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="jakarta.validation">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="jakarta.ws.rs">
@@ -55,7 +55,7 @@
         </rule>
         <rule groupId="org.glassfish" artifactId="jakarta.el">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*-M[0-9]+.*</ignoreVersion>
+                <ignoreVersion type="regex">.*-M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.postgresql">
@@ -80,27 +80,27 @@
         </rule>
         <rule groupId="org.glassfish.jersey.containers">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.glassfish.jersey.core">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.glassfish.jersey.inject">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.junit.jupiter">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
+                <ignoreVersion type="regex">.*[M|RC].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.springframework">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M*</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.mariadb.jdbc">
@@ -115,7 +115,7 @@
         </rule>
         <rule groupId="io.projectreactor">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M[0-9]</ignoreVersion>
+                <ignoreVersion type="regex">.*M.*</ignoreVersion>
             </ignoreVersions>
         </rule>
     </rules>
