@@ -15,11 +15,13 @@ case $DB_VERSION in
     ;;
 esac
 
+$tool --version
+
 $tool run --pull=always --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
-docker ps -a
+$tool ps -a
 
-docker logs --follow --until=10s mssql
+$tool logs --follow --until=10s mssql
 
 ok=
 for i in {1..10}; do
