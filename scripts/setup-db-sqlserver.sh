@@ -17,14 +17,22 @@ esac
 
 $tool run --pull=always --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
+ok=
 for i in {1..10}; do
   if $tool exec mssql $SQLCMD_EXEC -S localhost -U sa -P 'passWord1%' -Q 'SELECT 1' > /dev/null 2>&1; then
     echo "✅ SQL Server is ready"
+    ok=1
     break
   fi
   echo "⏳ Waiting for SQL Server..."
   sleep 5
 done
+
+if [ -z "$ok" ]; then
+  docker ps -a
+  echo "SQL server did not start properly"
+  exit 1
+fi
 
 sqlcmd="$tool exec -t mssql $SQLCMD_EXEC -S localhost -U sa -P passWord1% -e -x"
 $sqlcmd -Q "create database nflow"
