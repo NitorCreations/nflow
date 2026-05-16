@@ -19,10 +19,6 @@ $tool --version
 
 $tool run --pull=always --rm --name mssql -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=passWord1%' --publish 1433:1433 --detach mcr.microsoft.com/mssql/server:$DB_VERSION
 
-$tool ps -a
-
-$tool logs --follow --until=10s mssql
-
 ok=
 for i in {1..10}; do
   if $tool exec mssql $SQLCMD_EXEC -S localhost -U sa -P 'passWord1%' -Q 'SELECT 1' > /dev/null 2>&1; then
@@ -35,7 +31,7 @@ for i in {1..10}; do
 done
 
 if [ -z "$ok" ]; then
-  $tool ps -a
+  $tool logs --follow --until=10s mssql
   echo "SQL server did not start properly"
   exit 1
 fi
