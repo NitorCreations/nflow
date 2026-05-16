@@ -35,7 +35,7 @@ for i in {1..10}; do
 done
 
 if [ -z "$ok" ]; then
-  docker ps -a
+  $tool ps -a
   echo "SQL server did not start properly"
   exit 1
 fi
