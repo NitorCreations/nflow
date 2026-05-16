@@ -4,24 +4,33 @@
 
 **Details**
 
-- `nflow-explorer`
 - Dependency updates
-  - Jetty 11.0.25
-  - Apache CFX 4.1.2
-  - logback 1.5.18
-  - jackson 2.19.0
+  - spring 6.2.18
+  - jetty 11.0.26
+  - apache cxf 4.2.0
+  - logback 1.5.32
+  - jackson 2.21
   - h2 2.2.224
-  - mssql-jdbc 12.10.0
-  - mariadb 3.5.3
-  - mysql-connector 9.3.0
-  - ojdbc11 23.8.0.25.04
-  - HikariCP 6.3.0
-  - joda-time 2.14.0
-  - slf4j 2.0.17
-  - reactor-netty 1.2.6
-  - reactor-core 3.7.6
-  - swagger 2.2.32
-  - asm 9.8
+  - db2 jcc 12.1.4.0
+  - mssql-jdbc 12.8.1
+  - mariadb 3.5.8
+  - mysql-connector 9.7.0
+  - ojdbc11 23.25.2.0.0
+  - postgresql 42.7.11
+  - HikariCP 7.0.2
+  - joda-time 2.14.2
+  - commons-lang3 3.20.0
+  - metrics 4.2.30
+  - slf4j 2.0.18
+  - reactor-netty 1.3.5
+  - reactor-core 3.8.5
+  - swagger 2.2.28
+  - javassist 3.31.0
+  - asm 9.10
+  - servlet-api 6.1.0
+  - metrics 4.2.30
+  - validation-api 3.1.1
+  - jersey 3.1.11
 
 ## 10.0.1 (2025-04-21)
 

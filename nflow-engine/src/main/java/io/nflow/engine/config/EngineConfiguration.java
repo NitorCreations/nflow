@@ -67,7 +67,7 @@ public class EngineConfiguration {
   @NFlow
   public EngineObjectMapperSupplier nflowObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.setDefaultPropertyInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
     return () -> mapper;
   }

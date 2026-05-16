@@ -7,10 +7,10 @@ tool=$(command -v podman)
 DB_VERSION=${DB_VERSION:-latest}
 case $DB_VERSION in
   old)
-    DB_VERSION=8.0 # supported until Apr/2026
+    DB_VERSION=8.4 # supported until Apr/2029
     ;;
   latest)
-    DB_VERSION=9.3
+    DB_VERSION=9.7
     ;;
 esac
 

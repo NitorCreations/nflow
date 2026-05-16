@@ -51,7 +51,7 @@ public class PerfTestConfiguration {
   public ObjectMapper objectMapper() {
     // this must be kept in sync with the server side (nflowRestObjectMapper)
     ObjectMapper mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(NON_EMPTY);
+    mapper.setDefaultPropertyInclusion(NON_EMPTY);
     mapper.registerModule(new JodaModule());
     mapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
     return mapper;
