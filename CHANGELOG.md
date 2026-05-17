@@ -2,6 +2,9 @@
 
 **Highlights**
 
+- nFlow Explorer
+  - Migrate from npm to pnpm
+
 **Details**
 
 - Java/maven example projects updated to use Java 25 and Spring Boot 4
