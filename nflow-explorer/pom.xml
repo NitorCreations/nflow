@@ -36,34 +36,31 @@
         <version>${frontend-maven.version}</version>
         <executions>
           <execution>
-            <id>install node and npm</id>
+            <id>install node and pnpm</id>
             <goals>
-              <goal>install-node-and-npm</goal>
+              <goal>install-node-and-pnpm</goal>
             </goals>
             <phase>compile</phase>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
-              <npmVersion>${npm.version}</npmVersion>
+              <pnpmVersion>${pnpm.version}</pnpmVersion>
             </configuration>
           </execution>
           <execution>
-            <id>npm install</id>
+            <id>pnpm install</id>
             <goals>
-              <goal>npm</goal>
+              <goal>pnpm</goal>
             </goals>
             <phase>compile</phase>
-            <configuration>
-              <arguments>--color ci --no-update-notifier --no-audit --no-fund</arguments>
-            </configuration>
           </execution>
           <execution>
-            <id>npm run build</id>
+            <id>pnpm run build</id>
             <goals>
-              <goal>npm</goal>
+              <goal>pnpm</goal>
             </goals>
             <phase>compile</phase>
             <configuration>
-              <arguments>--color --no-update-notifier --no-audit --no-fund run build</arguments>
+              <arguments>run build</arguments>
             </configuration>
           </execution>
         </executions>
