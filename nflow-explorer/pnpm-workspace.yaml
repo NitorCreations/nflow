@@ -1,0 +1,7 @@
+updateNotifier: true
+ignoreScripts: true
+minimumReleaseAge: 4320 # 3 days in minutes
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 525600 # 365 days in minutes
+blockExoticSubdeps: true
+saveExact: true
