@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class StartNflowTest {
 
   private static final String DEFAULT_LOCALHOST_SERVER_PORT = "7500";
-  private static final String DEFAULT_LOCALHOST_SERVER_ADDRESS = "http://localhost:" + DEFAULT_LOCALHOST_SERVER_PORT;
+  private static final String DEFAULT_LOCALHOST_SERVER_ADDRESS = "http://127.0.0.1:" + DEFAULT_LOCALHOST_SERVER_PORT;
 
   public static class TestApplicationListener implements ApplicationListener<ApplicationContextEvent> {
     public ApplicationContextEvent applicationContextEvent;
