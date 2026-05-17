@@ -4,13 +4,15 @@
 
 **Details**
 
+- Java/maven example projects updated to use Java 25 and Spring Boot 4
+  - Java/gradle and Kotlin example projects are not working, contributions to get them updated would be appreciated
 - Dependency updates
   - spring 6.2.18
   - jetty 11.0.26
   - apache cxf 4.2.0
   - logback 1.5.32
   - jackson 2.21
-  - h2 2.2.224
+  - h2 2.3.232
   - db2 jcc 12.1.4.0
   - mssql-jdbc 12.8.1
   - mariadb 3.5.8
@@ -39,8 +41,8 @@
 **Details**
 
 - `nflow-explorer`
-  - Make the selection lists searchable and display in alphabetic order (https://github.com/NitorCreations/nflow/pull/678)
-  - Bug fix: handle empty actions list (https://github.com/NitorCreations/nflow/pull/676)
+  - Make the selection lists searchable and display in alphabetic order (<https://github.com/NitorCreations/nflow/pull/678>)
+  - Bug fix: handle empty actions list (<https://github.com/NitorCreations/nflow/pull/676>)
   - Remove `web-vitals` dependency
   - Switch from obsolete `dagre-d3` to `dagre-d3-es`
   - Maintenance library updates
@@ -72,8 +74,9 @@
 ## 10.0.0 (2024-10-04)
 
 **Highlights**
+
 - `nflow-explorer`
-  - POTENTIALLY BREAKING CHANGE: uses hash (`#`) instead of hashbang (`#!`) as web path prefix ([react-router no longer supports `hashType`](https://github.com/remix-run/react-router/pull/11310)) 
+  - POTENTIALLY BREAKING CHANGE: uses hash (`#`) instead of hashbang (`#!`) as web path prefix ([react-router no longer supports `hashType`](https://github.com/remix-run/react-router/pull/11310))
   - Improved responsiveness on smaller displays
 
 **Details**

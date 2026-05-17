@@ -53,6 +53,11 @@
                 <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="jakarta.xml.bind">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*M[0-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
         <rule groupId="org.glassfish" artifactId="jakarta.el">
             <ignoreVersions>
                 <ignoreVersion type="regex">.*-M.*</ignoreVersion>
