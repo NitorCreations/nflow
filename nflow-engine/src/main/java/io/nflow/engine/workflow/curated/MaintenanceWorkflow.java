@@ -2,8 +2,6 @@ package io.nflow.engine.workflow.curated;
 
 import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 
-import jakarta.inject.Inject;
-
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.service.MaintenanceConfiguration;
@@ -13,6 +11,7 @@ import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
+import jakarta.inject.Inject;
 
 /**
  * Clean up workflow instances periodically.

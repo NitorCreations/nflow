@@ -52,6 +52,7 @@ public class ThresholdBlockingQueueTest {
     assertTimeout(ofMillis(5000), () -> q.waitUntilQueueSizeLowerThanThreshold(DateTime.now().plusMinutes(1)));
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void waitsUntilQueueSizeLowerThanThreshold() {
     assertTimeout(ofMillis(10000), () -> {
@@ -78,6 +79,7 @@ public class ThresholdBlockingQueueTest {
     });
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void waitTimeoutWorks() {
     assertTimeout(ofMillis(10000), () -> {

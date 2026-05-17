@@ -26,7 +26,6 @@ import org.joda.time.ReadableDuration;
 import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.model.ModelObject;
 

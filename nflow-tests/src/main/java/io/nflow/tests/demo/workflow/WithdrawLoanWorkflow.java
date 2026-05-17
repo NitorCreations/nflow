@@ -5,8 +5,6 @@ import static io.nflow.engine.workflow.definition.WorkflowStateType.end;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.manual;
 import static io.nflow.engine.workflow.definition.WorkflowStateType.start;
 
-import jakarta.inject.Inject;
-
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.workflow.curated.State;
@@ -18,6 +16,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.tests.demo.domain.CreateLoanResponse;
 import io.nflow.tests.demo.domain.QueryCreditApplicationResponse;
+import jakarta.inject.Inject;
 
 @Component
 public class WithdrawLoanWorkflow extends WorkflowDefinition {

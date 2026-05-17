@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.ws.rs.NotFoundException;
-
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -36,6 +34,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension.BeforeServerStop;
+import jakarta.ws.rs.NotFoundException;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MaintenanceWorkflowTest extends AbstractNflowTest {
@@ -58,6 +57,7 @@ public class MaintenanceWorkflowTest extends AbstractNflowTest {
     deleteAllFinishedWorkflows();
   }
 
+  @SuppressWarnings("resource")
   @Test
   @Order(2)
   public void verifyThatMaintenanceWorkflowIsRunning() throws InterruptedException {

@@ -25,12 +25,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.ws.rs.core.UriBuilder;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,14 +37,20 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
+import io.nflow.tests.demo.workflow.FibonacciWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.core.UriBuilder;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith({ SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
@@ -90,6 +90,7 @@ public class ConcurrentEnginesTest {
     }
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setWorkflowInstanceResource(@Named("workflowInstance") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(servers.get(0).getPort()).build().toString();
@@ -124,6 +125,7 @@ public class ConcurrentEnginesTest {
     var wfr = assertTimeoutPreemptively(ofSeconds(120), () -> {
       while (true) {
         sleep(500);
+        @SuppressWarnings("resource")
         var instances = fromClient(workflowInstanceResource, true)
             .query("type", FIBONACCI_TYPE)
             .query("maxResults", WORKFLOWS + 1)
@@ -167,6 +169,7 @@ public class ConcurrentEnginesTest {
     assertThat("Each engine has to do at least 50% of its fair share of work", polls, everyItem(greaterThan(WORKFLOWS / ENGINES / 2)));
   }
 
+  @SuppressWarnings("resource")
   private JsonNode makeRequest(URI uri) {
     var client = fromClient(baseClient, true).to(uri.toString(), false);
     return client.get(JsonNode.class);
