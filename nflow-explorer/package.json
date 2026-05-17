@@ -32,7 +32,6 @@
     "@typescript-eslint/typescript-estree": "8.59.3",
     "@vitejs/plugin-react": "6.0.1",
     "husky": "9.1.7",
-    "jest-environment-jsdom": "30.4.1",
     "lint-staged": "17.0.4",
     "prettier": "3.8.3",
     "sass": "1.99.0",
@@ -49,21 +48,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "jest": {
-    "preset": "ts-jest/presets/js-with-ts",
-    "testEnvironment": "jest-environment-jsdom",
-    "moduleNameMapper": {
-      "d3": "<rootDir>/node_modules/d3/dist/d3.js",
-      "^d3-(.*)$": "<rootDir>/node_modules/d3-$1/dist/d3-$1",
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
-      "\\.(css|scss|less)$": "<rootDir>/__mocks__/styleMock.js"
-    },
-    "modulePaths": [
-      "./src"
+      "react-app"
     ]
   },
   "browserslist": {
