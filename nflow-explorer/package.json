@@ -24,7 +24,6 @@
   "devDependencies": {
     "@types/d3": "7.4.3",
     "@types/http-proxy": "1.17.17",
-    "@types/jest": "30.0.0",
     "@types/lodash": "4.17.24",
     "@types/mui-datatables": "4.3.13",
     "@types/node": "25.7.0",
@@ -33,20 +32,19 @@
     "@typescript-eslint/typescript-estree": "8.59.3",
     "@vitejs/plugin-react": "6.0.1",
     "husky": "9.1.7",
-    "jest": "30.4.2",
     "jest-environment-jsdom": "30.4.1",
     "lint-staged": "17.0.4",
     "prettier": "3.8.3",
     "sass": "1.99.0",
-    "ts-jest": "29.4.9",
     "typescript": "6.0.3",
-    "vite": "8.0.12"
+    "vite": "8.0.12",
+    "vitest": "4.1.6"
   },
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "deploy-dev": "npm run build && sed -i 's/http:\\/\\/localhost:3000/https:\\/\\/nflow.io/' build/config.js && aws s3 sync build/ s3://nflow-explorer-dev/dev/"
   },
   "eslintConfig": {
