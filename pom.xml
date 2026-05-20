@@ -108,7 +108,7 @@
     <jacocoArgLine></jacocoArgLine>
     <surefire.forkcount>1C</surefire.forkcount>
     <asm.version>9.10</asm.version>
-    <apache.cxf.version>4.2.0</apache.cxf.version>
+    <apache.cxf.version>4.2.1</apache.cxf.version>
     <build-helper.version>3.6.1</build-helper.version>
     <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
     <commons.lang3.version>3.20.0</commons.lang3.version>
@@ -118,7 +118,7 @@
     <el.version>4.0.2</el.version>
     <frontend-maven.version>2.0.0</frontend-maven.version>
     <guice.version>7.0.0</guice.version>
-    <h2.version>2.3.232</h2.version>
+    <h2.version>2.4.240</h2.version>
     <hamcrest.version>3.0</hamcrest.version>
     <hibernate.validator.version>9.1.0.Final</hibernate.validator.version>
     <hikaricp.version>7.0.2</hikaricp.version>
@@ -136,7 +136,7 @@
     <jersey.version>3.1.11</jersey.version>
     <jetty.version>11.0.26</jetty.version>
     <jodatime.version>2.14.2</jodatime.version>
-    <junit5.version>6.0.3</junit5.version>
+    <junit5.version>6.1.0</junit5.version>
     <logback-classic.version>1.5.32</logback-classic.version>
     <mariadb.version>3.5.8</mariadb.version>
     <maven-assembly.version>3.8.0</maven-assembly.version>
@@ -145,7 +145,7 @@
     <maven-deploy.version>3.1.4</maven-deploy.version>
     <maven-download.version>1.13.0</maven-download.version>
     <maven-eclipse.version>2.10</maven-eclipse.version>
-    <maven-enforcer.version>3.6.2</maven-enforcer.version>
+    <maven-enforcer.version>3.6.3</maven-enforcer.version>
     <maven-gpg.version>3.2.8</maven-gpg.version>
     <maven-install.version>3.1.4</maven-install.version>
     <maven-jacoco.version>0.8.14</maven-jacoco.version>
