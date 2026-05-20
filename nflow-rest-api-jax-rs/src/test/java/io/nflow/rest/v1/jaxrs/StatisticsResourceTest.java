@@ -29,7 +29,7 @@ import io.nflow.rest.v1.msg.WorkflowDefinitionStatisticsResponse;
 public class StatisticsResourceTest {
 
   @InjectMocks
-  private final StatisticsResource resource = new StatisticsResource();
+  private StatisticsResource resource = new StatisticsResource();
   @Mock
   private StatisticsService service;
   @Mock

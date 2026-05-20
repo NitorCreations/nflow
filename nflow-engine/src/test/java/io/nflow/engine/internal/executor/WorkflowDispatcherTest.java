@@ -429,7 +429,7 @@ public class WorkflowDispatcherTest {
       debug(name + " waiting for tick " + wantedTick);
       waiters.computeIfAbsent(wantedTick, t -> synchronizedList(new ArrayList<>())).add(thread);
       for (int i=0; i<200; ++i) {
-        if (tick.get() == wantedTick) {
+        if (tick.get() >= wantedTick) {
           debug(name + " got tick " + wantedTick);
           waiters.get(wantedTick).remove(thread);
           return;
@@ -438,7 +438,7 @@ public class WorkflowDispatcherTest {
           synchronized (thread) {
             debug(name + " still waiting for tick " + wantedTick);
             thread.wait(100);
-            if (tick.get() == wantedTick) {
+            if (tick.get() >= wantedTick) {
               debug(name + " got tick " + wantedTick);
               waiters.get(wantedTick).remove(thread);
               return;
