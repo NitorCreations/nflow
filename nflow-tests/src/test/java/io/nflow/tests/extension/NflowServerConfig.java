@@ -1,19 +1,35 @@
 package io.nflow.tests.extension;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.nflow.metrics.NflowMetricsContext;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import io.nflow.jetty.JettyServerContainer;
 import io.nflow.jetty.StartNflow;
 
 public class NflowServerConfig {
+    private static final Logger logger = LoggerFactory.getLogger(NflowServerConfig.class);
+    // H2 2.4 bug: ConditionInConstantSet stores a TreeSet comparator that references the SessionLocal used during DDL.
+    // When HikariCP closes on server stop, that session closes, breaking subsequent constraint checks on restart.
+    // Fix: run the DDL on a direct (non-pooled) connection keyed by H2 URL, kept open for the whole test class.
+    // Spring's DatabaseInitializer then skips DDL via IF NOT EXISTS, so ConditionInConstantSet uses this session.
+    private static final Map<String, Connection> h2KeepaliveConnections = new ConcurrentHashMap<>();
+
     private final Map<String, Object> props;
     private final String env;
     private final String profiles;
@@ -116,11 +132,13 @@ public class NflowServerConfig {
         if (getInstanceName() == null) {
             props.put("nflow.executor.group", testName);
         }
+        openH2KeepaliveConnectionIfNeeded();
         startJetty();
     }
 
     public void after() {
         stopJetty();
+        closeH2KeepaliveConnectionIfNeeded();
     }
 
     public NflowServerConfig anotherServer(Map<String, Object> extraProps) {
@@ -128,6 +146,49 @@ public class NflowServerConfig {
         b.props.putAll(props);
         b.props.putAll(extraProps);
         return new NflowServerConfig(b.env(env).profiles(profiles).metrics(metrics).springContextClass(springContextClass));
+    }
+
+    private boolean isH2Profile() {
+        return profiles.contains("nflow.db.h2") || !profiles.contains("nflow.db.");
+    }
+
+    private void openH2KeepaliveConnectionIfNeeded() {
+        if (!isH2Profile() || !props.containsKey("nflow.db.h2.url")) {
+            return;
+        }
+        String h2Url = props.get("nflow.db.h2.url").toString();
+        h2KeepaliveConnections.computeIfAbsent(h2Url, url -> {
+            try {
+                Connection conn = DriverManager.getConnection(url, "sa", "");
+                logger.info("Opened H2 keepalive connection to {}", url);
+                // Run DDL on this connection so ConditionInConstantSet uses this session,
+                // which stays alive across server restarts (HikariCP closing doesn't affect it).
+                ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+                populator.setIgnoreFailedDrops(true);
+                populator.setSqlScriptEncoding(UTF_8.name());
+                populator.addScript(new ClassPathResource("scripts/db/h2.create.ddl.sql"));
+                populator.populate(conn);
+                return conn;
+            } catch (Exception e) {
+                logger.warn("Failed to open H2 keepalive connection or run DDL", e);
+                return null;
+            }
+        });
+    }
+
+    private void closeH2KeepaliveConnectionIfNeeded() {
+        if (!isH2Profile() || !props.containsKey("nflow.db.h2.url")) {
+            return;
+        }
+        String h2Url = props.get("nflow.db.h2.url").toString();
+        Connection conn = h2KeepaliveConnections.remove(h2Url);
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                logger.warn("Failed to close H2 keepalive connection", e);
+            }
+        }
     }
 
     private void startJetty() throws Exception {
