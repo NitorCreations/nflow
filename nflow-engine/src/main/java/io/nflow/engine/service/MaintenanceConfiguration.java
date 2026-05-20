@@ -19,22 +19,22 @@ public class MaintenanceConfiguration {
   /**
    * Configuration for archiving old workflow instances.
    */
-  public final ConfigurationItem archiveWorkflows;
+  public ConfigurationItem archiveWorkflows;
 
   /**
    * Configuration for deleting old workflow instances from archive tables.
    */
-  public final ConfigurationItem deleteArchivedWorkflows;
+  public ConfigurationItem deleteArchivedWorkflows;
 
   /**
    * Configuration for deleting old workflow instances from main tables.
    */
-  public final ConfigurationItem deleteWorkflows;
+  public ConfigurationItem deleteWorkflows;
 
   /**
    * Delete workflow executors that have expired [given period] ago.
    */
-  public final ReadablePeriod deleteExpiredExecutorsOlderThan;
+  public ReadablePeriod deleteExpiredExecutorsOlderThan;
 
   MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
       @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
@@ -118,17 +118,17 @@ public class MaintenanceConfiguration {
     /**
      * Items older than (now - period) are processed.
      */
-    public final ReadablePeriod olderThanPeriod;
+    public ReadablePeriod olderThanPeriod;
 
     /**
      * The batch size of the maintenance operation.
      */
-    public final int batchSize;
+    public int batchSize;
 
     /**
      * The workflow types to be processed. If empty, process all types.
      */
-    public final Set<String> workflowTypes;
+    public Set<String> workflowTypes;
 
     ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod,
         @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
