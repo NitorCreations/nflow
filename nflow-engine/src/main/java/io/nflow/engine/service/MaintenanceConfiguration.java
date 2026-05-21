@@ -19,27 +19,27 @@ public class MaintenanceConfiguration {
   /**
    * Configuration for archiving old workflow instances.
    */
-  public ConfigurationItem archiveWorkflows;
+  public final ConfigurationItem archiveWorkflows;
 
   /**
    * Configuration for deleting old workflow instances from archive tables.
    */
-  public ConfigurationItem deleteArchivedWorkflows;
+  public final ConfigurationItem deleteArchivedWorkflows;
 
   /**
    * Configuration for deleting old workflow instances from main tables.
    */
-  public ConfigurationItem deleteWorkflows;
+  public final ConfigurationItem deleteWorkflows;
 
   /**
    * Delete workflow executors that have expired [given period] ago.
    */
-  public ReadablePeriod deleteExpiredExecutorsOlderThan;
+  public final ReadablePeriod deleteExpiredExecutorsOlderThan;
 
   MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
       @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
       @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows,
-      @JsonProperty("deleteExpiredAfter") ReadablePeriod deleteExpiredExecutorsOlderThan) {
+      @JsonProperty("deleteExpiredExecutorsOlderThan") ReadablePeriod deleteExpiredExecutorsOlderThan) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;
@@ -118,17 +118,17 @@ public class MaintenanceConfiguration {
     /**
      * Items older than (now - period) are processed.
      */
-    public ReadablePeriod olderThanPeriod;
+    public final ReadablePeriod olderThanPeriod;
 
     /**
      * The batch size of the maintenance operation.
      */
-    public int batchSize;
+    public final int batchSize;
 
     /**
      * The workflow types to be processed. If empty, process all types.
      */
-    public Set<String> workflowTypes;
+    public final Set<String> workflowTypes;
 
     ConfigurationItem(@JsonProperty("olderThanPeriod") ReadablePeriod olderThanPeriod,
         @JsonProperty("batchSize") Integer batchSize, @JsonProperty("workflowTypes") Set<String> workflowTypes) {
