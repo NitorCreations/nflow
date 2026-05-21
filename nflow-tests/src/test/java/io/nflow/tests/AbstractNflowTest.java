@@ -51,9 +51,10 @@ import io.nflow.tests.config.PropertiesConfiguration;
 import io.nflow.tests.config.RestClientConfiguration;
 import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
+import io.nflow.tests.extension.ServerLogCaptureExtension;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 
-@ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
+@ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class, ServerLogCaptureExtension.class })
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
 public abstract class AbstractNflowTest {
   private WebClient workflowInstanceResource;

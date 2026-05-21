@@ -9,6 +9,9 @@ import static java.lang.Boolean.parseBoolean;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static java.util.Arrays.stream;
 import static java.util.Collections.sort;
 import static java.util.EnumSet.noneOf;
@@ -206,11 +209,16 @@ public abstract class ResourceBase {
     return HTTP_INTERNAL_ERROR;
   }
 
+  private static final Logger logger = LoggerFactory.getLogger(ResourceBase.class);
+
   protected <T> T handleExceptions(Supplier<T> response, BiFunction<Integer, ErrorResponse, T> error) {
     try {
       return response.get();
     } catch (Throwable t) {
       int code = resolveExceptionHttpStatus(t);
+      if (code == HTTP_INTERNAL_ERROR) {
+        logger.error("Unhandled exception in REST endpoint", t);
+      }
       return error.apply(code, new ErrorResponse(t.getMessage()));
     }
   }

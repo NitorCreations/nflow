@@ -132,6 +132,7 @@ public class NflowServerConfig {
         if (getInstanceName() == null) {
             props.put("nflow.executor.group", testName);
         }
+        ServerLogCaptureAppender.setTestContext(testName);
         openH2KeepaliveConnectionIfNeeded();
         startJetty();
     }
