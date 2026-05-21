@@ -52,7 +52,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.outputDirectory}/nflow-ui-assets/doc</outputDirectory>
-              <overwrite>false</overwrite>
+              <changeDetection>true</changeDetection>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/swagger/swagger-ui-${swagger.ui.version}/dist</directory>
@@ -72,7 +72,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.outputDirectory}/nflow-ui-assets/explorer</outputDirectory>
-              <overwrite>false</overwrite>
+              <changeDetection>true</changeDetection>
               <resources>
                 <resource>
                   <directory>${project.basedir}/../nflow-explorer/build</directory>
