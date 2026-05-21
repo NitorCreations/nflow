@@ -29,7 +29,7 @@ public class WakeupTest extends AbstractNflowTest {
       .prop("nflow.executor.timeout.seconds", 1)
       .prop("nflow.executor.keepalive.seconds", 5)
       .prop("nflow.dispatcher.await.termination.seconds", 1)
-      .prop("nflow.db.h2.url", "jdbc:h2:mem:statisticstest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
+      .prop("nflow.db.h2.url", "jdbc:h2:mem:wakeuptest;TRACE_LEVEL_FILE=4;DB_CLOSE_DELAY=-1")
       .build();
 
   private static CreateWorkflowInstanceResponse createdWorkflow;

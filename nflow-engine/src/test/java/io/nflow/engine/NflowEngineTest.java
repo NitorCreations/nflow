@@ -7,8 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.execute;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,10 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 
 public class NflowEngineTest {
 
+  // H2 2.4 bug: ConditionInConstantSet stores a TreeSet whose comparator holds a SessionLocal reference.
+  // If the DDL connection closes, the comparator breaks on subsequent DML. Keep the connection alive.
+  private static Connection ddlConnection;
+
   /**
    * Travis ci build sets env variable SPRING_PROFILES_ACTIVE=nflow.db.$DB This will enable scanning for io.nflow.engine.config.db
    * which will create an extra data source, from e.g. H2DatabaseConfiguration.java The spring setup will fail because there are
@@ -45,12 +50,16 @@ public class NflowEngineTest {
   }
 
   @AfterEach
-  public void teardown() {
+  public void teardown() throws SQLException {
     System.clearProperty("spring.profiles.active");
+    if (ddlConnection != null) {
+      ddlConnection.close();
+      ddlConnection = null;
+    }
   }
 
   @Test
-  public void test() throws InterruptedException {
+  public void test() throws InterruptedException, SQLException {
     Collection<WorkflowDefinition> workflowDefinitions = asList(new DummyTestWorkflow());
     try (NflowEngine nflowEngine = new NflowEngine(dataSource(), new H2DatabaseConfiguration.H2SQLVariants(),
         workflowDefinitions)) {
@@ -86,7 +95,7 @@ public class NflowEngineTest {
     return it.next();
   }
 
-  static DataSource dataSource() {
+  static DataSource dataSource() throws SQLException {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
     dataSource.setDriverClassName("org.h2.Driver");
     dataSource.setUrl("jdbc:h2:mem:enginetest;DB_CLOSE_DELAY=-1");
@@ -96,11 +105,14 @@ public class NflowEngineTest {
     return dataSource;
   }
 
-  static void createTables(DataSource dataSource) {
+  static void createTables(DataSource dataSource) throws SQLException {
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setIgnoreFailedDrops(true);
     populator.setSqlScriptEncoding(UTF_8.name());
     populator.addScript(new ClassPathResource("scripts/db/h2.create.ddl.sql"));
-    execute(populator, dataSource);
+    // Keep ddlConnection open: H2 2.4 ConditionInConstantSet stores a session reference in its comparator.
+    // Closing the DDL connection invalidates the comparator, causing check constraint failures on INSERT.
+    ddlConnection = dataSource.getConnection();
+    populator.populate(ddlConnection);
   }
 }
