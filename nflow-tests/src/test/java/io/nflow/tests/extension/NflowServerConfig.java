@@ -24,10 +24,8 @@ import io.nflow.jetty.StartNflow;
 
 public class NflowServerConfig {
     private static final Logger logger = LoggerFactory.getLogger(NflowServerConfig.class);
-    // H2 2.4 bug: ConditionInConstantSet stores a TreeSet comparator that references the SessionLocal used during DDL.
-    // When HikariCP closes on server stop, that session closes, breaking subsequent constraint checks on restart.
-    // Fix: run the DDL on a direct (non-pooled) connection keyed by H2 URL, kept open for the whole test class.
-    // Spring's DatabaseInitializer then skips DDL via IF NOT EXISTS, so ConditionInConstantSet uses this session.
+    // Workaround for H2 2.4 bug https://github.com/h2database/h2database/issues/4342:
+    // run DDL on a direct (non-pooled) connection keyed by H2 URL, kept open for the whole test class.
     private static final Map<String, Connection> h2KeepaliveConnections = new ConcurrentHashMap<>();
 
     private final Map<String, Object> props;
@@ -162,8 +160,7 @@ public class NflowServerConfig {
             try {
                 Connection conn = DriverManager.getConnection(url, "sa", "");
                 logger.info("Opened H2 keepalive connection to {}", url);
-                // Run DDL on this connection so ConditionInConstantSet uses this session,
-                // which stays alive across server restarts (HikariCP closing doesn't affect it).
+                // Run DDL on this connection, see https://github.com/h2database/h2database/issues/4342
                 ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
                 populator.setIgnoreFailedDrops(true);
                 populator.setSqlScriptEncoding(UTF_8.name());

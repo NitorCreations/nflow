@@ -12,10 +12,10 @@
 - Dependency updates
   - spring 6.2.18
   - jetty 11.0.26
-  - apache cxf 4.2.0
+  - apache cxf 4.2.1
   - logback 1.5.32
   - jackson 2.21
-  - h2 2.3.232
+  - h2 2.4.240
   - db2 jcc 12.1.4.0
   - mssql-jdbc 12.8.1
   - mariadb 3.5.8
