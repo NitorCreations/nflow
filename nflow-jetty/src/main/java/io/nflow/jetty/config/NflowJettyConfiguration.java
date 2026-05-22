@@ -33,7 +33,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
@@ -59,7 +58,7 @@ public class NflowJettyConfiguration {
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
       StatisticsResource statisticsResource, MaintenanceResource maintenanceResource,
-      @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper, JAXRSBeanValidationInInterceptor validationInInterceptor,
+      @Named(REST_OBJECT_MAPPER) JsonMapper nflowRestObjectMapper, JAXRSBeanValidationInInterceptor validationInInterceptor,
       JAXRSBeanValidationOutInterceptor validationOutInterceptor) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
@@ -118,8 +117,8 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(@Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
-    return new JacksonJsonProvider((JsonMapper) nflowRestObjectMapper);
+  public JacksonJsonProvider jsonProvider(@Named(REST_OBJECT_MAPPER) JsonMapper nflowRestObjectMapper) {
+    return new JacksonJsonProvider(nflowRestObjectMapper);
   }
 
   @Bean(destroyMethod = "shutdown")

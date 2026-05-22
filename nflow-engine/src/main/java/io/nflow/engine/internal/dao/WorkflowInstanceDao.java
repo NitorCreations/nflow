@@ -93,8 +93,8 @@ import jakarta.inject.Singleton;
  * Use setter injection because constructor injection may not work when nFlow is used in some legacy systems.
  */
 @Component
-@SuppressFBWarnings(value = { "SIC_INNER_SHOULD_BE_STATIC_ANON", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" },
-    justification = "common jdbctemplate practice, npe is unlikely")
+@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON",
+    justification = "common jdbctemplate practice")
 @Singleton
 public class WorkflowInstanceDao {
 

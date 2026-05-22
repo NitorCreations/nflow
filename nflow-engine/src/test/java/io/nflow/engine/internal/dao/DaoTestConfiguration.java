@@ -17,7 +17,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.joda.JodaModule;
 
@@ -97,7 +96,7 @@ public class DaoTestConfiguration {
   @Bean
   @NFlow
   public EngineObjectMapperSupplier objectMapper() {
-    ObjectMapper mapper = JsonMapper.builder()
+    JsonMapper mapper = JsonMapper.builder()
         .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
         .addModule(new JodaModule())
         .build();

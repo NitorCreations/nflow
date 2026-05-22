@@ -11,7 +11,6 @@ import jakarta.servlet.ServletContextListener;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class MetricsServletContextListener implements ServletContextListener {
 
@@ -24,7 +23,6 @@ public class MetricsServletContextListener implements ServletContextListener {
     context.setAttribute(MetricsServlet.METRICS_REGISTRY, metricRegistry);
   }
 
-  @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "npe is unlikely")
   private <T> T getSpringBean(Class<T> clazz, ServletContext context) {
     return findWebApplicationContext(context).getBean(clazz);
   }

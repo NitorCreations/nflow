@@ -1,6 +1,6 @@
 package io.nflow.rest.config;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import io.nflow.engine.config.NFlow;
@@ -22,7 +22,7 @@ public class RestConfiguration {
 
   @Bean
   @Named(REST_OBJECT_MAPPER)
-  public ObjectMapper nflowRestObjectMapper(@NFlow EngineObjectMapperSupplier nflowObjectMapper) {
+  public JsonMapper nflowRestObjectMapper(@NFlow EngineObjectMapperSupplier nflowObjectMapper) {
     return nflowObjectMapper.get().rebuild()
         .configure(WRITE_DATES_AS_TIMESTAMPS, false)
         .enable(FAIL_ON_TRAILING_TOKENS)

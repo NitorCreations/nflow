@@ -37,7 +37,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.StringNode;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
@@ -95,7 +95,7 @@ public class WorkflowInstanceResourceTest {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory, workflowInstanceDao);
     lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
-        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(ObjectMapper::new)));
+        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(JsonMapper::new)));
   }
 
   @Test

@@ -96,7 +96,7 @@ import org.mockito.Mock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.env.MockEnvironment;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.exception.StateSaveExceptionAnalyzer;
@@ -177,7 +177,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Captor
   ArgumentCaptor<List<WorkflowInstance>> workflows;
 
-  ObjectStringMapper objectMapper = new ObjectStringMapper(ObjectMapper::new);
+  ObjectStringMapper objectMapper = new ObjectStringMapper(JsonMapper::new);
 
   WorkflowStateProcessor executor;
 
