@@ -9,16 +9,19 @@
 **Highlights**
 
 - Dependency updates
+- nFlow Explorer
+  - Migrate from npm to pnpm
+- upgrade to Spring 7
 
 **Details**
 
 - Dependency updates
-  - spring 6.2.18
-  - jetty 11.0.26
+  - spring 7.0.7
+  - jetty 12.1.9
   - apache cxf 4.2.1
   - logback 1.5.32
-  - jackson 2.21
   - hibernate validator 9.1.0.Final
+  - jackson 3.1.3
   - h2 2.4.240
   - db2 jcc 12.1.4.0
   - mssql-jdbc 13.4.0.jre11
