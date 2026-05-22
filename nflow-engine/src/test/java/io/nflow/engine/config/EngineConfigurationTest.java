@@ -20,7 +20,7 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 
@@ -73,8 +73,8 @@ public class EngineConfigurationTest {
   public void nflowObjectMapperInstantiated() throws Exception {
     ObjectMapper mapper = configuration.nflowObjectMapper().get();
     String nowS = mapper.writeValueAsString(DateTime.now());
-    assertThat(mapper.readerFor(DateTime.class).readValue(nowS, DateTime.class), isA(DateTime.class));
-    assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
+    assertThat(mapper.readerFor(DateTime.class).<DateTime>readValue(nowS), isA(DateTime.class));
+    assertThat(mapper.serializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
         is(JsonInclude.Include.NON_EMPTY));
   }
 }

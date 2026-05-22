@@ -36,11 +36,11 @@
       <artifactId>reactor-netty</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <groupId>tools.jackson.datatype</groupId>
       <artifactId>jackson-datatype-joda</artifactId>
     </dependency>
     <dependency>

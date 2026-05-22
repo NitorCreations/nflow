@@ -37,8 +37,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -253,7 +253,7 @@ public class WorkflowInstanceResourceTest {
   public void whenUpdatingStateVariablesUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.stateVariables.put("foo", "bar");
-    req.stateVariables.put("textNode", new TextNode("text"));
+    req.stateVariables.put("textNode", new StringNode("text"));
 
     makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 

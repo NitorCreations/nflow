@@ -24,10 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
@@ -52,6 +48,9 @@ import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.UriBuilder;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.joda.JodaModule;
 
 @ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class, ServerLogCaptureExtension.class })
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
@@ -219,11 +218,11 @@ public abstract class AbstractNflowTest {
     return fromClient(workflowInstanceResource, true).put(request, CreateWorkflowInstanceResponse.class);
   }
 
-  protected static ObjectMapper nflowObjectMapper() {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setDefaultPropertyInclusion(NON_EMPTY);
-    mapper.registerModule(new JodaModule());
-    return mapper;
+  protected static JsonMapper nflowObjectMapper() {
+    return JsonMapper.builder()
+        .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
+        .addModule(new JodaModule())
+        .build();
   }
 
   protected MaintenanceResponse deleteAllFinishedWorkflows() {

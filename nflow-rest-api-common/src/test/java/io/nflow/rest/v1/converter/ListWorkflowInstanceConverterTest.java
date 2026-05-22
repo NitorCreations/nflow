@@ -31,11 +31,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -238,7 +238,7 @@ public class ListWorkflowInstanceConverterTest {
   }
 
   @Test
-  public void convertWithMalformedStateVariablesWorks() throws JsonProcessingException, IOException {
+  public void convertWithMalformedStateVariablesWorks() throws JacksonException, IOException {
     DateTime now = now();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder()
         .setId(929).setType(stateExecution).setState("oStDateTimeate").setStateText("oState desc").setRetryNo(1)
@@ -254,16 +254,16 @@ public class ListWorkflowInstanceConverterTest {
         .setStatus(inProgress).setType("dummy").setBusinessKey("businessKey").setExternalId("externalId").setState("cState")
         .setStateText("cState desc").setNextActivation(now).setActions(asList(a)).setStateVariables(stateVariables).build();
 
-    when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException(null, "bad data"));
-    when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException(null, "bad data"));
+    when(nflowObjectMapper.readTree(value1)).thenThrow(new StreamReadException("bad data"));
+    when(nflowObjectMapper.readTree(value2)).thenThrow(new StreamReadException("bad data"));
 
     ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(currentStateVariables), false);
 
     verify(nflowObjectMapper).readTree(value1);
     verify(nflowObjectMapper).readTree(value2);
     Map<String, Object> expectedStateVariables = new LinkedHashMap<>();
-    expectedStateVariables.put("foo", new TextNode(value1));
-    expectedStateVariables.put("bar", new TextNode(value2));
+    expectedStateVariables.put("foo", new StringNode(value1));
+    expectedStateVariables.put("bar", new StringNode(value2));
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));

@@ -22,7 +22,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.NextAction;

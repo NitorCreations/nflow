@@ -37,8 +37,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
@@ -51,6 +49,7 @@ import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.UriBuilder;
+import tools.jackson.databind.JsonNode;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith({ SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
@@ -158,7 +157,7 @@ public class ConcurrentEnginesTest {
       var data = makeRequest(uri);
       var meters = data.get("meters");
       AtomicInteger count = new AtomicInteger();
-      meters.fieldNames().forEachRemaining(field -> {
+      meters.propertyNames().forEach(field -> {
         if (field.matches("concur\\.[0-9]+\\.fibonacci\\.begin\\.success-count")) {
           count.set(meters.get(field).get("count").asInt());
         }

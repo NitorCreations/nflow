@@ -1,6 +1,6 @@
 package io.nflow.rest.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import io.nflow.engine.config.EngineConfiguration;
 import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import io.nflow.engine.config.NFlow;
@@ -10,8 +10,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+import static tools.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS;
+import static tools.jackson.databind.cfg.DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS;
 
 @Configuration
 @Import({ EngineConfiguration.class, NflowRestApiPropertiesConfiguration.class })
@@ -23,9 +23,9 @@ public class RestConfiguration {
   @Bean
   @Named(REST_OBJECT_MAPPER)
   public ObjectMapper nflowRestObjectMapper(@NFlow EngineObjectMapperSupplier nflowObjectMapper) {
-    ObjectMapper restObjectMapper = nflowObjectMapper.get().copy();
-    restObjectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-    restObjectMapper.enable(FAIL_ON_TRAILING_TOKENS);
-    return restObjectMapper;
+    return nflowObjectMapper.get().rebuild()
+        .configure(WRITE_DATES_AS_TIMESTAMPS, false)
+        .enable(FAIL_ON_TRAILING_TOKENS)
+        .build();
   }
 }

@@ -96,7 +96,7 @@ import org.mockito.Mock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.env.MockEnvironment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.exception.StateProcessExceptionHandling;
 import io.nflow.engine.exception.StateSaveExceptionAnalyzer;
