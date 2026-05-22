@@ -23,7 +23,7 @@ nFlow has been under development since 2014-01-14 and version 1.0.0 was released
 * Fault tolerant &mdash; automatic recovery if runtime environment crashes
 * Atomic state updates &mdash; uses and requires a relational database for atomic state updates and locking
 * Multiple databases supported &mdash; PostgreSQL, MySQL, MariaDB, Oracle, Microsoft SQL Server, DB2, H2
-* Open Source under EUPL
+* Open Source under Apache License 2.0
 
 ## <a name="getting-started"><a name="one-minute-guide"></a></a>1 Minute Guide for Getting Started
 

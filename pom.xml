@@ -11,8 +11,8 @@
   <url>https://nflow.io</url>
   <licenses>
     <license>
-      <name>European Union Public Licence V. 1.1</name>
-      <url>https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt</url>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
