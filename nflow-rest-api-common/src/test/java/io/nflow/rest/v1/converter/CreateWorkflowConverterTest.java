@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.StringNode;
 
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
@@ -27,7 +27,7 @@ import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 public class CreateWorkflowConverterTest {
 
   @Spy
-  private ObjectStringMapper objectMapper = new ObjectStringMapper(ObjectMapper::new);
+  private ObjectStringMapper objectMapper = new ObjectStringMapper(JsonMapper::new);
 
   private CreateWorkflowConverter converter;
 

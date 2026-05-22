@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import io.nflow.rest.config.RestConfiguration;
 
@@ -25,7 +25,7 @@ public class RestConfigurationTest {
 
   @Test
   public void nflowRestObjectMapperInstantiated() {
-    ObjectMapper restMapper = configuration.nflowRestObjectMapper(ObjectMapper::new);
+    JsonMapper restMapper = configuration.nflowRestObjectMapper(JsonMapper::new);
     assertThat(restMapper.serializationConfig().isEnabled(WRITE_DATES_AS_TIMESTAMPS), is(false));
   }
 }

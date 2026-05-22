@@ -15,7 +15,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.joda.JodaModule;
 
@@ -28,7 +27,7 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 @ComponentScan("io.nflow.engine")
 public class EngineConfiguration {
 
-  public interface EngineObjectMapperSupplier extends Supplier<ObjectMapper> {}
+  public interface EngineObjectMapperSupplier extends Supplier<JsonMapper> {}
 
   /**
    * Creates a workflow instance executor for processing workflow instances.
@@ -67,7 +66,7 @@ public class EngineConfiguration {
   @Bean
   @NFlow
   public EngineObjectMapperSupplier nflowObjectMapper() {
-    ObjectMapper mapper = JsonMapper.builder()
+    JsonMapper mapper = JsonMapper.builder()
         .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
         .addModule(new JodaModule())
         .build();
