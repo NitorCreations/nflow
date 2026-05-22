@@ -934,8 +934,7 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
 
   @Test
   public void recoverWorkflowInstancesFromDeadNodesSetsExecutorIdToNullAndStatusToInProgressAndInsertsAction() {
-    int crashedExecutorId = 999;
-    insertCrashedExecutor(crashedExecutorId, executorDao.getExecutorGroup());
+    int crashedExecutorId = insertCrashedExecutor(executorDao.getExecutorGroup());
     long id = dao.insertWorkflowInstance(
         new WorkflowInstance.Builder().setType("test").setExternalId("extId").setExecutorGroup(executorDao.getExecutorGroup())
             .setStatus(executing).setState("processing").setPriority((short) 0).build());

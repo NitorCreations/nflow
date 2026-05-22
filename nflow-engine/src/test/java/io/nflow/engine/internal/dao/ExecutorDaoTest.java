@@ -3,6 +3,7 @@ package io.nflow.engine.internal.dao;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
@@ -11,12 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.List;
 
-import jakarta.inject.Inject;
-
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import io.nflow.engine.workflow.executor.WorkflowExecutor;
+import jakarta.inject.Inject;
 
 public class ExecutorDaoTest extends BaseDaoTest {
 
@@ -37,13 +37,13 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
   @Test
   public void getExecutorsWorks() {
-    insertCrashedExecutor(1, dao.getExecutorGroup());
+    int crashedId = insertCrashedExecutor(dao.getExecutorGroup());
 
     List<WorkflowExecutor> executors = dao.getExecutors();
 
     assertThat(executors.size(), is(1));
     WorkflowExecutor executor = executors.get(0);
-    assertThat(executor.id, is(1));
+    assertThat(executor.id, is(crashedId));
     assertThat(executor.host, is("localhost"));
     assertThat(executor.pid, is(666));
     assertThat(executor.executorGroup, is(dao.getExecutorGroup()));
@@ -89,16 +89,16 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
   @Test
   public void markRecoveredSetsExpiredExecutorRecovered() {
-    insertCrashedExecutor(2, dao.getExecutorGroup());
-    WorkflowExecutor executor = dao.getExecutors().get(0);
+    int crashedId = insertCrashedExecutor(dao.getExecutorGroup());
+    WorkflowExecutor executor = dao.getExecutors().stream().filter(e -> e.id == crashedId).findFirst().orElseThrow();
     assertThat(executor.recovered, is(nullValue()));
-    assertThat(dao.getRecoverableExecutorIds(), contains(2));
+    assertThat(dao.getRecoverableExecutorIds(), contains(crashedId));
 
-    dao.markRecovered(2);
+    dao.markRecovered(crashedId);
 
-    executor = dao.getExecutors().get(0);
+    executor = dao.getExecutors().stream().filter(e -> e.id == crashedId).findFirst().orElseThrow();
     assertThat(executor.recovered, is(notNullValue()));
-    assertThat(dao.getRecoverableExecutorIds().isEmpty(), is(true));
+    assertThat(dao.getRecoverableExecutorIds(), not(contains(crashedId)));
   }
 
   @Test

@@ -2,10 +2,10 @@ package io.nflow.rest.v1.msg;
 
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import org.joda.time.DateTime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.annotation.Nonnull;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -38,12 +38,12 @@ public class Action extends ModelObject {
   public Action() {
   }
 
-  public Action(long id, @NonNull String type, @NonNull String state, String stateText, int retryNo, DateTime executionStartTime,
+  public Action(long id, @Nonnull String type, @Nonnull String state, String stateText, int retryNo, DateTime executionStartTime,
       DateTime executionEndTime, int executorId) {
     this(id, type, state, stateText, retryNo, executionStartTime, executionEndTime, executorId, null);
   }
 
-  public Action(long id, @NonNull String type, @NonNull String state, String stateText, int retryNo, DateTime executionStartTime,
+  public Action(long id, @Nonnull String type, @Nonnull String state, String stateText, int retryNo, DateTime executionStartTime,
       DateTime executionEndTime, int executorId, Map<String, Object> updatedStateVariables) {
     this();
     this.id = id;

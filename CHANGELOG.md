@@ -41,6 +41,7 @@
   - react-router-dom 7.15.0
   - vite 8.0.12
   - typescript 6.0.3
+- fix locked worker thread if a null value was passed to `setVariable(String name, String value)`
 - Example projects
   - Java/maven example projects updated to use Java 25 and Spring Boot 4
   - Java/gradle and Kotlin example projects are not working, contributions to get them updated would be appreciated
