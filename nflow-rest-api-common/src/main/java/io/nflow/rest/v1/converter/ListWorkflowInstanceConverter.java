@@ -17,11 +17,10 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.node.StringNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
@@ -87,10 +86,10 @@ public class ListWorkflowInstanceConverter {
   private JsonNode stringToJson(Entry<String, String> entry) {
     try {
       return nflowRestObjectMapper.readTree(entry.getValue());
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       logger.debug("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}", entry.getKey(),
           e.getClass().getSimpleName(), e.getMessage());
-      return new TextNode(entry.getValue());
+      return new StringNode(entry.getValue());
     }
   }
 }

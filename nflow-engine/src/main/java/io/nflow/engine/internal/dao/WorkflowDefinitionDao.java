@@ -8,7 +8,6 @@ import static java.util.stream.Collectors.toMap;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,8 +29,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.NFlow;
@@ -144,7 +143,7 @@ public class WorkflowDefinitionDao {
   private String serializeDefinition(StoredWorkflowDefinition storedDefinition) {
     try {
       return nflowObjectMapper.writeValueAsString(storedDefinition);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new RuntimeException("Failed to serialize workflow definition " + storedDefinition.type, e);
     }
   }
@@ -152,7 +151,7 @@ public class WorkflowDefinitionDao {
   StoredWorkflowDefinition deserializeDefinition(String serializedDefinition) {
     try {
       return nflowObjectMapper.readValue(serializedDefinition, StoredWorkflowDefinition.class);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new RuntimeException("Failed to deserialize workflow definition " + serializedDefinition, e);
     }
   }

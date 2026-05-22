@@ -44,7 +44,7 @@ public class MetricsAdminServletTest extends AbstractNflowTest {
   public void metricsHasDatabaseTypeExposed() {
     var metrics = getMetricsStatistics();
     var springProfile = getenv("SPRING_PROFILES_ACTIVE");
-    var dbType = metrics.get("gauges").get("nflow.database.type").get("value").asText();
+    var dbType = metrics.get("gauges").get("nflow.database.type").get("value").asString();
     System.out.printf("Database type %s, profile %s%n", dbType, springProfile);
 
     var springProfiles = ofNullable(springProfile).map(s -> s.split(",")).orElse(new String[0]);

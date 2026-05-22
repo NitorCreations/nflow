@@ -14,8 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -45,7 +45,7 @@ public class CreateWorkflowConverterTest {
     req.type = "wfType";
     req.startState = "startState";
     req.stateVariables.put("foo", "bar");
-    req.stateVariables.put("textNode", new TextNode("text"));
+    req.stateVariables.put("textNode", new StringNode("text"));
     WorkflowInstance i = converter.convert(req);
     assertThat(i.nextActivation, equalTo(req.activationTime));
     assertThat(i.businessKey, equalTo(req.businessKey));

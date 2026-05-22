@@ -17,8 +17,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.joda.JodaModule;
 
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
@@ -96,9 +97,10 @@ public class DaoTestConfiguration {
   @Bean
   @NFlow
   public EngineObjectMapperSupplier objectMapper() {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setDefaultPropertyInclusion(NON_EMPTY);
-    mapper.registerModule(new JodaModule());
+    ObjectMapper mapper = JsonMapper.builder()
+        .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
+        .addModule(new JodaModule())
+        .build();
     return () -> mapper;
   }
 

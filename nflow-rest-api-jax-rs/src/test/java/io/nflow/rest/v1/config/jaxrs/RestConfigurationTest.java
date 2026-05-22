@@ -1,6 +1,6 @@
 package io.nflow.rest.v1.config.jaxrs;
 
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+import static tools.jackson.databind.cfg.DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import io.nflow.rest.config.RestConfiguration;
 
@@ -26,6 +26,6 @@ public class RestConfigurationTest {
   @Test
   public void nflowRestObjectMapperInstantiated() {
     ObjectMapper restMapper = configuration.nflowRestObjectMapper(ObjectMapper::new);
-    assertThat(restMapper.getSerializationConfig().hasSerializationFeatures(WRITE_DATES_AS_TIMESTAMPS.getMask()), is(false));
+    assertThat(restMapper.serializationConfig().isEnabled(WRITE_DATES_AS_TIMESTAMPS), is(false));
   }
 }

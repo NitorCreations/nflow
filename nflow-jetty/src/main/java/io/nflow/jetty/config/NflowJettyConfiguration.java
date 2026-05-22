@@ -7,7 +7,7 @@ import static java.util.Collections.singletonList;
 
 import java.util.Arrays;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import javax.sql.DataSource;
@@ -33,7 +33,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
@@ -118,7 +119,7 @@ public class NflowJettyConfiguration {
 
   @Bean
   public JacksonJsonProvider jsonProvider(@Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
-    return new JacksonJsonProvider(nflowRestObjectMapper);
+    return new JacksonJsonProvider((JsonMapper) nflowRestObjectMapper);
   }
 
   @Bean(destroyMethod = "shutdown")

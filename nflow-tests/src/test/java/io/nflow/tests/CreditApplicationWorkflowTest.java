@@ -20,7 +20,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -48,7 +49,7 @@ public class CreditApplicationWorkflowTest extends AbstractNflowTest {
     req = new CreateWorkflowInstanceRequest();
     req.type = "creditApplicationProcess";
     req.businessKey = UUID.randomUUID().toString();
-    req.stateVariables.put("requestData", (new ObjectMapper()).valueToTree(
+    req.stateVariables.put("requestData", (new JsonMapper()).valueToTree(
             new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
     req.externalId = UUID.randomUUID().toString();
     resp = createWorkflowInstance(req);

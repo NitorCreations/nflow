@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
-import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 public class StartNflowTest {
 
@@ -63,24 +63,25 @@ public class StartNflowTest {
   }
 
   private void smokeTestRestApi(String restApiPrefix) {
-    ClientResponse response = getFromDefaultServer(restApiPrefix + NFLOW_WORKFLOW_DEFINITION_PATH);
-    assertEquals(OK, response.statusCode());
-    JsonNode responseBody = response.bodyToMono(JsonNode.class).block();
+    ResponseEntity<JsonNode> response = getFromDefaultServer(restApiPrefix + NFLOW_WORKFLOW_DEFINITION_PATH);
+    assertEquals(OK, response.getStatusCode());
+    JsonNode responseBody = response.getBody();
     assertTrue(responseBody.isArray());
   }
 
   // Smoke test for io.nflow.rest.v1.springweb.SpringWebResource#handleExceptions
   private void smokeTestRestApiErrorHandling(String restApiPrefix) {
-    ClientResponse response = getFromDefaultServer(restApiPrefix + NFLOW_WORKFLOW_INSTANCE_PATH + "/id/0213132");
-    assertEquals(NOT_FOUND, response.statusCode());
-    JsonNode responseBody = response.bodyToMono(JsonNode.class).block();
+    ResponseEntity<JsonNode> response = getFromDefaultServer(restApiPrefix + NFLOW_WORKFLOW_INSTANCE_PATH + "/id/0213132");
+    assertEquals(NOT_FOUND, response.getStatusCode());
+    JsonNode responseBody = response.getBody();
     assertNotNull(responseBody);
     assertFalse(responseBody.isEmpty());
   }
 
-  @SuppressWarnings("deprecation")
-  private ClientResponse getFromDefaultServer(String url) {
+  private ResponseEntity<JsonNode> getFromDefaultServer(String url) {
     WebClient client = WebClient.builder().baseUrl(DEFAULT_LOCALHOST_SERVER_ADDRESS).build();
-    return client.get().uri(url).exchange().block();
+    return client.get().uri(url)
+        .exchangeToMono(r -> r.toEntity(JsonNode.class))
+        .block();
   }
 }

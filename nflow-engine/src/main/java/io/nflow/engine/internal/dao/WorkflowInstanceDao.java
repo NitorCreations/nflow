@@ -69,7 +69,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
@@ -376,23 +375,20 @@ public class WorkflowInstanceDao {
   private void updateWorkflowInstanceWithTransaction(final WorkflowInstance instance, final WorkflowInstanceAction action,
       final List<WorkflowInstance> childWorkflows, final List<WorkflowInstance> workflows,
       final Map<String, String> changedStateVariables) {
-    transaction.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        int updated = updateWorkflowInstance(instance);
-        if (updated == 0) {
-          return;
-        }
-        long parentActionId = insertWorkflowInstanceAction(action);
-        insertVariables(action.workflowInstanceId, parentActionId, changedStateVariables);
-        for (WorkflowInstance childTemplate : childWorkflows) {
-          WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
-              .setParentActionId(parentActionId).build();
-          insertWorkflowInstance(childWorkflow);
-        }
-        for (WorkflowInstance workflow : workflows) {
-          insertWorkflowInstance(workflow);
-        }
+    transaction.executeWithoutResult(status -> {
+      int updated = updateWorkflowInstance(instance);
+      if (updated == 0) {
+        return;
+      }
+      long parentActionId = insertWorkflowInstanceAction(action);
+      insertVariables(action.workflowInstanceId, parentActionId, changedStateVariables);
+      for (WorkflowInstance childTemplate : childWorkflows) {
+        WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
+            .setParentActionId(parentActionId).build();
+        insertWorkflowInstance(childWorkflow);
+      }
+      for (WorkflowInstance workflow : workflows) {
+        insertWorkflowInstance(workflow);
       }
     });
   }

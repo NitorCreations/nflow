@@ -22,7 +22,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -67,8 +67,8 @@ public class EngineModuleTest {
 
     ObjectMapper mapper = injector.getInstance(Key.get(EngineObjectMapperSupplier.class, NFlow.class)).get();
     String nowS = mapper.writeValueAsString(DateTime.now());
-    assertThat(mapper.readerFor(DateTime.class).readValue(nowS, DateTime.class), isA(DateTime.class));
-    assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
+    assertThat(mapper.readerFor(DateTime.class).<DateTime>readValue(nowS), isA(DateTime.class));
+    assertThat(/* TODO serializationConfig() is not to be used by application code in Jackson 3 (see https://github.com/FasterXML/jackson-databind/blob/3.x/src/main/java/tools/jackson/databind/ObjectMapper.java#L417). Consider using builder configuration instead. */mapper.serializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
         is(JsonInclude.Include.NON_EMPTY));
 
     DataSource dataSource = injector.getInstance(Key.get(DataSource.class, NFlow.class));
