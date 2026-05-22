@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.nflow.metrics.NflowMetricsContext;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import io.nflow.jetty.JettyServerContainer;
 import io.nflow.jetty.StartNflow;
+import io.nflow.metrics.NflowMetricsContext;
 
 public class NflowServerConfig {
     private static final Logger logger = LoggerFactory.getLogger(NflowServerConfig.class);
@@ -34,7 +34,7 @@ public class NflowServerConfig {
     private final AtomicReference<Integer> port;
     private Class<?> springContextClass;
     private JettyServerContainer nflowJetty;
-    private boolean metrics;
+    private final boolean metrics;
 
     NflowServerConfig(Builder b) {
         props = b.props;
@@ -151,6 +151,7 @@ public class NflowServerConfig {
         return profiles.contains("nflow.db.h2") || !profiles.contains("nflow.db.");
     }
 
+    @SuppressWarnings("resource")
     private void openH2KeepaliveConnectionIfNeeded() {
         if (!isH2Profile() || !props.containsKey("nflow.db.h2.url")) {
             return;
@@ -179,6 +180,7 @@ public class NflowServerConfig {
             return;
         }
         String h2Url = props.get("nflow.db.h2.url").toString();
+        @SuppressWarnings("resource")
         Connection conn = h2KeepaliveConnections.remove(h2Url);
         if (conn != null) {
             try {

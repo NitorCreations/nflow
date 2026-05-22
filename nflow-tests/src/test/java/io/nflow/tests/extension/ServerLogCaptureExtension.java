@@ -1,22 +1,23 @@
 package io.nflow.tests.extension;
 
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+
 import java.util.List;
 
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
+import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-
-import org.slf4j.LoggerFactory;
 
 public class ServerLogCaptureExtension implements BeforeAllCallback, TestExecutionExceptionHandler {
 
     @Override
     public void beforeAll(ExtensionContext context) {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger rootLogger = loggerContext.getLogger(ROOT_LOGGER_NAME);
         if (rootLogger.getAppender(ServerLogCaptureAppender.class.getName()) == null) {
             ServerLogCaptureAppender appender = new ServerLogCaptureAppender();
             appender.setName(ServerLogCaptureAppender.class.getName());
