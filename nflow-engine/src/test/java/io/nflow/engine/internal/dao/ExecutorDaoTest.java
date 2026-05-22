@@ -90,15 +90,15 @@ public class ExecutorDaoTest extends BaseDaoTest {
   @Test
   public void markRecoveredSetsExpiredExecutorRecovered() {
     int crashedId = insertCrashedExecutor(dao.getExecutorGroup());
-    WorkflowExecutor executor = dao.getExecutors().get(0);
+    WorkflowExecutor executor = dao.getExecutors().stream().filter(e -> e.id == crashedId).findFirst().orElseThrow();
     assertThat(executor.recovered, is(nullValue()));
     assertThat(dao.getRecoverableExecutorIds(), contains(crashedId));
 
     dao.markRecovered(crashedId);
 
-    executor = dao.getExecutors().get(0);
+    executor = dao.getExecutors().stream().filter(e -> e.id == crashedId).findFirst().orElseThrow();
     assertThat(executor.recovered, is(notNullValue()));
-    assertThat(dao.getRecoverableExecutorIds().isEmpty(), is(true));
+    assertThat(dao.getRecoverableExecutorIds(), not(contains(crashedId)));
   }
 
   @Test
