@@ -1,7 +1,7 @@
 package io.nflow.rest.v1.msg;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.annotation.Nonnull;
 import io.nflow.engine.model.ModelObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.joda.time.Period;
@@ -76,7 +76,7 @@ public class ListWorkflowDefinitionResponse extends ModelObject implements Compa
 
   @Override
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "exception message is ok")
-  public int compareTo(@NonNull ListWorkflowDefinitionResponse response) {
+  public int compareTo(@Nonnull ListWorkflowDefinitionResponse response) {
     if (type == null) {
       throw new IllegalStateException("type must be set");
     }

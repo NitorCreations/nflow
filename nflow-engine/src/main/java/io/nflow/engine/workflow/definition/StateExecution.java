@@ -3,6 +3,7 @@ package io.nflow.engine.workflow.definition;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.annotation.Nonnull;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 
@@ -83,18 +84,20 @@ public interface StateExecution {
   <T> T getVariable(String name, Class<T> type, T defaultValue);
 
   /**
-   * Set the string value of the given variable.
-   * @param name The name of the variable.
-   * @param value The string value for the varible.
+   * Set the string value of the given variable. If value is null, the call is a no-op.
+   * @param name The name of the variable. Must not be null.
+   * @param value The string value for the variable. Null is silently ignored.
+   * @throws NullPointerException if name is null.
    */
-  void setVariable(String name, String value);
+  void setVariable(@Nonnull String name, String value);
 
   /**
-   * Set the value for the given varible. The value must be serializable by the object mapper.
-   * @param name The name of the variable.
-   * @param value The value for the variable.
+   * Set the value for the given variable. The value must be serializable by the object mapper.
+   * @param name The name of the variable. Must not be null.
+   * @param value The value for the variable. Null is serialized as JSON null.
+   * @throws NullPointerException if name is null.
    */
-  void setVariable(String name, Object value);
+  void setVariable(@Nonnull String name, Object value);
 
   /**
    * Return the external id of the workflow instance.

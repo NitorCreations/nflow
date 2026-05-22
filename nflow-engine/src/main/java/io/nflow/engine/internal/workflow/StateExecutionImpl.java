@@ -1,6 +1,7 @@
 package io.nflow.engine.internal.workflow;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
 import static org.joda.time.DateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.notNull;
@@ -14,6 +15,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
+import jakarta.annotation.Nonnull;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -127,13 +129,18 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   }
 
   @Override
-  public void setVariable(String name, String value) {
+  public void setVariable(@Nonnull String name, String value) {
+    requireNonNull(name, "State variable name cannot be null");
+    if (value == null) {
+      return;
+    }
     workflowDao.checkStateVariableValueLength(name, value);
     instance.stateVariables.put(name, value);
   }
 
   @Override
-  public void setVariable(String name, Object value) {
+  public void setVariable(@Nonnull String name, Object value) {
+    requireNonNull(name, "State variable name cannot be null");
     setVariable(name, objectMapper.convertFromObject(name, value));
   }
 

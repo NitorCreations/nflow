@@ -240,6 +240,25 @@ public class StateExecutionImplTest {
   }
 
   @Test
+  public void setVariableNullValueIsNoOp() {
+    execution.setVariable("foo", (String) null);
+    assertThat(instance.stateVariables.containsKey("foo"), is(false));
+  }
+
+  @Test
+  public void setVariableNullNameThrowsException() {
+    assertThrows(NullPointerException.class, () -> execution.setVariable(null, "bar"));
+    assertThrows(NullPointerException.class, () -> execution.setVariable(null, (Object) "bar"));
+  }
+
+  @Test
+  public void setVariableObjectNullValueStoresJsonNull() {
+    when(objectStringMapper.convertFromObject("foo", null)).thenReturn("null");
+    execution.setVariable("foo", (Object) null);
+    assertThat(instance.stateVariables, hasEntry("foo", "null"));
+  }
+
+  @Test
   public void getSignalWorks() {
     when(workflowDao.getSignal(instance.id)).thenReturn(Optional.of(42));
 
