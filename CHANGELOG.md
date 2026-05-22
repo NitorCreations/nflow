@@ -2,40 +2,48 @@
 
 **Highlights**
 
-- nFlow Explorer
-  - Migrate from npm to pnpm
+- Dependency updates
 
 **Details**
 
-- Java/maven example projects updated to use Java 25 and Spring Boot 4
-  - Java/gradle and Kotlin example projects are not working, contributions to get them updated would be appreciated
 - Dependency updates
   - spring 6.2.18
   - jetty 11.0.26
   - apache cxf 4.2.1
   - logback 1.5.32
   - jackson 2.21
+  - hibernate validator 9.1.0.Final
   - h2 2.4.240
   - db2 jcc 12.1.4.0
-  - mssql-jdbc 12.8.1
+  - mssql-jdbc 13.4.0.jre11
   - mariadb 3.5.8
   - mysql-connector 9.7.0
-  - ojdbc11 23.25.2.0.0
+  - ojdbc11 23.26.2.0.0
   - postgresql 42.7.11
   - HikariCP 7.0.2
   - joda-time 2.14.2
   - commons-lang3 3.20.0
-  - metrics 4.2.30
+  - metrics 4.2.38
   - slf4j 2.0.18
   - reactor-netty 1.3.5
   - reactor-core 3.8.5
-  - swagger 2.2.28
+  - swagger 2.2.50
   - javassist 3.31.0
   - asm 9.10
-  - servlet-api 6.1.0
-  - metrics 4.2.30
-  - validation-api 3.1.1
   - jersey 3.1.11
+- nflow-explorer dependency updates
+  - Migrate from npm to pnpm
+  - Migrate from jest to vitest
+  - d3 7.9.0
+  - dagre-d3-es 7.0.14
+  - date-fns 4.1.0
+  - lodash 4.18.1
+  - react-router-dom 7.15.0
+  - vite 8.0.12
+  - typescript 6.0.3
+- Example projects
+  - Java/maven example projects updated to use Java 25 and Spring Boot 4
+  - Java/gradle and Kotlin example projects are not working, contributions to get them updated would be appreciated
 
 ## 10.0.1 (2025-04-21)
 
