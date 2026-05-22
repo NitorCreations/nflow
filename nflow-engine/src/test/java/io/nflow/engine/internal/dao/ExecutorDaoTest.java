@@ -37,13 +37,13 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
   @Test
   public void getExecutorsWorks() {
-    insertCrashedExecutor(1, dao.getExecutorGroup());
+    int crashedId = insertCrashedExecutor(dao.getExecutorGroup());
 
     List<WorkflowExecutor> executors = dao.getExecutors();
 
     assertThat(executors.size(), is(1));
     WorkflowExecutor executor = executors.get(0);
-    assertThat(executor.id, is(1));
+    assertThat(executor.id, is(crashedId));
     assertThat(executor.host, is("localhost"));
     assertThat(executor.pid, is(666));
     assertThat(executor.executorGroup, is(dao.getExecutorGroup()));
@@ -89,12 +89,12 @@ public class ExecutorDaoTest extends BaseDaoTest {
 
   @Test
   public void markRecoveredSetsExpiredExecutorRecovered() {
-    insertCrashedExecutor(2, dao.getExecutorGroup());
+    int crashedId = insertCrashedExecutor(dao.getExecutorGroup());
     WorkflowExecutor executor = dao.getExecutors().get(0);
     assertThat(executor.recovered, is(nullValue()));
-    assertThat(dao.getRecoverableExecutorIds(), contains(2));
+    assertThat(dao.getRecoverableExecutorIds(), contains(crashedId));
 
-    dao.markRecovered(2);
+    dao.markRecovered(crashedId);
 
     executor = dao.getExecutors().get(0);
     assertThat(executor.recovered, is(notNullValue()));

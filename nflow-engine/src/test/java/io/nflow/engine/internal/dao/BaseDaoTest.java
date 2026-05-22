@@ -8,11 +8,15 @@ import static org.springframework.jdbc.datasource.init.DatabasePopulatorUtils.ex
 import jakarta.inject.Inject;
 import javax.sql.DataSource;
 
+import java.sql.PreparedStatement;
+
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,11 +51,21 @@ public abstract class BaseDaoTest extends BaseNflowTest {
     return populator;
   }
 
-  protected void insertCrashedExecutor(int crashedExecutorId, String executorGroup) {
-    jdbc.update(
-        "insert into nflow_executor (id, host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?, ?)",
-        crashedExecutorId, "localhost", 666, executorGroup, crashedNodeStartTime.toDate(),
-        crashedNodeStartTime.plusSeconds(1).toDate(), crashedNodeStartTime.plusHours(1).toDate());
+  protected int insertCrashedExecutor(String executorGroup) {
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+    jdbc.update(connection -> {
+      PreparedStatement ps = connection.prepareStatement(
+          "insert into nflow_executor (host, pid, executor_group, started, active, expires) values (?, ?, ?, ?, ?, ?)",
+          new String[] { "id" });
+      ps.setString(1, "localhost");
+      ps.setInt(2, 666);
+      ps.setString(3, executorGroup);
+      ps.setTimestamp(4, new java.sql.Timestamp(crashedNodeStartTime.getMillis()));
+      ps.setTimestamp(5, new java.sql.Timestamp(crashedNodeStartTime.plusSeconds(1).getMillis()));
+      ps.setTimestamp(6, new java.sql.Timestamp(crashedNodeStartTime.plusHours(1).getMillis()));
+      return ps;
+    }, keyHolder);
+    return keyHolder.getKey().intValue();
   }
 
 }
