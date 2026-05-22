@@ -1,4 +1,10 @@
-## 10.0.2-SNAPSHOT (future release)
+## 11.0.0-SNAPSHOT (future release)
+
+**Highlights**
+
+**Details**
+
+## 10.0.2 (2026-05-23)
 
 **Highlights**
 
