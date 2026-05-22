@@ -106,6 +106,8 @@
   <properties>
     <jdk.version>17</jdk.version>
     <jacocoArgLine></jacocoArgLine>
+    <java26ExtraArgs></java26ExtraArgs>
+    <guava.version>33.6.0-jre</guava.version>
     <surefire.forkcount>1C</surefire.forkcount>
     <asm.version>9.10</asm.version>
     <apache.cxf.version>4.2.1</apache.cxf.version>
@@ -217,7 +219,7 @@
             <perCoreThreadCount>true</perCoreThreadCount>
             <threadCount>1</threadCount>
             <forkCount>${surefire.forkcount}</forkCount>
-            <argLine>@{jacocoArgLine}</argLine>
+            <argLine>@{jacocoArgLine} ${java26ExtraArgs}</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -465,6 +467,15 @@
   </build>
   <profiles>
     <profile>
+      <id>java26plus</id>
+      <activation>
+        <jdk>[26,)</jdk>
+      </activation>
+      <properties>
+        <java26ExtraArgs>--illegal-final-field-mutation=deny</java26ExtraArgs>
+      </properties>
+    </profile>
+    <profile>
       <activation>
         <jdk>17</jdk>
       </activation>
@@ -599,6 +610,12 @@
         <groupId>com.nitorcreations</groupId>
         <artifactId>core-utils</artifactId>
         <version>${core-utils.version}</version>
+      </dependency>
+      <!-- guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
       <!-- guice -->
       <dependency>

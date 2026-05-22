@@ -39,7 +39,7 @@ public class MaintenanceConfiguration {
   MaintenanceConfiguration(@JsonProperty("deleteArchivedWorkflows") ConfigurationItem deleteArchivedWorkflows,
       @JsonProperty("archiveWorkflows") ConfigurationItem archiveWorkflows,
       @JsonProperty("deleteWorkflows") ConfigurationItem deleteWorkflows,
-      @JsonProperty("deleteExpiredAfter") ReadablePeriod deleteExpiredExecutorsOlderThan) {
+      @JsonProperty("deleteExpiredExecutorsOlderThan") ReadablePeriod deleteExpiredExecutorsOlderThan) {
     this.deleteArchivedWorkflows = deleteArchivedWorkflows;
     this.archiveWorkflows = archiveWorkflows;
     this.deleteWorkflows = deleteWorkflows;

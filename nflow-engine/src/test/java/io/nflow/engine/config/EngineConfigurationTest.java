@@ -28,14 +28,14 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 public class EngineConfigurationTest {
 
   @Spy
-  private final MockEnvironment environment = new MockEnvironment().withProperty("nflow.executor.thread.count", "100")
+  private MockEnvironment environment = new MockEnvironment().withProperty("nflow.executor.thread.count", "100")
       .withProperty("nflow.dispatcher.await.termination.seconds", "60")
       .withProperty("nflow.dispatcher.executor.thread.keepalive.seconds", "0");
   @Mock
   private ThreadFactory threadFactory;
 
   @InjectMocks
-  private final EngineConfiguration configuration = new EngineConfiguration();
+  private EngineConfiguration configuration = new EngineConfiguration();
 
   @Test
   public void dispatcherPoolExecutorInstantiationFromThreads() {

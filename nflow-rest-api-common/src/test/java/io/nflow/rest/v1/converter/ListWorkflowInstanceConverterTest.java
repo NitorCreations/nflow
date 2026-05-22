@@ -47,7 +47,7 @@ public class ListWorkflowInstanceConverterTest {
   @Mock
   private ObjectMapper nflowObjectMapper;
   @InjectMocks
-  private final ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
+  private ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
 
   @Test
   public void convertWithActionsWorks() throws IOException {

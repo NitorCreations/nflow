@@ -30,11 +30,11 @@ import io.nflow.rest.v1.msg.MaintenanceResponse;
 public class MaintenanceResourceTest {
 
   @InjectMocks
-  private final MaintenanceResource resource = new MaintenanceResource();
+  private MaintenanceResource resource = new MaintenanceResource();
   @Mock
   private MaintenanceService service;
   @Spy
-  private final MaintenanceConverter converter = new MaintenanceConverter();
+  private MaintenanceConverter converter = new MaintenanceConverter();
   @Captor
   private ArgumentCaptor<MaintenanceConfiguration> configCaptor;
 
