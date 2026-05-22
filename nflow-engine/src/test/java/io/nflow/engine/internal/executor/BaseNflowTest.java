@@ -18,7 +18,6 @@ import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("serial")
 public abstract class BaseNflowTest {
 
   protected WorkflowInstance.Builder constructWorkflowInstanceBuilder() {

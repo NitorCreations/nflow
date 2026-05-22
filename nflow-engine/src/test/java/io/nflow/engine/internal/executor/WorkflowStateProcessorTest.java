@@ -79,7 +79,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -106,6 +105,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.internal.workflow.StateExecutionImpl;
+import io.nflow.engine.internal.workflow.StoredWorkflowDefinitionWrapper;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.listener.ListenerChain;
 import io.nflow.engine.listener.WorkflowExecutorListener;
@@ -544,7 +544,8 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
   @Test
   public void goToErrorStateWhenNextStateIsInvalid() {
     env.setProperty("nflow.illegal.state.change.action", "ignore");
-    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances, workflowInstanceDao,
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapper, workflowDefinitions, workflowInstances,
+        workflowInstanceDao,
         maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger, stateSaveExceptionAnalyzer,
         listener1, listener2);
 
@@ -634,7 +635,6 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
   }
 
-  @SuppressWarnings("serial")
   @Test
   public void runWorkflowWithParameters() {
     Map<String, String> startState = new LinkedHashMap<>() {
@@ -804,7 +804,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     runExecutorWithTimeout();
 
     verify(workflowInstanceDao).updateWorkflowInstance(argThat(matchesWorkflowInstance(inProgress, TestState.BEGIN, 0,
-            is("Unsupported workflow type"), greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
+        is("Unsupported workflow type"), greaterThanOrEqualTo(oneHourInFuture), is(nullValue()))));
   }
 
   @Test
@@ -872,12 +872,13 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         matchesWorkflowInstanceAction(SimpleTestWorkflow.ILLEGAL_STATE_CHANGE, is("illegal state change"), 0, stateExecution));
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void stateProcessingRetryAfterFailedGetWorkflow() throws InterruptedException {
     WorkflowInstance instance = executingInstanceBuilder().setType(EXECUTE_TEST_TYPE).setState(TestState.BEGIN).build();
     doThrow(new RuntimeException("some failure")).when(workflowInstances).getWorkflowInstance(instance.id, INCLUDES, null);
 
-    ExecutorService executorService = newSingleThreadExecutor();
+    var executorService = newSingleThreadExecutor();
     executorService.submit(executor);
     sleep(1500);
     executorService.shutdown();
@@ -886,6 +887,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstances, atLeast(2)).getWorkflowInstance(instance.id, INCLUDES, null);
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void saveStateRetryAfterFailedPersistence() throws InterruptedException {
     WorkflowInstance instance = executingInstanceBuilder().setType(EXECUTE_TEST_TYPE).setState(TestState.BEGIN).build();
@@ -902,6 +904,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao, atLeast(2)).updateWorkflowInstanceAfterExecution(any(), any(), any(), any(), anyBoolean());
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void stateProcessingSeriesStopsOnShutdown() throws InterruptedException {
     WorkflowInstance instance = executingInstanceBuilder().setType(LOOPING_TYPE).setState(TestState.BEGIN).build();
@@ -1040,7 +1043,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
         @StateVar("pojo") Pojo pojo, @StateVar(value = "nullPojo", instantiateIfNotExists = true) Pojo pojo2,
         @StateVar(value = "immutablePojo", readOnly = true) Pojo unmodifiablePojo, @StateVar("nullInt") int zero,
         @StateVar("mutableString") Mutable<String> mutableString,
-        @StateVar(value="genericsMutable", instantiateIfNotExists = true) Mutable<Map<String, String>> genericsMutable) {
+        @StateVar(value = "genericsMutable", instantiateIfNotExists = true) Mutable<Map<String, String>> genericsMutable) {
       assertThat(execution.getWorkflowInstanceId(), is(1L));
       assertThat(execution.getWorkflowInstanceExternalId(), is(notNullValue()));
       Pojo pojo1 = execution.getVariable("pojo", Pojo.class);

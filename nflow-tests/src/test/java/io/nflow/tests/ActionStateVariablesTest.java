@@ -52,6 +52,7 @@ public class ActionStateVariablesTest extends AbstractNflowTest {
     assertThat(createResponse.id, notNullValue());
   }
 
+  @SuppressWarnings("resource")
   @Test
   @Order(2)
   public void checkActionStateVariables() {

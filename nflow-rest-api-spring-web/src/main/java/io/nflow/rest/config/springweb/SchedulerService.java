@@ -8,13 +8,12 @@ import static reactor.core.scheduler.Schedulers.fromExecutor;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -27,6 +26,7 @@ public class SchedulerService {
   private static final Logger logger = getLogger(SchedulerService.class);
   private final Scheduler scheduler;
 
+  @SuppressWarnings("resource")
   @Inject
   public SchedulerService(WorkflowInstanceExecutor workflowInstanceExecutor, Environment env) {
     int dbPoolSize = env.getRequiredProperty("nflow.db.max_pool_size", Integer.class);

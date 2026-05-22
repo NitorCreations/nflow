@@ -1,13 +1,17 @@
 package io.nflow.tests.demo.workflow;
 
+import static io.nflow.engine.workflow.definition.NextAction.moveToState;
+import static io.nflow.engine.workflow.definition.NextAction.stopInState;
+import static io.nflow.tests.demo.workflow.TestState.BEGIN;
+import static io.nflow.tests.demo.workflow.TestState.DONE;
+import static io.nflow.tests.demo.workflow.TestState.ERROR;
+import static io.nflow.tests.demo.workflow.TestState.PROCESS;
+
+import org.springframework.stereotype.Component;
+
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
-import org.springframework.stereotype.Component;
-
-import static io.nflow.engine.workflow.definition.NextAction.moveToState;
-import static io.nflow.engine.workflow.definition.NextAction.stopInState;
-import static io.nflow.tests.demo.workflow.TestState.*;
 
 @Component
 public class StatisticsWorkflow extends WorkflowDefinition {

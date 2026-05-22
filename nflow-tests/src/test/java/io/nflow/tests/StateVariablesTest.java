@@ -3,11 +3,11 @@ package io.nflow.tests;
 import static io.nflow.tests.demo.workflow.SimpleWorkflow.SIMPLE_WORKFLOW_TYPE;
 import static io.nflow.tests.demo.workflow.StateWorkflow.STATEVAR_QUERYTEST;
 import static io.nflow.tests.demo.workflow.StateWorkflow.STATE_WORKFLOW_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonMap;
 import static java.util.UUID.randomUUID;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -22,8 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.ws.rs.core.Response;
-
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -44,6 +43,7 @@ import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.StateWorkflow;
 import io.nflow.tests.demo.workflow.TestState;
 import io.nflow.tests.extension.NflowServerConfig;
+import jakarta.ws.rs.core.Response;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StateVariablesTest extends AbstractNflowTest {
@@ -131,7 +131,8 @@ public class StateVariablesTest extends AbstractNflowTest {
     createRequest.externalId = randomUUID().toString();
     createRequest.stateVariables.put("requestData", repeat('a', 8001));
 
-    try (Response response = getInstanceResource().put(createRequest)) {
+    try (WebClient client = getInstanceResource();
+        Response response = client.put(createRequest)) {
       assertThat(response.getStatus(), is(BAD_REQUEST.getStatusCode()));
       assertThat(response.getMediaType(), is(APPLICATION_JSON_TYPE));
       assertThat(response.readEntity(ErrorResponse.class).error, startsWith("Too long value"));
@@ -141,6 +142,7 @@ public class StateVariablesTest extends AbstractNflowTest {
   @Test
   @Order(6)
   public void queryWorkflowInstancesDoesNotFindInstanceWithOldStateVariableValue() {
+    @SuppressWarnings("resource")
     ListWorkflowInstanceResponse[] instances = getInstanceResource()
         .query("stateVariableKey", STATEVAR_QUERYTEST)
         .query("stateVariableValue", "oldValue")
@@ -152,6 +154,7 @@ public class StateVariablesTest extends AbstractNflowTest {
   @Test
   @Order(7)
   public void queryWorkflowInstancesFindsInstanceWithCurrentStateVariableValue() {
+    @SuppressWarnings("resource")
     ListWorkflowInstanceResponse[] instances = getInstanceResource()
         .query("stateVariableKey", STATEVAR_QUERYTEST)
         .query("stateVariableValue", "newValue")

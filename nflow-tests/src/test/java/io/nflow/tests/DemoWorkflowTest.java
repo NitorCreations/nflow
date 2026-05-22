@@ -2,12 +2,12 @@ package io.nflow.tests;
 
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static io.nflow.tests.demo.workflow.DemoWorkflow.DEMO_WORKFLOW_TYPE;
-import static java.lang.Thread.sleep;
-import static java.time.Duration.ofSeconds;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
+import static java.lang.Thread.sleep;
+import static java.time.Duration.ofSeconds;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -16,8 +16,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.joda.time.DateTime.now;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-
-import jakarta.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
@@ -33,6 +31,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.DemoWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
+import jakarta.ws.rs.core.Response;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DemoWorkflowTest extends AbstractNflowTest {
@@ -70,6 +69,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
       ListWorkflowInstanceResponse wf = null;
       do {
         sleep(200);
+        @SuppressWarnings("resource")
         ListWorkflowInstanceResponse[] instances = getInstanceResource()
             .query("type", DEMO_WORKFLOW_TYPE)
             .query("includes", actions.name())
@@ -90,6 +90,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(3)
   public void queryDemoWorkflowWithMultipleStatuses() {
+    @SuppressWarnings("resource")
     ListWorkflowInstanceResponse[] instances = getInstanceResource().query("type", DEMO_WORKFLOW_TYPE).query("status", "finished")
         .query("status", "manual").get(ListWorkflowInstanceResponse[].class);
     assertThat(instances.length, greaterThanOrEqualTo(1));
@@ -112,6 +113,7 @@ public class DemoWorkflowTest extends AbstractNflowTest {
   @Test
   @Order(5)
   public void queryWorkflowWithoutActionsReturnsNullActions() {
+    @SuppressWarnings("resource")
     ListWorkflowInstanceResponse instance = getInstanceIdResource(resp.id).get(ListWorkflowInstanceResponse.class);
 
     assertThat(instance.actions, is(nullValue()));

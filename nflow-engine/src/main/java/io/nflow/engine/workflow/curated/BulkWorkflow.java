@@ -18,8 +18,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.EnumSet;
 import java.util.List;
 
-import jakarta.inject.Inject;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -35,6 +33,7 @@ import io.nflow.engine.workflow.definition.WorkflowSettings.Builder;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
+import jakarta.inject.Inject;
 
 /**
  * Bulk child workflow executor that does not overflow the system.

@@ -49,6 +49,7 @@ public class BusinessKeyUpdateTest extends AbstractNflowTest {
     assertThat(resp.id, notNullValue());
   }
 
+  @SuppressWarnings("resource")
   @Test
   @Order(2)
   public void checkBusinessKeyWasUpdated() {

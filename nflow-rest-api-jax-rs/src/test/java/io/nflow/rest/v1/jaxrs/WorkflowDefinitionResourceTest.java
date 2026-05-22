@@ -19,9 +19,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +33,7 @@ import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.rest.v1.converter.ListWorkflowDefinitionConverter;
 import io.nflow.rest.v1.msg.ListWorkflowDefinitionResponse;
+import jakarta.ws.rs.core.Response;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowDefinitionResourceTest {
@@ -54,7 +52,6 @@ public class WorkflowDefinitionResourceTest {
   private ListWorkflowDefinitionResponse dummyResponse;
 
   private WorkflowDefinitionResource resource;
-  GenericType<List<ListWorkflowDefinitionResponse>> definitionListType = new GenericType<>() {};
 
   @BeforeEach
   public void setup() {

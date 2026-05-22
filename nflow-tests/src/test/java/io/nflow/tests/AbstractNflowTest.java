@@ -6,10 +6,10 @@ import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actionStateVariables;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.actions;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.childWorkflows;
 import static io.nflow.rest.v1.ApiWorkflowInstanceInclude.currentStateVariables;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -19,16 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import java.time.Duration;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.ws.rs.core.UriBuilder;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
@@ -53,6 +49,9 @@ import io.nflow.tests.extension.NflowServerConfig;
 import io.nflow.tests.extension.NflowServerExtension;
 import io.nflow.tests.extension.ServerLogCaptureExtension;
 import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.core.UriBuilder;
 
 @ExtendWith({ NflowServerExtension.class, SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class, ServerLogCaptureExtension.class })
 @ContextConfiguration(classes = { RestClientConfiguration.class, PropertiesConfiguration.class })
@@ -70,42 +69,49 @@ public abstract class AbstractNflowTest {
     this.server = server;
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setWorkflowInstanceResource(@Named("workflowInstance") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowInstanceResource = fromClient(client, true).to(newUri, false);
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setWorkflowInstanceIdResource(@Named("workflowInstanceId") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowInstanceIdResource = fromClient(client, true).to(newUri, false);
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setWorkflowDefinitionResource(@Named("workflowDefinition") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.workflowDefinitionResource = fromClient(client, true).to(newUri, false);
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setStatisticsResource(@Named("statistics") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.statisticsResource = fromClient(client, true).to(newUri, false);
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setMaintenanceResource(@Named("maintenance") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.maintenanceResource = fromClient(client, true).to(newUri, false);
   }
 
+  @SuppressWarnings("resource")
   @Inject
   public void setMetricsResource(@Named("metrics") WebClient client) {
     String newUri = UriBuilder.fromUri(client.getCurrentURI()).port(server.getPort()).build().toString();
     this.metricsResource = fromClient(client, true).to(newUri, false);
   }
 
+  @SuppressWarnings("resource")
   protected ListWorkflowInstanceResponse getWorkflowInstance(long instanceId) {
     return getInstanceIdResource(instanceId)
         .query("includes", currentStateVariables.name())
@@ -115,12 +121,14 @@ public abstract class AbstractNflowTest {
         .get(ListWorkflowInstanceResponse.class);
   }
 
+  @SuppressWarnings("resource")
   protected WakeupResponse wakeup(long instanceId, List<String> expectedStates) {
     WakeupRequest request = new WakeupRequest();
     request.expectedStates = expectedStates;
     return getInstanceResource(instanceId).path("wakeup").put(request, WakeupResponse.class);
   }
 
+  @SuppressWarnings("resource")
   protected SetSignalResponse setSignal(long instanceId, int signal, String reason) {
     SetSignalRequest request = new SetSignalRequest();
     request.signal = signal;
@@ -132,30 +140,37 @@ public abstract class AbstractNflowTest {
     return fromClient(workflowInstanceResource, true);
   }
 
+  @SuppressWarnings("resource")
   protected WebClient getInstanceResource(long instanceId) {
     return getInstanceResource().path(Long.toString(instanceId));
   }
 
+  @SuppressWarnings("resource")
   protected WebClient getInstanceIdResource(long instanceId) {
     return fromClient(workflowInstanceIdResource, true).path(Long.toString(instanceId));
   }
 
+  @SuppressWarnings("resource")
   protected ListWorkflowDefinitionResponse[] getWorkflowDefinitions() {
     return fromClient(workflowDefinitionResource, true).get(ListWorkflowDefinitionResponse[].class);
   }
 
+  @SuppressWarnings("resource")
   public StatisticsResponse getStatistics() {
     return fromClient(statisticsResource, true).get(StatisticsResponse.class);
   }
 
+  @SuppressWarnings("resource")
   public JsonNode getMetricsStatistics() {
     return fromClient(metricsResource, true).path("metrics").get(JsonNode.class);
   }
 
+  @SuppressWarnings("resource")
   public JsonNode getMetricsHealth() {
     return fromClient(metricsResource, true).path("healthcheck").get(JsonNode.class);
   }
 
+  @SuppressWarnings("resource")
   public WorkflowDefinitionStatisticsResponse getDefinitionStatistics(String definitionType) {
     WebClient client = fromClient(statisticsResource, true).path("workflow").path(definitionType);
     return client.get(WorkflowDefinitionStatisticsResponse.class);
@@ -199,6 +214,7 @@ public abstract class AbstractNflowTest {
     };
   }
 
+  @SuppressWarnings("resource")
   protected CreateWorkflowInstanceResponse createWorkflowInstance(CreateWorkflowInstanceRequest request) {
     return fromClient(workflowInstanceResource, true).put(request, CreateWorkflowInstanceResponse.class);
   }
@@ -236,11 +252,13 @@ public abstract class AbstractNflowTest {
     throw ex;
   }
 
+  @SuppressWarnings("resource")
   protected MaintenanceResponse doMaintenance(MaintenanceRequest req) {
     return assertTimeoutPreemptively(ofSeconds(15),
         () -> fromClient(maintenanceResource).type(APPLICATION_JSON_TYPE).post(req, MaintenanceResponse.class));
   }
 
+  @SuppressWarnings("resource")
   protected <T> T updateWorkflowInstance(long instanceId, UpdateWorkflowInstanceRequest request, Class<T> responseClass) {
     return getInstanceIdResource(instanceId).put(request, responseClass);
   }
