@@ -7,12 +7,11 @@ import java.util.function.BiConsumer;
 
 import org.springframework.stereotype.Component;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
+import io.nflow.engine.config.EngineConfiguration.EngineJsonMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
@@ -21,11 +20,11 @@ import jakarta.inject.Inject;
 
 @Component
 public class ObjectStringMapper {
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
 
   @Inject
-  public ObjectStringMapper(@NFlow EngineObjectMapperSupplier nflowObjectMapper) {
-    this.mapper = nflowObjectMapper.get();
+  public ObjectStringMapper(@NFlow EngineJsonMapperSupplier nflowJsonMapper) {
+    this.mapper = nflowJsonMapper.get();
   }
 
   @SuppressWarnings("unchecked")

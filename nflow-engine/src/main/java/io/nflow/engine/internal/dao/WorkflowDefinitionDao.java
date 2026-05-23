@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,16 +26,17 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.EngineConfiguration.EngineJsonMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition;
 import io.nflow.engine.internal.workflow.StoredWorkflowDefinition.Signal;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
+import jakarta.inject.Inject;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class WorkflowDefinitionDao {
@@ -46,17 +44,15 @@ public class WorkflowDefinitionDao {
   private static final Logger logger = getLogger(WorkflowDefinitionDao.class);
   private final ExecutorDao executorInfo;
   private final NamedParameterJdbcTemplate namedJdbc;
-  private final ObjectMapper nflowObjectMapper;
+  private final JsonMapper nflowJsonMapper;
   private final SQLVariants sqlVariants;
 
   @Inject
-  public WorkflowDefinitionDao(SQLVariants sqlVariants,
-                               @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                               @NFlow EngineObjectMapperSupplier nflowObjectMapper,
-                               ExecutorDao executorDao) {
+  public WorkflowDefinitionDao(SQLVariants sqlVariants, @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+      @NFlow EngineJsonMapperSupplier nflowJsonMapper, ExecutorDao executorDao) {
     this.sqlVariants = sqlVariants;
     this.namedJdbc = nflowNamedParameterJdbcTemplate;
-    this.nflowObjectMapper = nflowObjectMapper.get();
+    this.nflowJsonMapper = nflowJsonMapper.get();
     this.executorInfo = executorDao;
   }
 
@@ -142,7 +138,7 @@ public class WorkflowDefinitionDao {
 
   private String serializeDefinition(StoredWorkflowDefinition storedDefinition) {
     try {
-      return nflowObjectMapper.writeValueAsString(storedDefinition);
+      return nflowJsonMapper.writeValueAsString(storedDefinition);
     } catch (JacksonException e) {
       throw new RuntimeException("Failed to serialize workflow definition " + storedDefinition.type, e);
     }
@@ -150,7 +146,7 @@ public class WorkflowDefinitionDao {
 
   StoredWorkflowDefinition deserializeDefinition(String serializedDefinition) {
     try {
-      return nflowObjectMapper.readValue(serializedDefinition, StoredWorkflowDefinition.class);
+      return nflowJsonMapper.readValue(serializedDefinition, StoredWorkflowDefinition.class);
     } catch (JacksonException e) {
       throw new RuntimeException("Failed to deserialize workflow definition " + serializedDefinition, e);
     }

@@ -218,7 +218,7 @@ public abstract class AbstractNflowTest {
     return fromClient(workflowInstanceResource, true).put(request, CreateWorkflowInstanceResponse.class);
   }
 
-  protected static JsonMapper nflowObjectMapper() {
+  protected static JsonMapper nflowJsonMapper() {
     return JsonMapper.builder()
         .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
         .addModule(new JodaModule())

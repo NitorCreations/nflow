@@ -12,28 +12,27 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.node.StringNode;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.ApiWorkflowInstanceInclude;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import jakarta.inject.Inject;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.StringNode;
 
 @Component
 public class ListWorkflowInstanceConverter {
   private static final Logger logger = LoggerFactory.getLogger(ListWorkflowInstanceConverter.class);
 
   @Inject
-  private ObjectMapper nflowRestObjectMapper;
+  private JsonMapper nflowRestJsonMapper;
 
   public ListWorkflowInstanceResponse convert(WorkflowInstance instance, Set<ApiWorkflowInstanceInclude> includes,
       boolean queryArchive) {
@@ -85,7 +84,7 @@ public class ListWorkflowInstanceConverter {
 
   private JsonNode stringToJson(Entry<String, String> entry) {
     try {
-      return nflowRestObjectMapper.readTree(entry.getValue());
+      return nflowRestJsonMapper.readTree(entry.getValue());
     } catch (JacksonException e) {
       logger.debug("Failed to parse state variable {} value as JSON, returning value as unparsed string: {}: {}", entry.getKey(),
           e.getClass().getSimpleName(), e.getMessage());

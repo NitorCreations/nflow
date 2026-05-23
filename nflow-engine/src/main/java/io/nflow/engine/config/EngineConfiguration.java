@@ -27,7 +27,7 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 @ComponentScan("io.nflow.engine")
 public class EngineConfiguration {
 
-  public interface EngineObjectMapperSupplier extends Supplier<JsonMapper> {}
+  public interface EngineJsonMapperSupplier extends Supplier<JsonMapper> {}
 
   /**
    * Creates a workflow instance executor for processing workflow instances.
@@ -65,7 +65,7 @@ public class EngineConfiguration {
    */
   @Bean
   @NFlow
-  public EngineObjectMapperSupplier nflowObjectMapper() {
+  public EngineJsonMapperSupplier nflowJsonMapper() {
     JsonMapper mapper = JsonMapper.builder()
         .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
         .addModule(new JodaModule())

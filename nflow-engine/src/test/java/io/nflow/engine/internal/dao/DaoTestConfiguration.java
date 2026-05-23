@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 import javax.sql.DataSource;
 
-import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -17,15 +16,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.datatype.joda.JodaModule;
-
+import io.nflow.engine.config.EngineConfiguration.EngineJsonMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.ObjectStringMapper;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.joda.JodaModule;
 
 @PropertySource({ "classpath:junit.properties" })
 @EnableTransactionManagement
@@ -33,33 +32,19 @@ import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
 public class DaoTestConfiguration {
 
   @Bean
-  public WorkflowInstanceDao workflowInstanceDao(SQLVariants sqlVariants,
-                                                 @NFlow JdbcTemplate nflowJdbcTemplate,
-                                                 @NFlow TransactionTemplate transactionTemplate,
-                                                 @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                                                 ExecutorDao executorDao,
-                                                 WorkflowInstanceExecutor workflowInstanceExecutor,
-                                                 WorkflowInstanceFactory workflowInstanceFactory,
-                                                 Environment env) {
-    return new WorkflowInstanceDao(sqlVariants,
-            nflowJdbcTemplate,
-            transactionTemplate,
-            nflowNamedParameterJdbcTemplate,
-            executorDao,
-            workflowInstanceExecutor,
-            workflowInstanceFactory,
-            env);
+  public WorkflowInstanceDao workflowInstanceDao(SQLVariants sqlVariants, @NFlow JdbcTemplate nflowJdbcTemplate,
+      @NFlow TransactionTemplate transactionTemplate, @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
+      ExecutorDao executorDao, WorkflowInstanceExecutor workflowInstanceExecutor, WorkflowInstanceFactory workflowInstanceFactory,
+      Environment env) {
+    return new WorkflowInstanceDao(sqlVariants, nflowJdbcTemplate, transactionTemplate, nflowNamedParameterJdbcTemplate,
+        executorDao, workflowInstanceExecutor, workflowInstanceFactory, env);
   }
 
   @Bean
   public WorkflowDefinitionDao workflowDefinitionDao(SQLVariants sqlVariants,
-                                                     @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate,
-                                                     @NFlow EngineObjectMapperSupplier nflowObjectMapper,
-                                                     ExecutorDao executorDao) {
-    return new WorkflowDefinitionDao(sqlVariants,
-            nflowNamedParameterJdbcTemplate,
-            nflowObjectMapper,
-            executorDao);
+      @NFlow NamedParameterJdbcTemplate nflowNamedParameterJdbcTemplate, @NFlow EngineJsonMapperSupplier nflowJsonMapper,
+      ExecutorDao executorDao) {
+    return new WorkflowDefinitionDao(sqlVariants, nflowNamedParameterJdbcTemplate, nflowJsonMapper, executorDao);
   }
 
   @Bean
@@ -95,7 +80,7 @@ public class DaoTestConfiguration {
 
   @Bean
   @NFlow
-  public EngineObjectMapperSupplier objectMapper() {
+  public EngineJsonMapperSupplier jsonMapper() {
     JsonMapper mapper = JsonMapper.builder()
         .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
         .addModule(new JodaModule())
@@ -110,7 +95,7 @@ public class DaoTestConfiguration {
 
   @Bean
   public WorkflowInstanceFactory workflowInstanceFactory() {
-    return new WorkflowInstanceFactory(new ObjectStringMapper(objectMapper()));
+    return new WorkflowInstanceFactory(new ObjectStringMapper(jsonMapper()));
   }
 
 }

@@ -26,7 +26,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
 import io.nflow.engine.config.EngineConfiguration;
-import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
+import io.nflow.engine.config.EngineConfiguration.EngineJsonMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.DatabaseConfiguration;
 import io.nflow.engine.config.db.Db2DatabaseConfiguration;
@@ -95,8 +95,8 @@ public class EngineModule extends AbstractModule {
   @Provides
   @NFlow
   @Singleton
-  public EngineObjectMapperSupplier nflowObjectMapper() {
-    return () -> engineConfiguration.nflowObjectMapper().get();
+  public EngineJsonMapperSupplier nflowJsonMapper() {
+    return () -> engineConfiguration.nflowJsonMapper().get();
   }
 
   @Provides
