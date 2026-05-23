@@ -129,6 +129,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Install nflow SNAPSHOT artifacts
-        run: mvn --no-transfer-progress --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-engine,nflow-rest-api-spring-web,nflow-explorer install
+        run: mvn --update-snapshots --no-transfer-progress --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-engine,nflow-rest-api-spring-web,nflow-explorer install
       - name: Run example tests
-        run: bash nflow-examples/test.sh
+        run: nflow-examples/test.sh
