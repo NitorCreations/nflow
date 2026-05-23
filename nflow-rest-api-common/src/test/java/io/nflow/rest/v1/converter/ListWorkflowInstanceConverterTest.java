@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -31,26 +30,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.node.StringNode;
-
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 
 @ExtendWith(MockitoExtension.class)
 public class ListWorkflowInstanceConverterTest {
   @Mock
   private ObjectMapper nflowObjectMapper;
   @InjectMocks
-  private ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
+  private final ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
 
   @Test
-  public void convertWithActionsWorks() throws IOException {
+  public void convertWithActionsWorks() {
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState")
         .setStateText("oState desc").setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1))
         .setExecutorId(999).build();
@@ -100,7 +98,7 @@ public class ListWorkflowInstanceConverterTest {
   }
 
   @Test
-  public void convertWithActionStateVariablesWorks() throws IOException {
+  public void convertWithActionStateVariablesWorks() {
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
@@ -238,7 +236,7 @@ public class ListWorkflowInstanceConverterTest {
   }
 
   @Test
-  public void convertWithMalformedStateVariablesWorks() throws JacksonException, IOException {
+  public void convertWithMalformedStateVariablesWorks() throws JacksonException {
     DateTime now = now();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder()
         .setId(929).setType(stateExecution).setState("oStDateTimeate").setStateText("oState desc").setRetryNo(1)

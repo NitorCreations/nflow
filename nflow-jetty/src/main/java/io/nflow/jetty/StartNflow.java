@@ -25,8 +25,10 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import io.dropwizard.metrics.servlets.AdminServlet;
 import org.apache.cxf.transport.servlet.CXFServlet;
+import org.eclipse.jetty.ee9.servlet.DefaultServlet;
+import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.CustomRequestLog;
@@ -35,9 +37,6 @@ import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.ee9.servlet.DefaultServlet;
-import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.Container;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -53,6 +52,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import com.nitorcreations.core.utils.KillProcess;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.dropwizard.metrics.servlets.AdminServlet;
 import io.nflow.jetty.config.NflowJettyConfiguration;
 import io.nflow.jetty.servlet.MetricsServletContextListener;
 import io.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
@@ -161,7 +161,6 @@ public class StartNflow
     server.addConnector(connector);
   }
 
-  @SuppressWarnings("resource")
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Message is ok")
   private ServletContextHandler setupServletContextHandler(String... extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
