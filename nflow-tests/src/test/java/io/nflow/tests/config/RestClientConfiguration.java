@@ -45,8 +45,8 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  public JsonMapper objectMapper() {
-    // this must be kept in sync with the server side (nflowRestObjectMapper)
+  public JsonMapper jsonMapper() {
+    // this must be kept in sync with the server side (nflowRestJsonMapper)
     return JsonMapper.builder()
         .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
         .addModule(new JodaModule())

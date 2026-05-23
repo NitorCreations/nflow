@@ -27,8 +27,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import tools.jackson.databind.ObjectMapper;
-
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.dao.ExecutorDao;
 import io.nflow.engine.internal.dao.HealthCheckDao;
@@ -42,6 +40,7 @@ import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.internal.workflow.WorkflowInstancePreProcessor;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.WorkflowInstanceFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("nflow-engine-test")
@@ -127,8 +126,8 @@ public class WorkflowDefinitionServiceWithSpringTest {
 
     @Bean
     @NFlow
-    public ObjectMapper objectMapper() {
-      return mock(ObjectMapper.class);
+    public JsonMapper jsonMapper() {
+      return mock(JsonMapper.class);
     }
 
     @Bean

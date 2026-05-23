@@ -1,7 +1,7 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
-import static io.nflow.tests.AbstractNflowTest.nflowObjectMapper;
+import static io.nflow.tests.AbstractNflowTest.nflowJsonMapper;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
 import static java.lang.Thread.sleep;
@@ -109,7 +109,7 @@ public class ConcurrentEnginesTest {
     req.type = FIBONACCI_TYPE;
     req.businessKey = UNIQUE_KEY;
     req.activationTime = now().plusSeconds(5);
-    req.stateVariables.put(VAR_REQUEST_DATA, nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
+    req.stateVariables.put(VAR_REQUEST_DATA, nflowJsonMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
 
     for (int i = 0; i < WORKFLOWS; ++i) {
       var resp = workflowInstanceResource.put(req, CreateWorkflowInstanceResponse.class);

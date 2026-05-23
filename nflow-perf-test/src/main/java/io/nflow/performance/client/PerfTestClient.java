@@ -3,18 +3,16 @@ package io.nflow.performance.client;
 import static java.util.UUID.randomUUID;
 import static org.apache.cxf.jaxrs.client.WebClient.fromClient;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.cxf.jaxrs.client.WebClient;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.StatisticsResponse;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Client for sending messages to nFlow REST API in the performance tests.
@@ -31,7 +29,7 @@ public class PerfTestClient {
   private WebClient statisticsResource;
 
   @Inject
-  private ObjectMapper objectMapper;
+  private JsonMapper jsonMapper;
 
   public CreateWorkflowInstanceResponse createWorkflow(WorkflowDefinition def) {
     return createWorkflow(def.getType());
@@ -44,13 +42,14 @@ public class PerfTestClient {
     request.externalId = randomUUID().toString();
     try {
       request.stateVariables.put("requestData",
-          objectMapper.readTree("{\"customerId\":\"CUST123\",\"amount\":100.0,\"simulation\":false}"));
+          jsonMapper.readTree("{\"customerId\":\"CUST123\",\"amount\":100.0,\"simulation\":false}"));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
     return makeInstanceRequest(request, CreateWorkflowInstanceResponse.class);
   }
 
+  @SuppressWarnings("resource")
   public ListWorkflowInstanceResponse getWorkflowInstance(int instanceId, boolean fetchActions) {
     WebClient restReq = fromClient(workflowInstanceResource, true).path(Integer.toString(instanceId));
     if (fetchActions) {
@@ -59,11 +58,13 @@ public class PerfTestClient {
     return restReq.get(ListWorkflowInstanceResponse.class);
   }
 
+  @SuppressWarnings("resource")
   public StatisticsResponse getStatistics() {
     WebClient restReq = fromClient(statisticsResource, true);
     return restReq.get(StatisticsResponse.class);
   }
 
+  @SuppressWarnings("resource")
   private <T> T makeInstanceRequest(Object request, Class<T> responseClass) {
     return fromClient(workflowInstanceResource, true).put(request, responseClass);
   }

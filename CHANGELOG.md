@@ -2,6 +2,16 @@
 
 **Highlights**
 
+- Upgrade to Spring 7
+- BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper`
+  - `EngineObjectMapperSupplier` renamed to `EngineJsonMapperSupplier`
+  - `EngineConfiguration.nflowObjectMapper()` renamed to `EngineConfiguration.nflowJsonMapper()`
+  - `EngineModule.nflowObjectMapper()` renamed to `EngineModule.nflowJsonMapper()`
+  - `RestConfiguration.nflowRestObjectMapper()` renamed to `RestConfiguration.nflowRestJsonMapper()`
+  - `RestConfiguration.REST_OBJECT_MAPPER` renamed to `RestConfiguration.REST_JSON_MAPPER`
+  - `RestConfiguration.objectMapper()` renamed to `RestConfiguration.jsonMapper()`
+  - `RestClientConfiguration.objectMapper()` renamed to `RestClientConfiguration.jsonMapper()`
+
 **Details**
 
 ## 10.0.2 (2026-05-23)
@@ -9,7 +19,6 @@
 **Highlights**
 
 - Dependency updates
-- Upgrade to Spring 7
 
 **Details**
 

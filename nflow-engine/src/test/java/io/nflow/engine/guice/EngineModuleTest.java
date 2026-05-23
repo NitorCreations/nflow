@@ -27,7 +27,7 @@ import com.google.inject.Key;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.nflow.engine.config.EngineConfiguration;
-import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
+import io.nflow.engine.config.EngineConfiguration.EngineJsonMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.config.db.H2DatabaseConfiguration;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
@@ -40,7 +40,7 @@ import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowExecutorService;
 import io.nflow.engine.service.WorkflowInstanceService;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class EngineModuleTest {
 
@@ -64,7 +64,7 @@ public class EngineModuleTest {
     assertThat(((CustomizableThreadFactory) factory).getThreadNamePrefix(), is("nflow-executor-"));
     assertThat(((CustomizableThreadFactory) factory).getThreadGroup().getName(), is("nflow"));
 
-    ObjectMapper mapper = injector.getInstance(Key.get(EngineObjectMapperSupplier.class, NFlow.class)).get();
+    JsonMapper mapper = injector.getInstance(Key.get(EngineJsonMapperSupplier.class, NFlow.class)).get();
     String nowS = mapper.writeValueAsString(DateTime.now());
     assertThat(mapper.readerFor(DateTime.class).<DateTime>readValue(nowS), isA(DateTime.class));
     assertThat(/* TODO serializationConfig() is not to be used by application code in Jackson 3 (see https://github.com/FasterXML/jackson-databind/blob/3.x/src/main/java/tools/jackson/databind/ObjectMapper.java#L417). Consider using builder configuration instead. */mapper.serializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
