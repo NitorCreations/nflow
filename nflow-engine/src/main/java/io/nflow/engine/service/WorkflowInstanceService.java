@@ -12,8 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -29,6 +27,7 @@ import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
+import jakarta.inject.Inject;
 
 /**
  * Service for managing workflow instances.
@@ -98,6 +97,22 @@ public class WorkflowInstanceService {
       id = workflowInstanceDao.queryWorkflowInstances(query).get(0).id;
     }
     return id;
+  }
+
+  /**
+   * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action.
+   * If the state of the instance is not null, the status of the instance is updated based on the new state.
+   * If the state of the instance is null, neither state nor status are updated.
+   * @param instance The instance to be updated.
+   * @param action The action to be inserted.
+   * @return True if the update was successful, false otherwise.
+   * @deprecated Use {@link #updateWorkflowInstance(WorkflowInstance, WorkflowInstanceAction, Optional)} instead.
+   */
+  @Deprecated
+  @Transactional
+  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "NflowNotFoundException message is ok")
+  public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
+    return updateWorkflowInstance(instance, action, Optional.empty());
   }
 
   /**

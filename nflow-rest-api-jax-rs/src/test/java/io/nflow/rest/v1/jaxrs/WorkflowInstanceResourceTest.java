@@ -1,10 +1,10 @@
 package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
-import static java.util.Collections.emptySet;
-import static java.util.EnumSet.allOf;
 import static jakarta.ws.rs.core.Response.Status.CREATED;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static java.util.Collections.emptySet;
+import static java.util.EnumSet.allOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -25,8 +25,6 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import jakarta.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +58,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import jakarta.ws.rs.core.Response;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowInstanceResourceTest {
@@ -95,7 +94,7 @@ public class WorkflowInstanceResourceTest {
     resource = new WorkflowInstanceResource(workflowInstances, createWorkflowConverter, listWorkflowConverter,
         workflowInstanceFactory, workflowInstanceDao);
     lenient().when(workflowInstanceFactory.newWorkflowInstanceBuilder())
-        .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(ObjectMapper::new)));
+    .thenReturn(new WorkflowInstance.Builder(new ObjectStringMapper(ObjectMapper::new)));
   }
 
   @Test
@@ -126,9 +125,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -141,9 +141,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -157,9 +158,10 @@ public class WorkflowInstanceResourceTest {
     req.state = "newState";
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -173,9 +175,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(nullValue()));
     assertThat(instance.status, is(nullValue()));
@@ -190,9 +193,10 @@ public class WorkflowInstanceResourceTest {
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(nullValue()));
     assertThat(instance.status, is(nullValue()));
@@ -207,9 +211,10 @@ public class WorkflowInstanceResourceTest {
     req.stateVariables.put("foo", "bar");
     req.stateVariables.put("textNode", new TextNode("text"));
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.getStateVariable("foo"), is("bar"));
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
@@ -222,9 +227,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.businessKey = "modifiedKey";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.businessKey, is(req.businessKey));
     WorkflowInstanceAction action = actionCaptor.getValue();
@@ -238,9 +244,10 @@ public class WorkflowInstanceResourceTest {
     req.businessKey = "modifiedKey";
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.businessKey, is(req.businessKey));
     WorkflowInstanceAction action = actionCaptor.getValue();
@@ -304,7 +311,7 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void fetchingNonExistingWorkflowReturnsNotFound() {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, true))
-        .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
+    .thenThrow(new NflowNotFoundException("Workflow instance", 42, new Exception()));
     try (Response response = resource.fetchWorkflowInstance(42, null, null, null, true)) {
       assertThat(response.getStatus(), is(equalTo(NOT_FOUND.getStatusCode())));
       assertThat(((ErrorResponse) response.getEntity()).error, is(equalTo("Workflow instance 42 not found")));
@@ -319,7 +326,7 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, null, false)
-    );
+        );
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
   }
@@ -334,7 +341,7 @@ public class WorkflowInstanceResourceTest {
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
         () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), null, 10L, false)
-    );
+        );
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
   }
