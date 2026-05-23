@@ -27,9 +27,7 @@
 **Highlights**
 
 - Dependency updates
-- nFlow Explorer
-  - Migrate from npm to pnpm
-- upgrade to Spring 7
+- Upgrade to Spring 7
 
 **Details**
 
@@ -38,8 +36,8 @@
   - jetty 12.1.9
   - apache cxf 4.2.1
   - logback 1.5.32
-  - hibernate validator 9.1.0.Final
   - jackson 3.1.3
+  - hibernate validator 9.1.0.Final
   - h2 2.4.240
   - db2 jcc 12.1.4.0
   - mssql-jdbc 13.4.0.jre11
@@ -68,7 +66,7 @@
   - react-router-dom 7.15.0
   - vite 8.0.12
   - typescript 6.0.3
-- fix locked worker thread if a null value was passed to `setVariable(String name, String value)`
+- Fix locked worker thread if a null value was passed to `setVariable(String name, String value)`
 - Example projects
   - Java/maven example projects updated to use Java 25 and Spring Boot 4
   - Java/gradle and Kotlin example projects are not working, contributions to get them updated would be appreciated
