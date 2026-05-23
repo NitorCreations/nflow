@@ -4,7 +4,12 @@
 
 - POTENTIALLY BREAKING CHANGE: `StateExecution.setVariable(...)` throws error when called for `@StateVar` state variables (see details below)
 - Upgrade to Spring 7
-- BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper`
+- BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper` (see details below)
+- Use Spring Boot 4 in `nflow-examples`
+
+**Details**
+
+- Replace `ObjectMapper` with `JsonMapper`
   - `EngineObjectMapperSupplier` renamed to `EngineJsonMapperSupplier`
   - `EngineConfiguration.nflowObjectMapper()` renamed to `EngineConfiguration.nflowJsonMapper()`
   - `EngineModule.nflowObjectMapper()` renamed to `EngineModule.nflowJsonMapper()`
