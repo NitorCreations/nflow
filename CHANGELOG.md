@@ -14,6 +14,13 @@
 
 **Details**
 
+- Dependency updates
+  - spring 7.0.7
+  - jackson 3.1.3
+  - jetty 12.1.9
+  - rewrite-maven-plugin 6.40.0
+  - rewrite-spring 6.31.0
+
 ## 10.0.2 (2026-05-23)
 
 **Highlights**
