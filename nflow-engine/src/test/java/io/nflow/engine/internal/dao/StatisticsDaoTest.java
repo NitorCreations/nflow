@@ -13,8 +13,6 @@ import static org.joda.time.DateTime.now;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.inject.Inject;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +21,7 @@ import io.nflow.engine.workflow.definition.WorkflowDefinitionStatistics;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.statistics.Statistics;
 import io.nflow.engine.workflow.statistics.Statistics.QueueStatistics;
+import jakarta.inject.Inject;
 
 public class StatisticsDaoTest extends BaseDaoTest {
 
@@ -75,7 +74,7 @@ public class StatisticsDaoTest extends BaseDaoTest {
     assertThat(stateStats.get(created.name()).allInstances, is(1L));
 
     WorkflowInstance i2 = new WorkflowInstance.Builder().setId(id).setNextActivation(now().minusDays(1)).build();
-    instanceDao.updateNotRunningWorkflowInstance(i2, Optional.empty());
+    instanceDao.updateNotRunningWorkflowInstance(i2, Optional.of(i1.state));
 
     stats = statisticsDao.getWorkflowDefinitionStatistics(i1.type, null, null, null, null);
     stateStats = stats.get(TestState.BEGIN.name());
