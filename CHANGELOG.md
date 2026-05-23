@@ -15,7 +15,7 @@
 
 **Details**
 
-- `nflow-engine`
+- `nflow-engine`  
   - Add optional expected state and state transition validations for workflow instance updates.
     - Add optional `expectedState` parameter to `WorkflowInstanceService.updateWorkflowInstance`; return `false` when expected state does not match the workflow instance state in the database.
     - Add optional `validationMode` parameter to `WorkflowInstanceService.updateWorkflowInstance`; return `false` when transition from expected state to requested new state is not allowed by the workflow definition.
@@ -30,6 +30,12 @@
     - Workflow instance update endpoints now take optional `expectedState` query parameter, pass it through to `WorkflowInstanceService.updateWorkflowInstance`, and return `HTTP 409 Conflict` when expected state does not match the workflow instance state in the database.
     - Workflow instance update endpoints now take optional `validationMode` query parameter, pass it through to `WorkflowInstanceService.updateWorkflowInstance`, and return `HTTP 409 Conflict` when transition from expected state to requested new state is not allowed by the workflow definition.
     - `validationMode` must be `doNotValidate` when `expectedState` is not given.
+- Dependency updates
+  - spring 7.0.7
+  - jackson 3.1.3
+  - jetty 12.1.9
+  - rewrite-maven-plugin 6.40.0
+  - rewrite-spring 6.31.0
 
 ## 10.0.2 (2026-05-23)
 
@@ -40,11 +46,11 @@
 **Details**
 
 - Dependency updates
-  - spring 7.0.7
-  - jetty 12.1.9
+  - spring 6.2.18
+  - jetty 11.0.26
   - apache cxf 4.2.1
   - logback 1.5.32
-  - jackson 3.1.3
+  - jackson 2.21
   - hibernate validator 9.1.0.Final
   - h2 2.4.240
   - db2 jcc 12.1.4.0
