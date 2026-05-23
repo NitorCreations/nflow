@@ -1,9 +1,9 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecution;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -13,15 +13,10 @@ import static org.joda.time.DateTime.now;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -30,6 +25,8 @@ import io.nflow.rest.v1.msg.ErrorResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
+import jakarta.ws.rs.core.Response;
+import tools.jackson.databind.json.JsonMapper;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CreditApplicationWorkflowTest extends AbstractNflowTest {

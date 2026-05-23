@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ThreadFactory;
 
@@ -22,7 +21,6 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import tools.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -42,11 +40,12 @@ import io.nflow.engine.service.StatisticsService;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowExecutorService;
 import io.nflow.engine.service.WorkflowInstanceService;
+import tools.jackson.databind.ObjectMapper;
 
 public class EngineModuleTest {
 
   @Test
-  public void testEngineConfiguration() throws IOException {
+  public void testEngineConfiguration() {
     Properties props = new Properties();
     props.setProperty("nflow.db.type", "h2");
     props.setProperty("nflow.executor.thread.count", "1");
