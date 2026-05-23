@@ -110,10 +110,13 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
   public Mono<ResponseEntity<?>> updateWorkflowInstance(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
+      @RequestParam(value = "expectedState", required = false) @Parameter(
+          description = "Expected current state of workflow instance") String expectedState,
       @RequestBody @Valid @Parameter(description = "Submitted workflow instance information",
           required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
-      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao,
+          ofNullable(expectedState));
       return (updated ? noContent() : status(CONFLICT)).build();
     }));
   }

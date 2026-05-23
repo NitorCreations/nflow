@@ -4,6 +4,14 @@
 
 **Details**
 
+- `nflow-engine`
+  - Add optional state transition validation for workflow instance updates.
+    - `WorkflowInstanceService.updateWorkflowInstance` now takes optional `expectedState` and returns `false` when transition from expected state to requested new state is not allowed by the workflow definition, or when the expected state does not match the instance state in the database.
+    - Add `WorkflowDefinition.isAllowedStateTransition` helper for checking allowed transitions.
+- `nflow-rest-api`
+  - Add optional state transition validation for workflow instance updates.
+    - Workflow instance update endpoints now take optional `expectedState` query parameter, pass it through to `WorkflowInstanceService.updateWorkflowInstance`, and return `HTTP 409 Conflict` transition from expected state to requested new state is not allowed by the workflow definition, or when the expected state does not match the instance state in the database.
+
 ## 10.0.2 (2026-05-23)
 
 **Highlights**

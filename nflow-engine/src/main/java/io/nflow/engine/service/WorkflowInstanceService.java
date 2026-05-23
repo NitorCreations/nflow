@@ -102,17 +102,20 @@ public class WorkflowInstanceService {
 
   /**
    * Update the workflow instance in the database if it is currently not running, and insert the workflow instance action.
+   * If expectedState is present, update is allowed only when the current state matches it.
    * If the state of the instance is not null, the status of the instance is updated based on the new state.
    * If the state of the instance is null, neither state nor status are updated.
    * @param instance The instance to be updated.
    * @param action The action to be inserted.
+   * @param expectedState Optional expected current state for optimistic state transition check.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "NflowNotFoundException message is ok")
-  public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
+  public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action, Optional<String> expectedState) {
     Assert.notNull(instance, "Workflow instance can not be null");
     Assert.notNull(action, "Workflow instance action can not be null");
+    Assert.notNull(expectedState, "Expected state can not be null");
     Assert.notNull(workflowDefinitionService, "workflowDefinitionService can not be null");
     try {
       WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);
@@ -121,10 +124,13 @@ public class WorkflowInstanceService {
       } else {
         String type = workflowInstanceDao.getWorkflowInstanceType(instance.id);
         WorkflowDefinition definition = workflowDefinitionService.getWorkflowDefinition(type);
+        if (!expectedState.map(currentState -> definition.isAllowedStateTransition(currentState, instance.state)).orElse(Boolean.TRUE)) {
+          return false;
+        }
         builder.setStatus(definition.getState(instance.state).getType().getStatus(instance.nextActivation));
       }
       WorkflowInstance updatedInstance = builder.build();
-      boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance);
+      boolean updated = workflowInstanceDao.updateNotRunningWorkflowInstance(updatedInstance, expectedState);
       if (updated) {
         String currentState = workflowInstanceDao.getWorkflowInstanceState(updatedInstance.id);
         WorkflowInstanceAction updatedAction = new WorkflowInstanceAction.Builder(action).setState(currentState).build();
@@ -213,4 +219,5 @@ public class WorkflowInstanceService {
         .setParentWorkflowId(workflowInstanceId).build();
     return !listWorkflowInstances(unfinishedChildren).isEmpty();
   }
+
 }

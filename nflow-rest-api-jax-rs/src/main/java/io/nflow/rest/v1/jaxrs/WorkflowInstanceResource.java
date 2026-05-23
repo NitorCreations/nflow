@@ -120,10 +120,12 @@ public class WorkflowInstanceResource extends JaxRsResource {
           description = "If instance could not be updated, for example when state variable value was too long"),
       @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
   public Response updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
+      @QueryParam("expectedState") @Parameter(description = "Expected current state of workflow instance") String expectedState,
       @Valid @RequestBody(description = "Submitted workflow instance information",
           required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
-      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao,
+          ofNullable(expectedState));
       return (updated ? noContent() : status(CONFLICT));
     });
   }

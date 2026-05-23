@@ -13,6 +13,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -99,5 +101,20 @@ public class WorkflowDefinitionTest {
     assertThat(workflow.isStartState(STATE_2.name()), equalTo(false));
     assertThat(workflow.isStartState(ERROR.name()), equalTo(false));
     assertThat(workflow.isStartState(DONE.name()), equalTo(false));
+  }
+
+  @Test
+  public void isAllowedStateTransitionReturnsTrueForPermittedTransition() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), DONE.name()));
+  }
+
+  @Test
+  public void isAllowedStateTransitionReturnsFalseForNonPermittedTransition() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertFalse(workflow.isAllowedStateTransition(BEGIN.name(), POLL.name()));
+    assertFalse(workflow.isAllowedStateTransition("unknown", DONE.name()));
   }
 }

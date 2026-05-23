@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -101,7 +102,7 @@ public abstract class ResourceBase {
 
   public boolean updateWorkflowInstance(long id, UpdateWorkflowInstanceRequest req,
       WorkflowInstanceFactory workflowInstanceFactory, WorkflowInstanceService workflowInstances,
-      WorkflowInstanceDao workflowInstanceDao) {
+      WorkflowInstanceDao workflowInstanceDao, Optional<String> expectedState) {
     WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
         .setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
@@ -143,7 +144,7 @@ public abstract class ResourceBase {
         .setStateText(trimToNull(msg))
         .setExecutionEnd(now())
         .build();
-    return workflowInstances.updateWorkflowInstance(instance, action);
+    return workflowInstances.updateWorkflowInstance(instance, action, expectedState);
   }
 
   public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(Set<Long> ids, Set<String> types, Long parentWorkflowId,

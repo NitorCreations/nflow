@@ -116,8 +116,9 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void whenUpdatingWithoutParametersNothingHappens() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
+    verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class),
+        eq(Optional.empty()));
   }
 
   @Test
@@ -125,9 +126,9 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -140,9 +141,9 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -156,9 +157,9 @@ public class WorkflowInstanceResourceTest {
     req.state = "newState";
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -172,9 +173,9 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(nullValue()));
     assertThat(instance.status, is(nullValue()));
@@ -189,9 +190,9 @@ public class WorkflowInstanceResourceTest {
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(nullValue()));
     assertThat(instance.status, is(nullValue()));
@@ -206,9 +207,9 @@ public class WorkflowInstanceResourceTest {
     req.stateVariables.put("foo", "bar");
     req.stateVariables.put("textNode", new TextNode("text"));
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.getStateVariable("foo"), is("bar"));
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
@@ -221,9 +222,9 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.businessKey = "modifiedKey";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.businessKey, is(req.businessKey));
     WorkflowInstanceAction action = actionCaptor.getValue();
@@ -237,9 +238,9 @@ public class WorkflowInstanceResourceTest {
     req.businessKey = "modifiedKey";
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(), eq(Optional.empty()));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.businessKey, is(req.businessKey));
     WorkflowInstanceAction action = actionCaptor.getValue();

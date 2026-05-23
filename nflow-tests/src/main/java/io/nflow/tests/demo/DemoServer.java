@@ -60,7 +60,7 @@ public class DemoServer {
     instance = workflowInstanceService.getWorkflowInstance(id, emptySet(), null);
     WorkflowInstanceAction action = new WorkflowInstanceAction.Builder(instance).setType(externalChange).setExecutionEnd(now())
         .build();
-    workflowInstanceService.updateWorkflowInstance(instance, action);
+    workflowInstanceService.updateWorkflowInstance(instance, action, Optional.empty());
     instance = workflowInstanceService.getWorkflowInstance(id, EnumSet.of(WorkflowInstanceInclude.ACTIONS), 1L);
     long actionId = instance.actions.get(0).id;
     WorkflowInstance child = new WorkflowInstance.Builder().setType(DEMO_WORKFLOW_TYPE).setState(BEGIN.name())
