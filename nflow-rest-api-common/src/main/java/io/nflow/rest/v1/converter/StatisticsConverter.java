@@ -28,10 +28,10 @@ public class StatisticsConverter {
 
   public WorkflowDefinitionStatisticsResponse convert(Map<String, Map<String, WorkflowDefinitionStatistics>> stats) {
     WorkflowDefinitionStatisticsResponse resp = new WorkflowDefinitionStatisticsResponse();
-    for (Entry<String, Map<String, WorkflowDefinitionStatistics>> entry : stats.entrySet()) {
+    stats.entrySet().forEach(entry -> {
       StateStatistics stateStats = new StateStatistics();
       resp.stateStatistics.put(entry.getKey(), stateStats);
-      for (Entry<String, WorkflowDefinitionStatistics> statusEntry : entry.getValue().entrySet()) {
+      entry.getValue().entrySet().forEach(statusEntry -> {
         WorkflowDefinitionStatistics value = statusEntry.getValue();
         switch (statusEntry.getKey()) {
         case "created":
@@ -54,8 +54,8 @@ public class StatisticsConverter {
         default:
           // ignored
         }
-      }
-    }
+      });
+    });
     return resp;
   }
 }

@@ -4,6 +4,7 @@ import static org.joda.time.DateTime.now;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import jakarta.inject.Inject;
@@ -65,16 +66,16 @@ public class WorkflowStateProcessorFactory {
 
   public int getPotentiallyStuckProcessors() {
     DateTime currentTime = now();
-    int potentiallyStuck = 0;
-    for (WorkflowStateProcessor processor : processingInstances.values()) {
+    AtomicInteger potentiallyStuck = new AtomicInteger(0);
+    processingInstances.values().forEach(processor -> {
       Duration processingTime = new Duration(processor.getStartTime(), currentTime);
       long processingTimeSeconds = processingTime.getStandardSeconds();
       if (processingTimeSeconds > stuckThreadThresholdSeconds) {
-        potentiallyStuck++;
+        potentiallyStuck.incrementAndGet();
         processor.logPotentiallyStuck(processingTimeSeconds);
         processor.handlePotentiallyStuck(processingTime);
       }
-    }
-    return potentiallyStuck;
+    });
+    return potentiallyStuck.get();
   }
 }

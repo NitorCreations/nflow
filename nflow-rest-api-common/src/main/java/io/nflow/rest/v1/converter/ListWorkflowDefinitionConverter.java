@@ -2,11 +2,8 @@ package io.nflow.rest.v1.converter;
 
 import static java.util.stream.Collectors.toMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -30,16 +27,11 @@ public class ListWorkflowDefinitionConverter {
     resp.description = definition.getDescription();
     resp.onError = definition.getErrorState().name();
     Map<String, State> states = definition.getStates().stream().collect(toMap(WorkflowState::name, this::toState));
-    for (Entry<String, List<String>> entry : definition.getAllowedTransitions().entrySet()) {
-      State state = states.get(entry.getKey());
-      state.transitions.addAll(entry.getValue());
-    }
-    for (Entry<String, WorkflowState> entry : definition.getFailureTransitions().entrySet()) {
-      State state = states.get(entry.getKey());
-      state.onFailure = entry.getValue().name();
-    }
-    Collection<State> values = states.values();
-    resp.states = values.toArray(new State[values.size()]);
+    definition.getAllowedTransitions().forEach((key, targets) ->
+        Optional.ofNullable(states.get(key)).ifPresent(s -> s.transitions.addAll(targets)));
+    definition.getFailureTransitions().forEach((key, wfState) ->
+        Optional.ofNullable(states.get(key)).ifPresent(s -> s.onFailure = wfState.name()));
+    resp.states = states.values().toArray(new State[0]);
 
     WorkflowSettings workflowSettings = definition.getSettings();
     TransitionDelays transitionDelays = new TransitionDelays();
@@ -72,14 +64,12 @@ public class ListWorkflowDefinitionConverter {
     resp.type = storedDefinition.type;
     resp.description = storedDefinition.description;
     resp.onError = storedDefinition.onError;
-    List<State> states = new ArrayList<>(storedDefinition.states.size());
-    for (StoredWorkflowDefinition.State state : storedDefinition.states) {
+    resp.states = storedDefinition.states.stream().map(state -> {
       State tmp = new State(state.id, state.type, state.description);
       tmp.transitions.addAll(state.transitions);
       tmp.onFailure = state.onFailure;
-      states.add(tmp);
-    }
-    resp.states = states.toArray(new State[states.size()]);
+      return tmp;
+    }).toArray(size -> new State[size]);
     resp.supportedSignals = storedDefinition.supportedSignals.stream().map(s -> {
       Signal signal = new Signal();
       signal.value = s.value;
