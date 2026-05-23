@@ -3,7 +3,12 @@
 **Highlights**
 
 - Upgrade to Spring 7
-- BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper`
+- BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper` (see details below)
+- Use Spring Boot 4 in `nflow-examples`
+
+**Details**
+
+- Replace `ObjectMapper` with `JsonMapper`
   - `EngineObjectMapperSupplier` renamed to `EngineJsonMapperSupplier`
   - `EngineConfiguration.nflowObjectMapper()` renamed to `EngineConfiguration.nflowJsonMapper()`
   - `EngineModule.nflowObjectMapper()` renamed to `EngineModule.nflowJsonMapper()`
@@ -11,9 +16,6 @@
   - `RestConfiguration.REST_OBJECT_MAPPER` renamed to `RestConfiguration.REST_JSON_MAPPER`
   - `RestConfiguration.objectMapper()` renamed to `RestConfiguration.jsonMapper()`
   - `RestClientConfiguration.objectMapper()` renamed to `RestClientConfiguration.jsonMapper()`
-
-**Details**
-
 - Dependency updates
   - spring 7.0.7
   - jackson 3.1.3
@@ -28,11 +30,11 @@
 **Details**
 
 - Dependency updates
-  - spring 7.0.7
-  - jetty 12.1.9
+  - spring 6.2.18
+  - jetty 11.0.26
   - apache cxf 4.2.1
   - logback 1.5.32
-  - jackson 3.1.3
+  - jackson 2.21
   - hibernate validator 9.1.0.Final
   - h2 2.4.240
   - db2 jcc 12.1.4.0
