@@ -28,7 +28,7 @@ import tools.jackson.databind.json.JsonMapper;
 public class EngineConfigurationTest {
 
   @Spy
-  private final MockEnvironment environment = new MockEnvironment().withProperty("nflow.executor.thread.count", "100")
+  private MockEnvironment environment = new MockEnvironment().withProperty("nflow.executor.thread.count", "100")
       .withProperty("nflow.dispatcher.await.termination.seconds", "60")
       .withProperty("nflow.dispatcher.executor.thread.keepalive.seconds", "0");
   @Mock
