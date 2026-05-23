@@ -110,7 +110,6 @@ public class WorkflowInstanceService {
    */
   @Deprecated
   @Transactional
-  @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "NflowNotFoundException message is ok")
   public boolean updateWorkflowInstance(WorkflowInstance instance, WorkflowInstanceAction action) {
     return updateWorkflowInstance(instance, action, Optional.empty());
   }
