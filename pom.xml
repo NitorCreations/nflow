@@ -104,8 +104,6 @@
     <module>nflow-metrics</module>
   </modules>
   <properties>
-    <rewrite-maven-plugin.version>6.40.0</rewrite-maven-plugin.version>
-    <rewrite-spring.version>6.31.0</rewrite-spring.version>
     <jdk.version>17</jdk.version>
     <jacocoArgLine></jacocoArgLine>
     <java26ExtraArgs></java26ExtraArgs>
@@ -385,25 +383,6 @@
           <groupId>org.sonatype.central</groupId>
           <artifactId>central-publishing-maven-plugin</artifactId>
           <version>${central-publishing-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.openrewrite.maven</groupId>
-          <artifactId>rewrite-maven-plugin</artifactId>
-          <version>${rewrite-maven-plugin.version}</version>
-          <configuration>
-            <exportDatatables>true</exportDatatables>
-            <activeRecipes>
-              <recipe>org.openrewrite.java.spring.framework.UpgradeSpringFramework_7_0</recipe>
-              <recipe>org.openrewrite.java.jackson.UpgradeJackson_2_3</recipe>
-            </activeRecipes>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.openrewrite.recipe</groupId>
-              <artifactId>rewrite-spring</artifactId>
-              <version>${rewrite-spring.version}</version>
-            </dependency>
-          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
