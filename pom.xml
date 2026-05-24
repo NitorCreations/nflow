@@ -433,6 +433,7 @@
           <links>
             <link>https://docs.spring.io/spring-framework/docs/${spring.version}/javadoc-api/</link>
           </links>
+          <doclint>all,-missing</doclint>
           <excludePackageNames>io.nflow.engine.internal.storage.db,io.nflow.engine.internal.*</excludePackageNames>
           <quiet>true</quiet>
           <failOnError>true</failOnError>
