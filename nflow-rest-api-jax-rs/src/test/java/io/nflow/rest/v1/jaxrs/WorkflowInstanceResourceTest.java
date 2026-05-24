@@ -168,6 +168,19 @@ public class WorkflowInstanceResourceTest {
   }
 
   @Test
+  public void whenUpdatingWithBlankExpectedStateValidationModeIsForwarded() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.actionDescription = "my desc";
+
+    makeRequest(() -> resource.updateWorkflowInstance(3, "   ", allowNormal, req));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.empty()), eq(allowNormal));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+  }
+
+  @Test
   public void whenUpdatingStateUpdateWorkflowInstanceWorks() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";

@@ -123,7 +123,7 @@ public class WorkflowInstanceResource extends JaxRsResource {
   public Response updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
       @QueryParam("expectedState") @Parameter(description = "Expected current state of workflow instance") String expectedState,
       @QueryParam("validationMode") @Parameter(
-          description = "Validation mode for state transition check, ignored when expectedState is not given") StateTransitionValidationMode validationMode,
+          description = "Validation mode for state transition check; must be doNotValidate when expectedState is not given") StateTransitionValidationMode validationMode,
       @Valid @RequestBody(description = "Submitted workflow instance information",
           required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {

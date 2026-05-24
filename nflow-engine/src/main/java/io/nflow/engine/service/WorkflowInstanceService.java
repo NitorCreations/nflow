@@ -135,7 +135,8 @@ public class WorkflowInstanceService {
    * @param expectedState
    *          Optional expected current state for optimistic state transition check.
    * @param validationMode
-   *          Defines which state transitions are allowed, when expectedState is present.
+  *          Defines which state transitions are allowed, when expectedState is present. Must be
+  *          {@link StateTransitionValidationMode#doNotValidate} when expectedState is not present.
    * @return True if the update was successful, false otherwise.
    */
   @Transactional
@@ -146,6 +147,8 @@ public class WorkflowInstanceService {
     Assert.notNull(action, "Workflow instance action can not be null");
     Assert.notNull(expectedState, "Expected state can not be null");
     Assert.notNull(validationMode, "Validation mode can not be null");
+    Assert.isTrue(expectedState.isPresent() || validationMode == StateTransitionValidationMode.doNotValidate,
+        "Validation mode must be doNotValidate when expected state is not given");
     Assert.notNull(workflowDefinitionService, "workflowDefinitionService can not be null");
     try {
       WorkflowInstance.Builder builder = new WorkflowInstance.Builder(instance);

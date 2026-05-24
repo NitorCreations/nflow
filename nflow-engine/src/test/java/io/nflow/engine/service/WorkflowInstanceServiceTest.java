@@ -195,6 +195,17 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
   }
 
   @Test
+  public void updateWorkflowInstanceThrowsExceptionWhenExpectedStateIsMissingAndValidationModeIsNotDoNotValidate() {
+    WorkflowInstance i = constructWorkflowInstanceBuilder().setId(42).build();
+    WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
+
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+        () -> service.updateWorkflowInstance(i, a, Optional.empty(), allowNormal));
+
+    assertThat(thrown.getMessage(), is("Validation mode must be doNotValidate when expected state is not given"));
+  }
+
+  @Test
   public void updateWorkflowInstanceWorksWhenStateIsNull() {
     WorkflowInstance i = constructWorkflowInstanceBuilder().setState((String) null).setId(42).build();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setType(externalChange).setWorkflowInstanceId(i.id).build();
@@ -217,7 +228,7 @@ public class WorkflowInstanceServiceTest extends BaseNflowTest {
     when(workflowInstanceDao.updateNotRunningWorkflowInstance(any(WorkflowInstance.class), any())).thenReturn(false);
     when(workflowInstanceDao.getWorkflowInstanceType(42)).thenReturn(i.type);
 
-    boolean result = service.updateWorkflowInstance(i, a, Optional.empty(), allowNormal);
+    boolean result = service.updateWorkflowInstance(i, a, Optional.empty(), doNotValidate);
 
     assertThat(result, is(false));
     verify(workflowInstanceDao).updateNotRunningWorkflowInstance(any(WorkflowInstance.class), eq(Optional.empty()));

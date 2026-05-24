@@ -114,7 +114,7 @@ public class WorkflowInstanceResource extends SpringWebResource {
       @RequestParam(value = "expectedState", required = false) @Parameter(
           description = "Expected current state of workflow instance") String expectedState,
       @RequestParam(value = "validationMode", required = false) @Parameter(
-          description = "Validation mode for state transition check, ignored when expectedState is not given") StateTransitionValidationMode validationMode,
+          description = "Validation mode for state transition check; must be doNotValidate when expectedState is not given") StateTransitionValidationMode validationMode,
       @RequestBody @Valid @Parameter(description = "Submitted workflow instance information",
           required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
