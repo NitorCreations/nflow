@@ -10,27 +10,29 @@
 **Details**
 
 - `nflow-engine`
+  - `StateExecution.setVariable(...)` now throws error if called for any `@StateVar` state variable of the method.
+    - Either stop calling `StateExecution.setVariable(...)` or remove `@StateVar` state variable from the method.
+    - Previous behavior: `StateExecution.setVariable(...)` was silently ignored.
   - Add optional expected state and state transition validations for workflow instance updates.
     - Add optional `expectedState` parameter to `WorkflowInstanceService.updateWorkflowInstance`; return `false` when expected state does not match the workflow instance state in the database.
     - Add optional `validationMode` parameter to `WorkflowInstanceService.updateWorkflowInstance`; return `false` when transition from expected state to requested new state is not allowed by the workflow definition.
     - `validationMode` must be `doNotValidate` when `expectedState` is not given.
     - Keep `WorkflowInstanceService.updateWorkflowInstance` that does not take `expectedState` and `validationMode` parameters to maintain backwards compatibility, but mark it as deprecated.
     - Add `WorkflowDefinition.isAllowedStateTransition` helper for checking allowed transitions.
-  - `StateExecution.setVariable(...)` now throws error if called for any `@StateVar` state variable of the method.
-    - Either stop calling `StateExecution.setVariable(...)` or remove `@StateVar` state variable from the method.
-    - Previous behavior: `StateExecution.setVariable(...)` was silently ignored.
-  - `EngineObjectMapperSupplier` renamed to `EngineJsonMapperSupplier`
-  - `EngineConfiguration.nflowObjectMapper()` renamed to `EngineConfiguration.nflowJsonMapper()`
-  - `EngineModule.nflowObjectMapper()` renamed to `EngineModule.nflowJsonMapper()`
+  - Replace `ObjectMapper` with `JsonMapper`
+    - `EngineObjectMapperSupplier` renamed to `EngineJsonMapperSupplier`
+    - `EngineConfiguration.nflowObjectMapper()` renamed to `EngineConfiguration.nflowJsonMapper()`
+    - `EngineModule.nflowObjectMapper()` renamed to `EngineModule.nflowJsonMapper()`
 - `nflow-rest-api`
   - Add optional expected state and state transition validations for workflow instance updates.
     - Workflow instance update endpoints now take optional `expectedState` query parameter, pass it through to `WorkflowInstanceService.updateWorkflowInstance`, and return `HTTP 409 Conflict` when expected state does not match the workflow instance state in the database.
     - Workflow instance update endpoints now take optional `validationMode` query parameter, pass it through to `WorkflowInstanceService.updateWorkflowInstance`, and return `HTTP 409 Conflict` when transition from expected state to requested new state is not allowed by the workflow definition.
     - `validationMode` must be `doNotValidate` when `expectedState` is not given.
-  - `RestConfiguration.nflowRestObjectMapper()` renamed to `RestConfiguration.nflowRestJsonMapper()`
-  - `RestConfiguration.REST_OBJECT_MAPPER` renamed to `RestConfiguration.REST_JSON_MAPPER`
-  - `RestConfiguration.objectMapper()` renamed to `RestConfiguration.jsonMapper()`
-  - `RestClientConfiguration.objectMapper()` renamed to `RestClientConfiguration.jsonMapper()`
+  - Replace `ObjectMapper` with `JsonMapper`
+    - `RestConfiguration.nflowRestObjectMapper()` renamed to `RestConfiguration.nflowRestJsonMapper()`
+    - `RestConfiguration.REST_OBJECT_MAPPER` renamed to `RestConfiguration.REST_JSON_MAPPER`
+    - `RestConfiguration.objectMapper()` renamed to `RestConfiguration.jsonMapper()`
+    - `RestClientConfiguration.objectMapper()` renamed to `RestClientConfiguration.jsonMapper()`
 - Dependency updates
   - spring 7.0.7
   - jackson 3.1.3
