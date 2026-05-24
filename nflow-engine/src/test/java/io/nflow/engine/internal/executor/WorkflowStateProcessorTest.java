@@ -64,6 +64,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -637,6 +638,11 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
 
   @Test
   public void runWorkflowWithParameters() {
+    ObjectStringMapper objectMapperSpy = spy(new ObjectStringMapper(JsonMapper::new));
+    executor = new WorkflowStateProcessor(1, shutdownRequest::get, objectMapperSpy, workflowDefinitions, workflowInstances,
+        workflowInstanceDao, maintenanceDao, workflowInstancePreProcessor, env, processingInstances, nflowLogger,
+        stateSaveExceptionAnalyzer, listener1, listener2);
+
     Map<String, String> startState = new LinkedHashMap<>() {
       {
         put("string", "Str");
@@ -654,6 +660,7 @@ public class WorkflowStateProcessorTest extends BaseNflowTest {
     verify(workflowInstanceDao).updateWorkflowInstanceAfterExecution(update.capture(),
         argThat(matchesWorkflowInstanceAction(TestState.PROCESS, is("Finished"), 0, stateExecution)),
         argThat(isEmptyWorkflowList()), argThat(isEmptyWorkflowList()), eq(true));
+    verify(objectMapperSpy).storeArguments(any(StateExecution.class), any(), any(), eq(Set.of("hello")));
 
     assertThat((String) lastArgs.get(0), is("Str"));
     assertThat((Integer) lastArgs.get(1), is(42));

@@ -1,9 +1,13 @@
 package io.nflow.engine.internal.workflow;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Set;
 
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -19,6 +23,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class ObjectStringMapper {
+  private static final Logger logger = getLogger(ObjectStringMapper.class);
+
   private final JsonMapper mapper;
 
   @Inject
@@ -28,8 +34,7 @@ public class ObjectStringMapper {
 
   @SuppressWarnings("unchecked")
   @SuppressFBWarnings(value = "UCC_UNRELATED_COLLECTION_CONTENTS", justification = "args are unrelated")
-  public Object[] createArguments(StateExecution execution,
-      WorkflowStateMethod method) {
+  public Object[] createArguments(StateExecution execution, WorkflowStateMethod method) {
     Object[] args = new Object[method.params.length + 1];
     args[0] = execution;
     StateParameter[] params = method.params;
@@ -69,12 +74,17 @@ public class ObjectStringMapper {
   }
 
   @SuppressWarnings("unchecked")
-  public void storeArguments(StateExecution execution,
-      WorkflowStateMethod method, Object[] args) {
+  public void storeArguments(StateExecution execution, WorkflowStateMethod method, Object[] args,
+      Set<String> explicitlySetVariables) {
     StateParameter[] params = method.params;
     for (int i = 0; i < params.length; i++) {
       StateParameter param = params[i];
       if (param.readOnly) {
+        continue;
+      }
+      if (explicitlySetVariables.contains(param.key)) {
+        logger.warn("State variable '{}' was updated with StateExecution.setVariable and @StateVar is not readOnly; "
+            + "skipping argument write-back to avoid overriding explicit value", param.key);
         continue;
       }
       Object value = args[i + 1];

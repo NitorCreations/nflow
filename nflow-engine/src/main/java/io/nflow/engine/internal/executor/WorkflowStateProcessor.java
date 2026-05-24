@@ -24,6 +24,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.joda.time.DateTime;
@@ -556,7 +557,8 @@ class WorkflowStateProcessor implements Runnable {
       } else {
         execution.setNextState(nextAction.getNextState());
       }
-      objectMapper.storeArguments(execution, method, args);
+      Set<String> explicitlySetVariables = execution.getExplicitlySetVariables();
+      objectMapper.storeArguments(execution, method, args, explicitlySetVariables);
       return nextAction;
     }
 

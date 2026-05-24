@@ -4,6 +4,7 @@
 
 - Upgrade to Spring 7
 - BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper` (see details below)
+- POTENTIALLY BREAKING CHANGE: `StateExecution.setVariable(...)` now takes precedence over `@StateVar` argument write-back for the same state variable (see details below)
 
 **Details**
 
@@ -15,6 +16,10 @@
   - `RestConfiguration.REST_OBJECT_MAPPER` renamed to `RestConfiguration.REST_JSON_MAPPER`
   - `RestConfiguration.objectMapper()` renamed to `RestConfiguration.jsonMapper()`
   - `RestClientConfiguration.objectMapper()` renamed to `RestClientConfiguration.jsonMapper()`
+- `StateExecution.setVariable(...)` now takes precedence over `@StateVar` argument write-back when both target the same state variable in one state execution
+  - `ObjectStringMapper.storeArguments(...)` now skips persisting state variables that were explicitly updated via `StateExecution.setVariable(...)`
+  - Log a warning when this conflict is detected and argument write-back is skipped
+  - Previous behavior: `@StateVar` argument write-back could override a value set via `StateExecution.setVariable(...)`
 - Dependency updates
   - spring 7.0.7
   - jackson 3.1.3

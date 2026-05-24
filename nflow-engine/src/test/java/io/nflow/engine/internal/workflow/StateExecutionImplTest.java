@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -237,6 +238,25 @@ public class StateExecutionImplTest {
     execution.setVariable("foo", "bar");
 
     verify(workflowDao).checkStateVariableValueLength("foo", "bar");
+  }
+
+  @Test
+  public void getExplicitlySetVariablesReturnsSetVariablesFromStringAndObjectSetters() {
+    Data data = new Data(47, "bar");
+    when(objectStringMapper.convertFromObject("obj", data)).thenReturn("serialized-data");
+
+    execution.setVariable("str", "value");
+    execution.setVariable("obj", data);
+
+    assertThat(execution.getExplicitlySetVariables(), containsInAnyOrder("str", "obj"));
+  }
+
+  @Test
+  public void getExplicitlySetVariablesDoesNotContainNullStringVariables() {
+    execution.setVariable("nullVar", (String) null);
+    execution.setVariable("nonNullVar", "value");
+
+    assertThat(execution.getExplicitlySetVariables(), contains("nonNullVar"));
   }
 
   @Test

@@ -2,9 +2,14 @@ package io.nflow.engine.internal.workflow;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,6 +65,27 @@ class ObjectStringMapperTest {
   public void methodMutableLongParam() {
     verifyParam(Long.class, "42", 0L, new Mutable<>(0L), new Mutable<>(42L));
     verifyParam(Long.class, "42", null, new Mutable<>(null), new Mutable<>(42L));
+  }
+
+  @Test
+  public void storeArgumentsSetsOnlyWritableObjectVariablesThatAreNotExplicitlySet() {
+    WorkflowStateMethod method = new WorkflowStateMethod(null,
+        new StateParameter("writable", Long.class, null, false, true),
+        new StateParameter("writableExplicitlySet", Long.class, null, false, true),
+        new StateParameter("readOnly", Long.class, null, true, true));
+    Object[] args = new Object[] {
+        execution,
+        new Mutable<>(42L),
+        new Mutable<>(43L),
+        new Mutable<>(77L),
+    };
+
+    mapper.storeArguments(execution, method, args, Set.of("writableExplicitlySet"));
+
+    verify(execution).setVariable("writable", "42");
+
+    verify(execution, never()).setVariable(eq("writableExplicitlySet"), anyString());
+    verify(execution, never()).setVariable(eq("readOnly"), anyString());
   }
 
   private void verifyParam(Type type, String strVal, Object expectedVal) {

@@ -7,9 +7,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -48,6 +50,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private String[] wakeUpParentStates;
   private boolean historyCleaningForced = false;
   private String businessKey;
+  private final Set<String> explicitlySetVariables = new HashSet<>();
 
   public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
@@ -136,6 +139,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
     workflowDao.checkStateVariableValueLength(name, value);
     instance.stateVariables.put(name, value);
+    explicitlySetVariables.add(name);
   }
 
   @Override
@@ -245,6 +249,10 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   public void setStateProcessInvoked(boolean isStateProcessInvoked) {
     this.isStateProcessInvoked = isStateProcessInvoked;
+  }
+
+  public Set<String> getExplicitlySetVariables() {
+    return new HashSet<>(explicitlySetVariables);
   }
 
   public boolean isStateProcessInvoked() {
