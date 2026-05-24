@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.function.BiConsumer;
 
 import org.springframework.stereotype.Component;
 
@@ -71,7 +72,7 @@ public class ObjectStringMapper {
   }
 
   @SuppressWarnings("unchecked")
-  public void storeArguments(StateExecution execution, WorkflowStateMethod method, Object[] args) {
+  public void storeArguments(WorkflowStateMethod method, Object[] args, BiConsumer<String, String> setVariable) {
     StateParameter[] params = method.params;
     for (int i = 0; i < params.length; i++) {
       StateParameter param = params[i];
@@ -94,7 +95,7 @@ public class ObjectStringMapper {
       } else {
         sVal = convertFromObject(param.key, value);
       }
-      execution.setVariableInternal(param.key, sVal);
+      setVariable.accept(param.key, sVal);
     }
   }
 

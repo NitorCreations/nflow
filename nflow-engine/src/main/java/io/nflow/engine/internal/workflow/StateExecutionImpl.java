@@ -150,7 +150,6 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     setVariable(name, objectMapper.convertFromObject(name, value));
   }
 
-  @Override
   public void setVariableInternal(@Nonnull String name, String value) {
     requireNonNull(name, "State variable name cannot be null");
     if (value == null) {

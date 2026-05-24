@@ -556,7 +556,7 @@ class WorkflowStateProcessor implements Runnable {
       } else {
         execution.setNextState(nextAction.getNextState());
       }
-      objectMapper.storeArguments(execution, method, args);
+      objectMapper.storeArguments(method, args, execution::setVariableInternal);
       return nextAction;
     }
 

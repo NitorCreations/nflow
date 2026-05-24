@@ -193,9 +193,4 @@ public interface StateExecution {
    * @return True if unfinished child workflow instances are found, false otherwise.
    */
   boolean hasUnfinishedChildWorkflows();
-
-  /**
-   * For internal usage (ObjectStringMapper) only.
-   */
-  void setVariableInternal(String name, String value);
 }
