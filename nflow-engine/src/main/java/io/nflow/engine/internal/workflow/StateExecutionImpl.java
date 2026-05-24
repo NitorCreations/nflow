@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -140,7 +139,7 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     }
     workflowDao.checkStateVariableValueLength(name, value);
     WorkflowStateMethod method = definition.getMethod(instance.state);
-    Assert.isTrue(method == null || Stream.of(method.params).noneMatch(p -> p.key.equals(name)),
+    Assert.isTrue(method == null || !method.hasParameter(name),
         "Calling setVariable with name that matches @StateVar argument is not allowed");
     instance.stateVariables.put(name, value);
   }

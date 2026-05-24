@@ -267,8 +267,8 @@ public class StateExecutionImplTest {
   @Test
   public void setVariableThrowsWhenNameMatchesStateVar() {
     WorkflowDefinition definition = mock(WorkflowDefinition.class);
-    WorkflowStateMethod method = new WorkflowStateMethod(null,
-        new WorkflowStateMethod.StateParameter("foo", String.class, null, false, false));
+    WorkflowStateMethod method = mock(WorkflowStateMethod.class);
+    when(method.hasParameter("foo")).thenReturn(true);
     when(definition.getMethod("myState")).thenReturn(method);
     createExecution(definition);
 
@@ -279,8 +279,8 @@ public class StateExecutionImplTest {
   @Test
   public void setVariableObjectThrowsWhenNameMatchesStateVar() {
     WorkflowDefinition definition = mock(WorkflowDefinition.class);
-    WorkflowStateMethod method = new WorkflowStateMethod(null,
-        new WorkflowStateMethod.StateParameter("foo", Data.class, null, false, true));
+    WorkflowStateMethod method = mock(WorkflowStateMethod.class);
+    when(method.hasParameter("foo")).thenReturn(true);
     when(definition.getMethod("myState")).thenReturn(method);
     Data testData = new Data(42, "hello");
     String testValue = "testValue";
@@ -289,6 +289,20 @@ public class StateExecutionImplTest {
 
     assertThrows(IllegalArgumentException.class, () -> execution.setVariable("foo", testData));
     verify(workflowDao).checkStateVariableValueLength("foo", testValue);
+  }
+
+  @Test
+  public void setVariableDoesNotThrowWhenNameDoesNotMatchStateVar() {
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
+    WorkflowStateMethod method = mock(WorkflowStateMethod.class);
+    when(method.hasParameter("foo")).thenReturn(false);
+    when(definition.getMethod("myState")).thenReturn(method);
+    createExecution(definition);
+
+    execution.setVariable("foo", "bar");
+
+    assertThat(instance.stateVariables, hasEntry("foo", "bar"));
+    verify(workflowDao).checkStateVariableValueLength("foo", "bar");
   }
 
   @Test
