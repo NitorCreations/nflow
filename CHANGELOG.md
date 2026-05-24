@@ -4,7 +4,6 @@
 
 - Upgrade to Spring 7
 - BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper` (see details below)
-- Use Spring Boot 4 in `nflow-examples`
 
 **Details**
 
