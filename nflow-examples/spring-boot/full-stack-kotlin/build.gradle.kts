@@ -1,32 +1,22 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val nflowExplorer: Configuration by configurations.creating
 val logbackVersion: String by project
 val nflowVersion: String by project
 
-fun DependencyHandler.springBoot(name: String) = create(
-        group = "org.springframework.boot",
-        name = "spring-boot-starter-$name"
-)
-
-fun DependencyHandler.logback(name: String) = create(
-        group = "ch.qos.logback",
-        name = name,
-        version = logbackVersion
-)
-
-fun DependencyHandler.nflow(name: String) = create(
-        group = "io.nflow",
-        name = name,
-        version = nflowVersion
-)
-
 plugins {
     base
-    kotlin("jvm") version "1.6.0"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.6.21"
-    id("org.springframework.boot") version "2.4.2"
-    id("io.spring.dependency-management") version "1.0.8.RELEASE"
+    kotlin("jvm") version "2.3.20"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.3.20"
+    id("org.springframework.boot") version "3.5.3"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "nflow-kotlin"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
 }
 
 repositories {
@@ -35,49 +25,42 @@ repositories {
     maven { url = uri("https://plugins.gradle.org/m2/") }
 }
 
-group = "nflow-kotlin"
-version = "0.0.1-SNAPSHOT"
-
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation(springBoot("jdbc"))
-    implementation(springBoot("web"))
-    implementation(logback("logback-classic"))
-    implementation(nflow("nflow-rest-api-spring-web"))
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("ch.qos.logback:logback-classic")
+    implementation("io.nflow:nflow-rest-api-spring-web:$nflowVersion")
 
-    runtimeOnly("com.h2database:h2:2.2.220")
+    runtimeOnly("com.h2database:h2:2.4.240")
 
     testImplementation(kotlin("test"))
-    testImplementation(springBoot("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
 
-    nflowExplorer(
-            group = "io.nflow",
-            name = "nflow-explorer",
-            version = nflowVersion,
-            ext = "tar.gz"
-    )
+    nflowExplorer("io.nflow:nflow-explorer:$nflowVersion@tar.gz")
 }
 
-kotlin.sourceSets["main"].kotlin.srcDirs("src")
-kotlin.sourceSets["test"].kotlin.srcDirs("test")
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_25)
+    }
+    sourceSets["main"].kotlin.srcDirs("src")
+    sourceSets["test"].kotlin.srcDirs("test")
+}
 
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
-task<Copy>("resolveNflowExplorer") {
+tasks.register<Copy>("resolveNflowExplorer") {
     from(tarTree(resources.gzip(configurations["nflowExplorer"].singleFile)))
-    destinationDir = file("$buildDir/resources/main/static/explorer")
+    into(layout.buildDirectory.dir("resources/main/static/explorer"))
 }
 
 tasks {
     withType<ProcessResources> {
-        dependsOn(get("resolveNflowExplorer"))
-    }
-
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+        dependsOn(named("resolveNflowExplorer"))
     }
 
     withType<Test> {
