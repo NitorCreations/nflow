@@ -34,6 +34,7 @@ import io.nflow.engine.service.WorkflowInstanceService;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.TestDefinition;
 import io.nflow.engine.workflow.definition.TestWorkflow;
+import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -67,7 +68,12 @@ public class StateExecutionImplTest {
   }
 
   private void createExecution() {
-    execution = new StateExecutionImpl(instance, objectStringMapper, workflowDao, workflowInstancePreProcessor,
+    execution = new StateExecutionImpl(instance, new TestDefinition("test", TestDefinition.START_1), objectStringMapper,
+        workflowDao, workflowInstancePreProcessor, workflowInstanceService);
+  }
+
+  private void createExecution(WorkflowDefinition definition) {
+    execution = new StateExecutionImpl(instance, definition, objectStringMapper, workflowDao, workflowInstancePreProcessor,
         workflowInstanceService);
   }
 
@@ -259,6 +265,70 @@ public class StateExecutionImplTest {
   }
 
   @Test
+  public void setVariableThrowsWhenNameMatchesStateVar() {
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
+    WorkflowStateMethod method = mock(WorkflowStateMethod.class);
+    when(method.hasParameter("foo")).thenReturn(true);
+    when(definition.getMethod("myState")).thenReturn(method);
+    createExecution(definition);
+
+    assertThrows(IllegalArgumentException.class, () -> execution.setVariable("foo", "bar"));
+    verify(workflowDao).checkStateVariableValueLength("foo", "bar");
+  }
+
+  @Test
+  public void setVariableObjectThrowsWhenNameMatchesStateVar() {
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
+    WorkflowStateMethod method = mock(WorkflowStateMethod.class);
+    when(method.hasParameter("foo")).thenReturn(true);
+    when(definition.getMethod("myState")).thenReturn(method);
+    Data testData = new Data(42, "hello");
+    String testValue = "testValue";
+    when(objectStringMapper.convertFromObject("foo", testData)).thenReturn(testValue);
+    createExecution(definition);
+
+    assertThrows(IllegalArgumentException.class, () -> execution.setVariable("foo", testData));
+    verify(workflowDao).checkStateVariableValueLength("foo", testValue);
+  }
+
+  @Test
+  public void setVariableDoesNotThrowWhenNameDoesNotMatchStateVar() {
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
+    WorkflowStateMethod method = mock(WorkflowStateMethod.class);
+    when(method.hasParameter("foo")).thenReturn(false);
+    when(definition.getMethod("myState")).thenReturn(method);
+    createExecution(definition);
+
+    execution.setVariable("foo", "bar");
+
+    assertThat(instance.stateVariables, hasEntry("foo", "bar"));
+    verify(workflowDao).checkStateVariableValueLength("foo", "bar");
+  }
+
+  @Test
+  public void setVariableInternalAllowsNameMatchingStateVar() {
+    WorkflowDefinition definition = mock(WorkflowDefinition.class);
+    createExecution(definition);
+
+    execution.setVariableInternal("foo", "bar");
+
+    assertThat(instance.stateVariables, hasEntry("foo", "bar"));
+    verify(workflowDao).checkStateVariableValueLength("foo", "bar");
+  }
+
+  @Test
+  public void setVariableInternalNullValueIsNoOp() {
+    execution.setVariableInternal("foo", null);
+
+    assertThat(instance.stateVariables.containsKey("foo"), is(false));
+  }
+
+  @Test
+  public void setVariableInternalNullNameThrowsException() {
+    assertThrows(NullPointerException.class, () -> execution.setVariableInternal(null, "bar"));
+  }
+
+  @Test
   public void getSignalWorks() {
     when(workflowDao.getSignal(instance.id)).thenReturn(Optional.of(42));
 
@@ -292,56 +362,54 @@ public class StateExecutionImplTest {
 
   @Test
   public void exceedingMaxRetriesInFailureStateGoesToErrorState() {
-    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.FAILED);
+    handleRetryMaxRetriesExceeded(TestDefinition.FAILED);
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR)));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 
   @Test
   public void exceedingMaxRetriesInNonFailureStateGoesToFailureState() {
-    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.START_1);
+    handleRetryMaxRetriesExceeded(TestDefinition.START_1);
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.FAILED)));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 
   @Test
   public void exceedingMaxRetriesInNonFailureStateGoesToErrorStateWhenNoFailureStateIsDefined() {
-    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.START_2);
+    handleRetryMaxRetriesExceeded(TestDefinition.START_2);
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR)));
     assertThat(execution.getNextActivation(), is(notNullValue()));
   }
 
   @Test
   public void exceedingMaxRetriesInErrorStateStopsProcessing() {
-    handleRetryMaxRetriesExceeded(TestDefinition.START_1, TestDefinition.ERROR);
+    handleRetryMaxRetriesExceeded(TestDefinition.ERROR);
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR)));
     assertThat(execution.getNextActivation(), is(nullValue()));
   }
 
   @Test
   public void handleRetryAfterSetsActivationWhenMaxRetriesIsNotExceeded() {
-    TestWorkflow def = new TestWorkflow();
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setState(TestWorkflow.START_WITHOUT_FAILURE)
         .setBusinessKey("business").build();
     createExecution();
 
-    execution.handleRetryAfter(tomorrow, def);
+    execution.handleRetryAfter(tomorrow);
 
     assertThat(execution.getNextState(), is(nullValue()));
     assertThat(execution.getNextActivation(), is(equalTo(tomorrow)));
   }
 
-  private void handleRetryMaxRetriesExceeded(WorkflowState initialState, WorkflowState currentState) {
-    TestDefinition def = new TestDefinition("x", initialState);
+  private void handleRetryMaxRetriesExceeded(WorkflowState currentState) {
     instance = new WorkflowInstance.Builder().setId(99).setExternalId("ext").setRetries(88).setState(currentState)
         .setBusinessKey("business").build();
     createExecution();
-    execution.handleRetryAfter(tomorrow, def);
+    execution.handleRetryAfter(tomorrow);
   }
 
   @Test
   public void handleFailureGoesToFailureState() {
-    handleFailure(TestDefinition.START_1, TestDefinition.START_1);
+    handleFailure(TestDefinition.START_1);
 
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.FAILED)));
     assertThat(execution.getNextActivation(), is(notNullValue()));
@@ -350,7 +418,7 @@ public class StateExecutionImplTest {
 
   @Test
   public void handleFailureGoesToErrorStateWhenFailureStateIsNotDefined() {
-    handleFailure(TestDefinition.START_2, TestDefinition.START_2);
+    handleFailure(TestDefinition.START_2);
 
     assertThat(execution.isRetry(), is(false));
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR)));
@@ -360,7 +428,7 @@ public class StateExecutionImplTest {
 
   @Test
   public void handleFailureStopsProcessingWhenProcessingErrorState() {
-    handleFailure(TestDefinition.START_2, TestDefinition.ERROR);
+    handleFailure(TestDefinition.ERROR);
 
     assertThat(execution.isRetry(), is(false));
     assertThat(execution.getNextState(), is(equalTo(TestDefinition.ERROR)));
@@ -379,11 +447,10 @@ public class StateExecutionImplTest {
     assertThat(execution.getNewBusinessKey(), is(equalTo(newKey)));
   }
 
-  private void handleFailure(WorkflowState initialState, WorkflowState currentState) {
-    TestDefinition def = new TestDefinition("x", initialState);
+  private void handleFailure(WorkflowState currentState) {
     instance = new WorkflowInstance.Builder().setState(currentState).build();
     createExecution();
-    execution.handleFailure(def, "reason");
+    execution.handleFailure("reason");
   }
 
   static class Data {

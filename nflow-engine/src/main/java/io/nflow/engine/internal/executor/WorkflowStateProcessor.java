@@ -154,7 +154,7 @@ class WorkflowStateProcessor implements Runnable {
     int subsequentStateExecutions = 0;
     while (instance.status == executing && !shutdownRequested.get()) {
       startTime = now();
-      StateExecutionImpl execution = new StateExecutionImpl(instance, objectMapper, workflowInstanceDao,
+      StateExecutionImpl execution = new StateExecutionImpl(instance, definition, objectMapper, workflowInstanceDao,
           workflowInstancePreProcessor, workflowInstances);
       listenerContext = new ListenerContext(definition, instance, execution);
       WorkflowInstanceAction.Builder actionBuilder = new WorkflowInstanceAction.Builder(instance);
@@ -192,10 +192,10 @@ class WorkflowStateProcessor implements Runnable {
             }
           }
           execution.setNextStateReason(reason);
-          execution.handleRetryAfter(retryAfter, definition);
+          execution.handleRetryAfter(retryAfter);
         } else {
           logger.error("Handler threw an exception and retrying is not allowed, going to failure state.", thrown);
-          execution.handleFailure(definition, "Handler threw an exception and retrying is not allowed");
+          execution.handleFailure("Handler threw an exception and retrying is not allowed");
         }
       } finally {
         if (saveInstanceState) {
@@ -552,11 +552,11 @@ class WorkflowStateProcessor implements Runnable {
       } else if (nextAction.isRetry()) {
         execution.setNextState(currentState);
         execution.setRetry(true);
-        execution.handleRetryAfter(nextAction.getActivation(), definition);
+        execution.handleRetryAfter(nextAction.getActivation());
       } else {
         execution.setNextState(nextAction.getNextState());
       }
-      objectMapper.storeArguments(execution, method, args);
+      objectMapper.storeArguments(method, args, execution::setVariableInternal);
       return nextAction;
     }
 

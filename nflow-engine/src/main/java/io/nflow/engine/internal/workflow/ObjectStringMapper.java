@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-
-import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
-import jakarta.inject.Inject;
+import java.util.function.BiConsumer;
 
 import org.springframework.stereotype.Component;
 
@@ -15,10 +13,12 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.nflow.engine.config.EngineConfiguration.EngineObjectMapperSupplier;
 import io.nflow.engine.config.NFlow;
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.StateExecution;
+import jakarta.inject.Inject;
 
 @Component
 public class ObjectStringMapper {
@@ -72,8 +72,7 @@ public class ObjectStringMapper {
   }
 
   @SuppressWarnings("unchecked")
-  public void storeArguments(StateExecution execution,
-      WorkflowStateMethod method, Object[] args) {
+  public void storeArguments(WorkflowStateMethod method, Object[] args, BiConsumer<String, String> setVariable) {
     StateParameter[] params = method.params;
     for (int i = 0; i < params.length; i++) {
       StateParameter param = params[i];
@@ -96,7 +95,7 @@ public class ObjectStringMapper {
       } else {
         sVal = convertFromObject(param.key, value);
       }
-      execution.setVariable(param.key, sVal);
+      setVariable.accept(param.key, sVal);
     }
   }
 
