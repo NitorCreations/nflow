@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
-import jakarta.annotation.Nonnull;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.model.ModelObject;
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -25,11 +25,13 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
+import jakarta.annotation.Nonnull;
 
 public class StateExecutionImpl extends ModelObject implements StateExecution {
 
   private static final Logger LOG = getLogger(StateExecutionImpl.class);
   private final WorkflowInstance instance;
+  private final WorkflowDefinition definition;
   private final ObjectStringMapper objectMapper;
   private final WorkflowInstanceDao workflowDao;
   private final WorkflowInstancePreProcessor workflowInstancePreProcessor;
@@ -49,9 +51,11 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   private boolean historyCleaningForced = false;
   private String businessKey;
 
-  public StateExecutionImpl(WorkflowInstance instance, ObjectStringMapper objectMapper, WorkflowInstanceDao workflowDao,
+  public StateExecutionImpl(WorkflowInstance instance, WorkflowDefinition definition, ObjectStringMapper objectMapper,
+      WorkflowInstanceDao workflowDao,
       WorkflowInstancePreProcessor workflowInstancePreProcessor, WorkflowInstanceService workflowInstanceService) {
     this.instance = instance;
+    this.definition = definition;
     this.objectMapper = objectMapper;
     this.workflowDao = workflowDao;
     this.workflowInstancePreProcessor = workflowInstancePreProcessor;
@@ -135,6 +139,9 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
       return;
     }
     workflowDao.checkStateVariableValueLength(name, value);
+    WorkflowStateMethod method = definition.getMethod(instance.state);
+    Assert.isTrue(method == null || Stream.of(method.params).noneMatch(p -> p.key.equals(name)),
+        "Calling setVariable with name that matches @StateVar argument is not allowed");
     instance.stateVariables.put(name, value);
   }
 
@@ -142,6 +149,16 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
   public void setVariable(@Nonnull String name, Object value) {
     requireNonNull(name, "State variable name cannot be null");
     setVariable(name, objectMapper.convertFromObject(name, value));
+  }
+
+  @Override
+  public void setVariableInternal(@Nonnull String name, String value) {
+    requireNonNull(name, "State variable name cannot be null");
+    if (value == null) {
+      return;
+    }
+    workflowDao.checkStateVariableValueLength(name, value);
+    instance.stateVariables.put(name, value);
   }
 
   public void setNextActivation(DateTime activation) {
@@ -285,16 +302,16 @@ public class StateExecutionImpl extends ModelObject implements StateExecution {
     return historyCleaningForced;
   }
 
-  public void handleRetryAfter(DateTime activation, WorkflowDefinition definition) {
+  public void handleRetryAfter(DateTime activation) {
     if (getRetries() >= definition.getSettings().maxRetries) {
       isRetryCountExceeded = true;
-      handleFailure(definition, "Max retry count exceeded");
+      handleFailure("Max retry count exceeded");
     } else {
       setNextActivation(activation);
     }
   }
 
-  public void handleFailure(WorkflowDefinition definition, String failureReason) {
+  public void handleFailure(String failureReason) {
     setRetry(false);
     String currentStateName = getCurrentStateName();
     WorkflowState failureState = definition.getFailureTransitions().get(currentStateName);

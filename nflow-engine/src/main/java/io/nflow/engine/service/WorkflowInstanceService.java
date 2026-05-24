@@ -147,7 +147,7 @@ public class WorkflowInstanceService {
     Assert.notNull(action, "Workflow instance action can not be null");
     Assert.notNull(expectedState, "Expected state can not be null");
     Assert.notNull(validationMode, "Validation mode can not be null");
-    Assert.isTrue(expectedState.isPresent() || validationMode == StateTransitionValidationMode.doNotValidate,
+    Assert.isTrue(validationMode == StateTransitionValidationMode.doNotValidate || expectedState.isPresent(),
         "Validation mode must be doNotValidate when expected state is not given");
     Assert.notNull(workflowDefinitionService, "workflowDefinitionService can not be null");
     try {
