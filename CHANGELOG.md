@@ -13,8 +13,8 @@
     - `validationMode` must be `doNotValidate` when `expectedState` is not given.
     - Keep `WorkflowInstanceService.updateWorkflowInstance` that does not take `expectedState` and `validationMode` parameters to maintain backwards compatibility, but mark it as deprecated.
     - Add `WorkflowDefinition.isAllowedStateTransition` helper for checking allowed transitions.
-  - `StateExecution.setVariable(...)` now throws error if called for any `@StateVar` state variables.
-    - Either stop calling `StateExecution.setVariable(...)` or remove `@StateVar` state variable.
+  - `StateExecution.setVariable(...)` now throws error if called for any `@StateVar` state variable of the method.
+    - Either stop calling `StateExecution.setVariable(...)` or remove `@StateVar` state variable from the method.
     - Previous behavior: `StateExecution.setVariable(...)` was silently ignored.
 - `nflow-rest-api`
   - Add optional expected state and state transition validations for workflow instance updates.
