@@ -417,11 +417,29 @@ public abstract class WorkflowDefinition extends ModelObject {
    *          Current workflow state name.
    * @param newState
    *          New workflow state name.
+   * @param validationMode
+   *          Defines which transitions are allowed.
    * @return True if transition is allowed, false otherwise.
    */
-  public boolean isAllowedStateTransition(String currentState, String newState) {
-    return ofNullable(allowedTransitions.get(currentState))
+  public boolean isAllowedStateTransition(String currentState, String newState, StateTransitionValidationMode validationMode) {
+    return switch (validationMode) {
+    case allowNormal -> isNormalTransitionAllowed(currentState, newState);
+    case allowFailure -> isFailureTransitionAllowed(currentState, newState);
+    case allowNormalAndFailure -> isNormalTransitionAllowed(currentState, newState)
+        || isFailureTransitionAllowed(currentState, newState);
+    case doNotValidate -> true;
+    };
+  }
+
+  private Boolean isNormalTransitionAllowed(String currentState, String newState) {
+    return ofNullable(this.allowedTransitions.get(currentState))
         .map(nextStates -> nextStates.contains(newState))
+        .orElse(Boolean.FALSE);
+  }
+
+  private Boolean isFailureTransitionAllowed(String currentState, String newState) {
+    return ofNullable(this.failureTransitions.get(currentState))
+      .map(failureState -> failureState.name().equals(newState))
         .orElse(Boolean.FALSE);
   }
 

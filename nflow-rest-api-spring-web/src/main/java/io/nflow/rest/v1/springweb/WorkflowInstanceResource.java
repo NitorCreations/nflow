@@ -17,9 +17,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.inject.Inject;
-import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.definition.StateTransitionValidationMode;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
@@ -57,6 +55,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -107,16 +107,19 @@ public class WorkflowInstanceResource extends SpringWebResource {
   @ApiResponses({ @ApiResponse(responseCode = "204", description = "If update was successful"),
       @ApiResponse(responseCode = "400",
           description = "If instance could not be updated, for example when state variable value was too long"),
-      @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
+      @ApiResponse(responseCode = "409",
+          description = "If no update was done, for example because workflow was executing, expected state did not match, or requested state transition was not allowed") })
   public Mono<ResponseEntity<?>> updateWorkflowInstance(
       @Parameter(description = "Internal id for workflow instance") @PathVariable("id") long id,
       @RequestParam(value = "expectedState", required = false) @Parameter(
           description = "Expected current state of workflow instance") String expectedState,
+      @RequestParam(value = "validationMode", required = false) @Parameter(
+          description = "Validation mode for state transition check, ignored when expectedState is not given") StateTransitionValidationMode validationMode,
       @RequestBody @Valid @Parameter(description = "Submitted workflow instance information",
           required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> wrapBlocking(() -> {
       boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao,
-          ofNullable(expectedState));
+                    expectedState, validationMode);
       return (updated ? noContent() : status(CONFLICT)).build();
     }));
   }

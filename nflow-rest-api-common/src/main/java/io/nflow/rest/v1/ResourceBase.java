@@ -9,6 +9,7 @@ import static java.lang.Boolean.parseBoolean;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.util.Optional.ofNullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ import io.nflow.engine.service.NflowNotFoundException;
 import io.nflow.engine.service.WorkflowDefinitionService;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.definition.StateTransitionValidationMode;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.instance.QueryWorkflowInstances;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
@@ -100,9 +102,10 @@ public abstract class ResourceBase {
     return response;
   }
 
-  public boolean updateWorkflowInstance(long id, UpdateWorkflowInstanceRequest req,
+    public boolean updateWorkflowInstance(long id, UpdateWorkflowInstanceRequest req,
       WorkflowInstanceFactory workflowInstanceFactory, WorkflowInstanceService workflowInstances,
-      WorkflowInstanceDao workflowInstanceDao, Optional<String> expectedState) {
+      WorkflowInstanceDao workflowInstanceDao, String expectedState,
+      StateTransitionValidationMode validationMode) {
     WorkflowInstance.Builder builder = workflowInstanceFactory.newWorkflowInstanceBuilder().setId(id)
         .setNextActivation(req.nextActivationTime);
     String msg = defaultIfBlank(req.actionDescription, "");
@@ -144,7 +147,10 @@ public abstract class ResourceBase {
         .setStateText(trimToNull(msg))
         .setExecutionEnd(now())
         .build();
-    return workflowInstances.updateWorkflowInstance(instance, action, expectedState);
+    Optional<String> normalizedExpectedState = ofNullable(trimToNull(expectedState));
+    StateTransitionValidationMode resolvedValidationMode = ofNullable(validationMode)
+      .orElse(StateTransitionValidationMode.doNotValidate);
+    return workflowInstances.updateWorkflowInstance(instance, action, normalizedExpectedState, resolvedValidationMode);
   }
 
   public Stream<ListWorkflowInstanceResponse> listWorkflowInstances(Set<Long> ids, Set<String> types, Long parentWorkflowId,
