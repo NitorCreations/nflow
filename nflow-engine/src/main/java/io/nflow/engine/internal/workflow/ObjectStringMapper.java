@@ -7,9 +7,6 @@ import java.util.function.BiConsumer;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.config.EngineConfiguration.EngineJsonMapperSupplier;
 import io.nflow.engine.config.NFlow;
@@ -17,6 +14,9 @@ import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
 import io.nflow.engine.workflow.definition.StateExecution;
 import jakarta.inject.Inject;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class ObjectStringMapper {
