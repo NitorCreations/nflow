@@ -12,15 +12,14 @@ java {
 }
 
 repositories {
-	mavenLocal()
 	mavenCentral()
 	maven {
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
-    }
+		url = uri('https://central.sonatype.com/repository/maven-snapshots/')
+	}
 }
 
 configurations {
-  nflowExplorer
+	nflowExplorer
 }
 
 dependencies {
@@ -36,8 +35,8 @@ dependencies {
 }
 
 task resolveNflowExplorer(type: Copy) {
-  into layout.buildDirectory.dir("resources/main/static/explorer")
-  from { tarTree(resources.gzip(configurations.nflowExplorer.singleFile)) }
+	into layout.buildDirectory.dir("resources/main/static/explorer")
+	from { tarTree(resources.gzip(configurations.nflowExplorer.singleFile)) }
 }
 
 test {
