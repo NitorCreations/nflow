@@ -1,5 +1,6 @@
 plugins {
-	id 'org.springframework.boot' version '4.0.6'
+	id 'org.springframework.boot' version '3.5.3'
+	id 'io.spring.dependency-management' version '1.1.7'
 	id 'de.undercouch.download' version '5.6.0'
 	id 'java'
 }
@@ -24,9 +25,7 @@ configurations {
 }
 
 dependencies {
-	implementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
-	testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
-	implementation 'io.nflow:nflow-rest-api-spring-web:11.0.0-SNAPSHOT'
+	implementation 'io.nflow:nflow-rest-api-spring-web:10.0.2'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2:2.4.240'

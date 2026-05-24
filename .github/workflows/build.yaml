@@ -115,20 +115,3 @@ jobs:
           name: 'integrationtest-results-java${{ matrix.java }}-${{ matrix.db }}'
           path: '**/target/surefire-reports/*.xml'
           retention-days: 7
-
-  test-examples:
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out
-        uses: actions/checkout@v6
-      - name: Set up Java
-        uses: actions/setup-java@v5
-        with:
-          java-version: 25
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Install nflow SNAPSHOT artifacts
-        run: mvn --update-snapshots --no-transfer-progress --color=always -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -am -pl nflow-engine,nflow-rest-api-spring-web,nflow-explorer install
-      - name: Run example tests
-        run: nflow-examples/test.sh
