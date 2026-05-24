@@ -12,7 +12,7 @@ nFlow is a battle-proven solution for orchestrating business processes. Dependin
 
 nFlow has been under development since 2014-01-14 and version 1.0.0 was released on 2014-09-13.
 
-![Build status](https://github.com/NitorCreations/nflow/actions/workflows/build.yaml/badge.svg?event=push)
+![Build status](https://github.com/NitorCreations/nflow/actions/workflows/build.yaml/badge.svg?event=push) [![Maven Central](https://img.shields.io/maven-central/v/io.nflow/nflow-root.svg?label=Maven%20Central)](https://central.sonatype.com/namespace/io.nflow) [![Coverage Status](https://img.shields.io/coveralls/NitorCreations/nflow.svg)](https://coveralls.io/r/NitorCreations/nflow?branch=master)
 
 ## Key Features
 
