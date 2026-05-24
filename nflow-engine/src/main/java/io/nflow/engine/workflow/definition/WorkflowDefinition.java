@@ -2,6 +2,7 @@ package io.nflow.engine.workflow.definition;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,7 +119,7 @@ public abstract class WorkflowDefinition extends ModelObject {
    *          The states to be registered for the workflow. If null, the states will be scanned.
    */
   protected WorkflowDefinition(String type, WorkflowState initialState, WorkflowState errorState, WorkflowSettings settings,
-                               Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
+      Map<String, WorkflowStateMethod> stateMethods, Collection<WorkflowState> states) {
     this(type, initialState, errorState, settings, stateMethods, states, true);
   }
 
@@ -407,6 +408,39 @@ public abstract class WorkflowDefinition extends ModelObject {
    */
   public boolean isStartState(String state) {
     return getState(state).getType() == WorkflowStateType.start;
+  }
+
+  /**
+   * Return true if state transition from currentState to newState is allowed by workflow definition.
+   *
+   * @param currentState
+   *          Current workflow state name.
+   * @param newState
+   *          New workflow state name.
+   * @param validationMode
+   *          Defines which transitions are allowed.
+   * @return True if transition is allowed, false otherwise.
+   */
+  public boolean isAllowedStateTransition(String currentState, String newState, StateTransitionValidationMode validationMode) {
+    return switch (validationMode) {
+    case allowNormal -> isNormalTransitionAllowed(currentState, newState);
+    case allowFailure -> isFailureTransitionAllowed(currentState, newState);
+    case allowNormalAndFailure -> isNormalTransitionAllowed(currentState, newState)
+        || isFailureTransitionAllowed(currentState, newState);
+    case doNotValidate -> true;
+    };
+  }
+
+  private Boolean isNormalTransitionAllowed(String currentState, String newState) {
+    return ofNullable(this.allowedTransitions.get(currentState))
+        .map(nextStates -> nextStates.contains(newState))
+        .orElse(Boolean.FALSE);
+  }
+
+  private Boolean isFailureTransitionAllowed(String currentState, String newState) {
+    return ofNullable(this.failureTransitions.get(currentState))
+      .map(failureState -> failureState.name().equals(newState))
+        .orElse(Boolean.FALSE);
   }
 
   /**

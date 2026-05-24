@@ -1,10 +1,12 @@
 package io.nflow.rest.v1.jaxrs;
 
+import static io.nflow.engine.workflow.definition.StateTransitionValidationMode.allowNormal;
+import static io.nflow.engine.workflow.definition.StateTransitionValidationMode.doNotValidate;
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.externalChange;
-import static java.util.Collections.emptySet;
-import static java.util.EnumSet.allOf;
 import static jakarta.ws.rs.core.Response.Status.CREATED;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static java.util.Collections.emptySet;
+import static java.util.EnumSet.allOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -25,8 +27,6 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import jakarta.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +60,7 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.SetSignalRequest;
 import io.nflow.rest.v1.msg.SetSignalResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
+import jakarta.ws.rs.core.Response;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowInstanceResourceTest {
@@ -116,8 +117,9 @@ public class WorkflowInstanceResourceTest {
   @Test
   public void whenUpdatingWithoutParametersNothingHappens() {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
-    verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class));
+    makeRequest(() -> resource.updateWorkflowInstance(3, null, null, req));
+    verify(workflowInstances, never()).updateWorkflowInstance(any(WorkflowInstance.class), any(WorkflowInstanceAction.class),
+        eq(Optional.empty()), eq(doNotValidate));
   }
 
   @Test
@@ -125,12 +127,55 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.actionDescription = "my desc";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+  }
+
+  @Test
+  public void whenUpdatingWithValidationModeItIsForwardedToService() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.actionDescription = "my desc";
+
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", allowNormal, req));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(allowNormal));
+    WorkflowInstance instance = instanceCaptor.getValue();
+    assertThat(instance.state, is(req.state));
+    assertThat(instance.status, is(nullValue()));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+  }
+
+  @Test
+  public void whenUpdatingWithBlankExpectedStateItIsTreatedAsMissing() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.actionDescription = "my desc";
+
+    makeRequest(() -> resource.updateWorkflowInstance(3, "   ", null, req));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.empty()), eq(doNotValidate));
+    WorkflowInstanceAction action = actionCaptor.getValue();
+    assertThat(action.stateText, is(req.actionDescription));
+  }
+
+  @Test
+  public void whenUpdatingWithBlankExpectedStateValidationModeIsForwarded() {
+    UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
+    req.actionDescription = "my desc";
+
+    makeRequest(() -> resource.updateWorkflowInstance(3, "   ", allowNormal, req));
+
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.empty()), eq(allowNormal));
     WorkflowInstanceAction action = actionCaptor.getValue();
     assertThat(action.stateText, is(req.actionDescription));
   }
@@ -140,9 +185,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.state = "newState";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -156,9 +202,10 @@ public class WorkflowInstanceResourceTest {
     req.state = "newState";
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(req.state));
     assertThat(instance.status, is(nullValue()));
@@ -172,9 +219,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(nullValue()));
     assertThat(instance.status, is(nullValue()));
@@ -189,9 +237,10 @@ public class WorkflowInstanceResourceTest {
     req.nextActivationTime = new DateTime(2014, 11, 12, 17, 55, 0);
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.state, is(nullValue()));
     assertThat(instance.status, is(nullValue()));
@@ -206,9 +255,10 @@ public class WorkflowInstanceResourceTest {
     req.stateVariables.put("foo", "bar");
     req.stateVariables.put("textNode", new TextNode("text"));
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.getStateVariable("foo"), is("bar"));
     assertThat(instance.getStateVariable("textNode"), is("\"text\""));
@@ -221,9 +271,10 @@ public class WorkflowInstanceResourceTest {
     UpdateWorkflowInstanceRequest req = new UpdateWorkflowInstanceRequest();
     req.businessKey = "modifiedKey";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.businessKey, is(req.businessKey));
     WorkflowInstanceAction action = actionCaptor.getValue();
@@ -237,9 +288,10 @@ public class WorkflowInstanceResourceTest {
     req.businessKey = "modifiedKey";
     req.actionDescription = "description";
 
-    makeRequest(() -> resource.updateWorkflowInstance(3, req));
+    makeRequest(() -> resource.updateWorkflowInstance(3, "expectedState", null, req));
 
-    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture());
+    verify(workflowInstances).updateWorkflowInstance(instanceCaptor.capture(), actionCaptor.capture(),
+        eq(Optional.of("expectedState")), eq(doNotValidate));
     WorkflowInstance instance = instanceCaptor.getValue();
     assertThat(instance.businessKey, is(req.businessKey));
     WorkflowInstanceAction action = actionCaptor.getValue();
@@ -317,8 +369,7 @@ public class WorkflowInstanceResourceTest {
     when(workflowInstances.getWorkflowInstance(42, emptySet(), null, false)).thenReturn(instance);
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
-    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, null, false)
-    );
+    ListWorkflowInstanceResponse result = getEntity(() -> resource.fetchWorkflowInstance(42, null, null, null, false));
     verify(workflowInstances).getWorkflowInstance(42, emptySet(), null, false);
     assertEquals(resp, result);
   }
@@ -332,8 +383,7 @@ public class WorkflowInstanceResourceTest {
     ListWorkflowInstanceResponse resp = mock(ListWorkflowInstanceResponse.class);
     when(listWorkflowConverter.convert(eq(instance), any(Set.class), eq(false))).thenReturn(resp);
     ListWorkflowInstanceResponse result = getEntity(
-        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), null, 10L, false)
-    );
+        () -> resource.fetchWorkflowInstance(42, allOf(ApiWorkflowInstanceInclude.class), null, 10L, false));
     verify(workflowInstances).getWorkflowInstance(42, includes, 10L, false);
     assertEquals(resp, result);
   }

@@ -2,7 +2,6 @@ package io.nflow.rest.v1.jaxrs;
 
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_PATH;
 import static io.nflow.rest.v1.ResourcePaths.NFLOW_WORKFLOW_INSTANCE_TAG;
-import static java.util.Optional.ofNullable;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.MediaType.WILDCARD;
 import static jakarta.ws.rs.core.Response.created;
@@ -10,6 +9,7 @@ import static jakarta.ws.rs.core.Response.noContent;
 import static jakarta.ws.rs.core.Response.ok;
 import static jakarta.ws.rs.core.Response.status;
 import static jakarta.ws.rs.core.Response.Status.CONFLICT;
+import static java.util.Optional.ofNullable;
 
 import java.net.URI;
 import java.util.Collections;
@@ -17,23 +17,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.inject.Inject;
-import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.OPTIONS;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Response;
-
 import org.springframework.stereotype.Component;
 
 import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.service.WorkflowInstanceInclude;
 import io.nflow.engine.service.WorkflowInstanceService;
+import io.nflow.engine.workflow.definition.StateTransitionValidationMode;
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType;
@@ -60,6 +49,17 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.OPTIONS;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
 
 @Path(NFLOW_WORKFLOW_INSTANCE_PATH)
 @Consumes(APPLICATION_JSON)
@@ -118,12 +118,17 @@ public class WorkflowInstanceResource extends JaxRsResource {
   @ApiResponses({ @ApiResponse(responseCode = "204", description = "If update was successful"),
       @ApiResponse(responseCode = "400",
           description = "If instance could not be updated, for example when state variable value was too long"),
-      @ApiResponse(responseCode = "409", description = "If workflow was executing and no update was done") })
+      @ApiResponse(responseCode = "409",
+          description = "If no update was done, for example because workflow was executing, expected state did not match, or requested state transition was not allowed") })
   public Response updateWorkflowInstance(@Parameter(description = "Internal id for workflow instance") @PathParam("id") long id,
+      @QueryParam("expectedState") @Parameter(description = "Expected current state of workflow instance") String expectedState,
+      @QueryParam("validationMode") @Parameter(
+          description = "Validation mode for state transition check; must be doNotValidate when expectedState is not given") StateTransitionValidationMode validationMode,
       @Valid @RequestBody(description = "Submitted workflow instance information",
           required = true) UpdateWorkflowInstanceRequest req) {
     return handleExceptions(() -> {
-      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao);
+      boolean updated = super.updateWorkflowInstance(id, req, workflowInstanceFactory, workflowInstances, workflowInstanceDao,
+          expectedState, validationMode);
       return (updated ? noContent() : status(CONFLICT));
     });
   }

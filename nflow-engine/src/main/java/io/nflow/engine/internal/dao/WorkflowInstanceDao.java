@@ -484,7 +484,7 @@ public class WorkflowInstanceDao {
         + executorInfo.getExecutorId();
   }
 
-  public boolean updateNotRunningWorkflowInstance(WorkflowInstance instance) {
+  public boolean updateNotRunningWorkflowInstance(WorkflowInstance instance, Optional<String> expectedState) {
     List<String> vars = new ArrayList<>();
     List<Object> args = new ArrayList<>();
     if (instance.state != null) {
@@ -509,6 +509,10 @@ public class WorkflowInstanceDao {
     }
     String sql = "update nflow_workflow set " + join(vars, ", ") + " where id = ? and executor_id is null";
     args.add(instance.id);
+    if (expectedState.isPresent()) {
+      sql += " and state = ?";
+      args.add(expectedState.get());
+    }
     return jdbc.update(sql, args.toArray()) == 1;
   }
 

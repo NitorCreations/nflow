@@ -1,6 +1,10 @@
 package io.nflow.engine.workflow.definition;
 
 import static io.nflow.engine.workflow.definition.TestDefinition.START_1;
+import static io.nflow.engine.workflow.definition.StateTransitionValidationMode.allowFailure;
+import static io.nflow.engine.workflow.definition.StateTransitionValidationMode.allowNormal;
+import static io.nflow.engine.workflow.definition.StateTransitionValidationMode.allowNormalAndFailure;
+import static io.nflow.engine.workflow.definition.StateTransitionValidationMode.doNotValidate;
 import static io.nflow.engine.workflow.definition.TestDefinitionWithStateTypes.STATE_1;
 import static io.nflow.engine.workflow.definition.TestDefinitionWithStateTypes.STATE_2;
 import static io.nflow.engine.workflow.definition.TestState.BEGIN;
@@ -13,6 +17,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -99,5 +105,54 @@ public class WorkflowDefinitionTest {
     assertThat(workflow.isStartState(STATE_2.name()), equalTo(false));
     assertThat(workflow.isStartState(ERROR.name()), equalTo(false));
     assertThat(workflow.isStartState(DONE.name()), equalTo(false));
+  }
+
+  @Test
+  public void isAllowedStateTransitionReturnsTrueForPermittedTransition() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), DONE.name(), allowNormal));
+  }
+
+  @Test
+  public void isAllowedStateTransitionReturnsFalseForNonPermittedTransition() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertFalse(workflow.isAllowedStateTransition(BEGIN.name(), POLL.name(), allowNormal));
+    assertFalse(workflow.isAllowedStateTransition("unknown", DONE.name(), allowNormal));
+  }
+
+  @Test
+  public void isAllowedStateTransitionWorksForAllowFailureMode() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), ERROR.name(), allowFailure));
+    assertFalse(workflow.isAllowedStateTransition(BEGIN.name(), DONE.name(), allowFailure));
+    assertFalse(workflow.isAllowedStateTransition("unknown", ERROR.name(), allowFailure));
+  }
+
+  @Test
+  public void isAllowedStateTransitionWorksForAllowFailureModeWithNonInternedString() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    String newState = new String(ERROR.name());
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), newState, allowFailure));
+  }
+
+  @Test
+  public void isAllowedStateTransitionWorksForAllowNormalAndFailureMode() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), DONE.name(), allowNormalAndFailure));
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), ERROR.name(), allowNormalAndFailure));
+    assertFalse(workflow.isAllowedStateTransition(BEGIN.name(), POLL.name(), allowNormalAndFailure));
+  }
+
+  @Test
+  public void isAllowedStateTransitionWorksForDoNotValidateMode() {
+    WorkflowDefinition workflow = new TestDefinitionWithStateTypes("y", BEGIN);
+
+    assertTrue(workflow.isAllowedStateTransition(BEGIN.name(), POLL.name(), doNotValidate));
+    assertTrue(workflow.isAllowedStateTransition("unknown", "nonexistent", doNotValidate));
   }
 }
