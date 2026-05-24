@@ -199,6 +199,7 @@
             <compilerArgs>
               <arg>-Xlint:all</arg>
               <arg>-Xlint:-processing</arg>
+              <arg>-Xlint:-this-escape</arg>
             </compilerArgs>
             <parameters>true</parameters>
             <showWarnings>true</showWarnings>

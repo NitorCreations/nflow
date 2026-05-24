@@ -20,7 +20,6 @@ public class DeleteHistoryWorkflow extends WorkflowDefinition {
 
   public static final String TYPE = "deleteHistory";
 
-  @SuppressWarnings("this-escape")
   public DeleteHistoryWorkflow() {
     super(TYPE, BEGIN, ERROR,
         new WorkflowSettings.Builder().setHistoryDeletableAfter(Period.ZERO).setDeleteHistoryCondition(() -> true).build());

@@ -12,7 +12,6 @@ import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.WorkflowDefinition;
 import io.nflow.engine.workflow.definition.WorkflowSettings;
 
-@SuppressWarnings("this-escape")
 public class DummyTestWorkflow extends WorkflowDefinition {
 
   public static final String DUMMY_TYPE = "dummy";

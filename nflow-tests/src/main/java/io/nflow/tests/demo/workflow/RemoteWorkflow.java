@@ -15,7 +15,6 @@ public class RemoteWorkflow extends WorkflowDefinition {
 
     public static final String REMOTE_WORKFLOW_TYPE = "remote";
 
-    @SuppressWarnings("this-escape")
     public RemoteWorkflow() {
       super(REMOTE_WORKFLOW_TYPE, BEGIN, ERROR);
       setDescription("Remote workflow: start -> process -> end");
