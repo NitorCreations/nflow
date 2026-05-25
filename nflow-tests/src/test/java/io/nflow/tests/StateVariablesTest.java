@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +27,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.context.annotation.Bean;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.workflow.curated.CronWorkflow;
 import io.nflow.engine.workflow.definition.WorkflowState;
@@ -44,6 +40,8 @@ import io.nflow.tests.demo.workflow.StateWorkflow;
 import io.nflow.tests.demo.workflow.TestState;
 import io.nflow.tests.extension.NflowServerConfig;
 import jakarta.ws.rs.core.Response;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StateVariablesTest extends AbstractNflowTest {
@@ -69,11 +67,11 @@ public class StateVariablesTest extends AbstractNflowTest {
 
   @Test
   @Order(1)
-  public void createStateWorkflow() throws JsonProcessingException, IOException {
+  public void createStateWorkflow() throws JacksonException {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = STATE_WORKFLOW_TYPE;
     createRequest.externalId = randomUUID().toString();
-    createRequest.stateVariables.put("requestData", new ObjectMapper().readTree("{\"test\":5}"));
+    createRequest.stateVariables.put("requestData", new JsonMapper().readTree("{\"test\":5}"));
     createResponse = assertTimeoutPreemptively(ofSeconds(10), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
   }

@@ -5,8 +5,8 @@ import static io.nflow.rest.config.jaxrs.PathConstants.NFLOW_REST_JAXRS_PATH_PRE
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.list;
-import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SECURITY;
-import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
+import static org.eclipse.jetty.ee9.servlet.ServletContextHandler.NO_SECURITY;
+import static org.eclipse.jetty.ee9.servlet.ServletContextHandler.NO_SESSIONS;
 import static org.joda.time.DateTimeUtils.currentTimeMillis;
 
 import java.io.File;
@@ -25,24 +25,21 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import io.dropwizard.metrics.servlets.AdminServlet;
 import org.apache.cxf.transport.servlet.CXFServlet;
+import org.eclipse.jetty.ee9.servlet.DefaultServlet;
+import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
-import org.eclipse.jetty.server.handler.RequestLogHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.Container;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.resource.ResourceCollection;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +52,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import com.nitorcreations.core.utils.KillProcess;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.dropwizard.metrics.servlets.AdminServlet;
 import io.nflow.jetty.config.NflowJettyConfiguration;
 import io.nflow.jetty.servlet.MetricsServletContextListener;
 import io.nflow.jetty.spring.NflowAnnotationConfigWebApplicationContext;
@@ -99,7 +97,7 @@ public class StartNflow
     setupJmx(server, env);
     setupServerConnector(server, host, port);
     ServletContextHandler context = setupServletContextHandler(env.getRequiredProperty("extra.resource.directories", String[].class));
-    setupHandlers(server, context, env);
+    setupHandlers(server, context.get(), env);
     setupSpring(context, env);
     setupCxf(context);
     setupMetricsAdminServlet(context);
@@ -163,27 +161,24 @@ public class StartNflow
     server.addConnector(connector);
   }
 
-  @SuppressWarnings("resource")
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "Message is ok")
   private ServletContextHandler setupServletContextHandler(String... extraStaticResources) throws IOException {
     ServletContextHandler context = new ServletContextHandler(NO_SESSIONS | NO_SECURITY);
 
-    // workaround for a jetty bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=364936
-    Resource.setDefaultUseCaches(false);
-
-    List<String> extraResources = new ArrayList<>();
+    List<Resource> extraResources = new ArrayList<>();
+    ResourceFactory resourceFactory = ResourceFactory.root();
     for (String path : extraStaticResources) {
       File f = new File(path);
       if (f.isDirectory()) {
-        extraResources.add(f.getCanonicalFile().toURI().toURL().toString());
+        extraResources.add(resourceFactory.newResource(f.getCanonicalFile().toURI()));
       }
     }
     // add all 'static' resource roots locations from classpath
     for (URL url : list(this.getClass().getClassLoader().getResources("static"))) {
-      extraResources.add(url.toString());
+      extraResources.add(resourceFactory.newResource(url));
     }
     if (!extraResources.isEmpty()) {
-      context.setBaseResource(new ResourceCollection(extraResources.toArray(new String[extraResources.size()])));
+      context.setBaseResource(ResourceFactory.combine(extraResources));
       logger.info("Extra static resources served from {}", extraResources);
     }
     context.setWelcomeFiles(new String[] { "index.html", "service.json" });
@@ -212,7 +207,7 @@ public class StartNflow
 
     context.addServlet(holder, "/nflow/ui/*");
 
-    MimeTypes mimeTypes = context.getMimeTypes();
+    MimeTypes.Mutable mimeTypes = context.getMimeTypes();
     mimeTypes.addMimeMapping("ttf", "application/font-sfnt");
     mimeTypes.addMimeMapping("otf", "application/font-sfnt");
     mimeTypes.addMimeMapping("woff", "application/font-woff");
@@ -225,16 +220,13 @@ public class StartNflow
     return context;
   }
 
-  private void setupHandlers(final HandlerWrapper server, final Handler context, PropertyResolver env) {
-    HandlerCollection handlers = new HandlerCollection();
-    server.setHandler(handlers);
-    handlers.addHandler(context);
-    handlers.addHandler(createAccessLogHandler(env));
+  private void setupHandlers(final Server server, final Handler context, PropertyResolver env) {
+    server.setHandler(context);
+    server.setRequestLog(createAccessLog(env));
   }
 
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-  private RequestLogHandler createAccessLogHandler(PropertyResolver env) {
-    RequestLogHandler requestLogHandler = new RequestLogHandler();
+  private RequestLog createAccessLog(PropertyResolver env) {
     String directory = env.getProperty("nflow.jetty.accesslog.directory", "log");
     new File(directory).mkdir();
 
@@ -246,7 +238,6 @@ public class StartNflow
 
     // Copy-paste and modify CustomRequestLog.EXTENDED_NCSA_FORMAT to use custom timestamp and log latency
     String logFormat = "%{client}a - %u %{yyyy-MM-dd:HH:mm:ss Z|" + timeZoneId + "}t \"%r\" %s %O \"%{Referer}i\" \"%{User-Agent}i\" %{ms}T";
-    requestLogHandler.setRequestLog(new CustomRequestLog(logWriter, logFormat));
-    return requestLogHandler;
+    return new CustomRequestLog(logWriter, logFormat);
   }
 }

@@ -1,6 +1,5 @@
 package io.nflow.engine.config;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.lang.Runtime.getRuntime;
 
 import java.util.concurrent.ThreadFactory;
@@ -15,10 +14,11 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.joda.JodaModule;
 
 /**
  * The main Spring configuration class for nFlow engine.
@@ -27,7 +27,7 @@ import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 @ComponentScan("io.nflow.engine")
 public class EngineConfiguration {
 
-  public interface EngineObjectMapperSupplier extends Supplier<ObjectMapper> {}
+  public interface EngineJsonMapperSupplier extends Supplier<JsonMapper> {}
 
   /**
    * Creates a workflow instance executor for processing workflow instances.
@@ -65,10 +65,11 @@ public class EngineConfiguration {
    */
   @Bean
   @NFlow
-  public EngineObjectMapperSupplier nflowObjectMapper() {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setDefaultPropertyInclusion(NON_EMPTY);
-    mapper.registerModule(new JodaModule());
+  public EngineJsonMapperSupplier nflowJsonMapper() {
+    JsonMapper mapper = JsonMapper.builder()
+        .changeDefaultPropertyInclusion(v -> v.withValueInclusion(Include.NON_EMPTY))
+        .addModule(new JodaModule())
+        .build();
     return () -> mapper;
   }
 

@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -31,26 +30,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 import io.nflow.engine.workflow.instance.WorkflowInstance;
 import io.nflow.engine.workflow.instance.WorkflowInstanceAction;
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.StringNode;
 
 @ExtendWith(MockitoExtension.class)
 public class ListWorkflowInstanceConverterTest {
   @Mock
-  private ObjectMapper nflowObjectMapper;
+  private JsonMapper nflowJsonMapper;
   @InjectMocks
-  private ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
+  private final ListWorkflowInstanceConverter converter = new ListWorkflowInstanceConverter();
 
   @Test
-  public void convertWithActionsWorks() throws IOException {
+  public void convertWithActionsWorks() {
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder().setId(929).setType(stateExecution).setState("oState")
         .setStateText("oState desc").setRetryNo(1).setExecutionStart(now().minusDays(1)).setExecutionEnd(now().plusDays(1))
         .setExecutorId(999).build();
@@ -67,8 +65,8 @@ public class ListWorkflowInstanceConverterTest {
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
-    when(nflowObjectMapper.readTree("1")).thenReturn(node1);
-    when(nflowObjectMapper.readTree("quux")).thenReturn(nodeQuux);
+    when(nflowJsonMapper.readTree("1")).thenReturn(node1);
+    when(nflowJsonMapper.readTree("quux")).thenReturn(nodeQuux);
 
     Map<String, Object> expectedStateVariables = new LinkedHashMap<>();
     expectedStateVariables.put("foo", node1);
@@ -76,8 +74,8 @@ public class ListWorkflowInstanceConverterTest {
 
     ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(actions, currentStateVariables), false);
 
-    verify(nflowObjectMapper).readTree("1");
-    verify(nflowObjectMapper).readTree("quux");
+    verify(nflowJsonMapper).readTree("1");
+    verify(nflowJsonMapper).readTree("quux");
     assertThat(resp.id, is(i.id));
     assertThat(resp.stateVariables, is(expectedStateVariables));
     assertThat(resp.status, is(i.status.name()));
@@ -100,7 +98,7 @@ public class ListWorkflowInstanceConverterTest {
   }
 
   @Test
-  public void convertWithActionStateVariablesWorks() throws IOException {
+  public void convertWithActionStateVariablesWorks() {
     Map<String, String> stateVariables = new LinkedHashMap<>();
     stateVariables.put("foo", "1");
     stateVariables.put("bar", "quux");
@@ -117,8 +115,8 @@ public class ListWorkflowInstanceConverterTest {
 
     JsonNode node1 = mock(JsonNode.class);
     JsonNode nodeQuux = mock(JsonNode.class);
-    when(nflowObjectMapper.readTree("1")).thenReturn(node1);
-    when(nflowObjectMapper.readTree("quux")).thenReturn(nodeQuux);
+    when(nflowJsonMapper.readTree("1")).thenReturn(node1);
+    when(nflowJsonMapper.readTree("quux")).thenReturn(nodeQuux);
 
     Map<String, Object> expectedStateVariables = new LinkedHashMap<>();
     expectedStateVariables.put("foo", node1);
@@ -126,8 +124,8 @@ public class ListWorkflowInstanceConverterTest {
 
     ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(actions, actionStateVariables), true);
 
-    verify(nflowObjectMapper).readTree("1");
-    verify(nflowObjectMapper).readTree("quux");
+    verify(nflowJsonMapper).readTree("1");
+    verify(nflowJsonMapper).readTree("quux");
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));
     assertThat(resp.type, is(i.type));
@@ -238,7 +236,7 @@ public class ListWorkflowInstanceConverterTest {
   }
 
   @Test
-  public void convertWithMalformedStateVariablesWorks() throws JsonProcessingException, IOException {
+  public void convertWithMalformedStateVariablesWorks() throws JacksonException {
     DateTime now = now();
     WorkflowInstanceAction a = new WorkflowInstanceAction.Builder()
         .setId(929).setType(stateExecution).setState("oStDateTimeate").setStateText("oState desc").setRetryNo(1)
@@ -254,16 +252,16 @@ public class ListWorkflowInstanceConverterTest {
         .setStatus(inProgress).setType("dummy").setBusinessKey("businessKey").setExternalId("externalId").setState("cState")
         .setStateText("cState desc").setNextActivation(now).setActions(asList(a)).setStateVariables(stateVariables).build();
 
-    when(nflowObjectMapper.readTree(value1)).thenThrow(new JsonParseException(null, "bad data"));
-    when(nflowObjectMapper.readTree(value2)).thenThrow(new JsonParseException(null, "bad data"));
+    when(nflowJsonMapper.readTree(value1)).thenThrow(new StreamReadException("bad data"));
+    when(nflowJsonMapper.readTree(value2)).thenThrow(new StreamReadException("bad data"));
 
     ListWorkflowInstanceResponse resp = converter.convert(i, EnumSet.of(currentStateVariables), false);
 
-    verify(nflowObjectMapper).readTree(value1);
-    verify(nflowObjectMapper).readTree(value2);
+    verify(nflowJsonMapper).readTree(value1);
+    verify(nflowJsonMapper).readTree(value2);
     Map<String, Object> expectedStateVariables = new LinkedHashMap<>();
-    expectedStateVariables.put("foo", new TextNode(value1));
-    expectedStateVariables.put("bar", new TextNode(value2));
+    expectedStateVariables.put("foo", new StringNode(value1));
+    expectedStateVariables.put("bar", new StringNode(value2));
 
     assertThat(resp.id, is(i.id));
     assertThat(resp.status, is(i.status.name()));

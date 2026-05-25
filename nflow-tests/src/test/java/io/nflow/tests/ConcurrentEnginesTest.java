@@ -1,7 +1,7 @@
 package io.nflow.tests;
 
 import static io.nflow.engine.workflow.instance.WorkflowInstance.WorkflowInstanceStatus.finished;
-import static io.nflow.tests.AbstractNflowTest.nflowObjectMapper;
+import static io.nflow.tests.AbstractNflowTest.nflowJsonMapper;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.FIBONACCI_TYPE;
 import static io.nflow.tests.demo.workflow.FibonacciWorkflow.VAR_REQUEST_DATA;
 import static java.lang.Thread.sleep;
@@ -37,8 +37,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
@@ -51,6 +49,7 @@ import io.nflow.tests.extension.SkipTestMethodsAfterFirstFailureExtension;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.UriBuilder;
+import tools.jackson.databind.JsonNode;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith({ SpringExtension.class, SkipTestMethodsAfterFirstFailureExtension.class })
@@ -110,7 +109,7 @@ public class ConcurrentEnginesTest {
     req.type = FIBONACCI_TYPE;
     req.businessKey = UNIQUE_KEY;
     req.activationTime = now().plusSeconds(5);
-    req.stateVariables.put(VAR_REQUEST_DATA, nflowObjectMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
+    req.stateVariables.put(VAR_REQUEST_DATA, nflowJsonMapper().valueToTree(new FibonacciWorkflow.FiboData(5)));
 
     for (int i = 0; i < WORKFLOWS; ++i) {
       var resp = workflowInstanceResource.put(req, CreateWorkflowInstanceResponse.class);
@@ -158,7 +157,7 @@ public class ConcurrentEnginesTest {
       var data = makeRequest(uri);
       var meters = data.get("meters");
       AtomicInteger count = new AtomicInteger();
-      meters.fieldNames().forEachRemaining(field -> {
+      meters.propertyNames().forEach(field -> {
         if (field.matches("concur\\.[0-9]+\\.fibonacci\\.begin\\.success-count")) {
           count.set(meters.get(field).get("count").asInt());
         }

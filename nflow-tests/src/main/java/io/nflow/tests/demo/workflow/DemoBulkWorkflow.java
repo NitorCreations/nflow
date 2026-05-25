@@ -7,7 +7,7 @@ import static org.joda.time.DateTime.now;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import io.nflow.engine.workflow.curated.BulkWorkflow;
 import io.nflow.engine.workflow.definition.StateExecution;
@@ -38,7 +38,7 @@ public class DemoBulkWorkflow extends BulkWorkflow {
     return new WorkflowInstance.Builder()
         .setType(DEMO_WORKFLOW_TYPE)
         .setNextActivation(null)
-        .putStateVariable("requestData", childData.asText())
+        .putStateVariable("requestData", childData.asString())
         .build();
   }
 

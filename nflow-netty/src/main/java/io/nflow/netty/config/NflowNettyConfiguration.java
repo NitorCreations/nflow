@@ -1,6 +1,5 @@
 package io.nflow.netty.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nflow.engine.config.NFlow;
 import io.nflow.rest.config.RestConfiguration;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +11,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -74,8 +72,7 @@ public class NflowNettyConfiguration implements WebFluxConfigurer {
 
   @Override
   public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-    ObjectMapper objectMapper = new Jackson2ObjectMapperBuilder().findModulesViaServiceLoader(true).build();
-    configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper));
-    configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper));
+    configurer.defaultCodecs().jacksonJsonDecoder(new JacksonJsonDecoder());
+    configurer.defaultCodecs().jacksonJsonEncoder(new JacksonJsonEncoder());
   }
 }

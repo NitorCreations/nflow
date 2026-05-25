@@ -8,19 +8,19 @@ import static org.joda.time.Period.days;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-
 import io.nflow.engine.service.MaintenanceConfiguration.ConfigurationItem;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.joda.JodaModule;
 
 class MaintenanceConfigurationDeserializationTest {
 
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
 
   MaintenanceConfigurationDeserializationTest() {
-    mapper = new ObjectMapper();
-    mapper.setDefaultPropertyInclusion(NON_EMPTY);
-    mapper.registerModule(new JodaModule());
+    mapper = JsonMapper.builder()
+        .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
+        .addModule(new JodaModule())
+        .build();
   }
 
   @Test

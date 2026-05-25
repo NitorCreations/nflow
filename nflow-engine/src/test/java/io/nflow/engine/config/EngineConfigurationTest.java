@@ -20,9 +20,9 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class EngineConfigurationTest {
@@ -35,7 +35,7 @@ public class EngineConfigurationTest {
   private ThreadFactory threadFactory;
 
   @InjectMocks
-  private EngineConfiguration configuration = new EngineConfiguration();
+  private final EngineConfiguration configuration = new EngineConfiguration();
 
   @Test
   public void dispatcherPoolExecutorInstantiationFromThreads() {
@@ -70,11 +70,11 @@ public class EngineConfigurationTest {
   }
 
   @Test
-  public void nflowObjectMapperInstantiated() throws Exception {
-    ObjectMapper mapper = configuration.nflowObjectMapper().get();
+  public void nflowJsonMapperInstantiated() throws Exception {
+    JsonMapper mapper = configuration.nflowJsonMapper().get();
     String nowS = mapper.writeValueAsString(DateTime.now());
-    assertThat(mapper.readerFor(DateTime.class).readValue(nowS, DateTime.class), isA(DateTime.class));
-    assertThat(mapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
+    assertThat(mapper.readerFor(DateTime.class).<DateTime>readValue(nowS), isA(DateTime.class));
+    assertThat(mapper.serializationConfig().getDefaultPropertyInclusion().getValueInclusion(),
         is(JsonInclude.Include.NON_EMPTY));
   }
 }

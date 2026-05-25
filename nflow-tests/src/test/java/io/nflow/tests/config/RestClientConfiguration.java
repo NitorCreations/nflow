@@ -1,7 +1,6 @@
 package io.nflow.tests.config;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static java.util.Arrays.asList;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
@@ -15,11 +14,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-
 import jakarta.inject.Inject;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.joda.JodaModule;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @Configuration
 public class RestClientConfiguration {
@@ -47,17 +45,16 @@ public class RestClientConfiguration {
   }
 
   @Bean
-  public ObjectMapper objectMapper() {
-    // this must be kept in sync with the server side (nflowRestObjectMapper)
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setDefaultPropertyInclusion(NON_EMPTY);
-    mapper.registerModule(new JodaModule());
-    mapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-    return mapper;
+  public JsonMapper jsonMapper() {
+    // this must be kept in sync with the server side (nflowRestJsonMapper)
+    return JsonMapper.builder()
+        .changeDefaultPropertyInclusion(v -> v.withValueInclusion(NON_EMPTY))
+        .addModule(new JodaModule())
+        .build();
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(ObjectMapper mapper) {
+  public JacksonJsonProvider jsonProvider(JsonMapper mapper) {
     return new JacksonJsonProvider(mapper);
   }
 

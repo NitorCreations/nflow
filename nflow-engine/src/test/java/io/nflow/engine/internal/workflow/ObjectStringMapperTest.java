@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import io.nflow.engine.internal.workflow.WorkflowStateMethod.StateParameter;
 import io.nflow.engine.workflow.definition.Mutable;
@@ -20,7 +20,7 @@ import io.nflow.engine.workflow.definition.StateExecution;
 @ExtendWith(MockitoExtension.class)
 class ObjectStringMapperTest {
 
-  private final ObjectStringMapper mapper = new ObjectStringMapper(ObjectMapper::new);
+  private final ObjectStringMapper mapper = new ObjectStringMapper(JsonMapper::new);
 
   @Mock
   StateExecution execution;

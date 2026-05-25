@@ -1,19 +1,13 @@
 package io.nflow.jetty.config;
 
-import static io.nflow.rest.config.RestConfiguration.REST_OBJECT_MAPPER;
+import static io.nflow.rest.config.RestConfiguration.REST_JSON_MAPPER;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 
 import java.util.Arrays;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import javax.sql.DataSource;
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
-import jakarta.ws.rs.ext.RuntimeDelegate;
 
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
@@ -33,7 +27,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nflow.engine.config.NFlow;
 import io.nflow.jetty.mapper.CustomValidationExceptionMapper;
 import io.nflow.rest.config.RestConfiguration;
@@ -44,6 +37,13 @@ import io.nflow.rest.v1.jaxrs.StatisticsResource;
 import io.nflow.rest.v1.jaxrs.WorkflowDefinitionResource;
 import io.nflow.rest.v1.jaxrs.WorkflowExecutorResource;
 import io.nflow.rest.v1.jaxrs.WorkflowInstanceResource;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.ext.RuntimeDelegate;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @Configuration
 @ComponentScan("io.nflow.jetty")
@@ -58,7 +58,7 @@ public class NflowJettyConfiguration {
   public Server jaxRsServer(WorkflowInstanceResource workflowInstanceResource,
       WorkflowDefinitionResource workflowDefinitionResource, WorkflowExecutorResource workflowExecutorResource,
       StatisticsResource statisticsResource, MaintenanceResource maintenanceResource,
-      @Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper, JAXRSBeanValidationInInterceptor validationInInterceptor,
+      @Named(REST_JSON_MAPPER) JsonMapper nflowRestJsonMapper, JAXRSBeanValidationInInterceptor validationInInterceptor,
       JAXRSBeanValidationOutInterceptor validationOutInterceptor) {
     JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(jaxRsApiApplication(), JAXRSServerFactoryBean.class);
     factory.setServiceBeans(Arrays.< Object >asList(
@@ -73,7 +73,7 @@ public class NflowJettyConfiguration {
       factory.setAddress('/' + factoryAddress);
     }
     factory.setProviders(asList(
-        jsonProvider(nflowRestObjectMapper),
+        jsonProvider(nflowRestJsonMapper),
         corsHeadersProvider(),
         new WebApplicationExceptionMapper(),
         new CustomValidationExceptionMapper(),
@@ -117,8 +117,8 @@ public class NflowJettyConfiguration {
   }
 
   @Bean
-  public JacksonJsonProvider jsonProvider(@Named(REST_OBJECT_MAPPER) ObjectMapper nflowRestObjectMapper) {
-    return new JacksonJsonProvider(nflowRestObjectMapper);
+  public JacksonJsonProvider jsonProvider(@Named(REST_JSON_MAPPER) JsonMapper nflowRestJsonMapper) {
+    return new JacksonJsonProvider(nflowRestJsonMapper);
   }
 
   @Bean(destroyMethod = "shutdown")

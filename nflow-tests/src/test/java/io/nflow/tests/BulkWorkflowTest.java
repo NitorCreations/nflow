@@ -59,7 +59,7 @@ public class BulkWorkflowTest extends AbstractNflowTest {
     req.type = DEMO_BULK_WORKFLOW_TYPE;
     req.stateVariables.put(BulkWorkflow.VAR_CONCURRENCY, 3);
     List<Integer> childData = IntStream.rangeClosed(1, CHILDREN_COUNT).boxed().collect(toList());
-    req.stateVariables.put(BulkWorkflow.VAR_CHILD_DATA, nflowObjectMapper().valueToTree(childData));
+    req.stateVariables.put(BulkWorkflow.VAR_CHILD_DATA, nflowJsonMapper().valueToTree(childData));
     CreateWorkflowInstanceResponse resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
     workflowId = resp.id;

@@ -13,16 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status.Family;
-
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nflow.rest.v1.msg.Action;
 import io.nflow.rest.v1.msg.CreateWorkflowInstanceRequest;
@@ -31,6 +26,9 @@ import io.nflow.rest.v1.msg.ListWorkflowInstanceResponse;
 import io.nflow.rest.v1.msg.UpdateWorkflowInstanceRequest;
 import io.nflow.tests.demo.workflow.CreditApplicationWorkflow;
 import io.nflow.tests.extension.NflowServerConfig;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status.Family;
+import tools.jackson.databind.json.JsonMapper;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
@@ -53,7 +51,7 @@ public class PreviewCreditApplicationWorkflowTest extends AbstractNflowTest {
     req.startState = PREVIEW_CREDIT_APPLICATION.name();
     req.businessKey = randomUUID().toString();
     req.stateVariables.put("requestData",
-        (new ObjectMapper()).valueToTree(new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
+        (new JsonMapper()).valueToTree(new CreditApplicationWorkflow.CreditApplication("CUST123", new BigDecimal(100l))));
     req.externalId = randomUUID().toString();
     resp = createWorkflowInstance(req);
     assertThat(resp.id, notNullValue());
