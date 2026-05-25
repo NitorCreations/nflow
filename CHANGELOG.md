@@ -6,6 +6,7 @@
 - Add optional expected state and state transition validations for workflow instance updates
 - Upgrade to Spring 7
 - BREAKING CHANGE: Replace `ObjectMapper` with `JsonMapper` (see details below)
+- License changed from EUPL to Apache License, Version 2.0
 
 **Details**
 

@@ -105,8 +105,8 @@ public class NflowJettyConfiguration {
     feature.setContactUrl("https://nflow.io/");
     feature.setDescription(
         "Manage workflow instances, definitions and executors, query statistics and run maintenance jobs. The services are also used by nFlow Explorer.");
-    feature.setLicense("European Union Public Licence V. 1.1");
-    feature.setLicenseUrl("https://raw.githubusercontent.com/NitorCreations/nflow/master/EUPL-v1.1-Licence.txt");
+    feature.setLicense("Apache License, Version 2.0");
+    feature.setLicenseUrl("https://www.apache.org/licenses/LICENSE-2.0.txt");
     feature.setTitle("nFlow REST API");
     feature.setVersion("1");
     return feature;
