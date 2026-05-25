@@ -44,9 +44,6 @@
 **Highlights**
 
 - Dependency updates
-- nFlow Explorer
-  - Migrate from npm to pnpm
-
 
 **Details**
 
