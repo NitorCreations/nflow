@@ -13,9 +13,6 @@ java {
 
 repositories {
 	mavenCentral()
-	maven {
-		url = uri('https://central.sonatype.com/repository/maven-snapshots/')
-	}
 }
 
 configurations {
@@ -25,13 +22,13 @@ configurations {
 dependencies {
 	implementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
 	testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
-	implementation 'io.nflow:nflow-rest-api-spring-web:11.0.0-SNAPSHOT'
+	implementation 'io.nflow:nflow-rest-api-spring-web:11.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2:2.4.240'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	nflowExplorer "io.nflow:nflow-explorer:11.0.0-SNAPSHOT@tar.gz"
+	nflowExplorer "io.nflow:nflow-explorer:11.0.0@tar.gz"
 }
 
 task resolveNflowExplorer(type: Copy) {
