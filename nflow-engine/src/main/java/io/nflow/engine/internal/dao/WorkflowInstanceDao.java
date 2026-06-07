@@ -399,11 +399,16 @@ public class WorkflowInstanceDao {
     }
     WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
         .setType(recovery).setStateText("Recovered");
-    for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorIds)) {
-      WorkflowInstanceAction action = builder.setState(instance.state()).setWorkflowInstanceId(instance.id()).build();
-      recoverWorkflowInstance(instance.id(), instance.executorId(), action);
+    List<Integer> recoverableExecutorIdList = new ArrayList<>(recoverableExecutorIds);
+    for (int from = 0; from < recoverableExecutorIdList.size(); from += 100) {
+      List<Integer> recoverableExecutorIdChunk = recoverableExecutorIdList.subList(from,
+          min(from + 100, recoverableExecutorIdList.size()));
+      for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorIdChunk)) {
+        WorkflowInstanceAction action = builder.setState(instance.state()).setWorkflowInstanceId(instance.id()).build();
+        recoverWorkflowInstance(instance.id(), instance.executorId(), action);
+      }
+      recoverableExecutorIdChunk.forEach(executorInfo::markRecovered);
     }
-    recoverableExecutorIds.forEach(executorInfo::markRecovered);
   }
 
   private List<InstanceInfo> getRecoverableWorkflowInstances(Collection<Integer> executorsIds) {
