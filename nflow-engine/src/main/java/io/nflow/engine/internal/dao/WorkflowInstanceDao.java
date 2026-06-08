@@ -111,6 +111,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
   private final int workflowInstanceTypeCacheSize;
+  private final int maxInParameters;
   private final AtomicBoolean disableBatchUpdates = new AtomicBoolean();
   AtomicInteger instanceStateTextLength = new AtomicInteger();
   AtomicInteger actionStateTextLength = new AtomicInteger();
@@ -145,6 +146,7 @@ public class WorkflowInstanceDao {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
     workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
+    maxInParameters = env.getProperty("nflow.db.max_in_parameters", Integer.class, 1000);
     instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
     actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
     stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
@@ -407,12 +409,18 @@ public class WorkflowInstanceDao {
   }
 
   private List<InstanceInfo> getRecoverableWorkflowInstances(Collection<Integer> executorsIds) {
-    StringBuilder sql = new StringBuilder(128);
-    sql.append("select id, executor_id, state from nflow_workflow where executor_id in (");
-    executorsIds.forEach(id -> sql.append("?,"));
-    sql.setCharAt(sql.length() - 1, ')');
-    return jdbc.query(sql.toString(), (rs, rowNum) -> new InstanceInfo(rs.getLong(1), rs.getInt(2), rs.getString(3)),
-      (Object[]) executorsIds.toArray(new Integer[0]));
+    List<Integer> ids = new ArrayList<>(executorsIds);
+    List<InstanceInfo> result = new ArrayList<>();
+    for (int i = 0; i < ids.size(); i += maxInParameters) {
+      List<Integer> batch = ids.subList(i, min(i + maxInParameters, ids.size()));
+      StringBuilder sql = new StringBuilder(64);
+      sql.append("select id, executor_id, state from nflow_workflow where executor_id in (");
+      batch.forEach(id -> sql.append("?,"));
+      sql.setCharAt(sql.length() - 1, ')');
+      result.addAll(jdbc.query(sql.toString(), (rs, rowNum) -> new InstanceInfo(rs.getLong(1), rs.getInt(2), rs.getString(3)),
+          (Object[]) batch.toArray(new Integer[0])));
+    }
+    return result;
   }
 
   private void recoverWorkflowInstance(final long instanceId, int expectedExecutorId, final WorkflowInstanceAction action) {
