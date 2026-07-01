@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Basic information of workflow instance")
 @SuppressFBWarnings(value = "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD", justification = "jackson reads dto fields")
-@SuppressWarnings("this-escape")
 public class ListWorkflowInstanceResponse extends ModelObject {
 
   @Schema(description = "Identifier of the workflow instance", requiredMode = REQUIRED)
