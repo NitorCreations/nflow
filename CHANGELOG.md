@@ -2,6 +2,8 @@
 
 **Highlights**
 
+- Use Spring Boot 4 in `nflow-examples`
+
 **Details**
 
 ## 11.0.0 (2026-05-28)

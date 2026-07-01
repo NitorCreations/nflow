@@ -1,6 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '3.5.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '4.0.6'
 	id 'de.undercouch.download' version '5.6.0'
 	id 'java'
 }
@@ -13,29 +12,28 @@ java {
 }
 
 repositories {
-	mavenLocal()
 	mavenCentral()
-	maven {
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
-    }
 }
 
 configurations {
-  nflowExplorer
+	nflowExplorer
 }
 
 dependencies {
-	implementation 'io.nflow:nflow-rest-api-spring-web:10.0.2'
+	implementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
+	testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
+	implementation 'io.nflow:nflow-rest-api-spring-web:11.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2:2.4.240'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	nflowExplorer "io.nflow:nflow-explorer:10.0.2@tar.gz"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	nflowExplorer "io.nflow:nflow-explorer:11.0.0@tar.gz"
 }
 
 task resolveNflowExplorer(type: Copy) {
-  into layout.buildDirectory.dir("resources/main/static/explorer")
-  from { tarTree(resources.gzip(configurations.nflowExplorer.singleFile)) }
+	into layout.buildDirectory.dir("resources/main/static/explorer")
+	from { tarTree(resources.gzip(configurations.nflowExplorer.singleFile)) }
 }
 
 test {
