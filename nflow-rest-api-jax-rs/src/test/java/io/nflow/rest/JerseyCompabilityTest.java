@@ -2,13 +2,13 @@ package io.nflow.rest;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import java.io.IOException;
 import java.net.URI;
 
+import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.simple.SimpleContainerFactory;
-import org.glassfish.jersey.simple.SimpleServer;
 import org.junit.jupiter.api.Test;
+
+import com.sun.net.httpserver.HttpServer;
 
 import io.nflow.rest.config.jaxrs.DateTimeParamConverterProvider;
 import io.nflow.rest.v1.jaxrs.MaintenanceResource;
@@ -17,11 +17,14 @@ import jakarta.ws.rs.core.UriBuilder;
 public class JerseyCompabilityTest {
 
   @Test
-  public void restApiWorksInJersey() throws IOException {
+  public void restApiWorksInJersey() {
     URI baseUri = UriBuilder.fromUri("http://localhost/").port(0).build();
     ResourceConfig config = new JerseyResourceConfig();
-    try (SimpleServer server = SimpleContainerFactory.create(baseUri, config)) {
-      assertNotEquals(0, server.getPort());
+    HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
+    try {
+      assertNotEquals(0, server.getAddress().getPort());
+    } finally {
+      server.stop(0);
     }
   }
 

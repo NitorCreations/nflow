@@ -3,6 +3,7 @@ package io.nflow.engine.internal.dao;
 import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
 import static io.nflow.engine.internal.dao.DaoUtil.getInt;
 import static io.nflow.engine.internal.dao.DaoUtil.getLong;
+import static io.nflow.engine.internal.dao.DaoUtil.requireGeneratedKey;
 import static io.nflow.engine.internal.dao.DaoUtil.toTimestamp;
 import static io.nflow.engine.internal.dao.NflowTable.ACTION;
 import static io.nflow.engine.internal.dao.NflowTable.STATE;
@@ -203,7 +204,8 @@ public class WorkflowInstanceDao {
         args[pos++] = variable.getValue();
       }
       sqlb.append(" select wf.id from wf");
-      return jdbc.queryForObject(sqlb.toString(), Long.class, args);
+      return ofNullable(jdbc.queryForObject(sqlb.toString(), Long.class, args))
+          .orElseThrow(() -> new IllegalStateException("Failed to insert workflow instance: no id returned"));
     } catch (DuplicateKeyException e) {
       logger.warn("Failed to insert workflow instance", e);
       return -1;
@@ -264,7 +266,7 @@ public class WorkflowInstanceDao {
         logger.warn("Failed to insert workflow instance", e);
         return -1L;
       }
-      long id = keyHolder.getKey().longValue();
+      long id = requireGeneratedKey(keyHolder, "insert workflow instance").longValue();
       insertVariables(id, 0, instance.stateVariables);
       return id;
     });
@@ -875,7 +877,7 @@ public class WorkflowInstanceDao {
         return p;
       }
     }, keyHolder);
-    return keyHolder.getKey().longValue();
+    return requireGeneratedKey(keyHolder, "insert workflow action").longValue();
   }
 
   public String getWorkflowInstanceState(long workflowInstanceId) {
@@ -982,7 +984,9 @@ public class WorkflowInstanceDao {
 
   public String getWorkflowInstanceType(long workflowInstanceId) {
     String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId,
-        id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
+        id -> ofNullable(jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id))
+            .map(String::intern)
+            .orElseThrow(() -> new IllegalStateException("Workflow type not found for workflow id " + id)));
     if (workflowTypeByWorkflowIdCache.size() > workflowInstanceTypeCacheSize) {
       workflowTypeByWorkflowIdCache.clear();
     }
