@@ -1,6 +1,6 @@
 package io.nflow.jetty.servlet;
 
-import static org.springframework.web.context.support.WebApplicationContextUtils.findWebApplicationContext;
+import static org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext;
 
 import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.dropwizard.metrics.servlets.MetricsServlet;
@@ -24,7 +24,7 @@ public class MetricsServletContextListener implements ServletContextListener {
   }
 
   private <T> T getSpringBean(Class<T> clazz, ServletContext context) {
-    return findWebApplicationContext(context).getBean(clazz);
+    return getRequiredWebApplicationContext(context).getBean(clazz);
   }
 
   @Override

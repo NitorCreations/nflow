@@ -1,6 +1,7 @@
 package io.nflow.engine.internal.dao;
 
 import static io.nflow.engine.internal.dao.DaoUtil.firstColumnLengthExtractor;
+import static io.nflow.engine.internal.dao.DaoUtil.requireGeneratedKey;
 import static java.net.InetAddress.getLocalHost;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.left;
@@ -144,7 +145,7 @@ public class ExecutorDao {
         return p;
       }
     }, keyHolder);
-    int allocatedExecutorId = keyHolder.getKey().intValue();
+    int allocatedExecutorId = requireGeneratedKey(keyHolder, "allocate executor id").intValue();
     logger.info("Joined executor group {} as executor {} running on host {} with process id {}.", executorGroup,
         allocatedExecutorId, host, pid);
     return allocatedExecutorId;

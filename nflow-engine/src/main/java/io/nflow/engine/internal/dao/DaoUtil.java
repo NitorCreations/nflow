@@ -1,5 +1,7 @@
 package io.nflow.engine.internal.dao;
 
+import static java.util.Optional.ofNullable;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -10,6 +12,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.base.BaseDateTime;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.support.KeyHolder;
 
 public class DaoUtil {
 
@@ -42,6 +45,11 @@ public class DaoUtil {
   public static Long getLong(ResultSet rs, String columnLabel) throws SQLException {
     long value = rs.getLong(columnLabel);
     return rs.wasNull() ? null : value;
+  }
+
+  public static Number requireGeneratedKey(KeyHolder keyHolder, String operation) {
+    return ofNullable(keyHolder.getKey())
+        .orElseThrow(() -> new IllegalStateException("Failed to " + operation + ": generated key was null"));
   }
 
   public static final class ColumnNamesExtractor implements ResultSetExtractor<List<String>> {
