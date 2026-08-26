@@ -112,13 +112,13 @@
     <asm.version>9.10</asm.version>
     <apache.cxf.version>4.2.1</apache.cxf.version>
     <build-helper.version>3.6.1</build-helper.version>
-    <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+    <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
     <commons.lang3.version>3.20.0</commons.lang3.version>
     <core-utils.version>1.4</core-utils.version>
     <coveralls.version>4.3.0</coveralls.version>
     <db2-jcc.version>12.1.4.0</db2-jcc.version>
     <el.version>4.0.2</el.version>
-    <frontend-maven.version>2.0.0</frontend-maven.version>
+    <frontend-maven.version>2.0.2</frontend-maven.version>
     <guice.version>7.0.0</guice.version>
     <h2.version>2.4.240</h2.version>
     <hamcrest.version>3.0</hamcrest.version>
@@ -150,8 +150,8 @@
     <maven-enforcer.version>3.6.3</maven-enforcer.version>
     <maven-gpg.version>3.2.8</maven-gpg.version>
     <maven-install.version>3.1.4</maven-install.version>
-    <maven-jacoco.version>0.8.14</maven-jacoco.version>
-    <maven-jar.version>3.5.0</maven-jar.version>
+    <maven-jacoco.version>0.8.15</maven-jacoco.version>
+    <maven-jar.version>3.5.1</maven-jar.version>
     <maven-javadoc.version>3.12.0</maven-javadoc.version>
     <maven-jxr.version>3.6.0</maven-jxr.version>
     <maven-pmd.version>3.28.0</maven-pmd.version>
@@ -180,7 +180,7 @@
     <slf4j.version>2.0.18</slf4j.version>
     <spotbugs.version>4.9.8</spotbugs.version>
     <spotbugs-contrib.version>7.6.4</spotbugs-contrib.version>
-    <spotbugs-maven-plugin.version>4.9.8.3</spotbugs-maven-plugin.version>
+    <spotbugs-maven-plugin.version>4.10.4.0</spotbugs-maven-plugin.version>
     <spring.version>7.0.7</spring.version>
     <swagger.version>2.2.50</swagger.version>
     <validation.api.version>3.1.1</validation.api.version>
@@ -416,7 +416,7 @@
                   </excludes>
                 </bannedDependencies>
                 <requireMavenVersion>
-                  <version>3.8.8</version>
+                  <version>3.9.11</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${jdk.version}</version>
