@@ -3,8 +3,31 @@
 **Highlights**
 
 - Use Spring Boot 4 in `nflow-examples`
+- Dependency updates
 
 **Details**
+
+- Dependency updates
+  - jersey 4.0.2
+  - spring 7.0.9
+  - jetty 12.1.12
+  - apache cxf 4.2.3
+  - jackson 2.22
+  - jackson-jaxrs-json-provider 3.2.2
+  - hibernate validator 9.1.3.Final
+  - logback 1.6.3
+  - db2 jcc 12.1.5.0
+  - mariadb 3.5.10
+  - mysql-connector 26.7.0
+  - ojdbc11 23.26.3.0.0
+  - postgresql 42.7.13
+  - HikariCP 7.1.0
+  - joda-time 2.14.3
+  - metrics 4.2.39
+  - reactor-netty 1.3.7
+  - swagger 2.2.54
+  - asm 9.10.1
+  - spotbugs 4.10.4
 
 ## 11.0.0 (2026-05-28)
 
