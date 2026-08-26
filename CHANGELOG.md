@@ -4,6 +4,7 @@
 
 - Use Spring Boot 4 in `nflow-examples`
 - Fix #735: workflow instances stuck after graceful shutdown
+- Recover workflow instances from dead executors in configurable chunks to avoid too large SQL `IN` clauses
 
 **Details**
 
@@ -11,6 +12,8 @@
   - Fix race condition that could leave workflow instances being stuck during graceful shutdown (#735).
     - Instances claimed by an executor just before a graceful shutdown could be left owned by that executor, and since the shutdown was marked graceful, no other node recovered them.
     - Such instances are now released when the executor's thread pool has finished shutting down, so other nodes can pick them up.
+  - Recover workflow instances from dead executors in chunks controlled by `nflow.db.max_sql_in_parameters`.
+    This avoids oversized SQL `IN` clauses, especially on SQL Server.
 
 ## 11.0.0 (2026-05-28)
 
