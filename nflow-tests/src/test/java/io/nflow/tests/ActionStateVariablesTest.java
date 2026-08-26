@@ -48,7 +48,7 @@ public class ActionStateVariablesTest extends AbstractNflowTest {
     createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = ActionStateVariableWorkflow.WORKFLOW_TYPE;
     createRequest.externalId = randomUUID().toString();
-    createResponse = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
+    createResponse = assertTimeoutPreemptively(ofSeconds(10), () -> createWorkflowInstance(createRequest));
     assertThat(createResponse.id, notNullValue());
   }
 

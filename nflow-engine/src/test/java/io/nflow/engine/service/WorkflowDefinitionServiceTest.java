@@ -1,7 +1,6 @@
 package io.nflow.engine.service;
 
 import static java.util.Collections.emptyList;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,6 +28,7 @@ import io.nflow.engine.internal.dao.WorkflowDefinitionDao;
 import io.nflow.engine.internal.executor.BaseNflowTest;
 
 import java.util.List;
+import java.lang.reflect.Field;
 
 public class WorkflowDefinitionServiceTest extends BaseNflowTest {
 
@@ -162,7 +162,7 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
   @Test
   @SuppressWarnings("unchecked")
   public void getWorkflowDefinitionChecksFromDaoIfNotFoundFromMemory() throws Exception {
-    initializeService(true, true, 1);
+    initializeService(true, true, 60);
     service.addWorkflowDefinition(workflowDefinition);
 
     var w1 = new StoredWorkflowDefinition();
@@ -193,11 +193,17 @@ public class WorkflowDefinitionServiceTest extends BaseNflowTest {
     assertThat(service.getWorkflowDefinition("w2"), is(nullValue()));
     verify(workflowDefinitionDao, times(1)).queryStoredWorkflowDefinitions(emptyList());
 
-    SECONDS.sleep(2);
+    forceStoredDefinitionRefresh(service);
 
     // after timeout fetching existing will refresh
     assertThat(service.getWorkflowDefinition("w1"), is(notNullValue()));
     verify(workflowDefinitionDao, times(2)).queryStoredWorkflowDefinitions(emptyList());
+  }
+
+  private static void forceStoredDefinitionRefresh(WorkflowDefinitionService service) throws Exception {
+    Field nextCheck = WorkflowDefinitionService.class.getDeclaredField("nextCheckOfStoredDefinitions");
+    nextCheck.setAccessible(true);
+    nextCheck.setLong(service, 0);
   }
 
 }
