@@ -111,6 +111,7 @@ public class WorkflowInstanceDao {
   private final long workflowInstanceQueryMaxActions;
   private final long workflowInstanceQueryMaxActionsDefault;
   private final int workflowInstanceTypeCacheSize;
+  private final int maxSqlInParameters;
   private final AtomicBoolean disableBatchUpdates = new AtomicBoolean();
   AtomicInteger instanceStateTextLength = new AtomicInteger();
   AtomicInteger actionStateTextLength = new AtomicInteger();
@@ -145,6 +146,7 @@ public class WorkflowInstanceDao {
       logger.info("nFlow DB batch updates are disabled (system property nflow.db.disable_batch_updates=true)");
     }
     workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
+    maxSqlInParameters = env.getProperty("nflow.db.max_sql_in_parameters", Integer.class, 1000);
     instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
     actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
     stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
@@ -399,11 +401,16 @@ public class WorkflowInstanceDao {
     }
     WorkflowInstanceAction.Builder builder = new WorkflowInstanceAction.Builder().setExecutionStart(now()).setExecutionEnd(now())
         .setType(recovery).setStateText("Recovered");
-    for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorIds)) {
-      WorkflowInstanceAction action = builder.setState(instance.state()).setWorkflowInstanceId(instance.id()).build();
-      recoverWorkflowInstance(instance.id(), instance.executorId(), action);
+    List<Integer> recoverableExecutorIdList = new ArrayList<>(recoverableExecutorIds);
+    for (int from = 0; from < recoverableExecutorIdList.size(); from += maxSqlInParameters) {
+      List<Integer> recoverableExecutorIdChunk = recoverableExecutorIdList.subList(from,
+        min(from + maxSqlInParameters, recoverableExecutorIdList.size()));
+      for (InstanceInfo instance : getRecoverableWorkflowInstances(recoverableExecutorIdChunk)) {
+        WorkflowInstanceAction action = builder.setState(instance.state()).setWorkflowInstanceId(instance.id()).build();
+        recoverWorkflowInstance(instance.id(), instance.executorId(), action);
+      }
+      recoverableExecutorIdChunk.forEach(executorInfo::markRecovered);
     }
-    recoverableExecutorIds.forEach(executorInfo::markRecovered);
   }
 
   private List<InstanceInfo> getRecoverableWorkflowInstances(Collection<Integer> executorsIds) {

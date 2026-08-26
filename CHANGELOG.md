@@ -3,8 +3,13 @@
 **Highlights**
 
 - Use Spring Boot 4 in `nflow-examples`
+- Recover workflow instances from dead executors in configurable chunks to avoid too large SQL `IN` clauses
 
 **Details**
+
+- `nflow-engine`
+  - Recover workflow instances from dead executors in chunks controlled by `nflow.db.max_sql_in_parameters`.
+    This avoids oversized SQL `IN` clauses, especially on SQL Server.
 
 ## 11.0.0 (2026-05-28)
 

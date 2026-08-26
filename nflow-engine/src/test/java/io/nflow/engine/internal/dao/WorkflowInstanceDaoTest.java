@@ -33,9 +33,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
@@ -53,17 +57,21 @@ import java.util.concurrent.CountDownLatch;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import io.nflow.engine.config.db.PgDatabaseConfiguration.PostgreSQLVariants;
 import io.nflow.engine.internal.dao.WorkflowInstanceDao.WorkflowInstanceActionRowMapper;
+import io.nflow.engine.internal.executor.InstanceInfo;
 import io.nflow.engine.internal.executor.WorkflowInstanceExecutor;
 import io.nflow.engine.internal.storage.db.SQLVariants;
 import io.nflow.engine.service.WorkflowInstanceInclude;
@@ -748,7 +756,10 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate jdbcTemplate) {
-    ExecutorDao eDao = mock(ExecutorDao.class);
+    return preparePostgreSQLDao(jdbcTemplate, mock(ExecutorDao.class), env);
+  }
+
+  private WorkflowInstanceDao preparePostgreSQLDao(JdbcTemplate jdbcTemplate, ExecutorDao eDao, Environment env) {
     lenient().when(eDao.getExecutorGroupCondition()).thenReturn("group matches");
     lenient().when(eDao.getExecutorId()).thenReturn(42);
     NamedParameterJdbcTemplate namedJdbc = mock(NamedParameterJdbcTemplate.class);
@@ -760,6 +771,16 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     d.actionStateTextLength.set(128);
     d.stateVariableValueMaxLength.set(128);
     return d;
+  }
+
+  private MockEnvironment prepareEnvironment() {
+    return new MockEnvironment()
+        .withProperty("nflow.workflow.instance.query.max.results", "1000")
+        .withProperty("nflow.workflow.instance.query.max.results.default", "1000")
+        .withProperty("nflow.workflow.instance.query.max.actions", "1000")
+        .withProperty("nflow.workflow.instance.query.max.actions.default", "1000")
+        .withProperty("nflow.db.disable_batch_updates", "false")
+        .withProperty("nflow.db.workflowInstanceType.cacheSize", "10000");
   }
 
   @Test
@@ -980,6 +1001,33 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     assertThat(workflowInstanceAction.executorId, is(executorDao.getExecutorId()));
     assertThat(workflowInstanceAction.type, is(recovery));
     assertThat(workflowInstanceAction.stateText, is("Recovered"));
+  }
+
+  @Test
+  public void recoverWorkflowInstancesFromDeadNodesSplitsExecutorIdsByConfiguredMaxSqlInParameters() {
+    JdbcTemplate j = mock(JdbcTemplate.class);
+    ExecutorDao eDao = mock(ExecutorDao.class);
+    when(eDao.getRecoverableExecutorIds()).thenReturn(asList(1, 2, 3, 4, 5));
+    when(j.query(anyString(), ArgumentMatchers.<RowMapper<InstanceInfo>> any(), any(Object[].class))).thenReturn(emptyList());
+    WorkflowInstanceDao d = preparePostgreSQLDao(j, eDao, prepareEnvironment().withProperty("nflow.db.max_sql_in_parameters", "2"));
+
+    d.recoverWorkflowInstancesFromDeadNodes();
+
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Object[]> args = ArgumentCaptor.forClass(Object[].class);
+    verify(j, times(3)).query(sql.capture(), ArgumentMatchers.<RowMapper<InstanceInfo>> any(), args.capture());
+    assertThat(sql.getAllValues(), contains(
+        "select id, executor_id, state from nflow_workflow where executor_id in (?,?)",
+        "select id, executor_id, state from nflow_workflow where executor_id in (?,?)",
+        "select id, executor_id, state from nflow_workflow where executor_id in (?)"));
+    assertThat(asList(args.getAllValues().get(0)), contains((Object) 1, (Object) 2));
+    assertThat(asList(args.getAllValues().get(1)), contains((Object) 3, (Object) 4));
+    assertThat(asList(args.getAllValues().get(2)), contains((Object) 5));
+    verify(eDao).markRecovered(1);
+    verify(eDao).markRecovered(2);
+    verify(eDao).markRecovered(3);
+    verify(eDao).markRecovered(4);
+    verify(eDao).markRecovered(5);
   }
 
   @Test
