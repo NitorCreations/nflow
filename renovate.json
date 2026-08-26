@@ -1,4 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["NitorCreations/renovate-config:recommended"]
+  "extends": [
+    "NitorCreations/renovate-config:recommended",
+    "NitorCreations/renovate-config:automerge"
+  ]
 }
