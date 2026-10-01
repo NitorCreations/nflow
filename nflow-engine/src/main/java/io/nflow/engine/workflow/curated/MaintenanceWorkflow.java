@@ -27,7 +27,6 @@ public class MaintenanceWorkflow extends CronWorkflow {
   /**
    * Create maintenance workflow definition.
    */
-  @SuppressWarnings("this-escape")
   public MaintenanceWorkflow() {
     super(MAINTENANCE_WORKFLOW_TYPE);
     setDescription("Clean up workflow instances periodically.");
@@ -41,7 +40,6 @@ public class MaintenanceWorkflow extends CronWorkflow {
    * @param settings
    *          The workflow settings.
    */
-  @SuppressWarnings("this-escape")
   protected MaintenanceWorkflow(String type, WorkflowSettings settings) {
     super(type, settings);
     setDescription("Clean up workflow instances periodically.");

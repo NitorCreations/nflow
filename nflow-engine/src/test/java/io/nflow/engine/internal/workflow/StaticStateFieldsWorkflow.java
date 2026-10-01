@@ -23,7 +23,6 @@ public class StaticStateFieldsWorkflow extends WorkflowDefinition {
   protected WorkflowState protectedState = new State("protected", WorkflowStateType.manual);
   public WorkflowState publicState = new State("public", WorkflowStateType.manual);
 
-  @SuppressWarnings("this-escape")
   public StaticStateFieldsWorkflow() {
     super("staticStateFields", BEGIN, ERROR);
     permit(new State("origin", WorkflowStateType.manual), new State("target", WorkflowStateType.manual),

@@ -12,7 +12,6 @@ public class TestWorkflow extends WorkflowDefinition {
   public static final WorkflowState START_WITHOUT_FAILURE = new State("startWithoutFailure", WorkflowStateType.start);
   public static final WorkflowState FAILED = new State("failed", WorkflowStateType.end);
 
-  @SuppressWarnings("this-escape")
   public TestWorkflow() {
     super("test", BEGIN, ERROR);
     permit(BEGIN, DONE, FAILED);

@@ -18,7 +18,6 @@ public class StatisticsWorkflow extends WorkflowDefinition {
 
     public static final String STATISTICS_WORKFLOW_TYPE = "statistics";
 
-    @SuppressWarnings("this-escape")
     public StatisticsWorkflow() {
       super(STATISTICS_WORKFLOW_TYPE, BEGIN, ERROR);
       setDescription("Statistics workflow: start -> process -> end");

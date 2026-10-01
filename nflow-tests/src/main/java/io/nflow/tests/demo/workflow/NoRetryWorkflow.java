@@ -17,7 +17,6 @@ public class NoRetryWorkflow extends WorkflowDefinition {
 
   public static final String TYPE = "noRetry";
 
-  @SuppressWarnings("this-escape")
   public NoRetryWorkflow() {
     super(TYPE, TestState.BEGIN, TestState.ERROR,
         new WorkflowSettings.Builder().setExceptionAnalyzer(exceptionAnalyzer()).build());

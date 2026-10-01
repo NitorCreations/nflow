@@ -13,7 +13,6 @@ public class SimpleWorkflow extends WorkflowDefinition {
 
   public static final String SIMPLE_WORKFLOW_TYPE = "simple";
 
-  @SuppressWarnings("this-escape")
   public SimpleWorkflow() {
     super(SIMPLE_WORKFLOW_TYPE, BEGIN, ERROR);
     setDescription("Simple demo workflow: start -> done");
