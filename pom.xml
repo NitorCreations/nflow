@@ -136,7 +136,7 @@
     <jakarta.xml.bind-api.version>4.1.0-M1</jakarta.xml.bind-api.version>
     <jaxws-api.version>4.0.3</jaxws-api.version>
     <jersey.version>3.1.11</jersey.version>
-    <jetty.version>12.1.9</jetty.version>
+    <jetty.version>12.1.10</jetty.version>
     <jodatime.version>2.14.2</jodatime.version>
     <junit5.version>6.1.0</junit5.version>
     <logback-classic.version>1.5.32</logback-classic.version>
