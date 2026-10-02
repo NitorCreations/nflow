@@ -9,6 +9,7 @@ import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowA
 import static io.nflow.engine.workflow.instance.WorkflowInstanceAction.WorkflowActionType.stateExecutionFailed;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
@@ -563,33 +564,33 @@ class WorkflowStateProcessor implements Runnable {
   }
 
   private void processBeforeListeners() {
-    for (WorkflowExecutorListener listener : executorListeners) {
+    executorListeners.forEach(listener -> {
       try {
         listener.beforeProcessing(listenerContext);
       } catch (Throwable t) {
         logger.error("Error in {}.beforeProcessing ({})", listener.getClass().getName(), t.getMessage(), t);
       }
-    }
+    });
   }
 
   private void processAfterListeners() {
-    for (WorkflowExecutorListener listener : executorListeners) {
+    executorListeners.forEach(listener -> {
       try {
         listener.afterProcessing(listenerContext);
       } catch (Throwable t) {
         logger.error("Error in {}.afterProcessing ({})", listener.getClass().getName(), t.getMessage(), t);
       }
-    }
+    });
   }
 
   private void processAfterFailureListeners(Throwable ex) {
-    for (WorkflowExecutorListener listener : executorListeners) {
+    executorListeners.forEach(listener -> {
       try {
         listener.afterFailure(listenerContext, ex);
       } catch (Throwable t) {
         logger.error("Error in {}.afterFailure ({})", listener.getClass().getName(), t.getMessage(), t);
       }
-    }
+    });
   }
 
   public DateTime getStartTime() {
@@ -601,26 +602,24 @@ class WorkflowStateProcessor implements Runnable {
         processingTimeSeconds, getStackTraceAsString());
   }
 
-  private StringBuilder getStackTraceAsString() {
+  private String getStackTraceAsString() {
     StringBuilder sb = new StringBuilder(2000);
-    for (StackTraceElement element : thread.getStackTrace()) {
-      sb.append(element).append('\n');
-    }
-    return sb;
+    stream(thread.getStackTrace()).map(Object::toString).forEach(element -> sb.append(element).append('\n'));
+    return sb.length() == 0 ? "" : sb.substring(0, sb.length() - 1);
   }
 
   public void handlePotentiallyStuck(Duration processingTime) {
-    boolean interrupt = false;
-    for (WorkflowExecutorListener listener : executorListeners) {
+    boolean[] interrupt = { false };
+    executorListeners.forEach(listener -> {
       try {
         if (listener.handlePotentiallyStuck(listenerContext, processingTime)) {
-          interrupt = true;
+          interrupt[0] = true;
         }
       } catch (Throwable t) {
         logger.error("Error in " + listener.getClass().getName() + ".handleStuck (" + t.getMessage() + ")", t);
       }
-    }
-    if (interrupt) {
+    });
+    if (interrupt[0]) {
       thread.interrupt();
     }
   }

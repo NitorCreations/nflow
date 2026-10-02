@@ -282,13 +282,12 @@ public class WorkflowInstanceDao {
   }
 
   private void insertVariablesWithMultipleUpdates(final long id, final long actionId, Map<String, String> changedStateVariables) {
-    for (Entry<String, String> entry : changedStateVariables.entrySet()) {
-      int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, entry.getKey(),
-          entry.getValue());
+    changedStateVariables.forEach((key, value) -> {
+      int updated = jdbc.update(insertWorkflowInstanceStateSql() + " values (?,?,?,?)", id, actionId, key, value);
       if (updated != 1) {
-        throw new IllegalStateException("Failed to insert state variable " + entry.getKey());
+        throw new IllegalStateException("Failed to insert state variable " + key);
       }
-    }
+    });
   }
 
   private void insertVariablesWithBatchUpdate(final long id, final long actionId, Map<String, String> changedStateVariables) {
@@ -308,8 +307,8 @@ public class WorkflowInstanceDao {
             return true;
           }
         });
-    int updatedRows = 0;
     boolean unknownResults = false;
+    int updatedRows = 0;
     for (int i = 0; i < updateStatus.length; ++i) {
       if (updateStatus[i] == Statement.SUCCESS_NO_INFO) {
         unknownResults = true;
@@ -381,14 +380,13 @@ public class WorkflowInstanceDao {
       }
       long parentActionId = insertWorkflowInstanceAction(action);
       insertVariables(action.workflowInstanceId, parentActionId, changedStateVariables);
-      for (WorkflowInstance childTemplate : childWorkflows) {
+      childWorkflows.forEach(childTemplate -> {
         WorkflowInstance childWorkflow = new WorkflowInstance.Builder(childTemplate).setParentWorkflowId(instance.id)
             .setParentActionId(parentActionId).build();
         insertWorkflowInstance(childWorkflow);
-      }
-      for (WorkflowInstance workflow : workflows) {
-        insertWorkflowInstance(workflow);
-      }
+      });
+      workflows.forEach(workflow -> insertWorkflowInstance(workflow));
+    });      }
     });
   }
 
@@ -798,10 +796,9 @@ public class WorkflowInstanceDao {
   }
 
   private long getMaxResults(Long maxResults) {
-    if (maxResults == null) {
-      return workflowInstanceQueryMaxResultsDefault;
-    }
-    return min(maxResults, workflowInstanceQueryMaxResults);
+    return Optional.ofNullable(maxResults)
+        .map(m -> min(m, workflowInstanceQueryMaxResults))
+        .orElse(workflowInstanceQueryMaxResultsDefault);
   }
 
   private void fillActions(WorkflowInstance instance, boolean includeStateVariables, Long requestedMaxActions) {
@@ -814,20 +811,17 @@ public class WorkflowInstanceDao {
     if (includeStateVariables) {
       Map<Long, Map<String, String>> actionStates = fetchActionStateVariables(instance, actionBuilders.size(), maxActions);
       actionBuilders.forEach(builder -> {
-        Map<String, String> actionState = actionStates.get(builder.getId());
-        if (actionState != null) {
-          builder.setUpdatedStateVariables(actionState);
-        }
+          Map<String, String> actionState = actionStates.get(builder.getId());
+          Optional.ofNullable(actionState).ifPresent(builder::setUpdatedStateVariables);
       });
     }
     actionBuilders.stream().map(WorkflowInstanceAction.Builder::build).forEach(instance.actions::add);
   }
 
   private long getMaxActions(Long maxActions) {
-    if (maxActions == null) {
-      return workflowInstanceQueryMaxActionsDefault;
-    }
-    return min(maxActions, workflowInstanceQueryMaxActions);
+    return Optional.ofNullable(maxActions)
+        .map(m -> min(m, workflowInstanceQueryMaxActions))
+        .orElse(workflowInstanceQueryMaxActionsDefault);
   }
 
   private Map<Long, Map<String, String>> fetchActionStateVariables(WorkflowInstance instance, long actions, long maxActions) {

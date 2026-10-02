@@ -3,6 +3,8 @@ package io.nflow.engine.internal.workflow;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import org.springframework.stereotype.Component;
@@ -78,22 +80,11 @@ public class ObjectStringMapper {
         continue;
       }
       Object value = args[i + 1];
-      if (value == null) {
-        continue;
-      }
-      String sVal;
-      if (param.mutable) {
-        value = ((Mutable<Object>) value).val;
-        if (value == null) {
-          continue;
-        }
-      }
-      if (String.class.equals(param.type)) {
-        sVal = (String) value;
-      } else {
-        sVal = convertFromObject(param.key, value);
-      }
-      setVariable.accept(param.key, sVal);
+      Optional.ofNullable(value)
+          .map(v -> param.mutable ? ((Mutable<Object>) v).val : v)
+          .filter(Objects::nonNull)
+          .map(actual -> String.class.equals(param.type) ? (String) actual : convertFromObject(param.key, actual))
+          .ifPresent(sVal -> setVariable.accept(param.key, sVal));
     }
   }
 

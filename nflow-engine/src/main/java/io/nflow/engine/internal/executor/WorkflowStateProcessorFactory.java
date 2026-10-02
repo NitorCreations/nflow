@@ -65,16 +65,16 @@ public class WorkflowStateProcessorFactory {
 
   public int getPotentiallyStuckProcessors() {
     DateTime currentTime = now();
-    int potentiallyStuck = 0;
-    for (WorkflowStateProcessor processor : processingInstances.values()) {
+    int[] potentiallyStuck = { 0 };
+    processingInstances.values().forEach(processor -> {
       Duration processingTime = new Duration(processor.getStartTime(), currentTime);
       long processingTimeSeconds = processingTime.getStandardSeconds();
       if (processingTimeSeconds > stuckThreadThresholdSeconds) {
-        potentiallyStuck++;
+        potentiallyStuck[0]++;
         processor.logPotentiallyStuck(processingTimeSeconds);
         processor.handlePotentiallyStuck(processingTime);
       }
-    }
-    return potentiallyStuck;
+    });
+    return potentiallyStuck[0];
   }
 }

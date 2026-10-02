@@ -183,9 +183,7 @@ public class WorkflowDispatcher implements Runnable {
       return;
     }
     logger.debug("Found {} workflow instances, dispatching executors.", nextInstanceIds.size());
-    for (Long instanceId : nextInstanceIds) {
-      executor.execute(stateProcessorFactory.createProcessor(instanceId, shutdownRequested::get));
-    }
+    nextInstanceIds.forEach(instanceId -> executor.execute(stateProcessorFactory.createProcessor(instanceId, shutdownRequested::get)));
   }
 
   private List<Long> getNextInstanceIds() {
