@@ -228,7 +228,7 @@ public class WorkflowDispatcherTest {
         waitForTick(1);
         dispatcher.shutdown();
         assertPoolIsShutdown(true);
-        verify(workflowInstances).clearExecutorIdOfExecutingWorkflowInstances();
+        verify(workflowInstances).releaseExecutingWorkflowInstancesOnGracefulShutdown();
         verify(executorDao).markShutdown(true);
       }
     }
@@ -244,7 +244,7 @@ public class WorkflowDispatcherTest {
         WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
         when(executorFactory.createProcessor(anyLong(), any())).thenReturn(fakeWorkflowExecutor);
         doThrow(new RuntimeException("Expected: release failure")).when(workflowInstances)
-            .clearExecutorIdOfExecutingWorkflowInstances();
+            .releaseExecutingWorkflowInstancesOnGracefulShutdown();
         dispatcher.run();
       }
 

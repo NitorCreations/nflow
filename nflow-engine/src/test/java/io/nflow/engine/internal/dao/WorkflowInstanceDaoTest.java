@@ -282,13 +282,13 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
   }
 
   @Test
-  public void clearExecutorIdOfExecutingWorkflowInstancesReleasesOnlyOwnExecutingInstances() {
+  public void releaseExecutingWorkflowInstancesOnGracefulShutdownReleasesOnlyOwnExecutingInstances() {
     int otherExecutorId = insertCrashedExecutor(executorDao.getExecutorGroup());
     long ownExecuting = insertWorkflowInstanceWithStatusAndExecutorId(executing, executorDao.getExecutorId());
     long ownInProgress = insertWorkflowInstanceWithStatusAndExecutorId(inProgress, executorDao.getExecutorId());
     long otherExecuting = insertWorkflowInstanceWithStatusAndExecutorId(executing, otherExecutorId);
 
-    dao.clearExecutorIdOfExecutingWorkflowInstances();
+    dao.releaseExecutingWorkflowInstancesOnGracefulShutdown();
 
     assertThat(executorIdAndStatus(ownExecuting), is(new Object[] { null, inProgress.name() }));
     assertThat(executorIdAndStatus(ownInProgress), is(new Object[] { executorDao.getExecutorId(), inProgress.name() }));

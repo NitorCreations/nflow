@@ -173,7 +173,7 @@ public class WorkflowDispatcher implements Runnable {
         // WorkflowStateProcessor.runImpl can leave workflow instances in executing status
         // when shutdown is requested after claiming the instances, but before entering
         // the processing loop. Those must be released, so that other nodes can recover them.
-        workflowInstances.clearExecutorIdOfExecutingWorkflowInstances();
+        workflowInstances.releaseExecutingWorkflowInstancesOnGracefulShutdown();
       }
       return graceful;
     } catch (Exception e) {
