@@ -80,7 +80,7 @@
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-simple-http</artifactId>
+      <artifactId>jersey-container-jdk-http</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

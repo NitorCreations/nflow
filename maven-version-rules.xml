@@ -105,7 +105,7 @@
         </rule>
         <rule groupId="org.springframework">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M.*</ignoreVersion>
+                <ignoreVersion type="regex">.*[M|RC].*</ignoreVersion>
             </ignoreVersions>
         </rule>
         <rule groupId="org.mariadb.jdbc">
@@ -120,7 +120,12 @@
         </rule>
         <rule groupId="io.projectreactor">
             <ignoreVersions>
-                <ignoreVersion type="regex">.*M.*</ignoreVersion>
+                <ignoreVersion type="regex">.*[M|RC].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="com.ibm.db2">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*special.*</ignoreVersion>
             </ignoreVersions>
         </rule>
     </rules>

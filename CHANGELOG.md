@@ -6,6 +6,38 @@
 
 **Details**
 
+- Dependency updates
+  - apache cxf 4.2.4
+  - asm 9.11.1
+  - commons-lang3 3.21.0
+  - guava 33.7.2-jre
+  - db2 jcc 12.1.5.0
+  - hibernate validator 9.1.5.Final
+  - HikariCP 7.1.0
+  - jackson 2.22
+  - jackson-databind, jackson-joda and jackson-jakarta-rs-json-provider 3.2.4
+  - javassist 3.33.0-GA
+  - jersey 4.0.3
+  - jetty 12.1.14
+  - joda-time 2.15.0
+  - logback 1.6.5
+  - mariadb 4.0.0
+  - metrics 4.2.40
+  - mssql 13.6.1.jre11
+  - mysql-connector 26.10.0
+  - ojdbc11 23.26.3.0.0
+  - postgresql 42.7.14
+  - reactor-core 3.8.8
+  - reactor-netty 1.3.8
+  - slf4j 2.0.20
+  - spring 7.0.10
+  - swagger 2.2.55
+  - spotbugs 4.10.5
+  - h2 2.5.252
+  - junit5 6.1.3
+  - mockito 5.24.0
+  - jersey-container-simple-http replaced with jersey-container-jdk-http
+
 ## 11.0.0 (2026-05-28)
 
 **Highlights**
