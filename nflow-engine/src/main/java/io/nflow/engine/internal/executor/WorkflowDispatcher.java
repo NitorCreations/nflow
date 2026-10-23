@@ -8,8 +8,6 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.core.env.Environment;
@@ -23,6 +21,7 @@ import io.nflow.engine.internal.dao.WorkflowInstanceDao;
 import io.nflow.engine.internal.util.NflowLogger;
 import io.nflow.engine.internal.util.PeriodicLogger;
 import io.nflow.engine.service.WorkflowDefinitionService;
+import jakarta.inject.Inject;
 
 @Component
 @SuppressFBWarnings(value = "MDM_RANDOM_SEED", justification = "rand does not need to be secure")
@@ -169,7 +168,14 @@ public class WorkflowDispatcher implements Runnable {
 
   private boolean shutdownPool() {
     try {
-      return executor.shutdown(workflowInstances::clearExecutorId, allowInterrupt);
+      var graceful = executor.shutdown(workflowInstances::clearExecutorId, allowInterrupt);
+      if (graceful) {
+        // WorkflowStateProcessor.runImpl can leave workflow instances in executing status
+        // when shutdown is requested after claiming the instances, but before entering
+        // the processing loop. Those must be released, so that other nodes can recover them.
+        workflowInstances.clearExecutorIdOfExecutingWorkflowInstances();
+      }
+      return graceful;
     } catch (Exception e) {
       logger.error("Error in shutting down thread pool.", e);
       return false;

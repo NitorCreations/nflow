@@ -16,6 +16,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
+import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -278,6 +279,32 @@ public class WorkflowInstanceDaoTest extends BaseDaoTest {
     dao.updateWorkflowInstanceAfterExecution(instance, action, noChildWorkflows, asList(newWorkflow), false);
 
     assertThat(updatedInstance().actions.size(), is(1));
+  }
+
+  @Test
+  public void clearExecutorIdOfExecutingWorkflowInstancesReleasesOnlyOwnExecutingInstances() {
+    int otherExecutorId = insertCrashedExecutor(executorDao.getExecutorGroup());
+    long ownExecuting = insertWorkflowInstanceWithStatusAndExecutorId(executing, executorDao.getExecutorId());
+    long ownInProgress = insertWorkflowInstanceWithStatusAndExecutorId(inProgress, executorDao.getExecutorId());
+    long otherExecuting = insertWorkflowInstanceWithStatusAndExecutorId(executing, otherExecutorId);
+
+    dao.clearExecutorIdOfExecutingWorkflowInstances();
+
+    assertThat(executorIdAndStatus(ownExecuting), is(new Object[] { null, inProgress.name() }));
+    assertThat(executorIdAndStatus(ownInProgress), is(new Object[] { executorDao.getExecutorId(), inProgress.name() }));
+    assertThat(executorIdAndStatus(otherExecuting), is(new Object[] { otherExecutorId, executing.name() }));
+  }
+
+  private long insertWorkflowInstanceWithStatusAndExecutorId(WorkflowInstance.WorkflowInstanceStatus status, int executorId) {
+    long id = dao.insertWorkflowInstance(new WorkflowInstance.Builder().setType("test").setExternalId(randomUUID().toString())
+        .setExecutorGroup(executorDao.getExecutorGroup()).setStatus(status).setState("processing").setPriority((short) 0).build());
+    jdbc.update("update nflow_workflow set executor_id = ? where id = ?", executorId, id);
+    return id;
+  }
+
+  private Object[] executorIdAndStatus(long id) {
+    return jdbc.queryForObject("select executor_id, status from nflow_workflow where id = ?",
+        (rs, rowNum) -> new Object[] { rs.getObject("executor_id"), rs.getString("status") }, id);
   }
 
   private void setInstanceExecutorId(Long id) {
