@@ -147,6 +147,7 @@ public class WorkflowInstanceDao {
     }
     workflowInstanceTypeCacheSize = env.getRequiredProperty("nflow.db.workflowInstanceType.cacheSize", Integer.class);
     maxSqlInParameters = env.getProperty("nflow.db.max_sql_in_parameters", Integer.class, 1000);
+    Assert.isTrue(maxSqlInParameters > 0, "nflow.db.max_sql_in_parameters must be greater than zero");
     instanceStateTextLength.set(env.getProperty("nflow.workflow.instance.state.text.length", Integer.class, -1));
     actionStateTextLength.set(env.getProperty("nflow.workflow.action.state.text.length", Integer.class, -1));
     stateVariableValueMaxLength.set(env.getProperty("nflow.workflow.state.variable.value.length", Integer.class, -1));
