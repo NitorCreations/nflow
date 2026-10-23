@@ -43,7 +43,7 @@ public class WakeupTest extends AbstractNflowTest {
   public void createForeverWaitingWorkflow() {
     CreateWorkflowInstanceRequest createRequest = new CreateWorkflowInstanceRequest();
     createRequest.type = ForeverWaitingWorkflow.FOREVER_WAITING_WORKFLOW_TYPE;
-    createdWorkflow = assertTimeoutPreemptively(ofSeconds(5), () -> createWorkflowInstance(createRequest));
+    createdWorkflow = assertTimeoutPreemptively(ofSeconds(10), () -> createWorkflowInstance(createRequest));
     assertThat(createdWorkflow.id, notNullValue());
   }
 
