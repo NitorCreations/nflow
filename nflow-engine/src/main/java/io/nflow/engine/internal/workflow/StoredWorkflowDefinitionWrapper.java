@@ -13,10 +13,8 @@ import io.nflow.engine.workflow.definition.WorkflowState;
 import io.nflow.engine.workflow.definition.WorkflowStateType;
 
 public class StoredWorkflowDefinitionWrapper extends WorkflowDefinition {
-    @SuppressWarnings("this-escape")
     public StoredWorkflowDefinitionWrapper(StoredWorkflowDefinition stored) {
-        super(stored.type, getInitialState(stored), getErrorState(stored), new WorkflowSettings.Builder().build(), emptyMap(), allStates(stored), false);
-        setDescription(stored.description);
+        super(stored.type, getInitialState(stored), getErrorState(stored), new WorkflowSettings.Builder().build(), emptyMap(), allStates(stored), false, stored.description);
     }
 
     private static Collection<WorkflowState> allStates(StoredWorkflowDefinition stored) {

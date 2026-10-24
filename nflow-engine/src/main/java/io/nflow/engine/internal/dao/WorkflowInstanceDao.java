@@ -203,7 +203,8 @@ public class WorkflowInstanceDao {
         args[pos++] = variable.getValue();
       }
       sqlb.append(" select wf.id from wf");
-      return jdbc.queryForObject(sqlb.toString(), Long.class, args);
+      return ofNullable(jdbc.queryForObject(sqlb.toString(), Long.class, args))
+        .orElseThrow(() -> new IllegalStateException("Workflow insert succeeded without returning the workflow id"));
     } catch (DuplicateKeyException e) {
       logger.warn("Failed to insert workflow instance", e);
       return -1;
@@ -264,7 +265,7 @@ public class WorkflowInstanceDao {
         logger.warn("Failed to insert workflow instance", e);
         return -1L;
       }
-      long id = keyHolder.getKey().longValue();
+      long id = ofNullable(keyHolder.getKey()).map(Number::longValue).orElseThrow(DaoUtil::queryReturnedNoKeys);
       insertVariables(id, 0, instance.stateVariables);
       return id;
     });
@@ -875,7 +876,7 @@ public class WorkflowInstanceDao {
         return p;
       }
     }, keyHolder);
-    return keyHolder.getKey().longValue();
+    return ofNullable(keyHolder.getKey()).map(Number::longValue).orElseThrow(DaoUtil::queryReturnedNoKeys);
   }
 
   public String getWorkflowInstanceState(long workflowInstanceId) {
@@ -982,11 +983,11 @@ public class WorkflowInstanceDao {
 
   public String getWorkflowInstanceType(long workflowInstanceId) {
     String type = workflowTypeByWorkflowIdCache.computeIfAbsent(workflowInstanceId,
-        id -> jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id).intern());
+        id -> ofNullable(jdbc.queryForObject("select type from nflow_workflow where id = ?", String.class, id)).map(String::intern)
+        .orElseThrow(() -> new IllegalArgumentException("No workflow found with id = '%d'".formatted(workflowInstanceId))));
     if (workflowTypeByWorkflowIdCache.size() > workflowInstanceTypeCacheSize) {
       workflowTypeByWorkflowIdCache.clear();
     }
     return type;
   }
-
 }
