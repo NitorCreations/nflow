@@ -45,6 +45,9 @@
   - junit5 6.1.3
   - mockito 5.24.0
   - jersey-container-simple-http replaced with jersey-container-jdk-http
+- nflow-explorer dependency updates
+  - nodejs 26.12.1
+  - pnpm 12.15.0
 
 ## 11.0.0 (2026-05-28)
 
