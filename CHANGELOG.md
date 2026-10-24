@@ -8,7 +8,7 @@
 **Details**
 
 - `nflow-engine`
-  - Fix workflow instances being stuck when their executor shuts down gracefully (#735).
+  - Fix race condition that could leave workflow instances being stuck during graceful shutdown (#735).
     - Instances claimed by an executor just before a graceful shutdown could be left owned by that executor, and since the shutdown was marked graceful, no other node recovered them.
     - Such instances are now released when the executor's thread pool has finished shutting down, so other nodes can pick them up.
 
