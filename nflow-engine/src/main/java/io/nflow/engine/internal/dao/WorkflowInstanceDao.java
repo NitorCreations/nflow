@@ -617,6 +617,11 @@ public class WorkflowInstanceDao {
             " and id in (" + workflowInstances.stream().map(String::valueOf).collect(joining(",")) + ")");
   }
 
+  public void releaseExecutingWorkflowInstancesOnGracefulShutdown() {
+    jdbc.update("update nflow_workflow set executor_id=null, status = " + sqlVariants.workflowStatus(inProgress)
+        + " where executor_id = " + executorInfo.getExecutorId() + " and status = " + sqlVariants.workflowStatus(executing));
+  }
+
   @SuppressFBWarnings(value = "WEM_WEAK_EXCEPTION_MESSAGING", justification = "PollingRaceConditionException message is ok")
   private List<Long> pollNextWorkflowInstanceIdsWithTransaction(final int batchSize) {
     String sql = sqlVariants.limit("select id, modified from nflow_workflow " + whereConditionForInstanceUpdate(), batchSize);

@@ -228,10 +228,34 @@ public class WorkflowDispatcherTest {
         waitForTick(1);
         dispatcher.shutdown();
         assertPoolIsShutdown(true);
+        verify(workflowInstances).releaseExecutingWorkflowInstancesOnGracefulShutdown();
         verify(executorDao).markShutdown(true);
       }
     }
     runOnce(new ShutdownBlocksUntilPoolShutdown());
+  }
+
+  @Test
+  public void failedReleaseOfExecutingInstancesMakesShutdownNonGraceful() throws Throwable {
+    @SuppressWarnings("unused")
+    class FailedReleaseMakesShutdownNonGraceful extends MultithreadedTestCase {
+      public void threadDispatcher() {
+        when(workflowInstances.pollNextWorkflowInstanceIds(anyInt())).thenAnswer(waitForTickAndAnswer(2, ids(1L), this));
+        WorkflowStateProcessor fakeWorkflowExecutor = fakeWorkflowExecutor(1, waitForTickRunnable(3, this));
+        when(executorFactory.createProcessor(anyLong(), any())).thenReturn(fakeWorkflowExecutor);
+        doThrow(new RuntimeException("Expected: release failure")).when(workflowInstances)
+            .releaseExecutingWorkflowInstancesOnGracefulShutdown();
+        dispatcher.run();
+      }
+
+      public void threadShutdown() {
+        waitForTick(1);
+        dispatcher.shutdown();
+        assertPoolIsShutdown(true);
+        verify(executorDao).markShutdown(false);
+      }
+    }
+    runOnce(new FailedReleaseMakesShutdownNonGraceful());
   }
 
   @Test
