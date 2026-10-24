@@ -7,6 +7,7 @@ import io.dropwizard.metrics.servlets.MetricsServlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+import java.util.Optional;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -17,14 +18,14 @@ public class MetricsServletContextListener implements ServletContextListener {
   @Override
   public void contextInitialized(ServletContextEvent servletContextEvent) {
     ServletContext context = servletContextEvent.getServletContext();
-    MetricRegistry metricRegistry = getSpringBean(MetricRegistry.class, context);
-    HealthCheckRegistry healthCheckRegistry = getSpringBean(HealthCheckRegistry.class, context);
-    context.setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY,healthCheckRegistry);
-    context.setAttribute(MetricsServlet.METRICS_REGISTRY, metricRegistry);
+    Optional<MetricRegistry> metricRegistry = getSpringBean(MetricRegistry.class, context);
+    metricRegistry.ifPresent(reg -> context.setAttribute(MetricsServlet.METRICS_REGISTRY, reg));
+    Optional<HealthCheckRegistry> healthCheckRegistry = getSpringBean(HealthCheckRegistry.class, context);
+    healthCheckRegistry.ifPresent(reg -> context.setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY, reg));
   }
 
-  private <T> T getSpringBean(Class<T> clazz, ServletContext context) {
-    return findWebApplicationContext(context).getBean(clazz);
+  private <T> Optional<T> getSpringBean(Class<T> clazz, ServletContext context) {
+    return Optional.ofNullable(findWebApplicationContext(context)).map(ctx -> ctx.getBean(clazz));
   }
 
   @Override

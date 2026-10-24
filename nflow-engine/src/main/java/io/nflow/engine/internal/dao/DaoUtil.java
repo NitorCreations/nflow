@@ -44,6 +44,10 @@ public class DaoUtil {
     return rs.wasNull() ? null : value;
   }
 
+  static IllegalStateException queryReturnedNoKeys() {
+    return new IllegalStateException("No auto generated key returned by database");
+  }
+
   public static final class ColumnNamesExtractor implements ResultSetExtractor<List<String>> {
     static final ColumnNamesExtractor columnNamesExtractor = new ColumnNamesExtractor();
 

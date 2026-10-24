@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.scheduling.support.CronExpression;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.workflow.definition.NextAction;
 import io.nflow.engine.workflow.definition.StateExecution;
 import io.nflow.engine.workflow.definition.StateVar;
@@ -63,6 +64,7 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    *          The workflow settings.
    */
   @SuppressWarnings("this-escape")
+  @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
   protected CronWorkflow(String type, WorkflowSettings settings) {
     super(type, SCHEDULE, HANDLE_FAILURE, settings);
     permit(SCHEDULE, DO_WORK);
@@ -117,7 +119,11 @@ public abstract class CronWorkflow extends WorkflowDefinition {
    * @return The next activation time.
    */
   protected DateTime getNextActivationTime(StateExecution execution, String cron) {
-    return new DateTime(CronExpression.parse(cron).next(ZonedDateTime.now()).toInstant().toEpochMilli());
+    ZonedDateTime next = CronExpression.parse(cron).next(ZonedDateTime.now());
+    if (next == null) {
+      throw new IllegalStateException("Cron expession '%s' could not evaluate next time".formatted(cron));
+    }
+    return new DateTime(next.toInstant().toEpochMilli());
   }
 
   /**
