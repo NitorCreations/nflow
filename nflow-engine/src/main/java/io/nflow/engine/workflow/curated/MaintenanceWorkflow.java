@@ -4,6 +4,7 @@ import static io.nflow.engine.workflow.definition.NextAction.moveToState;
 
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nflow.engine.service.MaintenanceConfiguration;
 import io.nflow.engine.service.MaintenanceResults;
 import io.nflow.engine.service.MaintenanceService;
@@ -28,6 +29,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
    * Create maintenance workflow definition.
    */
   @SuppressWarnings("this-escape")
+  @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
   public MaintenanceWorkflow() {
     super(MAINTENANCE_WORKFLOW_TYPE);
     setDescription("Clean up workflow instances periodically.");
@@ -42,6 +44,7 @@ public class MaintenanceWorkflow extends CronWorkflow {
    *          The workflow settings.
    */
   @SuppressWarnings("this-escape")
+  @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
   protected MaintenanceWorkflow(String type, WorkflowSettings settings) {
     super(type, settings);
     setDescription("Clean up workflow instances periodically.");

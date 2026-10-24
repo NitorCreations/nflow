@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import tools.jackson.databind.JsonNode;
 
 import io.nflow.engine.service.WorkflowInstanceService;
@@ -78,6 +79,7 @@ public class BulkWorkflow extends WorkflowDefinition {
    *          The type of the workflow.
    */
   @SuppressWarnings("this-escape")
+  @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
   protected BulkWorkflow(String type) {
     super(type, SPLIT_WORK, ERROR, new Builder().setMaxRetries(Integer.MAX_VALUE).build());
     setDescription("Executes child workflows in bulk but gracefully without effecting non-bulk tasks.");
