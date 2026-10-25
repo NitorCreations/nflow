@@ -24,6 +24,12 @@ public class ExecutorDaoTest extends BaseDaoTest {
   ExecutorDao dao;
 
   @Test
+  public void transactionSupportIsEnabledWhenTransactionManagerGovernsNflowDataSource() {
+    assertThat(dao.isAutoCommitEnabled(), is(true));
+    assertThat(dao.isTransactionSupportEnabled(), is(true));
+  }
+
+  @Test
   public void tickCausesDeadNodeRecoveryPeriodically() {
     DateTime firstNextUpdate = dao.getMaxWaitUntil();
     boolean updated = dao.tick();
