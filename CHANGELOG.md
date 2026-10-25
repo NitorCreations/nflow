@@ -14,6 +14,8 @@
     - Such instances are now released when the executor's thread pool has finished shutting down, so other nodes can pick them up.
   - Recover workflow instances from dead executors in chunks controlled by `nflow.db.max_sql_in_parameters`.
     This avoids oversized SQL `IN` clauses, especially on SQL Server.
+- `nflow-explorer`
+  - Only allow `http` and `https` URLs in the `returnUrl` query parameter of the return link.
 - Dependency updates
   - apache cxf 4.2.4
   - asm 9.11.1
