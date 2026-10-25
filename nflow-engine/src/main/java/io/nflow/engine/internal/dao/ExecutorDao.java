@@ -109,7 +109,7 @@ public class ExecutorDao {
 
   @Transactional
   public boolean isTransactionSupportEnabled() {
-    return isActualTransactionActive();
+    return isActualTransactionActive() && !isAutoCommitEnabled();
   }
 
   public boolean isAutoCommitEnabled() {

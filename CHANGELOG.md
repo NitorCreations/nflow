@@ -5,6 +5,7 @@
 - Use Spring Boot 4 in `nflow-examples`
 - Fix #735: workflow instances stuck after graceful shutdown
 - Recover workflow instances from dead executors in configurable chunks to avoid too large SQL `IN` clauses
+- Fix #731: refuse to start when the default Spring transaction manager does not manage nFlow's DataSource
 
 **Details**
 
@@ -14,6 +15,14 @@
     - Such instances are now released when the executor's thread pool has finished shutting down, so other nodes can pick them up.
   - Recover workflow instances from dead executors in chunks controlled by `nflow.db.max_sql_in_parameters`.
     This avoids oversized SQL `IN` clauses, especially on SQL Server.
+  - Fix startup check for transaction support (#731).
+    The check only verified that some transaction was active, so it passed when the host application's `@Primary` `PlatformTransactionManager` managed a different DataSource than nFlow's.
+    In that case nFlow's multi-statement writes were not atomic, e.g. a workflow instance could be processed before its state variables were committed.
+    The check now also requires that the active transaction disables auto commit on nFlow's DataSource.
+    If startup now fails with `Transaction support must be enabled`, the application's transaction manager does not manage nFlow's DataSource. Either:
+    - use the same DataSource for the application and nFlow, or
+    - keep nFlow's own DataSource, define a `DataSourceTransactionManager` on the `@NFlow DataSource` as the `@Primary` transaction manager. The application must then define its own named transaction manager and use it explicitly in its `@Transactional` code.
+      Note that with separate DataSources, changes to application tables and nFlow tables cannot be made atomically in one transaction, unless a JTA/XA transaction manager spans both DataSources.
 - `nflow-explorer`
   - Only allow `http` and `https` URLs in the `returnUrl` query parameter of the return link.
 - Dependency updates
