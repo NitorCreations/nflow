@@ -4,8 +4,8 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "@azure/msal-browser": "3.13.0",
-    "@azure/msal-react": "2.0.15",
+    "@azure/msal-browser": "4.30.0",
+    "@azure/msal-react": "3.0.29",
     "@fontsource/roboto": "5.3.0",
     "@mui/icons-material": "5.16.6",
     "@mui/material": "5.16.6",

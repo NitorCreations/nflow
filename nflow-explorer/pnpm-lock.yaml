@@ -167,11 +167,11 @@ importers:
   .:
     dependencies:
       '@azure/msal-browser':
-        specifier: 3.13.0
-        version: 3.13.0
+        specifier: 4.30.0
+        version: 4.30.0
       '@azure/msal-react':
-        specifier: 2.0.15
-        version: 2.0.15(@azure/msal-browser@3.13.0)(react@18.3.1)
+        specifier: 3.0.29
+        version: 3.0.29(@azure/msal-browser@4.30.0)(react@18.3.1)
       '@fontsource/roboto':
         specifier: 5.3.0
         version: 5.3.0
@@ -263,20 +263,20 @@ importers:
 
 packages:
 
-  '@azure/msal-browser@3.13.0':
-    resolution: {integrity: sha512-fD906nmJei3yE7la6DZTdUtXKvpwzJURkfsiz9747Icv4pit77cegSm6prJTKLQ1fw4iiZzrrWwxnhMLrTf5gQ==}
+  '@azure/msal-browser@4.30.0':
+    resolution: {integrity: sha512-HBBKfbZkMVzzF5bofvS1cXuNHFVc+gt4/HOnCmG/0hsHuZRJvJvDg/+7nTwIpoqvJc8BQp5o23rBUfisOLxR+w==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-common@14.9.0':
-    resolution: {integrity: sha512-yzBPRlWPnTBeixxLNI3BBIgF5/bHpbhoRVuuDBnYjCyWRavaPUsKAHUDYLqpGkBLDciA6TCc6GOxN4/S3WiSxg==}
+  '@azure/msal-common@15.17.0':
+    resolution: {integrity: sha512-VQ5/gTLFADkwue+FohVuCqlzFPUq4xSrX8jeZe+iwZuY6moliNC8xt86qPVNYdtbQfELDf2Nu6LI+demFPHGgw==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-react@2.0.15':
-    resolution: {integrity: sha512-WtZGPxA6rWqGhovmWPUXjUyKTp/TUa4Oekk6FSa9ldCayd1QzYT9XcoAEqA0EfT0Fx12KiNvJyDDKckBU6J/+Q==}
+  '@azure/msal-react@3.0.29':
+    resolution: {integrity: sha512-RpFfq3aIpmKajcshbaJH7Q/1CesxQRAeKorMv+uMpDw98jvi+/L0RJkNnTRmeXrV3aM34kj2LFWBQrQ9DOXs1Q==}
     engines: {node: '>=10'}
     peerDependencies:
-      '@azure/msal-browser': ^3.13.0
-      react: ^16.8.0 || ^17 || ^18
+      '@azure/msal-browser': ^4.30.0
+      react: ^16.8.0 || ^17 || ^18 || ^19.2.1
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -1868,15 +1868,15 @@ packages:
 
 snapshots:
 
-  '@azure/msal-browser@3.13.0':
+  '@azure/msal-browser@4.30.0':
     dependencies:
-      '@azure/msal-common': 14.9.0
+      '@azure/msal-common': 15.17.0
 
-  '@azure/msal-common@14.9.0': {}
+  '@azure/msal-common@15.17.0': {}
 
-  '@azure/msal-react@2.0.15(@azure/msal-browser@3.13.0)(react@18.3.1)':
+  '@azure/msal-react@3.0.29(@azure/msal-browser@4.30.0)(react@18.3.1)':
     dependencies:
-      '@azure/msal-browser': 3.13.0
+      '@azure/msal-browser': 4.30.0
       react: 18.3.1
 
   '@babel/code-frame@7.29.0':
