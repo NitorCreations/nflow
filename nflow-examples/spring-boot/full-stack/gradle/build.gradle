@@ -1,10 +1,10 @@
 plugins {
-	id 'org.springframework.boot' version '4.0.6'
+	id 'org.springframework.boot' version '4.1.2'
 	id 'de.undercouch.download' version '5.6.0'
 	id 'java'
 }
 
-group = 'io.nflow.springboot.fullstack.maven'
+group = 'io.nflow.springboot.fullstack.gradle'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -20,15 +20,15 @@ configurations {
 }
 
 dependencies {
-	implementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
-	testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.0.6')
-	implementation 'io.nflow:nflow-rest-api-spring-web:11.0.0'
+	implementation platform('org.springframework.boot:spring-boot-dependencies:4.1.2')
+	testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.1.2')
+	implementation 'io.nflow:nflow-rest-api-spring-web:11.1.0'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.h2database:h2:2.4.240'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	nflowExplorer "io.nflow:nflow-explorer:11.0.0@tar.gz"
+	nflowExplorer "io.nflow:nflow-explorer:11.1.0@tar.gz"
 }
 
 task resolveNflowExplorer(type: Copy) {

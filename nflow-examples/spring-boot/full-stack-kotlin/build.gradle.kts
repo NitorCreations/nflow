@@ -8,7 +8,7 @@ plugins {
     base
     kotlin("jvm") version "2.3.20"
     id("org.jetbrains.kotlin.plugin.spring") version "2.3.20"
-    id("org.springframework.boot") version "4.0.6"
+    id("org.springframework.boot") version "4.1.2"
 }
 
 group = "nflow-kotlin"
@@ -25,8 +25,8 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
-    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.2"))
+    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.2"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
