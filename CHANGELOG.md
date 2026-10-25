@@ -6,6 +6,7 @@
 - Fix #735: workflow instances stuck after graceful shutdown
 - Recover workflow instances from dead executors in configurable chunks to avoid too large SQL `IN` clauses
 - Fix #731: refuse to start when the default Spring transaction manager does not manage nFlow's DataSource
+- Fix #670: `swagger-annotations` is no longer a transitive dependency of the REST API modules
 
 **Details**
 
@@ -23,6 +24,9 @@
     - use the same DataSource for the application and nFlow, or
     - keep nFlow's own DataSource, define a `DataSourceTransactionManager` on the `@NFlow DataSource` as the `@Primary` transaction manager. The application must then define its own named transaction manager and use it explicitly in its `@Transactional` code.
       Note that with separate DataSources, changes to application tables and nFlow tables cannot be made atomically in one transaction, unless a JTA/XA transaction manager spans both DataSources.
+- `nflow-rest-api-common`, `nflow-rest-api-spring-web`, `nflow-rest-api-jax-rs`
+  - Fix #670: `io.swagger.core.v3:swagger-annotations` now has `provided` scope, so it is not added to the runtime classpath of applications using these modules.
+    Applications that generate OpenAPI docs need it on their classpath.
 - `nflow-explorer`
   - Only allow `http` and `https` URLs in the `returnUrl` query parameter of the return link.
   - Update `@azure/msal-browser` to 4.30.0 and `@azure/msal-react` to 3.0.29. This may affect `msalConfig` in `config.js`:
