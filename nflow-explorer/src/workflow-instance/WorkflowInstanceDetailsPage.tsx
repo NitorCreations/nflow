@@ -1,6 +1,7 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {
+  Alert,
   AppBar,
   Tab,
   Tabs,
@@ -34,11 +35,13 @@ const InstanceSummaryTable = ({
   externalContent?: any;
 }) => {
   // TODO clicking currentState should highlight in state graph
-  const parentLink = (x: any) =>
-    parentInstance && (
+  const parentLink = (parentWorkflowId: any) =>
+    parentInstance ? (
       <InternalLink to={'/workflow/' + parentInstance.id}>
         {parentInstance.type} ({parentInstance.id})
       </InternalLink>
+    ) : (
+      parentWorkflowId
     );
 
   const columns = [
@@ -141,6 +144,11 @@ const InstanceSummary = ({
         <Typography variant="h6" color="textSecondary" gutterBottom>
           {definition.description}
         </Typography>
+        {instance.isArchived && (
+          <Alert severity="info" style={{marginBottom: 16}}>
+            This workflow instance is archived and cannot be modified.
+          </Alert>
+        )}
         <Grid container>
           <Grid item xs={12} lg={6}>
             <Grid container spacing={2}>
@@ -151,13 +159,15 @@ const InstanceSummary = ({
                   externalContent={externalContent}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Typography variant="h5">Update state</Typography>
-                <UpdateWorkflowInstanceStateForm
-                  instance={instance}
-                  definition={definition}
-                />
-              </Grid>
+              {!instance.isArchived && (
+                <Grid item xs={12}>
+                  <Typography variant="h5">Update state</Typography>
+                  <UpdateWorkflowInstanceStateForm
+                    instance={instance}
+                    definition={definition}
+                  />
+                </Grid>
+              )}
             </Grid>
           </Grid>
           <Grid item xs={6} lg={6}>
@@ -175,7 +185,7 @@ const InstanceSummary = ({
           >
             <Tab label="Action history" />
             <Tab label="State variables" />
-            <Tab label="Manage" />
+            {!instance.isArchived && <Tab label="Manage" />}
           </Tabs>
         </AppBar>
         <TabPanel value={selectedTab} index={0}>
@@ -187,12 +197,14 @@ const InstanceSummary = ({
         <TabPanel value={selectedTab} index={1}>
           <StateVariableTable instance={instance} />
         </TabPanel>
-        <TabPanel value={selectedTab} index={2}>
-          <ManageWorkflowInstancePage
-            instance={instance}
-            definition={definition}
-          />
-        </TabPanel>
+        {!instance.isArchived && (
+          <TabPanel value={selectedTab} index={2}>
+            <ManageWorkflowInstancePage
+              instance={instance}
+              definition={definition}
+            />
+          </TabPanel>
+        )}
       </Grid>
     </Fragment>
   );
@@ -206,21 +218,34 @@ function WorkflowInstanceDetailsPage() {
   const [childInstances, setChildInstances] = useState<WorkflowInstance[]>([]);
   const [parentInstance, setParentInstance] = useState<WorkflowInstance>();
   const [externalContent, setExternalContent] = useState<any>();
+  const [loadFailed, setLoadFailed] = useState(false);
   const {id} = useParams() as any;
 
   // TODO This fetches childWorkflows for ActionHistoryTable
   //      There may be a lot of child workflows => possible performance problem
   useEffect(() => {
+    let cancelled = false;
+    setLoadFailed(false);
+    setDefinition(undefined);
+    setInstance(undefined);
+    setParentInstance(undefined);
+    setChildInstances([]);
+    setExternalContent(undefined);
     Promise.all([
       getWorkflowInstance(config, id),
       listChildWorkflowInstances(config, id)
     ]).then(([instance, childInstances]) => {
       return Promise.all([
         instance.parentWorkflowId
-          ? getWorkflowInstance(config, instance.parentWorkflowId)
+          ? getWorkflowInstance(config, instance.parentWorkflowId).catch(
+              () => undefined
+            )
           : Promise.resolve(undefined),
         getWorkflowDefinition(config, instance.type)
       ]).then(([parent, definition]) => {
+        if (cancelled) {
+          return;
+        }
         setDefinition(definition);
         setParentInstance(parent);
         setInstance(instance);
@@ -233,10 +258,21 @@ function WorkflowInstanceDetailsPage() {
             childInstances
           )
         ).then(content => {
-          setExternalContent(content);
+          if (!cancelled) {
+            setExternalContent(content);
+          }
         });
       });
+    }).catch(error => {
+      if (cancelled) {
+        return;
+      }
+      console.error('Error', error);
+      setLoadFailed(true);
     });
+    return () => {
+      cancelled = true;
+    };
   }, [config, id]);
 
   return (
@@ -252,7 +288,11 @@ function WorkflowInstanceDetailsPage() {
       ) : (
         <Grid item xs={12}>
           <Container>
-            <Spinner />
+            {loadFailed ? (
+              <Typography>Workflow instance {id} could not be loaded.</Typography>
+            ) : (
+              <Spinner />
+            )}
           </Container>
         </Grid>
       )}

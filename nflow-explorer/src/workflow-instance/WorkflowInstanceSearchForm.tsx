@@ -1,6 +1,14 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {Box, Button, Grid, TextField, createTheme} from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  TextField,
+  createTheme
+} from '@mui/material';
 
 import {Selection} from '../component';
 import {ThemeProvider} from "@mui/material/styles";
@@ -71,6 +79,10 @@ function WorkflowInstanceSearchForm(props: {
     queryParams.get('parentWorkflowId') || ''
   );
 
+  const [queryArchive, setQueryArchive] = useState<boolean>(
+    queryParams.get('queryArchive') === 'true'
+  );
+
   const types = [allMarker].concat(props.definitions.map(d => d.type));
 
   // TODO to lodash or not to lodash?
@@ -114,6 +126,9 @@ function WorkflowInstanceSearchForm(props: {
           delete data[k];
         }
       }
+      if (queryArchive) {
+        data.queryArchive = true;
+      }
       // Update query parameters to URL
       if (Object.values(data).every(x => !x)) {
         data.emptyCriteria = true;
@@ -128,6 +143,7 @@ function WorkflowInstanceSearchForm(props: {
       id,
       parentWorkflowId,
       props,
+      queryArchive,
       state,
       status,
       type
@@ -208,6 +224,17 @@ function WorkflowInstanceSearchForm(props: {
               value={parentWorkflowId}
               variant="standard"
               onChange={e => setParentWorkflowId(e.target.value)}
+            />
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={queryArchive}
+                  onChange={e => setQueryArchive(e.target.checked)}
+                />
+              }
+              label="Include archived instances"
+              title="The archive is searched only if the main tables return fewer instances than the maximum number of results"
             />
           </Grid>
 

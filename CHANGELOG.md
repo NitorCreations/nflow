@@ -7,6 +7,7 @@
 - Recover workflow instances from dead executors in configurable chunks to avoid too large SQL `IN` clauses
 - Fix #731: refuse to start when the default Spring transaction manager does not manage nFlow's DataSource
 - Fix #670: `swagger-annotations` is no longer a transitive dependency of the REST API modules
+- Add support to query archived workflow instances in `nflow-explorer` (#539)
 
 **Details**
 
@@ -32,6 +33,10 @@
   - Update `@azure/msal-browser` to 4.30.0 and `@azure/msal-react` to 3.0.29. This may affect `msalConfig` in `config.js`:
     - `system.allowNativeBroker` is renamed to `system.allowPlatformBroker`.
     - With `cache.cacheLocation: 'localStorage'`, MSAL now encrypts cached tokens using a key stored in a session cookie. Users may need to sign in again after closing the browser.
+  - Add support to query archived workflow instances (#539).
+    - Add "Include archived instances" checkbox to the workflow instance search form. The archive is searched only if the main tables return fewer instances than the maximum number of results.
+    - Archived workflow instances can be opened from the search results. They are shown as read-only and cannot be updated.
+    - Show an error message instead of an endless spinner when a workflow instance cannot be loaded.
 - Dependency updates
   - apache cxf 4.2.4
   - asm 9.11.1
