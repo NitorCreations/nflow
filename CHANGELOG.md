@@ -16,6 +16,9 @@
     This avoids oversized SQL `IN` clauses, especially on SQL Server.
 - `nflow-explorer`
   - Only allow `http` and `https` URLs in the `returnUrl` query parameter of the return link.
+  - Update `@azure/msal-browser` to 4.30.0 and `@azure/msal-react` to 3.0.29. This may affect `msalConfig` in `config.js`:
+    - `system.allowNativeBroker` is renamed to `system.allowPlatformBroker`.
+    - With `cache.cacheLocation: 'localStorage'`, MSAL now encrypts cached tokens using a key stored in a session cookie. Users may need to sign in again after closing the browser.
 - Dependency updates
   - apache cxf 4.2.4
   - asm 9.11.1
@@ -51,18 +54,14 @@
   - nodejs 26.12.1
   - pnpm 12.15.0
   - typescript 7.0.2
-  - vitest 5.0.5
   - vite 8.3.5
   - @vitejs/plugin-react 6.1.2
-  - @azure/msal-browser 5.26.0 and @azure/msal-react 5.7.3
+  - @azure/msal-browser 4.30.0 and @azure/msal-react 3.0.29
   - react-router-dom 7.18.4
   - @fontsource/roboto 5.3.0
   - date-fns 4.4.0
   - moment 2.31.0
   - sass 1.106.1
-  - prettier 3.9.10
-  - lint-staged 17.6.0
-  - other minor type and tooling updates
 
 ## 11.0.0 (2026-05-28)
 
