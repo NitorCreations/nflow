@@ -35,11 +35,13 @@ const InstanceSummaryTable = ({
   externalContent?: any;
 }) => {
   // TODO clicking currentState should highlight in state graph
-  const parentLink = (x: any) =>
-    parentInstance && (
+  const parentLink = (parentWorkflowId: any) =>
+    parentInstance ? (
       <InternalLink to={'/workflow/' + parentInstance.id}>
         {parentInstance.type} ({parentInstance.id})
       </InternalLink>
+    ) : (
+      parentWorkflowId
     );
 
   const columns = [
@@ -222,16 +224,28 @@ function WorkflowInstanceDetailsPage() {
   // TODO This fetches childWorkflows for ActionHistoryTable
   //      There may be a lot of child workflows => possible performance problem
   useEffect(() => {
+    let cancelled = false;
+    setLoadFailed(false);
+    setDefinition(undefined);
+    setInstance(undefined);
+    setParentInstance(undefined);
+    setChildInstances([]);
+    setExternalContent(undefined);
     Promise.all([
       getWorkflowInstance(config, id),
       listChildWorkflowInstances(config, id)
     ]).then(([instance, childInstances]) => {
       return Promise.all([
         instance.parentWorkflowId
-          ? getWorkflowInstance(config, instance.parentWorkflowId)
+          ? getWorkflowInstance(config, instance.parentWorkflowId).catch(
+              () => undefined
+            )
           : Promise.resolve(undefined),
         getWorkflowDefinition(config, instance.type)
       ]).then(([parent, definition]) => {
+        if (cancelled) {
+          return;
+        }
         setDefinition(definition);
         setParentInstance(parent);
         setInstance(instance);
@@ -244,13 +258,21 @@ function WorkflowInstanceDetailsPage() {
             childInstances
           )
         ).then(content => {
-          setExternalContent(content);
+          if (!cancelled) {
+            setExternalContent(content);
+          }
         });
       });
     }).catch(error => {
+      if (cancelled) {
+        return;
+      }
       console.error('Error', error);
       setLoadFailed(true);
     });
+    return () => {
+      cancelled = true;
+    };
   }, [config, id]);
 
   return (
