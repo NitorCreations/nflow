@@ -156,6 +156,7 @@
     <maven-javadoc.version>3.12.0</maven-javadoc.version>
     <maven-jxr.version>3.6.0</maven-jxr.version>
     <maven-pmd.version>3.28.0</maven-pmd.version>
+    <pmd.version>7.28.0</pmd.version>
     <maven-project-info.version>3.9.0</maven-project-info.version>
     <maven-release.version>3.3.1</maven-release.version>
     <maven-resources.version>3.5.0</maven-resources.version>
@@ -384,6 +385,32 @@
           <groupId>org.sonatype.central</groupId>
           <artifactId>central-publishing-maven-plugin</artifactId>
           <version>${central-publishing-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>${maven-pmd.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-core</artifactId>
+              <version>${pmd.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-java</artifactId>
+              <version>${pmd.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-javascript</artifactId>
+              <version>${pmd.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-jsp</artifactId>
+              <version>${pmd.version}</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1007,7 +1034,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>${maven-pmd.version}</version>
         <configuration>
           <linkXref>false</linkXref>
           <minimumTokens>100</minimumTokens>
