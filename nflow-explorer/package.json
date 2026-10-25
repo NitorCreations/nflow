@@ -29,15 +29,14 @@
     "@types/node": "26.6.5",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
-    "@typescript-eslint/typescript-estree": "8.72.0",
     "@vitejs/plugin-react": "6.1.2",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "prettier": "3.9.10",
     "sass": "1.106.1",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vite": "8.3.5",
-    "vitest": "4.1.6"
+    "vitest": "5.0.5"
   },
   "scripts": {
     "start": "vite",
