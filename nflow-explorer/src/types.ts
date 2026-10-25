@@ -103,6 +103,7 @@ interface WorkflowInstance {
   businessKey?: string;
   externalId: string;
   signal?: number;
+  isArchived?: boolean;
 }
 
 interface StateStatistics {

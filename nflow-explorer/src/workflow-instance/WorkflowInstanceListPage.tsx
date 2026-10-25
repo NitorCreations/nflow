@@ -24,6 +24,18 @@ const idLinkRender = (id: string) => {
   return <InternalLink to={path}>{id}</InternalLink>;
 };
 
+const idWithArchivedRender = (instances: WorkflowInstance[]) => {
+  const archivedIds = new Set(
+    instances.filter(instance => instance.isArchived).map(({id}) => id)
+  );
+  return (id: string) => (
+    <>
+      {idLinkRender(id)}
+      {archivedIds.has(Number(id)) && <small> (archived)</small>}
+    </>
+  );
+};
+
 const typeLinkRender = (type: string) => {
   const path = '/workflow-definition/' + type;
   return <InternalLink to={path}>{type}</InternalLink>;
@@ -54,7 +66,8 @@ const ChildWorkflowTable = ({workflowId}: {workflowId: number}) => {
   );
   useEffect(() => {
     const query = {
-      parentWorkflowId: workflowId
+      parentWorkflowId: workflowId,
+      queryArchive: true
     };
     listWorkflowInstances(config, query)
       .then(data => setChildWorkflows(data))
@@ -67,7 +80,7 @@ const ChildWorkflowTable = ({workflowId}: {workflowId: number}) => {
     {
       field: 'id',
       headerName: 'Id',
-      fieldRender: idLinkRender
+      fieldRender: idWithArchivedRender(childWorkflows)
     },
     {
       field: 'type',
@@ -198,7 +211,7 @@ const InstanceTable = ({
       name: 'id',
       label: 'Id',
       options: {
-        customBodyRender: idLinkRender,
+        customBodyRender: idWithArchivedRender(instances || []),
         filter: false
       }
     },

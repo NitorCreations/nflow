@@ -182,7 +182,7 @@ const listChildWorkflowInstances = (
 ): Promise<WorkflowInstance[]> => {
   const url = serviceUrl(
     config,
-    '/v1/workflow-instance?parentWorkflowId=' + id
+    '/v1/workflow-instance?parentWorkflowId=' + id + '&queryArchive=true'
   );
   return authenticatedApiCall(url, config)
     .then(response => response.json())
@@ -197,12 +197,18 @@ const getWorkflowInstance = (
     config,
     '/v1/workflow-instance/id/' +
       id +
-      '?include=actions,currentStateVariables,actionStateVariables'
+      '?include=actions,currentStateVariables,actionStateVariables&queryArchive=true'
   );
   return authenticatedApiCall(url, config)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(
+          `Failed to get workflow instance ${id}: ${response.status}`
+        );
+      }
+      return response.json();
+    })
     .then(convertWorkflowInstance);
-  // TODO how to handle Not found case?
 };
 
 const createWorkflowInstance = (

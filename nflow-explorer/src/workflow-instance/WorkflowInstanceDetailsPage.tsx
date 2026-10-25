@@ -1,6 +1,7 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {
+  Alert,
   AppBar,
   Tab,
   Tabs,
@@ -141,6 +142,11 @@ const InstanceSummary = ({
         <Typography variant="h6" color="textSecondary" gutterBottom>
           {definition.description}
         </Typography>
+        {instance.isArchived && (
+          <Alert severity="info" style={{marginBottom: 16}}>
+            This workflow instance is archived and cannot be modified.
+          </Alert>
+        )}
         <Grid container>
           <Grid item xs={12} lg={6}>
             <Grid container spacing={2}>
@@ -151,13 +157,15 @@ const InstanceSummary = ({
                   externalContent={externalContent}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Typography variant="h5">Update state</Typography>
-                <UpdateWorkflowInstanceStateForm
-                  instance={instance}
-                  definition={definition}
-                />
-              </Grid>
+              {!instance.isArchived && (
+                <Grid item xs={12}>
+                  <Typography variant="h5">Update state</Typography>
+                  <UpdateWorkflowInstanceStateForm
+                    instance={instance}
+                    definition={definition}
+                  />
+                </Grid>
+              )}
             </Grid>
           </Grid>
           <Grid item xs={6} lg={6}>
@@ -175,7 +183,7 @@ const InstanceSummary = ({
           >
             <Tab label="Action history" />
             <Tab label="State variables" />
-            <Tab label="Manage" />
+            {!instance.isArchived && <Tab label="Manage" />}
           </Tabs>
         </AppBar>
         <TabPanel value={selectedTab} index={0}>
@@ -187,12 +195,14 @@ const InstanceSummary = ({
         <TabPanel value={selectedTab} index={1}>
           <StateVariableTable instance={instance} />
         </TabPanel>
-        <TabPanel value={selectedTab} index={2}>
-          <ManageWorkflowInstancePage
-            instance={instance}
-            definition={definition}
-          />
-        </TabPanel>
+        {!instance.isArchived && (
+          <TabPanel value={selectedTab} index={2}>
+            <ManageWorkflowInstancePage
+              instance={instance}
+              definition={definition}
+            />
+          </TabPanel>
+        )}
       </Grid>
     </Fragment>
   );
@@ -206,6 +216,7 @@ function WorkflowInstanceDetailsPage() {
   const [childInstances, setChildInstances] = useState<WorkflowInstance[]>([]);
   const [parentInstance, setParentInstance] = useState<WorkflowInstance>();
   const [externalContent, setExternalContent] = useState<any>();
+  const [loadFailed, setLoadFailed] = useState(false);
   const {id} = useParams() as any;
 
   // TODO This fetches childWorkflows for ActionHistoryTable
@@ -236,6 +247,9 @@ function WorkflowInstanceDetailsPage() {
           setExternalContent(content);
         });
       });
+    }).catch(error => {
+      console.error('Error', error);
+      setLoadFailed(true);
     });
   }, [config, id]);
 
@@ -252,7 +266,11 @@ function WorkflowInstanceDetailsPage() {
       ) : (
         <Grid item xs={12}>
           <Container>
-            <Spinner />
+            {loadFailed ? (
+              <Typography>Workflow instance {id} could not be loaded.</Typography>
+            ) : (
+              <Spinner />
+            )}
           </Container>
         </Grid>
       )}
