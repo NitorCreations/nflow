@@ -4,40 +4,39 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "@azure/msal-browser": "3.13.0",
-    "@azure/msal-react": "2.0.15",
-    "@fontsource/roboto": "5.2.10",
+    "@azure/msal-browser": "4.30.0",
+    "@azure/msal-react": "3.0.29",
+    "@fontsource/roboto": "5.3.0",
     "@mui/icons-material": "5.16.6",
     "@mui/material": "5.16.6",
     "d3": "7.9.0",
     "dagre-d3-es": "7.0.14",
-    "date-fns": "4.1.0",
+    "date-fns": "4.4.0",
     "lodash": "4.18.1",
-    "moment": "2.30.1",
+    "moment": "2.31.0",
     "mui-datatables": "4.3.0",
     "mui-rff": "7.4.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-final-form": "6.5.9",
-    "react-router-dom": "7.15.0"
+    "react-router-dom": "7.18.4"
   },
   "devDependencies": {
     "@types/d3": "7.4.3",
     "@types/http-proxy": "1.17.17",
-    "@types/lodash": "4.17.24",
+    "@types/lodash": "4.17.27",
     "@types/mui-datatables": "4.3.13",
-    "@types/node": "25.7.0",
+    "@types/node": "26.6.5",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
-    "@typescript-eslint/typescript-estree": "8.59.3",
-    "@vitejs/plugin-react": "6.0.1",
+    "@vitejs/plugin-react": "6.1.2",
     "husky": "9.1.7",
-    "lint-staged": "17.0.4",
-    "prettier": "3.8.3",
-    "sass": "1.99.0",
-    "typescript": "6.0.3",
-    "vite": "8.0.12",
-    "vitest": "4.1.6"
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "sass": "1.106.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
   },
   "scripts": {
     "start": "vite",
@@ -73,5 +72,5 @@
       "prettier --write"
     ]
   },
-  "packageManager": "pnpm@11.1.2"
+  "packageManager": "pnpm@12.15.0"
 }
